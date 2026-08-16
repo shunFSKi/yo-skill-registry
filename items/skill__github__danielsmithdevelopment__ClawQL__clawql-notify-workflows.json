@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/danielsmithdevelopment/ClawQL/clawql-notify-workflows",
+  "type": "skill",
+  "name": "clawql-notify-workflows",
+  "description": "Send actionable Slack milestones and failure notifications with the optional notify tool.",
+  "author": "danielsmithdevelopment",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/danielsmithdevelopment/ClawQL/blob/HEAD/.cursor/skills/clawql-notify-workflows/SKILL.md",
+    "repo": "danielsmithdevelopment/ClawQL",
+    "path": ".cursor/skills/clawql-notify-workflows/SKILL.md"
+  },
+  "license": "Apache-2.0",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 12,
+    "pushed_at": "2026-08-16T01:01:18Z",
+    "score": 62,
+    "star_history": [
+      {
+        "d": "2026-08-16",
+        "s": 12
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "办公",
+    "featured": false
+  },
+  "readme": "# ClawQL\n\n**ClawQL provides the Agentic Gateway as the Foundational Platform for Auditable Production AI.**\n\nThe Agentic Gateway is an MCP + OpenAI-compatible control plane for API discovery and execution with a token-efficient `search -> execute` workflow over **OpenAPI**, **Google Discovery**, and optional **native GraphQL** and **gRPC** sources (see **`CLAWQL_GRAPHQL_URL`** / **`CLAWQL_GRAPHQL_SOURCES`** / **`CLAWQL_GRPC_SOURCES`** in `.env.example` and [ADR 0002](docs/adr/0002-multi-protocol-supergraph.md)). GraphQL-only vendors (e.g. Linear) need no OpenAPI spec: use **`CLAWQL_PROVIDER=linear`** (bundled SDL under **`providers/linear/`** + **`LINEAR_API_KEY`**), or point **`CLAWQL_GRAPHQL_URL`** at their HTTP endpoint and auth headers, or load **`search`** from **`CLAWQL_GRAPHQL_SCHEMA_PATH`** / **`CLAWQL_GRAPHQL_INTROSPECTION_PATH`** (or per-source **`schemaPath`** / **`introspectionPath`**) when upstream introspection is disabled — without **`CLAWQL_SPEC_*`** / **`CLAWQL_PROVIDER`**, the default bundled REST specs are not loaded.\n\nEnterprise topology: [Zero-Trust Agentic Fabric](docs/architecture/zero-trust-agentic-fabric.md) (Regional Hubs · Dedicated Virtual Gateways · Edge Gateways). GTM: [inference-first playbook](https://clawql.com/inference/gtm/).\n\n## What You Get\n\nFeature tiers (aligned with the [architecture diagram](docs/readme/images/clawql-feature-tiers.png) — details in [`docs/readme/configuration.md`](docs/readme/configuration.md#feature-tiers-architecture-diagram)):\n\n- **ClawQL Core (always on — no opt-out):** `search`, `execute`, `audit`, `cache` — same band in the diagram; ring-buffer semantics for `audit` and LRU semantics for `cache` in [`docs/mcp/enterprise-mcp-tools.md`](docs/mcp/enterprise-mcp-tools.md) and [`docs/mcp/cache-tool.md`](docs/mcp/cache-tool.md).\n- **Default on — opt out:** `memory_ingest` / `memory_recall`, and the **document** stack (`ingest_external_knowledge`, plus `knowledge_search_onyx` when `CLAWQL_ENABLE_ONYX=1`). Use `CLAWQL_ENABLE_MEMORY=0` or `CLAWQL_ENABLE_DOCUMENTS=0` to hide; vault path still required for real disk I/O on memory / ingest.\n- **Default off — opt in:** `sandbox_exec` (**`CLAWQL_ENABLE_SANDBOX=1`**), `schedule`, `notify`, `knowledge_search_onyx` (needs `CLAWQL_ENABLE_ONYX=1` and documents on), `ouroboros_*` — see [`docs/mcp/mcp-tools.md`](docs/mcp/mcp-tools.md). When enabled, **`CLAWQL_SANDBOX_BACKEND`**: omit = bridge; **`auto`** = Seatbelt → Docker → bridge.\n- Stdio and HTTP MCP server modes\n- Bundled provider specs for offline lookup and multi-provider workflows\n\nPrimary package: `clawql-mcp` (**7.0.0** — Agentic Gateway entry; default stack, vault-first onboarding, opt-in operator scaffold — [`RELEASE_NOTES_v7.0.0.md`](RELEASE_NOTES_v7.0.0.md) · announcement drafts: [`docs/announcements/announcement-drafts-v7.0.0.md`](docs/announcements/announcement-drafts-v7.0.0.md))  \nRepo: https://github.com/danielsmithdevelopment/ClawQL\n\n### Container images on GHCR (Docker / Helm)\n\nPrebuilt images live on **GitHub Container Registry** under **`ghcr.io/danielsmithdevelopment/`** (**`clawql-mcp`**, **`clawql-website`**, **`clawql-dashboard`**, **`clawql-panguard-mcp-bridge`**). They are **supposed to be public** so anyone can **`docker pull`** without credentials and Kubernetes defaults (Kyverno) can verify signatures. If **`docker pull`** returns **denied**, the registry package is still private — see **[`docker/README.md`](docker/README.md) § GHCR visibility** (checklist + **`make ghcr-packages-public`** for maintainers).\n\n## Quick Start\n\nInstall:\n\n```bash\nnpm install clawql-mcp\n```\n\nRun with the **default bundled stack** (Cloudflare, GitHub, Slack, Linear, Notion, Onyx):\n\n```bash\nnpx -p clawql-mcp clawql init --interactive   # vault-first onboarding\nnpx -p clawql-mcp clawql mcp-config           # MCP JSON for Cursor\nnpx -p clawql-mcp clawql-mcp\n```\n\nFor every bundled vendor plus Google top-50 and AWS top-50:\n\n```bash\nCLAWQL_PROVIDER=all-providers npx clawql-mcp\n```\n\nThen configure your MCP client (Cursor/Claude Desktop) to connect — or paste the [agent setup prompt](docs/getting-started/agent-setup-prompt.md) into your agent.\n\n## Documentation Map\n\nTop-level docs index: `docs/README.md`\n\n### Start here\n\n- **Zero-Trust Agentic Fabric:** `docs/architecture/zero-trust-agentic-fabric.md` — [`/architecture/agentic-fabric`](https://docs.clawql.com/architecture/agentic-fabric)\n- Getting started: `docs/readme/getting-started.md`\n- **Set up with your agent:** `docs/getting-started/agent-setup-prompt.md` · init walkthrough spec: `docs/getting-started/clawql-init-walkthrough-spec.md`\n- Plugins hub: `docs/plugins/README.md` — [`/plugins`](https://docs.clawql.com/plugins)\n- Configuration and env precedence: `docs/readme/configuration.md`\n- Deployment and client config: `docs/readme/deployment.md` (Kubernetes list links **`docs/deployment/docker-desktop-istio-observability.md`** for Istio + Prometheus/Grafana/Tempo/Kiali/OTel on Docker Desktop)\n- Benchmarks and case studies: `docs/readme/benchmarks.md`\n- Development notes: `docs/readme/development.md`\n- Tool workflow skills: `docs/skills/README.md`\n\n### Core references\n\n- **Modularization ground truth:** `docs/design/modularization-implementation-status.md`\n- **Plugin model & registry:** `docs/design/clawql-plugin-model.md`, `docs/reference/clawql-plugin-registry.md`\n- MCP tools and examples: `docs/mcp/mcp-tools.md`\n- Workflow recipes: `docs/recipes/README.md`\n- Memory and vault workflows: `docs/memory/memory-obsidian.md`\n- Cache tool: `docs/mcp/cache-tool.md`\n- Enterprise MCP notes (`audit` threat model, future metrics/governance): `docs/mcp/enterprise-mcp-tools.md`\n- Slack notify tool: `docs/mcp/notify-tool.md`\n- Onyx knowledge tool: `docs/mcp/onyx-knowledge-tool.md`\n- Ouroboros package and integration: `docs/ouroboros/clawql-ouroboros.md`\n\n### Deployments\n\n- Docker: `docker/README.md`\n- Cloud Run: `docs/deployment/deploy-cloud-run.md`\n- Kubernetes: `docs/deployment/deploy-k8s.md`\n- Helm chart (`clawql-mcp`): `docs/deployment/helm.md`\n- **IDP umbrella chart (`clawql-idp`):** `docs/deployment/clawql-idp-helm.md` — full-stack profile via `values-idp-full.yaml`\n- **IDP observability bundle:** `docs/observability/README.md` (Grafana dashboard + trace/metrics guide)\n- **OpenClaw + Slack IDP runbook:** `docs/openclaw/slack-first-idp-runbook.md`\n- **Agent PR → Argo CD GitOps:** `docs/gitops/agent-pr-argocd-pipeline.md`\n- Tailscale / Headscale (beginner guide): `docs/deployment/tailscale-and-headscale-for-clawql.md` (website **`/tailscale`**)\n- Headscale runbook + ACL starter: `docs/deployment/headscale-tailnet.md`, `docs/deployment/headscale-acls-clawql.hujson`\n\n### IDP (intelligent document processing)\n\nEight bundled vendors (Nextcloud, Docling, Tika, Gotenberg, Stirling, Paperless, Onyx, Coneshare) compose via **`search`** / **`execute`** or optional MCP tools (**`run_idp_pipeline`**, **`classify_document`**, **`extract_document`**). Hub: `docs/providers/idp-pipeline.md` · matrix: `docs/roadmap/idp-master-requirements-matrix.md` · OpenClaw profile: `docs/openclaw/openclaw-idp-skill-profile.md`\n\n### Security and supply chain\n\n- Security overview and shipped controls: `docs/security/README.md`\n- **Golden image pipeline** (CI → scan → push → sign → Kyverno enforcement): `docs/security/golden-image-pipeline.md`\n- Defense in depth reference: `docs/security/clawql-security-defense-in-depth.md`\n- Engineering deliverables matrix (shipped/partial/planned): `docs/security/clawql-security-defense-deliverables.md`\n- Docker SBOM/sign/scan operator notes: `docker/README.md`\n- npm publish hardening (pack → scan → publish, provenance): `docs/security/npm-supply-chain.md`\n- Deploy-time image signature enforcement (admission / Kyverno): `docs/security/image-signature-enforcement.md`\n\n### Providers and specs\n\n- Provider matrix and presets: `providers/README.md`\n- Google Discovery helpers: `docs/providers/google-apis-lookup.md`\n- AWS top-50 preset: `docs/providers/aws-apis-lookup.md`, `docs/providers/aws-onboarding.md`\n\n## Architecture (Short Version)\n\n1. Agent calls `search` to discover relevant operations without loading entire specs into prompt context.\n2. Agent calls `execute` with operation details.\n3. For **OpenAPI/Discovery** operations: in **single-spec** mode, ClawQL prefers an internal OpenAPI-to-GraphQL path (REST fallback on failure); in **multi-spec** mode, **`execute`** uses **REST** per owning spec.\n4. For **native** operations (when configured): **`execute`** calls **HTTP GraphQL** or **gRPC** unary directly — same **`search`** index, routed by operation metadata — see [ADR 0002](docs/adr/0002-multi-protocol-supergraph.md).\n\n## Notes\n\n- **Core** (`search`, `execute`, `audit`, `cache`) has **no opt-out** — no **`CLAWQL_ENABLE_*`** gate for those tools.\n- A writable `CLAWQL_OBSIDIAN_VAULT_PATH` is required to read/write the vault for **`memory_*`** and bulk **`ingest_external_knowledge`**.\n- For full environment variable details, see `.env.example` and `docs/mcp/mcp-tools.md`.\n",
+  "status": "curated"
+}

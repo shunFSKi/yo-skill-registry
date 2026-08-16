@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.paarths-collab/quant-brain-mcp",
+  "type": "mcp",
+  "name": "quant-brain-mcp",
+  "description": "Stock analysis MCP: 38 indicators, 7 optimizers, 8 backtests, US + India sectors.",
+  "author": "io.github.paarths-collab",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/paarths-collab/quant-brain-mcp",
+    "repo": "paarths-collab/quant-brain-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://mcp-quant-brain.onrender.com/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-16T14:58:56.0245Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# mcp-quant-brain\n\nMCP server for stock analysis, strategy backtesting, portfolio optimization, and chart generation.\n\n**38 curated quantitative indicators • 7 portfolio optimizers • 8 backtesting workflows • U.S. + Indian equities • production usage telemetry**\n\nThis product is built for users who want to ask natural-language questions like:\n\n- \"Analyze Indian sectors and tell me the best sector by risk-adjusted score.\"\n- \"Backtest MACD on IREDA.NS and show charts.\"\n- \"Optimize a US-India portfolio and explain risk.\"\n\n## Product Use Cases\n\n- Sector rotation analysis: identify the best-performing sector for a user-defined timeframe (for example `6m` or `1yr`) using return, volatility, drawdown, momentum, and correlation.\n- Portfolio construction: optimize allocations across US and India tickers using methods like MVO, HRP, max Sharpe, min volatility, CVaR, and semivariance.\n- Strategy validation: run rule-based backtests (MACD, RSI mean reversion, SMA crossover, breakout) before making discretionary decisions.\n- Chart-first review: generate chart packs for portfolio diagnostics, strategy behavior, and sector-level risk structure.\n- Company context enrichment: combine technical outputs with company-profile metadata for better explainability.\n\n## What You Get\n\n- US and India ticker support (`AAPL`, `RELIANCE.NS`, etc.)\n- 38 curated quantitative indicators exposed through 6 grouped analysis tools\n- Strategy backtests (MACD, RSI mean reversion, SMA crossover, breakout)\n- Portfolio optimization (MVO, HRP, max Sharpe, min volatility, Black-Litterman, CVaR, semivariance)\n- Sector intelligence (returns, volatility, momentum, drawdown, correlation, best-sector selection)\n- Chart pack generation with isolated chart configs and default chart-first layout\n\n## Use the Hosted MCP URL\n\nUse streamable HTTP transport and connect your MCP client to:\n\n- `https://mcp-quant-brain.onrender.com/mcp`\n\nFree-tier Render note:\n\n- The server may take up to 1-2 minutes to spin up if it was sleeping.\n- If the first request times out, wait and retry.\n\n## Connect in Claude (Desktop or Web)\n\nUse connectors to add this MCP product in Claude.\n\n### Claude Desktop\n\n1. Open Claude Desktop settings.\n2. Go to Connectors or MCP integrations.\n3. Add a new connector.\n4. Choose Streamable HTTP transport.\n5. Set the connector URL to `https://mcp-quant-brain.onrender.com/mcp`.\n6. Save and connect.\n7. When Claude asks for tool permissions, click **Accept All** so all analysis and chart tools are available.\n\n### Claude Web\n\n1. Open Claude in browser and go to settings.\n2. Open Connectors.\n3. Add a custom connector.\n4. Select Streamable HTTP transport.\n5. Use `https://mcp-quant-brain.onrender.com/mcp` as the connector URL.\n6. Complete connection.\n7. When prompted for tool permissions, click **Accept All**.\n\nIf your first connection attempt fails, wait up to 2 minutes and retry once (free-tier cold start).\n\n## Core Tools You’ll Use\n\n### Indicator analysis (6 grouped tools, 38 indicators)\n\nEach tool runs its whole group by default, or a subset via the optional\n`indicators` argument (for example `analyze_momentum(ticker=\"AAPL\", indicators=[\"rsi\", \"macd\"])`).\n\n| Tool | Indicators |\n| --- | --- |\n| `analyze_momentum` | rsi, macd, roc, cci, stoch, stochrsi, tsi, willr |\n| `analyze_technical_levels` | sma, ema, hma, kama, ichimoku, supertrend, vwap, vwma |\n| `analyze_trend` | adx, aroon, chop, psar, vortex, zigzag |\n| `analyze_volatility` | atr, bbands, donchian, kc, stdev, ui |\n| `analyze_volume` | obv, cmf, mfi, ad, pvt |\n| `analyze_statistics` | log_return, zscore, skew, kurtosis, entropy |\n\n### Portfolio, backtesting, and reporting\n\n- `generate_optimized_verdict`\n- `generate_chart_pack`\n- `generate_charts`\n- `plot_charts`\n- `get_company_profile`\n- `find_sector_stock_pipeline_tool`\n- `analyze_sector_intelligence_tool`\n- Strategy tools like `backtest_macd_momentum`, `backtest_rsi_mean_reversion`\n\n## Example Questions (NLP)\n\n- \"Analyze IREDA.NS over 1 year, run MACD momentum backtest, and show charts.\"\n- \"Compare IT, Bank, Auto, Metal, Pharma, Realty sectors by return, risk, drawdown, and momentum.\"\n- \"Give me the best Indian sector using risk-adjusted ranking and show sector correlation matrix.\"\n- \"Optimize AAPL, MSFT, NVDA, RELIANCE.NS with CVaR and summarize risk flags.\"\n\n## Render Endpoints\n\n- MCP endpoint: `https://mcp-quant-brain.onrender.com/mcp`\n- Health endpoint: `https://mcp-quant-brain.onrender.com/health`\n- Metrics endpoint: `https://mcp-quant-brain.onrender.com/metrics/summary` (bearer token required)\n\n## Usage Telemetry\n\nEvery MCP tool call records `tool_name`, `tool_category`, `session_id`,\n`duration_ms`, and `success` to Postgres. Writes are fire-and-forget on a\nbackground thread, so telemetry never blocks or fails a tool call. With no\n`DATABASE_URL` configured, telemetry is a silent no-op and the server runs\nnormally.\n\n### Environment variables\n\n| Variable | Purpose |\n| --- | --- |\n| `DATABASE_URL` | Postgres/Supabase connection URI (use the Supabase **session pooler** URI). Unset disables telemetry. |\n| `METRICS_TOKEN` | Bearer token protecting `/metrics/summary`. Unset returns 503. |\n\nThe `mcp_tool_events` table and its indexes are created automatically on first\nconnection — no manual migration needed.\n\n### Reading your metrics\n\n```bash\ncurl -H \"Authorization: Bearer $METRICS_TOKEN\" \\\n  https://mcp-quant-brain.onrender.com/metrics/summary\n```\n\nReturns `total_requests`, `unique_sessions`, `backtests`, `optimizations`,\n`success_rate`, `p50_latency`, and `p95_latency`.\n\n## Troubleshooting\n\n### \"Missing session ID\"\n\nThe server is configured with stateless HTTP mode. If you still see this:\n\n1. Reconnect MCP client.\n2. Ensure URL is exactly `/mcp`.\n\n### \"MCP server connection lost\" / 504 / timeout\n\nUsually cold-start or proxy timeout on free tier:\n\n1. Wait up to 2 minutes.\n2. Retry once.\n3. Check `/health`.\n\n### Charts not visible\n\nUse `generate_charts` or `plot_charts` for image-friendly responses.\n\n## Notes\n\n- This is not financial advice.\n- Data quality depends on upstream sources (mainly Yahoo Finance via `yfinance`).\n- Use proper ticker suffixes for Indian stocks (for example `.NS`).\n",
+  "status": "curated"
+}

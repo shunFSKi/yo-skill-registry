@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/Railly/agent-brain/log",
+  "type": "skill",
+  "name": "log",
+  "description": "Log activity to today's daily file",
+  "author": "Railly",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/Railly/agent-brain/blob/HEAD/.agents/skills/log/SKILL.md",
+    "repo": "Railly/agent-brain",
+    "path": ".agents/skills/log/SKILL.md"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 17,
+    "pushed_at": "2026-07-23T04:37:19Z",
+    "score": 60,
+    "star_history": [
+      {
+        "d": "2026-08-16",
+        "s": 17
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Agent Brain\n\nYour AI already knows your stack, repos, goals, and recurring failures. Zero cold starts.\n\nAgent Brain is a local-first personal operating system built with Obsidian and Markdown. It gives Claude Code, Codex, and other coding agents a shared source of context plus reusable workflows for daily work, retrieval, reflection, and shipping.\n\nRead the series:\n\n- [Obsidian as a Personal OS for AI Coding Agents](https://www.railly.dev/blog/agentic-second-brain), the v1 architecture\n- [My Agentic Second Brain, Four Months Later](https://www.railly.dev/blog/agentic-second-brain-four-months-later), the v2 update\n\n## Releases\n\n- [`v2.0.0`](https://github.com/Railly/agent-brain/releases/tag/v2.0.0), canonical skills and multi-runtime adapters\n- [`v1.0.0`](https://github.com/Railly/agent-brain/releases/tag/v1.0.0), frozen March 2026 template\n\n## Quick start\n\n```bash\ngit clone --branch v2.0.0 https://github.com/Railly/agent-brain.git\ncd agent-brain\nclaude\n/init\n```\n\n`/init` asks for your identity, stack, goals, recurring failure, and vault location. It creates the seven-folder vault, installs all runtime adapters, generates personalized context files, discovers local repos, and creates the first daily log.\n\nAlready using v1? Follow the [non-destructive migration guide](docs/MIGRATION-v2.md). Your notes and personalized context do not need to move.\n\n## What changed in v2\n\nThe first release proved that a vault could remove the cold start from coding sessions. The second release makes the template easier to evolve without runtime drift.\n\n- `.agents/skills/` is the canonical source for all workflows.\n- `.claude/skills/` exposes generated copies to Claude Code.\n- `.claude/commands/` preserves generated slash command aliases.\n- The seven-folder vault and all 15 workflow names remain unchanged.\n- `bun run check` verifies skills, adapters, documentation, and mirrored templates.\n- Migration copies system surfaces only. It never replaces personal notes or context files.\n\n## Vault structure\n\n| Folder | Purpose |\n|---|---|\n| `01_Inbox/` | Raw captures from Web Clipper |\n| `02_Journal/` | Daily logs, weekly plans, and reflections |\n| `03_Garden/` | Evergreen concepts, people, tools, and meetings |\n| `04_Projects/` | Active project work |\n| `05_Areas/` | Ongoing contexts such as work, learning, and health |\n| `06_Content/` | Drafts ready to refine or publish |\n| `07_System/` | Context maps, conventions, and system configuration |\n\n## Fifteen workflows\n\n**Daily:** `/morning`, `/today`, `/log`, `/ship`, `/week`\n\n**Knowledge:** `/inbox`, `/relink`, `/vault-search`, `/meeting`, `/research`\n\n**Thinking:** `/challenge`, `/pulse`\n\n**Content:** `/draft`, `/de-ai`\n\n**Setup:** `/init`\n\n## One source, multiple runtimes\n\n```text\n.agents/skills/<name>/SKILL.md   canonical workflow contract\n.claude/skills/<name>/SKILL.md   Claude Code skill adapter\n.claude/commands/<name>.md       v1-compatible slash command alias\n```\n\nRun `bun run sync` after changing a canonical skill. The generated adapters are normal files so the template works on macOS, Linux, and Windows. `bun run check` fails if any adapter drifts.\n\n## System files\n\n| File | Purpose |\n|---|---|\n| `CLAUDE.md` | Identity, stack, goals, and operating preferences for Claude Code |\n| `AGENTS.md` | The same context for Codex and other agents |\n| `PURPOSE.md` | Architecture and design decisions |\n| `HOME.md` | Vault dashboard and entry points |\n| `HUMAN.md` | Daily workflow guide for the owner |\n\n## Core loop\n\n```text\ncapture -> process -> connect -> use -> reflect\n```\n\n- `/inbox` turns raw captures into durable notes.\n- `/relink` finds missing relationships.\n- `/vault-search` retrieves local evidence.\n- `/ship` commits and pushes work, then logs it to the daily journal.\n- `/today` and `/pulse` turn activity into reflection and course correction.\n\nThe system improves through explicit files and version history, not opaque model memory.\n\n## What this template does not include\n\nThe public template is the portable persistence and workflow layer. It does not ship the private queue, daemon, messaging gateways, background workers, or policy engine described in the second article. Those systems are still evolving and should not be presented as a stable starter kit.\n\nIt also does not claim to measure software quality. Checks can verify template integrity, and review gates can track findings that escape review, but neither is a complete measure of reliability, maintainability, or user outcomes.\n\n## Documentation\n\n| Document | Purpose |\n|---|---|\n| [Setup](docs/SETUP.md) | New installation and manual setup |\n| [Migration v2](docs/MIGRATION-v2.md) | Safe upgrade from v1 |\n| [Commands](docs/COMMANDS.md) | All 15 workflows |\n| [Customization](docs/CUSTOMIZATION.md) | Add or change canonical skills |\n| [Philosophy](docs/PHILOSOPHY.md) | Principles behind the system |\n| [Advanced](docs/ADVANCED.md) | Boundaries for automation and control planes |\n| [v2 review](docs/REVIEW-v2.0.0.md) | Deterministic checks, migration proof, and lens results |\n| [Changelog](CHANGELOG.md) | Release history |\n\n## Verify the template\n\n```bash\nbun run check\n```\n\nThe check fails when a canonical skill is missing, frontmatter is invalid, an adapter is stale, a documented workflow does not exist, or mirrored templates drift.\n\n## Built by\n\n[Railly Hugo](https://railly.dev), Software Engineer at Vercel Labs and founder of [Crafter Station](https://crafterstation.com).\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

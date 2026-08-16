@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/Markoshenouda/cadence-virtuoso-skill/analog-schematic-generation",
+  "type": "skill",
+  "name": "analog-schematic-generation",
+  "description": "Generate a complete Cadence SKILL artifact after design and sizing confirmation.",
+  "author": "Markoshenouda",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/Markoshenouda/cadence-virtuoso-skill/blob/HEAD/skills/schematic-generation/SKILL.md",
+    "repo": "Markoshenouda/cadence-virtuoso-skill",
+    "path": "skills/schematic-generation/SKILL.md"
+  },
+  "license": null,
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 2,
+    "pushed_at": "2026-08-14T21:03:00Z",
+    "score": 56,
+    "star_history": [
+      {
+        "d": "2026-08-16",
+        "s": 2
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "设计",
+    "featured": false
+  },
+  "readme": "# Cadence Virtuoso SKILL Design Agent\n\nRepository for Cadence Virtuoso IC6.1.7 / `tsmcN65` schematic-generation skills, SKILL generators, references, tests, and runbooks.\n\n## Start here\n\n| Purpose | Entry point | Status |\n|---|---|---|\n| Master rules | `skills/analog-design-agent/SKILL.md` | Current specification-first operating protocol |\n| Authority map | `references/repository-authority-map.md` | Definitive conflict and artifact-status ledger |\n| MOS sizing contract | `references/TotalW_MOS_Sizing_Convention_20260812.md` | Current verified convention |\n| Golden sizing regression | `tests/mos-sizing/TotalW_CDF_Assignment_Complete_Test_V5_20260812.il` | Cadence-verified on 2026-08-12 |\n| Latest 5T artifact | `canonical/5t-ota/5T_OTA_PMOS_TOTALW_V2_20260812.il` | Current TotalW-first generator; re-run required after migration |\n| PMOS-input `pch_mac/nch_mac` 5T skill | `skills/5t-ota-pmos-mac/SKILL.md` | Reusable PMOS-input methodology; sizing placeholder-only |\n| PMOS-input `pch_mac/nch_mac` generator | `canonical/5t-ota/5T_OTA_PMOS_INPUT_MAC_V1_20260814.il` | User-run in live Cadence; electrical performance unverified |\n| Canonical Telescopic artifact | `canonical/telescopic-ota/Telescopic_OTA_NMOS_Diff_TotalW_V7_VDC_InputBias_OutputPins_20260812.il` | Cadence schematic-generation verified; VDC bias and real differential output pins |\n| Folded Cascode skill | `skills/folded-cascode-ota/SKILL.md` | Current TotalW-first skill |\n| Folded Cascode executable | `canonical/folded-cascode-ota/Folded_Cascode_OTA_NMOS_FINAL_V9_REFERENCE_TOPOLOGY.il` | Legacy/reference until TotalW migration is Cadence-verified |\n\n## Repository map\n\n```text\ncanonical/       Current executable entry points\nhistory/         Preserved historical generators/tests/runbooks\nskills/          Reusable AI/Cadence rules\nassets/          Compatibility copies; not canonical unless marked current\nreferences/      Knowledge base and sizing conventions\ntests/           Cadence regression tests and verification evidence\nrunbooks/        Stable execution guidance\noutput/examples/ Screenshots/examples; not executable generators\n```\n\n## Repository-wide MOS sizing contract\n\nThe AI/design level uses only:\n\n```text\nTotalW\nL\nNF\nM\n```\n\nThe verified tsmcN65 implementation is:\n\n```text\nW/finger = TotalW / NF\nwf        = TotalW\nfingers   = NF\nsimM      = M\ntotalM    = NF * M\nnf        = NF\nm         = M\n```\n\nEvery MOS must explicitly assign `w`, `l`, `wf`, `fingers`, `simM`, `totalM`, `nf`, and `m`. No sizing field may depend on a default or stale instance state.\n\n## Verification ledger\n\n- **TotalW CDF regression V5, 2026-08-12:** successfully executed in the user's live Cadence IC6.1.7 / tsmcN65 environment. The test verified multiple NF/M combinations and `totalM = fingers * simM` after save.\n- **5T PMOS/VDC test, 2026-08-12:** previous successful Cadence run remains recorded in the historical verification material.\n- **PMOS-input `pch_mac/nch_mac` 5T, 2026-08-14:** the user ran the generated schematic in live Cadence after SKILL-syntax and CDF read-back fixes. Topology generation, CDF assignment, PMOS orientation checks, stub/label connectivity, VOUT pin, and VDC generation were confirmed in that run. No electrical simulation or performance verification was performed.\n- **Telescopic V7, 2026-08-12:** CIW evidence records `SCH-1426` with no schematic-check errors and `SCH-1181` save. V7 is canonical for schematic generation only; operating point and performance remain unverified.\n- **Historical artifacts:** old W-first generators remain preserved and are not presented as current TotalW generators.\n\n## Run a generator\n\nFrom Windows CMD:\n\n```cmd\nscp \"C:\\Users\\marko\\Desktop\\your_file.il\" cadence@192.168.75.217:/home/cadence/\n```\n\nIn a new empty Cadence schematic:\n\n```skill\nload(\"/home/cadence/your_file.il\")\n```\n\nThen run the exact procedure documented by the corresponding runbook. Do not call a generator Cadence-verified until the live run is recorded.\n\nFor the PMOS-input `pch_mac/nch_mac` 5T generator, load and run:\n\n```skill\nload(\"/home/cadence/5T_OTA_PMOS_INPUT_MAC_V1_20260814.il\")\nCreate5TOTA_PMOSIN_MAC_V1_20260814()\n```\n\nFor Telescopic V7 use [the V7 runbook](runbooks/RUN_telescopic_ota_v7_20260812.md). New designs follow: specification extraction → missing-spec questions → design confirmation → sizing → sizing confirmation → one-shot generator → Cadence execution → verification → canonical promotion.\n",
+  "status": "curated"
+}

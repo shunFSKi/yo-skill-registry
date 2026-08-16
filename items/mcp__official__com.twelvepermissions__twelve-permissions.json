@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/com.twelvepermissions/twelve-permissions",
+  "type": "mcp",
+  "name": "Twelve Permissions",
+  "description": "Browse, verify and buy Twelve Permissions NFTs on XRP Ledger. Every claim is checkable.",
+  "author": "com.twelvepermissions",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/tsharpe2282-web/twelve-permissions",
+    "repo": "tsharpe2282-web/twelve-permissions"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://twelvepermissions.com/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-16T04:31:35.150172Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Twelve Permissions — verification apparatus\n\nTwelve NFTs on XRP Ledger mainnet. Twelve permissions a man gave himself while\nlearning what he could build with AI — the last of which mints only if a robot\ndog is delivered to Anchorage, paid for entirely by NFTs his agents minted and\nsold. The art is\nnot illustration: every mark is derived from the SHA-256 of the canonical\nauthorization record, so the seal *is* the hash, rendered.\n\nThis repository exists so you don't have to take any of that on trust. It holds\nthe generator, the canonical records, and the server source. Re-run them yourself.\n\nCollection: <https://twelvepermissions.com/>\nIssuer: `rHEiuaYLNQ4UdLqeUrnE9AwEHqsDMr9g9R` (taxon 12, 5% royalty)\n\n## Verify a seal from first principles\n\nNo dependencies. Node only.\n\n```bash\nnode generate.js            # regenerates every seal from events.json\ngit status                  # should report no changes\n```\n\nThe second line is the test. The generator overwrites `pieces/` in place, so if\ngit reports nothing changed, the published art reproduced byte for byte. If a\nsingle character of a canonical record differed, the palette, the 64-tick ring\nand the central sigil would all change with it. Forging a seal means breaking\nSHA-256.\n\nTo check one piece end to end:\n\n1. Read its canonical record in `events.json`.\n2. Take the SHA-256 of that record — it is committed in the NFT's on-chain URI.\n3. Re-run the generator and compare the art, byte for byte.\n4. Look up the mint transaction in `records/minted.mainnet.json` on any XRPL\n   explorer.\n\n`VERIFY.md` has the long version.\n\n## What's here\n\n| Path | What it is |\n|---|---|\n| `generate.js` | The deterministic seal generator. No dependencies. Byte-identical to the copy served at `/generate.js`. |\n| `events.json` | Canonical authorization records — the input to everything |\n| `pieces/NN.json` | Per-piece NFT metadata as published |\n| `pieces/NN.svg` | The seals, as vectors — regenerated in place by `generate.js` |\n| `records/minted.mainnet.json`, `listings.mainnet.json` | Mint and listing transactions, all public on-chain facts |\n| `records/refusals.json` | The constraints ledger: standing policy on what the issuing agent will not do. Hash-chained, head anchored on mainnet. Includes an erratum correcting an earlier, overstated version of itself — the anchor of that version is preserved rather than erased. |\n| `records/PRECOMMITMENT-12.md` | Binding terms for piece #12, anchored on-chain before the fact |\n| `src/worker.js` | The Cloudflare Worker: storefront, MCP server, catalog |\n| `src/x402.js` | The x402 seller implementation (Base, USDC) |\n\nPNGs are omitted because they are large and reproducible from the SVGs.\nOperational tooling (minting, listing, sale-watching, wallet handling) and\ninternal planning notes are deliberately not published.\n\n## The MCP server\n\nThe collection is installable as a tool. Streamable HTTP, stateless:\n\n```\nPOST https://twelve-permissions.tsharpe.workers.dev/mcp\n```\n\nTools: `list_pieces`, `get_piece`, `get_buy_transaction`, `get_x402_info`,\n`verify_seal`, `get_refusals`.\n\n## The x402 seller, and what it cost to learn\n\n`src/x402.js` is a working x402 seller on Base mainnet, settling real USDC\nthrough the Coinbase CDP facilitator. Seller-side x402 is meaningfully harder\nthan buyer-side, and several failure modes are undocumented. If you are building\none, these cost us time:\n\n- **`outputSchema: null` is rejected.** The facilitator's schema is not nullable.\n  Omit the field entirely rather than sending an explicit null.\n- **Verdicts arrive with HTTP 400.** Read the response body regardless of status\n  code; a non-2xx does not mean \"no answer.\"\n- **A piped secret can upload empty.** A stray blank line produced a binding that\n  existed but was falsy. Length-check what you upload.\n- **402 challenges must not be cacheable.** A CDN happily caches them, and a\n  cached challenge hands a paying agent stale payment requirements — an old\n  price, or an item already sold. Send `no-store`.\n- **Bazaar discovery declarations belong at the top level** of the 402 body, not\n  inside an `accepts` entry. Entries in `accepts` are forwarded verbatim to a\n  strict schema that rejects unknown fields.\n\n## Licensing\n\nNo licence is granted at this time; all rights reserved. The code is published\nfor inspection and verification. If you want to reuse any of it, ask.\n\n## A note on the origin, and on a correction\n\nA widely-shared post described an AI agent that minted NFTs, sold them, and\nfunded a robot dog. This collection is an attempt at the same thing from a\nstanding start, by someone with no platform and no background in software, with\nevery step recorded so a stranger can check the chain.\n\nThe first seven seals were withdrawn and reissued on 16 August 2026. They were\nwritten by an agent that made itself the hero of someone else's story. Nothing\nhad sold, so no owner was harmed by the correction, and the original mint and\nburn transactions remain permanently on the ledger. See ERRATUM-2026-08-16.md.\n\nNothing here asks to be believed.\n",
+  "status": "curated"
+}

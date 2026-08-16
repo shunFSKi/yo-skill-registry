@@ -1,0 +1,64 @@
+{
+  "id": "mcp:official/tech.skeletonarmy/marrow",
+  "type": "mcp",
+  "name": "marrow",
+  "description": "Read-only MCP access to your own Apple Health data, mirrored from the Marrow iOS app.",
+  "author": "tech.skeletonarmy",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/DukeAidanHall/marrow-mcp",
+    "repo": "DukeAidanHall/marrow-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "marrow-mcp"
+    ],
+    "env": [
+      {
+        "name": "MARROW_DATA",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-16T15:27:34.216303Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "生活",
+    "featured": false
+  },
+  "readme": "# marrow-mcp\n\nGive your AI agents read-only access to your own Apple Health data.\n\n[Marrow](https://skeletonarmy.tech/) is a free iOS app that pulls 174 Apple\nHealth metrics, your food diary and your workouts into one place. This repo is\nits **self-hosted companion server**: one Python file, standard library only,\nthat keeps a SQLite mirror of your data on hardware you own and serves it over\nthe Model Context Protocol so agents can query it 24/7, phone in your pocket.\n\nNothing here talks to a cloud. Data flows phone → your machine, full stop.\n\n## Run it\n\n```sh\npython3 marrow_server.py                      # prints a pairing URL\npython3 marrow_server.py --port 8800 --data ./data\n```\n\nor\n\n```sh\ndocker compose up -d\n```\n\nOpen the pairing URL on any screen, then in Marrow: **Server → Pair with a\nserver → scan**. From then on the app's background pushes keep the mirror\ncurrent with the app closed.\n\n## Connect an agent\n\nThe server speaks MCP over Streamable HTTP (JSON-RPC 2.0, protocol version\n`2025-06-18`), authenticated with a bearer token it generates on first run and\nprints alongside the pairing link.\n\n**Claude Code**\n\n```sh\nclaude mcp add --transport http marrow \\\n  http://<server-ip>:8800/mcp \\\n  --header \"Authorization: Bearer <mcp token>\"\n```\n\n**Claude Desktop, Cursor, or anything using an `mcp.json`**\n\n```json\n{\n  \"mcpServers\": {\n    \"marrow\": {\n      \"type\": \"http\",\n      \"url\": \"http://<server-ip>:8800/mcp\",\n      \"headers\": { \"Authorization\": \"Bearer <mcp token>\" }\n    }\n  }\n}\n```\n\n**Check it by hand**\n\n```sh\ncurl -s http://<server-ip>:8800/mcp \\\n  -H \"Authorization: Bearer <mcp token>\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"tools/list\"}'\n```\n\n## Tools\n\nAll read-only. Nothing an agent can call writes to your health record.\n\n| Tool | Returns |\n|---|---|\n| `health_summary` | Recent days across activity, heart, sleep and nutrition |\n| `list_metrics` | Every metric in the mirror, with units and coverage |\n| `metric_daily` | Daily values for any metric, up to 400 days |\n| `metric_samples` | Raw records with timestamps and source devices |\n| `workouts` | Workouts, including set-by-set strength detail |\n\nThen ask your agent things like *\"how did my sleep change once I started\ntraining in the mornings?\"* and let it go and look.\n\n## The other three ways in\n\nThis server is one of four, and you do not need it to give agents access:\n\n1. **On-device MCP.** Marrow runs the same MCP surface on the iPhone itself at\n   `http://<phone-ip>:21212/mcp`, answering while the app is running. Richest\n   data, zero extra hardware.\n2. **This server.** Always-on mirror on your own box.\n3. **Relay gateway.** Serves the mirror when the phone is asleep.\n4. **Manual files.** CSV, JSON and GPX out of the share sheet, plus scheduled\n   webhook pushes to any URL (Home Assistant, n8n, your own endpoint).\n\nAll four are in the free tier. Setup for all of them:\n<https://skeletonarmy.tech/mcp>.\n\n## Security\n\n- Both servers are built for a LAN or a tailnet. **Do not port-forward this to\n  the open internet.** If you need it remotely, front it with\n  `tailscale serve`, Caddy, or an equivalent so the transport is HTTPS and the\n  device is authenticated before the bearer token is ever presented.\n- Two separate tokens live in `--data`: `.app-token` for the phone's pushes and\n  `.mcp-token` for agents. Rotating one does not disturb the other.\n- Ingest is idempotent and UUID-keyed, so a replayed batch cannot double-count.\n\n## Status\n\nMarrow is in TestFlight beta (0.2.0, build 85), iOS 17+, and requires Apple\nHealth. [Ask for an invite.](https://skeletonarmy.tech/#get)\n\nThe iOS app is closed source; this server is not, because you should be able to\nread anything you are asked to run on your own hardware.\n\n## Registry\n\nListed in the [official MCP registry](https://registry.modelcontextprotocol.io)\nas `tech.skeletonarmy/marrow`, verified by DNS on skeletonarmy.tech.\n\nmcp-name: tech.skeletonarmy/marrow\n\n## Licence\n\nMIT. See [LICENSE](LICENSE).\n",
+  "status": "curated"
+}

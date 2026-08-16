@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/ybsa/sovereign-kernel/sql-expert",
+  "type": "skill",
+  "name": "sql-expert",
+  "description": "Expert SQL developer and database architect",
+  "author": "ybsa",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/ybsa/sovereign-kernel/blob/HEAD/crates/sk-tools/skills/sql-expert/SKILL.md",
+    "repo": "ybsa/sovereign-kernel",
+    "path": "crates/sk-tools/skills/sql-expert/SKILL.md"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 3,
+    "pushed_at": "2026-04-15T19:01:19Z",
+    "score": 47,
+    "star_history": [
+      {
+        "d": "2026-08-16",
+        "s": 3
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# Sovereign Kernel\n\n![Rust](https://img.shields.io/badge/language-Rust-orange?style=flat-square)\n![MIT](https://img.shields.io/badge/license-MIT-blue?style=flat-square)\n![Tests](https://img.shields.io/badge/tests-821%20passing-brightgreen?style=flat-square)\n\n> A terminal-first agentic OS. Single Rust binary. Agents with identity, memory, tools, scheduling, and security.\n\nSovereign Kernel turns any LLM into an autonomous agent that can search the web, manipulate files, execute shell commands, run background tasks, and remember context — all from a single binary with built-in security sandboxing.\n\n```\n┌─────────────────────────────────────────────────────────────┐\n│                  Sovereign Kernel (Rust)                    │\n│                                                             │\n│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐   │\n│  │  4 LLM   │  │ Terminal │  │ 20+ Tools│  │ Security │   │\n│  │ Drivers  │  │   CLI    │  │ Built-in │  │ Sandbox  │   │\n│  └──────────┘  └──────────┘  └──────────┘  └──────────┘   │\n│                                                             │\n│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐   │\n│  │  Memory  │  │  Agent   │  │  11 Hand │  │  Cron    │   │\n│  │ 5 Stores │  │ Registry │  │ Packages │  │Scheduler │   │\n│  └──────────┘  └──────────┘  └──────────┘  └──────────┘   │\n└─────────────────────────────────────────────────────────────┘\n```\n\n---\n\n## Requirements\n\n- Rust stable ≥ 1.75 — `rustup install stable`\n- At least one LLM API key\n\n## Build\n\n```bash\ngit clone <repo>\ncd sovereign-kernel\n\n# Development build\ncargo build\n\n# Production binary (single executable, LTO-optimised)\ncargo build --release\n# Binary at: target/release/sovereign (or sovereign.exe on Windows)\n```\n\n## Configuration\n\nCreate a `config.toml` in the project root:\n\n```toml\nlog_level = \"info\"\nexecution_mode = \"sandbox\"   # or \"unrestricted\" for full host access\n\n[[llm]]\nprovider = \"anthropic\"\napi_key_env = \"ANTHROPIC_API_KEY\"\nmodel = \"claude-sonnet-4-5\"\n\n[exec_policy]\nmode = \"allowlist\"           # or \"full\" for unrestricted shell\n\n[memory]\ndecay_rate = 0.1\n```\n\nSee `examples/config/` for full sandbox and unrestricted reference configs.\n\nSet your API key in the environment or a `.env` file (loaded automatically):\n\n```bash\nexport ANTHROPIC_API_KEY=sk-ant-...\n# or write it to .env\n```\n\n---\n\n## LLM Providers\n\nFour providers have native drivers built in. Any OpenAI-compatible endpoint also works by setting `base_url`.\n\n| Provider | `provider` value | Key env var | Notes |\n|---|---|---|---|\n| Anthropic Claude | `anthropic` | `ANTHROPIC_API_KEY` | Native driver, prompt caching |\n| OpenAI | `openai` | `OPENAI_API_KEY` | Native driver, prompt caching |\n| Google Gemini | `gemini` | `GEMINI_API_KEY` | Native driver |\n| GitHub Copilot | `copilot` | `GITHUB_TOKEN` | Native driver |\n| Any OpenAI-compat | any string | your env var | Set `base_url` in config |\n\nOpenAI-compatible example (NVIDIA NIM, Groq, Ollama, etc.):\n\n```toml\n[[llm]]\nprovider = \"nvidia\"\napi_key_env = \"NVIDIA_API_KEY\"\nmodel = \"meta/llama-3.3-70b-instruct\"\nbase_url = \"https://integrate.api.nvidia.com/v1\"\n```\n\n---\n\n## Usage\n\n### Interactive chat\n\n```bash\nsovereign chat\nsovereign chat --max-tokens 8000 --budget-usd 0.50\n```\n\n### Run a task autonomously\n\n```bash\nsovereign run \"summarise the top Hacker News stories today and save to summary.md\"\nsovereign run \"refactor src/main.rs to use async/await\" --mode unrestricted\n```\n\n### Background daemon\n\n```bash\nsovereign start           # foreground, Ctrl+C to stop\nsovereign start --detach  # background (logs → data/logs/daemon.json)\nsovereign status\nsovereign stop\n```\n\n### First-time setup wizard\n\n```bash\nsovereign setup\n```\n\n### Soul — agent persona\n\n```bash\nsovereign soul list\nsovereign soul create\nsovereign soul activate <name>\n```\n\nCreate `soul/SOUL.md` to give the kernel a persistent identity injected into every agent's system prompt:\n\n```yaml\n---\nname: \"Aria\"\nrole: \"Personal AI assistant\"\n---\n\nYou are Aria, a personal AI assistant running on Sovereign Kernel.\n```\n\n---\n\n## Hands — autonomous background agents\n\nHands run continuously for you. You activate them and they work on their own.\n\n```bash\nsovereign hands list\nsovereign hands activate researcher\nsovereign hands status\nsovereign hands deactivate researcher\n```\n\n**Bundled hands:**\n\n| Hand | What it does | Key requirements |\n|---|---|---|\n| `researcher` | Web search + browser verification + structured reports | `web_search` API key |\n| `clip` | Video download, transcription, ffmpeg clipping | `ffmpeg`, `yt-dlp`, `whisper` |\n| `email` | Read, draft, and send email (IMAP/SMTP) | Email credentials |\n| `web-search` | Continuous search monitoring and alerts | `web_search` API key |\n| `collector` | Data collection pipeline with scheduling | — |\n| `lead` | Lead research and knowledge graph | `web_search` API key |\n| `predictor` | Trend analysis and forecasting | — |\n| `artificer` | Skill and tool building | — |\n| `otto` | Coding agent — compiles and runs Rust skills | Rust toolchain |\n| `mysql-reporter` | Scheduled MySQL reports via email | MySQL, Himalaya |\n| `twitter` | Tweet drafting, scheduling, engagement | Twitter API keys |\n\n---\n\n## Built-in tools\n\nEvery agent has access to these tools out of the box:\n\n| Tool | What it does |\n|---|---|\n| `shell_exec` | Run shell commands (sandboxed or unrestricted) |\n| `read_file`, `write_file`, `list_dir` | File system operations |\n| `web_search` | Brave / Tavily / Perplexity / DuckDuckGo (auto-selects by key) |\n| `web_fetch` | Fetch and clean web pages |\n| `browser_navigate`, `browser_click`, `browser_type`, `browser_read_page`, `browser_screenshot` | Browser automation |\n| `remember`, `recall`, `forget` | Agent memory |\n| `get_skill`, `list_skills` | Load markdown skill packages |\n| `village_forge` | Spawn sub-agents for multi-agent workflows |\n\n---\n\n## MCP — external tool servers\n\nConnect any MCP-compatible server (databases, APIs, filesystems):\n\n```bash\nsovereign mcp list\nsovereign mcp add sqlite --command \"npx -y @modelcontextprotocol/server-sqlite -- ./data.db\"\nsovereign mcp remove sqlite\n```\n\nOr declare in `config.toml`:\n\n```toml\n[[mcp_servers]]\nname = \"sqlite\"\ntimeout_secs = 30\nenv = []\n\n[mcp_servers.transport]\ntype = \"stdio\"\ncommand = \"npx\"\nargs = [\"-y\", \"@modelcontextprotocol/server-sqlite\", \"--\", \"./data.db\"]\n```\n\n---\n\n## Execution modes\n\n| Mode | Shell access | When to use |\n|---|---|---|\n| `sandbox` (default) | Allowlist only — `ls`, `cat`, `grep`, `git`, etc. | Daily use |\n| `unrestricted` | Full host access | Local automation, scripting |\n\nApproval gates (configurable in `config.toml`) prompt before risky operations like `write_file`, `browser_click`, or `shell_exec`.\n\n---\n\n## Cost tracking\n\n```bash\nsovereign treasury                # show spend summary\nsovereign treasury show-budget    # show limits\n```\n\nSet budget limits in config:\n\n```toml\n[budget]\nmax_tokens_per_task = 50000\ntotal_usd_limit = 5.00\n```\n\n---\n\n## Other commands\n\n```bash\nsovereign agents list             # inspect running agents\nsovereign agents inspect <id>\nsovereign agents stop <id>\nsovereign memory list             # view stored memories\nsovereign memory export\nsovereign audit logs              # audit trail\nsovereign audit verify            # verify Merkle chain integrity\nsovereign doctor                  # health check — checks config, API keys, tools\n```\n\n---\n\n## Architecture\n\n9-crate Rust workspace, strict dependency hierarchy (lower crates have no knowledge of higher ones):\n\n| Crate | Purpose |\n|---|---|\n| `sk-types` | Shared types: config, agent, message, tool, session, errors |\n| `sk-soul` | SOUL.md parsing and persona injection |\n| `sk-memory` | SQLite memory substrate: KV, semantic vectors, BM25, knowledge graph, hybrid ranking |\n| `sk-engine` | Agent execution loop, 4 LLM drivers, tool runner, MCP runtime, sandbox |\n| `sk-mcp` | MCP protocol (JSON-RPC 2.0), stdio + SSE transports |\n| `sk-hands` | Hand definitions (HAND.toml), registry, 11 bundled hands |\n| `sk-tools` | Built-in tool implementations |\n| `sk-kernel` | SovereignKernel struct — composes all subsystems |\n| `sk-cli` | `sovereign` binary entry point and all CLI subcommands |\n\n---\n\n## Tests\n\n```bash\ncargo test                              # run all tests\ncargo test -p sk-engine                 # single crate\ncargo test test_extract_base_command    # single test by name\n```\n\n**821 tests passing** across 84 files (1 ignored). Coverage by crate:\n\n| Crate | Tests |\n|---|---|\n| sk-engine | 358 |\n| sk-types | 269 |\n| sk-memory | 115 |\n| sk-hands | 35 |\n| sk-soul | 23 |\n| sk-kernel | 9 |\n| sk-cli | 1 |\n| other | 11 |\n\n---\n\n## Platform support\n\n| Platform | Status | Notes |\n|---|---|---|\n| Windows | Supported | Primary dev platform |\n| macOS | Supported | All features including host tools |\n| Linux | Supported | All features including host tools |\n| iOS / Android | Not supported | Architecture incompatible (no process spawning) |\n\n---\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

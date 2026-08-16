@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/atman-33/multi-agent-ff15/github-release",
+  "type": "skill",
+  "name": "github-release",
+  "description": "Automate GitHub release workflows including version management, CHANGELOG updates, PR creation, and GitHub Release publishing for multi-agent-ff15.",
+  "author": "atman-33",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/atman-33/multi-agent-ff15/blob/HEAD/.github/skills/github-release/SKILL.md",
+    "repo": "atman-33/multi-agent-ff15",
+    "path": ".github/skills/github-release/SKILL.md"
+  },
+  "license": null,
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 4,
+    "pushed_at": "2026-05-09T06:52:49Z",
+    "score": 51,
+    "star_history": [
+      {
+        "d": "2026-08-16",
+        "s": 4
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "<div align=\"center\">\n\n# multi-agent-ff15\n\n**OpenCode Multi-Agent Web Dashboard**\n\n*Manage and monitor your AI agent team from a browser*\n\n[![GitHub Stars](https://img.shields.io/github/stars/atman-33/multi-agent-ff15?style=social)](https://github.com/atman-33/multi-agent-ff15)\n[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)\n[![OpenCode](https://img.shields.io/badge/Built_for-OpenCode-blue)](https://opencode.ai)\n[![TypeScript](https://img.shields.io/badge/TypeScript-React_Router_7-blue)]()\n[![React](https://img.shields.io/badge/React-19-61dafb)]()\n\n</div>\n\n<p align=\"center\">\n\t<img src=\"assets/noctis_team_screen.png\" alt=\"multi-agent-ff15: Noctis Team dashboard\" width=\"800\">\n</p>\n\n<p align=\"center\"><i>Noctis Team screen — dispatch missions and monitor agent activity in real time</i></p>\n\n---\n\n`multi-agent-ff15` is the current browser-first application for FF15-inspired OpenCode workflows. It replaces the older desktop/Tauri app in this repository and turns a tmux-heavy multi-agent setup into a single browser surface for dispatching work, monitoring sessions, reviewing reports, and inspecting runtime state.\n\n> **Built on**: [OpenCode](https://opencode.ai) · React Router 7 · TypeScript\n\n## Why Use It\n\n- Run Noctis-led multi-agent workflows from a browser instead of living in tmux.\n- See what agents actually did through live sessions, tool traces, and reports.\n- Keep missions, projects, configuration, MCP state, and runtime health in one place.\n\n## Overview\n\nThe dashboard is organized around a human workflow rather than raw runtime internals:\n\n- `Noctis Team`: start work and watch party activity\n- `OpenCode Sessions`: inspect session history, tool calls, models, and context/execution selection\n- `Reports`: review long-form output after a mission finishes\n- `Projects`: choose where work runs and launch the right workspace\n- `Config`: edit app settings and bootstrap required local config\n- `MCP` and `Server`: inspect MCP configuration and OpenCode runtime state\n\n### Typical Flow\n\n1. Send a mission from `Noctis Team`.\n2. Watch the party respond and inspect detailed session activity.\n3. Open `Reports` when you need a cleaner long-form result.\n4. Use `Projects`, `Config`, `MCP`, or `Server` when you need execution context or runtime debugging.\n\n### Agent Relationships\n\n```mermaid\nflowchart TD\n\tU[User]\n\tN[Noctis<br/>Lead agent / main user-facing contact]\n\tF[Active workflow step<br/>decides who acts next]\n\tI[Ignis<br/>Analysis / planning / review]\n\tG[Gladiolus<br/>Implementation / fixes / hardening]\n\tP[Prompto<br/>Recon / reporting / cleanup]\n\n\tU -->|request| N\n\tN --> F\n\n\tF --> N\n\tF --> I\n\tF --> G\n\tF --> P\n```\n\n- `Noctis` is the lead agent and the main user-facing contact.\n- `Ignis`, `Gladiolus`, and `Prompto` are specialist teammates.\n- The human user is referred to as `User`.\n- `Iris` and `Lunafreya` are not part of the primary shipped browser workflow yet.\n\n## Quick Start\n\n### Prerequisites\n\n- Node.js 20+\n- npm 10+\n- [OpenCode](https://opencode.ai) CLI with an authenticated provider account\n\n### 1. Initial setup\n\n```bash\ngit clone https://github.com/atman-33/multi-agent-ff15.git\ncd multi-agent-ff15\n./first_setup.sh\n```\n\n`first_setup.sh` installs `tmux` and `uv/uvx` when needed, enables tmux mouse scrolling, creates local `opencode.json` from `config/opencode.template.json`, and initializes `transport_mode: tmux-resident` in `config/settings.yaml` when missing.\n\n### 2. Authenticate OpenCode\n\n```bash\nsource ~/.bashrc\nopencode\n```\n\nCredentials are stored in `~/.opencode/`.\n\n### 3. Build once\n\n```bash\n./standby.sh --build\n```\n\n### 4. Start the dashboard\n\n```bash\n./standby.sh\n```\n\nThe app runs at `http://localhost:13000`. When `transport_mode` is `tmux-resident`, interactive runs attach to the `ff15` tmux session by default. Use `./standby.sh --no-attach` to keep the current shell detached, or `./standby.sh --attach` to force attachment explicitly.\n\n## Product Tour\n\n| Screen | Purpose |\n|-------|---------|\n| Noctis Team | Main mission surface for dispatch, activity, and mission history |\n| OpenCode Sessions | Detailed session viewer for messages, tools, models, and execution context |\n| Reports | Long-form report browser for reviewing outcomes after the live run |\n| Projects | Project registry and workspace launch surface |\n| Config | App settings and local config bootstrap helpers |\n| MCP / Server | Runtime inspection for MCP configuration, health, and server state |\n\n## Configuration\n\nTracked defaults live in `config/`.\n\n- `config/settings.yaml`: `language`, `shared_skills_root`, `transport_mode`\n- `config/models.yaml`: model assignments and switching metadata\n- `config/opencode.template.json`: tracked template for the local `opencode.json`\n\n`opencode.json` is user-local runtime config. It is bootstrapped by `first_setup.sh` and should not be treated as the canonical tracked template.\n\nUse `./standby.sh --set-transport app-owned` or `./standby.sh --set-transport tmux-resident` to switch transport mode explicitly.\n\n## Development\n\nUse the root npm scripts for web work:\n\n```bash\nnpm run web:install\nnpm run web:dev\nnpm run web:build\nnpm run web:start\nnpm run web:typecheck\nnpm run web:lint\nnpm run web:test\n```\n\n`npm run web:dev` serves the app on port `5173` by default. `./standby.sh` runs the production server on port `13000`.\n\n## Repository Map\n\n- `web/`: React Router app, loaders/actions, API routes, and UI state\n- `scripts/`: setup, startup, transport, and config helpers\n- `config/`: tracked settings, models, and local config templates\n- `projects/`: project definitions used by the UI and workflows\n- `builtins/`: localized built-in operation and instruction assets\n- `skills/`: shared skills used by the workflow system\n- `openspec/`: OpenSpec changes and specs\n- `docs/reports/`: active report artifacts\n- `runtime/`: generated runtime state and transport/session artifacts\n- `logs/`: debug logs\n- `assets/`: static images used by docs and the UI\n\n## Notes for Contributors and Agents\n\n- Treat `runtime/` and `logs/` as generated state unless you are changing the code that produces them.\n- Put active reports in `docs/reports/`.\n- Prefer the root npm scripts for `web/` tasks instead of running ad-hoc commands inside `web/`.\n\n## Credits\n\nInspired by [multi-agent-shogun](https://github.com/yohey-w/multi-agent-shogun) by [@yohey-w](https://github.com/yohey-w) and the original multi-agent-ff15 design.\n\n## License\n\nMIT License.\n",
+  "status": "curated"
+}

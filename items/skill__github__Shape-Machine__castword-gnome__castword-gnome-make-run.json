@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/Shape-Machine/castword-gnome/castword-gnome-make-run",
+  "type": "skill",
+  "name": "castword-gnome-make-run",
+  "description": "Clean build and run the castword-gnome app (make clean run)",
+  "author": "Shape-Machine",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/Shape-Machine/castword-gnome/blob/HEAD/.claude/skills/castword-gnome-make-run/SKILL.md",
+    "repo": "Shape-Machine/castword-gnome",
+    "path": ".claude/skills/castword-gnome-make-run/SKILL.md"
+  },
+  "license": "NOASSERTION",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 3,
+    "pushed_at": "2026-04-15T16:13:15Z",
+    "score": 47,
+    "star_history": [
+      {
+        "d": "2026-08-16",
+        "s": 3
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "<p align=\"center\">\n  <img src=\"data/icons/hicolor/scalable/apps/xyz.shapemachine.castword-gnome.svg\" width=\"200\" alt=\"castword icon\" />\n</p>\n\n# castword\n\nGNOME overlay for AI-powered text rewriting. Press a shortcut from anywhere, paste or speak your text, pick a tone — result is on your clipboard.\n\nRuns as a D-Bus service. GTK4 + Libadwaita. Supports OpenAI, Anthropic, Gemini, and Ollama.\n\n---\n\n## Install\n\n### Arch (AUR)\n\n```bash\nyay -S castword-gnome-bin\n```\n\n### Other packages\n\n| Format | Download |\n|---|---|\n| Debian `.deb` | [castword-gnome-2026-04-10-00.deb](https://github.com/Shape-Machine/castword-gnome/releases/download/v2026-04-10-00/castword-gnome-2026-04-10-00.deb) |\n| AppImage | [Castword-2026-04-10-00-x86_64.AppImage](https://github.com/Shape-Machine/castword-gnome/releases/download/v2026-04-10-00/Castword-2026-04-10-00-x86_64.AppImage) |\n| RPM | [castword-gnome-2026-04-10-00.rpm](https://github.com/Shape-Machine/castword-gnome/releases/download/v2026-04-10-00/castword-gnome-2026-04-10-00.rpm) |\n| Flatpak | [xyz.shapemachine.castword-gnome-2026-04-10-00.flatpak](https://github.com/Shape-Machine/castword-gnome/releases/download/v2026-04-10-00/xyz.shapemachine.castword-gnome-2026-04-10-00.flatpak) |\n| Source tarball | [castword-gnome-2026-04-10-00.tar.gz](https://github.com/Shape-Machine/castword-gnome/releases/tag/v2026-04-10-00) |\n\n---\n\n<p align=\"center\">\n  <a href=\"https://buy.stripe.com/9B68wQgat5kIgSBbXjes006\"><img src=\"https://img.shields.io/badge/Sponsor-Castword-teal?style=for-the-badge\" alt=\"Sponsor Castword\" /></a>\n</p>\n\n---\n\n## Screenshots\n\n<p align=\"center\">\n  <img src=\"docs/screenshots/main-diff.png\" width=\"480\" alt=\"Main window with diff output\" />\n  <img src=\"docs/screenshots/main-stt.png\" width=\"480\" alt=\"Main window — STT paused\" />\n</p>\n\n<p align=\"center\">\n  <img src=\"docs/screenshots/prefs-tones.png\" width=\"320\" alt=\"Preferences — Tones\" />\n  <img src=\"docs/screenshots/prefs-providers.png\" width=\"320\" alt=\"Preferences — Providers\" />\n  <img src=\"docs/screenshots/prefs-behaviour.png\" width=\"320\" alt=\"Preferences — Behaviour\" />\n  <img src=\"docs/screenshots/prefs-speech.png\" width=\"320\" alt=\"Preferences — Speech\" />\n</p>\n\n<p align=\"center\">\n  <img src=\"docs/screenshots/about.png\" width=\"320\" alt=\"About dialog\" />\n</p>\n\n### From source\n\n**Prerequisites:** Python 3.11+, GTK4, Libadwaita, `uv`\n\n```bash\n# Arch\nsudo pacman -S python-gobject\n\n# Debian/Ubuntu\nsudo apt install python3-gi python3-gi-cairo gir1.2-gtk-4.0 gir1.2-adw-1\n```\n\n```bash\ngit clone https://github.com/Shape-Machine/castword-gnome.git\ncd castword-gnome\nmake install\n```\n\n`make install` creates a `.venv`, installs the package, and registers the D-Bus service, desktop file, icons, AppStream metadata, and GSettings schema.\n\n---\n\n## Setup\n\n### Keyboard shortcut\n\ncastword is activated via a custom GNOME keyboard shortcut:\n\n1. Open **GNOME Settings → Keyboard → Custom Shortcuts**\n2. Add a new shortcut:\n   - **Name:** `castword`\n   - **Command:** `castword` (or the full path from `which castword`)\n   - **Shortcut:** `Super+Shift+W` (or your preference)\n\nThe app will prompt you to set a shortcut on first launch if none is configured.\n\n### Provider\n\nAPI keys are auto-detected from your environment — no manual config needed if keys are already exported in your shell config.\n\n| Provider | Environment variable |\n|---|---|\n| OpenAI | `OPENAI_API_KEY` |\n| Anthropic | `ANTHROPIC_API_KEY` |\n| Google Gemini | `GEMINI_API_KEY` or `GOOGLE_API_KEY` |\n| Ollama | _(none — runs locally)_ |\n\nTo store keys separately, create `~/.config/castword/.env`:\n\n```bash\necho 'OPENAI_API_KEY=sk-...' >> ~/.config/castword/.env\n```\n\nSwitch provider and model in **Preferences → Providers**.\n\n### Ollama\n\n```bash\nollama serve\nollama pull llama3\n```\n\nThen select **Ollama** in Preferences.\n\n---\n\n## Tones\n\ncastword ships with seven built-in tones:\n\n| Tone | Default | Purpose |\n|---|---|---|\n| Direct | ✅ | Remove hedging, say exactly what needs to be said |\n| Technical | ✅ | Structured with headings/bullets, precise language |\n| Professional | ✅ | Polished and human — emails, LinkedIn, client comms |\n| Social | ✅ | Punchy, engaging, emoji-ok — posts and marketing |\n| TL;DR | — | 1–2 sentence summary |\n| Flirty | — | Fun |\n| Playful | — | Fun |\n\nAdd, edit, reorder, or toggle tones in **Preferences → Tones**. Each tone has a name and a fully editable system prompt.\n\n---\n\n## Development\n\n```bash\ngit clone https://github.com/Shape-Machine/castword-gnome.git\ncd castword-gnome\nmake run\n```\n\n| Command | Description |\n|---|---|\n| `make run` | Compile schema locally and launch |\n| `make install` | Full system install |\n| `make clean` | Remove `__pycache__`, `.pyc`, compiled schema, `.venv` |\n| `make release VERSION=yyyy-mm-dd-NN` | Build and publish all package formats |\n\nBug reports and feature requests: [github.com/Shape-Machine/castword-gnome/issues](https://github.com/Shape-Machine/castword-gnome/issues)\n",
+  "status": "curated"
+}

@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/Tyler-R-Kendrick/project-khepri/verification-gates",
+  "type": "skill",
+  "name": "verification-gates",
+  "description": "Completion gates for modernization phases.",
+  "author": "Tyler-R-Kendrick",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/Tyler-R-Kendrick/project-khepri/blob/HEAD/.copilot/skills/verification-gates/SKILL.md",
+    "repo": "Tyler-R-Kendrick/project-khepri",
+    "path": ".copilot/skills/verification-gates/SKILL.md"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 2,
+    "pushed_at": "2026-05-27T03:07:12Z",
+    "score": 51,
+    "star_history": [
+      {
+        "d": "2026-08-16",
+        "s": 2
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Project Khepri\n\nProject Khepri is an agent-driven modernization workflow control plane for legacy codebases. The current repository implements the agent contracts, workflow source of truth, evaluation gates, sample packs, hooks, skills, and contribution practices that keep modernization work evidence-backed.\n\nThis repo does not yet contain a production modernization runtime or all conceptual intermediary-representation tools. Those ideas are tracked as roadmap items below.\n\n## Current Implementation\n\nThe implemented system has eight primary surfaces:\n\n| Surface | Current files | Purpose |\n| --- | --- | --- |\n| GitHub custom agents | `.github/agents` | Bounded modernization roles, handoffs, tool access, queryable knowledge modeling, and guardrails. |\n| .NET workflow contract | `dotnet/src/Modernization/Workflow` | Source of truth for stage order, required agents, AgentEvals gates, legacy scenarios, sample packs, and Microsoft Agent Framework workflow builders. |\n| Agent Skills | `.github/skills` and `.copilot/skills` | Reusable procedures for Khepri workflow orchestration, learning corrections, Spec Kit, form building, and architecture-doc currency. |\n| Agent hooks | `.github/hooks` | Deterministic prompt hooks for learning corrections and invoking the architecture-docs skill when architecture changes are requested. |\n| AgentV evals | `evals/github-agents` | Code-grader-backed checks for agent profile schema, least-privilege tools, skill and hook contracts, steering, workflow code, and docs coverage. |\n| Legacy sample packs | `evals/legacy-samples` | COBOL claims, legacy .NET Framework claims portal, and Java payment monolith fixtures used as regression evidence examples. |\n| Squad and Spec Kit integration | `squad.config.ts`, `.squad`, `.specify`, `.agents` | Local squad, Spec Kit, and auxiliary agent assets for modernization planning and workflow automation. |\n| Local WebUI | `webui` | Mobile-first PWA and node host for launching Copilot-backed Khepri runs while visualizing agent message flow and workflow state changes. |\n\n## Architecture\n\n```mermaid\nflowchart TB\n    user[\"User modernization request\"] --> orch[\"khepri-orchestrator\"]\n    user --> webui[\"webui local PWA\"]\n    webui --> host[\"Node host /api/chat\"]\n    host --> sdk[\"GitHub Copilot SDK ambient auth\"]\n    sdk --> orch\n    orch --> skill[\"khepri-modernization-workflow skill\"]\n    skill --> contract[\"ModernizationWorkflow.CreateContract()\"]\n    contract --> registry[\"GitHubCopilotModernizationAgentRegistry\"]\n    registry --> maf[\"Microsoft Agent Framework workflow\"]\n    orch --> evo[\"khepri-evolution companion\"]\n    orch --> phases[\"Bounded phase agents\"]\n    phases --> evals[\"AgentV / AgentEvals gates\"]\n    phases --> samples[\"legacy sample packs\"]\n    evals --> assess[\"khepri-modernization-assessor\"]\n    samples --> assess\n    evo --> durable[\"agents, skills, hooks, MCP recommendations, evals, steering\"]\n    durable --> docsSkill[\"keep-architecture-docs-current\"]\n    docsSkill --> docs[\"README, docs, ADRs, Mermaid diagrams\"]\n```\n\nThe modernization workflow stage order is implemented in `ModernizationWorkflow.CreateContract()`:\n\n```mermaid\nsequenceDiagram\n    participant orch as khepri-orchestrator\n    participant evo as khepri-evolution\n    participant spec as khepri-spec\n    participant know as khepri-knowledge\n    participant plan as khepri-planner\n    participant area as app/data/infra/security agents\n    participant gen as khepri-squad-generator\n    participant code as khepri-code\n    participant test as khepri-test\n    participant assess as khepri-modernization-assessor\n\n    orch->>evo: start continuous improvement companion\n    orch->>spec: legacy requirements, specs, tests\n    spec->>know: model legacy IR and evidence as queryable knowledge\n    orch->>spec: target requirements, specs, test plans\n    spec->>know: model desired-state evidence as queryable knowledge\n    spec->>plan: target evidence and acceptance criteria\n    plan->>area: incremental app/data/infra/security modernization advice\n    area-->>plan: area risks and squad recommendations\n    plan->>know: query and refine current-stage knowledge\n    plan->>gen: generate SDK-first squad with AgentV scenarios, evaluators, test data, rubric, and live-evals\n    gen->>test: require tool_trajectory, llm_judge, and live_eval gates\n    test-->>know: index test feedback and verification evidence\n    test-->>plan: AgentEvals evidence\n    plan->>code: current-stage plan and regression gates\n    code->>test: red/green/refactor verification\n    test-->>assess: reproducible verification evidence\n    assess-->>orch: parity, risk, and acceptance readiness\n    evo-->>orch: approved durable improvements\n```\n\nThe architecture documentation enforcement path is also implemented:\n\n```mermaid\nflowchart LR\n    prompt[\"Architecture-affecting prompt\"] --> hook[\".github/hooks/architecture-docs.json\"]\n    hook --> script[\"architecture-docs.mjs\"]\n    script --> skill[\"$keep-architecture-docs-current\"]\n    skill --> update[\"Update docs and Mermaid diagrams\"]\n    update --> checks[\"skills-ref, AgentV, lint, .NET tests as applicable\"]\n```\n\n## Agents\n\nThe active Khepri custom agents are:\n\n- `khepri-orchestrator`: coordinates the workflow and delegates bounded phases.\n- `khepri-evolution`: runs as the continuous improvement companion and improves agents, skills, hooks, MCP recommendations, evals, and steering.\n- `khepri-spec`: extracts or generates legacy and target requirements, specs, tests, and test plans.\n- `khepri-knowledge`: models IR, business context, standards, and verification evidence as a queryable knowledge base using whatever configured knowledge surface is available.\n- `khepri-planner`: creates incremental modernization plans and stage-ready plans.\n- `khepri-squad-generator`: generates SDK-first squads, AgentV scenarios, evaluators, test data, squad members, rubrics, and live-eval loops before implementation.\n- `khepri-scaffold`: executes approved scaffolding and minimal target seams.\n- `khepri-code`: implements approved behavior with TDD and legacy regression checks.\n- `khepri-test`: runs reproducible tests, builds, AgentV, and AgentEvals checks.\n- `khepri-modernization-assessor`: assesses parity, risk, acceptance evidence, and unresolved gaps.\n- `app-modernization`, `data-modernization`, `infra-modernization`, `security-modernization`: advise on area-specific modernization patterns, risks, and regression checks.\n\nSee `docs/agents/README.md` for the full agent contract.\n\n## Skills And Hooks\n\nImplemented repo-local skills:\n\n- `.github/skills/khepri-modernization-workflow`: calls the .NET workflow source of truth.\n- `.github/skills/learn`: turns user corrections into generalized `STEERING.md` entries.\n- `.github/skills/spec-kit`: documents local Spec Kit / Specify CLI usage.\n- `.github/skills/keep-architecture-docs-current`: keeps current-state docs and Mermaid diagrams aligned with architecture changes.\n- `.github/skills/form-builder`: imported form-building skill.\n\nImplemented hooks:\n\n- `.github/hooks/learn.json` calls `.github/hooks/scripts/learn.mjs` on prompt submission and captures reusable corrections.\n- `.github/hooks/architecture-docs.json` calls `.github/hooks/scripts/architecture-docs.mjs` on prompt submission and instructs agents to invoke `$keep-architecture-docs-current` for architecture-affecting changes.\n\n## Repository Layout\n\n```text\n.github/agents/       GitHub Copilot custom agent profiles\n.github/hooks/        Prompt hooks and hook scripts\n.github/instructions/ Global agent instructions compiled into AGENTS.md\n.github/skills/       Repo-local Agent Skills\n.github/workflows/    Squad and label/release workflows\n.agentv/              AgentV target configuration\n.agents/              Auxiliary local skills and agents\n.copilot/             Copilot skill bundle and MCP config\n.specify/             Spec Kit templates, scripts, and extension config\n.squad/               Generated squad runtime docs and templates\ndocs/                 Current architecture and agent documentation\ndotnet/               .NET workflow contract and tests\nevals/                AgentV graders and legacy sample packs\npython/prompts/       Legacy modernizer prompt guidance aligned to the current workflow\nscripts/              Repository maintenance scripts\nwebui/                Local-first PWA and node host for Khepri run kickoff and graph visualization\n```\n\n## Verification\n\nRun the main agent and skill gates from the repository root:\n\n```powershell\nnpm run lint:agents\nnpm run eval:agents:validate\nnpm run eval:agents\nnpm run skills:validate\n```\n\nRun the .NET workflow tests with:\n\n```powershell\n$env:DOTNET_ROLL_FORWARD='Major'; dotnet test dotnet\\tests\\Code2\\NL\\Code2NL.Tests.csproj\n```\n\nFor squad-generated assets:\n\n```powershell\nnpm run squad:check\n```\n\nRun the local WebUI with:\n\n```powershell\nnpm --prefix webui install\nnpm run webui:dev\n```\n\n## Roadmap Ideas\n\nThe following concepts are not implemented as shipped tools in this repository yet. They remain useful design directions for future increments:\n\n- Code2 intermediary representations: natural-language summaries, comments, reference docs, JSON Schema, protobuf IDL, BDD docs, SBOM, Structurizr, TOSCA/CUE, test specs, and BPMN.\n- Image2 and NL2 generation flows for UI code, design tokens, Structurizr, TOSCA/CUE, and BPMN.\n- Production KnowledgeGraphRag, Planner4, runtime emulation, and reusable MCP servers for legacy-system inspection.\n- Policy-as-code, workflow DSL, testing DSL, intermediate verification languages, and universal modeling DSL integrations.\n\nMove any roadmap item into current-state docs only after implementation, tests, docs, diagrams, and validation gates are committed together.\n",
+  "status": "curated"
+}

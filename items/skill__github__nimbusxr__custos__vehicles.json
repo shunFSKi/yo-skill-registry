@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/nimbusxr/custos/vehicles",
+  "type": "skill",
+  "name": "vehicles",
+  "description": "Place and manage 3D vehicle models on the map",
+  "author": "nimbusxr",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/nimbusxr/custos/blob/HEAD/skills/custos.vehicles/SKILL.md",
+    "repo": "nimbusxr/custos",
+    "path": "skills/custos.vehicles/SKILL.md"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 5,
+    "pushed_at": "2026-04-28T12:28:31Z",
+    "score": 49,
+    "star_history": [
+      {
+        "d": "2026-08-16",
+        "s": 5
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "生活",
+    "featured": false
+  },
+  "readme": "# CUST/OS\n\n**/kuh-stohs/** · The Agentic Custom Operator's System\n\nThe home for CUST/OS — issues, discussions, project tracking, and the default skill kit operators install on a device.\n\nFull product documentation lives at **[custos.nimbusxr.us/docs](https://custos.nimbusxr.us/docs)**.\n\n---\n\n## What this repo is for\n\nThis repository is the CUST/OS public hub. Three things happen here:\n\n- **Issues** — bug reports, feature requests, and questions about CUST/OS. Please search before filing.\n- **Discussions** — operator and author discussion: use cases, skill patterns, deployment stories.\n- **Project** — roadmap and release tracking.\n\nIt also contains the default skill kit and starter configuration operators deploy alongside the plugin:\n\n```\ncustos/\n├── custos.yaml         # Starter config — providers, agents, sandbox, security\n├── skills/             # 44 skill directories (SKILL.md + .lua files)\n├── scratches/          # 87 skill tests + run_all_tests.lua (pushed to /sdcard/atak/custos/scratch/)\n├── models/             # On-device model weights — operators download here (see models/README.md)\n└── install.sh          # One-command push of config + skills + scratches + models\n```\n\nRuntime-critical skills (don't delete unless you know what you're doing): `custos.skill_creator`, `custos.agents`, `custos.automation`, `custos.helpers`, `custos.memory`, `custos.rag`. Everything else is example content — copy, modify, or replace freely.\n\n## Prerequisites\n\nBefore installing, you need:\n\n1. An Android device (or emulator) with a supported version of **ATAK-CIV** installed.\n2. The **CUST/OS plugin APK** installed on the device.\n3. `adb` on your workstation, with the device connected and authorized (`adb devices` shows it).\n4. **On-device model weights** downloaded into `models/` in this repo. The shipped `custos.yaml` enables three on-device providers out of the box (Gemma 4 E2B-it chat, Nomic embed, Whisper tiny). Each needs a specific weights file — **see [`models/README.md`](models/README.md) for download links, filename requirements, and how to swap in different models**.\n\n   `install.sh` pushes whatever is in `models/` to the device automatically, so the normal flow is: download the three files into `models/`, then run `./install.sh`.\n\n## Install\n\n### Quick install (recommended)\n\n```bash\n./install.sh\n```\n\n`install.sh` pushes `custos.yaml` to `/sdcard/atak/custos/config/`, every skill in `skills/` to `/sdcard/atak/custos/skills/`, and every scratch file in `scratches/` to `/sdcard/atak/custos/scratch/` so they can be run from the in-app editor.\n\n### Manual install\n\n```bash\n# 1. Config\nadb shell mkdir -p /sdcard/atak/custos/config\nadb push custos.yaml /sdcard/atak/custos/config/custos.yaml\n\n# 2. Skills\nadb shell mkdir -p /sdcard/atak/custos/skills\nfor skill in skills/custos.*/; do\n    name=$(basename \"$skill\")\n    adb shell mkdir -p \"/sdcard/atak/custos/skills/$name\"\n    adb push \"$skill\"/. \"/sdcard/atak/custos/skills/$name/\"\ndone\n\n# 3. Scratches (optional)\nadb shell mkdir -p /sdcard/atak/custos/scratch\nadb push scratches/*.lua /sdcard/atak/custos/scratch/\n```\n\n### Installing a single skill\n\nTo install just one skill (e.g., when you've authored your own or want to try one in isolation):\n\n```bash\nadb shell mkdir -p /sdcard/atak/custos/skills/custos.my_skill\nadb push skills/custos.my_skill/. /sdcard/atak/custos/skills/custos.my_skill/\n```\n\nThe plugin watches the skills directory and hot-reloads on change — no ATAK restart needed.\n\n## Configuring providers\n\nThe shipped `custos.yaml` enables three on-device providers by default, each of which expects a weights file in `/sdcard/atak/custos/models/` (see [`models/README.md`](models/README.md) for what to download):\n\n- **`on-device-gemma4`** (LiteRT-LM, `handheld` tier, priority 1) — primary chat LLM, runs entirely on the device. Needs `gemma-4-E2B-it.litertlm`.\n- **`on-device-embed`** (llama.cpp, embeddings) — powers semantic skill selection and RAG. Needs `nomic-embed-text-v1.5.Q8_0.gguf`.\n- **`on-device-whisper`** (whisper.cpp, `handheld` tier) — on-device PTT transcription. Needs `ggml-tiny.bin`.\n\nCloud providers (Anthropic, OpenAI, xAI) and vision detection are in the file as commented-out examples. Uncomment the block you want, then set the API key on the device: open the **Status** panel from the NavBar, tap the provider's row, and use **Set Key** in the provider detail dialog.\n\nKeys are stored in the encrypted Android Keystore — never in `custos.yaml`.\n\nFor the full field reference and every supported provider, see [custos.nimbusxr.us/docs](https://custos.nimbusxr.us/docs).\n\n## Running the scratch tests\n\nOnce the scratches are pushed to `/sdcard/atak/custos/scratch/`:\n\n1. Open the CUST/OS **Editor** panel in ATAK.\n2. Navigate to the `scratch` directory in the file tree.\n3. Open `run_all_tests.lua`.\n4. Tap **Run**.\n\nThe console reports pass/fail per test and cleans up any test artifacts at the end.\n\n## Authoring your own skill\n\nThe fastest path is in-chat, via the built-in skill authoring agent:\n\n```\nCreate a new skill called custos.my_skill that ...\n```\n\nThe `custos.skill_creator` skill scaffolds the directory, writes the initial `SKILL.md` and `.lua` files, and hot-reloads. You can then open the files in the in-app editor to refine.\n\nTo author locally and push manually:\n\n```bash\nmkdir -p skills/custos.my_skill\n# Create SKILL.md and your .lua files\n./install.sh                         # or adb push just your skill\n```\n\nFor the skill format, Lua API, and authoring cookbook, see [custos.nimbusxr.us/docs](https://custos.nimbusxr.us/docs).\n\n## Uninstall the skill kit\n\n```bash\nadb shell rm -rf /sdcard/atak/custos/skills\nadb shell rm -rf /sdcard/atak/custos/scratch\nadb shell rm /sdcard/atak/custos/config/custos.yaml\n```\n\nThe plugin will log that the skills directory went away and fall back to zero skills — a valid runtime state.\n\n## Filing issues and joining the conversation\n\n- **Bugs, feature requests, skill ideas, docs issues:** use the **Issues** tab. Pick the matching template.\n- **General questions, use cases, patterns, deployment stories:** use the **Discussions** tab.\n- **What we're working on next:** the **Projects** tab.\n- **Security vulnerabilities:** please **don't** file a public issue — see [SECURITY.md](SECURITY.md) for the private disclosure process.\n\n## Contributing\n\nContributions are welcome — new skills, fixes to existing ones, better scratches, clearer docs, and install-flow improvements. See [CONTRIBUTING.md](CONTRIBUTING.md) for the process, style conventions, and how to open a good PR.\n\nEveryone interacting in this project is expected to follow our [Code of Conduct](CODE_OF_CONDUCT.md).\n\n## License\n\nThis repository (the skill kit, scratches, starter configuration, and install tooling) is licensed under the [MIT License](LICENSE).\n\nThe CUST/OS plugin itself — the Android APK and its runtime source — is a separate project under its own proprietary license.\n",
+  "status": "curated"
+}

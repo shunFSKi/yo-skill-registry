@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/RAMKUMARMN/hub_notify/discover-api-routes",
+  "type": "skill",
+  "name": "discover-api-routes",
+  "description": "Map the FastAPI endpoints for job triggering and file ingestion.",
+  "author": "RAMKUMARMN",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/RAMKUMARMN/hub_notify/blob/HEAD/plugin/skills/discover-api-routes/SKILL.md",
+    "repo": "RAMKUMARMN/hub_notify",
+    "path": "plugin/skills/discover-api-routes/SKILL.md"
+  },
+  "license": null,
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 32,
+    "pushed_at": "2026-08-02T13:53:36Z",
+    "score": 66,
+    "star_history": [
+      {
+        "d": "2026-08-16",
+        "s": 32
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# Notify — CixioHub Notification Service\n\nStandalone Python/FastAPI microservice that handles all outbound notifications: Email, SMS, Push, and WhatsApp. Consumes tasks from RabbitMQ queues and dispatches them via the appropriate provider.\n\n---\n\n## Tech Stack\n\n| Tool | Purpose |\n|------|---------|\n| **Python 3.11+** | Language |\n| **FastAPI** | HTTP API (single-send + job status endpoints) |\n| **aio-pika** | Async RabbitMQ client |\n| **smtplib / aiosmtplib** | SMTP email sending |\n| **twilio** | SMS + WhatsApp |\n| **firebase-admin** | FCM push notifications (Android) |\n| **boto3** | AWS SNS (APNs push for iOS) |\n| **SQLAlchemy** | Job tracking in PostgreSQL |\n\n---\n\n## Project Structure\n\n```\nnotify/\n├── app/\n│   ├── main.py              # FastAPI app for the HTTP API\n│   ├── config.py            # Settings from env vars\n│   ├── database.py          # SQLAlchemy session (shared with backend DB)\n│   │\n│   ├── channels/            # One file per notification channel\n│   │   ├── __init__.py\n│   │   ├── email.py         # SMTP / AWS SES sender\n│   │   ├── sms.py           # Twilio SMS\n│   │   ├── push.py          # Firebase FCM (Android) + AWS SNS APNs (iOS)\n│   │   └── whatsapp.py      # Twilio WhatsApp API\n│   │\n│   ├── queue/\n│   │   ├── __init__.py\n│   │   ├── producer.py      # Publish messages to RabbitMQ (called by backend)\n│   │   ├── consumer.py      # Async workers — consume + dispatch\n│   │   └── schemas.py       # Pydantic models for queue message payloads\n│   │\n│   ├── routers/\n│   │   ├── __init__.py\n│   │   └── notify.py        # /notify/send, /notify/bulk, /notify/jobs/*\n│   │\n│   └── models/\n│       └── job.py           # NotificationJob SQLAlchemy model\n│\n├── requirements.txt\n├── Dockerfile\n└── .env.example\n```\n\n---\n\n## Setup & Running\n\n### 1. Prerequisites\n- RabbitMQ running (from `infra/` Docker Compose)\n- PostgreSQL running (shared with backend)\n- SMTP credentials, Twilio credentials, Firebase service account key\n\n### 2. Install dependencies\n\n```bash\npython -m venv .venv\nsource .venv/bin/activate\npip install -r requirements.txt\n```\n\n### 3. Configure environment\n\n```bash\ncp .env.example .env\n# Fill in SMTP, Twilio, Firebase, AWS SNS values\n```\n\n### 4. Run the HTTP API\n\n```bash\nuvicorn app.main:app --reload --port 8001\n```\n*(Note: FastAPI's lifespan automatically starts background queue consumers on server startup.)*\n\n### 5. Run the queue worker (optional dedicated process)\n\n```bash\npython -m app.queue.consumer\n# Starts standalone async consumers for email, sms, push, and whatsapp queues\n```\n\n---\n\n## Environment Variables\n\n| Variable | Description |\n|----------|-------------|\n| `DATABASE_URL` | PostgreSQL connection string, e.g., `postgresql://user:password@localhost/mydatabase` |\n| `RABBITMQ_URL` | RabbitMQ connection string, e.g., `amqp://user:password@localhost:5672/` |\n| `SMTP_HOST` | SMTP server host |\n| `SMTP_PORT` | SMTP port (587 for TLS) |\n| `SMTP_USERNAME` | SMTP username / email |\n| `SMTP_PASSWORD` | SMTP password |\n| `SMTP_FROM_EMAIL` | Sender address shown to recipients |\n| `TWILIO_ACCOUNT_SID` | Twilio account SID |\n| `TWILIO_AUTH_TOKEN` | Twilio auth token |\n| `TWILIO_PHONE_NUMBER` | Twilio SMS sending number |\n| `TWILIO_WHATSAPP_NUMBER` | Twilio WhatsApp-enabled number |\n| `FIREBASE_SERVICE_ACCOUNT_JSON` | Firebase admin SDK JSON (base64 encoded) |\n| `AWS_ACCESS_KEY_ID` | AWS credentials for SNS |\n| `AWS_SECRET_ACCESS_KEY` | AWS credentials |\n| `AWS_REGION` | AWS region |\n| `SNS_PLATFORM_ARN_IOS` | AWS SNS platform application ARN for APNs |\n| `MAX_RETRY_ATTEMPTS` | Max retries before moving to failed queue (default: 4) |\n\n---\n\n## API Endpoints\n\n### POST `/api/v1/notify/send`\nSend a single notification immediately.\n\nRequest body:\n```json\n{\n  \"channel\": \"email\",\n  \"recipient\": \"student@tkmce.ac.in\",\n  \"subject\": \"Welcome to CixioHub\",\n  \"body\": \"Your account has been created. Temp password: abc123XYZ\",\n  \"html_body\": \"<h1>Welcome</h1><p>Temp password: <b>abc123XYZ</b></p>\"\n}\n```\n\nFor SMS:\n```json\n{\n  \"channel\": \"sms\",\n  \"recipient\": \"+919876543210\",\n  \"body\": \"Your CixioHub temp password is: abc123XYZ\"\n}\n```\n\nFor Push:\n```json\n{\n  \"channel\": \"push\",\n  \"recipient\": \"fcm_device_token_here\",\n  \"title\": \"New response\",\n  \"body\": \"CixioHub finished generating your answer.\",\n  \"data\": { \"session_id\": \"uuid\" }\n}\n```\n\nResponse `200`:\n```json\n{ \"status\": \"sent\", \"message_id\": \"twilio_or_smtp_id\" }\n```\n\n---\n\n### POST `/api/v1/notify/bulk`\nEnqueue a bulk notification job.\n\nRequest body:\n```json\n{\n  \"channel\": \"email\",\n  \"recipients\": [\n    {\n      \"recipient\": \"user1@tkmce.ac.in\",\n      \"subject\": \"Your credentials\",\n      \"body\": \"Password: abc111\"\n    },\n    {\n      \"recipient\": \"user2@tkmce.ac.in\",\n      \"subject\": \"Your credentials\",\n      \"body\": \"Password: xyz222\"\n    }\n  ]\n}\n```\n\nResponse `202`:\n```json\n{ \"job_id\": \"uuid\", \"total\": 2, \"status\": \"queued\" }\n```\n\n---\n\n### GET `/api/v1/notify/jobs/{job_id}`\nGet progress of a bulk job.\n\nResponse:\n```json\n{\n  \"job_id\": \"uuid\",\n  \"channel\": \"email\",\n  \"total\": 1000,\n  \"sent\": 893,\n  \"failed\": 12,\n  \"retrying\": 95,\n  \"completed\": false,\n  \"updated_at\": \"2026-05-23T11:30:00Z\"\n}\n```\n\n---\n\n## Queue Architecture\n\n### Queues in RabbitMQ\n\n```\nemail.process  ──(fail)──▶  email.retry  ──(max retries)──▶  email.failed\nsms.process    ──(fail)──▶  sms.retry    ──(max retries)──▶  sms.failed\npush.process   ──(fail)──▶  push.retry   ──(max retries)──▶  push.failed\n```\n\n### Message Format (JSON payload in each queue message)\n\n```json\n{\n  \"job_id\": \"uuid\",\n  \"channel\": \"email\",\n  \"recipient\": \"student@tkmce.ac.in\",\n  \"subject\": \"Welcome\",\n  \"body\": \"...\",\n  \"attempt\": 1,\n  \"max_attempts\": 4\n}\n```\n\n### Worker Logic (pseudocode)\n\n```python\nasync def process_message(message):\n    payload = json.loads(message.body)\n    try:\n        await dispatch(payload)          # call email/sms/push channel\n        await message.ack()\n        await update_job(payload[\"job_id\"], sent=+1)\n    except Exception:\n        if payload[\"attempt\"] >= payload[\"max_attempts\"]:\n            await message.ack()\n            await publish(f\"{channel}.failed\", payload)\n            await update_job(payload[\"job_id\"], failed=+1)\n        else:\n            await message.nack(requeue=False)\n            payload[\"attempt\"] += 1\n            await publish_with_delay(f\"{channel}.retry\", payload, delay_seconds=retry_delay(payload[\"attempt\"]))\n            await update_job(payload[\"job_id\"], retrying=+1)\n```\n\n### Retry Delays\n\n| Attempt | Delay before retry |\n|---------|--------------------|\n| 2nd | 1 minute |\n| 3rd | 5 minutes |\n| 4th | 30 minutes |\n| After 4th | Moved to `*.failed` |\n\n---\n\n## Channel Implementation Notes\n\n### Email (SMTP)\n```python\nimport aiosmtplib\nfrom email.mime.multipart import MIMEMultipart\nfrom email.mime.text import MIMEText\n\nasync def send_email(to: str, subject: str, body: str, html: str = None):\n    msg = MIMEMultipart(\"alternative\")\n    msg[\"From\"] = settings.SMTP_FROM_EMAIL\n    msg[\"To\"] = to\n    msg[\"Subject\"] = subject\n    msg.attach(MIMEText(body, \"plain\"))\n    if html:\n        msg.attach(MIMEText(html, \"html\"))\n\n    await aiosmtplib.send(\n        msg,\n        hostname=settings.SMTP_HOST,\n        port=settings.SMTP_PORT,\n        username=settings.SMTP_USERNAME,\n        password=settings.SMTP_PASSWORD,\n        use_tls=True,\n    )\n```\n\n### SMS (Twilio)\n```python\nfrom twilio.rest import Client\n\ndef send_sms(to: str, body: str):\n    client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)\n    message = client.messages.create(\n        body=body,\n        from_=settings.TWILIO_PHONE_NUMBER,\n        to=to\n    )\n    return message.sid\n```\n\n### Push (FCM)\n```python\nimport firebase_admin\nfrom firebase_admin import messaging\n\ndef send_push(device_token: str, title: str, body: str, data: dict = None):\n    message = messaging.Message(\n        notification=messaging.Notification(title=title, body=body),\n        data=data or {},\n        token=device_token,\n    )\n    response = messaging.send(message)\n    return response\n```\n\n---\n\n## Dockerfile\n\n```dockerfile\nFROM python:3.11-slim\n\nWORKDIR /app\nCOPY requirements.txt .\nRUN pip install --no-cache-dir -r requirements.txt\n\nCOPY . .\n\nEXPOSE 8001\nCMD [\"uvicorn\", \"app.main:app\", \"--host\", \"0.0.0.0\", \"--port\", \"8001\"]\n```\n\n---\n\n\n",
+  "status": "curated"
+}

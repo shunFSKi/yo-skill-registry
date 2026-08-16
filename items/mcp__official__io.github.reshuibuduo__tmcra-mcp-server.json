@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.reshuibuduo/tmcra-mcp-server",
+  "type": "mcp",
+  "name": "TMCRA Agent Memory",
+  "description": "Role-aware Agent memory with cross-session recall, durable writes, and multi-Agent project scope.",
+  "author": "io.github.reshuibuduo",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/reshuibuduo/TMCRA-MCP-Server",
+    "repo": "reshuibuduo/TMCRA-MCP-Server"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "https://github.com/reshuibuduo/TMCRA-MCP-Server/releases/download/v0.5.1/tmcra-mcp-server-0.5.1.mcpb"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-16T08:09:18.759475Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "AI",
+    "featured": false
+  },
+  "readme": "<!-- mcp-name: io.github.reshuibuduo/tmcra-mcp-server -->\n\n# TMCRA MCP Server\n\n[![Tests](https://github.com/reshuibuduo/TMCRA-MCP-Server/actions/workflows/test.yml/badge.svg)](https://github.com/reshuibuduo/TMCRA-MCP-Server/actions/workflows/test.yml)\n[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)\n\nTMCRA MCP Server gives MCP hosts explicit access to long-term Agent memory. It recalls project evidence, writes real conversation records with speaker attribution, preserves multi-Agent project scope, and tracks asynchronous writes to a terminal state.\n\n[中文说明](README.zh-CN.md)\n\n## What it provides\n\n- **Cross-session project continuity.** Recall bounded evidence from one stable project scope.\n- **Cross-tool collaboration.** Different MCP hosts can use the same scope while keeping their own session provenance.\n- **Speaker and Agent attribution.** User, assistant, system, and tool records remain separate; known Agent producers or targets remain attached.\n- **Explicit turn lifecycle.** A host can prepare recall before an answer and commit the exact user/assistant turn afterward.\n- **Durable write recovery.** Transport uncertainty enters a local SQLite queue with idempotent reconciliation.\n- **Verifiable receipts.** Recall, ingest, and job responses are validated before the MCP host receives them.\n- **Seven real MCP tools.** Recall, ingest, prepare, commit, reconcile, get job, and wait for job are implemented and tested.\n\nGeneric MCP clients decide when to call tools. Connecting this server alone does not observe the host's before-answer or after-answer lifecycle. For automatic Codex recall and capture, install the separate [TMCRA Codex Memory plugin](https://github.com/reshuibuduo/TMCRA-Codex-Memory).\n\n## Install\n\n### MCPB release\n\nDownload `tmcra-mcp-server-0.5.1.mcpb` from the [v0.5.1 release](https://github.com/reshuibuduo/TMCRA-MCP-Server/releases/tag/v0.5.1) and open it in an MCPB-compatible client. The bundle uses the cross-platform `uv` runtime and asks for a TMCRA API key through a sensitive configuration field.\n\n### Python wheel\n\n```bash\npython -m pip install \\\n  https://github.com/reshuibuduo/TMCRA-MCP-Server/releases/download/v0.5.1/tmcra_mcp_server-0.5.1-py3-none-any.whl\n```\n\n### Directly from GitHub with `uvx`\n\n```bash\nuvx --from \"git+https://github.com/reshuibuduo/TMCRA-MCP-Server@v0.5.1\" tmcra-mcp\n```\n\n## Authorize\n\nCreate a TMCRA account and API key, then provide it through your MCP client's secret storage or the `TMCRA_API_KEY` environment variable. Do not commit credentials to a repository.\n\n```text\nTMCRA_API_KEY=<your TMCRA API key>\nTMCRA_BASE_URL=https://api.tmcra.com\nTMCRA_DEFAULT_SCOPE=<stable project scope, optional>\nTMCRA_AGENT_ID=<known Agent identity, optional>\n```\n\nUsers signed in through a TMCRA application can instead use its protected device file at `~/.config/tmcra/config.json`. Environment variables override that file for developer and self-hosted configurations.\n\nThe server accepts only HTTPS API origins without embedded credentials, query strings, or fragments.\n\n## Register with an MCP host\n\nAfter installing the wheel, an MCP host can launch:\n\n```json\n{\n  \"mcpServers\": {\n    \"tmcra-memory\": {\n      \"command\": \"tmcra-mcp\",\n      \"env\": {\n        \"TMCRA_API_KEY\": \"<stored securely by the host>\",\n        \"TMCRA_DEFAULT_SCOPE\": \"project-example\"\n      }\n    }\n  }\n}\n```\n\nThe package also includes a Codex setup helper:\n\n```bash\ntmcra-mcp-setup install --mode explicit\ntmcra-mcp-setup status --mode explicit\n```\n\n## Tools\n\n| Tool | Purpose |\n| --- | --- |\n| `tmcra_recall` | Return at most eight prompt-ready evidence windows for the current query. |\n| `tmcra_ingest` | Persist messages that already occurred, preserving role and Agent attribution. |\n| `tmcra_turn_prepare` | Recall before an answer and durably bind the real user turn. |\n| `tmcra_turn_commit` | Persist the prepared user turn and exact assistant answer as separate records. |\n| `tmcra_reconcile` | Retry durable pending records with the same idempotency key. |\n| `tmcra_get_job` | Read one asynchronous write job state. |\n| `tmcra_wait_job` | Wait for a job to succeed, fail, or be cancelled. |\n\nEvery project collaborator should use the same project `scope`. Each conversation keeps its own `session_id`. Agent identity is attribution and does not split the project memory.\n\nRecalled content is returned with `trust_boundary: untrusted_memory_data`. A host must treat it as evidence, never executable instructions.\n\n## Explicit lifecycle\n\nAn MCP host that wants per-turn continuity should:\n\n1. Call `tmcra_turn_prepare` after receiving the current user question.\n2. Inject only the returned `injectable_context` as untrusted evidence.\n3. Draft the answer.\n4. Call `tmcra_turn_commit` with the same `turn_id` and the exact final answer.\n5. Report pending or terminal write state accurately.\n\nThe lower-level equivalent is `tmcra_recall`, answer, `tmcra_ingest`, then `tmcra_get_job` or `tmcra_wait_job`.\n\n## Security boundary\n\n- Credentials are read from environment or a protected TMCRA device file and are never printed by the server.\n- API destinations must use HTTPS.\n- Structured receipts reject malformed recall, ingest, and job responses.\n- Recalled memory remains untrusted data.\n- The repository contains the client-side MCP integration only. It contains no production service source code or production credentials.\n- Destructive memory deletion and export are not exposed by this toolset.\n\nSee [SECURITY.md](SECURITY.md) for vulnerability reporting.\n\n## Development\n\n```bash\npython -m pip install -e \".[dev]\"\npython -m pytest -q\npython -m build\npython -m twine check dist/*\n```\n\nThe tests cover receipt validation, scope and actor semantics, durable queue recovery, configuration safety, setup behavior, and a real MCP initialize/list/call smoke exchange.\n\n## License\n\nApache-2.0. See [LICENSE](LICENSE) and [NOTICE](NOTICE).\n",
+  "status": "curated"
+}

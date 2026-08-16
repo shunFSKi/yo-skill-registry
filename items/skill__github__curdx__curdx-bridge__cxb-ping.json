@@ -6,21 +6,21 @@
   "author": "curdx",
   "source": {
     "registry": "github-search",
-    "url": "https://github.com/curdx/curdx-bridge/blob/HEAD/claude_skills/cxb-ping/SKILL.md",
+    "url": "https://github.com/curdx/curdx-bridge/blob/HEAD/codex_skills/cxb-ping/SKILL.md",
     "repo": "curdx/curdx-bridge",
-    "path": "claude_skills/cxb-ping/SKILL.md"
+    "path": "codex_skills/cxb-ping/SKILL.md"
   },
-  "license": null,
+  "license": "MIT",
   "install": {
     "kind": "skill-dir"
   },
   "quality": {
     "stars": 2,
     "pushed_at": "2026-05-06T14:53:03Z",
-    "score": 36,
+    "score": 46,
     "star_history": [
       {
-        "d": "2026-08-15",
+        "d": "2026-08-16",
         "s": 2
       }
     ]
@@ -55,6 +55,6 @@
     "category": "编程",
     "featured": false
   },
-  "readme": null,
+  "readme": "<div align=\"center\">\n\n# CurdX Bridge\n\n**Multi-AI Split-Pane Terminal — Claude · Codex · Gemini · OpenCode**\n\nOne terminal, four AI agents, real collaboration.\n\n[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)\n[![Go 1.22+](https://img.shields.io/badge/Go-1.22+-00ADD8.svg)](https://golang.org/)\n[![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-lightgrey.svg)]()\n\n**English** | [中文](README_zh.md)\n\n</div>\n\n---\n\n<div align=\"center\">\n<img src=\"docs/screenshot.png\" alt=\"CurdX Bridge — four AI agents in split panes\" width=\"800\" />\n<br/>\n<em>Claude, Codex, Gemini, and OpenCode working side by side in one terminal</em>\n</div>\n\n---\n\n## What is this?\n\nCurdX Bridge puts multiple AI coding agents into split terminal panes. You talk to Claude as usual — when you need a second opinion, just say \"let Codex review this\" or \"ask Gemini for ideas\". Claude handles the coordination automatically.\n\n<div align=\"center\">\n<img src=\"docs/layout.svg\" alt=\"CurdX Bridge layout — Claude left, Codex/Gemini/OpenCode right\" width=\"680\" />\n</div>\n\nNo switching tabs. No copy-pasting context. Just talk.\n\n## Quick Start\n\n### 1. Install\n\n**macOS / Linux / WSL** (bash):\n\n```bash\ncurl -fsSL https://raw.githubusercontent.com/curdx/curdx-bridge/main/install.sh | bash\n```\n\n**Windows** (PowerShell):\n\n```powershell\nirm https://raw.githubusercontent.com/curdx/curdx-bridge/main/install.ps1 | iex\n```\n\n### 2. Run\n\n```bash\ncurdx                                  # Default: Claude + Codex + Gemini\ncurdx claude codex gemini opencode     # All four providers\ncurdx claude codex                     # Just two providers\ncurdx -r                               # Resume previous session\ncurdx -r claude codex gemini           # Resume with specific providers\n```\n\nThat's it. Panes appear, providers boot up, you start talking to Claude.\n\n### Flags\n\n| Flag | What it does |\n|------|-------------|\n| `-r` | Resume last session (keeps context) |\n| `--no-auto` | Disable auto-approve mode |\n\n## How It Actually Works\n\nYou don't need to learn new commands. Just talk to Claude naturally:\n\n```\nYou:    Help me refactor this auth module.\nClaude: [writes the refactored code]\n\nYou:    Let Codex review this.\nClaude: [sends diff to Codex, waits for scores]\n        Codex scored it 8.5/10. Suggestions: ...\n\nYou:    Ask Gemini for alternative naming ideas.\nClaude: [asks Gemini asynchronously]\n        Gemini suggests: ...\n\nYou:    Looks good. Apply Codex's suggestions and commit.\nClaude: [makes changes, commits]\n```\n\n**That's the whole workflow.** Claude is your main interface. Codex, Gemini, and OpenCode are collaborators it can call on.\n\n### Behind the scenes\n\nWhen you say \"let Codex review this\", Claude uses built-in skills (`/cxb-ask`, `/cxb-reply`) to:\n1. Send your request to the Codex pane via async protocol\n2. Wait for Codex to finish (you can see it working in its pane)\n3. Bring the result back into your conversation\n\nEach provider runs in its own pane — you can watch them think in real time.\n\n## Roles\n\n| Role | Provider | What it does |\n|------|----------|-------------|\n| **Designer** | Claude | Plans, implements, orchestrates |\n| **Reviewer** | Codex | Scores code/plans (1-10 rubrics) |\n| **Inspiration** | Gemini | Brainstorms alternatives (reference only) |\n| **Collaborator** | OpenCode | Additional AI perspective |\n\nThe review framework has pass/fail gates — code must score ≥ 7 before shipping. Up to 3 review rounds, then escalates to you.\n\n## Commands (for power users)\n\nYou rarely need these — Claude handles them — but they exist:\n\n```bash\n# Direct communication\ncxb-codex-ask \"message\"    # Send to Codex\ncxb-gemini-ask \"message\"    # Send to Gemini\ncxb-opencode-ask \"message\"    # Send to OpenCode\ncxb-claude-ask \"message\"    # Send to Claude\n\n# Check latest replies\ncxb-codex-pend / cxb-gemini-pend / cxb-opencode-pend / cxb-claude-pend\n\n# Test connectivity\ncxb-codex-ping / cxb-gemini-ping / cxb-opencode-ping / cxb-claude-ping\n\n# Session management\ncurdx kill              # Kill all sessions\ncurdx kill codex -f     # Force kill specific provider\n```\n\n## Prerequisites\n\n| You need | Install with |\n|----------|-------------|\n| **tmux** (or WezTerm) | `brew install tmux` / `apt install tmux` |\n| **Claude Code** | `npm install -g @anthropic-ai/claude-code` |\n| **Codex CLI** (optional) | `npm install -g @openai/codex` |\n| **Gemini CLI** (optional) | See provider docs |\n| **OpenCode CLI** (optional) | See provider docs |\n\nMake sure each provider CLI works standalone first.\n\n## Platforms\n\nmacOS (Intel/Apple Silicon) · Linux (x86-64/ARM64) · Windows x86-64 (native PowerShell + WSL)\n\n## Configuration\n\n### curdx.config\n\nPlace in `.curdx/curdx.config` (project-level) or `~/.curdx/curdx.config` (global):\n\n```\nclaude codex gemini opencode\n```\n\nOr JSON for advanced options:\n\n```json\n{\n  \"providers\": [\"claude\", \"codex\", \"gemini\", \"opencode\"],\n  \"flags\": { \"resume\": true, \"auto\": true }\n}\n```\n\n### Environment Variables\n\n| Variable | What it does |\n|----------|-------------|\n| `CURDX_DEBUG=1` | Debug logging |\n| `CURDX_LANG=zh` | Force Chinese |\n| `CURDX_THEME=dark` | Force dark theme |\n\n## Build from Source\n\n```bash\ngit clone https://github.com/curdx/curdx-bridge.git\ncd curdx-bridge\n./scripts/build-all.sh\n```\n\n## Troubleshooting\n\n| Problem | Fix |\n|---------|-----|\n| `curdx: command not found` | Add `~/.local/bin` to `$PATH` |\n| No panes appear | Install tmux: `brew install tmux` |\n| Provider unreachable | Run it standalone first (e.g. `codex`) |\n| `Another instance running` | `curdx kill` then retry |\n\nDebug mode: `CURDX_DEBUG=1 curdx`\n\n## Changelog\n\nSee [Releases](https://github.com/curdx/curdx-bridge/releases) for release history.\n\n## License\n\nMIT. See [LICENSE](LICENSE).\n",
   "status": "curated"
 }
