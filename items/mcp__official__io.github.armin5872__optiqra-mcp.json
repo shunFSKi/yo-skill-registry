@@ -1,0 +1,75 @@
+{
+  "id": "mcp:official/io.github.armin5872/optiqra-mcp",
+  "type": "mcp",
+  "name": "optiqra-mcp",
+  "description": "MCP server exposing OptiQra's website audit tools: SEO, GEO, AEO, and AI-generated fixes.",
+  "author": "io.github.armin5872",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/armin5872/optiqra-mcp",
+    "repo": "armin5872/optiqra-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "optiqra-mcp"
+    ],
+    "env": [
+      {
+        "name": "OPTIQRA_BASE_URL",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "OPTIQRA_PROVIDER_API_KEY",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "OPTIQRA_TIMEOUT_MS",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-16T19:21:49.751806Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "营销",
+    "featured": false
+  },
+  "readme": "# optiqra-mcp\n\nAn MCP (Model Context Protocol) server that exposes every tool in\n[OptiQra](https://github.com/armin5872/OptiQra)'s API to MCP-compatible AI\nclients (Claude Desktop, Claude Code, Cursor, etc.).\n\nOptiQra has four HTTP endpoints. This server wraps all four as MCP tools:\n\n| Tool                  | OptiQra endpoint      | What it does                                                              |\n| ---------------------- | ---------------------- | -------------------------------------------------------------------------- |\n| `optiqra_analyze`      | `POST /api/analyze`    | Crawls a URL and runs the full SEO/GEO/AEO/perf/a11y/security audit        |\n| `optiqra_ai_fix`       | `POST /api/ai-fix`     | Generates an AI-written fix for one issue from a report                    |\n| `optiqra_ai_insights`  | `POST /api/ai-insights`| Generates a site-wide AI strategy summary across a full report             |\n| `optiqra_ai_test`      | `POST /api/ai-test`    | Verifies a provider/API key/model combo works before using the two above   |\n\nBy default it talks to the public demo, `https://optiqra.vercel.app`. Point\nit at your own deployment (see OptiQra's own `DEPLOYMENT.md`/Docker setup)\nwith an env var — see below.\n\n## Install\n\n```bash\nnpm install\n```\n\n(or, once published, `npm install -g optiqra-mcp` / run directly with `npx optiqra-mcp`)\n\n## Configuration (environment variables)\n\n| Variable                  | Required | Purpose                                                                                   |\n| -------------------------- | -------- | ------------------------------------------------------------------------------------------ |\n| `OPTIQRA_BASE_URL`         | No       | Base URL of the OptiQra instance to call. Defaults to `https://optiqra.vercel.app`.        |\n| `OPTIQRA_PROVIDER_API_KEY` | No       | A default AI-provider API key used by `optiqra_ai_fix`/`optiqra_ai_insights`/`optiqra_ai_test` if the model doesn't pass one. Recommended over letting the model handle the key in plaintext. |\n| `OPTIQRA_TIMEOUT_MS`       | No       | Request timeout in ms. Defaults to `120000` (full-site crawls can be slow).                |\n\n## Run it standalone\n\n```bash\nnode src/index.js\n```\n\nIt speaks MCP over stdio, so you won't see anything happen — it's waiting\nfor an MCP client to connect.\n\n## Wire it into an MCP client\n\n### Claude Desktop / Claude Code\n\nAdd to your MCP config (`claude_desktop_config.json`, or via `claude mcp add`\nfor Claude Code):\n\n```json\n{\n  \"mcpServers\": {\n    \"optiqra\": {\n      \"command\": \"node\",\n      \"args\": [\"/absolute/path/to/optiqra-mcp/src/index.js\"],\n      \"env\": {\n        \"OPTIQRA_BASE_URL\": \"https://optiqra.vercel.app\",\n        \"OPTIQRA_PROVIDER_API_KEY\": \"sk-...\"\n      }\n    }\n  }\n}\n\nAny other MCP-compatible client (Cursor, Windsurf, etc.) uses the same\n`command`/`args`/`env` shape — check that client's docs for where the config\nfile lives.\n\n## Notes on the AI-key tools\n\n`optiqra_ai_fix`, `optiqra_ai_insights`, and `optiqra_ai_test` all need a\nprovider API key, exactly like pasting one into OptiQra's own UI — OptiQra's\nserver forwards it straight to the provider (OpenAI, Anthropic, Google, Groq,\nOpenRouter, Mistral, DeepSeek, or xAI) and never stores it. This server does\nthe same: it never persists keys. Prefer setting `OPTIQRA_PROVIDER_API_KEY`\nin your MCP client's env config over having the model pass a key through\nchat.\n",
+  "status": "curated"
+}

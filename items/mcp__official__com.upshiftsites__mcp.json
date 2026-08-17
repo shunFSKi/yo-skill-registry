@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/com.upshiftsites/mcp",
+  "type": "mcp",
+  "name": "Upshift",
+  "description": "Audit a site's structured data and llms.txt, match a trade to a template, and quote real prices.",
+  "author": "com.upshiftsites",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/samerdwykat-cmyk/upshift-mcp",
+    "repo": "samerdwykat-cmyk/upshift-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://mcp.upshiftsites.com/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-17T03:19:11.620971Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "AI",
+    "featured": false
+  },
+  "readme": "# upshift-mcp\n\nUpshift's reference MCP server. Three tools, deployed remote, on MCP spec\nrevision **2026-07-28**.\n\nIt exists to do two jobs at once: be genuinely useful to an agent, and be the\nworked example a buyer looks at before paying us to build theirs. Every price\nit quotes is generated from the live store, so it cannot invent one.\n\n```\nhttps://mcp.upshiftsites.com/mcp\n```\n\n```json\n{\n  \"mcpServers\": {\n    \"upshift\": { \"type\": \"http\", \"url\": \"https://mcp.upshiftsites.com/mcp\" }\n  }\n}\n```\n\n## Tools\n\n| Tool | Does |\n|---|---|\n| `upshift_site_audit(url)` | Fetches a live page and reports structured data, llms.txt, robots.txt, title and meta budgets, headings, alt-text coverage, HTTPS and document weight, with a 0-100 score and a fix for each finding. |\n| `upshift_template_match(industry, needs?)` | Ranks the 14 website template lines against a trade, with live demo links, store links and real prices, and explains why each matched. |\n| `upshift_quote(job_type, scope?)` | The real price table for MCP server work and for websites. |\n\nFree and rate limited to 20 calls/minute per IP.\n\n## Layout\n\n```\nsrc/\n  worker.ts      Cloudflare entrypoint: routing, origin policy, rate limit\n  server.ts      The three tools; the one place production layers are applied\n  audit.ts       Audit rules — pure, so every rule is testable without a network\n  safe-fetch.ts  The SSRF guard for the one tool that takes a caller's URL\n  match.ts       Template matching\n  services.ts    What we charge for MCP work\n  catalog.generated.ts   Template lines + prices, generated from the store\n  landing.ts     The page a human gets at /\nevals/           12 qa_pairs, run over the real protocol\ntest/            30 tests: protocol conformance + the pure logic\n```\n\n## Working on it\n\n```bash\nnpm install\nnpm run dev          # http://127.0.0.1:8788/mcp\nnpm run ci:verify    # typecheck + tests + evals\n```\n\n`wrangler dev` needs macOS 13.5+ and will not boot on the build machine, so\n`npm run dev` serves the *production* `src/worker.ts` on Node against an\nin-memory KV. Same handler, same routes, same tools — not a second\nimplementation. Deployment is still `wrangler deploy`.\n\nPrices come from `../upshift-agency-site/src/data/store.ts`. After changing\nthem there:\n\n```bash\nnpm run gen:catalog\n```\n\n## Deploying\n\n**Live since 2026-08-16** at `https://mcp.upshiftsites.com/mcp`. KV namespace\nand custom domain are provisioned; `npm run deploy` ships a new version.\n\nStill outstanding: publishing `server.json` to the registry, which needs a DNS\nTXT record on `upshiftsites.com` to claim the `com.upshiftsites` namespace.\n\n## Honest gaps\n\nIn [docs/VALIDATION.md](docs/VALIDATION.md) — what is verified, what is not,\nand the four real bugs the eval suite caught during the build (one of them a\nsecurity bypass). That document is the argument for shipping evals alongside a\nserver, which is the part of this we sell.\n\n## Licence\n\nMIT. Lift anything useful. If you would rather we built and ran it for you,\nthat is at <https://upshiftsites.com/store/mcp-server-service/>.\n",
+  "status": "curated"
+}

@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.wyattpalm2-eng/federal-grants",
+  "type": "mcp",
+  "name": "Federal Grants — find funding you are actually eligible for",
+  "description": "Find US federal grants your organization is actually eligible to apply for. Free, no API key.",
+  "author": "io.github.wyattpalm2-eng",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/wyattpalm2-eng/grant-fit-scanner",
+    "repo": "wyattpalm2-eng/grant-fit-scanner"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://x402-seller-m8nx.onrender.com/grants/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-16T23:33:42.071475Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# Federal Grant Fit Scanner — Grants.gov Eligibility Filter + Prior-Award Intelligence\n\n### ▶ **[Use it free — no signup: wyattpalm2-eng.github.io/grant-fit-scanner](https://wyattpalm2-eng.github.io/grant-fit-scanner/)**\n\nRuns entirely in your browser. No account, no backend, nothing uploaded or stored.\n\nTop 5 matches free. Unlock the full ranked list for **$2 in USDC** — paid directly to the\noperator's wallet and verified on-chain in your browser. No account, no card, no processor.\n\n_Maintainer: payment setup and wallet notes are in [CRYPTO.md](CRYPTO.md); the card-payment\nalternative is in [ACTIVATE.md](ACTIVATE.md)._\n\n**Stop reading grant announcements you were never allowed to apply for.**\n\nEvery other Grants.gov tool hands you a list. This one hands you a *shortlist* — live federal\nopportunities ranked by whether **your specific organization** can realistically win them, with\nthe reasoning shown for every single score.\n\nPoint it at your org profile. Get back grants you are actually eligible for, that you actually\nhave time to write, sized to what you actually need, with a read on who has been winning the\nmoney before you.\n\n---\n\n## What makes this different from a Grants.gov scraper\n\nA scraper returns rows. This returns judgment, and shows its work.\n\n| | Typical Grants.gov scraper | Federal Grant Fit Scanner |\n|---|---|---|\n| Eligibility | Dumps the raw text field | **Hard mechanical gate** on the federal applicant-type codes |\n| Deadlines | Prints a date | Days remaining vs. time you need to write it |\n| Award size | Prints a number | Compared against **what you asked for** |\n| Competition | Nothing | **Who actually won this program before, and for how much** |\n| Scoring | None, or a black box | Every point traced to a named fact |\n\n### The eligibility gate is the whole point\n\nGrants.gov publishes machine-readable applicant-type codes on every opportunity. A 501(c)(3)\nis code `12`. A small business is `23`. A federally recognized tribal government is `07`.\n\nThis actor filters on those codes **server-side**, so you never even download the grants your\norganization is legally barred from winning. In live testing, a small business and a tribal\ngovernment scanning the same database got result sets with **zero overlap**. That is the\ndifference between a list and a shortlist.\n\n**It never guesses.** If an opportunity publishes no applicant types, or only says\n*\"Others — see text\"*, you get `NEEDS_REVIEW`, not a false green light. Absence of evidence is\nnever reported as eligibility.\n\n### Prior-award intelligence nobody else gives you\n\nFor each opportunity's CFDA program number, the actor pulls **real reported federal awards**\nfrom USAspending.gov and tells you the median award, the largest, and who received them.\n\nThat single number reframes an opportunity. A $250,000 request against a program whose median\nprior award is $47.7M is not a good fit — it means you would be competing against major research\ninstitutions. The scanner says so, in those words, instead of quietly scoring it as a match.\n\n---\n\n## Output\n\nEvery result is a ranked, CRM-ready record:\n\n```json\n{\n  \"fitScore\": 79,\n  \"band\": \"STRONG_FIT\",\n  \"eligibility\": \"ELIGIBLE\",\n  \"eligibilityReason\": \"Opportunity explicitly lists \\\"Small businesses\\\" (code 23) as an eligible applicant.\",\n  \"daysUntilDeadline\": 65,\n  \"title\": \"Advanced Development of Informatics Technologies for Cancer Research\",\n  \"agency\": \"National Institutes of Health\",\n  \"closeDate\": \"2026-10-18\",\n  \"awardCeiling\": null,\n  \"costSharingRequired\": false,\n  \"cfdaNumbers\": [\"93.394\"],\n  \"priorAwards\": {\n    \"medianAward\": 47701808,\n    \"sampleSize\": 25,\n    \"topRecipients\": [\"...\"]\n  },\n  \"whyThisScore\": [\n    { \"label\": \"Eligibility confirmed\", \"points\": 25, \"evidence\": \"...\" },\n    { \"label\": \"Comfortable runway\", \"points\": 20, \"evidence\": \"65 days until close.\" },\n    { \"label\": \"Program is dominated by much larger awards\", \"points\": 0, \"evidence\": \"...\" }\n  ],\n  \"url\": \"https://www.grants.gov/search-results-detail/357305\"\n}\n```\n\n`whyThisScore` is the contract: **no number appears without the fact that produced it.**\n\n### Verdict bands\n\n- `STRONG_FIT` (70+) — eligible, time to apply, well matched\n- `POSSIBLE_FIT` (45–69) — worth a look, some friction\n- `REVIEW_ELIGIBILITY` — you may qualify, but only prose can confirm it\n- `WEAK_FIT` — eligible but poorly aligned\n\n---\n\n## Input\n\n| Field | Description |\n|---|---|\n| `organizationType` | **Required.** Nonprofit, small business, university, tribal, city/county/state, school district, housing authority, individual |\n| `focusKeywords` | Your mission terms, e.g. `[\"housing\", \"youth\"]` |\n| `requestedAmount` | What you need in USD — unlocks award-size fit and prior-winner comparison |\n| `canCostShare` | If `false`, matching-fund requirements are penalized heavily |\n| `minDaysToApply` | Your realistic prep time (default 14) |\n| `includeUnrestricted` | Also return grants open to any entity (default `true`) |\n| `includeIneligible` | Audit what got filtered out (default `false`) |\n\n---\n\n## Who this is for\n\n- **Nonprofits** without a $299/month grant-database subscription\n- **Small businesses** hunting SBIR/STTR and agency funding\n- **Grant writers and consultants** triaging opportunities across multiple clients\n- **Universities, tribal governments, municipalities, school districts, housing authorities**\n- **Anyone** who has wasted a week on a proposal they were never eligible to submit\n\n## Data sources\n\n- **[Grants.gov Search API](https://www.grants.gov/)** — all live federal funding opportunities\n- **[USAspending.gov](https://www.usaspending.gov/)** — reported federal award history\n\nBoth are official U.S. government APIs serving public data. No credentials, no scraping,\nno terms-of-service risk, and nothing to break when a site redesigns.\n\n## Notes and limits\n\n- Covers **federal** opportunities on Grants.gov. Not state, local, or private foundation grants.\n- `NEEDS_REVIEW` means exactly that — the announcement text decides. Read it.\n- Prior-award data is matched by CFDA program number; programs with no award history report\n  `null` rather than a fabricated benchmark.\n- Eligibility here reflects *entity type*. Program-specific requirements (geography, certifications,\n  registrations) still live in the announcement.\n\n**This tool narrows the field. It does not write the proposal or guarantee an award.**\n",
+  "status": "curated"
+}

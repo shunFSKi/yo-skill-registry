@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.moelayyan90/xguard",
+  "type": "mcp",
+  "name": "XGuard",
+  "description": "Discover x402-paid HTTP APIs and MCP tools through XGuard's remote MCP server.",
+  "author": "io.github.moelayyan90",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/moelayyan90/XGuard",
+    "repo": "moelayyan90/XGuard"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://xguard-mainnet.maqamapp.workers.dev/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-16T20:01:08.974206Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# XGuard — x402 Economic Firewall & Facilitator Safety Gateway\n\n[![CI](https://github.com/moelayyan90/XGuard/actions/workflows/ci.yml/badge.svg)](https://github.com/moelayyan90/XGuard/actions/workflows/ci.yml)\n[![CodeQL](https://github.com/moelayyan90/XGuard/actions/workflows/codeql.yml/badge.svg)](https://github.com/moelayyan90/XGuard/actions/workflows/codeql.yml)\n[![Mainnet](https://github.com/moelayyan90/XGuard/actions/workflows/deploy-mainnet.yml/badge.svg)](https://github.com/moelayyan90/XGuard/actions/workflows/deploy-mainnet.yml)\n\n## Hosted x402 v2 facilitator + agent discovery\n\n**XGuard is an x402 economic firewall, settlement-safety layer, and facilitator-compatible gateway for autonomous agents and resource servers.** It gives x402 resource servers a hosted endpoint with replay protection, duplicate-settlement protection, settlement ownership, health-aware routing, independent Base finality verification, accounting, reconciliation, production observability, native Bazaar discovery, and a remote MCP discovery surface.\n\nExisting x402 resource servers do not need an XGuard-specific runtime. They can point the standard x402 facilitator client at the hosted XGuard endpoint.\n\n### Live production\n\n- **Mainnet endpoint:** `https://xguard-mainnet.maqamapp.workers.dev`\n- **Provider manifest:** `https://xguard-mainnet.maqamapp.workers.dev/.well-known/x402/facilitator.json`\n- **Protocol:** x402 v2\n- **Network:** Base mainnet (`eip155:8453`)\n- **Asset:** Native USDC\n- **Scheme:** `exact` / EIP-3009 authorization\n- **XGuard fee:** **$0.002 per successful billable settlement**\n- **Subscription:** **None**\n- **Install:** no XGuard-specific package required\n- **Discovery:** native x402 Bazaar catalog\n- **Remote MCP:** Streamable HTTP at `/mcp`\n- **MCP Registry name:** `io.github.moelayyan90/xguard`\n- **Execution model:** routed facilitator-compatible gateway; current downstream transaction submitter is xpay\n\nThe live `/supported` response is authoritative for x402 capabilities and signer attribution. XGuard does not claim that it owns the downstream xpay signer.\n\nThe live service is continuously checked by CI, CodeQL, guarded Cloudflare deployment, readiness probes, mainnet monitoring, and dedicated agent-stack smoke checks.\n\n## Why XGuard\n\nA resource server can call one hosted gateway instead of implementing its own settlement-safety layer around a downstream facilitator.\n\nXGuard adds:\n\n- permanent authorization replay identity and Payment Identifier validation;\n- idempotent duplicate handling and one settlement owner under concurrency;\n- no second-route settlement submission once outbound settlement has started;\n- explicit prepared/started/settled/failed/ambiguous boundaries;\n- facilitator health, circuit state, quarantine, latency tracking, and route controls;\n- independent finalized Base USDC verification before XGuard records earned revenue;\n- merchant service-balance accounting, immutable usage events, reconciliation cases, and fee reservations;\n- strict parsing, capped bodies, rate limiting, concurrency limiting, structured logs, and public health/status endpoints;\n- native Bazaar metadata validation, cataloging, listing, and search;\n- remote MCP tools that let agents discover cataloged paid HTTP APIs and MCP tools.\n\n## Provider discovery\n\nDeveloper tools, agents, and ecosystem catalogs can read one stable XGuard-specific provider document:\n\n```text\nGET /.well-known/x402/facilitator.json\n```\n\nIt publishes the live facilitator base URL, standard `/supported`, `/verify`, and `/settle` endpoints, network, asset, scheme, integration type, pricing, onboarding endpoints, safety properties, discovery endpoints, operational endpoints, source repository, and the routed downstream attribution boundary.\n\nThis manifest is **XGuard-specific discovery metadata**. It supplements the standard x402 `/supported` endpoint; it is not represented as an x402 protocol-standard registry format.\n\n## Start using XGuard\n\n### 1. Check the live gateway and provider identity\n\n```bash\ncurl https://xguard-mainnet.maqamapp.workers.dev/healthz\ncurl https://xguard-mainnet.maqamapp.workers.dev/readyz\ncurl https://xguard-mainnet.maqamapp.workers.dev/supported\ncurl https://xguard-mainnet.maqamapp.workers.dev/.well-known/x402/facilitator.json\n```\n\nA healthy production `/supported` response includes x402 v2 `exact` on `eip155:8453` and the native `bazaar` extension.\n\n### 2. Register your service\n\n```bash\ncurl -sS -X POST https://xguard-mainnet.maqamapp.workers.dev/v1/register \\\n  -H 'Content-Type: application/json' \\\n  --data '{\"name\":\"my-x402-service\"}'\n```\n\nThe returned API key is shown once. Store it as `XGUARD_API_KEY` and never commit it.\n\n### 3. Point the standard x402 facilitator client at XGuard\n\n```ts\nimport { HTTPFacilitatorClient } from \"@x402/core/http\";\n\nconst headers = {\n  Authorization: `Bearer ${process.env.XGUARD_API_KEY!}`,\n};\n\nconst facilitator = new HTTPFacilitatorClient({\n  url: \"https://xguard-mainnet.maqamapp.workers.dev\",\n  createAuthHeaders: async () => ({\n    verify: headers,\n    settle: headers,\n    supported: headers,\n    bazaar: headers,\n  }),\n});\n```\n\nMainnet billing uses a prepaid XGuard **service balance**. Before the first billable settlement, create a top-up intent, send the exact native Base USDC amount to the returned treasury address, and claim the finalized deposit. See [QUICKSTART.md](QUICKSTART.md).\n\n## AI-agent discovery\n\nXGuard catalogs valid Bazaar metadata carried by successful x402 traffic and exposes the resulting machine-readable catalog through:\n\n```text\nGET /discovery/resources\nGET /discovery/search?query=...\nPOST /mcp\nGET /.well-known/mcp/server.json\nGET /.well-known/agent-card.json\nGET /.well-known/agent-market.json\nGET /llms.txt\nGET /llms-full.txt\nGET /openapi.json\n```\n\nThe remote MCP server exposes three read-only tools:\n\n- `xguard_discover`\n- `xguard_resource_details`\n- `xguard_status`\n\nThe remote server is also published in the official MCP Registry as `io.github.moelayyan90/xguard`. The repository includes a portable [Agent Skill](SKILL.md) for coding agents that need to inspect, integrate, migrate, or diagnose an x402 resource server against XGuard.\n\nThis means an AI agent can discover paid HTTP APIs or paid MCP tools cataloged by XGuard without using a separate human-facing marketplace.\n\nBazaar catalog failure never bypasses or weakens XGuard's authoritative payment validation/settlement path.\n\n## Billing boundary\n\nXGuard charges only after an eligible settlement succeeds and independent Base finality confirms the expected USDC transfer.\n\nXGuard does **not** bill malformed requests, failed verification, definitive failed settlements, unresolved ambiguous outcomes, duplicate retries representing the same logical payment, health checks, discovery queries, MCP discovery calls, or testnet traffic.\n\nMerchant top-ups are customer prepayments, not revenue. The `$0.002` becomes gross XGuard service revenue only at the earned-finality boundary.\n\n## SDK and CLI\n\nHosted production use does not require an XGuard package; the standard x402 `HTTPFacilitatorClient` configuration above remains the canonical integration surface.\n\nThe CLI, SDK, and core package are also published as CI-built, smoke-tested GitHub prerelease tarballs. Install the CLI directly from the verified public release:\n\n```bash\nnpm install -g https://github.com/moelayyan90/XGuard/releases/download/xguard-packages-v0.1.0-alpha.0/xguard-0.1.0-alpha.0.tgz\nxguard --help\nxguard doctor --help\n```\n\nInstall the SDK and core package without waiting for npm registry publication:\n\n```bash\nnpm install \\\n  https://github.com/moelayyan90/XGuard/releases/download/xguard-packages-v0.1.0-alpha.0/xguard-core-0.1.0-alpha.0.tgz \\\n  https://github.com/moelayyan90/XGuard/releases/download/xguard-packages-v0.1.0-alpha.0/xguard-sdk-0.1.0-alpha.0.tgz\n```\n\nRelease checksums are published at:\n\n```text\nhttps://github.com/moelayyan90/XGuard/releases/download/xguard-packages-v0.1.0-alpha.0/SHA256SUMS\n```\n\nThe public npm names are prepared, but first npm publication remains identity-gated until an authorized npm credential or trusted publisher owns the packages. XGuard does not represent those npm packages as published before that happens.\n\n## Security and operations\n\n- [Security policy](SECURITY.md)\n- [Threat model](THREAT_MODEL.md)\n- [Architecture](ARCHITECTURE.md)\n- [Incident response](INCIDENT_RESPONSE.md)\n- [Operations](OPERATIONS.md)\n- [Reconciliation](RECONCILIATION.md)\n\nLocal verification:\n\n```bash\nnpm run check\nnpm run verify:release\nnpm run smoke:live\nnpm run smoke:mainnet\n```\n\nThe smoke checks validate liveness, readiness, provider identity, capabilities, fail-closed behavior, network boundaries, Bazaar discovery, MCP discovery, package build/install behavior, and public release installation. They do not fabricate a real customer payment.\n\n## Documentation\n\n[Quickstart](QUICKSTART.md) · [API](docs/API.md) · [OpenAPI](docs/openapi.yaml) · [facilitators](docs/FACILITATORS.md) · [Pricing](PRICING.md) · [Billing](BILLING.md) · [Treasury](TREASURY.md) · [Unit economics](UNIT_ECONOMICS.md) · [Payouts](PAYOUTS.md) · [Deployment](DEPLOYMENT.md)\n\n## Ecosystem listing\n\nCanonical public metadata for directories and ecosystem curators is available in [docs/ECOSYSTEM.md](docs/ECOSYSTEM.md).\n\nXGuard is an independent project and is not an official product of the x402 Foundation, Coinbase, Cloudflare, Base, Circle, xpay, PayAI, or OKX.\n\nApache-2.0. See [CONTRIBUTING.md](CONTRIBUTING.md).\n",
+  "status": "curated"
+}

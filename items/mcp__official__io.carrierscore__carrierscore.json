@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.carrierscore/carrierscore",
+  "type": "mcp",
+  "name": "carrierscore",
+  "description": "FMCSA motor-carrier risk scores, monitoring, and carrier-selection evidence reports for AI agents.",
+  "author": "io.carrierscore",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/csprout3/carrierscore-mcp",
+    "repo": "csprout3/carrierscore-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://mcp.carrierscore.io/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-16T19:32:31.796249Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "运维",
+    "featured": false
+  },
+  "readme": "<img src=\"https://carrierscore.io/icon-512.png\" alt=\"CarrierScore\" width=\"96\" align=\"right\">\n\n# CarrierScore MCP Server\n\nFMCSA motor-carrier risk intelligence for AI agents, over the [Model Context Protocol](https://modelcontextprotocol.io).\n\nCarrierScore answers **\"how risky is this carrier, and what was knowable about it on a given date?\"** for freight brokers and AI booking/dispatch agents. It builds longitudinal risk scores (0–100, higher = riskier) and timestamped carrier-selection evidence reports (\"Montgomery files\") from daily archives of public FMCSA / US DOT safety data: census, inspections, crashes, out-of-service orders, operating authority, and insurance filings.\n\n**Website:** [carrierscore.io](https://carrierscore.io) · **Agent docs:** [carrierscore.io/llms.txt](https://carrierscore.io/llms.txt)\n\n## Hosted endpoint (recommended)\n\nNo install needed — a hosted Streamable HTTP MCP endpoint is live:\n\n```\nhttps://mcp.carrierscore.io/mcp\n```\n\nKeyless requests get a rate-limited **free tier** (lookups, scores, text evidence reports). Paid tiers add carrier-list monitoring, structured JSON evidence reports, and higher volume — see [pricing](https://carrierscore.io/#pricing). Paid tiers authenticate with an `X-API-Key` header (or `CARRIERSCORE_API_KEY` when self-hosting).\n\n## Tools\n\n| Tool | What it does |\n| --- | --- |\n| `carrier_lookup` | Carrier identity by US DOT number: legal name, DBA, operating status, FMCSA safety rating, fleet size, address, registration dates. Use first to confirm a DOT is real and matches the rate confirmation. |\n| `carrier_score` | The CarrierScore risk score (0–100, higher = riskier) with full component breakdown, hard flags (active OOS order, no active insurance, reincarnated-carrier link), and data-sufficiency indicator. |\n| `montgomery_file` | Timestamped carrier-selection evidence report — the documented artifact a broker retains at the moment of booking (post *Montgomery v. Caribe Transport II*). Text format on the free tier; JSON on paid tiers. |\n| `monitor_carriers` | Batch score summary + flags for up to 100 DOT numbers per call — screen candidates for a load or re-check an active roster. |\n\n## Connect from a client\n\n### Claude Code\n\n```bash\nclaude mcp add --transport http carrierscore https://mcp.carrierscore.io/mcp\n```\n\n### Claude Desktop / claude.ai\n\nSettings → Connectors → Add custom connector → URL `https://mcp.carrierscore.io/mcp`.\n\n### Cursor\n\n`.cursor/mcp.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"carrierscore\": {\n      \"url\": \"https://mcp.carrierscore.io/mcp\"\n    }\n  }\n}\n```\n\n### Generic MCP client (Streamable HTTP)\n\n```json\n{\n  \"mcpServers\": {\n    \"carrierscore\": {\n      \"type\": \"streamable-http\",\n      \"url\": \"https://mcp.carrierscore.io/mcp\"\n    }\n  }\n}\n```\n\n## Self-hosting\n\nThe server in this repo is a thin Streamable HTTP client over the CarrierScore REST API (`https://api.carrierscore.io`).\n\n```bash\nnpm install\nnpm run build\nCARRIERSCORE_API_URL=https://api.carrierscore.io npm start\n# MCP endpoint: POST http://127.0.0.1:8322/mcp\n```\n\nEnvironment variables:\n\n| Variable | Default | Purpose |\n| --- | --- | --- |\n| `CARRIERSCORE_API_URL` | `http://127.0.0.1:8321` | Base URL of the CarrierScore REST API |\n| `CARRIERSCORE_API_KEY` | *(unset)* | Optional API key for paid tiers; unset = rate-limited free tier |\n| `PORT` | `8322` | Port for the MCP HTTP endpoint (`POST /mcp`) |\n\n## Disclaimer\n\nCarrierScore scores are computed statistical indicators built from public FMCSA data under a documented, transparent methodology (population percentiles plus hard flags). They are **not** safety fitness determinations, are **not** endorsed by FMCSA, and do not substitute for a carrier's official safety rating or your own judgment. Every score and evidence report embeds this disclaimer — retain it when storing or quoting results.\n\n## License\n\nMIT © SYMBOLIQ LLC. Contact: business@colesprout.com\n",
+  "status": "curated"
+}

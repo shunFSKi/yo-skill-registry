@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/ai.mentu/navigator",
+  "type": "mcp",
+  "name": "navigator",
+  "description": "Read-only repo navigation and progressive disclosure; BM25 locator with registered evidence.",
+  "author": "ai.mentu",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/mentu-ai/mentu-navigator",
+    "repo": "mentu-ai/mentu-navigator"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "mentu-navigator"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-16T20:51:08.006437Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# mentu-navigator\n\nRead-only, provenance-first repository navigation for humans and agents.\n\n`mentu-navigator` is the product name. `mentu-nav` is its short CLI. The\ndistinction keeps the package broad enough to grow beyond grep while leaving a\nsmall command that is pleasant to invoke.\n\n## Why it exists\n\nSearch tools find matching text. A repository navigator also preserves the\nquestion's intent and returns the nearby contracts, tests, docs, Git lineage,\nand risk surfaces needed to act safely.\n\nThe first release is intentionally deterministic:\n\n- no embeddings;\n- no background index;\n- no writes to target repositories;\n- on-demand, bounded frontmatter handles that route to documents but never\n  replace reading them;\n- bounded snippets with file-and-line provenance;\n- known secret-bearing paths excluded before content reads.\n\n## Install\n\n```sh\nnpm install -g mentu-navigator     # CLI: mentu-nav · MCP server: mentu-navigator-mcp\n```\n\nLicense: Apache-2.0. Telemetry is local-only JSONL under `~/.mentu/pd1/`\n(spec: [docs/TELEMETRY-SPEC.md](docs/TELEMETRY-SPEC.md)); disable with\n`MENTU_NAV_TELEMETRY=off`. Nothing ever leaves the machine.\n\n## One-command start\n\n```bash\ncd /path/to/repository\nmentu-nav\nmentu-nav \"where is PACM-274 implemented and tested?\"\n```\n\nInteractive terminals receive a concise human view. Pipes receive compact JSON;\n`--json` requests the full envelope.\nAgents should use `--agent` for a compact, token-efficient JSON contract:\n\n```bash\nmentu-nav --agent \"where is PACM-274 implemented and tested?\"\n```\n\nThe front door auto-routes to `map`, `query`, `handles`, `symbol`, or `impact`. Their\nexplicit commands remain available for scripts and advanced use.\n\nFor a docs-as-code network:\n\n```bash\nmentu-nav handles \"catalog lineage\"\n```\n\nThis returns metadata pointers, typed relationships, and diagnostics. Every\npointer carries `requiresHydration: true`. `query` keeps these pointers separate\nfrom source-body evidence so a summary cannot silently become an answer.\n\n## Capabilities\n\n| Capability | Question answered | Evidence |\n|---|---|---|\n| `map` | What is here? | files, languages, contracts, manifests, typed docs, Git state |\n| `query` | Where is the relevant evidence? | ranked path/line/snippet hits and routing reason |\n| `locate` | Which ranges should I read? | BM25-ranked hits with retriever attribution (evidence-backed default) |\n| `read-range` | What does that range say? | heading-bounded slice, frontmatter returned separately |\n| `handles` | Which docs and typed relationships may matter? | frontmatter pointers, relationship resolution, diagnostics; hydration required |\n| `symbol` | What surrounds this symbol? | definitions, references, tests, docs, config |\n| `impact` | What may this change affect? | Git range, tickets, contracts, tests, risk signals |\n\n## Progressive disclosure: `locate` and `read-range`\n\n`locate` is the agent surface. Its default arm is **ranked lexical retrieval\n(BM25)** — a default set by a pre-registered study, not by taste (see\n*Evidence* below). Two legs exist:\n\n- a **ranked lexical leg** — in-memory Okapi BM25 over the same file set the\n  walker already produces, with vendored Snowball stemmers for Spanish and\n  English, routed by each document's `lang` frontmatter tag (detected as a\n  fallback, and the detection is logged, never written);\n- an **exact leg** — the deterministic `query` pipeline, unchanged in semantics.\n\nA fused arm (reciprocal rank fusion of the two legs) exists as a measurement\narm. It was the original default and was **retired from the default path by\nits own pre-registered ablation rule** when the registered bake-off found it\ntrailing plain BM25 by 7.8 points of localization (see *Evidence*). Every hit\nsays which leg (or both) put it there.\n\n```bash\nmentu-nav locate \"compaction policy\" --k 8\nmentu-nav read-range docs/adr/ADR-014-ledger-compaction.md 38 62 --widen 1\n```\n\n`locate` returns `{path, line, range, snippet, score, retriever, why}` — a\nrange to read, not an answer. `read-range` returns the slice; each `--widen`\nstep reaches ±20 lines further and stops at the enclosing heading boundary, and\nfrontmatter comes back in its own field so metadata cannot be mistaken for body\nevidence. Handles remain the pointer layer, unchanged: every pointer still\ncarries `requiresHydration: true`.\n\n### Pinned parameters\n\nThese are design parameters, not implementation details. Each is registered as\nan ablation and measured there; changing one is a dated decision plus a\nre-measurement.\n\n| Parameter | Value | What it governs |\n|---|---|---|\n| `LOCATE_DEFAULT_K` | 8 | hits `locate` returns by default |\n| `LOCATE_MAX_K` | 40 | ceiling on `k`, whatever a caller asks for |\n| `SNIPPET_MAX_CHARS` | 240 | snippet length, whitespace-normalized to one line |\n| `WIDEN_STEP_LINES` | 20 | one `read-range` widening step |\n| `RRF_K` | 60 | reciprocal rank fusion constant |\n| `DEMOTION_MULTIPLIER` | 0.5 | penalty applied to a demoted document |\n\nThe legacy `query` command keeps its own human-facing default of 40 results;\nthe pins above govern `locate`.\n\n### Demotions\n\n`--demotions <path>` reads a `pdv demotions` JSON file (resolved against the\nrepository root) and multiplies those documents' scores by 0.5. A demoted\ndocument ranks lower and is **never removed** — an unavailable document is the\nmore expensive error. An unreadable or malformed demotion set is reported in the\nenvelope diagnostics rather than silently ignored.\n\n### `--retriever` is for measurement\n\n`--retriever=bm25|exact|fused` selects an arm (default `bm25`). It exists so a\nregistered bake-off's arms are produced by the shipped code path rather than by\na harness fork — and that is exactly how the defaults here were decided. The\nflag is not a tuning knob.\n\n### Evidence\n\nEvery performance-relevant default in this tool traces to a registered,\nmechanically adjudicated study, and every claim below carries its scope: one\n141-document bilingual operational documentation corpus, a fresh 115-question\nblind set, this tool's k=8 contract. The bake-off\n([doi:10.5281/zenodo.21969901](https://doi.org/10.5281/zenodo.21969901),\ncompanion to [doi:10.5281/zenodo.21960138](https://doi.org/10.5281/zenodo.21960138)):\n\n- **BM25 located the gold document on 93.0% of questions vs hardened exact\n  search's 71.3%** (McNemar p < 1e-5) — which is why `bm25` is the default.\n- **The fused arm trailed BM25-alone by 7.8 pp** (p = 0.0225), failing its\n  frozen \"fusion never costs localization\" prediction; the pre-registered\n  ablation rule retired it from the default path (docs/build/D3-REVISION-2026-08-16.md).\n- An off-the-shelf SQLite FTS5 control (89.6%) was **not statistically\n  distinguishable** from this implementation — BM25 as such carries the gain.\n- Downstream answer accuracy moved +5.2 pp under the better locator, almost\n  entirely through localization.\n\nNothing here claims generality beyond that corpus class; the study, corpus\nmanifest, question set, and adjudicator are public in the DOIs above for\nre-running. What *is* additionally asserted by the test suite on every commit: the index writes\nnothing to a target repository and lives in memory for the life of the process;\nidentical corpus and query produce byte-identical hit lists across runs and\nindex rebuilds; secret-bearing paths are excluded before tokenization, not\nafter; and a search pattern beginning with `-` is passed after a literal `--`\nso it can never be parsed as an engine flag.\n\n## MCP\n\n`mentu-navigator-mcp` exposes:\n\n- `navigator` — preferred compact, auto-routing entrypoint\n- `locate` — fused ranked ranges, with `retriever` and `demotions`\n- `read_range` — the disclosure step `locate` hands off to\n- `navigator_map`\n- `navigator_query`\n- `navigator_handles`\n- `navigator_symbol_context`\n- `navigator_change_impact`\n\nAn MCP client configuration:\n\n```json\n{\n  \"mcpServers\": {\n    \"mentu-navigator\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"-p\", \"mentu-navigator\", \"mentu-navigator-mcp\"]\n    }\n  }\n}\n```\n\nor launch the installed binary `mentu-navigator-mcp` directly.\n\n## Agent setup\n\n```bash\nmentu-nav setup --target all\nmentu-nav doctor --human\n```\n\nSetup links the bundled skill into Codex and Claude without copying its logic.\nIt refuses to replace an existing path. Repository navigation itself remains\nread-only.\n\n## Adoption\n\nThe executable remains centralized. Repositories adopt only a short operating\ncontract; they do not copy the implementation. See [docs/adoption.md](docs/adoption.md).\n\n## Related\n\n[`mentu-pdv`](https://github.com/mentu-ai/mentu-pdv) validates the\nfrontmatter schema this tool consumes and emits the demotion sets `locate`\napplies — the two are designed as a pair, and the schema itself is\npublished as a spec\n([SPEC-frontmatter.md](https://github.com/mentu-ai/mentu-pdv/blob/main/SPEC-frontmatter.md)).\n",
+  "status": "curated"
+}

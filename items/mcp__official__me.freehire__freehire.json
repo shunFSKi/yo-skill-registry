@@ -1,0 +1,70 @@
+{
+  "id": "mcp:official/me.freehire/freehire",
+  "type": "mcp",
+  "name": "freehire",
+  "description": "freehire.me: search 3.3M+ IT jobs from 294K company boards, track applications, tailor CVs.",
+  "author": "me.freehire",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/strelov1/freehire-mcp",
+    "repo": "strelov1/freehire-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "freehire-mcp"
+    ],
+    "env": [
+      {
+        "name": "FREEHIRE_TOKEN",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "FREEHIRE_API_URL",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-16T20:41:23.679322Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# freehire MCP server\n\n[![smithery badge](https://smithery.ai/badge/strelov1/freehire)](https://smithery.ai/servers/strelov1/freehire)\n\nAn [MCP](https://modelcontextprotocol.io) server over the [freehire](https://freehire.me)\njob API. It lets any MCP host — Claude Desktop, Claude Code, or a compatible agent —\n**search, filter, and apply to IT jobs** without a browser, authenticating with a\npersonal API key. Postings are crawled straight from company career boards — 3.3M+ open\nroles across 294K companies, normalized into one schema and tagged with stack, seniority,\nregion and work mode ([live figures](https://freehire.me/open)).\n\nIt mirrors the [freehire CLI](https://github.com/strelov1/freehire-cli):\nsame API, same credentials, exposed as MCP tools instead of shell commands.\n\n## Install\n\nNo global install needed — the host runs it via `npx`. Add it to your host's MCP\nconfiguration (Claude Desktop → **Settings → Developer → Edit config**, or\n`~/.claude.json` for Claude Code):\n\n```json\n{\n  \"mcpServers\": {\n    \"freehire\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"freehire-mcp\"],\n      \"env\": { \"FREEHIRE_TOKEN\": \"fhk_xxxxxxxx\" }\n    }\n  }\n}\n```\n\nCreate the `fhk_…` key in the web app (freehire.me → account menu → **API keys**).\nIf you already use the freehire CLI (`freehire auth login`), you can **omit `env`** —\nthe server reads the same `~/.freehire/creds.json`.\n\n## Authentication\n\nThe token and API base URL resolve with precedence\n**env → `~/.freehire/creds.json` → default `https://freehire.me`**:\n\n| What | Sources |\n|------|---------|\n| Token | `FREEHIRE_TOKEN` → creds file |\n| API base URL | `FREEHIRE_API_URL` → creds file → `https://freehire.me` |\n\nThe server only reads the credentials file (it never writes it — logging in stays the\nCLI's job). If no token is configured, tools return a clear \"not authenticated\" error\nrather than the server failing to start.\n\n## Tools\n\n| Tool | Purpose |\n|------|---------|\n| `whoami` | Authenticated user (verify the key). |\n| `facets` | The filter/skill vocabulary: every facet's live values with counts. **Call first.** |\n| `search` | Keyword + facet job search; returns jobs **with their full description as markdown** and the total match count. |\n| `market_fit` | Score a skill list against live market demand (coverage + gaps). |\n| `job` | A single job's full content by slug. |\n| `company` | A company and its open jobs by slug. |\n| `apply` | Mark a job applied. |\n| `save` / `unsave` | Bookmark / remove a bookmark. |\n| `stage` | Set the application stage (server-validated). |\n| `note` | Attach a free-text note. |\n| `my` | The caller's tracked jobs (all/viewed/saved/applied) with stage + note. |\n| `cv_tailor` | Start (or reopen) tailoring for a vacancy; returns the CV id the other `cv_*` tools take. |\n| `cv_list` | The caller's tailored CVs with the vacancy each was written for. |\n| `cv_context` | The fit analysis a tailored CV should reframe toward (missing_have vs missing_gap). |\n| `cv_get` | A tailored CV's full document. |\n| `cv_edit` | Apply a batch of path-addressed edits to a tailored CV, atomically (server-validated; uncited claims are refused). |\n| `cv_render` | Render a tailored CV to a PDF, returned as a base64 `application/pdf` resource. |\n| `experience_list` | The candidate's experience bank, with each achievement's **provenance**. `cv_edit`'s `evidence_id` comes from here. |\n| `experience_add_employment` / `experience_add_achievement` | Record a place, or one piece of evidence. |\n| `experience_update_employment` / `experience_update_achievement` | Correct one. Field-level: what you do not name is kept. |\n| `experience_remove_employment` / `experience_remove_achievement` | Delete one. No undo; a place must be empty first. |\n| `submit` | Submit a vacancy for moderation. |\n| `my_submissions` | The caller's submissions with status. |\n| `jobs_add` / `jobs_edit` | Moderator: author / edit a job (403 without the role). |\n| `submissions_pending` | Moderator: the review queue. |\n| `submission_approve` / `submission_reject` | Moderator: decide on a submission. |\n\n**Filters.** `search`, `market_fit`, and `facets` share the same market-filter\nparameters: `remote`, `region`, `country`, `city`, `company`, `category`, `role`,\n`seniority`, `employment_type`, `english_level`, `salary_min`, `visa`, plus a generic\n`facets` map (`{\"source\": \"greenhouse\"}`) for any other facet in the vocabulary.\nDiscover valid values with the `facets` tool — do not invent them. In `search`, `skills`\nis a filter; in `market_fit`, `skills` is the measured set.\n\n**Descriptions.** `search` reads the API's agent endpoint, so every hit already carries\nthe posting's full description rendered as markdown — a host can screen a result set\nwithout a `job` call per hit. Descriptions are long, so keep `limit` modest.\n\n**The evidence rule.** Every achievement in the bank records who asserted it.\n`cv_import`, `stated_in_chat` and `manual` mean the candidate did, and may be cited on a\nCV; `agent_inferred` means a model read it into the record, and may not. `cv_edit`\nrefuses any claim about the candidate without an `evidence_id` pointing at a citable one,\nwhich is why `experience_list` is the tool that makes `cv_edit` usable at all.\n\nCorrecting an achievement does not move that label: an `agent_inferred` one stays\nuncitable however it is reworded. The only way it becomes citable is to ask the\ncandidate, then record what **they** say with `experience_add_achievement`.\n\n**Removing is final** — the bank has no undo. A place must be emptied before it can go,\nbecause deleting one would take every achievement under it. Folding two achievements into\none, keeping the numbers from both, is on the site.\n\nEach tool returns the raw API `data` as JSON text; an API error becomes an `isError`\nresult carrying the HTTP status (a 401 adds an auth hint).\n\n## Develop\n\n```bash\nnpm install\nnpm test        # vitest: config, client (mock server), facets, tool dispatch\nnpm run build   # tsc → dist/\n```\n\n## License\n\nMIT — see [LICENSE](LICENSE). The freehire backend and CLI are MIT too.\n",
+  "status": "curated"
+}

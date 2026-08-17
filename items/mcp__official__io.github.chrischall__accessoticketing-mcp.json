@@ -1,0 +1,70 @@
+{
+  "id": "mcp:official/io.github.chrischall/accessoticketing-mcp",
+  "type": "mcp",
+  "name": "accessoticketing-mcp",
+  "description": "Read accesso mobile ticket links: orders, admissions, barcodes and Google Wallet passes.",
+  "author": "io.github.chrischall",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/chrischall/accessoticketing-mcp",
+    "repo": "chrischall/accessoticketing-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@chrischall/accessoticketing-mcp"
+    ],
+    "env": [
+      {
+        "name": "ACCESSO_TICKET_URL",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "ACCESSO_OUTPUT_DIR",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-16T20:57:55.851035Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "办公",
+    "featured": false
+  },
+  "readme": "# accessoticketing-mcp\n\n[![CI](https://github.com/chrischall/accessoticketing-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/chrischall/accessoticketing-mcp/actions/workflows/ci.yml)\n[![npm](https://img.shields.io/npm/v/@chrischall/accessoticketing-mcp)](https://www.npmjs.com/package/@chrischall/accessoticketing-mcp)\n\nAn MCP server for **accesso Passport mobile ticket links** — the URL a venue emails\nyou after a purchase. Reads the order and every admission on it, the scannable\nbarcodes, and Google Wallet save links.\n\naccesso powers ticketing for a lot of theme parks, water parks, camps, museums and\nfestivals, so one server covers all of them: the merchant is encoded in the link.\n\n> Developed and maintained by AI (Claude Code). Use at your own discretion.\n\n## What it needs\n\n**No login.** These links carry their own credential — the `oToken` in the query\nstring is what authorises the read. There is no account, no password, no browser\nsession, and no bot wall.\n\n> [!WARNING]\n> That also means **the link is a secret**. Anyone holding it can view and add the\n> order's tickets. Treat it like a password: don't paste it into issues, logs or\n> chats. This server redacts the tokens from its own output and error messages.\n\n## Install\n\n```bash\nnpx -y @chrischall/accessoticketing-mcp\n```\n\n```jsonc\n// claude_desktop_config.json / .mcp.json\n{\n  \"mcpServers\": {\n    \"accessoticketing\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@chrischall/accessoticketing-mcp\"],\n      \"env\": { \"ACCESSO_TICKET_URL\": \"https://media-engine.na3.accessoticketing.com/tickets/v1/...\" }\n    }\n  }\n}\n```\n\n`ACCESSO_TICKET_URL` is optional — it just saves passing `url` on every call. The\nserver starts fine without it and reports the missing link on first use.\n\n| Variable | Required | Purpose |\n|---|---|---|\n| `ACCESSO_TICKET_URL` | no | Default ticket link, used when a tool is called without `url`. |\n| `ACCESSO_OUTPUT_DIR` | no | Where `accesso_save_barcodes` writes PNGs. Defaults to cwd. |\n| `ACCESSO_NO_FILE_OUTPUT` | no | Set to `1` where the filesystem isn't the user's (a hosted deployment) so barcodes return inline. |\n\n## Tools\n\n| Tool | Does |\n|---|---|\n| `accesso_get_order` | The order and every admission: product, participant, date, start time, instructions. `compact` for a slim list. |\n| `accesso_get_ticket` | One admission in full, by `index`. |\n| `accesso_save_barcodes` | Writes barcode PNGs and returns paths, or returns the images inline. |\n| `accesso_get_wallet_passes` | Google Wallet save links for the tickets. |\n| `accesso_resolve_link` | Unwraps an email click-tracking link to the accesso URL it hides. |\n| `accesso_healthcheck` | Confirms reachability and whether a default link is configured. |\n\nEvery tool is read-only; nothing here mutates an order.\n\n```\n> what do we have booked tomorrow?\n9:00 AM   Tiny Trekkers Full-Day (Ages 4-7)   — one participant\n9:00 AM   Whitewater Kayak Camp I: Intro      — two participants\nall-day   Lunch / Snack / Early Drop-Off      — nine more admissions\n```\n\n## Shell-out skill\n\nPrefer a shell? `skills/accesso-tickets/` does the same reading with `curl` and a\ndependency-free parser, no server required. It ships with the package.\n\n## Notes on the data\n\n- `date` / `time` are the merchant's local wall-clock strings with no timezone\n  attached. They are passed through verbatim rather than converted.\n- Merchant-specific detail rows (`Guest Number`, `Web Sales ID`, …) are harvested\n  generically into `details`, so a venue this was never tested against still works.\n- An expired link returns **HTTP 200**, not an error status — the server detects\n  the body and says the link is expired rather than reporting zero tickets.\n\n## Development\n\n```bash\nnpm install\nnpm run build\nnpm test\nnpm run test:coverage   # 100% thresholds, enforced in CI\n```\n\nSee `docs/ACCESSO-API.md` for the captured request/response shapes and `CLAUDE.md`\nfor repo conventions.\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

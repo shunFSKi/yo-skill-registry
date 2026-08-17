@@ -1,0 +1,80 @@
+{
+  "id": "mcp:official/io.github.krystiangw/zen",
+  "type": "mcp",
+  "name": "zen",
+  "description": "Unofficial MCP server for the ZEN.com Payment Gateway: payment links, transactions, refunds.",
+  "author": "io.github.krystiangw",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/krystiangw/zen-mcp",
+    "repo": "krystiangw/zen-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@krystiangw/zen-mcp"
+    ],
+    "env": [
+      {
+        "name": "ZEN_API_KEY",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "ZEN_PAYWALL_SECRET",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "ZEN_IPN_SECRET",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "ZEN_ENV",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-16T19:58:02.744393Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "金融",
+    "featured": false
+  },
+  "readme": "# ZEN MCP\n\n[![npm version](https://img.shields.io/npm/v/%40krystiangw%2Fzen-mcp)](https://www.npmjs.com/package/@krystiangw/zen-mcp)\n[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)\n\nAn MCP server that lets AI assistants work with the ZEN.com Payment Gateway: hosted payment links, transaction lookup, refunds, payouts, and reporting.\n\n[Project page](https://krystiangw.github.io/zen-mcp/)\n\n> **Unofficial.** This project is not affiliated with, endorsed by, or maintained by ZEN.com.\n\n## What it does\n\nRead-only tools:\n\n- List terminal payment methods and documented currencies.\n- Look up transactions, payment links, and payouts.\n- List payment links and request reconciliation reports.\n- Verify IPN webhook signatures locally.\n\nWrite tools:\n\n- Create hosted payment links and QR codes without handling card data.\n- Capture or cancel transactions and issue full or partial refunds.\n- Create payouts and customer records.\n\n## Disclaimer\n\nThis integration was built from public ZEN documentation without access to a live merchant account. Endpoint versions, request fields, response fields, signing details, and webhook behavior must be checked against ZEN's current OpenAPI or Postman collection before production use. Mock mode is included for evaluation without an account.\n\n## Install\n\nAdd the published package to Claude Code:\n\n```sh\nclaude mcp add zen --env ZEN_API_KEY=your_terminal_api_key -- npx -y @krystiangw/zen-mcp\n```\n\nFor Claude Desktop, add this entry to its MCP configuration:\n\n```json\n{\n  \"mcpServers\": {\n    \"zen\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@krystiangw/zen-mcp\"],\n      \"env\": {\n        \"ZEN_API_KEY\": \"your_terminal_api_key\",\n        \"ZEN_PAYWALL_SECRET\": \"your_paywall_secret\",\n        \"ZEN_IPN_SECRET\": \"your_ipn_secret\",\n        \"ZEN_ENV\": \"sandbox\"\n      }\n    }\n  }\n}\n```\n\n## Configuration\n\n| Variable | Required | Description |\n|---|---:|---|\n| `ZEN_API_KEY` | Outside mock mode | Terminal API Key sent in `Authorization` without a Bearer prefix |\n| `ZEN_PAYWALL_SECRET` | Write operations | Checkout/paywall secret used to sign request bodies |\n| `ZEN_IPN_SECRET` | Webhook verification | IPN secret used only by `verify_webhook_signature` |\n| `ZEN_ENV` | No | `sandbox` (default) or `production` |\n| `ZEN_BASE_URL` | No | API base URL override; takes priority over `ZEN_ENV` |\n| `ZEN_MOCK` | No | `1` or `true` enables deterministic offline responses |\n| `ZEN_HASH_ALG` | No | `sha224`, `sha256` (default), `sha384`, or `sha512` |\n\nIn the ZEN merchant panel, go to **my.zen.com → Shop settings → Terminal** to find the Terminal API Key. Use sandbox first; the default API host is `api.zen-test.com`, although sandbox availability and onboarding requirements should be confirmed with ZEN.\n\nNo merchant account yet? You can [open a ZEN business account](https://get.zen.com/business/809eaf9d-aca4-42ed-8e4c-f645b0fe30bd?referralCode=10W3058V95&dealid=1). That is a referral link: it credits the author of this project if you sign up through it, and costs you nothing. Every other link in this README is a plain one.\n\n## Tools\n\n| Name | Type | Description |\n|---|---|---|\n| `list_payment_methods` | Read | List payment methods for the terminal |\n| `get_transaction` | Read | Get a transaction by ZEN or merchant ID |\n| `list_payment_links` | Read | List hosted payment links |\n| `get_payment_link` | Read | Get one hosted payment link |\n| `get_payout` | Read | Get a payout by ZEN ID |\n| `download_report` | Read | Request a report download |\n| `list_supported_currencies` | Read | List documented supported currencies |\n| `verify_webhook_signature` | Read | Verify a ZEN IPN signature locally |\n| `create_payment_link` | Write | Create a hosted checkout link and QR code |\n| `refund_transaction` | Write, destructive | Issue a full or partial refund |\n| `capture_transaction` | Write, destructive | Capture an authorized transaction |\n| `cancel_transaction` | Write, destructive | Cancel a transaction |\n| `create_payout` | Write, destructive | Send an outbound payout |\n| `create_customer` | Write | Create a customer record |\n\n## Security\n\n- Tools are read-only by default; operations that move or reverse money are marked destructive for MCP clients.\n- Secrets are read only from environment variables and are never tool arguments.\n- Payment acceptance uses ZEN-hosted links, so this server does not collect or transmit card numbers.\n- The signing algorithm follows public ZEN documentation, but nested-object and array flattening are not fully specified publicly. Verify it against the live API.\n- Verify every IPN webhook signature with `ZEN_IPN_SECRET` before trusting its contents.\n- Use least-privilege terminal credentials and keep human confirmation enabled for write tools.\n\n## Demo without an account\n\nRun the server with deterministic canned API responses:\n\n```sh\nZEN_MOCK=1 ZEN_IPN_SECRET=demo npx -y @krystiangw/zen-mcp\n```\n\n`verify_webhook_signature` does real cryptography instead of calling the API, so it needs a secret even in mock mode. Any value works for a demo.\n\nFrom a development checkout:\n\n```sh\nnpm install\nnpm run build\nZEN_MOCK=1 ZEN_IPN_SECRET=demo npm run inspect\n```\n\n## Development\n\nRequires Node.js 18 or newer.\n\n```sh\nnpm install\nnpm run typecheck\nnpm run build\nnpm test\nZEN_MOCK=1 ZEN_IPN_SECRET=demo npm run inspect\n```\n\n## Roadmap\n\n- Raw card charges only after a deliberate PCI/security design; they are excluded from the MVP.\n- Recurring and one-click payments after the tokenization flow is verified.\n- Consumer ZEN features such as cashback and personal cards if ZEN publishes a supported API.\n- Remote Streamable HTTP transport and OAuth after the stdio MVP.\n\n## License\n\n[MIT](LICENSE)\n",
+  "status": "curated"
+}

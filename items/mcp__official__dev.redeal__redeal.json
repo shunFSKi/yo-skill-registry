@@ -16,8 +16,8 @@
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-08-15T16:16:43.560903Z",
-    "score": 42
+    "pushed_at": "2026-08-16T22:00:34.892934Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -49,6 +49,6 @@
     "category": null,
     "featured": false
   },
-  "readme": null,
+  "readme": "# redeal-engine\n\n**Call redeal to split it.** Deterministic fairness computation between parties. Sealed inputs in, an identical signed certificate out for everyone, re-runnable by anyone.\n\nRedeal is neutral infrastructure for how agents (or people) split, allocate, and decide. This repo is the verification core: the deterministic engine, the CLI re-runner, and the published test vectors. No server machinery here. Everything is pure, offline, and deterministic.\n\nThe hosted service is [redeal.dev](https://redeal.dev). [Docs](https://redeal.dev/docs) · [Verify a certificate](https://redeal.dev/verify) · [Status and signing keys](https://redeal.dev/trust/status)\n\n## What you can do with this repo\n\n**Verify any certificate, fully offline.** The verifier never contacts the redeal service. You supply the trust anchors yourself: the signing pubkey from [KEYS.md](KEYS.md) or the status page, the tree-head root from `GET /v1/log/tree-head`, and the revealed inputs from the parties.\n\n```bash\ncargo run -p redeal-cli -- verify cert.json \\\n  --pubkey es256:<pubkey-hex> \\\n  --tree-head <root-hex> \\\n  --inputs inputs.json\n```\n\nChecks: signature over the signed payload, sealed-commitment reproduction, input Merkle root, bit-for-bit algorithm re-run, transparency-log inclusion. Every flag is optional. Anything you do not anchor is reported as `SKIP`, never silently assumed.\n\n**Run the conformance vectors.** Every algorithm version ships vectors, and the CLI byte-compares:\n\n```bash\ncargo run -p redeal-cli -- vector run vectors/\n```\n\n**Re-implement and cross-check.** Each algorithm's prose spec lives in its engine module's doc comment (`engine/src/split.rs`, `split2.rs`, `random.rs`, `shapley.rs`, `deal.rs`). The vectors are the byte-level bar. An independent implementation must match bit-for-bit.\n\n## Layout\n\n| Path | Contents |\n|---|---|\n| `engine/` | `redeal-engine` library crate: JCS canonicalisation (RFC 8785), commit/reveal hashing, algorithms, certificate construction and verification, Merkle log routines. No I/O, no clock, no floats. |\n| `cli/` | `redeal-cli`, the skeptic's re-runner. A thin wrapper over `engine`. |\n| `vectors/` | Published test vectors per algorithm version (`split.v1`, `split.v2`, `random.v1`, `shapley.v1`). |\n\n## Algorithms\n\n| id | What it does | Inputs |\n|---|---|---|\n| `split.v2` | Fair division with a fixed budget (adjusted winner for two parties, proportional for n) | Parties seal valuations of a declared item catalogue; each party's valuations sum to exactly 1,000 points |\n| `split.v1` | Fair division with free-scale valuations | Same shape as split.v2, without the budget rule |\n| `shapley.v1` | Shapley value share | Initiator declares coalition values; counterparties seal accept/reject |\n| `random.v1` | Verifiable random selection | XOR of party nonces, XOR drand beacon at a round pinned at deal creation |\n\n## Guarantees\n\n- **Deterministic.** Integer and fixed-point only, canonical JSON, no clocks. Same inputs, same bytes, forever.\n- **Versioned.** Algorithm and certificate versions never mutate in place. Every release is tagged, so any certificate resolves to this code.\n- **Reproducible builds.** Release binaries build bit-for-bit from these tags.\n\n## License\n\nMIT. See [LICENSE](LICENSE).\n",
   "status": "curated"
 }
