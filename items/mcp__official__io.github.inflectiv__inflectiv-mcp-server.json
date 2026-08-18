@@ -1,0 +1,75 @@
+{
+  "id": "mcp:official/io.github.inflectiv/inflectiv-mcp-server",
+  "type": "mcp",
+  "name": "Inflectiv",
+  "description": "Search, build and manage Inflectiv datasets and AI agents, plus ChainAware on-chain intelligence.",
+  "author": "io.github.inflectiv",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/inflectiv/inflectiv-mcp-server",
+    "repo": "inflectiv/inflectiv-mcp-server"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@inflectiv-ai/inflectiv-mcp"
+    ],
+    "env": [
+      {
+        "name": "INFLECTIV_API_KEY",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "INFLECTIV_BASE_URL",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "INFLECTIV_WALLET_PRIVATE_KEY",
+        "required": false,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-18T10:29:54.393239Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "金融",
+    "featured": false
+  },
+  "readme": "# Inflectiv MCP Server\n\n[![npm version](https://img.shields.io/npm/v/@inflectiv-ai/inflectiv-mcp.svg)](https://www.npmjs.com/package/@inflectiv-ai/inflectiv-mcp)\n[![Node.js](https://img.shields.io/badge/node-%3E%3D18-brightgreen.svg)](https://nodejs.org)\n[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)\n[![Model Context Protocol](https://img.shields.io/badge/MCP-compatible-orange.svg)](https://modelcontextprotocol.io)\n\nConnect any AI agent to the [Inflectiv](https://app.inflectiv.ai) data platform via the [Model Context Protocol](https://modelcontextprotocol.io). Build knowledge bases, create AI agents, run semantic search, upload files, and chat — from any MCP-compatible client.\n\n**Works with any AI agent** — not limited to coding. Use it for research, customer support, content creation, data pipelines, and multi-agent workflows.\n\n---\n\n## What It Does\n\nInflectiv turns raw data (documents, URLs, text, files) into structured, searchable knowledge that AI agents can query and build on. This MCP server gives your agent direct access to:\n\n- **Search** — Semantic / RAG search across your knowledge base\n- **Agents** — Create, configure, and chat with AI agents trained on your data\n- **Datasets** — Create, clone, update, reindex, and cross-query datasets\n- **Knowledge** — Write and manage intelligence entries (auto-embedded, deduplicated)\n- **Files** — Upload PDFs, CSVs, JSON, and 10+ other formats as knowledge sources\n- **Webhooks** — Subscribe to real-time events when data is processed\n- **ChainAware** — On-chain intelligence: wallet fraud/AML risk, rug-pull risk, credit scoring, behaviour profiling, and token rankings\n- **Crypto payments (optional)** — Pay per request with USDC on Base when credits run out, via the [x402](https://www.x402.org) protocol\n\n> 33 tools and 3 documentation resources, listed below.\n\n---\n\n## Quick Start\n\n1. Get an API key from the [Inflectiv dashboard](https://app.inflectiv.ai) → **Datasets → select a dataset → Create Key**.\n2. Add the config below to your MCP client.\n3. Ask your agent: *\"search my dataset for machine learning\"* or *\"list my agents\"*.\n\n---\n\n## Installation\n\n### Claude Desktop\n\nAdd to `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\\Claude\\claude_desktop_config.json` (Windows):\n\n```json\n{\n  \"mcpServers\": {\n    \"inflectiv\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@inflectiv-ai/inflectiv-mcp\"],\n      \"env\": {\n        \"INFLECTIV_API_KEY\": \"inf_your_key_here\"\n      }\n    }\n  }\n}\n```\n\n### Claude Code\n\n```bash\nclaude mcp add inflectiv -e INFLECTIV_API_KEY=inf_your_key_here -- npx -y @inflectiv-ai/inflectiv-mcp\n```\n\nOr edit `.mcp.json` in your project root with the same `mcpServers` block as above.\n\n### Cursor / Windsurf / Other MCP Clients\n\nAny MCP-compatible client works. Run `npx -y @inflectiv-ai/inflectiv-mcp` with the `INFLECTIV_API_KEY` environment variable set.\n\n---\n\n## Configuration\n\n| Variable                         | Required | Default                                   | Description                                                                                                                                                                               |\n| -------------------------------- | -------- | ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| `INFLECTIV_API_KEY`            | Yes      | —                                        | API key (must start with `inf_`). See **API Keys** below.                                                                                                                         |\n| `INFLECTIV_WALLET_PRIVATE_KEY` | No       | —                                        | EVM wallet private key for x402 crypto payments. When set and credits hit 0, the server pays per request in USDC on Base.**Optional** |\n\n### API Keys\n\nThere are two kinds of key, and they change how some tools behave:\n\n- **Per-dataset key** (`inf_...`) — bound to a single dataset. Dataset-scoped tools operate on that dataset automatically; you never pass `dataset_id`.\n- **Global key** (`inf_global_...`) — spans every dataset you own plus active marketplace acquisitions. Dataset-scoped tools accept an optional `dataset_id` to target a specific dataset, and unlock account-level tools like `inflectiv_create_dataset`, `inflectiv_clone_dataset`, and `inflectiv_cross_query`.\n\n---\n\n## Tools (33)\n\n### Agents\n\n| Tool                              | Description                                                   | Cost |\n| --------------------------------- | ------------------------------------------------------------- | ---- |\n| `inflectiv_list_agents`         | List all your agents                                          | Free |\n| `inflectiv_create_agent`        | Create a new AI agent                                         | Paid |\n| `inflectiv_get_agent`           | Get agent details                                             | Free |\n| `inflectiv_update_agent_config` | Update agent settings (model, personality, temperature, etc.) | Paid |\n| `inflectiv_chat_with_agent`     | Chat with RAG-enabled responses (multi-turn supported)        | Paid |\n| `inflectiv_list_agent_datasets` | List datasets attached to an agent                            | Free |\n| `inflectiv_attach_dataset`      | Attach a dataset to an agent                                  | Free |\n| `inflectiv_update_dataset_mode` | Switch between `read_only` and `self_learning`            | Free |\n\n### Datasets & Search\n\n| Tool                                 | Description                                                    | Cost |\n| ------------------------------------ | -------------------------------------------------------------- | ---- |\n| `inflectiv_list_datasets`          | List accessible datasets                                       | Free |\n| `inflectiv_create_dataset`         | Create a new dataset*(global key)*                           | Paid |\n| `inflectiv_clone_dataset`          | Clone an accessible dataset into your account*(global key)*  | Free |\n| `inflectiv_update_dataset`         | Update dataset name, description, and instructions             | Free |\n| `inflectiv_reindex_dataset`        | Reindex vectors (run after bulk changes)                       | Paid |\n| `inflectiv_search_dataset`         | Semantic search across a dataset                               | Paid |\n| `inflectiv_batch_search`           | Run up to 20 searches in one call                              | Paid |\n| `inflectiv_cross_query`            | One query across many datasets*(global key + advanced tier)* | Paid |\n| `inflectiv_list_knowledge_sources` | List all sources (files, URLs, text, AI-generated)             | Free |\n\n### Intelligence (Write Knowledge)\n\n| Tool                                   | Description                                            | Cost |\n| -------------------------------------- | ------------------------------------------------------ | ---- |\n| `inflectiv_write_intelligence`       | Write a knowledge entry (auto-embedded & deduplicated) | Paid |\n| `inflectiv_batch_write_intelligence` | Write up to 50 entries in one call                     | Paid |\n| `inflectiv_list_intelligence`        | List entries with filtering & pagination               | Free |\n\n### Files\n\n| Tool                         | Description                               | Cost |\n| ---------------------------- | ----------------------------------------- | ---- |\n| `inflectiv_upload_file`    | Upload a local file as a knowledge source | Paid |\n| `inflectiv_list_files`     | List uploaded files                       | Free |\n| `inflectiv_get_file`       | Get file details & processing status      | Free |\n| `inflectiv_reprocess_file` | Retry a failed file upload                | Paid |\n\n**Supported formats:** PDF, DOCX, TXT, MD, HTML, XML, CSV, JSON, JSONL, TSV, XLSX, XLS, Parquet\n\n### Webhooks\n\n| Tool                           | Description                               | Cost |\n| ------------------------------ | ----------------------------------------- | ---- |\n| `inflectiv_register_webhook` | Subscribe to events (HTTPS only)          | Free |\n| `inflectiv_list_webhooks`    | List registered webhooks                  | Free |\n| `inflectiv_test_webhook`     | Send a test event to verify your endpoint | Free |\n\n**Events:** `intelligence.processed`, `intelligence.failed`, `intelligence.deduped`, `dataset.mode_changed`\n\n### ChainAware (on-chain intelligence)\n\n| Tool                                       | Description                                       | Cost |\n| ------------------------------------------ | ------------------------------------------------- | ---- |\n| `inflectiv_chainaware_fraud`             | Predictive fraud / AML risk for a wallet          | Paid |\n| `inflectiv_chainaware_rug_pull`          | Predictive rug-pull risk for a wallet             | Paid |\n| `inflectiv_chainaware_credit_score`      | On-chain credit score for a wallet                | Paid |\n| `inflectiv_chainaware_behaviour`         | Predictive behaviour profile for a wallet         | Paid |\n| `inflectiv_chainaware_token_rank`        | Ranked token list for a network (paged, sortable) | Paid |\n| `inflectiv_chainaware_token_rank_single` | Ranking for a single token by contract address    | Paid |\n\nRequires the `chainaware_api` feature on your subscription tier. Calls spend from the **paid** credit pool; same-day repeat lookups are cached for free, and unprovisioned wallet lookups are not charged.\n\nEach tool's full parameters and credit cost are described in its tool definition, which your MCP client surfaces automatically.\n\n---\n\n## Examples\n\nOnce connected, ask your AI agent in natural language:\n\n```\n\"List my datasets\"\n\"Search my knowledge base for refund policy\"\n\"Upload my-data.pdf to the dataset\"\n\"Create an agent called Support Bot with a friendly personality\"\n\"Chat with agent 42: What are the return deadlines?\"\n\"Write this as intelligence: Our return window is 30 days\"\n\"Register a webhook at https://example.com/hook for processed events\"\n\"Check the fraud risk on wallet 0xabc… on ETH\"\n```\n\n---\n\n## Use Cases\n\n- **Customer support agent** — Upload help docs, FAQs, and policies; create a friendly agent; let any MCP client answer customer questions with sourced responses.\n- **Research assistant** — Feed papers and notes into a dataset, search semantically across thousands of documents, and write new findings back as instantly searchable intelligence.\n- **Knowledge base for AI workflows** — Build a structured base any agent can query; use webhooks to react when new intelligence is processed.\n- **Data pipeline automation** — Upload CSV/JSON/Parquet programmatically, monitor processing status, trigger reindexing after bulk loads.\n- **Multi-agent collaboration** — Specialized agents (researcher, writer, analyst) sharing datasets, with self-learning mode so agents contribute back.\n\n---\n\n## Crypto Payments (x402)\n\nThe server can pay for paid operations automatically using USDC on Base via the [x402](https://www.x402.org) protocol — no top-up needed. Set `INFLECTIV_WALLET_PRIVATE_KEY` to a funded EVM wallet; when an API call returns `402 Payment Required`, the server signs and retries the request with payment.\n\n> ⚠️ A wallet private key grants full control of that wallet. Use a dedicated, low-balance wallet, never your primary one, and never commit or share the key.\n\n---\n\n## MCP Resources\n\nThe server also exposes reference resources any MCP client can read:\n\n| URI                                 | Content                                   |\n| ----------------------------------- | ----------------------------------------- |\n| `inflectiv://docs/overview`       | Authentication, concepts, getting started |\n| `inflectiv://docs/webhook-events` | Event types and payload examples          |\n| `inflectiv://docs/credit-costs`   | Full credit cost table                    |\n\n---\n\n## Requirements\n\n- Node.js 18+\n- An Inflectiv API key — [get one here](https://app.inflectiv.ai)\n\nThe server is published as [`@inflectiv-ai/inflectiv-mcp`](https://www.npmjs.com/package/@inflectiv-ai/inflectiv-mcp) on npm and runs automatically via `npx` — no build or installation step required. All processing is handled server-side by the Inflectiv platform.\n\n---\n\n## Links\n\n- [npm package](https://www.npmjs.com/package/@inflectiv-ai/inflectiv-mcp)\n- [Inflectiv dashboard](https://app.inflectiv.ai)\n- [Model Context Protocol](https://modelcontextprotocol.io)\n\n---\n\n## License\n\n[MIT](./LICENSE) © Inflectiv\n",
+  "status": "curated"
+}

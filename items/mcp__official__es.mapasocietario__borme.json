@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/es.mapasocietario/borme",
+  "type": "mcp",
+  "name": "Mapa Societario — Spanish Company Registry (BORME)",
+  "description": "Search Spanish companies and directors from the official BORME registry and map their links.",
+  "author": "es.mapasocietario",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/anbrme/borme-mcp",
+    "repo": "anbrme/borme-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://mcp.mapasocietario.es/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-18T14:35:25.154092Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "生活",
+    "featured": false
+  },
+  "readme": "# Mapa Societario — MCP Server (Spanish Company Registry / BORME)\n\nA hosted, **read-only**, **anonymous** [Model Context Protocol](https://modelcontextprotocol.io)\nserver that gives AI agents access to the Spanish company registry.\n\nIt exposes data derived from the official **BORME** (Boletín Oficial del Registro\nMercantil / Registro Mercantil) — **~3.1M companies and ~9.4M filings since 2009** —\nso an assistant can search companies and directors and explore corporate\nrelationships directly.\n\n- 🔎 Web app: **https://mapasocietario.es**\n- ☁️ Connector URL: **`https://mcp.mapasocietario.es/mcp`** (Streamable HTTP, JSON-RPC)\n- 🔓 Auth: none · **Rate limit:** 30 requests/min, 1,000/day per IP\n\n## Tools\n\n| Tool | Description |\n|------|-------------|\n| `search_companies` | Search Spanish companies by name (typo-tolerant, ranked) |\n| `get_company` | Full record for one company — current officers, sole shareholder, dissolution status, NIF/capital/address |\n| `search_officers` | Search directors / officers by name (accent-insensitive) |\n| `get_company_network` | Related companies and shared officers as a graph (`owns` / `owned_by` / `shared_officer` edges) |\n\n## Connect\n\n**Claude clients with native remote-MCP support** — add a custom connector with the URL:\n\n```\nhttps://mcp.mapasocietario.es/mcp\n```\n\n**Claude Desktop (or any client) via the `mcp-remote` bridge:**\n\n```json\n{\n  \"mcpServers\": {\n    \"mapa-societario\": {\n      \"command\": \"npx\",\n      \"args\": [\"mcp-remote\", \"https://mcp.mapasocietario.es/mcp\"]\n    }\n  }\n}\n```\n\nHealth check: `curl -s https://mcp.mapasocietario.es/health` → `ok`.\n\n## Registry listings\n\nThis server is published to the official\n[MCP Registry](https://registry.modelcontextprotocol.io) as\n**`es.mapasocietario/borme`** (see [`server.json`](server.json)), under a\nDNS-verified `mapasocietario.es` namespace.\n\nMachine-readable site metadata for AI agents is published at\n[mapasocietario.es/llms.txt](https://mapasocietario.es/llms.txt).\n\n## Data & limitations\n\n- **Unofficial.** Derived from official BORME publications and provided **as-is**.\n  For documented or critical use, consult the official BORME and the company's\n  page on [mapasocietario.es](https://mapasocietario.es).\n- **Ownership:** BORME records only the **sole shareholder** (*socio único*),\n  not full shareholder / cap-table data.\n- **Out of scope:** sanctions / PEP screening, annual accounts (*Cuentas\n  Anuales*), AI analysis, and cross-company time-range / event queries.\n- Every company result includes an `empresa_url` link back to its page on\n  mapasocietario.es so results can be viewed and cited at source.\n\n## License\n\n[MIT](LICENSE) — documentation only. The server is hosted; this repository does\nnot contain the implementation.\n",
+  "status": "curated"
+}

@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.xhad/teamshared",
+  "type": "mcp",
+  "name": "TeamShared",
+  "description": "Shared memory for coding agents. Stop re-explaining your codebase every session.",
+  "author": "io.github.xhad",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/teamshared-ai/teamshared-plugin",
+    "repo": "teamshared-ai/teamshared-plugin"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://teamshared.com/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-18T07:18:06.108886Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# teamshared (Cursor plugin)\n\nRegisters the teamshared MCP server and ships the recall-first memory rule.\nNothing else — no skills, slash commands, hooks, or continual-learning agent.\n\nThe MCP server itself lives in [`xhad/teamshared`](https://github.com/xhad/teamshared)\nand is hosted at [teamshared.com](https://teamshared.com).\n\n| Component | Purpose |\n|---|---|\n| `mcp.json` | Registers `https://teamshared.com/mcp` (URL only; Cursor OAuth Connect) |\n| `rules/teamshared.mdc` | Lean always-on fetch/store loop (`alwaysApply`); tool encyclopedia lives in `memory_tools_catalog` |\n| `clients/` | Copy-paste protocol + MCP examples for non-Cursor harnesses (not loaded by Cursor) |\n\n## Install\n\n### From marketplace (recommended)\n\n1. **Settings → Plugins → Add marketplace** → `https://github.com/teamshared-ai/teamshared-plugin`\n2. Run **`/add-plugin teamshared`** or enable it under Settings → Plugins\n3. **Settings → Tools & MCP → teamshared → Connect** (email + one-time code, same as the console)\n\nFor [cursor.directory](https://cursor.directory/plugins/new), submit this same repo URL. Root `plugin.json` and `.mcp.json` are the Open Plugins / directory discovery files; Cursor install still uses `.cursor-plugin/` and `mcp.json`.\n\nInstalling the plugin registers the MCP server. You only click **Connect** —\ndo not paste a URL or `tsk_*` token into `mcp.json`.\n\nSee [MARKETPLACE.md](MARKETPLACE.md) for publish/submission checklist.\n\n### From this repo (folder or symlink)\n\n**Add plugins from folder** needs a marketplace catalog in the selected\ndirectory. Select **this repo root** (it ships `.cursor-plugin/marketplace.json`\nwith `\"source\": \"./\"`).\n\nThen enable the plugin, reload the window, and **Connect**.\n\nFor local iteration without the folder picker:\n\n```bash\nln -sf \"$(pwd)\" ~/.cursor/plugins/local/teamshared\n```\n\n## Setup\n\n1. **Connect with email/OTP** — **Settings → Tools & MCP → teamshared → Connect**.\n   Cursor opens a browser; sign in with the same email + one-time code as the\n   web console (`/app`). The plugin already shipped the server URL; do not add\n   headers or a `tsk_*` token.\n2. **Developer: Reload Window** — confirm **Settings → MCP** shows `teamshared` enabled.\n\nIf you previously added `https://teamshared.com/mcp` by hand, remove that\nmanual entry so you do not get two `teamshared` servers.\n\nAPI keys (`tsk_…` under `/app/keys`) remain for CI and non-Cursor harnesses.\n\n## What you get\n\n- **MCP tools**: `memory_recall`, `memory_remember`, `memory_session_*`, etc.\n  (registered by `mcp.json` when the plugin is installed).\n- **Rule**: injects the recall-first protocol on every agent turn, and points\n  teammates to the web console (`/app`) for human actions.\n\nSession logging and context compression live in the MCP tools and the rule —\nnot in Cursor hooks.\n\n## Other clients\n\nSee [`clients/`](clients/) for Hermes, Claude Desktop, and protocol markdown.\n\n## License\n\nMIT — see [LICENSE](LICENSE).\n",
+  "status": "curated"
+}

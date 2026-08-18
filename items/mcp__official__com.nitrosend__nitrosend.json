@@ -6,18 +6,44 @@
   "author": "com.nitrosend",
   "source": {
     "registry": "mcp-official",
-    "url": "https://github.com/nitrosend/nitrosend",
-    "repo": "nitrosend/nitrosend"
+    "url": "https://github.com/nitrosend/mcp",
+    "repo": "nitrosend/mcp"
   },
   "license": null,
   "install": {
-    "kind": "remote",
-    "remote_url": "https://api.nitrosend.com/mcp"
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@nitrosend/mcp"
+    ],
+    "env": [
+      {
+        "name": "NITROSEND_API_KEY",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "NITROSEND_BEARER_TOKEN",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "NITROSEND_API_URL",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "NITROSEND_BRAND_SID",
+        "required": false,
+        "secret": false
+      }
+    ]
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-06-18T12:30:50.464467Z",
-    "score": 37
+    "pushed_at": "2026-08-18T05:47:22.620533Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -49,6 +75,6 @@
     "category": "营销",
     "featured": false
   },
-  "readme": null,
+  "readme": "# @nitrosend/mcp\n\nOptional stdio bridge for [Nitrosend](https://nitrosend.com). Most clients should connect directly to Nitrosend's remote MCP server at `https://api.nitrosend.com/mcp`; this package exists for stdio-only clients and local development.\n\nAll plans, including free plans, have full access to the generally available Nitrosend MCP/API/CLI surface. Plan limits still apply to send volume, seats, AI action allowances, and paid add-ons. The Free plan includes 8,000 free emails up front, then 500 free emails every month.\n\nFor Claude Desktop, Claude.ai, and Claude Cowork, use the remote MCP connector\nUI. Do not install `@nitrosend/cli` or this stdio bridge for the standard\nClaude connector setup.\n\nManage contacts, compose emails, build automated flows, and launch campaigns through natural language.\n\nFor image media used in templates or campaigns, MCP should orchestrate rather\nthan carry large bytes. Small chat-attached images can use `nitro_ingest`\nwith `kind=image` and `image_data`; public images can use `image_url` when\nNitro-hosted permanence is desired; larger local files should call\n`nitro_ingest(upload: {kind: \"image\", filename, content_type, byte_size, checksum})`,\nPUT bytes to `direct_upload.url`, then pass the returned `signed_id` to\n`nitro_ingest`.\n\n---\n\n## Setup by client\n\nMost clients support OAuth — sign in via your browser, no API keys needed.\n\n### Claude Code\n\n```bash\nclaude mcp add --transport http nitrosend https://api.nitrosend.com/mcp\n```\n\nOr add to `.mcp.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"nitrosend\": {\n      \"type\": \"http\",\n      \"url\": \"https://api.nitrosend.com/mcp\"\n    }\n  }\n}\n```\n\nOAuth sign-in happens automatically on first use.\n\n---\n\n### Claude Desktop\n\nGo to **Settings → Connections → Add Custom Connector** and enter:\n\n```text\nhttps://api.nitrosend.com/mcp\n```\n\n---\n\n### Claude.ai (web + mobile)\n\nGo to **Settings → Connectors → Add custom connector** and enter:\n\n```text\nhttps://api.nitrosend.com/mcp\n```\n\n---\n\n### Cursor\n\nAdd to `.cursor/mcp.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"nitrosend\": {\n      \"url\": \"https://api.nitrosend.com/mcp\"\n    }\n  }\n}\n```\n\nCursor handles Nitrosend as a direct remote MCP server. On first use, it prompts for OAuth sign-in.\n\n---\n\n### VS Code (Copilot)\n\nAdd to `.vscode/mcp.json`:\n\n```json\n{\n  \"servers\": {\n    \"nitrosend\": {\n      \"type\": \"http\",\n      \"url\": \"https://api.nitrosend.com/mcp\"\n    }\n  }\n}\n```\n\nVS Code handles OAuth automatically via its built-in MCP auth flow.\n\n---\n\n### Windsurf\n\nAdd to `~/.codeium/windsurf/mcp_config.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"nitrosend\": {\n      \"serverUrl\": \"https://api.nitrosend.com/mcp\"\n    }\n  }\n}\n```\n\nWindsurf supports OAuth natively for HTTP servers — sign in via your browser on first use.\n\n---\n\n### Codex CLI\n\n```bash\ncodex mcp add nitrosend --url https://api.nitrosend.com/mcp\ncodex mcp login nitrosend\n```\n\nOr add to `~/.codex/config.toml`:\n\n```toml\n[mcp_servers.nitrosend]\nurl = \"https://api.nitrosend.com/mcp\"\n```\n\nThen run `codex mcp login nitrosend` to authenticate via OAuth.\n\n---\n\n### Zed\n\nAdd to your Zed settings:\n\n```json\n{\n  \"context_servers\": {\n    \"nitrosend\": {\n      \"url\": \"https://api.nitrosend.com/mcp\"\n    }\n  }\n}\n```\n\n---\n\n### Any other MCP client\n\n**If your client supports HTTP/SSE transport**, point it at:\n\n```text\nhttps://api.nitrosend.com/mcp\n```\n\n**If your client only supports stdio**, use this bridge package with an API key:\n\n```json\n{\n  \"command\": \"npx\",\n  \"args\": [\"-y\", \"@nitrosend/mcp\"],\n  \"env\": {\n    \"NITROSEND_API_KEY\": \"nskey_live_...\"\n  }\n}\n```\n\nGet your API key at **[Brand → API Keys](https://app.nitrosend.com/my/brand/api-keys)** in the Nitrosend dashboard.\n\n---\n\n## What you can do\n\nOnce connected, your agent can:\n\n- **Read** — query contacts, segments, flows, campaigns, and account status\n- **Compose** — create emails with sections, build multi-step flows, set up campaigns\n- **Manage** — import contacts, create segments, manage lists and tags\n- **Deliver** — preview emails, run spam checks, send tests, approve and schedule campaigns\n- **Insights** — view open/click/unsubscribe metrics and trends\n\n## Account and brand context\n\nFor OAuth connections, Nitrosend stores both the current account and the current brand per user and OAuth application. Ask your agent to call `nitro_get_status` first: it shows `current_account` and `available_accounts` alongside `current_brand` and `available_brands`.\n\nIf the task is for a different account than the one shown, call `nitro_select_account` with the target `account_id`. The switch takes effect on the next tool call. Then call `nitro_select_brand` to pick a brand within that account. The selected brand persists across the session and across token refreshes until you switch again.\n\n`nitro_select_account` and `nitro_select_brand` only change the active MCP context. `nitro_set_brand_kit` edits the Brand Kit for the current brand, such as colors, logo, sender details, and voice.\n\nAPI key connections are pinned to the API key's account and brand and cannot switch with `nitro_select_account` or `nitro_select_brand`. For stdio bridge deployments that must force a single brand, set `NITROSEND_BRAND_SID`; the bridge will send `X-Brand-SID` only when that variable is present.\n\n## Environment variables\n\n| Variable | Description |\n| --- | --- |\n| `NITROSEND_API_KEY` | API key (`nskey_live_...`) — for stdio transport |\n| `NITROSEND_BEARER_TOKEN` | OAuth bearer token — alternative to API key |\n| `NITROSEND_BRAND_SID` | Optional fixed-brand override for the stdio bridge. Sends `X-Brand-SID` only when set. |\n| `NITROSEND_API_URL` | Override API endpoint (default: `https://api.nitrosend.com/mcp`) |\n\n## Requirements\n\n- Node.js 18+\n\n## License\n\nMIT\n",
   "status": "curated"
 }

@@ -1,0 +1,57 @@
+{
+  "id": "mcp:official/io.github.mrnh/rigor-mcp",
+  "type": "mcp",
+  "name": "rigor-mcp",
+  "description": "Verified statistical inference for AI agents: t-tests, effect sizes, power, and corrections.",
+  "author": "io.github.mrnh",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/mrnh/rigor",
+    "repo": "mrnh/rigor"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "rigor-mcp"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-18T13:29:42.308281Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# rigor\n\n<!-- mcp-name: io.github.mrnh/rigor-mcp -->\n\nVerified statistical inference for AI agents.\n\nLLMs are decent at reciting statistics but bad at *doing* it reliably —\na t-statistic or a required sample size is a number recalled from\ntraining data, not computed and checked. `rigor` is the alternative:\nclassical hypothesis testing, effect sizes, power/sample-size\ncalculation, and multiple-comparisons correction, computed from scratch\nand returned as a cited, assumption-checked answer.\n\nBuilt as an MCP server: a scan of the current MCP ecosystem (Context7\nfor coding docs, several physics/engineering/chemistry/geo servers,\neven Bentley's STAAD integration) found statistics/experimental design\nas one of the few common agent needs nobody had covered yet.\n\nThe statistics themselves (`rigor/distributions.py`, `inference.py`,\n`effect_size.py`, `power.py`, `corrections.py`) are pure standard\nlibrary, no dependencies. The package as a whole does depend on the\nofficial `mcp` SDK, since the MCP server is a first-class part of what\nit ships, not an add-on -- see [Install](#install).\n\n## Install\n\n```sh\npip install rigor-mcp\n```\n\n(the PyPI distribution is `rigor-mcp` since plain `rigor` was already\ntaken by an unrelated package; the importable package and the CLI\ncommand are both still just `rigor`.) This gets you both console\ncommands, `rigor` (CLI) and `rigor-mcp` (MCP server) -- deliberately\none install, no extras to get right, since `uvx rigor-mcp` (how most\nMCP clients would actually invoke this) has no way to request an\nextra.\n\n## What's in it\n\n- **`rigor/distributions.py`** — t, chi-squared, and F distributions\n  built from scratch on stdlib (regularized incomplete gamma/beta),\n  verified against exact closed-form identities (t(1) = Cauchy,\n  chi2(2) = scaled exponential, t² = F(1, df)) rather than trusted\n  transcription.\n- **`rigor/inference.py`** — one-/two-sample and paired t-tests,\n  one-/two-proportion z-tests, chi-squared goodness-of-fit and\n  independence, one-way ANOVA. Each returns a `TestResult`:\n  statistic, degrees of freedom, two-tailed p-value, a confidence\n  interval, a citation, and assumption warnings (e.g. small-n normality\n  reliance, low expected cell counts).\n- **`rigor/effect_size.py`** — Cohen's d, Hedges' g, Cohen's h, Cramér's V.\n- **`rigor/power.py`** — power and required sample size for the\n  two-sample t-test and two-proportion z-test. The two directions\n  (given n, find power; given power, find n) are exact numerical\n  inverses of each other by construction (bisection on the same\n  underlying power function), and sanity-checked against the Cohen\n  (1988) d=0.5/α=.05/power=.80 textbook reference case (n≈64).\n- **`rigor/corrections.py`** — Bonferroni and Benjamini-Hochberg (FDR)\n  multiple-comparisons correction.\n- **`rigor/cli.py`** — a CLI over all of the above (`rigor.py` at the\n  repo root is a thin shim so `python3 rigor.py ...` also works from a\n  plain checkout, without installing anything).\n- **`rigor/mcp_server.py`** — an MCP tool wrapper exposing all 17\n  operations to any MCP client (Claude Code, Claude Desktop, etc.).\n  Smoke-tested end-to-end over stdio against a real client — tool\n  discovery plus representative calls checked against known reference\n  values, including the full round-trip still landing the Cohen (1988)\n  case at n=63.\n\n## Usage\n\nCLI, once installed:\n\n```sh\nrigor ttest one-sample --data 5.1,4.9,5.3,5.0,4.8,5.2 --mu0 5.0\nrigor power ttest-2samp --effect-size 0.5 --power 0.8\nrigor --help   # full list of subcommands (ttest, ztest, chi2, anova, effect-size, power, correct)\n```\n\nor straight from a checkout without installing anything:\n\n```sh\npython3 rigor.py ttest one-sample --data 5.1,4.9,5.3,5.0,4.8,5.2 --mu0 5.0\n```\n\nMCP server, over stdio (the transport local clients like Claude Code\nexpect):\n\n```sh\npip install rigor-mcp\nrigor-mcp\n```\n\nor from a checkout: `pip install mcp && python3 -m rigor.mcp_server`.\n\nRegister it with Claude Code:\n\n```sh\nclaude mcp add rigor -- rigor-mcp\n```\n\n(or, from a checkout: `claude mcp add rigor -- python3 -m rigor.mcp_server`,\nrun from this repo's root or with an absolute module path). For\ninteractive poking with the MCP Inspector, run it as a script rather\nthan the installed command — which means the package root has to be\nput on the path by hand, since the Inspector imports the file directly:\n\n```sh\npip install \"mcp[cli]\"\nPYTHONPATH=. mcp dev rigor/mcp_server.py\n```\n\n## A transport-level edge case, handled\n\n`cohens_d` correctly returns `+inf`/`-inf` for zero-variance samples\n(per its own documented contract), but non-finite floats serialize to\nJSON `null` over MCP's structured content — which used to fail the\ntool's own number-typed output schema and crash the call. The MCP\n`cohens_d` tool now returns `{\"value\": float | null, \"warnings\": [...]}`\ninstead of a bare float, so that case is reported explicitly (null\nvalue, a warning naming the direction) rather than blowing up. Every\nother numeric tool here is bounded and always finite for valid input,\nso this treatment is specific to `cohens_d`.\n\n## Tests\n\n```sh\npython3 -m unittest discover -s tests -v\n```\n\n70 tests: 65 exercise the statistics directly; 5 spawn `mcp_server.py`\nas a real MCP client would and check results over the wire (skipped\nautomatically if `mcp` isn't installed).\n\n## License\n\nMIT — see [LICENSE](LICENSE).\n\n[![rigor MCP server](https://glama.ai/mcp/servers/mrnh/rigor/badges/card.svg)](https://glama.ai/mcp/servers/mrnh/rigor)\n",
+  "status": "curated"
+}

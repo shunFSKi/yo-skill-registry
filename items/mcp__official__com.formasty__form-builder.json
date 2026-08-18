@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/com.formasty/form-builder",
+  "type": "mcp",
+  "name": "Formasty",
+  "description": "Create, edit, validate, publish, and inspect Formasty forms and quizzes over authenticated MCP.",
+  "author": "com.formasty",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/QuantumCoderSys/formasty-mcp",
+    "repo": "QuantumCoderSys/formasty-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://app.formasty.com/api/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-18T13:43:56.793152Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Formasty MCP\n\nBuild and operate production-ready forms, quizzes, surveys, workflows, and response pipelines from AI agents.\n\nThis is the public documentation repository for Formasty's official remote Model Context Protocol (MCP) server. The Formasty application and backend remain private. This repository intentionally contains no server implementation, infrastructure configuration, customer data, or credentials.\n\n## Connect\n\n| Setting | Value |\n| --- | --- |\n| Server name | `formasty` |\n| Remote MCP URL | `https://app.formasty.com/api/mcp` |\n| Transport | Streamable HTTP |\n| Legacy SSE URL | `https://app.formasty.com/api/mcp/sse` |\n| Authentication | OAuth, with API-key fallback for developer-controlled clients |\n| Official registry name | `com.formasty/form-builder` |\n\nFor clients that support remote MCP servers, add `https://app.formasty.com/api/mcp` and complete the Formasty OAuth flow. The repository is documentation only: do not clone or run it as a server.\n\n### Claude\n\nIn Claude, open **Customize > Connectors**, add a custom connector, enter the remote MCP URL, and authenticate with Formasty. The same connector works across the Claude surfaces that support remote MCP.\n\n### Cursor\n\nAdd the following to your user or project MCP configuration:\n\n```json\n{\n  \"mcpServers\": {\n    \"formasty\": {\n      \"url\": \"https://app.formasty.com/api/mcp\"\n    }\n  }\n}\n```\n\nCursor supports Streamable HTTP and OAuth for remote MCP servers.\n\n### VS Code and GitHub Copilot\n\nAdd the following to your user profile or workspace `mcp.json`:\n\n```json\n{\n  \"servers\": {\n    \"formasty\": {\n      \"type\": \"http\",\n      \"url\": \"https://app.formasty.com/api/mcp\"\n    }\n  }\n}\n```\n\n### Cline\n\nUse Cline's remote-server UI, or install from the CLI:\n\n```bash\ncline mcp install formasty --transport http https://app.formasty.com/api/mcp\n```\n\n### ChatGPT\n\nIn a workspace with MCP app developer access, create a custom app using `https://app.formasty.com/api/mcp` as the MCP server URL, complete OAuth, and review the requested tool permissions before publishing it to the workspace.\n\n### Gemini CLI\n\nInstall the official Formasty Gemini CLI extension from GitHub:\n\n```bash\ngemini extensions install https://github.com/QuantumCoderSys/formasty-mcp\n```\n\nRestart Gemini CLI, run `/mcp list`, and complete OAuth with `/mcp auth formasty` if authentication is requested. The root `gemini-extension.json` configures the hosted Streamable HTTP endpoint; no backend package or local server process is installed.\n\n### Compatibility bridge\n\nFor stdio-only clients such as older Claude Desktop versions, use the remote bridge:\n\n```json\n{\n  \"mcpServers\": {\n    \"formasty\": {\n      \"command\": \"npx\",\n      \"args\": [\n        \"-y\",\n        \"mcp-remote\",\n        \"https://app.formasty.com/api/mcp\"\n      ]\n    }\n  }\n}\n```\n\nNever place a Formasty API key in a public repository, shared configuration, issue, or screenshot. Prefer OAuth for user-facing clients.\n\nAgents and marketplace reviewers can use [llms-install.md](llms-install.md) for the concise installation and verification path. Gemini CLI also receives focused operating guidance from [GEMINI.md](GEMINI.md).\n\n## What agents can do\n\n- Create forms from scratch or from Formasty starter templates.\n- Build lead-capture forms, surveys, intake forms, applications, booking forms, waitlists, polls, and quizzes.\n- Add, update, move, reorder, and remove steps and fields.\n- Configure themes, covers, scheduling, settings, thank-you screens, and endings.\n- Build conditional workflows, variables, routing rules, matching quizzes, and score quizzes.\n- Validate and audit drafts before publishing.\n- Publish forms and retrieve share, embed, and connection assets.\n- Read and manage submissions and create response exports, subject to user permissions.\n- Configure supported webhooks, analytics pixels, tag managers, and custom domains.\n- Import supported Google Forms and Typeform forms.\n\nThe current public contract exposes 75 operations. See [TOOLS.md](TOOLS.md) or use MCP `tools/list` for the live, authoritative schemas and safety annotations.\n\n## Authentication and permissions\n\nOAuth connections act as the signed-in Formasty user. Tool access is still constrained by:\n\n- OAuth scopes or API-key scopes\n- workspace membership and role permissions\n- selected workspace access\n- Free, Pro, and Business feature gates\n- optimistic draft revisions and server-side validation\n- explicit host and user approval for consequential operations\n\nPublic discovery reveals tool definitions only. Invoking tools or accessing workspace data requires authentication.\n\n## Useful links\n\n- [Formasty](https://formasty.com)\n- [Documentation](https://formasty.com/documentation)\n- [Official MCP Registry entry](https://registry.modelcontextprotocol.io/v0.1/servers?search=formasty&version=latest)\n- [Privacy Policy](https://formasty.com/privacy)\n- [Security](https://formasty.com/security)\n- [Terms of Service](https://formasty.com/terms)\n- [Data Processing Agreement](https://formasty.com/dpa)\n\n## Security and privacy\n\nRead [SECURITY.md](SECURITY.md) before reporting a vulnerability and [PRIVACY.md](PRIVACY.md) for the MCP-specific data flow. Do not include access tokens, API keys, form responses, customer data, private form URLs, or reproduction data from a real workspace in a public issue.\n\n## Support\n\nSee [SUPPORT.md](SUPPORT.md) or email [support@formasty.com](mailto:support@formasty.com) for account, billing, privacy, or security-sensitive support.\n\n## License\n\nThe documentation and metadata in this repository are available under the [MIT License](LICENSE). Use of the hosted Formasty service is governed by the [Formasty Terms of Service](https://formasty.com/terms).\n",
+  "status": "curated"
+}

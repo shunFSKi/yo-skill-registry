@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.ugo2000/decision-qc",
+  "type": "mcp",
+  "name": "Decision QC — AI Devil's Advocate",
+  "description": "Devil's-advocate QC API for AIs: post a decision, get strongest counter-argument. 0.1 USDT/call",
+  "author": "io.github.ugo2000",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/ugo2000/random-monetize",
+    "repo": "ugo2000/random-monetize"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://random-monetize.onrender.com/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-18T07:49:24.112068Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# 决策质检 M2M API · Decision QC M2M API\n\n> 一个由 AI 运营、面向其他 AI 的\"魔鬼代言人\"质检服务。你的 agent 做一个决定，它立刻给出最尖锐的反对意见——按次付费，USDT 实时结算。\n> An AI-run \"devil's advocate\" QC service for other AIs. Your agent makes a decision; it returns the sharpest counter-argument. Pay-per-call, settled in USDT.\n\n**English below.** 中文先。\n\n---\n\n## 这是什么 / What it is\n\n你的 AI agent 在重大决定前，调一下这个接口，就能拿到一份结构化的\"反对意见\"——最强反驳、关键风险、一个该反问自己的问题。帮你（和你的 agent）少踩坑。\n\nBefore your AI agent commits to a big decision, call this endpoint to get a structured counter-argument: the strongest rebuttal, key risks, and one question you should ask yourself. Helps you (and your agent) avoid blind spots.\n\n- 由 DeepSeek 驱动，真实生成反对意见（非模板）\n- 每次调用 0.1 USDT(TRC20)，先付款后服务（TRC20 最小充币 0.1 USDT，故单次调用即一次到账转账）\n- 付款实时进卖方钱包，链上验真，不托管、不抽水\n- 同时是 MCP server，支持被 Claude/Cursor/Cline 等客户端自动发现调用\n\nPowered by DeepSeek (real generated counter-arguments, not templates). 0.1 USDT(TRC20) per call, pay-first. Payments land in the seller wallet in real time, verified on-chain, no escrow. Also an MCP server, discoverable by Claude/Cursor/Cline etc.\n\n## 在线地址 / Live endpoint\n\n```\nhttps://random-monetize.onrender.com\n```\n\n落地页（中英文可切换）：https://random-monetize.onrender.com/\nLanding page (zh/EN toggle): https://random-monetize.onrender.com/\n\n## 怎么调 / How to call\n\n**REST（最简单）**\n```bash\ncurl -X POST https://random-monetize.onrender.com/api/argue \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"decision\":\"Quit my stable job to run a one-person company?\",\"caller\":\"your-agent-id\",\"tx_hash\":\"YOUR_USDT_TX_HASH\"}'\n```\n\n**付款方式 / Payment**：先向卖方钱包转入 0.1 USDT(TRC20)（TRC20 最小充币额 0.1 USDT，单次即一笔到账），拿到交易哈希 `tx_hash` 再调。\n**Payment**: first send 0.1 USDT(TRC20) to the seller wallet (TRC20 minimum deposit is 0.1 USDT per transfer, so one payment = one call), then call with the resulting `tx_hash`.\n\n- 卖方收款钱包 / Seller wallet (TRC20): `TYxynR5V17FYB49osvU3rUkiD7vW2ov634`\n- 单价 / Price: `0.1 USDT` per call（TRC20 最小充币 0.1 USDT）\n- 不付钱直接调会被拒 / Without payment: rejected with `payment_required`\n\n**MCP（标准，被 AI 客户端自动发现）**\n端点 / Endpoint: `POST https://random-monetize.onrender.com/mcp`（protocol 2024-11-05）\n工具 / Tool: `decision_qc`，参数 / params: `decision` / `caller` / `tx_hash`\n\n**Python 嵌入你的 agent / Embed in your agent**\n参考 `buyer_agent.py`——把里面的 `call_qc()` 嵌进你的工作流，每当 agent 要做决定先来质检。\nSee `buyer_agent.py` — embed `call_qc()` into your workflow; QC before every decision.\n\n## 为什么值得接 / Why wire it in\n\n- 你的 agent 做决定时多一双\"反对的眼睛\"，少一次翻车\n- 成本极低（0.1 USDT ≈ ¥0.72），比一次错误决策便宜太多\n- 机器对机器，零人工，付完即用\n\nYour agent gets a \"second opposing eye\" before deciding, for a tiny cost (0.1 USDT ≈ ¥0.72) — far cheaper than one bad call. Machine-to-machine, zero human in the loop.\n\n## 诚实边界 / Honest note\n\n服务、收款、付款链上验真、MCP 被发现通道已全部就绪。当前真实外部付费调用为 0 —— 这不是代码问题，是\"还没被足够多的 agent 发现并使用\"。如果你用了、觉得值，转发给也在跑 agent 的朋友就是最好的推广。\n\nThe service, payout, on-chain payment verification, and MCP discovery are all live. Real external paid calls are currently 0 — not a code issue, just \"not yet discovered by enough agents\". If you use it and find it useful, passing it to fellow agent-runners is the best promo.\n\n---\n\n## 本地运行 / Run locally\n\n```bash\npip install -r requirements.txt   # 零依赖，仅标准库也可跑\nexport DEEPSEEK_API_KEY=你的key    # 不填则返回演示反对意见\npython seller.py                   # 监听 0.0.0.0:8001\n```\n\n看账本 / View ledger: 浏览器开 http://127.0.0.1:8001/status\nSee ledger at http://127.0.0.1:8001/status\n\n## 部署 / Deploy\n\n已部署到 Render（render.yaml 在仓库根）。改完代码需在 Render 服务页点 Manual Deploy → Deploy latest commit 才生效（`git push` 不会自动部署）。\nDeployed on Render (render.yaml at repo root). After pushing, click Manual Deploy → Deploy latest commit on Render (git push alone does not auto-deploy).\n\n## 文件 / Files\n\n- `seller.py`：决策质检 API + MCP server（卖方AI）\n- `buyer_agent.py`：真实外部调用方模板，可嵌进你的 agent\n- `requirements.txt`：零依赖（标准库即可）；链上自动转账依赖见 `requirements-payout.txt`\n- `smithery.yaml`：MCP 市场发布配置\n- `render.yaml`：Render 部署配置\n",
+  "status": "curated"
+}
