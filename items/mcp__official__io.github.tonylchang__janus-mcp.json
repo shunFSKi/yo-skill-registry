@@ -1,0 +1,57 @@
+{
+  "id": "mcp:official/io.github.tonylchang/janus-mcp",
+  "type": "mcp",
+  "name": "Janus",
+  "description": "Secure Kubernetes MCP server: scoped, redacted diagnostics and human-approved writes",
+  "author": "io.github.tonylchang",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/tonylchang/janus-mcp",
+    "repo": "tonylchang/janus-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "janus-mcp-server"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-18T01:06:37.464263Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "写作",
+    "featured": false
+  },
+  "readme": "<p align=\"center\">\n  <img src=\"docs/assets/logo.png\" alt=\"Janus — Kubernetes-native MCP server that protects secrets and blocks leaks to LLMs\" width=\"570\">\n</p>\n\n<p align=\"center\">\n  <i>Two faces. One cluster. No exposed keys.</i>\n</p>\n\n<p align=\"center\">\n  <a href=\"https://janus-mcp.ns47.com\">janus-mcp.ns47.com</a> ·\n  <a href=\"https://pypi.org/project/janus-mcp-server/\">PyPI</a> ·\n  <a href=\"CHANGELOG.md\">Changelog</a>\n</p>\n\n<!-- mcp-name: io.github.tonylchang/janus-mcp -->\n\n---\n\n## What is Janus?\n\nJanus is an [MCP (Model Context Protocol)](https://modelcontextprotocol.io) server that gives AI assistants a safe, controlled window into your Kubernetes clusters. It runs locally, holds your `KUBECONFIG` close to its chest, and lets the LLM operate through carefully‑scoped tools — so you get the power of an AI copilot without ever shipping a token, certificate, or API server URL to a third‑party model.\n\nNamed after the Roman god of gateways (who famously looks both ways at once), Janus faces the LLM with clean, declarative tool definitions, and faces your cluster with full administrative access — while ensuring the two never meet inappropriately.\n\n## The problem\n\nLLMs are incredibly useful for debugging, operating, and reasoning about Kubernetes. But the moment you paste a `KUBECONFIG` into a chat window or send it to an external API, you’ve handed over the keys to your kingdom. For most organisations, that’s a non‑starter.\n\nSelf‑hosting a model helps, but not everyone can or wants to run frontier‑grade LLMs locally. Janus gives you a third path: keep the credentials on‑prem (or on your laptop) and let the remote model work with sanitised, high‑level cluster information only.\n\n## How it works\n```\n┌──────────────┐       ┌────────────────┐       ┌───────────────┐\n│ LLM Client   │<─────>│ Janus (local)  │<─────>│ Kubernetes    │\n│ (Claude,     │   MCP │ holds the      │   k8s │ API Server    │\n│ VS Code,     │       │ KUBECONFIG     │   API │               │\n│ custom)      │       │ redacts output │       │               │\n└──────────────┘       └────────────────┘       └───────────────┘\n```\n1. **Tools, not text dumps** — Janus exposes a set of MCP tools (`get_pods`, `describe_deployment`, `get_events`, etc.) that the LLM can call. It never hands over raw cluster state.\n2. **Automatic redaction** — Every response from the Kubernetes API is sanitised. Secrets, tokens, env‑var values, and sensitive metadata are stripped before the LLM ever sees them.\n3. **Human approval for writes** — Read‑only operations are instant. Destructive actions (restart, scale, delete) require an explicit confirmation step inside your MCP client. The LLM can *propose* the action, but a human has to pull the trigger.\n4. **Scoped access** — Janus can be locked to a specific namespace, set of clusters, or even a subset of resources, adding an extra safety net beyond whatever your `KUBECONFIG` permits.\n\n## Features\n\n- 🔒 **Zero‑credential exposure** — your `KUBECONFIG` never leaves the process running Janus.\n- 🔍 **Rich read‑only diagnostics** — pods, workloads, services, events, logs, endpoints, quotas, live CPU/memory usage vs requests (`kubectl top`+), and rollout history with sanitized template diffs (“what changed recently?”).\n- ✍️ **Guarded write operations** — rollout restart & rollback, scale, delete‑pod (UID‑bound), CronJob suspend/resume/trigger, node cordon — every one behind out‑of‑model human approval, none registered unless the operator enables it.\n- 🧹 **Pluggable redaction engine** — sensible defaults, easily extended to your own patterns.\n- 🧭 **Cluster overview, two ways** — the `get_cluster_summary` tool, plus a pinnable `cluster://summary` MCP resource that gives the LLM context without a flurry of tool calls.\n- 🩺 **Guided triage** — the `diagnose_namespace` prompt template walks the model through a structured investigation (overview → pods → warnings → targeted logs → diagnosis) in any client that supports MCP prompts.\n- 🧪 **Works with any MCP client** — Claude Code, Claude Desktop, VS Code, Codex, or your own agent loop.\n\n## Roadmap\n\n- Distribution ✓ — PyPI [`janus-mcp-server`](https://pypi.org/project/janus-mcp-server/) · container `ghcr.io/tonylchang/janus-mcp` · Homebrew `tonylchang/tap/janus-mcp`\n- Streamable HTTP sidecar mode (bearer token + Origin validation)\n\n## Quick start\n\n```bash\nuv tool install janus-mcp-server   # or: pipx install janus-mcp-server\n#     brew install tonylchang/tap/janus-mcp\n\nmkdir -p ~/.config/janus-mcp\ncurl -fsSL https://raw.githubusercontent.com/tonylchang/janus-mcp/main/examples/config.yaml \\\n  -o ~/.config/janus-mcp/config.yaml\n$EDITOR ~/.config/janus-mcp/config.yaml   # set your kubeconfig context + namespaces\n\n# register with Claude Code:\nclaude mcp add kubernetes -- janus-mcp serve\n```\n\nNo Python toolchain? The same server ships as a container image:\n\n```bash\nclaude mcp add kubernetes -- docker run -i --rm \\\n  -v ~/.kube/config:/home/janus/.kube/config:ro \\\n  -v ~/.config/janus-mcp:/home/janus/.config/janus-mcp:ro \\\n  ghcr.io/tonylchang/janus-mcp:latest\n```\n\nRegistration recipes for Claude Desktop, VS Code/Copilot, Codex CLI, and Cursor\nare in the **[quick start guide](docs/quickstart.md)**.\n\nNow ask your AI assistant something like:\n*“Why are pods crashing in the prod namespace?”*\n\nJanus will fetch the relevant information, sanitise it, and the LLM will walk you through what’s happening — safely.\n\n## Docs\n\n- [Operator runbook](docs/runbook.md) — install, least-privilege RBAC, approvals, audit log, troubleshooting\n- [Threat model](docs/threat-model.md) — the five security invariants and how CI verifies them\n- [`rbac/`](rbac/janus-mcp-rbac.yaml) — least-privilege manifests (note what is absent: secrets — nowhere, ever)\n\nJanus is currently in active development.\n",
+  "status": "curated"
+}

@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/bogenpirat/remote-torrent-adder/rta-security-review",
+  "type": "skill",
+  "name": "rta-security-review",
+  "description": "Security review against Remote Torrent Adder's actual attack surfaces — stored client credentials, the all-URLs content script, the declarativeNetRequest CORS bypass, user-editable link-catching regexes, and untrusted bencode parsing. Use when reviewing changes for security in this repo. Project-specific counterpart to the generic /security-review.",
+  "author": "bogenpirat",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/bogenpirat/remote-torrent-adder/blob/HEAD/.claude/skills/rta-security-review/SKILL.md",
+    "repo": "bogenpirat/remote-torrent-adder",
+    "path": ".claude/skills/rta-security-review/SKILL.md"
+  },
+  "license": null,
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 307,
+    "pushed_at": "2026-08-13T09:51:38Z",
+    "score": 77,
+    "star_history": [
+      {
+        "d": "2026-08-18",
+        "s": 307
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "<div align=\"center\">\n\n<img src=\"src/assets/icons/BitTorrent128.png\" alt=\"Remote Torrent Adder logo\" width=\"96\" />\n\n# Remote Torrent Adder\n\n**Send torrents and magnet links from your browser straight to your BitTorrent client — local or remote — with a single click.**\n\n[![Chrome Web Store](https://img.shields.io/chrome-web-store/v/oabphaconndgibllomdcjbfdghcmenci?label=Chrome%20Web%20Store&color=blue)](https://chrome.google.com/webstore/detail/oabphaconndgibllomdcjbfdghcmenci)\n[![Users](https://img.shields.io/chrome-web-store/users/oabphaconndgibllomdcjbfdghcmenci)](https://chrome.google.com/webstore/detail/oabphaconndgibllomdcjbfdghcmenci)\n[![Rating](https://img.shields.io/chrome-web-store/rating/oabphaconndgibllomdcjbfdghcmenci)](https://chrome.google.com/webstore/detail/oabphaconndgibllomdcjbfdghcmenci)\n[![Build](https://github.com/bogenpirat/remote-torrent-adder/actions/workflows/build-extension.yml/badge.svg)](https://github.com/bogenpirat/remote-torrent-adder/actions/workflows/build-extension.yml)\n\n[Install](#-installation) · [Features](#-features) · [Supported clients](#-supported-clients) · [Build from source](#-building-from-source) · [Contributing](#-contributing)\n\n</div>\n\n---\n\n## 🤔 What is this?\n\nChrome doesn't let extensions hand a downloaded `.torrent` file over to a desktop application. *Remote Torrent Adder* (RTA) works around this by talking directly to the **WebUI of your BitTorrent client**: click a torrent or magnet link, and RTA uploads it to your client's web API instead of saving a file to disk. Because everything happens over HTTP(S), it works just as well with a client running on your own machine as with one on a seedbox, NAS, or home server on the other side of the world.\n\n## ✨ Features\n\n- 🖱️ **One-click adding** — torrent and magnet links are caught as you click them and sent straight to your client\n- 🔗 **Smart link catching** — a mutation observer picks up dynamically added links as they appear, and custom regexes let you tune exactly which links get caught\n- 🖥️ **Multiple servers** — configure as many clients/servers as you like and pick the target per link via the right-click context menu\n- 🏷️ **Labels & download directories** — set defaults per server, choose per torrent in a popup, or let **auto-rules assign a label/directory based on the torrent's tracker URL or the files inside it**, and test those rules right in the options page by dropping a .torrent file or pasting a magnet link\n- ⏸️ **Add paused** — optionally add torrents in a stopped state\n- 🔐 **Authentication & HTTPS** — username/password auth and secure connections supported for all clients\n- 🔔 **Rich notifications** — success/failure notifications with configurable duration and **custom notification sounds**\n- 📦 **Import/export** — back up and restore your complete configuration as a file\n- ⚡ **Manifest V3** — built for Chrome's current extension platform, with a modern React-based settings UI\n\n## 🧩 Supported clients\n\n| Client | Notes |\n|---|---|\n| [qBittorrent](https://www.qbittorrent.org/) | v5+ |\n| [ruTorrent](https://github.com/Novik/ruTorrent) | |\n| [Transmission](https://transmissionbt.com/) | |\n| [Deluge](https://deluge-torrent.org/) | |\n| [flood](https://github.com/jesec/flood) | jesec's flood |\n| [BiglyBT](https://www.biglybt.com/) | via Web Remote (formerly Vuze/Azureus) |\n| [Porla](https://porla.org/) | |\n| [Tixati](https://www.tixati.com/) | |\n| [Elementum](https://elementum.surge.sh/) | Kodi add-on |\n| [rqbit](https://github.com/ikatson/rqbit) | |\n| [tTorrent](https://ttorrent.org/) | Android |\n| QNAP Download Station | |\n\nMissing your client? [Open an issue](https://github.com/bogenpirat/remote-torrent-adder/issues) — or better yet, [add it yourself](#-contributing); client integrations are small, self-contained classes.\n\n## 🚀 Installation\n\n1. Install the extension from the [Chrome Web Store](https://chrome.google.com/webstore/detail/oabphaconndgibllomdcjbfdghcmenci)\n2. Open the extension's **options** and add your server(s): client type, host, port, credentials\n3. Click a torrent link — done!\n\n> [!TIP]\n> If clicking a link downloads the `.torrent` file to disk instead of adding it to your client, check the **Link Catching** tab in the settings and adjust the catching patterns for the site you're using.\n\n## 🛠️ Building from source\n\nYou'll need a recent version of [Node.js](https://nodejs.org/) and npm.\n\n```bash\ngit clone https://github.com/bogenpirat/remote-torrent-adder.git\ncd remote-torrent-adder\nnpm install\n\nnpm run build        # development build → dist/\nnpm run build:prod   # minified production build → dist-prod/\n```\n\nTests run automatically before every build; you can also run them directly:\n\n```bash\nnpm test             # run the test suite once\nnpm run test:watch   # watch mode\nnpm run test:coverage\n```\n\nTo load your build into Chrome:\n\n1. Open `chrome://extensions/`\n2. Enable **Developer mode** (top right)\n3. Click **Load unpacked** and select the `dist/` (or `dist-prod/`) folder\n\nFor iterating on the extension, `npm run dev` builds once and then rebuilds on every source change — just hit the reload button on the extension card in `chrome://extensions/` to pick up changes.\n\n## 🏗️ Tech stack\n\n- **TypeScript** throughout, strict mode on\n- **React + Tailwind CSS** for the options page and per-torrent popup\n- **Vite** for all five bundles — the popup, options and notifications pages, plus the service worker and content script as standalone IIFE files\n- **Vitest** for the test suite\n- Version-driven release pipeline that auto-deploys to the Chrome Web Store\n\n## 🤝 Contributing\n\nBug reports, feature requests, and pull requests are welcome!\n\n- **Adding a client**: each client is a single class in [`src/webuis/`](src/webuis/) extending `TorrentWebUI` and registered in [`src/models/clients.ts`](src/models/clients.ts) — existing implementations make great templates\n- **Found a bug?** [Open an issue](https://github.com/bogenpirat/remote-torrent-adder/issues) with your client, its version, and what happened\n\n<details>\n<summary><h2>📜 Changes from RTA v1.x</h2></summary>\n\nWith Chrome enforcing Manifest V3, the extension was rewritten from scratch (RTA v2.x), which changed a few things.\n\n### Dropped clients\n\n- qBittorrent 4.x and older\n- non-jesec flood\n- TorrentFlux\n- Vuze Swing UI & HTML UI (use BiglyBT's Web Remote instead)\n- pyrT\n- Synology & Buffalo — no hardware to test against; if you can help re-implement them, get in touch\n- nodeJS-rTorrent, rTorrent XML-RPC\n- µTorrent\n- Hadouken (its maintainer recommends Porla)\n\n### Changed features\n\n- **Link scan delay** is gone — no longer necessary since a mutation observer now discovers dynamic page changes as they happen\n- **Context menu** is always generated instead of being togglable\n- **New tab catching** is gone — it hadn't worked reliably in a long time\n- **Address bar indicator** has been obsolete since ~2016; the extension icon is always available anyway\n\n</details>\n",
+  "status": "curated"
+}

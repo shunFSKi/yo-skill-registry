@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/DanielNScott/agent-infra/agent-infra-update-readme",
+  "type": "skill",
+  "name": "agent-infra-update-readme",
+  "description": "Use when the user asks to write or update a README file for a project or sub-package",
+  "author": "DanielNScott",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/DanielNScott/agent-infra/blob/HEAD/skills/update-readme/SKILL.md",
+    "repo": "DanielNScott/agent-infra",
+    "path": "skills/update-readme/SKILL.md"
+  },
+  "license": null,
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 7,
+    "pushed_at": "2026-04-04T23:50:29Z",
+    "score": 50,
+    "star_history": [
+      {
+        "d": "2026-08-18",
+        "s": 7
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "写作",
+    "featured": false
+  },
+  "readme": "# Agent-infra\n\nThis repository provides a reusable infrastructure layer for Claude Code projects. It installs once and applies everywhere. As a result, Claude receives style instructions and code style guidelines on startup, along with command line tools via MCP for code analysis, and document templates. The same tools are exported as skills to the user. A separate Docker-based workflow layer orchestrates multi-agent pipelines for autonomous project development.\n\n## How It Works\n\nInstallation...\n\n- installs an `agent-tools` CLI via `uv tool install`\n- copies agents to `~/.claude/agents/agent-infra/` with paths resolved\n- symlinks skills into `~/.claude/skills/`\n- installs `claude.md` into `~/.claude/CLAUDE.md`\n- registers the MCP server in `~/.claude/settings.json`\n- registers the SessionStart hook in `~/.claude/settings.json`\n\nIf `~/.claude/CLAUDE.md` already exists, the installer prompts to replace, append, or skip.\n\nAs a result:\n  - Claude receives instructions and code style guidelines via CLAUDE.md on every session\n  - a set of skills is available via `/agent-infra-{skill}`\n  - skills and the MCP link to templates and code tools\n\nThe SessionStart hook runs agent-infra-startup.sh, which can be extended with tool calls to run on session start.\n\nSeparately, `workflows/` provides Docker-based pipelines that run agents autonomously. These do not require installation — they use `docker-claude.sh` to dispatch agents into isolated containers with project workspaces mounted in.\n\n## Project Structure\n\n- `agent_tools/` installable Python package exposing CLI and MCP server\n- `agent_docs/` Claude Code instructions, coding guidelines, and document templates\n- `agents/` agent definitions (pipeline prompt files and Claude Code subagents)\n- `skills/` slash command definitions\n- `workflows/` Docker-based pipeline orchestration\n- `docs/` project documentation and ADRs\n\n## Components\n\n### agent_tools\n\n`agent_tools` is an installable Python package providing a CLI and MCP server for codebase analysis.\n\n- `agent-tools --tree` prints a resource tree of a Python project\n- `agent-tools --compare` diffs two versions of a codebase\n- `agent-tools --callgraph` builds and displays function call graphs\n- `agent-tools --defuse` traces variable definitions and uses\n- `agent-tools --revdeps` shows reverse dependency relationships\n- MCP server exposes these tools to Claude directly\n\n### agent_docs\n\n`agent_docs` contains instruction and template files that Claude loads at session start.\n\n- `claude.md` top-level instruction file installed into `~/.claude/CLAUDE.md`\n- `code-style-short.md` coding style guidelines, instructed via `claude.md`\n- `packages.md` package structure and separation of concerns guidelines\n- `planning.md` planning guidelines for whole-project tasks\n- `writing-style.md` academic manuscript style guidelines\n- `template-adr.md` architectural decision record template\n- `template-audit-bug.md` bug audit template\n- `template-commit.md` commit message template\n- `template-conversation.md` conversation summary template\n- `template-readme.md` README template\n\n### skills\n\n`skills` contains slash command definitions that Claude can invoke during a session. Skills are called with the `/agent-infra-` prefix, e.g. `/agent-infra-tree`.\n\n- `audit-bugs` performs a structured bug audit of a project or component\n- `callgraph` builds and displays a call graph for codebase analysis\n- `defuse` traces data flow for debugging or new package development\n- `draft-commit-message` drafts a commit message from staged changes\n- `explain-it-to-me` provides a structured explanation of a system, module, or concept\n- `revdeps` evaluates reverse dependencies across a package\n- `standalone-audit` runs a quality audit checking for LLM-specific antipatterns\n- `summarise-conversation` records the outcome of a discussion\n- `tree` prints a project resource tree to orient Claude in a codebase\n- `update-readme` writes or updates a README file\n\n### agents\n\n`agents` contains agent definitions used both by Claude Code (as subagents) and by the Docker pipeline (as prompt files). Each file has SDK frontmatter for Claude discovery and a body with full role instructions. `make install` copies them to `~/.claude/agents/agent-infra/` with paths resolved.\n\n- `iterative` implements a task through decompose-implement-review cycles\n- `agent-architecture` produces a resource tree, pipeline sketch, and README\n- `agent-specification` produces call graphs, contracts, and function specs\n- `agent-implementation` writes code from planning artifacts\n- `agent-audit-architecture` audits resource tree and structural specs\n- `agent-audit-specification` audits function specifications\n- `agent-audit-implementation` audits code against specs and contracts\n- `agent-manager` scopes tasks into work units and reviews completed units\n- `agent-standalone-quality-audit` audits code for conceptual fidelity and LLM antipatterns\n\n### workflows\n\n`workflows` contains Docker-based pipeline orchestration for running agents in isolated workspaces. Three pipelines are available, each dispatching agents via `claude_runner.py` and `docker-claude.sh`.\n\n- `pipeline_iterative.py` single-session iterative development\n- `pipeline_managed.py` multi-session development with manager oversight\n- `pipeline_comprehensive.py` multi-stage architecture-through-implementation pipeline\n- `claude_runner.py` prompt assembly and Docker dispatch\n- `docker-claude.sh` Docker wrapper handling auth and volume mounts\n\n## Setup\n\n```bash\n# Clone the repository, navigate into it\ngit clone <repo> ~/your-path-here/agent-infra\ncd ~/your-path-here/agent-infra\n\n# Install tools, register hooks, and configure the MCP server\nmake install\n```\n",
+  "status": "curated"
+}

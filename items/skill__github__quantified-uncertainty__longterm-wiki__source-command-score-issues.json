@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/quantified-uncertainty/longterm-wiki/source-command-score-issues",
+  "type": "skill",
+  "name": "source-command-score-issues",
+  "description": "Score open issues with LLM and apply priority/effort/model labels",
+  "author": "quantified-uncertainty",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/quantified-uncertainty/longterm-wiki/blob/HEAD/.agents/skills/source-command-score-issues/SKILL.md",
+    "repo": "quantified-uncertainty/longterm-wiki",
+    "path": ".agents/skills/source-command-score-issues/SKILL.md"
+  },
+  "license": null,
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 7,
+    "pushed_at": "2026-08-11T17:19:49Z",
+    "score": 60,
+    "star_history": [
+      {
+        "d": "2026-08-18",
+        "s": 7
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "AI",
+    "featured": false
+  },
+  "readme": "# Longterm Wiki\n\nAI safety knowledge base — a wiki covering AI risk models, key organizations, researchers, policy approaches, and the AI Transition Model.\n\nBuilt with Next.js 15 (App Router), MDX content, and YAML-driven data.\n\n## Getting Started\n\n```bash\npnpm install\ncd apps/web && node scripts/build-data.mjs   # Generate database.json from YAML/MDX\npnpm dev                                 # Dev server on port 3001\n```\n\n## Repository Structure\n\n```\nlongterm-wiki/\n├── content/docs/          # ~625 MDX wiki pages\n├── data/                  # YAML data (entities, facts, resources, insights, graphs)\n├── apps/web/              # Next.js 15 frontend\n│   ├── src/               # React components, data layer, pages\n│   ├── scripts/           # Build scripts (build-data.mjs)\n│   └── public/            # Static assets + LLM files\n└── crux/                  # Crux CLI — validation, analysis, content tools\n    ├── crux.mjs           # CLI entry point\n    ├── commands/          # 8 command domains\n    ├── lib/               # Shared utilities + 34 validation rules\n    └── validate/          # 23 validation scripts\n```\n\n## Commands\n\nAll commands run from the repo root unless noted.\n\n### Build & Dev\n\n```bash\npnpm dev                              # Start dev server (port 3001)\npnpm build                            # Production build (auto-runs build-data.mjs)\npnpm test                             # Run vitest tests\n```\n\n### Crux CLI\n\nThe `crux` CLI provides validation, analysis, content management, and more.\n\n```bash\n# Validation\nnode crux/crux.mjs validate                  # Run all 28 validators\nnode crux/crux.mjs validate unified --fix    # Auto-fix with 34 rule engine\n\n# Content\nnode crux/crux.mjs content create \"topic\"    # Create a new wiki page\nnode crux/crux.mjs content improve <page>    # AI-assisted page improvement\nnode crux/crux.mjs content regrade           # Re-grade quality ratings\n\n# Analysis\nnode crux/crux.mjs analyze                   # Full health report\nnode crux/crux.mjs gaps list                 # Find pages needing more content\nnode crux/crux.mjs insights check            # Insight quality checks\n\n# Auto-fixes\nnode crux/crux.mjs fix entity-links          # Convert markdown links to EntityLink\nnode crux/crux.mjs fix markdown              # Fix markdown formatting\nnode crux/crux.mjs fix escaping              # Fix LaTeX/JSX escaping issues\n\n# Resources\nnode crux/crux.mjs resources list            # Pages with unconverted links\nnode crux/crux.mjs resources process <file>  # Convert links to <R> components\n```\n\nRun `node crux/crux.mjs --help` for the full command list.\n\n## Data Flow\n\n```\ndata/*.yaml + content/docs/*.mdx\n        ↓\n  apps/web/scripts/build-data.mjs       (build time)\n        ↓\n  apps/web/src/data/database.json       (631 entities, 587 pages)\n        ↓\n  apps/web/src/data/index.ts            (runtime data access)\n        ↓\n  Next.js static generation        (1300+ pre-rendered pages)\n```\n\nEntities come from two sources, merged at build time (YAML takes precedence):\n1. **YAML files** in `data/entities/` — rich entities with metadata, sources, related entries\n2. **MDX frontmatter** — auto-creates minimal entities for pages with `entityType` field\n\n## Entity ID System\n\nEntities have both string slugs (`geoffrey-hinton`) and wiki IDs (`E42`). Wiki pages use wiki IDs as canonical URLs. Each entity stores its `wikiId` in its source file (YAML or MDX frontmatter). New IDs are allocated atomically via the wiki server (`apps/wiki-server/`).\n\n## CI\n\nGitHub Actions runs on push to `main` and PRs:\n- **build-and-test** — builds data, runs 53 tests, builds Next.js (blocking)\n- **validate** — runs the full validation suite (non-blocking, pre-existing content issues)\n",
+  "status": "curated"
+}

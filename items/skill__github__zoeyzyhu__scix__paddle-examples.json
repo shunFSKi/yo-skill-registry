@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/zoeyzyhu/scix/paddle-examples",
+  "type": "skill",
+  "name": "paddle-examples",
+  "description": "Route example, notebook, and high-level tutorial work through the paddle repo.",
+  "author": "zoeyzyhu",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/zoeyzyhu/scix/blob/HEAD/.agents/skills/paddle-examples/SKILL.md",
+    "repo": "zoeyzyhu/scix",
+    "path": ".agents/skills/paddle-examples/SKILL.md"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 4,
+    "pushed_at": "2026-03-28T20:01:51Z",
+    "score": 48,
+    "star_history": [
+      {
+        "d": "2026-08-18",
+        "s": 4
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "写作",
+    "featured": false
+  },
+  "readme": "<h4 align=\"center\">\n  <img src=\"https://raw.githubusercontent.com/zoeyzyhu/scix/main/docs/img/scix_image.png\" alt=\"SciX\" width=\"360\" style=\"display: block; margin: 0 auto\">\n</h4>\n\n<p align=\"center\">\n  <i>Planetary atmosphere research, organized for fast science and reliable AI collaboration.</i>\n</p>\n\n<p align=\"center\">\n  <a href=\"https://github.com/zoeyzyhu/scix/actions/workflows/ci.yml\">\n    <img alt=\"GitHub Workflow Status\"\n      src=\"https://img.shields.io/github/actions/workflow/status/zoeyzyhu/scix/ci.yml?branch=main&style=flat-square&logo=github\">\n  </a>\n  <a href=\"https://github.com/zoeyzyhu/scix/releases\">\n    <img alt=\"GitHub release\"\n      src=\"https://img.shields.io/github/v/release/zoeyzyhu/scix?style=flat-square&logo=github\">\n  </a>\n  <a href=\"https://github.com/zoeyzyhu/scix/issues\">\n    <img alt=\"GitHub issues\"\n      src=\"https://img.shields.io/github/issues/zoeyzyhu/scix?style=flat-square&logo=git\">\n  </a>\n  <a href=\"https://github.com/zoeyzyhu/scix/blob/main/pyproject.toml\">\n    <img alt=\"macOS and Linux\"\n        src=\"https://img.shields.io/badge/OS-macOS%20%7C%20Linux-F28C28?style=flat-square&logo=linux&logoColor=white&logoWidth=20&labelColor=555555\">\n  </a>\n  <a href=\"https://www.python.org\">\n    <img alt=\"Python >=3.9\"\n        src=\"https://img.shields.io/badge/python-%3E%3D3.9-blue?style=flat-square&logo=python&logoColor=white\">\n  </a>\n</p>\n\n<p align=\"center\">\n  <strong>scix</strong> builds a reproducible dual-agent workspace for planetary-atmosphere research, so scientists and developers can focus on science instead of setup, and collaborate with AI agents that understand the shared context and tools of the stack.\n</p>\n\n<p align=\"center\">\n  <a href=\"#quick-start\">Quick Start</a> &nbsp;&bull;&nbsp;\n  <a href=\"#agent-cli-setup\">Agent CLI Setup</a> &nbsp;&bull;&nbsp;\n  <a href=\"#workflow\">Workflow</a> &nbsp;&bull;&nbsp;\n  <a href=\"#contributing\">Contributing</a>\n</p>\n\n<br/>\n\n## Introduction\n\n`scix` is the workspace layer for the planetary-atmosphere modeling stack. It assembles domain libraries into one working environment with shared AI policies and skills, so you have both the tools and the agent context to do your science faster, and collaborate with AI agents more effectively.\n\nIt is designed to work alongside:\n\n- [pydisort](https://github.com/zoeyzyhu/pydisort) for DISORT-based radiative transfer workflows\n- [kintera](https://github.com/chengcli/kintera) for thermodynamics, equation of state, and chemistry\n- [pyharp](https://github.com/chengcli/pyharp) for radiation infrastructure and opacity handling\n- [snapy](https://github.com/chengcli/snapy) for atmospheric dynamics and coupled workflow composition\n- [paddle](https://github.com/elijah-mullens/paddle) for higher-level examples, tutorials, and exploratory modeling patterns\n\nWith `scix`, a fresh workspace gives you:\n\n- a `repos/` directory for the reference scientific packages\n- a `workspace/` directory for your own scripts, models, and outputs\n- generated `AGENTS.md`, `CLAUDE.md`, skills, hooks, and editor/tool configs\n- one setup path for both research users (`scix up`) and contributors (`scix dev`)\n\nYou can also turn `/workspace` or any folder in `repos/` into a git managed directory:\n- just `cd` into the folder and run `git init`\n- `scix` will ignore these directories in its own git version control so it does not interfere with `scix`'s workspace management\n\n\n## Quick Start\n\nFor a new research workspace:\n\n```bash\nmkdir my-scix-work\ncd my-scix-work\npython3 -m venv xenv\nsource xenv/bin/activate\npip install --upgrade pip\npip install -r requirements.txt\nscix up\n```\n\nIf the short `scix` command is not on `PATH` in the current shell yet, run:\n\n```bash\npython -m scix up\n```\n\nFor contributor setup, see the [Contributing](#contributing) section below.\n\n`scix up` will:\n\n1. create the workspace files and folders\n2. clone the reference repositories into `repos/`\n3. generate Codex and Claude config, policy, and skills\n4. try to install missing `nvm`, user-local Node.js/npm, Codex CLI, and Claude\n   Code\n\nThe commands you will use most often are:\n\n| Command | Use it when |\n| --- | --- |\n| `scix up` | You are creating or refreshing a research workspace in the current directory. |\n| `scix doctor` | You want a quick health check on the current workspace. |\n| `scix cheat` | You want to see a quick reference of the most common commands and their use cases. |\n| `scix install-repos` | One or more reference repositories are missing and need to be cloned again. |\n| `scix dev` | You are working on the `scix` source repository itself. |\n| `scix sync` | You changed the AI canon or README and need to regenerate Codex/Claude outputs. |\n| `scix --help` | You want to see the list of available commands and options. |\n\nWhenever you return to the workspace, reactivate the local environment:\n\n```bash\nsource xenv/bin/activate\n```\n\n## Agent CLI Setup\n\n`scix up` and `scix dev` try to install missing `nvm`, user-local Node.js/npm, Codex CLI, and Claude Code automatically.\n\nIf that automatic step fails, run this fallback sequence exactly:\n\n```bash\ncurl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.4/install.sh | bash\nexport NVM_DIR=\"$HOME/.nvm\"\n[ -s \"$NVM_DIR/nvm.sh\" ] && . \"$NVM_DIR/nvm.sh\"\nnvm install --lts\nnvm use --lts\nnvm alias default lts/*\nnpm install -g @openai/codex\nnpm install -g @anthropic-ai/claude-code\n```\n\nIf `codex` or `claude` is still unavailable, start a new shell or load your shell profile with:\n\n```bash\nsource ~/.bashrc\n# or if you use zsh (Mac default):\nsource ~/.zshrc\n```\n\nOfficial references:\n\n- [Codex CLI Setup](https://developers.openai.com/codex/cli/)\n- [Claude Code Quickstart](https://code.claude.com/docs/en/quickstart)\n\n### Authenticate Codex\n\n```bash\ncodex login\n```\n\nAlternative auth flows:\n\n```bash\ncodex login --device-auth\nprintenv OPENAI_API_KEY | codex login --with-api-key\n```\n\nIf your installed Codex CLI uses a different login syntax, check:\n\n```bash\ncodex --help\n```\n\n### Authenticate Claude\n\n```bash\nclaude auth login\n```\n\nIf you use a token-based flow:\n\n```bash\nclaude setup-token\n```\n\n## Workflow\n\n### Terminal Workflow\n\nFrom the workspace root:\n\n```bash\nsource xenv/bin/activate\ncodex\n```\n\nor:\n\n```bash\nsource xenv/bin/activate\nclaude\n```\n\n### Workspace Layout\n\n- `repos/`: cloned reference repositories such as `pydisort`, `kintera`, `pyharp`, `snapy`, and `paddle`\n- `workspace/`: your own analyses, experiments, prototypes, and notes\n- `xenv/`: your manually created local Python environment\n- `ai/`: the shared AI canon that generates Codex and Claude files\n\n## Contributing\n\nIf you are developing `scix` itself, clone the source repository instead of starting from `pip install scix`:\n\n```bash\ngit clone https://github.com/zoeyzyhu/scix.git\ncd scix\npython3 -m venv xenv\nsource xenv/bin/activate\npip install --upgrade pip\npip install -e .[dev]\nscix dev\n```\n\n`scix dev` bootstraps a contributor checkout in place. It keeps the existing source tree, creates any missing workspace files, optionally clones missing reference repositories, regenerates generated Codex and Claude files, and tries to install missing agent CLIs if needed.\n\nBefore changing shared agent behavior, read [`docs/AI_FOLDER_GUIDE.md`](docs/AI_FOLDER_GUIDE.md). That guide explains whatthe repo-root `ai/` folder controls, how it maps to generated agent files, and which files are safe to edit.\n\nInstall contributor hooks with:\n\n```bash\npre-commit install\n```\n\nRun the main contributor checks with:\n\n```bash\npre-commit run --all-files\npytest\npython -m build\nscix sync --check\n```\n\nWhen you change the AI canon:\n\n- edit the repo-root `ai/` files, not generated files under `.codex/`, `.claude/`, `.agents/`, or repo overlays\n- run `scix sync` after each logical change so generated files and the packaged template stay aligned\n- inspect both the generated agent diff and the template diff before you commit\n- keep hooks portable and auditable, and never place secrets in prompts or scripts\n- follow the `implementer -> tester -> reviewer` workflow\n",
+  "status": "curated"
+}

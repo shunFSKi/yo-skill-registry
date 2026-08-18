@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/modbender/skill-library-mcp/clawaudit",
+  "type": "skill",
+  "name": "clawaudit",
+  "description": "Official repo for clawaudit, coming soon as an automated security checker for repositories.",
+  "author": "modbender",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/modbender/skill-library-mcp/blob/HEAD/data/clawaudit/SKILL.md",
+    "repo": "modbender/skill-library-mcp",
+    "path": "data/clawaudit/SKILL.md"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 12,
+    "pushed_at": "2026-06-16T12:58:45Z",
+    "score": 57,
+    "star_history": [
+      {
+        "d": "2026-08-18",
+        "s": 12
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Skill Library MCP\n\n**15,000+ ready-to-use skills for AI coding assistants, served on demand via MCP.**\n\n[![npm version](https://img.shields.io/npm/v/skill-library-mcp)](https://www.npmjs.com/package/skill-library-mcp)\n[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)\n[![Node.js](https://img.shields.io/badge/node-%3E%3D22-brightgreen)](https://nodejs.org)\n\nAn MCP server that provides on-demand skill loading for AI coding assistants. Instead of stuffing your system prompt with every skill you might need, this server indexes 15,000+ skills and serves only the ones relevant to your current task — keeping context windows lean and responses focused.\n\n## Documentation\n\nFull documentation is at **[modbender.in/skill-library-mcp](https://modbender.in/skill-library-mcp/)** — installation, the tools it exposes, configuration, and examples.\n\n## Why?\n\n- **15,000+ skills** covering frontend, backend, DevOps, security, testing, databases, AI/ML, automation, and more\n- **On-demand loading** — skills are fetched only when needed, not crammed into every conversation\n- **IDF-weighted search** — finds the right skill even from natural language queries like \"help me debug a memory leak\"\n- **Browse by category** — 13 categories to discover skills you didn't know existed\n- **Works with any MCP-compatible tool** — Claude Code, Cursor, Windsurf, VS Code, Claude Desktop, and others\n- **Claude Code plugin** — one-command install with `claude plugin install`\n- **Zero config** — run with `npx`, no setup needed\n\n## Quick Start\n\n### Claude Code Plugin (Recommended)\n\nAdd the marketplace source, then install the plugin:\n\n```bash\nclaude plugin marketplace add https://github.com/modbender/skill-library-mcp.git --scope user\nclaude plugin install skill-library --scope user\n```\n\nThe MCP server starts automatically when Claude Code launches. No manual configuration needed.\n\n### Claude Code (MCP Server)\n\n```bash\nclaude mcp add skill-library --scope user -- npx -y skill-library-mcp\n```\n\n### MCP Server (Other Tools)\n\n<details>\n<summary><strong>Claude Desktop</strong></summary>\n\nAdd to your `claude_desktop_config.json` ([location varies by OS](https://modelcontextprotocol.io/quickstart/user)):\n\n```json\n{\n  \"mcpServers\": {\n    \"skill-library\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"skill-library-mcp\"]\n    }\n  }\n}\n```\n\n</details>\n\n<details>\n<summary><strong>Cursor</strong></summary>\n\nAdd to `.cursor/mcp.json` (project) or `~/.cursor/mcp.json` (global):\n\n```json\n{\n  \"mcpServers\": {\n    \"skill-library\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"skill-library-mcp\"]\n    }\n  }\n}\n```\n\n</details>\n\n<details>\n<summary><strong>Windsurf</strong></summary>\n\nAdd to `~/.codeium/windsurf/mcp_config.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"skill-library\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"skill-library-mcp\"]\n    }\n  }\n}\n```\n\n</details>\n\n<details>\n<summary><strong>VS Code (Copilot)</strong></summary>\n\nAdd to `.vscode/mcp.json`:\n\n```json\n{\n  \"servers\": {\n    \"skill-library\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"skill-library-mcp\"]\n    }\n  }\n}\n```\n\n</details>\n\n<details>\n<summary><strong>Manual installation</strong></summary>\n\n```bash\ngit clone https://github.com/modbender/skill-library-mcp\ncd skill-library-mcp\npnpm install\npnpm build\n```\n\nThen point your MCP config to the built binary:\n\n```json\n{\n  \"mcpServers\": {\n    \"skill-library\": {\n      \"command\": \"node\",\n      \"args\": [\"/path/to/skill-library-mcp/dist/index.js\"]\n    }\n  }\n}\n```\n\n</details>\n\n## Tools\n\n### `search_skill`\n\nSearch for skills by keyword. Returns a ranked list of matching skill names and descriptions.\n\n```\nsearch_skill({ query: \"react patterns\" })\n```\n\n### `load_skill`\n\nLoad the full content of a skill by name. Optionally includes resource files.\n\n```\nload_skill({ name: \"brainstorming\", include_resources: true })\n```\n\n### `list_categories`\n\nBrowse all skill categories with counts and examples. Use to discover skills before searching.\n\n```\nlist_categories()\n```\n\n## Skill Categories\n\nThe library includes 15,000+ skills across 13 categories:\n\n| Category | Examples |\n|----------|----------|\n| **Frontend** | React patterns, Angular, Vue, Svelte, Next.js, Tailwind, accessibility |\n| **Backend** | Node.js, FastAPI, Django, NestJS, Express, GraphQL, REST API design |\n| **AI & LLM** | LLM app dev, RAG implementation, agent patterns, prompt engineering, embeddings |\n| **DevOps & Infra** | Terraform, Kubernetes, Docker, AWS, GCP, Azure, CI/CD |\n| **Data & Databases** | PostgreSQL, MongoDB, Redis, SQL optimization, ETL pipelines, analytics |\n| **Security** | Penetration testing, OWASP, threat modeling, vulnerability scanning, encryption |\n| **Testing** | TDD workflows, Playwright, Vitest, Jest, E2E testing patterns |\n| **Mobile** | React Native, Flutter, iOS, Android, Expo |\n| **Automation** | Workflow automation, n8n, Zapier, web scraping, bots |\n| **Python** | Django, Flask, FastAPI, pandas, Python tooling |\n| **TypeScript & JS** | TypeScript, JavaScript, Deno, Bun |\n| **Architecture** | Microservices, system design, design patterns, monorepos |\n| **Other** | Hundreds of specialized and niche skills |\n\n## Skill Format\n\nSkills are directories containing a `SKILL.md` file with YAML frontmatter:\n\n```markdown\n---\nname: my-skill\ndescription: What this skill does\n---\n\n# My Skill\n\nSkill content here...\n```\n\nSkills can optionally include a `resources/` directory with additional `.md` files that are appended when `include_resources: true` is set.\n\n## Contributing\n\nContributions are welcome! To add a new skill:\n\n1. Create a directory under `data/` with your skill name\n2. Add a `SKILL.md` file with YAML frontmatter (`name`, `description`)\n3. Run `pnpm dedup` to check for duplicates\n4. Submit a PR\n\n## Development\n\n```bash\npnpm install          # Install dependencies\npnpm test             # Run tests\npnpm build            # Build to dist/\npnpm dev              # Run server locally\npnpm dedup            # Check for duplicate skills\npnpm validate-skills  # Validate data/ directory structure\npnpm fix-skills       # Fix broken skills (dry run by default)\npnpm clean-skills     # Remove invalid skill dirs (dry run by default)\nmake ci               # Run test + validate + build\n```\n\n## Third-Party Content\n\nThis project includes skills from [openclaw/skills](https://github.com/openclaw/skills), licensed under the MIT License. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for details.\n\n## License\n\n[MIT](LICENSE)\n",
+  "status": "curated"
+}

@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/BrainStOrmics/BIA-CellHashtag/plotting-heatmaps",
+  "type": "skill",
+  "name": "plotting-heatmaps",
+  "description": "Generate marker gene heatmaps with hierarchical clustering dendrograms.",
+  "author": "BrainStOrmics",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/BrainStOrmics/BIA-CellHashtag/blob/HEAD/src/cellhashtag/skills/plotting/heatmaps/SKILL.md",
+    "repo": "BrainStOrmics/BIA-CellHashtag",
+    "path": "src/cellhashtag/skills/plotting/heatmaps/SKILL.md"
+  },
+  "license": "GPL-3.0",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 5,
+    "pushed_at": "2026-07-17T03:46:28Z",
+    "score": 54,
+    "star_history": [
+      {
+        "d": "2026-08-18",
+        "s": 5
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# BIA-CellHashtag (Cell#) v3.1 — LLM-Based Single-Cell Annotation Agent\n\nAutomated cell type annotation for scRNA-seq and spatial RNA-seq data using LLMs. Built on LangGraph + DeepAgents with LATS tree search, iterative clustering quality assessment, and multi-omics support.\n\n> **v3.1 adds 8 new skills (25 exports): QC, DEG, plotting, batch correction, spatial loaders, trajectory inference.**\n\n## Features\n\n- **LATS Tree Search**: MCTS-based hypothesis exploration with evidence caching (SQLite + TTL)\n- **DeepAgents Integration**: Multi-agent annotation with self-criticism and knowledge retrieval\n- **Iterative Clustering**: Leiden with silhouette + modularity quality checks and automatic resolution tuning\n- **Multi-format Input**: `.h5ad`, `.rds` (Seurat/SCE), 10x `.mtx`, Visium, MERFISH, Stereo-seq\n- **Multi-omics Support**: scRNA-seq, snRNA-seq, spatial RNA-seq, ATAC-seq, CITE-seq\n- **CellWiki Integration**: Structured knowledge base for marker genes and cell types\n- **Pydantic Configuration**: Type-safe config with YAML + env var + runtime override layers\n- **Rich Output**: Annotated AnnData, CSV table, Markdown report, UMAP visualization, HITL review\n- **Quality Control**: Mitochondrial/ribosomal metrics, cell filtering, doublet detection\n- **Batch Correction**: Harmony, BBKNN, ComBat integration\n- **Trajectory Inference**: PAGA graph-based developmental trajectories\n\n## Installation\n\n```bash\npip install -e .\n```\n\n### Dependencies\n\n- Python 3.11+\n- `langgraph`, `langchain-openai` — workflow orchestration and LLM\n- `scanpy`, `anndata` — single-cell data handling\n- `scikit-learn` — silhouette score\n- `python-igraph` — modularity computation\n- `pyyaml` — configuration loading\n- `pandas`, `numpy` — data manipulation\n\n## Quick Start\n\n```python\nfrom cellhashtag import CellHashtagAgent\n\n# Create agent (loads config from src/cellhashtag/config/config.yaml)\nagent = CellHashtagAgent(profile=\"fast\")  # or \"default\", \"deep\"\n\n# Run annotation pipeline\nresult = agent.run(\n    input_path=\"data/example.h5ad\",\n    output_dir=\"output\",\n    cluster_key=\"leiden\",\n)\n\nprint(f\"Status: {result['status']}\")\nprint(f\"Clusters: {result['n_clusters']}\")\n```\n\n### Configuration\n\nEdit `src/cellhashtag/config/config.yaml` or override at runtime:\n\n```python\nagent = CellHashtagAgent(\n    profile=\"default\",\n    llm__model=\"qwen-plus\",\n    annotation__max_anno_iter=3,\n)\n```\n\nSee `.research_harness_system/QUICKSTART.md` for full setup guide.\n\n## Configuration\n\nCopy and edit the config file:\n\n```bash\ncp src/cellhashtag/config/config.yaml.example src/cellhashtag/config/config.yaml\n```\n\nEdit `config.yaml` to set your LLM API key, URL, and model:\n\n```yaml\nllm_config:\n  CHAT_MODEL_API:\n    api: \"your-api-key\"\n    url: \"https://your-api-endpoint\"\n    model: \"your-model-name\"\n    type: openai\n  ENABLE_THINKING: true\n  ENABLE_SEARCH: false\n```\n\n## Architecture\n\nv3.0 uses a flat 4-node LangGraph orchestrator:\n\n```\nperception → clustering → annotation → output\n```\n\n- **Perception**: Load h5ad, infer omics type, extract top markers\n- **Clustering**: Iterative Leiden with silhouette + modularity quality checks, automatic resolution tuning\n- **Annotation**: DeepAgents + LATS MCTS tree search per cluster (with error handling)\n- **Output**: Save annotated h5ad + CSV table + Markdown report + UMAP plots + HITL review\n\n### Project Structure\n\n```\nsrc/cellhashtag/\n├── agent.py              # CellHashtagAgent entry point\n├── config/\n│   ├── config.py         # Pydantic models + load_config()\n│   └── config.yaml       # User configuration\n├── core/\n│   ├── mcts.py           # Pure MCTS algorithm (no LLM/IO)\n│   ├── lats_loop.py      # LATS outer loop: wires MCTS <-> DeepAgents\n│   └── cache.py          # SQLite evidence cache with TTL\n├── graphs/\n│   ├── orchestrator.py   # 4-node flat graph\n│   └── clustering.py     # Iterative clustering subgraph\n├── skills/\n│   ├── cellwiki/            # CellWiki knowledge queries\n│   ├── clustering_quality/  # Silhouette, modularity, phiclust\n│   ├── clustering_degs/     # find_markers, consensus, resolution scan\n│   ├── format_conversion/   # h5ad, rds, mtx, SCE loaders\n│   ├── quality_control/     # QC metrics, filtering, doublets\n│   ├── batch_correction/    # Harmony, BBKNN, ComBat\n│   ├── trajectory/          # PAGA trajectory inference\n│   ├── spatial/             # Visium, MERFISH, Stereo-seq, generic\n│   ├── lats_search/         # MCTS tests\n│   └── plotting/\n│       ├── embeddings/      # UMAP/t-SNE (Okabe-Ito, PDF+PNG)\n│       ├── gene_expression/ # violin, dot plots\n│       └── heatmaps/        # marker heatmaps with dendrogram\n├── utils/\n│   ├── io.py             # AnnData I/O, marker extraction\n│   └── hitl.py           # Human-in-the-Loop review\n└── prompts/\n    ├── annotation.md                # Annotation system prompt\n    ├── annotation_hypothesis.md     # Hypothesis generation prompt\n    ├── annotation_evaluation.md     # Adversarial evaluation prompt\n    ├── annotation_task.md           # Per-cluster task template\n    └── lats_search.md               # LATS subagent prompt\n```\n\nSee `.research_harness_system/ARCHITECTURE.md` for full details.\n\n## Development\n\n```bash\n# Install dependencies (using BIA-dev conda environment)\nconda activate BIA-dev\n\n# Run MCTS unit tests\npython -m pytest src/cellhashtag/skills/lats_search/test_mcts_core.py -v\n\n# Interactive component tests (Jupyter notebook, 14 incremental cells)\njupyter notebook local_tests/test_lats_components.ipynb\n```\n\n## Documentation\n\n- **Quick Start**: `.research_harness_system/QUICKSTART.md`\n- **Architecture**: `.research_harness_system/ARCHITECTURE.md`\n- **Demo Notebook**: `examples/DEMO.ipynb`\n- **Usage Example**: `examples/basic_usage.py`\n\n## License\n\n[MIT License](LICENSE)\n",
+  "status": "curated"
+}

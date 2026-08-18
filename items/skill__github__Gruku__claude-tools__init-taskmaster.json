@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/Gruku/claude-tools/init-taskmaster",
+  "type": "skill",
+  "name": "init-taskmaster",
+  "description": "Set up Taskmaster in the current project. Triggers: 'set up taskmaster', 'initialize backlog', 'I want to track my work here', or backlog.yaml missing. Offers clean init or project analysis.",
+  "author": "Gruku",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/Gruku/claude-tools/blob/HEAD/codex-plugins/taskmaster/skills/init-taskmaster/SKILL.md",
+    "repo": "Gruku/claude-tools",
+    "path": "codex-plugins/taskmaster/skills/init-taskmaster/SKILL.md"
+  },
+  "license": null,
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 3,
+    "pushed_at": "2026-07-14T03:59:25Z",
+    "score": 55,
+    "star_history": [
+      {
+        "d": "2026-08-18",
+        "s": 3
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "办公",
+    "featured": false
+  },
+  "readme": "# Claude Tools\n\nPlugin marketplace for [Claude Code](https://docs.anthropic.com/en/docs/claude-code) and Codex.\n\n**[Browse Plugins](https://gruku.github.io/claude-tools/)** · Marketplace: `gruku-tools`\n\n> Versions are not listed in this README — they live in [`.claude-plugin/marketplace.json`](.claude-plugin/marketplace.json) as the single source of truth. The [GitHub Pages site](https://gruku.github.io/claude-tools/) reads that file at load time, so the browsable catalog is always current without a docs build step.\n\n## Quick Start\n\n### Claude Code\n\n```bash\n# 1. Add the marketplace\n/plugin marketplace add Gruku/claude-tools\n\n# 2. Install a plugin\n/plugin install taskmaster@gruku-tools\n\n# 3. Reload\n/reload-plugins\n```\n\n### Codex\n\n```powershell\n# 1. Add the marketplace\ncodex plugin marketplace add Gruku/claude-tools\n\n# 2. Install Taskmaster\ncodex plugin add taskmaster@gruku-tools\n```\n\nStart a new Codex task after installation. Taskmaster's MCP core, viewer,\nproject manifest, and assistant-neutral workflow playbooks are available on\nCodex. Enforcement hooks remain Claude Code-only; Codex follows the same gates\nadvisorily through the playbooks.\n\nTaskmaster's canonical source remains its standalone repository/submodule. The\nCodex marketplace consumes a generated regular-file distribution under\n`codex-plugins/taskmaster` because repository marketplace installs do not\nmaterialize Git submodules. Maintainers refresh it with\n`python scripts/sync_taskmaster_codex_distribution.py` after advancing the\nTaskmaster submodule.\n\n---\n\n## Plugins\n\n### Taskmaster\n\nUniversal AI-powered task and backlog management. Drop into any project.\n\n- **23 MCP tools** — tasks, epics, phases, dependencies, search, validation, session locking\n- **Kanban viewer** — dark/light theme board on port 6800 with filtering, search, blocked-column toggle, and dynamic version badge\n- **Session tracking** — auto-generated Done/Decisions/Issues changelog entries\n- **Worktree isolation** — every task gets its own git worktree\n- **Quality gates** — spec/plan check, code review, tests, build verification\n- **TODO auditing** — scan codebase for TODO/FIXME/HACK, cross-reference with backlog\n- **Phases** — sequential blocks of work for focus, one active at a time\n- **Configurable storage** — `.claude/` (hidden) or project root (git-tracked)\n\n**Requires:** [uv](https://docs.astral.sh/uv/)\n\n**Skills:** `/init-taskmaster` `/start-session` `/pick-task` `/review-gate` `/end-session` `/check-todos`\n\n### Guard Hooks\n\nSafety guard hooks that block destructive CLI commands and sensitive file edits, with in-flow user approval.\n\n- **Destructive command blocking** — prevents `rm -rf`, `git push --force`, `git reset --hard`, etc.\n- **Sensitive file protection** — guards `.env`, credentials, and config files from accidental edits\n- **User approval flow** — prompts for confirmation via `AskUserQuestion` before allowing risky actions\n\n**Requires:** [jq](https://jqlang.github.io/jq/)\n\n**Skills:** `/guard-hooks:install`\n\n### UE5 Materials\n\nAuthor Unreal Engine 5 materials from YAML specs. Two execution modes:\n\n- **Live mode** — drives the Material Editor via MCPBridge at `localhost:13580` (`create_material` + `add_material_expressions` + `connect_material_pins`)\n- **Clipboard mode** — emits T3D paste text for manual Ctrl+V into the Material Editor\n- **HLSL Architect (Opus) + Node Generator (Sonnet)** agent chain for complex shader designs\n- **Direct YAML path** for simple wiring of known nodes\n- **Named Reroutes + column positioning** replace crash-prone Comment boxes\n\n**Requires:** `pyyaml`\n\n**Skills:** `/ue5-materials:author` `/ue5-materials:registry`\n\n### Statusline\n\nPastel statusline for Claude Code with rate-limit bars, git status, context usage, update notifications, and session cost tracking. Bash + PowerShell.\n\n**[Live Preview](https://gruku.github.io/claude-tools/statusline/)**\n\n![Statusline Preview](statusline/screenshot.png)\n\n#### Install\n\n```bash\n/plugin marketplace add Gruku/claude-tools\n/plugin install statusline@gruku-tools\n/statusline:setup\n/reload-plugins\n```\n\nThen restart Claude Code so the new `statusLine` config is picked up.\n\nThe `/statusline:setup` skill detects your OS (Windows → PS1, macOS/Linux → Bash), checks prerequisites, and writes the `statusLine` block into `~/.claude/settings.json` pointing at the bundled script via `${CLAUDE_PLUGIN_ROOT}`. Marketplace updates ship new versions automatically — no re-install needed.\n\n**Requires:** `jq` + `git` on Bash; nothing on Windows (PowerShell built-in, `git` recommended).\n\n<details>\n<summary>Manual install (standalone, without the plugin system)</summary>\n\n##### macOS / Linux (Bash)\n\n```bash\ncurl -o ~/.claude/statusline.sh https://raw.githubusercontent.com/Gruku/claude-tools/master/statusline/statusline.sh\nchmod +x ~/.claude/statusline.sh\n```\n\nAdd to `~/.claude/settings.json`:\n\n```json\n{ \"statusLine\": { \"type\": \"command\", \"command\": \"~/.claude/statusline.sh\" } }\n```\n\n##### Windows (PowerShell)\n\n```powershell\nInvoke-WebRequest -Uri \"https://raw.githubusercontent.com/Gruku/claude-tools/master/statusline/statusline.ps1\" -OutFile \"$env:USERPROFILE\\.claude\\statusline.ps1\"\n```\n\nAdd to `%USERPROFILE%\\.claude\\settings.json`:\n\n```json\n{ \"statusLine\": { \"type\": \"command\", \"command\": \"powershell -NoProfile -File \\\"%USERPROFILE%\\\\.claude\\\\statusline.ps1\\\"\" } }\n```\n\nRestart Claude Code.\n\n</details>\n\n#### Troubleshooting\n\n**Raw escape codes visible** (e.g. `\\033[0;33m` printed literally) — something between the script and the terminal is re-encoding ANSI. Don't paste the output into `PS1`/`PROMPT` manually. tmux/screen users: `set -g default-terminal \"xterm-256color\"` in `.tmux.conf`. Check that your terminal supports 24-bit truecolor (iTerm2, Windows Terminal, Ghostty, Alacritty, Kitty, WezTerm all do).\n\n**\"statusline: jq required\"** — install jq: `brew install jq` / `sudo apt install jq` / `winget install jqlang.jq`.\n\n**No rate-limit bars** — requires Claude Code v2.1.80 or later. Bars only appear when usage crosses display thresholds (80%+ for 5h, 80%+ for 7d) or on the first render of a new session.\n\n---\n\n## Marketplace Reference\n\n### Structure\n\n```\nclaude-tools/\n├── .claude-plugin/\n│   └── marketplace.json        # plugin catalog\n├── plugins/\n│   ├── taskmaster/             # AI task management\n│   ├── guard-hooks/            # safety guard hooks\n│   ├── ue5-materials/          # UE5 material authoring\n│   └── statusline/             # pastel statusline (was standalone, now a plugin)\n└── statusline/                 # legacy standalone source (preview + manual install)\n```\n\n### Commands\n\n| Command | Purpose |\n|---------|---------|\n| `/plugin marketplace add Gruku/claude-tools` | Add this marketplace |\n| `/plugin install name@gruku-tools` | Install a plugin |\n| `/plugin marketplace update gruku-tools` | Pull latest changes |\n| `/plugin update name@gruku-tools` | Update a specific plugin |\n| `/reload-plugins` | Apply changes without restarting |\n\n### Creating Your Own Plugin\n\n1. Create `plugins/my-plugin/.claude-plugin/plugin.json` with name, description, version, author\n2. Add skills in `plugins/my-plugin/skills/<name>/SKILL.md`\n3. Add entry to `.claude-plugin/marketplace.json`\n4. Push to GitHub — users install via `/plugin marketplace add your/repo`\n\nSee [Plugin Marketplaces docs](https://code.claude.com/docs/en/plugin-marketplaces) for the full guide.\n",
+  "status": "curated"
+}

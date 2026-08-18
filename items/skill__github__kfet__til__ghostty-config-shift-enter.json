@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/kfet/til/ghostty-config-shift-enter",
+  "type": "skill",
+  "name": "ghostty-config-shift-enter",
+  "description": "Configure Ghostty Shift+Enter for tmux. TIL note about ghostty. Use when working with ghostty and the user mentions config shift enter or related topics.",
+  "author": "kfet",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/kfet/til/blob/HEAD/skills/ghostty-config-shift-enter/SKILL.md",
+    "repo": "kfet/til",
+    "path": "skills/ghostty-config-shift-enter/SKILL.md"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 3,
+    "pushed_at": "2026-08-17T14:59:06Z",
+    "score": 60,
+    "star_history": [
+      {
+        "d": "2026-08-18",
+        "s": 3
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "写作",
+    "featured": false
+  },
+  "readme": "# TIL\n\nkfet's \"Today I Learned\" (TIL) repository\n\nTIL entries are little nuggets of knowledge, which at some point in time I considered interesting enough to keep around.\n\nEntries are packaged as [Agent Skills](https://agentskills.io/specification) under `skills/{topic}-{name}/SKILL.md`. Each skill is a plain Markdown file with a small YAML frontmatter (`name`, `description`) so it can be consumed by skill-aware agents as well as read directly.\n\n## Install\n\n### Homebrew (macOS, Linux)\n\n```bash\nbrew install kfet/til/til\n```\n\nThe Homebrew formula installs a bundled snapshot of the `skills/` tree and sets\n`til` to read from that snapshot by default. Update it with:\n\n```bash\nbrew update\nbrew upgrade til\n```\n\n### Install script\n\nFrom a local clone:\n\n```bash\n./install.sh\n```\n\nOr directly from GitHub:\n\n```bash\ncurl -sSL https://raw.githubusercontent.com/kfet/til/main/install.sh | bash\n```\n\nThe installer prompts to drop bash/zsh completion under the right\n`fpath` / `bash-completion` directory; pass `--completion=yes` or\n`--completion=no` to skip the prompt.\n\nIt also offers to install [airan](https://github.com/kfet/airan), which\nonly `til run` needs — pass `--airan=yes` or `--airan=no` to skip that\nprompt. Everything else works without it.\n\n### Uninstall\n\n```bash\n~/.til-repo/install.sh --uninstall            # CLI, completions, config, repo\n~/.til-repo/install.sh --uninstall --keep-repo   # keep the skills clone\n```\n\nAdd `--yes` to skip the confirmation. A Homebrew-installed `til` is\ndetected and refused — remove that one with `brew uninstall til`.\n\n## CLI overview\n\nOnce installed:\n\n```bash\ntil list                # list every skill\ntil search <term>       # full-text search\ntil show <slug>         # render a skill (uses glow/bat when stdout is a TTY)\ntil show --plain <slug> # raw markdown (also when NO_COLOR is set or piped)\ntil path <slug>         # print the absolute path to that skill's SKILL.md\ntil execute <slug> <section>   # mechanically run a `(executable)` section's shell blocks\ntil run <slug>          # hand the whole skill to an AI agent to apply it here\ntil validate            # check every skill against the Agent Skill spec\ntil update              # pull the skills repo AND refresh the til CLI\ntil update --no-cli     # skills only, leave the installed CLI alone\ntil update --cli        # force the CLI reinstall even if it looks current\n```\n\n`til execute` and `til run` are deliberately different: `execute` is\nmechanical (run these shell blocks, with a confirmation prompt), `run` is\nagentic (wrap the skill in an \"apply this to the current host, verify,\nreport what changed\" instruction and dispatch it to an AI coding agent\nvia [airan](https://github.com/kfet/airan)). `run` pins no backend, so\nairan resolves `$AIRAN_BACKEND` then its configured default.\n\n`til show` auto-picks a renderer in this order: whatever `TIL_RENDERER`\nis set to, then `bat`, then `glow`. With none installed it just prints\nplain text.\n\n## Release\n\nPush a `vX.Y.Z` tag to create a GitHub release and render `Formula/til.rb` into\nthe `kfet/homebrew-til` tap. The release workflow needs a `HOMEBREW_TAP_TOKEN`\nsecret with write access to that tap.\n\n## License\n\nMIT — see [LICENSE](LICENSE).\n",
+  "status": "curated"
+}

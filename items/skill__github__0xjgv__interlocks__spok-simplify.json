@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/0xjgv/interlocks/spok-simplify",
+  "type": "skill",
+  "name": "spok-simplify",
+  "description": "Simplify the implementation of the current chunk. Vendored stub — relies on the user-installed simplify tooling.",
+  "author": "0xjgv",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/0xjgv/interlocks/blob/HEAD/.agents/skills/spok-simplify/SKILL.md",
+    "repo": "0xjgv/interlocks",
+    "path": ".agents/skills/spok-simplify/SKILL.md"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 3,
+    "pushed_at": "2026-06-04T14:20:29Z",
+    "score": 55,
+    "star_history": [
+      {
+        "d": "2026-08-18",
+        "s": 3
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# interlocks\n\nOne deterministic Python quality loop for local edits, git hooks, CI, and\nagent-authored pull requests.\n\n```bash\nuvx --from interlocks il doctor\nuvx --from interlocks il check\nuvx --from 'interlocks>=0.2,<0.3' il ci\n```\n\nNo install is required to start. `doctor` explains what interlocks would run,\n`check` runs the local edit loop, and `ci` gates a pull request with the same\nquality policy.\n\ninterlocks wraps Ruff, basedpyright, coverage.py, mutmut, deptry,\nimport-linter, pip-audit, lizard, pytest/unittest, and pytest-bdd or behave\nbehind one command surface. New repositories can rely on auto-detected paths\nand bundled tool defaults; mature repositories can use presets or explicit\n`[tool.interlocks]` thresholds.\n\n## Who It Is For\n\nUse interlocks when local checks, protected-branch checks, and agent-authored\nPRs are drifting apart.\n\ninterlocks is not a hosted dashboard, a polyglot quality platform, or a\nreplacement for project-owned tests. It standardizes repeatable Python gates so\nhumans and agents review against the same deterministic output.\n\n## First Success\n\nRun a static diagnostic first:\n\n```bash\nuvx --from interlocks il doctor\n```\n\n`doctor` finds the nearest `pyproject.toml`, detected source/test/features\npaths, runner, invoker, active preset, resolved gate values, PATH visibility,\nblockers, warnings, local integration state, and shortest next steps. It does\nnot run tests, typecheck, coverage, mutation, dependency audit, or network\nchecks.\n\nRun the local quality loop:\n\n```bash\nuvx --from interlocks il check\n```\n\n`check` runs fix, format, typecheck, tests, optional acceptance and property\ntests, advisory dependency hygiene, cached CRAP feedback when fresh coverage\nexists, and the suppressions report. It is the command to run after edits\nbefore pushing.\n\nFor frequent local use:\n\n```bash\nuv tool install interlocks\nil check\n```\n\n`pipx install interlocks` is also supported. From 0.2 onward, interlocks ships\nzero runtime dependencies and dispatches every gate through `uvx` or\n`uv run --with` at pinned versions baked into the package, so the tool\nenvironment stays isolated from your project resolver.\n\nPopulate the cache for offline use:\n\n```bash\ninterlocks warm\n```\n\n## Choose Your Path\n\n```bash\nuvx --from interlocks il doctor\nuvx --from interlocks il evaluate\n```\n\nAdopt locally:\n\n```bash\ninterlocks setup\ninterlocks setup --check\ninterlocks check\n```\n\n`setup` idempotently installs the local feedback loops: git pre-commit hook,\nClaude Code Stop hook, `AGENTS.md` / `CLAUDE.md` interlocks block, and bundled\nClaude skill at `.claude/skills/interlocks/SKILL.md`. `setup --check` is\nread-only and exits non-zero when an integration is missing or stale.\n\nWire CI:\n\n```bash\nuvx --from 'interlocks>=0.2,<0.3' il ci\n```\n\nOr use the GitHub Action:\n\n```yaml\nname: interlocks\n\non:\n  pull_request:\n  push:\n    branches: [main]\n\njobs:\n  interlocks:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v6\n      - uses: 0xjgv/interlocks@v1\n```\n\nOperate as an agent:\n\n```bash\ninterlocks doctor --json\ninterlocks check --json\n```\n\n`interlocks {ci,check,evaluate,trust,doctor,config} --json` emits one\nmachine-readable JSON object on stdout. Stage-like payloads include\n`schema_version`, `gates`, `skipped`, `artifacts`, and an `agent` block with\n`required_actions`, `recommended_actions`, and policy boundaries that require\nowner approval. Exit codes are unchanged, and `--json` dominates `--verbose`.\n\n## Validation Flow\n\n| Command | When | What It Proves |\n|---------|------|----------------|\n| `interlocks doctor` | Before adoption or when confused | Static project detection, config, integrations, blockers, next steps |\n| `interlocks check` | After local edits | Fix, format, typecheck, tests, optional acceptance/properties, deps advisory, cached CRAP advisory, suppressions |\n| `interlocks hook pre-commit` | Git hook | Staged-file fix/format, re-stage, typecheck, tests when source changed |\n| `interlocks ci` | Pull requests and protected branches | Format-check, lint, complexity, audit, deps, typecheck, coverage including properties, arch, acceptance, CRAP, optional mutation |\n| `interlocks nightly` | Scheduled jobs | Coverage including properties, audit, full mutation, blocking on `mutation_min_score` |\n\n`interlocks ci` writes `.interlocks/ci.json` timing evidence. `nightly` catches\nslower evidence that may be too expensive for every PR.\n\nAgents can use `interlocks property-candidates --json --uncovered` to rank\npure-ish functions that are not already referenced by property tests.\n\n## Agent Contract\n\nAgents should treat interlocks as the repository quality contract:\n\n- Inspect `interlocks doctor --json` and `interlocks config --json` before\n  changing policy or routing around a gate.\n- Run `interlocks check --json` after edits and follow\n  `agent.required_actions` before handing work back.\n- Never bypass installed hooks or remove interlocks config to make a PR green.\n- When `check` or `ci` fails, use the structured rerun commands in the `agent`\n  block instead of guessing from prose.\n- Prefer project-owned tool config for policy changes and narrow native ignores\n  for local exceptions.\n\nThe practical CLI guide lives in [`docs/cli-howto.md`](docs/cli-howto.md).\nMore agent and CI guidance lives in\n[`docs/agent-workflows.md`](docs/agent-workflows.md).\n\n## Common Recipes\n\nBrownfield adoption:\n\n```bash\ninterlocks check --changed\ninterlocks check --changed=HEAD~1\n```\n\n`--changed` scopes file-level gates such as fix, format, typecheck, and CRAP to\nthe diff against the configured base ref. Graph-wide gates and the test suite\nare skipped with a banner; property tests are skipped too because they are\nproperty-wide rather than file-level. Run `interlocks gate test` and\n`interlocks gate properties --profile=check` separately when you want the full suite.\n\nDebug a failing gate:\n\n```bash\nil gate lint\nil gate typecheck\nil gate test\nil gate coverage --min=80 --properties\nil gate deps\nil gate audit\nil gate arch\nil gate acceptance\n```\n\nUse adoption presets:\n\n```toml\n[tool.interlocks]\npreset = \"baseline\"  # \"baseline\" | \"strict\" | \"legacy\" | \"progressive\"\n```\n\n`baseline` lowers first-adoption friction, `strict` strengthens mature\nrepositories, `legacy` supports ratcheting existing repositories, and\n`progressive` ratchets floors through `.interlocks/baseline.json`. The\nunsupported `agent-safe` preset is rejected by `doctor` instead of resolving\nagent-specific defaults.\n\nKeep CI offline after warmup:\n\n```bash\ninterlocks warm\nUV_OFFLINE=1 interlocks ci\n```\n\nUnblock lint or format debt without broad cleanup:\n\n```bash\ninterlocks fix unblock\ninterlocks fix unblock --apply\ninterlocks fix rule --rule=I001 --apply\n```\n\nThe budgeted lint/format flow is documented in\n[`docs/lintfix-mutation-budget-howto.md`](docs/lintfix-mutation-budget-howto.md).\n\n## Command Map\n\n| Need | Command |\n|------|---------|\n| Adoption diagnostic | `interlocks doctor` |\n| Local edit loop | `interlocks check` |\n| Git hook command | `interlocks hook pre-commit` |\n| Pull request gate | `interlocks ci` |\n| Scheduled deep gate | `interlocks nightly` |\n| Tool/config inspection | `interlocks config`, `interlocks config show ruff` |\n| Preset inspection | `interlocks presets`, `interlocks presets set baseline` |\n| Trust report | `interlocks trust --refresh` |\n| Static quality scorecard | `interlocks evaluate` |\n| Cleanup | `interlocks clean` |\n\nCLI HOWTO: [`docs/cli-howto.md`](docs/cli-howto.md). Full command, config,\nacceptance, bundled-default, crash-reporting, and release reference:\n[`docs/reference.md`](docs/reference.md). Agent and CI workflows:\n[`docs/agent-workflows.md`](docs/agent-workflows.md).\n\n## Engineering Principles\n\ninterlocks is built around quality through disciplined simplicity: explicit,\nreadable, flat code beats clever abstraction, and complexity has to earn its\nkeep.\n\n- Long-term maintainability over short-term convenience.\n- Tool-backed confidence through deterministic gates, especially\n  `interlocks check`.\n- Behavioral correctness first, with focused tests for behavior changes.\n- Low entropy: reduce repetition, avoid unnecessary dependencies, keep\n  conventions consistent.\n- Explicit contracts: typed Python, clear CLI task names, structured config,\n  JSON output for agents, predictable workflows.\n- Pragmatic rigor: question assumptions, prefer existing architecture, and\n  optimize for correctness and clarity without over-engineering.\n",
+  "status": "curated"
+}

