@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/realsigridjin/oh-my-codex/git-master",
+  "type": "skill",
+  "name": "git-master",
+  "description": "Git expert for atomic commits, rebasing, and history management",
+  "author": "realsigridjin",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/realsigridjin/oh-my-codex/blob/HEAD/skills/git-master/SKILL.md",
+    "repo": "realsigridjin/oh-my-codex",
+    "path": "skills/git-master/SKILL.md"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 20,
+    "pushed_at": "2026-03-09T18:44:37Z",
+    "score": 54,
+    "star_history": [
+      {
+        "d": "2026-08-19",
+        "s": 20
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# oh-my-codex\n\n[![npm version](https://img.shields.io/npm/v/oh-my-codex?color=cb3837)](https://www.npmjs.com/package/oh-my-codex)\n[![npm downloads](https://img.shields.io/npm/dm/oh-my-codex?color=1f6feb)](https://www.npmjs.com/package/oh-my-codex)\n[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](./LICENSE)\n\nMulti-agent orchestration for Codex with structured planning, specialized agents, lifecycle hooks, LSP/AST tooling, and automation skills.\n\noh-my-codex is designed to make Codex behave like a practical engineering conductor: plan first, delegate by role, verify outputs, detect drift, and keep sessions resumable.\n\n## Table of Contents\n\n- [Why oh-my-codex](#why-oh-my-codex)\n- [Core Capabilities](#core-capabilities)\n- [Architecture Overview](#architecture-overview)\n- [Requirements](#requirements)\n- [Installation](#installation)\n- [Quick Start](#quick-start)\n- [Execution Modes](#execution-modes)\n- [Agents and Tier Routing](#agents-and-tier-routing)\n- [Hooks and Runtime Behavior](#hooks-and-runtime-behavior)\n- [HUD and Usage Telemetry](#hud-and-usage-telemetry)\n- [Rate Limit Recovery](#rate-limit-recovery)\n- [Project Session Manager](#project-session-manager)\n- [Update and Uninstall](#update-and-uninstall)\n- [Developer Guide](#developer-guide)\n- [Troubleshooting](#troubleshooting)\n- [Security Notes](#security-notes)\n- [License](#license)\n\n## Why oh-my-codex\n\nBase Codex is excellent at direct implementation. oh-my-codex adds a full orchestration layer for larger or riskier workflows:\n\n- Reusable specialized agents with explicit responsibilities\n- Multi-step planning and review-first patterns\n- Enforcement and verification hooks\n- Parallel execution modes for speed\n- Type-aware and syntax-aware tooling (LSP + AST)\n- Runtime utilities for drift detection and resumable sessions\n\n## Core Capabilities\n\n### 1. Agent orchestration\n\n- 30+ agent prompts for architecture, execution, review, QA, security, docs, and research\n- Tier routing strategy (low/medium/high) to control cost and depth\n- Team-style delegation patterns for parallel work\n\n### 2. Skill-based workflows\n\n- 35+ workflow skills such as planning, deep search, build fixing, review, and setup\n- Command/skill organization for repeatable execution patterns\n- Project bootstrap and configuration setup helpers\n\n### 3. Hook system\n\n- Lifecycle hook support for session start, prompt submit, pre/post tool use, stop, and failures\n- Runtime safety checks, input handling, and persistence helpers\n- Upgrade-aware behavior for mixed legacy/current environments\n\n### 4. Developer tooling\n\n- LSP tool family for definitions, references, symbols, diagnostics, and rename\n- AST search/replace tools for structural code edits\n- HUD usage integration and statusline support\n- Rate-limit wait detection and tmux-based resume helpers\n\n## Architecture Overview\n\n```text\nCodex CLI\n  -> oh-my-codex runtime\n     -> Agents (specialized prompts)\n     -> Skills (workflow templates)\n     -> Hooks (lifecycle enforcement)\n     -> Tools (LSP + AST + utilities)\n     -> Features (state, routing, drift, wait/resume)\n```\n\nKey source areas:\n\n- `src/installer/` - installation, migration, and conflict handling\n- `src/hooks/` - lifecycle hook logic\n- `src/features/` - execution modes and runtime features\n- `src/hud/` - usage telemetry and statusline integration\n- `agents/` - agent prompt files\n- `skills/` - skill instructions\n- `commands/` - command definitions\n- `scripts/` - setup/update/runtime scripts\n\n## Requirements\n\n- Node.js `>=20`\n- Codex CLI installed and authenticated\n- macOS/Linux/WSL recommended for tmux workflows\n\nOptional:\n\n- `tmux` for session recovery and rate-limit resume flow\n- Additional MCP servers depending on your workflow\n\n## Installation\n\nThere are two supported install paths.\n\n### Option A: Codex plugin install (preferred when available)\n\nSome Codex builds expose plugin marketplace commands.\n\n```bash\ncodex plugin marketplace add https://github.com/sigridjineth/oh-my-codex\ncodex plugin install oh-my-codex\n```\n\nFor local development plugin install:\n\n```bash\ncodex plugin marketplace add /path/to/oh-my-codex\ncodex plugin install oh-my-codex@oh-my-codex\n```\n\nIf your Codex CLI does not provide `codex plugin ...`, use Option B.\n\n### Option B: CLI install from source (works across more Codex builds)\n\n```bash\ngit clone https://github.com/sigridjineth/oh-my-codex.git\ncd oh-my-codex\nnpm install\nnpm run build\nnode dist/cli/index.js install\n```\n\nThis installs OMC resources into `~/.codex/` (hooks, agents, CODEX.md, HUD config).\n\n### Verify installation\n\n```bash\nnode dist/cli/index.js doctor conflicts --json\ncodex exec \"Reply exactly: OK\"\n```\n\nExpected outcomes:\n\n- `doctor conflicts` reports `\"hasConflicts\": false`\n- `codex exec` completes successfully\n\n## Quick Start\n\n### 1. Start Codex\n\n```bash\ncodex\n```\n\n### 2. Run setup command\n\nIn a Codex session, run:\n\n```text\n/oh-my-codex:omc-setup\n```\n\nThis prepares project/global `CODEX.md` instructions.\n\n### 3. Use orchestration commands\n\nExamples:\n\n```text\n/oh-my-codex:plan Build a migration-safe auth refactor\n/oh-my-codex:review\n/oh-my-codex:ultrawork Refactor service boundaries\n/oh-my-codex:security-review\n/oh-my-codex:code-review\n```\n\n### 4. Use agent delegation\n\nWhen using task delegation, use `oh-my-codex:<agent>` identifiers.\n\n## Execution Modes\n\n| Mode | Purpose |\n|---|---|\n| `autopilot` | Broad autonomous execution from prompt to implementation |\n| `ultrawork` | Maximum parallelism for throughput |\n| `ultrapilot` | Parallel autopilot strategy with ownership patterns |\n| `swarm` | N-agent coordinated execution with claim/checkpoint logic |\n| `pipeline` | Ordered stage handoff between agents |\n| `ecomode` | Cost-sensitive execution mode |\n| `ralph` | Persistence mode with repeated verification |\n| `ultraqa` | QA-heavy cycles and validation loops |\n\n## Agents and Tier Routing\n\noh-my-codex includes role-specific agents (architecture, execution, QA, research, security, review).\n\nTier intent:\n\n- `-low` agents: quick/simple tasks\n- base agents: balanced complexity\n- `-high` agents: deeper reasoning and critical reviews\n\nRecommended strategy:\n\n1. plan with high-level agent\n2. execute with balanced agent(s)\n3. verify with critic/reviewer/security roles\n4. finalize with QA and user-flow checks\n\n## Hooks and Runtime Behavior\n\nInstalled hooks typically include:\n\n- `UserPromptSubmit` -> keyword/mode detector\n- `SessionStart` -> restore context, drift check, startup info\n- `PreToolUse` -> preflight enforcement and policy checks\n- `PostToolUse` -> verification/recording logic\n- `PostToolUseFailure` -> failure handling\n- `Stop` -> persistence and continuation support\n\nNotes:\n\n- Current hook paths use `.codex/hooks/`\n- Upgrade logic recognizes legacy `.claude/hooks/` ownership patterns\n- Mixed legacy/current installs are handled to reduce false conflict detection\n\n## HUD and Usage Telemetry\n\nHUD module includes:\n\n- statusline integration\n- token/usage polling\n- OAuth credential handling with legacy wrapper compatibility\n- refresh behavior aligned to Anthropic OAuth host for current auth flow\n\nRun HUD helper commands in Codex:\n\n```text\n/oh-my-codex:hud\n```\n\n## Rate Limit Recovery\n\n`omc wait` and related runtime helpers support:\n\n- waiting on API quota reset windows\n- tmux pane scanning for blocked sessions\n- automated resume patterns when sessions become available\n\nDetection includes both Codex and legacy markers to support migration environments.\n\n## Project Session Manager\n\nProject session manager supports isolated workflows with worktrees + tmux.\n\nTypical use cases:\n\n- running multiple implementation branches in parallel\n- one task per pane/worktree\n- fast context switching between active features\n\nCodex launch behavior in tmux is configured for `codex` runtime.\n\n## Update and Uninstall\n\n### Update source install\n\n```bash\ncd /path/to/oh-my-codex\ngit pull\nnpm install\nnpm run build\nnode dist/cli/index.js install\n```\n\n### Update plugin install\n\n```bash\ncodex plugin marketplace update oh-my-codex\ncodex plugin update oh-my-codex@oh-my-codex\n```\n\n### Uninstall\n\nIf installed by plugin, use Codex plugin uninstall commands.\n\nIf installed by CLI/source, remove OMC resources from `~/.codex/` based on your install footprint (hooks, agents, HUD assets, and command files).\n\n## Developer Guide\n\n### Local development\n\n```bash\nnpm install\nnpm run build\nnpm test\nnpm run lint\n```\n\n### Common scripts\n\n```bash\nnpm run dev\nnpm run test:coverage\nnpm run sync-metadata\nnpm run compose-docs\n```\n\n### Recommended workflow\n\n1. Implement changes in `src/`\n2. Add or update tests in `src/__tests__/`\n3. Run `npm run build` and targeted tests\n4. Validate install/runtime path (`node dist/cli/index.js install`, `doctor conflicts`)\n5. Verify Codex execution flow (`codex exec ...`)\n\n## Troubleshooting\n\n### `codex plugin marketplace` not found\n\nYour Codex CLI build may not support plugin marketplace subcommands.\nUse source install path:\n\n```bash\nnode dist/cli/index.js install\n```\n\n### Install fails with permissions writing `~/.codex`\n\nRun install with an environment that allows home directory writes.\n\n### Hook conflict warnings after migration\n\nUse:\n\n```bash\nnode dist/cli/index.js doctor conflicts --json\n```\n\nLegacy `.claude/hooks` and current `.codex/hooks` signatures are recognized for ownership checks.\n\n### Usage telemetry unavailable\n\nCheck credential source files and login state. Usage credential parsing supports both wrapper shapes:\n\n- `codexAiOauth` (current)\n- `claudeAiOauth` (legacy)\n\n### tmux wait/resume does not detect blocked pane\n\nConfirm tmux is installed and pane content includes Codex/rate-limit text patterns.\n\n## Security Notes\n\n- Hook and tool execution should stay scoped to trusted working directories\n- Review generated commands before enabling full automation modes\n- Keep tokens/credentials only in secure stores and avoid committing secrets\n\n## License\n\nMIT. See [LICENSE](./LICENSE).\n",
+  "status": "curated"
+}

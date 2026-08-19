@@ -10,14 +10,20 @@
     "repo": "jettjia/XiaoQinglong",
     "path": "skills/s3-upload/SKILL.md"
   },
-  "license": null,
+  "license": "Apache-2.0",
   "install": {
     "kind": "skill-dir"
   },
   "quality": {
-    "stars": null,
-    "pushed_at": null,
-    "score": 22
+    "stars": 8,
+    "pushed_at": "2026-04-23T06:08:44Z",
+    "score": 51,
+    "star_history": [
+      {
+        "d": "2026-08-19",
+        "s": 8
+      }
+    ]
   },
   "security": {
     "score": 100,
@@ -49,6 +55,6 @@
     "category": null,
     "featured": false
   },
-  "readme": null,
+  "readme": "# XiaoQinglong 小青龙\n\n[English](./README-en.md) | 中文\n\n**企业级智能体运行框架** - 让 AI Agent 在生产环境中真正落地\n\n[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](./LICENSE)\n[![Go](https://img.shields.io/badge/Go-1.22+-00ADD8.svg)](https://golang.org)\n[![Enterprise Ready](https://img.shields.io/badge/Enterprise-Ready-green.svg)]()\n\n> 小青龙是面向企业的智能体操作系统，支持多渠道接入、多模型路由、可视化编排、技能生态、MCP 协议、沙箱执行等企业级特性。\n\n---\n\n## 核心特性\n\n| 分类         | 功能                                                |\n| ------------ | --------------------------------------------------- |\n| **模型能力** | 多模型路由 · 上下文压缩 · Prompt 缓存 · deep-agents |\n| **工具生态** | Skills · MCP (SSE/stdio/HTTP) · Tools · A2A · Skill 自动创建 |\n| **执行保障** | 沙箱执行 · 审批策略 · 重试熔断 · Checkpoint         |\n| **记忆系统** | user · feedback · project · reference               |\n| **工程化**   | 定时任务 · Sub-Agent 并行 · 知识检索                |\n| **响应格式** | text · markdown · json · a2ui · 多媒体              |\n\n---\n\n## 为什么选择小青龙？\n\n### 🔄 多模型智能路由\n\n按任务角色自动选择最优模型，兼顾成本与效果：\n\n| 角色        | 用途       | 典型场景 |\n| ----------- | ---------- | -------- |\n| `default`   | 主对话     | 用户问答 |\n| `rewrite`   | Query 改写 | 搜索增强 |\n| `skill`     | 技能执行   | 复杂任务 |\n| `summarize` | 内容总结   | 长文摘要 |\n\n### 🛡️ 企业级安全保障\n\n```\n风险分级审批 + 白名单自动通过 + 沙箱隔离执行\n```\n\n- **审批策略**：low/medium/high 三级风险控制\n- **沙箱执行**：Docker / Local 双模式，危险操作隔离\n- **熔断机制**：指数退避重试，防止雪崩\n\n### ⚡ 生产级可靠性\n\n- **Checkpoint**：中断恢复，长任务不丢失\n- **上下文压缩**：Token 超限时自动压缩上下文\n- **记忆系统**：跨 session 保持用户偏好和上下文\n\n### 🔌 开放生态\n\n- **MCP 协议**：支持 SSE / stdio / HTTP 三种传输模式\n- **A2A 协议**：Agent 之间互相调用，构建复杂工作流\n- **Skills 生态**：支持agent-skills，Agent 自我进化完成skill的创建去完成任务\n\n---\n\n### 场景演示\n* 数据分析：\n\n<img src=\"./docs/README/data.gif\" height=\"280\" />\n\n\n* 微信claw:\n\n<img src=\"./docs/README/wechat.gif\" height=\"280\" />\n\n* 飞书:\n\n<img src=\"./docs/README/feishu.png\" height=\"280\" />\n\n\n* 丰富的功能与编排：\n\n<img src=\"./docs/README/xql.gif\" height=\"280\" />\n\n## 整体架构\n\n```mermaid\nflowchart TB\n    subgraph user[\"用户层\"]\n        U[Web / 飞书 / 钉钉 / 微信 / API]\n    end\n\n    subgraph frame[\"agent-frame\"]\n        API[API 网关]\n        AUTH[鉴权]\n        SESSION[会话中心]\n        SKILL_C[技能中心]\n        ORCH[编排中心]\n    end\n\n    subgraph runner[\"runner 执行层\"]\n        ROUTER[多模型路由]\n        LLM[LLM 调用]\n        EXT[能力扩展<br/>Skills/MCP/Tools/A2A]\n        SANDBOX[沙箱执行]\n        OUTPUT[响应输出]\n    end\n\n    user --> frame --> runner --> user\n```\n\n---\n\n## 快速开始\n\n### 1. 启动 Runner\n\n```bash\ncd backend/runner\n./runner\n# 默认监听 :18080\n```\n\n### 2. 发送请求\n\n```bash\ncurl -X POST http://localhost:18080/run \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n    \"prompt\": \"帮我分析今天天气\",\n    \"models\": {\n      \"default\": {\"name\": \"gpt-4o\", \"api_key\": \"sk-xxx\", \"api_base\": \"https://api.openai.com/v1\"}\n    },\n    \"options\": {\"stream\": false}\n  }'\n```\n\n### 3. 流式响应\n\n```bash\ncurl -X POST http://localhost:18080/run \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"prompt\": \"写一段 Python 代码\", \"options\": {\"stream\": true}}'\n# 支持 SSE 流式输出\n```\n\n---\n\n## Runner 完整特性\n\n### 模型层\n- **多模型路由**：default / rewrite / skill / summarize 四角色\n- **上下文压缩**：Token 超限自动压缩（支持 full/partial/micro 三种策略）\n- **Prompt 缓存**：静态 section 缓存，避免重复计算\n- **deep-agents**：深度推理模式，复杂问题拆解\n\n### 工具生态\n- **Skills**：技能中心，支持 agent-skills，渐进式加载 + Skill 自动创建\n- **Skill 管理**：skill_manage (创建/修改/删除) + load_skill (按需加载)\n- **MCP**：支持 SSE / stdio / HTTP 三种传输模式\n- **Tools**：内置 bash / file / glob / grep / web-fetch 等工具\n- **A2A**：Agent-to-Agent 协议，构建分布式智能体网络\n\n### 执行保障\n- **沙箱执行**：Docker / Local 双模式，危险操作隔离\n- **审批策略**：风险分级 + 白名单自动批准\n- **重试熔断**：指数退避，支持熔断器配置\n- **Checkpoint**：中断恢复，长任务不丢失\n\n### 记忆系统\n- **user**：用户信息记忆\n- **feedback**：用户反馈记忆\n- **project**：项目上下文记忆\n- **reference**：外部知识引用\n\n### 工程化\n- **定时任务**：Cron 表达式，支持循环执行\n- **Sub-Agent**：hermes-agent 风格委派（batch 并行 + 深度限制 + 工具过滤 + 上下文隔离）\n- **知识检索**：多知识库配置，RAG 支持\n\n### 响应格式\n- **text / markdown / json**：文本响应\n- **a2ui**：组件化格式，前端直接渲染\n- **image / audio / video**：多媒体生成\n- **multipart**：多格式混合响应\n\n---\n\n## 配置示例\n\n### 多模型路由\n\n```json\n{\n  \"options\": {\n    \"routing\": {\n      \"default_model\": \"default\",\n      \"rewrite_prompt\": \"优化以下用户Query...\",\n      \"summarize_prompt\": \"请总结以下内容...\"\n    }\n  }\n}\n```\n\n### 重试与熔断\n\n```json\n{\n  \"options\": {\n    \"retry\": {\n      \"max_attempts\": 3,\n      \"initial_delay_ms\": 1000,\n      \"max_delay_ms\": 10000,\n      \"backoff_multiplier\": 2.0,\n      \"circuit_breaker_threshold\": 5,\n      \"circuit_breaker_duration_ms\": 30000\n    }\n  }\n}\n```\n\n### 沙箱执行\n\n```json\n{\n  \"sandbox\": {\n    \"enabled\": true,\n    \"mode\": \"docker\",\n    \"image\": \"python:3.11-slim\",\n    \"network\": \"bridge\",\n    \"limits\": {\"cpu\": \"0.5\", \"memory\": \"512m\"}\n  }\n}\n```\n\n---\n\n## 执行元数据\n\n每次响应包含完整执行详情：\n\n| 字段                | 说明                  |\n| ------------------- | --------------------- |\n| `model`             | 使用的模型            |\n| `latency_ms`        | 总延迟(毫秒)          |\n| `prompt_tokens`     | Prompt token 消耗     |\n| `completion_tokens` | Completion token 消耗 |\n| `tool_calls_count`  | 工具调用次数          |\n| `a2a_calls_count`   | A2A 调用次数          |\n| `skill_calls_count` | Skill 调用次数        |\n| `iterations`        | 迭代次数              |\n| `tool_calls_detail` | 工具调用详情          |\n\n---\n\n## 如何运行\n\n详细运行文档：[README-RUN.md](./README-RUN.md)\n\n---\n\n## License\n\nApache 2.0 License",
   "status": "curated"
 }

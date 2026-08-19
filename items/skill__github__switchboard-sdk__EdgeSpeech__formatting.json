@@ -10,14 +10,20 @@
     "repo": "switchboard-sdk/EdgeSpeech",
     "path": ".agents/skills/formatting/SKILL.md"
   },
-  "license": null,
+  "license": "MIT",
   "install": {
     "kind": "skill-dir"
   },
   "quality": {
-    "stars": null,
-    "pushed_at": null,
-    "score": 22
+    "stars": 11,
+    "pushed_at": "2026-08-19T16:13:39Z",
+    "score": 62,
+    "star_history": [
+      {
+        "d": "2026-08-19",
+        "s": 11
+      }
+    ]
   },
   "security": {
     "score": 100,
@@ -49,6 +55,6 @@
     "category": "编程",
     "featured": false
   },
-  "readme": null,
+  "readme": "# EdgeSpeech\n\nA React Native hook that provides on-device AI speech processing, completely locally.\nThis can be up to 99% cheaper than cloud speech-to-speech.\n\n| Platform | Status      |\n| -------- | ----------- |\n| iOS      | Supported   |\n| Android  | Coming soon |\n\n## Example Usage\n\n```typescript\nimport { EdgeSpeechProvider, useEdgeSpeech } from '@synervoz/edgespeech'\n\nfunction VoiceChat() {\n  const { listen, speak, onTranscriptComplete } = useEdgeSpeech()\n\n  onTranscriptComplete(async (text) => {\n    const response = await chat(text)\n    await speak(response)\n  })\n\n  return <Button onPress={listen} title=\"Start Listening\" />\n}\n\nexport default function App() {\n  return (\n    <EdgeSpeechProvider appId=\"YOUR_APP_ID\" appSecret=\"YOUR_APP_SECRET\">\n      <VoiceChat />\n    </EdgeSpeechProvider>\n  )\n}\n```\n\n> [!TIP]\n> The included [example app](./example/) shows a complete speech-to-speech workflow.\n\n## Installation\n\n```bash\nnpm install @synervoz/edgespeech\n```\n\n### Requirements\n\n| Requirement      | Minimum            |\n| ---------------- | ------------------ |\n| React Native     | 0.81+              |\n| New Architecture | Required (enabled) |\n| iOS              | 13.4+              |\n| Node.js          | 22+                |\n\nEdgeSpeech is a bare React Native **C++ TurboModule** and requires the **[New Architecture](https://reactnative.dev/architecture/landing-page)**. It\nworks in both Expo (prebuild) and bare React Native apps — it does **not** use the Expo Modules API.\n\n### iOS Setup\n\n**1. Enable the New Architecture.**\n\n- **Expo:** set `\"newArchEnabled\": true` in `app.json` (the default in recent Expo SDKs).\n- **Bare RN:** the default from RN 0.76+ (for older setups, `RCT_NEW_ARCH_ENABLED=1` at `pod install`).\n\n**2. Add microphone permission** to your `Info.plist` (or via `app.json` `infoPlist` on Expo):\n\n```xml\n<key>NSMicrophoneUsageDescription</key>\n<string>This app needs microphone access for voice input</string>\n```\n\n**3. Build:**\n\n```bash\nnpx expo run:ios\n```\n\n> [!NOTE]\n> A `postinstall` script downloads the native Switchboard frameworks into\n> `ios/Frameworks/` — they aren't bundled in the package. If your package manager blocks install\n> scripts (e.g. npm 11+), run it once manually:\n> `node node_modules/@synervoz/edgespeech/scripts/postinstall.js`.\n\n## API Reference\n\nThe `useEdgeSpeech` hook provides access to the main functions of the Switchboard SDK.\n\n### EdgeSpeechProvider provider\n\nWrap your app in the `EdgeSpeechProvider` and configure it.\n\n<!-- prettier-ignore -->\n```tsx\n<EdgeSpeechProvider\n  appId=\"YOUR_APP_ID\"         // Optional: Switchboard app ID\n  appSecret=\"YOUR_APP_SECRET\" // Optional: Switchboard app secret\n  sttModel=\"whisper-base-en\"  // Optional: STT model (default: 'whisper-base-en')\n  ttsVoice=\"en_GB\"            // Optional: TTS voice (default: 'en_GB')\n  vadSensitivity={0.5}        // Optional: VAD sensitivity 0.0–1.0 (default: 0.5)\n>\n  <App />\n</EdgeSpeechProvider>\n```\n\n> [!TIP]\n> This library ships with built-in demo credentials so you can run it immediately without creating a Switchboard account.\n\n> [!NOTE]\n> Your Switchboard `APP_ID` and `APP_SECRET` are **safe to bundle in your application**. They function like a publishing key and are intended to be distributed with your app.\n\n### `useEdgeSpeech` hook\n\nAccess the state and actions from any component with the `useEdgeSpeech` hook.\n\n<!-- prettier-ignore -->\n```typescript\nconst {\n  // State\n  transcript,              // string       — live interim transcript (clears on final)\n  voiceState,              // 'idle' | 'listening' | 'processing' | 'speaking'\n  error,                   // string | null\n  hasMicrophonePermission, // boolean | null\n\n  // Actions\n  listen,                      // () => Promise<void>\n  stopListening,               // () => Promise<void>\n  speak,                       // (text: string) => Promise<void>\n  stopSpeaking,                // () => Promise<void>\n  requestMicrophonePermission, // () => Promise<boolean>\n\n  // Callbacks\n  onTranscriptComplete, // (cb: (text: string) => void) => void — fires on final transcript\n  onInterrupted,        // (cb: () => void) => void — fires when VAD interrupts TTS\n} = useEdgeSpeech()\n```\n",
   "status": "curated"
 }

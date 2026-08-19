@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/com.viberevert/viberevert",
+  "type": "mcp",
+  "name": "VibeRevert",
+  "description": "Local MCP server for AI coding safety: risk checks, sessions, checkpoints, and fix prompts.",
+  "author": "com.viberevert",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/madeinplutofabio/vibe-revert",
+    "repo": "madeinplutofabio/vibe-revert"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "viberevert"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-19T13:56:21.734378Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "AI",
+    "featured": false
+  },
+  "readme": "<p align=\"center\">\n  <img src=\"docs/assets/brand/viberevert-mark.png\" alt=\"VibeRevert logo\" width=\"120\">\n</p>\n\n<h1 align=\"center\">VibeRevert</h1>\n\n<h3 align=\"center\">AI broke your project? Undo the session, not your week.</h3>\n\n<p align=\"center\"><strong>Record · Check · Fix · Restore.</strong></p>\n\nVibeRevert records an AI coding session, flags risky changes with deterministic rules, and can restore your project files to exactly how they were before it started, including work you hadn't committed.\n\n**No AI judges the AI:** risk findings are reproducible, explainable, and based on rules you can inspect.\n\n**Keep using your coding agent.** VibeRevert adds the safety layer around the session — with Claude Code, Cursor, and other coding-agent workflows.\n\n<p align=\"center\">\n  <a href=\"https://www.npmjs.com/package/viberevert\">\n    <img src=\"https://img.shields.io/npm/v/viberevert/beta?label=npm%20beta&logo=npm&color=cb3837\" alt=\"npm beta\">\n  </a>\n  <a href=\"https://github.com/madeinplutofabio/vibe-revert/actions/workflows/ci.yml\">\n    <img src=\"https://github.com/madeinplutofabio/vibe-revert/actions/workflows/ci.yml/badge.svg\" alt=\"CI\">\n  </a>\n  <img src=\"https://img.shields.io/badge/node-%E2%89%A522-brightgreen?logo=node.js&logoColor=white\" alt=\"Node 22+\">\n  <a href=\"LICENSE\">\n    <img src=\"https://img.shields.io/badge/license-Apache--2.0-blue\" alt=\"Apache-2.0\">\n  </a>\n</p>\n\n## See it work\n\n<p align=\"center\">\n  <img src=\"docs/assets/how-it-works.png\" alt=\"How VibeRevert protects an AI coding session: capture the project's starting file state, record the AI session, flag risky changes across payments, database, and infrastructure, preview the rollback, and restore the project files to their pre-session state — external effects are out of scope\" width=\"900\">\n</p>\n\nThe actual CLI, condensed from a real beta payment run — `check` flags it, and `rollback` previews what it will change before you `--apply`:\n\n```text\n$ viberevert check\nrisk: CRITICAL · payments\n  app/api/checkout/route.ts          payments   (critical)\n  app/api/webhooks/stripe/route.ts   payments   (critical)\n\n$ viberevert rollback <session>        # preview — nothing changed yet\n  package.json                       tracked_restored\n  app/page.tsx                       tracked_restored\n  app/api/checkout/route.ts          untracked_deleted\n  app/api/webhooks/stripe/route.ts   untracked_deleted\n  lib/stripe.ts                      untracked_deleted\n  .gitignore  README.md  (your uncommitted work)   skipped_unchanged\n```\n\n## Proof, not promises\n\n**3 real AI coding sessions. 3 exact project-file restorations.** Payments, database migrations, and deployment infrastructure — all with pre-existing uncommitted work preserved. [Read the beta report →](docs/beta-report.md)\n\n## Quickstart\n\nWorks inside a Git repository and requires Node.js 22+. VibeRevert keeps its records on your machine and requires no VibeRevert account or hosted service.\n\n```bash\nnpm install -g viberevert@beta\n```\n\n```bash\nviberevert init                # one-time setup in your project\nviberevert run <your-agent>    # records the session and saves your files' starting state\nviberevert check               # see what changed and what looks risky\nviberevert rollback <session>  # preview putting your files back; add --apply to restore\n```\n\n## What it protects you from\n\nYou let an AI agent work across your project, and it touched more than you expected — maybe payment code, a database migration, a deploy file — while your own half-finished work was sitting right there uncommitted. VibeRevert captures your project's starting file state first, so a session you don't like doesn't cost you your afternoon.\n\n## What VibeRevert does\n\nAround each AI coding session, VibeRevert:\n\n- **Checkpoints your project first** — working tree, staged changes, and untracked files, including work you haven't committed.\n- **Records the session** and the project files that changed while it ran.\n- **Flags risky edits** — changes touching auth, payments, databases, secrets, dependencies, or infrastructure ([risk taxonomy](docs/risk-taxonomy.md)).\n- **Writes an agent-ready fix prompt** from those findings, to paste into your next iteration.\n- **Restores your files** to the checkpoint when you need it.\n\nIt **warns** you; it does not silently block your work. An optional pre-commit hook can reject a commit above your configured risk threshold — opt-in, tunable, and bypassable like any local Git hook.\n\n## Rules decide. Agents fix.\n\nVibeRevert does not ask another language model whether your agent's changes look risky. Its checks are deterministic: the same inputs and configuration produce the same findings, with an inspectable reason for every flag.\n\nWhen something needs attention, VibeRevert can turn those findings into an agent-ready fix prompt. The rules decide what to flag; you decide what happens next.\n\n## What rollback restores — and what it doesn't\n\n`viberevert rollback` restores your **local project files** — tracked, staged, and untracked, including uncommitted work — to how they were when the session started. It previews by default; `--apply` writes the change, and every apply first saves an emergency checkpoint.\n\nIt does **not** reverse effects outside your project files. Deployments, database writes, third-party API calls, payments, and sent emails need their own recovery. Rollback is state-based rather than atomic, and it's a safety net around AI sessions, not a replacement for tests or review. Read [what rollback can and can't restore](docs/rollback-limitations.md) before you rely on it.\n\n## One recovery layer across your coding agents\n\nKeep using the coding tools you prefer. VibeRevert can wrap command-line agent sessions (`viberevert run <your-agent>`) and integrates with tools such as Claude Code and Cursor through its installers.\n\nBuilt-in checkpoints live inside the agent's workflow. **VibeRevert stays with the project.**\n\nIt captures your project's starting state — including uncommitted work — then records the session, flags risky changes, previews the rollback, and keeps that recovery path outside the agent itself.\n\nUse Claude Code today, Cursor tomorrow, or wrap another terminal agent: **the safety layer stays with your project.**\n\n## Wire it into your tools\n\nVibeRevert installs non-destructively and can be removed cleanly. It integrates with Claude Code and Cursor (MCP server and hooks); every install previews its changes and keeps a recovery journal. See [getting started](docs/getting-started.md).\n\nAn **experimental** terminal bridge (`--pty`) can intercept commands inside an interactive agent shell; it's best-effort and documented as such in the [PTY contract](docs/pty-contract.md).\n\n## Platforms\n\nLinux, macOS, and Windows, on Node.js 22+. CI runs the suite across all three on Node 22 and 24; see [compatibility](docs/compatibility.md) for exactly what each platform is tested to do.\n\n## Learn more\n\n- [Getting started](docs/getting-started.md) · [Commands](docs/commands.md) · [Configuration](docs/config.md)\n- [What rollback can and can't restore](docs/rollback-limitations.md) · [Risk taxonomy](docs/risk-taxonomy.md)\n- [Security policy](SECURITY.md) · [Threat model](THREAT_MODEL.md) · [Contributing](CONTRIBUTING.md)\n\n## Support VibeRevert\n\nVibeRevert is Apache-2.0 open source. Sponsoring funds continued cross-platform testing, security work, rollback and recovery testing, and helping pay for independent review. **Sponsorship does not influence risk findings or release decisions.** → **[Sponsor VibeRevert](https://github.com/sponsors/madeinplutofabio?metadata_campaign=viberevert)** · [what your support funds](docs/funding.md)\n\n## License\n\n[Apache-2.0](LICENSE). See [NOTICE](NOTICE) and the [license audit](LICENSE-AUDIT.md).\n",
+  "status": "curated"
+}

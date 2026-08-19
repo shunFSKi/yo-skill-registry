@@ -17,7 +17,7 @@
   "quality": {
     "stars": null,
     "pushed_at": "2026-08-18T18:22:56.403704Z",
-    "score": 52
+    "score": 42
   },
   "security": {
     "score": 100,
@@ -49,6 +49,6 @@
     "category": null,
     "featured": false
   },
-  "readme": "# Vett Compliance MCP Server\n\nRead-only [Model Context Protocol](https://modelcontextprotocol.io) tools for the Vett\ncompliance API — sanctions/PEP/watchlist screening, product recalls, US business lookup, and\nfederal contract search. Free tier: **20 calls/hour per IP**, no API key required.\n\nHosted at `https://wimberly.solutions/mcp` (streamable HTTP transport). No installation —\npoint any MCP client at the URL below.\n\n> This repo is the public discovery/documentation surface for the hosted server. The\n> screening logic itself lives in a private repo alongside the rest of the Vett API — this\n> is intentionally a docs-only repo, not a self-hostable server.\n\n## Tools\n\n| Tool | What it does |\n|---|---|\n| `screen_name` | Screen a person/company against 12 sanctions, PEP, watchlist, and recall databases (OFAC SDN, UK OFSI, UN SC, US CSL, EU FSF, Canada SEMA, Australia DFAT, US PEP, FBI Most Wanted, World Bank debarred, US watchlists, product recalls) |\n| `screen_wallet` | Check a crypto wallet address (BTC/ETH/XMR/etc.) against OFAC's sanctioned-address list |\n| `check_recall` | Check a product/manufacturer against CPSC/FDA/NHTSA recalls |\n| `lookup_business` | Look up a US business in the SAM.gov entity registry (UEI, CAGE code, NAICS) |\n| `search_gov_contracts` | Search active US federal contract solicitations by keyword/NAICS |\n| `list_status` | Freshness + entry counts for every source `screen_name` fans out to |\n\nAll tools are read-only — no mutations, no PII beyond what's already public record.\n\n## Claude Desktop\n\nAdd to your MCP config (`claude_desktop_config.json`):\n\n```json\n{\n  \"mcpServers\": {\n    \"vett-compliance\": {\n      \"url\": \"https://wimberly.solutions/mcp\"\n    }\n  }\n}\n```\n\n## Claude Code\n\n```bash\nclaude mcp add --transport http vett-compliance https://wimberly.solutions/mcp\n```\n\n## Generic MCP client (streamable HTTP)\n\n```python\nfrom mcp import ClientSession\nfrom mcp.client.streamable_http import streamablehttp_client\n\nasync with streamablehttp_client(\"https://wimberly.solutions/mcp\") as (read, write, _):\n    async with ClientSession(read, write) as session:\n        await session.initialize()\n        result = await session.call_tool(\"screen_name\", {\"query\": \"some name\"})\n```\n\n## Rate limits\n\n20 calls/hour per IP address, unauthenticated. Exceeding it returns a 429 with an upgrade\nhint pointing at the full [RapidAPI listing](https://rapidapi.com/Gorp405/api/complete-compliance-suite)\n(higher limits, more sources, API key auth).\n\n## About\n\nBuilt and operated by [Wimberly Solutions](https://wimberly.solutions). Questions or issues:\nopen a GitHub issue on this repo.\n",
+  "readme": null,
   "status": "curated"
 }

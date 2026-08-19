@@ -10,14 +10,20 @@
     "repo": "tgjones/DotNetro",
     "path": ".claude/skills/improve-codegen/SKILL.md"
   },
-  "license": null,
+  "license": "NOASSERTION",
   "install": {
     "kind": "skill-dir"
   },
   "quality": {
-    "stars": null,
-    "pushed_at": null,
-    "score": 25
+    "stars": 15,
+    "pushed_at": "2026-07-11T20:19:17Z",
+    "score": 61,
+    "star_history": [
+      {
+        "d": "2026-08-19",
+        "s": 15
+      }
+    ]
   },
   "security": {
     "score": 100,
@@ -49,6 +55,6 @@
     "category": "编程",
     "featured": false
   },
-  "readme": null,
+  "readme": "# DotNetro [![ci](https://github.com/tgjones/DotNetro/actions/workflows/ci.yml/badge.svg)](https://github.com/tgjones/DotNetro/actions/workflows/ci.yml)\n\n<img align=\"right\" width=\"160px\" height=\"160px\" src=\"img/dotnetro-logo.png\">\n\nDotNetro is a C# compiler for 8-bit computers.\n\nDotNetro is an ahead-of-time compiler that turns a .NET assembly (IL bytecode)\ninto native machine code for vintage 8-bit machines. It reads ECMA-335\nmetadata, walks the IL, and lowers it into\nassembly, then packages the result as a ready-to-run disk image.\n\n## Targets\n\n### CPUs\n\n* MOS 6502\n\n### Systems\n\n* Acorn BBC Micro (`.ssd` disk image)\n\n## IL support\n\nThis project is still in its early days. Only a small subset of IL is supported, and the\nsurface area grows as tests are written that demand it. Expect gaps: many\nopcodes, types, and BCL methods are not implemented yet, and hitting an\nunsupported construct will (hopefully) fail the compile rather than silently misbehave.\nTreat the working samples and tests as the current source of truth for what\nactually compiles.\n\nSee [doc/dotnetro/il-support.md](doc/dotnetro/il-support.md) for a per-opcode\nbreakdown of which IL opcodes are implemented and which are covered by a lit\ntest.\n\n## Getting started\n\nEventually DotNetro will be distributed as a convenient set of NuGet packages, but for now, it's necessary to build from this repo.\n\nYou need the .NET 10 SDK.\n\nBuild and test everything:\n\n```bash\ndotnet test --solution src\n```\n\nThe `HelloWorld` sample compiles itself to a BBC Micro disk image as part of\nits build:\n\n```bash\ndotnet build src/DotNetro.Samples.HelloWorld\n# produces src/DotNetro.Samples.HelloWorld/bin/Debug/net10.0/DotNetro.Samples.HelloWorld.ssd\n```\n\nTo compile any .NET assembly by hand, invoke the `dnrc` driver with the built\n`.dll`:\n\n```bash\ndotnet run --project src/DotNetro.Compiler.Driver -- \\\n  --assembly path/to/Program.dll \\\n  --output program.ssd\n```\n\nLoad the resulting `.ssd` in a BBC Micro emulator (or on real hardware) and\nrun it.\n\n## Irie\n\nIrie is DotNetro's code generator. It is a single unified \"mixed-level\" IR (MIR... heavily inspired by [MLIR](https://mlir.llvm.org)) that\nflows through a chain of passes, starting as generic SSA operations on typed\nvirtual registers and ending as 6502 instructions on physical registers. Much of the codegen pipeline design follows the excellent [llvm-mos](https://github.com/llvm-mos/llvm-mos).\n\nThe example below adds two 16-bit integers. Because the 6502 is an 8-bit CPU\nwith no 16-bit add, the interesting work is splitting the wide add into a chain\nof byte-wide adds threaded through the carry flag.\n\nStart with C#:\n\n```csharp\nstatic short Add(short a, short b) => (short)(a + b);\n```\n\nThe frontend lowers it to MIR, one generic add on 16-bit virtual registers:\n\n```\nfunc @Add : (i16, i16) -> i16 {\nbb0(%0 : i16, %1 : i16):\n    %2 : i16 = arith.addi %0, %1\n    core.return %2\n}\n```\n\nThe legalizer narrows the 16-bit add into two 8-bit adds with carry, one per\nbyte, after ABI lowering has split each argument into its low and high bytes:\n\n```\nfunc @Add : (i16, i16) -> i16 {\nbb0():\n    [liveins: $a, $x, $zp2, $zp3]\n    %3 : i8 = pseudo.copy $a\n    %4 : i8 = pseudo.copy $x\n    %5 : i8 = pseudo.copy $zp2\n    %6 : i8 = pseudo.copy $zp3\n    %13 : i1 = arith.constant 0\n    %14 : i8, %15 : i1 = arith.addi_with_carry %3, %5, %13\n    %16 : i8, %17 : i1 = arith.addi_with_carry %4, %6, %15\n    $a = pseudo.copy %14\n    $x = pseudo.copy %16\n    pseudo.return\n}\n```\n\nInstruction selection maps the generic ops onto 6502 opcodes, clearing the\ncarry first and chaining `adc`:\n\n```\nfunc @Add : (i16, i16) -> i16 {\nbb0():\n    [liveins: $a, $x, $zp2, $zp3]\n    %3 : any8 = pseudo.copy $a\n    %4 : any8 = pseudo.copy $x\n    %5 : i8 = pseudo.copy $zp2\n    %6 : i8 = pseudo.copy $zp3\n    %18 : cc = mos6502.clc\n    %19 : ac, %20 : cc = mos6502.adc %3(tied-def 0), %5, %18\n    %21 : any8 = pseudo.copy %19\n    %22 : ac, %23 : cc = mos6502.adc %4(tied-def 0), %6, %20\n    %24 : any8 = pseudo.copy %22\n    $a = pseudo.copy %21\n    $x = pseudo.copy %24\n    mos6502.rts implicit $a, implicit $x\n}\n```\n\nRegister allocation, copy elimination, and pseudo expansion assign physical\nregisters and resolve the copies into real 6502 moves:\n\n```\nfunc @Add : (i16, i16) -> i16 {\nbb0():\n    [liveins: $a, $x, $zp2, $zp3]\n    $c = mos6502.clc\n    $a, $c = mos6502.adc.zp $a, $zp2, $c\n    $y = mos6502.tay $a\n    $a = mos6502.txa $x\n    $a, $c = mos6502.adc.zp $a, $zp3, $c\n    $x = mos6502.tax $a\n    $a = mos6502.tya $y\n    mos6502.rts implicit $a, implicit $x\n}\n```\n\nFinally the machine code layer emits 6502 assembly:\n\n```asm\nAdd:\n    CLC\n    ADC $02\n    TAY\n    TXA\n    ADC $03\n    TAX\n    TYA\n    RTS\n```\n\nIrie's output is benchmarked against llvm-mos on a\nshared test suite - see the\n[llvm-mos comparison scoreboard](doc/irie/llvm-mos-comparison.md) for per-case\ninstruction-count deltas.\n\n## Credits\n\nDotNetro's 6502 code generation is modelled closely on\n[llvm-mos](https://github.com/llvm-mos/llvm-mos), an excellent LLVM backend for\nthe 6502.\n\n## License\n\nMIT. See [LICENSE](LICENSE).\n",
   "status": "curated"
 }

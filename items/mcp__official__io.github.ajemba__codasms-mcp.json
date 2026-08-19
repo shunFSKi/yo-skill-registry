@@ -1,0 +1,70 @@
+{
+  "id": "mcp:official/io.github.ajemba/codasms-mcp",
+  "type": "mcp",
+  "name": "codasms-mcp",
+  "description": "Receive one-time SMS/OTP verification codes via the CODASMS API: get a number, wait, release.",
+  "author": "io.github.ajemba",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/ajemba/codasms-mcp",
+    "repo": "ajemba/codasms-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "codasms-mcp"
+    ],
+    "env": [
+      {
+        "name": "CODASMS_API_KEY",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "CODASMS_MAX_PRICE_CENTS",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-19T15:32:38.751402Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "<div align=\"center\">\n\n# CODASMS MCP Server\n\n**Receive one-time SMS/OTP verification codes from your AI agent.**\nAn [MCP](https://modelcontextprotocol.io) server over the CODASMS Reseller API — get a number,\nwait for the code, release it — across 700+ services and 180+ countries, pay only on delivery.\n\n[![License: MIT](https://img.shields.io/badge/License-MIT-f2a93b.svg)](LICENSE)\n&nbsp;![Transport: stdio + HTTP](https://img.shields.io/badge/transport-stdio%20%2B%20http-1f6feb.svg)\n\n</div>\n\n---\n\nThis server lets an AI agent (Claude Desktop, Cursor, or anything that speaks MCP) buy a phone\nnumber and read the verification code programmatically. It's a thin wrapper over the public\n[CODASMS Reseller API](https://codasms.com/docs/api) — it holds no logic of its own; every\ncharge and refund is decided server-side by the API.\n\nYou bring your own key. Getting one is free to sign up: **https://codasms.com/reseller**.\n\n## Tools\n\n| Tool | What it does |\n|------|--------------|\n| `get_balance` | Your current spendable balance. |\n| `list_services` | Buyable services with live price + stock (filter by `service` / `country`). |\n| `list_countries` | Countries with buyable numbers (optional `service` filter). |\n| `get_number` | Buy a number for a service+country. **Charges your balance** (auto-refunds if no code in 20 min). |\n| `wait_for_otp` | Poll an order until the code arrives (or timeout / refund). |\n| `check_order` | One-shot status check for an order. |\n| `release` | Cancel an order and refund now (unless the code already arrived). |\n\n`get_number` accepts an optional `max_price_cents` (or set `CODASMS_MAX_PRICE_CENTS`) so an\nautonomous agent can't buy a number priced above your cap.\n\n## Quick start (local / stdio)\n\n```bash\nexport CODASMS_API_KEY=coda_live_xxxxxxxx   # from https://codasms.com/reseller\nnpx codasms-mcp\n```\n\n### Claude Desktop\n\nAdd to `claude_desktop_config.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"codasms\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"codasms-mcp\"],\n      \"env\": { \"CODASMS_API_KEY\": \"coda_live_xxxxxxxx\" }\n    }\n  }\n}\n```\n\nThen ask: *\"Get me a Telegram number in the UK and read the code.\"*\n\n## Remote (HTTP) mode\n\nThe same tools are served over Streamable HTTP, so you can host one instance for many users —\neach sends their **own** key as a Bearer token (nothing is stored server-side):\n\n```bash\nnpm run build && npm run start:http     # listens on :8080, POST /mcp\n```\n\n```\nPOST /mcp\nAuthorization: Bearer coda_live_xxxxxxxx\nContent-Type: application/json\n```\n\n`src/http.ts` is a portable Node server (Deno Deploy, Railway, Fly, any container). For\nCloudflare Workers, swap the Node `http` handler for a `fetch` handler — the server factory in\n`src/server.ts` is transport-agnostic and stays unchanged.\n\n## Configuration\n\n| Env var | Purpose | Default |\n|---------|---------|---------|\n| `CODASMS_API_KEY` | Your `coda_live_` reseller key (stdio mode). | — (required) |\n| `CODASMS_API_BASE` | API base URL. | `https://api.codasms.com` |\n| `CODASMS_MAX_PRICE_CENTS` | Global cap for `get_number`, in US cents. | unset |\n| `PORT` | HTTP mode port. | `8080` |\n\n## Notes\n\n- **Rate limit:** the API allows 60 requests/min per key; `wait_for_otp` polls no faster than\n  once every 5s by default to stay well under it.\n- **Money safety:** `get_number` spends real balance the moment it's called. If no code arrives,\n  the order auto-refunds after 20 minutes, or call `release` to refund immediately.\n- **Codes:** services and countries use the API's codes (e.g. `tg`, `wa`, country `6`) — use\n  `list_services` / `list_countries` to discover them.\n\n## Develop\n\n```bash\nnpm install\nnpm run build      # tsc -> dist/\nnpm start          # stdio\n```\n\n## License\n\nMIT — see [LICENSE](LICENSE).\n",
+  "status": "curated"
+}

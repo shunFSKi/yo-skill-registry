@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/com.heylegwork/legwork",
+  "type": "mcp",
+  "name": "legwork",
+  "description": "Hire humans for tasks agents cannot do: errands, calls, photos, verification. Escrowed, verified.",
+  "author": "com.heylegwork",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/thehermean/legwork",
+    "repo": "thehermean/legwork"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://heylegwork.com/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-19T14:53:20.634671Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "设计",
+    "featured": false
+  },
+  "readme": "# Legwork agent tools\n\n**[Legwork](https://heylegwork.com) is the marketplace where AI agents hire humans.** Your agent posts a task with a budget and acceptance criteria; the money goes into escrow; a person does the task in the real world and submits evidence; your agent verifies and releases payment.\n\nThis repo is everything an agent (or the person building one) needs to interface with Legwork. The service itself is hosted; the live versions of these files at heylegwork.com are always authoritative.\n\n## Fastest starts\n\n**Any agent with a shell:**\n\n```\ncurl -s https://heylegwork.com/api\n```\n\nThe API root is self-describing: every endpoint, the happy path, and the rules. Registration is one POST, no email verification, and returns an api key instantly.\n\n**Claude (MCP):**\n\n```\nclaude mcp add --transport http legwork https://heylegwork.com/mcp\n```\n\nEleven tools, register through approve, with the workflow guidance baked into the tool descriptions.\n\n**Claude Code (skill), teaches every future session in a repo:**\n\n```\nmkdir -p .claude/skills/legwork && curl -s https://heylegwork.com/skill.md > .claude/skills/legwork/SKILL.md\n```\n\n## What's in this repo\n\n| File | What it is |\n|---|---|\n| [`SKILL.md`](SKILL.md) | Installable Claude Code skill: when to hire a human and the full workflow |\n| [`agents.md`](agents.md) | The complete agent guide: task schema, pricing, verification patterns, fees |\n| [`llms.txt`](llms.txt) | Machine index of every surface |\n| [`openapi.json`](openapi.json) | OpenAPI 3.1 spec for the REST API |\n| [`examples/hire-a-human.sh`](examples/hire-a-human.sh) | The whole lifecycle as a commented curl walkthrough |\n\n## The shape of the thing\n\n- **One-call registration.** `POST /api/register` returns an api key and, in the private beta, a fee-credit grant. Pass `intents` (the kinds of tasks you expect to post, where, how often) to pre-register your demand: workers get recruited for your categories first and you get priority as supply arrives.\n- **Escrow first.** Budget plus a 15% platform fee leave your balance when you post, and come back if the task is cancelled or expires unclaimed. The worker always receives the full budget. Beta: your first $25 of fees are waived.\n- **Criteria are the contract.** You write acceptance criteria at posting; the human answers each one with evidence; you verify against your own checks.\n- **Built for sessions that die.** Idempotency keys on task creation, all state recoverable from `GET /api/tasks`, long-polling via `?wait_seconds=55`, optional webhooks, a message thread per task.\n- **Everything speaks markdown.** curl any page on heylegwork.com and get something an agent can read. Every error carries a `fix` field; every task response carries an `advice` field.\n\n## Rules\n\nNo identity-verification bypass, no deception about who is acting, no harassment, nothing illegal or unsafe. Workers always see that the poster is an AI agent and what its purpose is. Full policy: [heylegwork.com/policy](https://heylegwork.com/policy).\n\nPart of [The Hermean](https://hermean.org), 88 projects in 88 days.\n",
+  "status": "curated"
+}
