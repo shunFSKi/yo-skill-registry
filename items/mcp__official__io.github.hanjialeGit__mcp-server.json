@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.hanjialeGit/mcp-server",
+  "type": "mcp",
+  "name": "mcp-server",
+  "description": "天启至数 ApocData - MCP Server for A-share market data (46 free, no-auth endpoints)",
+  "author": "io.github.hanjialeGit",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/ApocData/ApocData-mcp-server",
+    "repo": "ApocData/ApocData-mcp-server"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@apocdata-info/mcp-server"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-19T03:17:51.725553Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# @apocdata/mcp-server\n\n天启至数 **ApocData** 的 MCP（Model Context Protocol）Server。把 46 个免鉴权 A 股数据接口包装成 MCP tools，可在 Claude Desktop / Cursor / Cline / Continue 等任意 MCP client 中直接调用。\n\n- 数据源：`https://data.tianqis.com/api/blade-dataplatform/open/data/*`\n- 无需 API Key，无需注册（网关已配置 `/open/**` 免鉴权）\n- 自动透传 `X-Tdc-*` 元信息头（限流剩余/截断标志/错误码/缓存策略）\n- 46 工具覆盖：行情、估值、财务、股东、资金流、涨跌停、板块、公告、宏观、因子、综合画像\n\n---\n\n## 安装\n\n### 方式 A：npx（推荐，零安装）\n\n直接在 client 配置里写 `npx -y @apocdata/mcp-server`，无需手动 install。\n\n### 方式 B：全局安装\n\n```bash\nnpm install -g @apocdata/mcp-server\napocdata-mcp   # 可执行命令\n```\n\n---\n\n## Client 配置示例\n\n### Claude Desktop\n\n编辑 `~/Library/Application Support/Claude/claude_desktop_config.json`（macOS）或 `%APPDATA%\\Claude\\claude_desktop_config.json`（Windows）：\n\n```json\n{\n  \"mcpServers\": {\n    \"apocdata\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@apocdata/mcp-server\"]\n    }\n  }\n}\n```\n\n### Cursor\n\n`~/.cursor/mcp.json`：\n\n```json\n{\n  \"mcpServers\": {\n    \"apocdata\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@apocdata/mcp-server\"]\n    }\n  }\n}\n```\n\n### Cline / Continue / 其它 stdio MCP client\n\n同上，传 `command=npx, args=[\"-y\",\"@apocdata/mcp-server\"]` 即可。\n\n### CLI flags\n\n```bash\napocdata-mcp --version    # 打印版本号\napocdata-mcp --help       # 显示完整用法\n```\n\n### 信号\n\n- `SIGTERM` / `SIGINT`：优雅退出。等正在进行的请求完成（最多 5 秒），再关闭 transport 退出。\n\n### 调试模式\n\n环境变量 `APOCDATA_DEBUG=1` 会把每次 HTTP 调用的 path/status/meta 打到 stderr：\n\n```json\n{\n  \"mcpServers\": {\n    \"apocdata\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@apocdata/mcp-server\"],\n      \"env\": { \"APOCDATA_DEBUG\": \"1\" }\n    }\n  }\n}\n```\n\n### 自定义 BASE URL\n\n环境变量 `APOCDATA_BASE_URL` 可指向内网/私有部署：\n\n```json\n\"env\": { \"APOCDATA_BASE_URL\": \"https://intranet.example.com/api/blade-dataplatform/open/data\" }\n```\n\n### 超时与重试\n\n| 环境变量 | 默认 | 说明 |\n| --- | --- | --- |\n| `APOCDATA_TIMEOUT_MS` | `30000` | 单次请求超时（毫秒），到时间 AbortController 中断 |\n| `APOCDATA_MAX_RETRIES` | `2` | 5xx 或网络错误重试次数（不含首次），指数 backoff 500→1000→2000ms |\n\n4xx 不重试（业务错误重试无意义）。重试用尽后返回最后一次的 5xx 响应，或抛 `NetworkError`（网络异常）。\n\n---\n\n## 工具清单（46 个）\n\n| 类别 | 工具 |\n| --- | --- |\n| **A. 行情与估值（10）** | `quote` `quotes` `daily` `stock` `stocks` `st` `ranking` `indexes` `index-daily` `hot-rank` |\n| **B. 财务与股东（8）** | `financial` `express` `dividend` `holders` `holder-number` `share-float` `repurchase` `block-trade` |\n| **C. 资金流向（8）** | `moneyflow` `hsgt` `hk-hold` `hk-daily` `margin` `dragon-tiger` `hot-money` `hot-money-detail` |\n| **D. 涨跌停与板块（4）** | `limit-list` `limit-step` `sector-flow` `cyq-perf` |\n| **E. 公告/调研（2）** | `announcements` `survey` |\n| **F. 板块成分（4）** | `concepts` `concept-stocks` `ths-boards` `ths-board-stocks` |\n| **G. 可转债（2）** | `convertible-bonds` `cb-price-chg` |\n| **H. 因子（2）** | `factors` `tech-factor` |\n| **I. 宏观（3）** | `macro` `macro-latest` `macro-definition` |\n| **J. 日历（1）** | `calendar` |\n| **K. 综合（2）** | `profile-full` `factor-categories` |\n\n每个 tool 的入参/出参/默认值在 MCP 协议层用 JSON Schema 暴露，client 会自动展示。\n\n## MCP Resources\n\n除工具外还暴露 3 个 markdown 文档，Agent 通过 `resources/list` 和 `resources/read` 拉取：\n\n| URI | 内容 |\n| --- | --- |\n| `apocdata://guide` | 全局接入指南：46 工具分组、symbol 格式、延迟/限流/错误协议、元信息头说明 |\n| `apocdata://scenarios` | 场景速查：常见用户意图到工具组合的映射 + 反模式（避免串调 8 个接口） |\n| `apocdata://limits` | limit/fields/compact 速查表：每个工具的默认值/上限/字段裁剪支持情况 |\n\n---\n\n## 用法示例（在 Claude 里直接问）\n\n```\n> 帮我看下贵州茅台最近 5 天行情\n（Claude 调用 daily(symbol=\"600519\", limit=5)）\n\n> 现在涨幅榜前 10 是哪些股票？\n（Claude 调用 ranking(type=\"gainers\", limit=10)）\n\n> 整理一下平安银行的综合画像\n（Claude 调用 profile-full(symbol=\"000001\")）\n\n> CPI 最近一次数据是多少？\n（Claude 调用 macro-latest(type=\"cpi\")）\n```\n\n---\n\n## 性能与限流\n\n- 单 IP 限流：60 req/min（响应头 `X-Tdc-RateLimit-Remaining` 透传剩余配额）\n- 缓存策略：盘中实时数据 5s、盘后日更 5min、元数据 1h（`Cache-Control` 头自动给）\n- `limit` 参数上限 50，超出会**静默截断**（看响应头 `X-Tdc-Truncated`）\n- 大批量数据建议用 `format=compact` 列式输出，节省 60-70% token\n- 字段较多的接口（如 financial、announcements）支持 `fields=...` 裁剪\n\n详细行为参考主 SKILL 文档：<https://github.com/ApocData/ApocData-skill>\n\n---\n\n## 开发\n\n```bash\ngit clone https://github.com/ApocData/ApocData-skill.git\ncd ApocData-skill/mcp-server\nnpm install\nnpm run build\nnpm start\n```\n\n源码结构：\n\n```\nsrc/\n  index.ts     # MCP server 入口，stdio transport\n  client.ts    # HTTP client，BASE_URL 调用 + meta 头提取\n  tools.ts     # 46 个工具的配置表（声明式）\n```\n\n要加一个新接口：在 `tools.ts` 对应分组里加一条 `ToolDef`，重新 build 即可，无需改其它代码。\n\n## 测试\n\n```bash\nnpm test                 # build + 6 类测试全跑（需在 tianqi-mcp 目录执行）\nnpm run test:unit        # client 单测：超时/重试/URL 构造，不打外网\nnpm run test:contract    # 46 工具逐个真实 HTTP 调用（happy path）\nnpm run test:errors      # 错误路径：非法参数 / 不存在 symbol / 日期格式\nnpm run test:coverage    # 限流头/截断头/所有枚举值遍历\nnpm run test:e2e         # MCP 协议层：stdio JSON-RPC + isError + compact\nnpm run test:integration # 集成：mock HTTP + 子进程 server，验证 retries / timeout / --version / SIGTERM\n```\n\n六个脚本对应六种验证：\n\n| 脚本 | 验证 |\n| --- | --- |\n| `client-unit-test.mjs` | client 4xx 不重试、5xx 重试到成功/用尽、超时归一化、meta 头提取、URL 构造（mock fetch） |\n| `contract-test.mjs` | 所有 46 端点参数名/必填和后端 `@RequestParam` 一致；happy path 全部 200 |\n| `error-path-test.mjs` | 业务错误用 HTTP 200 + `success=false` 表达；标记 PROD（已部署）/ LAG（源码已写、线上待发版）|\n| `coverage-test.mjs` | 限流头 / 截断头透传；所有 enum 工具（ranking / limit-list / sector-flow / hot-rank / margin / macro）的合法值全部遍历 |\n| `mcp-e2e-test.mjs` | MCP 协议正确：tools/list 46 个、isError 在 HTTP 4xx 和 `success=false` 都正确标记、compact 模式列式输出 |\n| `integration-test.mjs` | 真实 backoff 耗时验证；真实 timeout 触发；`--version` / `--help` CLI；SIGTERM 空闲即时退出；SIGTERM in-flight 等待完成后退出 |\n\n私有部署：`APOCDATA_BASE_URL=http://your.host/path npm test`\n\n### 已知 LAG（线上待发版）\n\n以下能力源码已实现（路线图 §2.1 / §5.1 / §5.3），但 `data.tianqis.com` 当前部署的版本尚未生效。后端 redeploy 后无需改 MCP server，行为自动恢复：\n\n- `ranking` / `macro` / `macro/latest` / `macro/definition` / `sector-flow` / `hot-rank` / `margin` 的非法 enum 校验\n- `X-Tdc-Error-Code` 响应头\n- `X-Tdc-RateLimit-Remaining` 响应头（限流剩余配额）\n- `X-Tdc-Truncated` 响应头（limit 超上限通知；注意 controller 内的 `safeLimit` 截断本身已生效，只是没有头通知）\n- `format=compact` 列式输出\n- `/profile/full` 和 `/factor-categories` 两个端点本身\n\n---\n\n## License\n\nApache-2.0\n",
+  "status": "curated"
+}

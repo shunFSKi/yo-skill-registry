@@ -1,0 +1,65 @@
+{
+  "id": "mcp:official/io.github.Soboljem/transcribe-mcp",
+  "type": "mcp",
+  "name": "transcribe-mcp",
+  "description": "Transcribe audio/video and find dead air. Pay-per-call in USDC over x402 — no account, no key.",
+  "author": "io.github.Soboljem",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/Soboljem/transcribe-mcp",
+    "repo": "Soboljem/transcribe-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "transcribe-mcp"
+    ],
+    "env": [
+      {
+        "name": "TRANSCRIBE_MCP_WALLET_KEY",
+        "required": false,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-18T21:01:46.537514Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "设计",
+    "featured": false
+  },
+  "readme": "# transcribe-mcp\n\nTranscribe audio and video, and find the silence worth cutting — from any MCP client.\n**No account, no API key, no subscription.** Your agent pays a fraction of a cent per call,\nin USDC, straight from a wallet you control.\n\n```json\n{\n  \"mcpServers\": {\n    \"transcribe\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"transcribe-mcp\"],\n      \"env\": { \"TRANSCRIBE_MCP_WALLET_KEY\": \"0x...\" }\n    }\n  }\n}\n```\n\nThat is the whole setup. There is nothing to sign up for.\n\n## Tools\n\n| tool | what it does | price |\n|---|---|---|\n| `transcribe_url` | a public audio/video URL → text, timings, detected language | **$0.05** |\n| `find_dead_air` | subtitles or timings → the spans worth cutting, and what you'd save | **$0.002** |\n| `shop_info` | prices, limits and how payment works | **free** |\n\n`find_dead_air` eats exactly what `transcribe_url` returns, so the two chain:\ntranscribe a talk, then cut the silence out of it.\n\n```\n\"cuts\": [{ \"from\": 2.55, \"to\": 10.85, \"seconds\": 8.3, \"reason\": \"silence\" }],\n\"stats\": { \"sourceSeconds\": 20, \"speechSeconds\": 5.05, \"wouldSavePercent\": 74.75 }\n```\n\n## Why pay-per-call instead of an API key\n\nBecause an agent cannot fill in a signup form. [x402](https://x402.org) is an HTTP-native\npayment: the server answers `402 Payment Required` with a price, the client pays it, the\nrequest goes through. No dashboard, no key rotation, no minimum, no monthly bill. If you\nnever call it, you never pay anything.\n\nSettlement is USDC on **Base** (`eip155:8453`).\n\n## Running it without a wallet\n\nIt starts fine. `shop_info` answers, `tools/list` works, and the paid tools tell you what\nto set. Look before you fund anything.\n\n## What it will not do\n\n- **It will not overspend.** Every call is filtered through a $0.10 ceiling; a quote above\n  it is dropped and the client refuses to pay rather than guessing.\n- **It will not charge you for a refusal.** Bad arguments are caught locally and never\n  leave your machine. A `4xx` from the shop never settles.\n- **It will not lie about a sale.** If the settlement header is missing, it says so\n  instead of reporting a payment it cannot prove.\n\nFiles are capped at 800 KB. Oversized ones are refused for free, before payment.\n\n## Configuration\n\n| variable | meaning |\n|---|---|\n| `TRANSCRIBE_MCP_WALLET_KEY` | private key of a wallet holding a little USDC on Base. Required only for the paid tools. |\n\nUse a **dedicated wallet with a few dollars in it**, not your main one. This is true of every\ntool you hand a private key to, and it is true here.\n\n## Tests\n\n```\nnpm test\n```\n\nMIT.\n",
+  "status": "curated"
+}

@@ -1,0 +1,70 @@
+{
+  "id": "mcp:official/io.github.jhonychain/rasterly-mcp",
+  "type": "mcp",
+  "name": "rasterly",
+  "description": "Web toolkit for AI agents: read any URL as Markdown, screenshot, extract data, or crawl a site.",
+  "author": "io.github.jhonychain",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/jhonychain/rasterly-mcp",
+    "repo": "jhonychain/rasterly-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "rasterly-mcp"
+    ],
+    "env": [
+      {
+        "name": "RASTERLY_API_KEY",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "RASTERLY_API_URL",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-18T20:43:02.255614Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "写作",
+    "featured": false
+  },
+  "readme": "# rasterly-mcp\n\nGive any AI agent **eyes and a reader for the live web.** An MCP server that lets\nyour agent turn a URL into clean Markdown, a screenshot it can actually see, or a PDF —\nbacked by [rasterly](https://rasterly.dev), a real headless-Chromium rendering API.\n\nWorks in any MCP client: Claude Desktop, Claude Code, Cursor, Windsurf, and others.\n\n## Tools\n\n| Tool | What the agent gets |\n|------|---------------------|\n| `read_url` | The page's main content as **clean, LLM-ready Markdown** — JS is rendered, nav/ads/boilerplate stripped. Use it to *read* a URL. |\n| `capture_url` | A **screenshot** returned as an image, so the agent can *see* the page (layout, charts, anything visual). `full_page` optional. |\n| `url_to_pdf` | A print-ready **PDF** of the page (base64 resource). |\n\nWhy an agent wants this: a plain `fetch()` gets you raw HTML that a modern, JS-rendered\nsite won't even populate. `read_url` runs a real browser and hands back just the article —\nfar fewer tokens, far more signal.\n\n## Install\n\nGet a key at **[rasterly.dev](https://rasterly.dev)** (free tier: 100 renders/month), then add\nthe server to your MCP client.\n\n**Claude Desktop / Claude Code / Cursor** — add to your MCP config\n(`claude_desktop_config.json`, `.mcp.json`, or the client's MCP settings):\n\n```json\n{\n  \"mcpServers\": {\n    \"rasterly\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"rasterly-mcp\"],\n      \"env\": { \"RASTERLY_API_KEY\": \"sk_live_your_key\" }\n    }\n  }\n}\n```\n\nRestart the client. Your agent now has `read_url`, `capture_url`, and `url_to_pdf`.\n\n## Try it\n\nAsk your agent things like:\n- *\"Read https://news.ycombinator.com and summarize the top 3 posts.\"*\n- *\"Screenshot stripe.com and tell me what the hero section says.\"*\n- *\"Turn this docs page into a PDF.\"*\n\n## Config\n\n| Env var | Default | Notes |\n|---------|---------|-------|\n| `RASTERLY_API_KEY` | – | Your rasterly key (sent as `X-Api-Key`). |\n| `RASTERLY_API_URL` | `https://rasterly-production.up.railway.app` | Override to point at a self-hosted rasterly. |\n\n## Run standalone\n\n```bash\nRASTERLY_API_KEY=sk_live_… npx -y rasterly-mcp\n```\n\nMIT · built on [rasterly](https://rasterly.dev)\n",
+  "status": "curated"
+}

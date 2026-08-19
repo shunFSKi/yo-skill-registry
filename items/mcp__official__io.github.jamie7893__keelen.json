@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.jamie7893/keelen",
+  "type": "mcp",
+  "name": "Keelen",
+  "description": "Autonomous dev team steered from chat: plain-English requests in, tested merged PRs out.",
+  "author": "io.github.jamie7893",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/jamie7893/keelen-mcp",
+    "repo": "jamie7893/keelen-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://keelen.ai/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-19T00:35:52.507063Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# keelen-mcp\n\n**Onboard an autonomous dev team from your chat window: in one sentence.**\n\nPaste [SETUP.md](SETUP.md) into Claude (or any MCP-capable agent) and say\n**\"set me up.\"** Your agent creates the account, connects your GitHub repo,\nand submits the first build request. From then on, a bounded PM → dev →\nverify loop turns plain-English requests into **tested, merged pull\nrequests**, and you steer all of it from chat.\n\nNo dashboard required to drive it. No tokens resold: the loop runs on\n**your own** [Claude, Codex, GLM, or Kimi\nkey](https://keelen.ai/?utm_source=mcp-repo&utm_medium=referral&utm_campaign=readme).\nEvery change passes your tests and CI before it can merge.\n\nThis repo is documentation only. It describes the hosted [Model Context\nProtocol](https://modelcontextprotocol.io) (MCP) server at\n`https://keelen.ai/mcp` and how to drive the entire signup → connect →\nship flow without ever leaving your agent.\n\n## What Keelen does\n\nKeelen is **loop engineering as a managed service.** You describe what you want\nbuilt and steer from chat; a bounded, continuous PM → dev → QA loop does the\nrest. Against your GitHub repo it turns your requests into roadmap items and\ntasks, writes the code, opens pull requests, runs your tests, and reports\nback — all while you keep steering from a chat window (yours, or your agent's).\n\nEvery change is **verified before it lands.** Keelen gates each pull request on\n*your* test suite and CI — not the agent's own opinion of its work — and holds\nanything that fails for automatic rework instead of merging it.\n\n## Set up in 60 seconds\n\n**Claude Code** — connect the server tokenless, then hand your agent the\nsetup script:\n\n```\nclaude mcp add --transport http keelen https://keelen.ai/mcp\n```\n\nThen paste the contents of [`SETUP.md`](SETUP.md) into your agent and say\n**\"set me up\"**. It will ask for your email, ask for the 6-digit code that\nlands in your inbox, and take it from there — engine connect, GitHub\nconnect, first project, and provisioning, end to end.\n\nUsing a different client? See the per-client guides:\n\n- [Claude Code](clients/claude-code.md)\n- [Claude Desktop](clients/claude-desktop.md)\n- [Codex](clients/codex.md)\n- [Cursor](clients/cursor.md)\n- [Windsurf](clients/windsurf.md)\n- [Generic / other MCP clients](clients/generic.md)\n\nBuilding a Roblox game? Keelen can generate art, audio, meshes, skyboxes, and\nanimated characters from plain-language requests — see\n[`roblox-assets.md`](roblox-assets.md).\n\n## Tools (abbreviated)\n\nThe server exposes 29 tools. Two work with no key at all (`signup`,\n`verify_email`); the rest need the bearer key `verify_email` gives you. Full\nreference with parameters and behavior: [`TOOLS.md`](TOOLS.md).\n\n| Group | Tools |\n| --- | --- |\n| Getting started | `signup`, `verify_email` |\n| Onboarding | `get_onboarding_status`, `open_dashboard`, `connect_github`, `list_github_repos`, `import_project`, `get_provisioning_status`, `get_billing` |\n| Projects & roadmap | `list_projects`, `create_project`, `archive_project`, `delete_project`, `submit_request`, `get_request_status`, `answer_request`, `refine_request`, `set_product_vision`, `set_product_goal`, `list_roadmap`, `reorder_roadmap`, `cancel_roadmap_item`, `clear_horizon_pin`, `project_status`, `list_escalations`, `resolve_escalation`, `control_scheduler` |\n| Other | `run_security_review`, `rollback_roblox_place` |\n\nThe server speaks MCP protocol revision `2026-07-28` as well as the earlier\nhandshake revisions, from the same endpoint — no client action is required\neither way. Details in [`clients/generic.md`](clients/generic.md#protocol-support);\nnotable contract changes are recorded in [`CHANGELOG.md`](CHANGELOG.md).\n\n## FAQ\n\n**Is my code touched before I agree to anything?** No. Connecting the MCP\nserver tokenless only lets you sign up and verify your email — it can't see,\nread, or modify any repository. `connect_github` requires an explicit\nGitHub App install you approve in your browser, and every following build\nruns inside an isolated per-tenant sandbox scoped to your own workspace.\n\n**What does it cost?** Signing up, connecting GitHub, and creating a project\nare all free. Actually running the autonomous loop (compute) requires an\nactive subscription — `get_billing()` returns a Stripe checkout link the\nmoment you're ready. A free/unpaid workspace can do everything up through\nproject creation and provisioning; iterations start once billing is active.\n\n**How do I revoke access?** Every key minted through this flow (or the\ndashboard) can be individually revoked. Go to your Keelen dashboard →\n**Settings → API keys** and delete the key. Revoking takes effect\nimmediately; your agent will need a fresh key (rerun the signup flow, or\nmint a new one from the dashboard) to keep calling the server.\n\nSee [`SECURITY.md`](SECURITY.md) for the full security model: what the MCP\nserver can and can't reach, rate limits, and key handling.\n\n## Support\n\nQuestions or issues: **support@keelen.ai**\n",
+  "status": "curated"
+}

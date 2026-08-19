@@ -1,0 +1,70 @@
+{
+  "id": "mcp:official/io.github.ni-c/osm-mcp",
+  "type": "mcp",
+  "name": "OpenStreetMap",
+  "description": "Geocoding, walking/driving/cycling distances, route optimization, isochrones and POI search on OSM",
+  "author": "io.github.ni-c",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/ni-c/osm-mcp",
+    "repo": "ni-c/osm-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "osm-mcp"
+    ],
+    "env": [
+      {
+        "name": "OSM_USER_AGENT",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "ORS_API_KEY",
+        "required": false,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-18T21:03:59.345975Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# osm-mcp\n\n[![CI](https://img.shields.io/github/actions/workflow/status/ni-c/osm-mcp/ci.yml?branch=main&label=CI)](https://github.com/ni-c/osm-mcp/actions/workflows/ci.yml)\n[![npm version](https://img.shields.io/npm/v/osm-mcp)](https://www.npmjs.com/package/osm-mcp)\n[![npm downloads](https://img.shields.io/npm/dm/osm-mcp)](https://www.npmjs.com/package/osm-mcp)\n[![node](https://img.shields.io/node/v/osm-mcp)](https://nodejs.org)\n[![Container](https://img.shields.io/badge/ghcr.io-ni--c%2Fosm--mcp-2496ED?logo=docker&logoColor=white)](https://github.com/ni-c/osm-mcp/pkgs/container/osm-mcp)\n[![license](https://img.shields.io/npm/l/osm-mcp)](LICENSE)\n[![Docs](https://img.shields.io/badge/docs-osm--mcp.ni--c.de-4f46e5)](https://osm-mcp.ni-c.de)\n\nAn [MCP](https://modelcontextprotocol.io) server for\n[OpenStreetMap](https://www.openstreetmap.org): geocoding, walking/driving/cycling\ndistances and durations, multi-stop route optimization, isochrones and POI\nsearch — built for travel planning with AI assistants.\n\n11 tools, all read-only. All backends are free public OpenStreetMap services;\n**no API key is required**. An OpenRouteService key can be supplied optionally to\nswitch the routing engine.\n\n📖 **Full documentation: <https://osm-mcp.ni-c.de>**\n\n<!-- <picture> is resolved against the colour scheme of the page showing it, so GitHub\n     picks the variant that matches its own theme toggle. npm strips <picture> and\n     <source> when it sanitises the README and keeps the <img>, which is why that\n     fallback brings its own dark card instead of relying on a media query. -->\n<picture>\n  <source media=\"(prefers-color-scheme: dark)\" srcset=\"https://osm-mcp.ni-c.de/architecture-dark.svg\">\n  <source media=\"(prefers-color-scheme: light)\" srcset=\"https://osm-mcp.ni-c.de/architecture-light.svg\">\n  <img src=\"https://osm-mcp.ni-c.de/architecture.svg\" alt=\"An MCP client talks to osm-mcp over stdio; the server exposes eleven read-only tools with rate limiting and caching, and calls Nominatim, Photon, OSRM, Valhalla and Overpass over HTTPS — plus OpenRouteService optionally with an API key\" width=\"800\">\n</picture>\n\n<img src=\"https://osm-mcp.ni-c.de/demo.gif\" alt=\"Terminal recording: the server reports eleven tools, geocodes the Porta Nigra in Trier, and returns a walking route with distance and duration\" width=\"800\">\n\n## Why another OSM MCP server?\n\n- **Correct walking/cycling routes.** The public OSRM demo servers ignore the\n  profile segment inside the OSRM URL path and always return **car** routes\n  unless the FOSSGIS `routed-foot` / `routed-bike` / `routed-car` path prefixes\n  are used. Most existing OSM MCP servers get this wrong and silently return\n  driving times for walking queries. This server uses the prefixes and its live\n  smoke test asserts that foot routes are much slower than car routes.\n- **Policy-compliant by construction.** Per-service rate limiting (Nominatim and\n  OSRM: 1 request/second), an identifying User-Agent on every request (required\n  by the Nominatim usage policy), response caching, capped Overpass concurrency\n  (2 slots) and automatic failover to an Overpass mirror on 429/5xx.\n- **Photon support.** Optional typo-tolerant geocoding via komoot's Photon,\n  which is designed for interactive use — a better fit for LLM-driven lookups\n  than hammering Nominatim.\n\n## Requirements\n\n- Node.js ≥ 22\n- Internet access to the public OpenStreetMap services (see table below)\n\n## Configuration\n\nEvery variable is optional — the server works out of the box.\n\n| Variable             | Default                                                                                   | Description                                                                                                                                                                                    |\n| -------------------- | ----------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| `OSM_USER_AGENT`     | `osm-mcp/<version> (+https://github.com/ni-c/osm-mcp)`                                    | User-Agent sent to every service. Nominatim requires a real, identifying one.                                                                                                                  |\n| `NOMINATIM_BASE_URL` | `https://nominatim.openstreetmap.org`                                                     | Geocoding / reverse geocoding                                                                                                                                                                  |\n| `PHOTON_BASE_URL`    | `https://photon.komoot.io`                                                                | Typo-tolerant geocoding                                                                                                                                                                        |\n| `OSRM_BASE_URL`      | `https://routing.openstreetmap.de`                                                        | Routing, matrices, trip optimization. Must serve the `routed-{car,bike,foot}` path prefixes (the FOSSGIS layout).                                                                              |\n| `OVERPASS_BASE_URL`  | `https://overpass-api.de/api/interpreter,https://overpass.private.coffee/api/interpreter` | Comma-separated Overpass endpoints, tried in order on 429/5xx                                                                                                                                  |\n| `VALHALLA_BASE_URL`  | `https://valhalla1.openstreetmap.de`                                                      | Isochrones                                                                                                                                                                                     |\n| `ORS_API_KEY`        | –                                                                                         | Optional [OpenRouteService](https://openrouteservice.org) key (secret). When set, routes, matrices and isochrones use ORS instead of OSRM/Valhalla. Free tier: 2000 directions/day, 40/minute. |\n| `ORS_BASE_URL`       | `https://api.openrouteservice.org`                                                        | OpenRouteService endpoint                                                                                                                                                                      |\n| `OSM_CACHE_TTL`      | `3600`                                                                                    | Seconds identical upstream responses are served from the in-memory cache (`0` disables caching)                                                                                                |\n\n## Install\n\n```sh\nclaude mcp add osm -- npx -y osm-mcp\n```\n\nClaude Desktop (`claude_desktop_config.json`):\n\n```json\n{\n  \"mcpServers\": {\n    \"osm\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"osm-mcp\"]\n    }\n  }\n}\n```\n\nCodex (`~/.codex/config.toml`):\n\n```toml\n[mcp_servers.osm]\ncommand = \"npx\"\nargs = [\"-y\", \"osm-mcp\"]\n```\n\nContainer (multi-arch, with SBOM and build provenance):\n\n```sh\ndocker run -i --rm ghcr.io/ni-c/osm-mcp\n```\n\n`-i` is required — the protocol runs over stdin and stdout. There is no port to\npublish. More client recipes are in the\n[client guide](https://osm-mcp.ni-c.de/guide/clients).\n\n## Tools\n\n| Tool                     | Description                                                                                    |\n| ------------------------ | ---------------------------------------------------------------------------------------------- |\n| `geocode`                | Place name/address → coordinates (Nominatim or Photon)                                         |\n| `reverse_geocode`        | Coordinates → nearest address                                                                  |\n| `route`                  | Distance and duration between 2+ waypoints, `foot`/`car`/`bike`; optional turn-by-turn summary |\n| `route_matrix`           | Travel time/distance from every origin to every destination in one call                        |\n| `optimize_route`         | Best visiting order for a set of stops (traveling-salesman, OSRM trip)                         |\n| `isochrone`              | Reachable area within a time or distance budget (Valhalla, or ORS with key)                    |\n| `find_nearby_pois`       | POIs around a location by category or raw OSM tag, sorted by distance (Overpass)               |\n| `poi_details`            | Full OSM record of one element: opening hours, website, phone, …                               |\n| `suggest_meeting_point`  | Fair meeting venue for 2–8 people (balanced travel times)                                      |\n| `straight_line_distance` | Great-circle distance, computed offline                                                        |\n| `map_link`               | openstreetmap.org marker / directions links, computed offline                                  |\n\nEvery place input accepts either a name/address (geocoded automatically) or\nliteral coordinates as `\"lat,lon\"`.\n\n## Usage policies & attribution\n\nThis server talks to shared community infrastructure. It enforces the\npublished limits client-side, but the operator asks users to keep overall\nusage light and non-commercial:\n\n- **Data:** © [OpenStreetMap](https://www.openstreetmap.org/copyright)\n  contributors, licensed under [ODbL 1.0](https://opendatacommons.org/licenses/odbl/).\n- **Nominatim:** max 1 request/second, identifying User-Agent mandatory,\n  results cached ([policy](https://operations.osmfoundation.org/policies/nominatim/)).\n- **OSRM / Valhalla (FOSSGIS):** reasonable, non-commercial use; max 1\n  request/second ([about](https://routing.openstreetmap.de/about.html)).\n- **Overpass:** ~2 concurrent slots per IP, <10 000 queries/day\n  ([wiki](https://wiki.openstreetmap.org/wiki/Overpass_API)).\n- **Photon:** fair use ([photon.komoot.io](https://photon.komoot.io)).\n\nFor heavy or commercial use, self-host the services and point the\n`*_BASE_URL` variables at your instances.\n\n## Safety\n\n- All tools are **read-only**; the server never writes to OpenStreetMap.\n- No credentials are required; the optional `ORS_API_KEY` is removed from the\n  process environment after loading and redacted from error messages.\n- OSM-sourced content (names, addresses, tags) is marked as untrusted data in\n  tool results so the model treats it as data, not instructions.\n- Upstream error bodies are truncated and HTML error pages dropped before they\n  reach the model context.\n- Redirects are never followed; all requests time out.\n\n## Development\n\n```sh\nnpm install\nnpm run lint          # eslint + prettier\nnpm test              # unit tests (all upstream APIs mocked)\nnpm run test:coverage\nnpm run build\nnpm run smoke         # opt-in LIVE test against the real public services\n```\n\n## Releasing\n\nTag-driven, no manual publish step:\n\n1. Move the `[Unreleased]` entries into a new `## [x.y.z] - YYYY-MM-DD` section in\n   `CHANGELOG.md` and bump `package.json`.\n2. `npm run lint && npm run build && npm run test:coverage`.\n3. Commit, then a **signed annotated** tag: `git tag -s vx.y.z -m \"vx.y.z\"`.\n4. `git push origin main vx.y.z`.\n\n`release.yml` then runs the tests, publishes to npm with provenance via Trusted\nPublishing (no token secret involved), creates the GitHub release from the\nCHANGELOG section, and publishes to the\n[MCP registry](https://registry.modelcontextprotocol.io) as\n`io.github.ni-c/osm-mcp`. `ci.yml` pushes the multi-arch image to GHCR on the\nsame tag.\n\nIf the registry step fails, fix it on `main` and dispatch the\n`Publish to MCP Registry` workflow — do **not** re-run the tag job, which would\ncheck out the old tree.\n\n## License\n\n[MIT](LICENSE)\n",
+  "status": "curated"
+}

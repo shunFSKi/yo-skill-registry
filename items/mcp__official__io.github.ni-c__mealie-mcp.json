@@ -1,0 +1,85 @@
+{
+  "id": "mcp:official/io.github.ni-c/mealie-mcp",
+  "type": "mcp",
+  "name": "Mealie MCP Server",
+  "description": "MCP server for Mealie, the self-hosted recipe manager and meal planner",
+  "author": "io.github.ni-c",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/ni-c/mealie-mcp",
+    "repo": "ni-c/mealie-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@ni-c/mealie-mcp"
+    ],
+    "env": [
+      {
+        "name": "MEALIE_URL",
+        "required": true,
+        "secret": false
+      },
+      {
+        "name": "MEALIE_API_TOKEN",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "MEALIE_READ_ONLY",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "MEALIE_ACCEPT_LANGUAGE",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "MEALIE_INSECURE_TLS",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-18T20:56:06.312052Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "生活",
+    "featured": false
+  },
+  "readme": "# mealie-mcp\n\n[![CI](https://img.shields.io/github/actions/workflow/status/ni-c/mealie-mcp/ci.yml?branch=main&label=CI)](https://github.com/ni-c/mealie-mcp/actions/workflows/ci.yml)\n[![npm](https://img.shields.io/npm/v/%40ni-c%2Fmealie-mcp)](https://www.npmjs.com/package/@ni-c/mealie-mcp)\n[![downloads](https://img.shields.io/npm/dm/%40ni-c%2Fmealie-mcp)](https://www.npmjs.com/package/@ni-c/mealie-mcp)\n[![container](https://img.shields.io/badge/ghcr.io-mealie--mcp-blue?logo=docker&logoColor=white)](https://github.com/ni-c/mealie-mcp/pkgs/container/mealie-mcp)\n[![node](https://img.shields.io/badge/node-%E2%89%A522-brightgreen)](https://nodejs.org)\n[![license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)\n[![docs](https://img.shields.io/badge/docs-mealie--mcp.ni--c.de-4f46e5)](https://mealie-mcp.ni-c.de)\n\nA [Model Context Protocol](https://modelcontextprotocol.io) server for\n[Mealie](https://mealie.io), the self-hosted recipe manager and meal planner.\n\nIt gives a model a curated view of a Mealie instance: search and read recipes with\ntheir ingredients and steps, import new ones from a website, keep tags and\ncategories tidy, plan meals, build shopping lists from those plans, and record what\nwas actually cooked.\n\n📖 **[Full documentation at mealie-mcp.ni-c.de](https://mealie-mcp.ni-c.de)**\n\n![Demo](https://mealie-mcp.ni-c.de/demo.gif)\n\n<!-- <picture> is resolved against the colour scheme of the page showing it, so GitHub\n     picks the variant that matches its own theme toggle. npm strips <picture> and\n     <source> when it sanitises the README and keeps the <img>, which is why that\n     fallback brings its own dark card instead of relying on a media query. -->\n<picture>\n  <source media=\"(prefers-color-scheme: dark)\" srcset=\"https://mealie-mcp.ni-c.de/architecture-dark.svg\">\n  <source media=\"(prefers-color-scheme: light)\" srcset=\"https://mealie-mcp.ni-c.de/architecture-light.svg\">\n  <img src=\"https://mealie-mcp.ni-c.de/architecture.svg\" alt=\"An MCP client speaks stdio to mealie-mcp, which calls the Mealie REST API over HTTPS; Mealie fetches recipe websites server-side, which is why the URL guard refuses private hosts\" width=\"800\">\n</picture>\n\nMealie's REST API has 259 operations across 175 paths. This server exposes **52\ntools**, chosen so that the common tasks are one call and the dangerous surface is\nnot reachable at all. Verified against **Mealie v3.22.0**; the source of truth for\nevery request shape is the `GET /openapi.json` of a running instance, not the\npublished documentation, which is out of date in several places.\n\n## Requirements\n\n- Node.js 22 or newer\n- A Mealie instance and an API token from **Settings → API Tokens**\n\n## Configuration\n\n| Variable                 | Required | Description                                                                 |\n| ------------------------ | -------- | --------------------------------------------------------------------------- |\n| `MEALIE_URL`             | yes      | Base URL, e.g. `https://mealie.example.com`                                 |\n| `MEALIE_API_TOKEN`       | yes      | Token from Settings → API Tokens. It acts as the user who created it.       |\n| `MEALIE_READ_ONLY`       | no       | Exactly `true` registers the 17 read tools only                             |\n| `MEALIE_ACCEPT_LANGUAGE` | no       | e.g. `de-DE`; localises unit and label names                                |\n| `MEALIE_INSECURE_TLS`    | no       | Exactly `true` accepts a self-signed certificate, scoped to this connection |\n\nThe two booleans are compared against the literal string `true`, so a typo leaves\nthem **off** — check the startup line on stderr, which reports the mode in effect.\n\nThe token is removed from the process environment once it has been read, so child\nprocesses cannot pick it up out of `/proc/<pid>/environ`.\n\n## Install\n\nClaude Desktop, or any MCP client that takes a JSON config:\n\n```json\n{\n  \"mcpServers\": {\n    \"mealie\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@ni-c/mealie-mcp\"],\n      \"env\": {\n        \"MEALIE_URL\": \"https://mealie.example.com\",\n        \"MEALIE_API_TOKEN\": \"…\"\n      }\n    }\n  }\n}\n```\n\n```sh\nclaude mcp add mealie \\\n  -e MEALIE_URL=https://mealie.example.com \\\n  -e MEALIE_API_TOKEN=… \\\n  -- npx -y @ni-c/mealie-mcp\n```\n\nCodex (`~/.codex/config.toml`):\n\n```toml\n[mcp_servers.mealie]\ncommand = \"npx\"\nargs = [\"-y\", \"@ni-c/mealie-mcp\"]\n\n[mcp_servers.mealie.env]\nMEALIE_URL = \"https://mealie.example.com\"\nMEALIE_API_TOKEN = \"…\"\n```\n\nOr as a container:\n\n```sh\ndocker run --rm -i \\\n  -e MEALIE_URL=https://mealie.example.com \\\n  -e MEALIE_API_TOKEN=… \\\n  ghcr.io/ni-c/mealie-mcp\n```\n\nTo poke at the tools interactively:\n\n```sh\nnpx @modelcontextprotocol/inspector npx -y @ni-c/mealie-mcp\n```\n\n## Tools\n\n**Recipes** — `search_recipes`, `get_recipe`, `suggest_recipes`, `create_recipe`,\n`update_recipe`, `duplicate_recipe`, `set_recipe_last_made`, `delete_recipe` 🔒\n\n**Import** — `preview_recipe_url` (dry run, saves nothing), `import_recipe_from_url`,\n`import_recipe_from_html_or_json`, `import_recipe_from_image`\n\n**Organizing** — `list_organizers`, `create_organizer`, `update_organizer`,\n`delete_organizer` 🔒 — each takes `kind: tag | category | tool`\n\n**Ingredients** — `list_foods`, `create_food`, `merge_foods` 🔒, `list_units`,\n`create_unit`, `merge_units` 🔒, `parse_ingredients`\n\n**Meal plans** — `list_mealplans`, `get_todays_meals`, `create_mealplan_entry`,\n`create_random_meal`, `update_mealplan_entry`, `delete_mealplan_entry` 🔒\n\n**Shopping** — `list_shopping_lists`, `get_shopping_list`, `create_shopping_list`,\n`delete_shopping_list` 🔒, `add_shopping_list_items`, `update_shopping_list_items`,\n`delete_shopping_list_items` 🔒, `add_recipe_to_shopping_list`,\n`remove_recipe_from_shopping_list`\n\n**Cookbooks** — `list_cookbooks`, `get_cookbook`, `create_cookbook`,\n`delete_cookbook` 🔒\n\n**Notes and sharing** — `set_recipe_rating`, `add_recipe_comment`,\n`delete_recipe_comment` 🔒, `list_recipe_comments`, `list_recipe_timeline`,\n`create_timeline_event`, `list_share_tokens`, `create_share_token` 🔒,\n`delete_share_token`\n\n**Instance** — `get_about`\n\n🔒 needs a confirmation token: call once to receive one, then again with it.\n\nRecipes can be addressed by slug or by UUID everywhere — Mealie splits its\nidentifier space between the two, and the tools resolve whichever they are given.\n\n## Not exposed, on purpose\n\nEverything under `/api/admin` (backups, restore, maintenance, user, group and\nhousehold management, email, AI provider settings), `/api/users/api-tokens` (a tool\nthat mints API credentials is privilege-escalation surface), the authentication\nroutes, user CRUD and passwords, webhooks, event notifications and recipe actions\n(all three trigger outbound HTTP from the instance), meal plan rules, migrations,\nseeders, invitations, bulk export and ZIP download, and asset and image uploads.\n\n`PUT /api/recipes/{slug}` is not exposed either: it replaces the entire 33-field\nrecipe object, so a partial update through it silently drops ingredients, steps and\ntags. `update_recipe` uses `PATCH`.\n\n## Safety\n\n- **Instance content is untrusted input.** Recipes are routinely scraped from\n  arbitrary websites and comments come from other users, so every tool result that\n  can contain instance content is prefixed with an explicit marker telling the model\n  to treat it as data. This matters after the import too: the text stays in the\n  database and comes back through `get_recipe`.\n- **The import tools make Mealie fetch, not this server.** URLs are restricted to\n  public `http`/`https` addresses; loopback, private-range, link-local and\n  `.lan`/`.internal`/`.local` hosts are refused.\n- **Confirmation prompts quote no upstream text** — ids, counts and flags only.\n- **Responses are bounded**: oversized results drop whole items rather than cutting\n  the JSON mid-string, and a response body is never read past 8 MB.\n- Redirects are refused so the token cannot be resent to another host.\n\nSee [SECURITY.md](SECURITY.md) for the trust model and how to report a\nvulnerability.\n\n## Development\n\n```sh\nnpm install && npm test && npm run build\n```\n\n`scripts/verify-live.mjs` exercises all 52 tools against a **throwaway** Mealie\ninstance; the recipe for setting one up is in [CONTRIBUTING.md](CONTRIBUTING.md).\n\nThe architecture diagram and the social card are rendered from\n`docs/assets/architecture.source.svg` and `docs/assets/og.json` by\n`npm run assets`; CI fails if a rendered copy was edited by hand.\n\n## Releasing\n\nEverything is driven by a tag; there is no manual publish step.\n\n1. Move the `[Unreleased]` section of [CHANGELOG.md](CHANGELOG.md) to the new version\n   and date it. The release workflow extracts that section with `awk`, so the\n   `## [x.y.z]` heading shape matters.\n2. Bump `version` in `package.json`.\n3. `npm run lint && npm run build && npm run test:coverage`.\n4. Commit, then a **signed annotated** tag:\n\n   ```sh\n   git tag -s v0.1.1 -m \"v0.1.1\"\n   git push origin main v0.1.1\n   ```\n\n`release.yml` then verifies the tag matches `package.json`, publishes to npm over\n**Trusted Publishing** (OIDC — no npm token exists to leak) with provenance, syncs the\nversion into both `server.json` package entries, publishes to the MCP registry, and\ncuts the GitHub release from the changelog section. `ci.yml` pushes the multi-arch\ncontainer image to GHCR in parallel.\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

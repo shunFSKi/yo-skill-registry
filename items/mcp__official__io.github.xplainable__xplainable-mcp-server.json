@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.xplainable/xplainable-mcp-server",
+  "type": "mcp",
+  "name": "xplainable-mcp-server",
+  "description": "Train, explain, optimise and deploy transparent glass-box ML models via workflow tools.",
+  "author": "io.github.xplainable",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/xplainable/xplainable-mcp-server",
+    "repo": "xplainable/xplainable-mcp-server"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://mcp.xplainable.io/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-19T00:54:52.547067Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# Xplainable MCP Server\n\nA [Model Context Protocol](https://modelcontextprotocol.io) server for the\n[Xplainable](https://www.xplainable.io) platform. It lets an LLM agent\n(Claude, or any MCP client) train, deploy, optimise, and explain\ntransparent machine-learning models through a small set of goal-oriented\n`workflow_*` tools.\n\nTraining runs server-side on Xplainable's agentic pipeline — the MCP host\nnever fits a model locally.\n\n## Two Ways to Use It\n\n1. **Hosted** — connect your MCP client to `https://mcp.xplainable.io`\n   (OAuth login, no installation).\n2. **Local** — run the server yourself over stdio with an Xplainable API\n   key. This is what the rest of this README covers.\n\n## Quick Start (Local)\n\n### 1. Get an API key\n\nCreate one at [platform.xplainable.io](https://platform.xplainable.io).\n\n### 2a. Claude Code\n\n```bash\nclaude mcp add xplainable \\\n  -e XPLAINABLE_API_KEY=your-api-key-here \\\n  -- uvx --from git+https://github.com/xplainable/xplainable-mcp-server.git xplainable-mcp\n```\n\n### 2b. Claude Desktop\n\nAdd to your MCP settings file:\n\n- **macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`\n- **Windows:** `%APPDATA%\\Claude\\claude_desktop_config.json`\n- **Linux:** `~/.config/Claude/claude_desktop_config.json`\n\n```json\n{\n  \"mcpServers\": {\n    \"xplainable\": {\n      \"command\": \"uvx\",\n      \"args\": [\"--from\", \"git+https://github.com/xplainable/xplainable-mcp-server.git\", \"xplainable-mcp\"],\n      \"env\": {\n        \"XPLAINABLE_API_KEY\": \"your-api-key-here\"\n      }\n    }\n  }\n}\n```\n\nNo `uv`? Clone and install instead:\n\n```bash\ngit clone https://github.com/xplainable/xplainable-mcp-server.git\ncd xplainable-mcp-server\npython -m venv .venv && source .venv/bin/activate\npip install -e .\n```\n\nthen use `\"command\": \"/path/to/xplainable-mcp-server/.venv/bin/xplainable-mcp\"`\n(no args) in the config above.\n\n### 3. Try it\n\nAsk your agent: *\"What models and datasets do I have?\"* — it should call\n`workflow_list_assets`.\n\n## The Workflow Loop\n\nThe curated `workflow_*` tools cover the whole journey:\n\n1. `workflow_list_assets` — find a dataset (and see existing models /\n   deployments)\n2. `workflow_train_model(dataset_id, goal, model_name)` — returns a `run_id`\n3. Loop: `workflow_wait_for_update(run_id)` — narrate progress as events\n   arrive; if a decision is pending, relay it to the user and submit their\n   answer via `workflow_decide` (the run's two gates: label selection and\n   training approval)\n4. `workflow_deploy_model(model_id)` — deploy after the run completes\n   (there is no deployment gate inside the run)\n5. Act on the model: `workflow_optimise_model` / `workflow_predict`\n   (scores rows with the trained model via the platform inference route —\n   no deployment needed) / `workflow_explain_model` /\n   `workflow_create_report`\n\n## Tool Surface\n\nBy default the server registers the **curated surface: 28 tools** — the 9\n`workflow_*` tools above, plus 16 curated read/health tools across\ndatasets, models, deployments, optimisers, runs, agentic state, and\ngateway health, plus 3 team-selection tools (`list_user_teams`,\n`set_active_team`, `select_team`).\n\nSet `XPLAINABLE_ADVANCED_TOOLS=1` (accepted values: `1`, `true`, `yes`) to\nregister the **full surface (~104 tools)**, adding write/admin tools for\npreprocessing, monitors, GPT reports, inference, and low-level agentic run\ncontrol.\n\nTool files under `xplainable_mcp/tools/` are auto-generated from\n`@mcp_tool`-decorated client methods (see \"Synchronization with\nxplainable-client\" below) — each tool carries tags (e.g. `curated`,\n`workflow`, `read`, `write`) that drive this gating. Do not hand-edit\ngenerated tool files.\n\n## Configuration\n\n| Variable | Required | Description |\n|---|---|---|\n| `XPLAINABLE_API_KEY` | yes (local) | API key from platform.xplainable.io |\n| `XPLAINABLE_HOST` / `XPLAINABLE_HOSTNAME` | no | Platform host override (defaults to `https://platform.xplainable.io`). Set **both** to the same value. |\n| `XPLAINABLE_ORG_ID` / `XPLAINABLE_TEAM_ID` | no | Org/team binding, if your API key is not bound to a team |\n| `XPLAINABLE_ADVANCED_TOOLS` | no | `1`/`true`/`yes` exposes the full ~104-tool surface |\n| `MCP_TRANSPORT` | no | `stdio` (default) or `streamable-http` |\n| `LOG_LEVEL` | no | `DEBUG`, `INFO` (default), `WARNING`, `ERROR` |\n\nSee [.env.example](.env.example). The API key is read from the environment\nonly and is never exposed through a tool.\n\n## CLI\n\n```bash\nxplainable-mcp-cli list-tools            # list all available tools\nxplainable-mcp-cli validate-config       # check env configuration\nxplainable-mcp-cli test-connection       # test API connectivity\nxplainable-mcp-cli generate-docs         # generate tool documentation\n```\n\n## Docker (HTTP mode)\n\n```bash\ncp .env.example .env   # fill in your API key\ndocker compose up --build\n```\n\nThe container serves streamable-HTTP on port 8000 with a `/health`\nendpoint. For anything beyond localhost, terminate TLS at a reverse proxy.\n\n## Development\n\n```bash\ngit clone https://github.com/xplainable/xplainable-mcp-server.git\ncd xplainable-mcp-server\npip install -e \".[dev]\"\n\npytest            # run tests\nruff check .      # lint\n```\n\n### Synchronization with xplainable-client\n\nTool files are generated from the\n[xplainable-client](https://pypi.org/project/xplainable-client/) package:\n\n```bash\n# Check if sync is needed / regenerate tool files\npython scripts/sync_workflow.py --sync-files\n\n# Generate a detailed report\npython scripts/sync_workflow.py --markdown sync_report.md\n```\n\nSee [`examples/SYNC_WORKFLOW.md`](examples/SYNC_WORKFLOW.md) and\n[`examples/sync_scenarios.md`](examples/sync_scenarios.md) for the full\nprocess. Run the sync with the pinned `xplainable-client` version\ninstalled, and with Python 3.11+.\n\n## Compatibility\n\n| MCP Server | xplainable-client | fastmcp |\n|---|---|---|\n| current (main) | >=1.8.0 | >=2.0.0,<3.0.0 |\n\n## Contributing\n\nSee [CONTRIBUTING.md](CONTRIBUTING.md).\n\n## License\n\nMIT License — see [LICENSE](LICENSE).\n",
+  "status": "curated"
+}

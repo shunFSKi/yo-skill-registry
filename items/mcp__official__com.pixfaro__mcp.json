@@ -1,0 +1,65 @@
+{
+  "id": "mcp:official/com.pixfaro/mcp",
+  "type": "mcp",
+  "name": "mcp",
+  "description": "Generate images with any major model — one API key, one prepaid balance, one MCP.",
+  "author": "com.pixfaro",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/pixfaro/mcp",
+    "repo": "pixfaro/mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@pixfaro/mcp"
+    ],
+    "env": [
+      {
+        "name": "PIXFARO_KEY",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-19T00:34:19.026626Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# Pixfaro MCP — image generation MCP server for every image model\n\nOne MCP connection, one prepaid balance, every major image model — Nano Banana,\nGemini today, GPT Image next (visible as \"coming soon\" in `list_models`).\nPixfaro holds the provider accounts, keys, retries and format differences;\nyour agent just asks for an image.\n\nWorks with **Claude Desktop, Claude Code, Cursor, Windsurf**, and any MCP client.\n\n## Quickstart (≈1 minute)\n\n1. Get an API key at [pixfaro.com](https://pixfaro.com) and top up (no subscription).\n2. Add the server to your MCP client config:\n\n```json\n{\n  \"mcpServers\": {\n    \"pixfaro\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@pixfaro/mcp\"],\n      \"env\": { \"PIXFARO_KEY\": \"pf_live_…\" }\n    }\n  }\n}\n```\n\n3. Ask your agent for an image. That's it.\n\nFor Claude Code:\n\n```bash\nclaude mcp add pixfaro -e PIXFARO_KEY=pf_live_… -- npx -y @pixfaro/mcp\n```\n\n### Remote server (no install, OAuth)\n\nOn claude.ai, Claude Desktop, or any client that speaks streamable HTTP, add the\nremote server instead — no npm, no key in a config file:\n\n```\nhttps://mcp.pixfaro.com/mcp\n```\n\nThe client runs the OAuth flow; you sign in with your Pixfaro account. Clients\nwithout OAuth can pass an API key instead: `Authorization: Bearer pf_live_…`.\n\n## Tools\n\n| Tool | What it does |\n|---|---|\n| `generate_image` | prompt → hosted image URL (+cost and balance in the reply) |\n| `edit_image` | natural-language edit of a previous generation by its `img_…` id |\n| `list_models` | models with price, latency, and what each is best for |\n| `get_balance` | current prepaid balance |\n\nReplies carry a hosted URL, never base64 — your agent's context stays small.\n\nBoth generation tools accept `aspect_ratio` (e.g. `\"16:9\"`, `\"9:16\"`). Edits\nkeep the source image's shape when you omit it — pass one only to reshape.\n\n## CLI\n\nThe same package family ships an unscoped CLI for scripts, CI, and pipelines:\n\n```bash\nexport PIXFARO_KEY=pf_live_…\nnpx pixfaro gen \"a lighthouse at night, minimal flat style\" -a 16:9 -o cover.png\nnpx pixfaro models\nnpx pixfaro balance\nnpx pixfaro edit img_8f2a… \"make the sky darker\" -o v2.png\n```\n\n## Environment\n\n| Variable | Meaning |\n|---|---|\n| `PIXFARO_KEY` | your API key (`pf_live_…`) — required for everything except `models` |\n| `PIXFARO_API_URL` | endpoint override (default `https://api.pixfaro.com`) |\n\n## What this repo is\n\nThe thin open client over the Pixfaro API: the MCP server (`@pixfaro/mcp`) and\nthe `pixfaro` CLI share one HTTP client. The balance/provider layer lives\nbehind [api.pixfaro.com](https://pixfaro.com) — this code is intentionally\nsmall enough to read before you hand it a key.\n\nMIT © Pixfaro\n",
+  "status": "curated"
+}

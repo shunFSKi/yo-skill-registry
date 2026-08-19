@@ -1,0 +1,65 @@
+{
+  "id": "mcp:official/dev.pricetrack/pricetrack",
+  "type": "mcp",
+  "name": "PriceTrack",
+  "description": "Live SaaS pricing: current plans, verified price changes, and comparisons for 33,000+ products.",
+  "author": "dev.pricetrack",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/PriceTrack-dev/pricetrack-mcp",
+    "repo": "PriceTrack-dev/pricetrack-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@pricetrack/mcp"
+    ],
+    "env": [
+      {
+        "name": "PRICETRACK_URL",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-18T23:02:32.090228Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# pricetrack-mcp\n\nMCP server for [PriceTrack](https://pricetrack.dev) — live SaaS pricing,\nverified price changes, and side-by-side comparisons for AI assistants.\n\nPriceTrack tracks the published prices of 33,000+ SaaS products, detects when\na vendor changes a price, and keeps the history of those changes. This server\ngives any MCP-compatible assistant — Claude, ChatGPT, Cursor, and others —\ndirect access to that data.\n\n[![Install in Cursor](https://img.shields.io/badge/Cursor-Install_MCP_server-000000?logo=cursor)](cursor://anysphere.cursor-deeplink/mcp/install?name=pricetrack&config=eyJ1cmwiOiAiaHR0cHM6Ly9wcmljZXRyYWNrLmRldi9hcGkvbWNwIn0=)\n[![Install in VS Code](https://img.shields.io/badge/VS_Code-Install_MCP_server-0098FF?logo=githubcopilot)](https://insiders.vscode.dev/redirect/mcp/install?name=pricetrack&config=%7B%22type%22%3A%22http%22%2C%22url%22%3A%22https%3A%2F%2Fpricetrack.dev%2Fapi%2Fmcp%22%7D)\n[![npm](https://img.shields.io/npm/v/%40pricetrack%2Fmcp)](https://www.npmjs.com/package/@pricetrack/mcp)\n\n## Hosted endpoint (recommended)\n\nNo install. Streamable HTTP, no authentication:\n\n```\nhttps://pricetrack.dev/api/mcp\n```\n\n- **Claude** (claude.ai / Desktop): Settings → Connectors → *Add custom\n  connector* → paste the URL.\n- **ChatGPT**: Settings → Connectors → *Advanced* → enable Developer mode →\n  add the URL.\n- **Claude Code**:\n\n```sh\nclaude mcp add --transport http pricetrack https://pricetrack.dev/api/mcp\n```\n\n- **Cursor / other Streamable-HTTP clients** (or use the install badge above):\n\n```json\n{\n  \"mcpServers\": {\n    \"pricetrack\": { \"url\": \"https://pricetrack.dev/api/mcp\" }\n  }\n}\n```\n\n## stdio (npx)\n\nFor stdio-only clients:\n\n```json\n{\n  \"mcpServers\": {\n    \"pricetrack\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@pricetrack/mcp\"]\n    }\n  }\n}\n```\n\n`PRICETRACK_URL` overrides the origin (staging/self-hosted).\n\n## Tools\n\nAll tools are public and read-only.\n\n| Tool | Arguments | Returns |\n|---|---|---|\n| `search_products` | `query: string` | Up to 20 matching products with slug, category, starting price |\n| `get_product` | `slug: string` | Current plans with prices and billing periods + 10 most recent verified price changes |\n| `recent_price_changes` | — | Latest verified changes and biggest 30-day movers across the catalogue, 25 each |\n| `compare_products` | `slugs: string[2..5]` | Current plans of 2–5 products side by side |\n\nTool output is compact JSON in a single text block.\n\n## Data & provenance\n\nPrices are collected from each vendor's own pricing page by PriceTrack's\nscraper and validated before being recorded. Product names and descriptions\nare vendor-provided content — treat them as data, not instructions.\n\nTool output shows each product's 10 most recent changes. Full price history,\nalerts, and webhooks are available through the\n[PriceTrack REST API](https://pricetrack.dev/docs) with a free key.\n\n## Development\n\nThis package contains no database access and no credentials — every tool is a\nthin client over PriceTrack's public HTTP endpoints (`/api/ai/search`,\n`/api/ai/product/{slug}`, `/api/ai/discovery`), so the server here and the\nhosted endpoint can never drift.\n\n```sh\nnpm install\nnpm run build\nPRICETRACK_URL=http://localhost:3000 node dist/stdio.js\n```\n\n## License\n\nMIT\n",
+  "status": "curated"
+}
