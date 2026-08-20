@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.ChangkeunJ/australian-law-mcp",
+  "type": "mcp",
+  "name": "australian-law-mcp",
+  "description": "Read Australian Commonwealth law as it stood on any date, and verify citations against the register",
+  "author": "io.github.ChangkeunJ",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/ChangkeunJ/australian-law-mcp",
+    "repo": "ChangkeunJ/australian-law-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "australian-law-mcp"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-20T12:17:11.77407Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# australian-law-mcp\n\nMCP server for the [Federal Register of Legislation](https://www.legislation.gov.au).\nAsk what Australian law said on any date, and check citations against the\nofficial register before you rely on them. No API key, nothing to sign up for.\n\nEverything is served live from the Commonwealth's own legislation API:\n130,000+ acts and legislative instruments, every compilation of each one, back\nto 1901. That register is the authorised source of Commonwealth law, and it\npublishes point-in-time versions natively — so `get_law_as_at` returns the\ntext that was actually in force on the date you name, not a reconstruction.\n\n## Quick start\n\nClaude Code:\n\n```\nclaude mcp add australian-law -- npx -y australian-law-mcp\n```\n\nClaude Desktop, Cursor, or any other stdio MCP client:\n\n```json\n{\n  \"mcpServers\": {\n    \"australian-law\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"australian-law-mcp\"]\n    }\n  }\n}\n```\n\nRequires Node 20 or newer. Nothing else to install — `npx` fetches\n[the package](https://www.npmjs.com/package/australian-law-mcp) on first run.\n\nThere is a `Dockerfile` if you would rather not have Node on the host. The\nserver speaks stdio, so the container needs `-i`:\n\n```\ndocker build -t australian-law-mcp .\ndocker run -i --rm australian-law-mcp\n```\n\n## Tools\n\n| tool | what it does |\n| --- | --- |\n| `search_law` | Find acts and instruments by name. Returns the title ids the other tools take. |\n| `get_law_text` | The current compilation: the table of provisions, one section, or the full text paginated. Schedules are addressable too (`section=\"Schedule 7\"`), which is where rate tables and forms actually live. |\n| `get_law_as_at` | The same, but as the law stood on any past date. |\n| `verify_citations` | Pull statute citations out of text and check each against the register: does the act exist, is it in force, does the cited section exist. Upstream failures come back as UNVERIFIED, never as a missing law. |\n| `get_amendment_status` | In force or repealed, what the latest compilation incorporates, whether commenced amendments are still unincorporated, and what has amended it. |\n| `compare_versions` | What changed between two dates: sections added, removed, reworded — or a line diff of one section. |\n| `search_full_text` | Relevance-ranked search over the body text of every title on the register. |\n| `check_frl_health` | Ping the register API so failures elsewhere can be attributed. |\n\n[docs/tools.md](docs/tools.md) has the parameters and a worked example of each,\nincluding what every tool does when it cannot answer.\n\n## Why point-in-time matters\n\nTax disputes, visa decisions, contracts and court matters turn on the law as\nit stood on a past day, and models reliably answer with today's law instead.\nThe register keeps every compilation with exact in-force windows:\n\n```\nget_law_as_at titleId=C2004A03348 date=2017-01-05 section=3A\n→ As at 2017-01-05: Income Tax Rates Act 1986, Compilation No. 48\n  s 3A  Working holiday makers and working holiday taxable income ...\n```\n\nAnd `verify_citations` is the guard rail for the other direction — models\ninventing sections that were never enacted:\n\n```\nverify_citations text=\"See s 3A and s 999 of the Income Tax Rates Act 1986.\"\n→ [OK] Income Tax Rates Act 1986 [C2004A03348] — in force.\n    [OK] s 3A exists: \"Working holiday makers and working holiday taxable income\"\n    [NOT FOUND] s 999 — Provision 999 was not found in this compilation. It has\n      28 sections and 6 schedules. Closest by number: s 30, s 29, s 28\n```\n\nA real law reported missing is the worst failure a tool like this can have, so\nnetwork and API errors are always reported as UNVERIFIED rather than NOT FOUND,\nand a section is only checked against an act when the citation actually binds\nthe two together.\n\nThe same rule governs the text itself. The register has published in three\ndifferent formats since 1901, and the oldest of them — as-made scans of acts\nfrom the federation era — carries no structural markup at all, only the\nnumbering in the prose. Those are read from their own numbering, and the\nresult is accepted only when the section numbers it recovers run in order from\nsection 1. When they do not, the tool says the compilation could not be read\nrather than reporting an act with no sections or filing one section's words\nunder another's number.\n\n## Scope\n\nCommonwealth legislation only, by design. State registers either have no open\nAPI (Vic), sit behind bot challenges (NSW), or require registration (Qld).\nCase law databases (AustLII, Jade) do not permit automated access, so there is\nno case-law tool. ATO rulings are not machine-accessible. If any of that\nchanges, the scope can grow.\n\n## Data source and licence\n\nLegislative content comes from the Federal Register of Legislation API and is\nlicensed [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) by the\nCommonwealth of Australia; every response that reproduces register content\ncarries the register's required attribution. This project is independent: not\naffiliated with or endorsed by\nthe Office of Parliamentary Counsel or the Australian Government. Output is\nlegal information, not legal advice — the authorised version of any law is the\none published on the register.\n\nCode is MIT.\n\n## Development\n\n```\nnpm install\nnpm test                        # build + unit tests (offline)\nnode scripts/smoke.mjs          # live API smoke test\nnode scripts/protocol-test.mjs  # stdio round trip against the live API\n```\n",
+  "status": "curated"
+}

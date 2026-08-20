@@ -15,7 +15,7 @@
     "command": "npx",
     "args": [
       "-y",
-      "ghcr.io/wyre-technology/unitrends-mcp:v1.1.2"
+      "ghcr.io/wyre-technology/unitrends-mcp:v1.1.3"
     ],
     "env": [
       {
@@ -57,8 +57,8 @@
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-08-13T00:28:25.523686Z",
-    "score": 42
+    "pushed_at": "2026-08-20T14:38:19.897945Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -90,6 +90,6 @@
     "category": null,
     "featured": false
   },
-  "readme": null,
+  "readme": "# Unitrends Backup MCP Server\n\n[![CI](https://github.com/wyre-technology/unitrends-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/wyre-technology/unitrends-mcp/actions/workflows/ci.yml)\n[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)\n\nA [Model Context Protocol](https://modelcontextprotocol.io) server exposing the\n[Unitrends Backup](https://www.unitrends.com/) API to Claude and other MCP clients.\n\n## What it does\n\nSurface backup posture from your Unitrends appliances (or MSP Console) directly\nto AI assistants — list appliances and protected assets, monitor running and\nhistorical backup jobs, browse recovery points, queue restores and replication,\nand review open alarms and RPO compliance.\n\n- **Interactive Appliance Card (MCP Apps)**: `unitrends_get_appliance` renders as an interactive card in MCP Apps hosts (Claude Desktop/web); neutral by default, brandable via `window.__BRAND__` injection or `MCP_BRAND_*` env vars; plain-JSON behavior is unchanged in other hosts\n\n## Tools\n\n| Tool | Purpose |\n| --- | --- |\n| `unitrends_list_appliances` | List appliances under the MSP Console |\n| `unitrends_get_appliance` | Get a single appliance's details (renders as an interactive card in MCP Apps hosts) |\n| `unitrends_list_assets` | List protected assets (require applianceId — elicits if missing) |\n| `unitrends_get_asset` | Fetch a single asset detail |\n| `unitrends_list_running_jobs` | Currently running and queued backup jobs |\n| `unitrends_list_job_history` | Historical jobs (date-range elicitation) |\n| `unitrends_list_recovery_points` | Recovery points for an asset |\n| `unitrends_queue_restore` | Queue a restore (DESTRUCTIVE — requires confirmation) |\n| `unitrends_get_restore_status` | Check restore progress |\n| `unitrends_list_alerts` | Open alarms |\n| `unitrends_get_success_rate` | RPO compliance report (date-range elicitation) |\n\n## Credentials\n\n### Local (env mode)\n\n```sh\nexport UNITRENDS_BASE_URL=\"https://unitrends.example.com\"\nexport UNITRENDS_USERNAME=\"...\"\nexport UNITRENDS_PASSWORD=\"...\"\nexport UNITRENDS_VERIFY_TLS=\"true\"   # 'false' for self-signed appliances\n```\n\n### Hosted (gateway mode)\n\nThe WYRE MCP Gateway injects credentials per request via headers:\n\n- `X-Unitrends-Base-URL` (required)\n- `X-Unitrends-Username` (required)\n- `X-Unitrends-Password` (required, secret)\n- `X-Unitrends-Verify-TLS` (optional, default `true`)\n\n## Run\n\n```sh\nnpm install\nnpm run build\nnpm start                       # stdio\nMCP_TRANSPORT=http npm start    # HTTP on :8080\n```\n\n## License\n\nApache 2.0 — see [LICENSE](LICENSE).\n",
   "status": "curated"
 }

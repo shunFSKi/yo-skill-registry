@@ -15,7 +15,7 @@
     "command": "npx",
     "args": [
       "-y",
-      "ghcr.io/wyre-technology/scalepad-mcp:v1.0.4"
+      "ghcr.io/wyre-technology/scalepad-mcp:v1.0.5"
     ],
     "env": [
       {
@@ -57,8 +57,8 @@
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-08-13T00:28:26.340675Z",
-    "score": 42
+    "pushed_at": "2026-08-20T12:16:20.732597Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -90,6 +90,6 @@
     "category": null,
     "featured": false
   },
-  "readme": null,
+  "readme": "# scalepad-mcp\n\nMCP server for the [ScalePad](https://developer.scalepad.com) platform — Core, Lifecycle Manager, ControlMap, Backup Radar, and Quoter — built natively on the MCP SDK v2 (2026-07-28 spec) with dual-era serving: the same endpoint answers both legacy 2025-era `initialize`-handshake clients and modern envelope clients.\n\n## Architecture\n\nFlat tool surface: every tool is exposed upfront in `tools/list` for universal client compatibility. Navigation tools are discovery aids, not gates.\n\n| Tool | Purpose |\n| --- | --- |\n| `scalepad_navigate` | Describe a product domain's tools (`core`, `lifecycle-manager`, `controlmap`, `backup-radar`, `quoter`) — a help/discovery aid, not a prerequisite |\n| `scalepad_status` | Show credential status and available domains |\n\n### Product domains\n\n| Domain | Tool prefix | Coverage |\n| --- | --- | --- |\n| `core` | `scalepad_core_` | Unified platform data (read-only, US-only): clients, contacts, members, sites, opportunities, hardware/SaaS assets, product catalog, service contracts, tickets, integrations |\n| `lifecycle-manager` | `scalepad_lm_` | Engagement/roadmap workflows: initiatives, goals, meetings, action items, assessments, deliverables, budgets, contracts, workspace |\n| `controlmap` | `scalepad_cm_` | Compliance per client: risks, controls, evidence, policies, frameworks, assessments, action items (regions: us, eu, ca, au) |\n| `backup-radar` | `scalepad_br_` | Read-only backup health and backup device inventory (regions: us, eu) |\n| `quoter` | `scalepad_quoter_` | Quotes, catalog, contacts, suppliers, and standalone-OAuth helpers (defaults to the ScalePad-hosted Quoter API) |\n\nAll tools are callable at any time; `scalepad_navigate` simply summarizes a domain's tools.\n\n## Credentials\n\nOne ScalePad API key (generated in the ScalePad app by an Administrator) covers every product; endpoints for products without an active subscription return `402`.\n\n### Environment variables (`AUTH_MODE=env`, default for stdio/local)\n\n| Variable | Required | Notes |\n| --- | --- | --- |\n| `SCALEPAD_API_KEY` | yes | Forwarded to `api.scalepad.com` as `x-api-key` |\n| `SCALEPAD_REGION` | no | `us` (default), `eu`, `ca`, or `au` — selects the regional base URL for ControlMap (us/eu/ca/au) and Backup Radar (us/eu); Core and Lifecycle Manager are US-only |\n| `QUOTER_CLIENT_ID` | no | Only for the standalone `api.quoter.com` OAuth path (Quoter Account > API Keys, Account Owner only) |\n| `QUOTER_CLIENT_SECRET` | no | Paired with `QUOTER_CLIENT_ID` |\n\n### Gateway headers (`AUTH_MODE=gateway`, hosted deployment)\n\n| Header | Required |\n| --- | --- |\n| `X-ScalePad-Api-Key` | yes |\n| `X-ScalePad-Region` | no |\n| `X-Quoter-Client-Id` | no |\n| `X-Quoter-Client-Secret` | no |\n\nIn gateway mode credentials are bound per request from these headers; requests to `/mcp` without `X-ScalePad-Api-Key` are rejected with a `401` JSON-RPC error before any MCP handling (they never fall through to env credentials). `/health` stays unauthenticated.\n\n## Transports\n\n- **stdio** (default): `node dist/index.js` — for Claude Desktop / CLI.\n- **HTTP**: `MCP_TRANSPORT=http node dist/index.js` — serves `/mcp` (dual-era, `legacy: 'stateless'`) plus `/health`. Configure with `MCP_HTTP_PORT` (default `8080`) and `MCP_HTTP_HOST` (default `0.0.0.0`).\n\n## Development\n\n```bash\nexport NODE_AUTH_TOKEN=$(gh auth token)   # GitHub Packages read access\nnpm ci\nnpm run build       # tsup (transpile-only; domains stay lazily importable)\nnpm test            # vitest (HTTP layer: health, 401 gate, dual-era tools/list)\nnpm run smoke       # dual-era smoke against dist/index.js\nnpm run typecheck\n```\n\nDomain handlers live in `src/domains/<slug>.ts`, each exporting `export const handler: DomainHandler` (see `src/utils/types.ts`), and are lazily loaded via `src/domains/index.ts`.\n\n## Docker\n\n```bash\ndocker build --build-arg NODE_AUTH_TOKEN=$(gh auth token) -t scalepad-mcp .\ndocker run -p 8080:8080 -e AUTH_MODE=env -e SCALEPAD_API_KEY=... scalepad-mcp\n```\n\nThe image defaults to `AUTH_MODE=gateway` for hosted deployment behind the WYRE MCP gateway.\n\n## License\n\nApache-2.0 — see [LICENSE](LICENSE).\n",
   "status": "curated"
 }

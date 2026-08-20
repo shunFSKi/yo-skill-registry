@@ -1,0 +1,69 @@
+{
+  "id": "mcp:official/io.github.jorgell23-sys/markdown-document-search",
+  "type": "mcp",
+  "name": "Document corpus",
+  "description": "Query a verified document collection: passages that answer a question, with their source.",
+  "author": "io.github.jorgell23-sys",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/jorgell23-sys/mdcx",
+    "repo": "jorgell23-sys/mdcx"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "mdcx"
+    ],
+    "env": [
+      {
+        "name": "MDCX_FILE",
+        "required": true,
+        "secret": false
+      },
+      {
+        "name": "MDCX_KEY",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-20T12:51:14.415821Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "写作",
+    "featured": false
+  },
+  "readme": "# mdcx\n\n<!-- mcp-name: io.github.jorgell23-sys/markdown-document-search -->\n\n[![PyPI](https://img.shields.io/pypi/v/mdcx)](https://pypi.org/project/mdcx/) [![License](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22015991.svg)](https://doi.org/10.5281/zenodo.22015991)\n\nConvert a document collection to verified Markdown, package it into a single\nencrypted file, and make it queryable by agents through the Model Context\nProtocol.\n\n## The problem\n\nAn agent answering questions about a document collection has two options. It can\nreceive the documents in its context window, which is expensive and bounded by\nthe window size. Or it can query a component that already knows where each item\nis.\n\nMeasuring one specific query — where the minimum pipe diameter to be modelled in\n3D is stated — over a real collection of 99 documents and 180 MB, using the\ncl100k_base tokenizer:\n\n| | Model tokens | Local tokens |\n|---|---|---|\n| Reading the originals | **2,265,488** | 2,265,327 |\n| Querying the package | **435** | 2,688,861 |\n\nThe 435 comprise 20 for the question, 274 for the retrieved passage and 141 for\nthe answer.\n\nThe first row costs the entire collection for a concrete reason: a PDF cannot be\nsearched, it is a binary, and without prior conversion there is no way to know\nwhich of the 99 documents holds the answer. They all have to be extracted and\nread.\n\nThis is one measurement, not an average: the saving depends on how much text an\nanswer requires. What does not vary is the shape of the change. The work does not\ndisappear, it moves from the context window — which is billed and finite — to the\nCPU, which is not. That is why the local column rises rather than falls.\n\n## The three stages\n\n**Conversion.** Each document is converted to Markdown and checked against the\ntext the original actually exposes, read with a library independent from the\nengine that performed the conversion. Content the structured engine omits is\nappended verbatim rather than reported as lost.\n\nOver the collection used during development — 99 documents, 1,144,553 reference\nwords — 594 words were not recovered, a global coverage of 99.948%. Of the 184\ndocuments exposing text, 116 came out at exactly 100% and none below 99.5%. The\nremaining four are scanned drawings containing no text at all in the file: they\nwere read by optical character recognition and are marked as unverifiable,\nbecause no text original exists to measure them against.\n\n**Packaging.** The corpus, its search index and the provenance of every passage\nfit into a single `.mdcx` file, encrypted with AES-256-GCM, whose header can be\nread without the key. From 8.8 MB of Markdown to 3.9 MB in one file.\n\n**Retrieval.** A query returns the passages that answer it with their exact\nsource. Over the 20 real queries used for tuning, the correct document appears\nwithin the top five results in 19 cases and within the top ten in all 20.\n\n## Installation\n\nThe package separates querying from conversion, because they have very different\nrequirements.\n\n| Command | Installs | Size |\n|---|---|---|\n| `pip install mdcx` | query and read `.mdcx` packages | ~10 MB |\n| `pip install \"mdcx[mcp]\"` | the above plus the MCP server | ~50 MB |\n| `pip install \"mdcx[convert]\"` | document conversion (Docling, PyTorch) | ~1.4 GB |\n| `pip install \"mdcx[all]\"` | everything, including OCR | ~1.5 GB |\n\nConversion is what pulls in the heavy dependencies. Someone who receives an\n`.mdcx` file and only needs to query it installs neither Docling nor PyTorch.\n\n## Converting a collection\n\n```\npip install \"mdcx[convert]\"\nmdcx-convert --input ./Documents --output ./Documents_md\n```\n\nThe output mirrors the input directory structure, adds a global index, and\nrecords for each file the coverage achieved against its original.\n\n## Packaging and querying\n\n```\nmdcx pack --output ./Documents_md --target corpus.mdcx --key \"...\"\nmdcx info corpus.mdcx\nmdcx search corpus.mdcx \"where is the minimum diameter stated\" --key \"...\"\nmdcx export corpus.mdcx --target ./restored --key \"...\"\n```\n\n`info` reads the header without the key, so the issuer and the integrity of a\nfile can be checked before opening it. `export` rebuilds the original folder: a\nformat that cannot be left is a trap, however well intended.\n\n## Using it as an MCP server\n\nThe server requires Python and this package. It does not require the conversion\nstack, so the footprint is about 50 MB.\n\n```json\n{\n  \"mcpServers\": {\n    \"mdcx\": {\n      \"command\": \"python\",\n      \"args\": [\"-m\", \"mdcx.mcp_server\"],\n      \"env\": {\n        \"MDCX_FILE\": \"/path/to/corpus.mdcx\",\n        \"MDCX_KEY\": \"package-key\"\n      }\n    }\n  }\n}\n```\n\nAlternatively, with [uv](https://docs.astral.sh/uv/) the server runs without a\nprior installation, which is the usual arrangement for Python MCP servers:\n\n```json\n{\n  \"mcpServers\": {\n    \"mdcx\": {\n      \"command\": \"uvx\",\n      \"args\": [\"--from\", \"mdcx[mcp]\", \"python\", \"-m\", \"mdcx.mcp_server\"],\n      \"env\": {\n        \"MDCX_FILE\": \"/path/to/corpus.mdcx\",\n        \"MDCX_KEY\": \"package-key\"\n      }\n    }\n  }\n}\n```\n\nThree tools are exposed. `search` returns the passages answering a question, each\nwith its source document and portable path. `info` describes the corpus and the\nfidelity of its conversion. `document` returns a full document when passages are\nnot enough.\n\nThe server verifies the package before it starts listening, so a wrong path or\nkey is reported immediately rather than on the first query.\n\n## Tests\n\n```\npip install pytest\npython -m pytest tests/ -v\n```\n\nThe suite covers hostile inputs: empty and corrupted files, names in other\nalphabets, malformed queries including SQL injection attempts, truncated and\ntampered packages, and compaction against content loss.\n\n## Paths\n\nNo output contains absolute paths. Every document is identified by a pseudopath\nbeginning with `@/`, resolved against the folder or package containing it, so a\ncorpus remains valid wherever it is stored: local disk, network share or cloud.\n\n## Signing\n\nA package can be signed so that its issuer can be proven rather than merely\ndeclared. The signature covers the digest of the encrypted body, so it attests\nboth origin and content, and is verified without the encryption key.\n\n```\nmdcx keygen\nmdcx pack --output ./Documents_md --target corpus.mdcx --key \"...\" \\\n          --issuer \"Acme Ltd\" --signing-key <private-key>\nmdcx verify corpus.mdcx --public-key <public-key>\n```\n\n\nVerification also requires the body to be intact: a signature covering only the\nrecorded digest would otherwise accept a package whose contents had been replaced\nwhile its header was left untouched.\n\nThe issuer field alone is free text and proves nothing. Only a signature does.\n\n## Encryption\n\nThe package encrypts at rest and decrypts in memory when opened; nothing is\nwritten to disk in clear. This protects a file in transit. It is not the same as\nsearching over encrypted data without ever decrypting it, which is a separate\nfield with documented leakage attacks and per-query costs measured in seconds.\n\nThe key is derived with scrypt, which makes guessing slow: about 8 attempts per\nsecond, each requiring 32 MB of memory, which prevents parallelisation on a GPU.\nEven so, **the real strength is the passphrase**: a dictionary password falls in\na day.\n\n## Authorship\n\nConceived and directed by **Jorge Ellena G.**, programmed with the assistance of\nClaude (Anthropic).\n\nEvery decision in this package was made against measurements rather than\nconvention: which conversion engine to use, which licence permits which, how to\nrank a search, which optimisations to accept and which to discard. Several were\ndiscarded precisely because they were measured — reducing the search candidate\npool appeared to be ten times faster and in fact lowered accuracy from 19 to 17\nout of 20 — and those measurements are recorded alongside the decisions they\njustify.\n\n## Citation\n\nArchived on Zenodo with a permanent identifier. The concept DOI always resolves\nto the latest version:\n\n    https://doi.org/10.5281/zenodo.22015991\n\n## Licence\n\nApache 2.0. The software may be used, modified and sold, provided the copyright\nnotice is retained.\n\nPyMuPDF was deliberately avoided: its AGPL licence would require anyone using\nthis software to publish their own under AGPL, including those offering it only\nas a network service.\n",
+  "status": "curated"
+}

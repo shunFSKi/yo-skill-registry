@@ -1,0 +1,57 @@
+{
+  "id": "mcp:official/io.github.GigantesHJI/securedact-mcp",
+  "type": "mcp",
+  "name": "Securedact MCP",
+  "description": "Local-first privacy MCP server for sensitive AI workflows",
+  "author": "io.github.GigantesHJI",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/GigantesHJI/securedact-mcp",
+    "repo": "GigantesHJI/securedact-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "securedact-mcp"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-20T09:06:40.757105Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Securedact MCP\n\n<!-- mcp-name: io.github.GigantesHJI/securedact-mcp -->\n\nSecuredact MCP is an Apache-2.0 local MCP server and reusable Python privacy\nengine. It detects sensitive text, applies versioned policies, redacts locally,\nand validates residual output before marking sanitized content approved.\n\n> MCP mode does not automatically intercept every prompt. The host must invoke\n> the tool and send only `sanitized_text` when `status == \"ok\"`; a misconfigured\n> or malicious MCP host can bypass that ordinary MCP workflow. Provider-native\n> enforced hooks are separate integration assets: when a supported provider\n> invokes such a hook at its prompt lifecycle boundary, it can apply the same\n> deterministic decision before normal model processing. See [SecuRedact\n> Enforced](docs/enforced.md).\n\n## Safe default workflow\n\nUse `prepare_for_external_ai` for normal external-AI preparation:\n\n```json\n{\n  \"text\": \"Contact alex@example.test\",\n  \"policy\": \"strict_external_ai\",\n  \"language\": \"auto\",\n  \"response_mode\": \"minimal\"\n}\n```\n\nApproved response:\n\n```json\n{\n  \"schema_version\": \"1\",\n  \"status\": \"ok\",\n  \"sanitized_text\": \"Contact [EMAIL_1]\",\n  \"counts\": {\"email\": 1},\n  \"policy\": \"strict_external_ai\",\n  \"policy_version\": 1,\n  \"policy_digest\": \"...\",\n  \"reason_codes\": []\n}\n```\n\n`review_required` and `blocked` responses never contain approved\n`sanitized_text`. Minimal responses contain no original text, raw entity values,\nmapping, exception body, stack trace, model path, or restoration handle unless\n`restore_capable` was explicitly selected.\n\n## Architecture and trust boundary\n\n```mermaid\nflowchart LR\n    H[\"MCP host\"] --> M[\"Securedact MCP\"]\n    M --> D[\"deterministic detectors\"]\n    M --> C[\"contextual detectors\"]\n    D --> P[\"policy engine\"]\n    C --> P\n    P --> R[\"redactor\"]\n    R --> V[\"residual validator\"]\n    V --> O[\"approved sanitized output\"]\n    O --> W[\"host-controlled downstream workflow\"]\n    H -. \"host may bypass MCP\" .-> W\n```\n\nThe server has no provider clients, OpenAI-compatible proxy, reverse proxy,\nwebsite, desktop chatbot, provider credentials, or provider-specific forwarding.\nSee [ADR 0001](docs/adr/0001-mcp-server-product-boundary.md) and the\n[threat model](docs/threat-model.md).\n\n## Tools\n\n| Tool | Intended use | Sensitive-response behavior |\n|---|---|---|\n| `prepare_for_external_ai` | Recommended complete safe workflow | Minimal by default |\n| `analyze_text` | Lower-level local analysis/review | Minimal; offsets in `review`; raw values only in enabled debug mode |\n| `redact_text` | Lower-level compatibility operation | Minimal by default; explicit `legacy` mode is sensitive and deprecated |\n| `restore_text` | Consume a local opaque session | Single-use by default; direct mappings require explicit trusted legacy mode |\n| `create_safe_copy` | Write approved `.txt`/`.md` content under one configured root | Returns no mapping or absolute path |\n\nResponse modes are `minimal`, `review`, `debug`, and `restore_capable`. Debug is\ndisabled unless the process was started with\n`SECUREDACT_ENABLE_DEBUG_RESPONSES=1`; an MCP request cannot enable it. In-memory\nrestoration sessions use cryptographic random handles, bounded capacity,\nexpiration, concurrency protection, and single-use consumption. Process exit\ndestroys all sessions.\n\nSee [MCP tools](docs/mcp-tools.md), [response privacy](docs/privacy-model.md), and\n[restoration sessions](docs/restoration-sessions.md).\n\n## Installation\n\nPython `>=3.12,<3.13` is supported.\n\nFor a normal installation from PyPI:\n\n```powershell\npy -3.12 -m pip install \"securedact-mcp[ml]\"\nsecuredact-mcp setup\n```\n\nOn Linux or macOS, use `python3.12 -m pip install \"securedact-mcp[ml]\"`;\n`python -m pip install \"securedact-mcp[ml]\"` is also appropriate when `python`\nalready selects a supported 3.12 environment.\n\n`setup` checks the package, Python and ML dependencies, inspects local model\nstate, offers the existing consent-based model installer, runs the existing\noffline verifier, and offers the packaged Claude Code and Gemini CLI\nintegrations when those hosts are detected. It uses the providers' official\nplugin/extension commands and is safe to rerun. It does not call a provider\nmodel API, accept provider trust automatically, or download a contextual model\nunless the user explicitly selects model setup and accepts the existing\nupstream prompt.\n\nManual model commands remain available for advanced or unattended operation:\n\n```powershell\nsecuredact-mcp install\nsecuredact-mcp models verify\nsecuredact-mcp\n```\n\nThe last command starts a local `stdio` server. Standard output is reserved for\nMCP protocol messages. `securedact-mcp setup --non-interactive` reports state\nwithout implying upstream acceptance or configuring a new provider. Use\n`--host claude`, `--host gemini`, or `--host all` for targeted interactive\nprovider setup.\n\n### Developer/source installation\n\nTo work from a reviewed source checkout instead:\n\n```powershell\ngit clone https://github.com/GigantesHJI/securedact-mcp.git\ncd securedact-mcp\npython -m pip install \".[ml]\"\nsecuredact-mcp setup\n```\n\nNo model checkpoint is included in the repository or wheel, and startup never\ndownloads one. Securedact does not redistribute these model weights. Upstream\nmodel weights retain their own licenses and are not relicensed by Apache-2.0.\nSee [model installation](docs/model-installation.md) and [third-party\nlicenses](docs/third-party-licenses.md).\n\nDeterministic-only local development must be explicitly selected:\n\n```powershell\n$env:SECUREDACT_REQUIRE_FLAIR = \"0\"\nsecuredact-mcp\n```\n\nProduction defaults to requiring contextual capability and fails closed while a\nconfigured model is missing, loading, corrupt, or unavailable.\n\n## Host packages\n\nTested configuration assets and safe-workflow instructions are under\n`integrations/` for Codex, Cursor, and Windsurf. The automated MCP client harness\nvalidates server startup, tool listing, calls, minimal response shape, stdout\nintegrity, and shutdown. It does not prove that a real host invokes the tool for\nevery prompt. See the [compatibility evidence](docs/compatibility.md).\n\n## Policies and Python API\n\nBuilt-ins include `default`, `strict_external_ai`, `gdpr`, `identifiers_only`,\nand `review_all_contextual`; compatibility policies remain available. Local\norganization policy files load only from the controlled policy directory, use a\nstrict declarative schema, and cannot disable fail-closed invariants. Unknown,\nduplicate, oversized, malformed, or symlinked policies fail closed.\n\n```python\nfrom securedact_core import RedactionRequest, SecuredactEngine\n\nengine = SecuredactEngine.from_environment()\nresult = engine.prepare(\n    RedactionRequest(\n        text=\"Contact alex@example.test\",\n        policy=\"strict_external_ai\",\n    )\n)\n```\n\n`from_environment()` preserves the contextual-model requirement. Standalone\ndeterministic development requires `SECUREDACT_REQUIRE_FLAIR=0`; applications may\nalso inject tested detector implementations. See [public API](docs/public-api.md)\nand [policies](docs/policies.md).\n\n## Reproducible development\n\nThe committed `uv.lock` resolves runtime, ML, development, benchmark, and\nsecurity extras for Python 3.12.\n\n```powershell\nuv sync --frozen --extra dev --extra benchmark\nuv run python scripts\\verify.py\n```\n\nNever use real personal information, private documents, credentials, customer\nlogs, or model weights in tests, issues, screenshots, fixtures, or pull requests.\nSee [CONTRIBUTING.md](CONTRIBUTING.md).\n\n## Evaluation and performance\n\n```powershell\nuv run python -m securedact_eval quality --mode deterministic --gate `\n  --thresholds benchmarks\\thresholds.json `\n  --baseline benchmarks\\baselines\\quality-deterministic.json\nuv run python -m securedact_eval performance --mode deterministic\n```\n\nThe versioned synthetic corpus reports exact and relaxed span precision, recall,\nF1, false-positive and false-negative rates, per-entity/language/domain/split\nresults, action/category accuracy, and bootstrap recall intervals. True negatives\nare document-level negative examples, not token-level safety. The GDPR-related\nsuite is detection evaluation, not legal compliance certification. Real Flair\nand GPU benchmarks require an explicitly configured local model and are not\nordinary CI. See [benchmarking](docs/benchmarking.md).\nThe [benchmark framework](benchmarks/README.md) documents local data tiers and large profiles;\nthe [migration plan](docs/benchmark-migration.md) defines its future extraction boundary. For a\nfailure before GitHub executes repository steps, use the\n[CI troubleshooting decision tree](docs/ci-troubleshooting.md). Local success does not replace a\nrequired GitHub check.\n\n## Security and limitations\n\n- No prompt, finding, mapping, restoration handle, secret, model input, or\n  restored output is logged by application code.\n- Deterministic and contextual detection can miss novel, ambiguous, or\n  adversarial disclosure; coreference and universal obfuscation resistance are\n  not claimed.\n- Review offsets let a trusted local client with the original input reconstruct\n  a value; keep review responses local.\n- Host behavior and downstream provider behavior are outside the trust boundary.\n- Repository security settings documented in files still require administrator\n  verification.\n\nReport vulnerabilities privately using [SECURITY.md](SECURITY.md). Do not put\nvulnerability details or real data in a public issue.\n\n## License\n\nOriginal repository source and documentation are licensed under the\n[Apache License 2.0](LICENSE.md). Copyright attribution is recorded in\n[NOTICE](NOTICE). Third-party dependencies and model weights retain their own\nlicenses.\n",
+  "status": "curated"
+}

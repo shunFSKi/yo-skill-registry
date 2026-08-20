@@ -15,7 +15,7 @@
     "command": "npx",
     "args": [
       "-y",
-      "ghcr.io/wyre-technology/mailprotector-mcp:v1.0.0"
+      "ghcr.io/wyre-technology/mailprotector-mcp:v1.0.1"
     ],
     "env": [
       {
@@ -52,8 +52,8 @@
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-08-18T16:32:32.118Z",
-    "score": 42
+    "pushed_at": "2026-08-20T12:15:11.978797Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -85,6 +85,6 @@
     "category": "运维",
     "featured": false
   },
-  "readme": null,
+  "readme": "# mailprotector-mcp\n\nMCP server for [Mailprotector](https://api.mailprotector.com/) — email security management\nfor MSPs (CloudFilter, Bracket, SafeSend, XtraMail): customers, domains, users, quarantine,\nallow/block rules, logs, configuration, and the full long-tail API via a router.\n\nBuilt on the MCP **2026-07-28** spec via the split v2 SDK\n(`@modelcontextprotocol/server` / `/node` / `/client` `^2.0.0-beta.5`) with **dual-era\nserving**: one shared `McpServerFactory` behind `createMcpHandler({ legacy: 'stateless' })`\nanswers both 2025-era `initialize`-handshake clients (the WYRE gateway today) and modern\n2026-07-28 envelope clients — with an identical, deterministic 22-tool surface for every\ncaller. Ships as a GHCR container only (no MCPB bundle).\n\n## Tools (22 first-class + routed long tail)\n\n**Router**: `mailprotector_status`, `mailprotector_list_categories`,\n`mailprotector_list_category_tools`, `mailprotector_execute_tool`.\n\n**Promoted reads**: `mailprotector_customers_list/get`, `mailprotector_domains_list/get`,\n`mailprotector_users_list/get/find_by_address`, `mailprotector_user_groups_list`,\n`mailprotector_messages_list`, `mailprotector_allow_block_rules_list`,\n`mailprotector_logs_list`, `mailprotector_configuration_get`.\n\n**Promoted writes**: `mailprotector_customers_create`, `mailprotector_domains_create`,\n`mailprotector_messages_release` / `release_many` (⚠ HIGH-IMPACT),\n`mailprotector_allow_block_rules_create` (⚠ HIGH-IMPACT), and the\n⚠ DESTRUCTIVE — IRREVERSIBLE `mailprotector_allow_block_rules_delete`.\n\n**Router categories** (52 routed operations via `mailprotector_execute_tool`):\n`resellers` (CRUD), `customers` (update/delete), `domains`\n(update/delete/move/aliases), `user_groups` (CRUD + services), `users`\n(create/create_many/update/delete/reset_password/aliases), `managers` (CRUD +\nnotification destinations), `configuration` (update), `statements`,\n`email_routing` (destinations/sources for domain|user_group), `user_syncs`\n(CRUD + schedule + filters), `notifications` (user notification destinations),\n`results` (find_by_code). Every routed delete is ⚠ DESTRUCTIVE and\nconfirmation-gated; discover schemas with `mailprotector_list_category_tools`.\n\n### Scoped tools\n\nMailprotector's hierarchy is Provider → Reseller → Customer → Domain → User Group → User,\nand many operations exist at several scopes. Scoped tools take `scope`\n(`reseller | customer | domain | user_group | user`, per-tool subsets) plus `scope_id`;\n`scope_id` defaults to the **bound reseller** when `scope` is `\"reseller\"`.\n\n### Delete confirmations (MRTR elicitation)\n\nEvery delete flows through the SDK v2 MRTR seam: the handler returns\n`input_required`, interactive clients see a confirmation prompt, and declining\ncancels the delete. Callers that declared no elicitation capability — including\nstateless 2025-era callers such as the WYRE Conduit gateway — **fall back to\nproceeding** per the integration contract: elicitation here is purely additive,\nand the gateway enforces destructive-tool access with its own server-side\nper-tool classification gate.\n\n## Credentials\n\n| Env var (env mode) | Gateway header (`AUTH_MODE=gateway`) | Notes |\n|---|---|---|\n| `MAILPROTECTOR_API_KEY` | `X-Mailprotector-Api-Key` | Per manager-role, from the web console profile page. Sent as `Authorization: Bearer`. |\n| `MAILPROTECTOR_RESELLER_ID` | `X-Mailprotector-Reseller-Id` | The MSP's reseller id — the default scope for scoped tools. |\n| `MAILPROTECTOR_BASE_URL` (optional) | — | Default `https://emailservice.io`. |\n\nIn gateway mode a request missing either header (or with a non-numeric reseller id) is\nanswered `401` (JSON-RPC error `-32001`) before the MCP handler runs — it never falls\nthrough to env credentials.\n\n## Running\n\n```bash\nexport NODE_AUTH_TOKEN=$(gh auth token)   # GitHub Packages auth for @wyre-technology/*\nnpm install\nnpm run build\nnode dist/index.js                        # stdio (default)\nMCP_TRANSPORT=http node dist/index.js     # HTTP on :8080 (/mcp, /health)\nnode scripts/smoke-dual-era.mjs           # proves both protocol eras serve the same tools\n```\n\nDocker (linux/amd64 per fleet law):\n\n```bash\ndocker build --platform linux/amd64 --build-arg NODE_AUTH_TOKEN=$(gh auth token) -t mailprotector-mcp .\ndocker run -p 8080:8080 -e AUTH_MODE=env \\\n  -e MAILPROTECTOR_API_KEY=... -e MAILPROTECTOR_RESELLER_ID=... mailprotector-mcp\n```\n\n## Wire notes (expected dual-era behavior)\n\n- Legacy-era POST responses are SSE-framed (`text/event-stream`) — parse the last\n  `data:` line.\n- Legacy GET/DELETE session operations answer 405: stateless serving has no sessions.\n\n## License\n\nApache-2.0\n",
   "status": "curated"
 }
