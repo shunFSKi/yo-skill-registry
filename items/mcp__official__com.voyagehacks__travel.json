@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/com.voyagehacks/travel",
+  "type": "mcp",
+  "name": "VoyageHacks",
+  "description": "Travel guides plus flight, hotel, eSIM, car rental and gear links in 11 languages.",
+  "author": "com.voyagehacks",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/voyagehacks-com/mcp-server",
+    "repo": "voyagehacks-com/mcp-server"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://voyagehacks.com/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-19T22:04:55.986088Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "生活",
+    "featured": false
+  },
+  "readme": "# VoyageHacks MCP Server\n\nThe official [Model Context Protocol](https://modelcontextprotocol.io) server for\n[VoyageHacks.com](https://voyagehacks.com), a multilingual (10 languages) travel site\ncovering flights, hotels, destinations, eSIMs, travel VPNs, credit cards and travel gear.\n\n**Live endpoint:** `https://voyagehacks.com/mcp`\n\nStateless Streamable HTTP transport (JSON-RPC 2.0 over POST), no authentication, no\nsessions. Any MCP client can connect and start calling tools immediately.\n\n## Connect\n\n**Claude Code**\n\n```bash\nclaude mcp add --transport http voyagehacks https://voyagehacks.com/mcp\n```\n\n**Claude.ai / Claude Desktop:** Settings → Connectors → Add custom connector →\n`https://voyagehacks.com/mcp`\n\n**ChatGPT:** Settings → Connectors → Advanced → Developer mode, then add\n`https://voyagehacks.com/mcp` as an MCP connector (no auth).\n\n**MCP Inspector**\n\n```bash\nnpx @modelcontextprotocol/inspector https://voyagehacks.com/mcp\n```\n\n## Tools\n\n| Tool | What it does |\n| --- | --- |\n| `search_articles` | Full-text search over all articles in a given language |\n| `get_article` | Fetch one article as clean Markdown |\n| `search_travel_gear` | Search the travel gear catalog (products from every gear guide) |\n| `recommend_travel_gear` | Map a free-text trip description to a packing kit |\n| `get_flight_links` | Flight search links for a route or destination |\n| `get_hotel_links` | Hotel search links for a city |\n| `get_car_rental_links` | Car rental links |\n| `get_airport_transfer_links` | Airport taxi / transfer links |\n| `get_esim_links` | Travel eSIM links for a destination |\n| `get_travel_vpn_links` | Travel VPN links |\n| `get_credit_card_links` | Travel credit card referral links |\n| `get_booking_links` | Everything for one trip in a single call |\n\nEvery vertical tool also returns up to 4 matching VoyageHacks guides in the requested\nlanguage, so agents can cite full articles alongside the links.\n\n## Markdown for agents\n\nThe whole site is agent-readable, not just this server:\n\n- `get_article` returns any page as Markdown.\n- Any page on voyagehacks.com returns Markdown directly when requested with an\n  `Accept: text/markdown` header (edge middleware, browsers are unaffected).\n- Discovery files: [`/.well-known/mcp/server-card.json`](https://voyagehacks.com/.well-known/mcp/server-card.json),\n  [`/llms.txt`](https://voyagehacks.com/llms.txt),\n  [`/.well-known/agent-skills/`](https://voyagehacks.com/.well-known/agent-skills/index.json).\n\n## Transparency\n\nVoyageHacks is an affiliate-funded site. Booking and shopping links returned by these\ntools are tracked affiliate links (Travelpayouts, CJ Affiliate / Booking.com, Amazon\nAssociates, American Express referrals). Every tool response ships a `DISCLOSURE`\nfield stating this, and tool descriptions say it plainly. Article content itself is\nfree to read, with no paywall and no auth.\n\n## Self-hosting\n\nThis is a Cloudflare Pages Function (`functions/mcp.js`). To run your own instance:\n\n1. Deploy the `functions/` directory with a Cloudflare Pages project.\n2. The server reads its content live from the site it fronts: a Hugo build that emits\n   `/<lang>/index.json` (search index) and `/<lang>/gear.json` (gear catalog). Point\n   the `SITE` constant at your deployment.\n3. Replace the affiliate constants near the top of `mcp.js` (marker, CJ ids, Amazon\n   tag) with your own program ids.\n\nThis repository mirrors the production function. Keep the affiliate constants in sync\nwith your own site config if you fork it.\n\n## License\n\n[MIT](LICENSE)\n",
+  "status": "curated"
+}

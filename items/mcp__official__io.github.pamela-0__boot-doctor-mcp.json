@@ -1,0 +1,57 @@
+{
+  "id": "mcp:official/io.github.pamela-0/boot-doctor-mcp",
+  "type": "mcp",
+  "name": "boot-doctor-mcp",
+  "description": "Deterministic PC no-boot/no-POST diagnostics: real beep-code tables, no LLM guessing.",
+  "author": "io.github.pamela-0",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/pamela-0/boot-doctor-mcp",
+    "repo": "pamela-0/boot-doctor-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "boot-doctor-mcp"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-19T23:56:14.995062Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "写作",
+    "featured": false
+  },
+  "readme": "# boot-doctor-mcp\n\n<!-- mcp-name: io.github.pamela-0/boot-doctor-mcp -->\n\n[![PyPI](https://img.shields.io/pypi/v/boot-doctor-mcp)](https://pypi.org/project/boot-doctor-mcp/) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)\n\nA real MCP server for PC no-boot / no-display / no-POST troubleshooting. **No LLM guessing at hardware causes** — a plain, deterministic rule engine plus real, sourced BIOS beep-code tables.\n\n## Why deterministic, not an LLM\n\nNobody wants a language model hallucinating \"your GPU is dead\" when it isn't. Hardware advice where being wrong costs real money and real time deserves a fixed, auditable rule set, not a plausible-sounding guess. Every answer this tool gives traces back to a real source or a fixed, testable rule — never an invented explanation.\n\n## Tools\n\n### `diagnose_symptoms(powers_on, fans_spin=None, fans_stay_running=None, display_output=False, tried_cmos_reset=False, tried_minimal_config=False, tried_different_cable_or_monitor=False)`\n\nReal, ranked next troubleshooting steps, given what's already been tried — the same power-stage → CMOS reset → minimal-config-test → swap-test sequence a real technician runs, ordered by what's cheapest to rule out first. Not a diagnosis of the exact broken part; a real repair often still needs a swap test against known-good parts, and this tool says so explicitly rather than pretending symptom-matching alone can replace it.\n\n### `lookup_beep_code(bios_type, pattern)`\n\nLooks up a beep pattern (e.g. `\"10 short\"`, `\"1 long, 2 short\"`, `\"continuous\"`) against real, sourced BIOS beep-code tables.\n\n`bios_type` is one of:\n- `ami_legacy` — classic AMIBIOS\n- `ami_aptio` — modern AMI Aptio (UEFI), kept **separate on purpose**: legacy AMIBIOS and Aptio use genuinely different codes for the same beep counts, a mistake common in beginner troubleshooting guides that merge them into one table\n- `award_phoenix` — Award/Phoenix BIOS\n\nReturns real information, not a fabricated guess, when the exact pattern isn't in the table — modern boards increasingly have no speaker at all and use debug LEDs instead, so \"no match\" is itself a real, honest result.\n\n## Sources\n\nBeep-code data fetched and cross-referenced live (not from training-data memory) from [IONOS](https://www.ionos.com/digitalguide/server/know-how/bios-beep-codes/) and [Thomas-Krenn](https://www.thomas-krenn.com/en/wiki/AMI_BIOS_Beep_Codes_Overview). Real, stated limitation: OEMs (HP, Dell, ASUS, etc.) sometimes customize or extend these codes, and modern boards increasingly skip the speaker entirely in favor of debug LEDs — a documented pattern not matching here doesn't necessarily mean nothing is wrong.\n\n## Install\n\n```bash\npip install boot-doctor-mcp\n```\n\nAdd to your MCP client config (e.g. Claude Code):\n\n```bash\nclaude mcp add boot-doctor-mcp -- boot-doctor-mcp\n```\n\nOr run directly for local testing:\n\n```bash\npython -m boot_doctor_mcp.server\n```\n\n## Development\n\n```bash\npip install -e \".[dev]\"\npytest\n```\n",
+  "status": "curated"
+}

@@ -1,0 +1,57 @@
+{
+  "id": "mcp:official/io.github.pamela-0/safe-fix-mcp",
+  "type": "mcp",
+  "name": "safe-fix-mcp",
+  "description": "Finds real dead code and proposes a safe, test-gated branch+PR to remove it.",
+  "author": "io.github.pamela-0",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/pamela-0/safe-fix-mcp",
+    "repo": "pamela-0/safe-fix-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "safe-fix-mcp"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-19T23:19:53.941872Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# safe-fix-mcp\n\n<!-- mcp-name: io.github.pamela-0/safe-fix-mcp -->\n\n[![PyPI](https://img.shields.io/pypi/v/safe-fix-mcp)](https://pypi.org/project/safe-fix-mcp/) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)\n\nA real MCP server that finds dead code in a Python repository and proposes a **branch + PR** for the one class of finding that's actually safe to auto-remove: unused imports on a single-name import line. Everything else it finds — unused functions, classes, unused dependencies — stays report-only. A human always merges. This tool never merges anything itself.\n\n## Why this exists\n\nMost \"dead code\" tools stop at reporting. The ones that go further usually delete with no safety net. This does neither: it drafts a real, minimal, reviewable PR, gated on the target repo's own full test suite actually passing after the removal — not a heuristic, a real `pytest` run. If the suite fails, nothing is committed or pushed; the repo is left exactly as it started.\n\n## Tools\n\n### `scan_dead_code(repo_path=\".\", min_confidence=60)`\n\nRead-only. Runs [vulture](https://github.com/jendrikseipp/vulture) (dead code) and [deptry](https://github.com/fpgmaas/deptry) (dependency issues) and returns a human-readable list of findings. Never modifies anything.\n\n### `propose_removal_pr(repo_path=\".\")`\n\n- Refuses on a dirty working tree — never edits on top of uncommitted work.\n- Filters to unused imports at ≥90% vulture confidence, on single-name import lines only (`from x import y, z` is skipped — removing the whole line would silently remove `z` too).\n- Creates a real branch, removes the qualifying imports, runs the repo's real full test suite.\n- Only on a real pass: commits, pushes, and tries to open a PR via `gh pr create`.\n- If `gh` isn't installed/authenticated, the branch is still committed and pushed for real — only PR creation degrades, with the real error returned so you can open it manually.\n\n## Install\n\n```bash\npip install safe-fix-mcp\n```\n\nAdd to your MCP client config (e.g. Claude Code):\n\n```bash\nclaude mcp add safe-fix-mcp -- safe-fix-mcp\n```\n\nOr run directly for local testing:\n\n```bash\npython -m safe_fix_mcp.server\n```\n\nInstalling from source instead of PyPI:\n\n```bash\npip install -e .\n```\n\n## Requirements\n\n- Python ≥ 3.10\n- `git` on PATH\n- `gh` (GitHub CLI) on PATH and authenticated, if you want `propose_removal_pr` to actually open the PR — without it, the branch still gets pushed for real, and the tool tells you to open the PR by hand.\n\n## Development\n\n```bash\npip install -e \".[dev]\"\npytest\n```\n\n## Known limitation\n\n`vulture` flags `scan_dead_code`/`propose_removal_pr` themselves as \"unused\" — a known false-positive class, not a real bug: they're dispatched by the `@mcp.tool()` decorator at runtime, not called directly anywhere in the source, so static call-graph analysis can't see the real caller (the MCP framework itself).\n\n## Verifying it for real\n\n`scripts/verify_real_client.py` launches the packaged server as a real subprocess and talks to it with the real `mcp.client.ClientSession` — the same path a real MCP client uses. Useful as a smoke test after any change:\n\n```bash\npython scripts/verify_real_client.py\n```\n",
+  "status": "curated"
+}

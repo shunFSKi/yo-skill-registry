@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/com.saveproptax/saveproptax",
+  "type": "mcp",
+  "name": "SavePropTax",
+  "description": "Free check of a California home for a Proposition 8 property tax reduction, plus owner filing.",
+  "author": "com.saveproptax",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/atifnayeem-oss/saveproptax-mcp",
+    "repo": "atifnayeem-oss/saveproptax-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://saveproptax.com/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-19T20:22:07.74149Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# SavePropTax MCP server\n\nA remote MCP server and an open HTTP API for California property tax appeals.\n\nAsk it whether a home is over-assessed. If recent comparable sales support a\nlower value, it prepares the county's own Proposition 8 decline-in-value review\nform and emails a signing link to the homeowner. The owner signs and pays a flat\n$29. Checking is free, keyless, and can only ever lower a tax bill, never raise\nit.\n\nThere is nothing to install. The server is hosted:\n\n```\nhttps://saveproptax.com/mcp\n```\n\nStreamable HTTP, no authentication, stateless.\n\n## Add it to a client\n\n**Claude:** Settings, then Connectors, then Add custom connector, and paste the\nURL above.\n\n**ChatGPT:** Settings, then Connectors (or Apps), then add an MCP server by URL,\nwhere your plan supports custom connectors.\n\n**Claude Code:**\n\n```bash\nclaude mcp add --transport http saveproptax https://saveproptax.com/mcp\n```\n\n**Any MCP client:** point a streamable-HTTP transport at the URL. No token.\n\n## Tools\n\n| Tool | Arguments | What it does |\n| --- | --- | --- |\n| `check_property_tax_savings` | `address` (required), `unit` | Free check of one California home. Returns a status, the current assessment, an opinion of value from recent comparable sales, and estimated annual savings. A qualifying result carries a `continueToken`. |\n| `start_filing` | `continueToken`, `ownerName`, `ownerPhone`, `ownerEmail` | Prepares the county form and emails the signing link to the owner. The link is never returned to the client. |\n| `get_filing_status` | `docId` | Coarse status only: `awaiting_signature`, `awaiting_payment`, `filed`, `delivered`, `unknown`. No personal information. |\n\n## The rule that shapes everything\n\n**An agent never handles the signature or the money.** The signing link goes to\nthe owner's inbox. The owner reviews the county's own form, signs it, and pays.\nThe worst an anonymous caller can do is spend a free check and send a real\nhomeowner a legitimate link to their own property.\n\n## HTTP API\n\nThe same capability without MCP. Keyless.\n\n```bash\ncurl -s https://saveproptax.com/api/agent/check \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"address\": \"123 Main St, Walnut Creek\"}'\n```\n\nA qualifying response:\n\n```json\n{\n  \"status\": \"qualifies\",\n  \"message\": \"This property qualifies: recent comparable sales support a value of $915,000 against the $1,024,000 assessment, an estimated $1,204 per year in tax savings; filing costs a flat $29 and the owner signs and pays.\",\n  \"property\": { \"address\": \"123 MAIN ST, WALNUT CREEK CA\", \"county\": \"Contra Costa\" },\n  \"estimate\": { \"assessment\": 1024000, \"opinion\": 915000, \"estimatedAnnualSavings\": 1204 },\n  \"filing\": { \"feeUsd\": 29, \"deadline\": \"November 30, 2026\" },\n  \"continueToken\": \"eyJ...valid 24 hours\",\n  \"cached\": false,\n  \"checkedAt\": \"2026-08-19T18:00:00.000Z\"\n}\n```\n\nThen hand the token and the owner's details to prepare:\n\n```bash\ncurl -s https://saveproptax.com/api/agent/prepare \\\n  -H 'Content-Type: application/json' \\\n  -d '{\n    \"continueToken\": \"eyJ...\",\n    \"ownerName\": \"Jane Homeowner\",\n    \"ownerPhone\": \"925 555 0100\",\n    \"ownerEmail\": \"jane@example.com\"\n  }'\n```\n\n```json\n{ \"docId\": \"d0c1d2...\", \"status\": \"awaiting_signature\",\n  \"statusUrl\": \"https://saveproptax.com/api/agent/status?doc=d0c1d2...\",\n  \"ownerEmailSent\": true }\n```\n\nPoll the status endpoint for progress:\n\n```bash\ncurl -s 'https://saveproptax.com/api/agent/status?doc=d0c1d2...'\n```\n\n### Every status to handle\n\n| status | meaning |\n| --- | --- |\n| `qualifies` | Comparable sales support a defensibly lower value, savings exceed $500 a year, and the county window is open. The only status carrying a `continueToken`. |\n| `fair_assessment` | Sales do not support a value below the current assessment this year. |\n| `not_enough_data` | Too few closely matched recent sales for a defensible filing. |\n| `not_residential` | The parcel's county record is not residential. |\n| `window_closed` | The county's review window has closed; `filing.reopens` says when it returns. |\n| `county_not_served` | A California county not covered yet. |\n| `already_filed` | A review request was already filed for this property this year. |\n| `address_not_found` | Retry with the city included. |\n| `needs_more_info` | The message says what is missing, for example a unit number. |\n| `busy` | Heavy load: fresh checks briefly paused, cached answers still serve. Retry shortly. |\n\nEvery `message` is a relayable one-sentence explanation you can pass to your user\nas written.\n\n### Optional key\n\n```bash\ncurl -s https://saveproptax.com/api/agent/register \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"agentName\": \"MyAssistant\", \"contactEmail\": \"dev@example.com\"}'\n```\n\nReturns a key immediately, no approval step. Send it as the `x-agent-key` header\nfor double the fresh-check headroom and named attribution. Anonymous use works\nfine; registration is identity, not permission.\n\n## Rate limits\n\n- **Per-address cache, 24 hours.** Repeat checks are instant, cost us nothing,\n  and come back marked `cached: true`. Cached answers are never rate limited.\n- **Hourly fresh-check budget.** Fresh checks buy real records and sales data,\n  so they share an hourly pool. Under load, fresh checks answer `busy` while\n  cached answers still serve. The pipeline never degrades to a cheaper valuation\n  method; it only delays.\n- **Prepare gating.** Requires a token from a real check, and is limited to\n  three signing links per owner inbox per day.\n\n## Coverage\n\nAlameda, Contra Costa, Los Angeles, Marin, Napa, Placer, Riverside, Sacramento,\nSan Benito, San Bernardino, San Francisco, San Joaquin, San Mateo, Santa Clara,\nSanta Cruz, Solano, Sutter, and Yolo counties. Windows are seasonal per county;\ncurrent deadlines are at <https://saveproptax.com/counties.html>.\n\n## More\n\n- Full reference: <https://saveproptax.com/agents>\n- OpenAPI: <https://saveproptax.com/openapi.json>\n- llms.txt: <https://saveproptax.com/llms.txt>\n- Registry metadata: [`server.json`](./server.json)\n- Partnerships and volume arrangements: support@saveproptax.com\n\nSavePropTax prepares review requests from public records and the county's own\nforms; owners review and sign them. We are not a law firm, and nothing here is\nlegal or tax advice. Reductions are decided solely by the County Assessor.\n\n## License\n\nMIT. See [LICENSE](./LICENSE). The license covers this repository's contents;\nthe hosted service is governed by the terms at\n<https://saveproptax.com/legal.html>.\n\n## Run locally (stdio)\n\nThe hosted server needs no install. For stdio-only MCP clients, this repo ships a\ndependency-free bridge (Node 18+):\n\n```json\n{\n  \"mcpServers\": {\n    \"saveproptax\": {\n      \"command\": \"node\",\n      \"args\": [\"bridge.js\"]\n    }\n  }\n}\n```\n\nOr with Docker: `docker build -t saveproptax-mcp . && docker run -i saveproptax-mcp`.\nIntrospection is answered locally; tool calls are forwarded to saveproptax.com/mcp.\n",
+  "status": "curated"
+}

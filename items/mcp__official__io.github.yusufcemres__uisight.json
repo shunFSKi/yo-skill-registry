@@ -1,0 +1,75 @@
+{
+  "id": "mcp:official/io.github.yusufcemres/uisight",
+  "type": "mcp",
+  "name": "uisight",
+  "description": "AI and human share live mobile+desktop browser sessions; measured UI findings your agent can act on",
+  "author": "io.github.yusufcemres",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/sololabstr/uisight",
+    "repo": "sololabstr/uisight"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "uisight"
+    ],
+    "env": [
+      {
+        "name": "UISIGHT_URL",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "UISIGHT_PORT",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "UISIGHT_LANG",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-19T22:05:35.20257Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "设计",
+    "featured": false
+  },
+  "readme": "# uisight\n\n**Your AI can't see the screen. You can't describe the bug. uisight fixes both.**\n\nuisight gives your AI coding agent (Claude Code, Cursor, Antigravity — anything that speaks [MCP](https://modelcontextprotocol.io)) real eyes on your web app: live mobile + desktop sessions running side by side, a measurement engine that reports *numbers* instead of vibes, and a shared panel where you and the AI look at the exact same screen.\n\nBuilt by a solo founder who got tired of taking phone screenshots, pasting them into chat, and typing \"the button looks broken, can you see it?\"\n\n![uisight live panel — desktop and mobile side by side, with per-device inspection findings](docs/assets/live-panel.png)\n*The live panel: desktop + mobile sessions of the same site, URL-synced. Inspect runs on every screen; findings come back per device. Your AI sees this exact view through MCP.*\n\n## What makes it different\n\n| | Multi-viewport browsers (Polypane etc.) | Browser-automation MCPs (Playwright MCP etc.) | **uisight** |\n|---|---|---|---|\n| Human + AI share one live session | — | — | ✅ |\n| Measurement engine (reports `1.14:1`, not \"looks low\") | for humans | — | ✅ **as text, for AI** |\n| Device × theme matrix (mobile/desktop, light/dark) | ✅ | — | ✅ |\n| Human pins a bug → AI reads note + screenshot | — | — | ✅ |\n\nThe measurement engine is the heart: instead of your AI burning tokens squinting at screenshots, `inspect` returns findings like\n\n```\n[mobile · Pixel 7 · light] https://yourapp.com/\n  INVISIBLE TEXT 1.04:1 — span.bg-gradient-to-r \"your headline\" (text rgba(255,255,255,.5) / bg rgb(247,247,248))\n  BUTTON a.text-white \"Get Started\" → text/background contrast 3.35:1\n  touch target below 44px 180x23 — \"read the guide\"\n```\n\nText findings are cheap, precise, and directly actionable — your AI fixes the exact selector instead of guessing.\n\n## Quickstart\n\n```bash\n# one-shot audit: PNGs + gallery + report for iPhone/Pixel/desktop, light+dark\nnpx uisight https://yourapp.com --theme both\n\n# live panel: mobile + desktop side by side, you browse, AI watches (and vice versa)\nnpx uisight-panel http://localhost:3000\n```\n\nThe one-shot audit produces a device × theme gallery with findings per card:\n\n![uisight gallery — 4 devices × light/dark with findings per card](docs/assets/gallery.png)\n\n### Hook it into your AI (MCP)\n\n```bash\n# Claude Code\nclaude mcp add --scope user uisight -- npx -y uisight-mcp\n```\n\nFor Cursor / Antigravity / other MCP hosts, add to your MCP config:\n\n```json\n{ \"mcpServers\": { \"uisight\": { \"command\": \"npx\", \"args\": [\"-y\", \"uisight-mcp\"] } } }\n```\n\nThen just tell your agent: *\"look at my app with uisight\"*. The panel server starts automatically when needed.\n\n## MCP tools\n\n| Tool | What it does |\n|---|---|\n| `see_screen` | Returns the current screen as an image — the exact frame the human sees in the panel |\n| `inspect` | Runs contrast / touch-target / overflow / theme checks; returns **measured findings as text** |\n| `goto` | Navigates all sessions to a URL (localhost included) |\n| `tap` / `type_text` / `scroll` | Drives the page — the human watches it happen live |\n| `set_device` | Switches device profile (iphone-15, iphone-se, pixel, galaxy, ipad, desktop, laptop) or light/dark theme |\n| `status` | Open URL, sessions, recent console/network errors — first stop when hunting a bug |\n| `marks` | Reads the notes the human pinned in the panel (📌 note + screenshot at that moment) |\n\nTurkish tool names available with `UISIGHT_LANG=tr` (`ekrani_gor`, `denetle`, ...).\n\n## The panel (human side)\n\n`npx uisight-panel <url>` opens a browser page at `localhost:5055`:\n\n- **Mobile + desktop side by side**, both live, URL-synced\n- Click = tap on that device · wheel = scroll · type after clicking\n- Per-pane device switcher, shared light/dark toggle\n- **Inspect** button runs the measurement engine on every screen\n- **📌 Pin**: type a note, pin it — your AI reads note + screenshot via `marks`. No more \"let me describe what I'm seeing.\"\n\nWorks inside VS Code / Antigravity via *Simple Browser: Show* → `http://localhost:5055`.\n\n## What it checks\n\n- Invisible text (contrast < 1.6:1) and WCAG AA contrast failures — alpha-composited backgrounds, gradient text, `oklab()`/`oklch()` colors all handled\n- Touch targets below 44px (mobile profiles only; inline text links exempt by width, per WCAG)\n- Horizontal overflow with the offending elements\n- Text below 12px, images without alt\n- **Theme drift**: elements identical in light *and* dark = likely hard-coded colors\n- Console/JS errors and failed network requests per device\n\nAnd the honest limit: automated checks cannot see *design* mistakes — a collided header measures fine. That's why `see_screen` exists and why the report says \"eyeball the PNGs.\"\n\n## Notes & limitations\n\n- iPhone profiles run on real WebKit (Safari's engine) — close to iOS, but not an iOS Simulator.\n- Browsers are downloaded once by Playwright on first run (`npx playwright install chromium webkit` if you want to pre-warm).\n- Everything runs **locally** — no cloud, no account, your screens never leave your machine.\n- v0.1 ships English surfaces over an internal codebase originally written in Turkish (being migrated). Contributions welcome; variable names may surprise you until v0.2.\n\n## License\n\nMIT © [SoloLabs](https://sololabs.com.tr)\n",
+  "status": "curated"
+}

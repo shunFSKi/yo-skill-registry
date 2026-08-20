@@ -1,0 +1,80 @@
+{
+  "id": "mcp:official/io.github.wyre-technology/axcient-mcp",
+  "type": "mcp",
+  "name": "Axcient x360Recover",
+  "description": "MCP server for Axcient x360Recover — BCDR clients, devices, jobs, vaults, and appliances.",
+  "author": "io.github.wyre-technology",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/wyre-technology/axcient-mcp",
+    "repo": "wyre-technology/axcient-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "ghcr.io/wyre-technology/axcient-mcp:v1.0.0"
+    ],
+    "env": [
+      {
+        "name": "AXCIENT_API_KEY",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "MCP_TRANSPORT",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "AUTH_MODE",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "LOG_LEVEL",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-19T19:01:45.021632Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# axcient-mcp\n\nMCP server for [Axcient x360Recover](https://developer.axcient.com/x360recover/) — BCDR\nclients, devices, backup jobs, vaults, and appliances. Built on\n[`@wyre-technology/node-axcient`](https://github.com/wyre-technology/node-axcient) and the\nMCP v2 SDK, serving both the 2025-era `initialize` handshake and the 2026-07-28 stateless\nenvelope from a single dual-era HTTP entrypoint.\n\n## Credentials\n\nGenerate an API key in the x360Portal: **Settings → API Keys** (see\n[Axcient's key management guide](https://help.axcient.com/360001190313-Axcient-x360Portal-/generating-and-managing-api-keys)).\n\n- **Local / stdio (Claude Desktop, CLI):** set `AXCIENT_API_KEY`.\n- **Hosted / gateway:** the WYRE MCP Gateway injects the `X-Axcient-Api-Key` header per\n  request (`AUTH_MODE=gateway`); no server-side key is stored.\n\n## Run locally (stdio)\n\n```bash\nnpm install\nnpm run build\nAXCIENT_API_KEY=your-key npm start\n```\n\n## Run as HTTP (gateway / hosted)\n\n```bash\nMCP_TRANSPORT=http AUTH_MODE=env AXCIENT_API_KEY=your-key npm start\n# → http://localhost:8080/mcp, health at http://localhost:8080/health\n```\n\n## Docker\n\n```bash\ndocker build --platform linux/amd64 --build-arg GITHUB_TOKEN=$(gh auth token) -t axcient-mcp .\ndocker run -p 8080:8080 -e AXCIENT_API_KEY=your-key axcient-mcp\n```\n\n## Tools\n\n20 tools, flat surface (no router — well under the fleet's ~25-tool threshold).\n\n| Tool | Description |\n|---|---|\n| `axcient_test_connection` | Verify the API key by fetching the organization record |\n| `axcient_get_organization` | Get the organization for the API key |\n| `axcient_list_clients` / `axcient_get_client` | Clients (customer/site records) |\n| `axcient_get_d2c_agent_token` | Mint a D2C agent enrollment token |\n| `axcient_list_devices` / `axcient_list_devices_by_client` / `axcient_get_device` | Devices |\n| `axcient_get_device_autoverify` / `axcient_get_device_restore_points` | AutoVerify + restore points |\n| `axcient_list_jobs_by_device` / `axcient_get_job` / `axcient_get_job_history` | Backup jobs |\n| `axcient_list_vaults` / `axcient_get_vault` | Vaults |\n| `axcient_get_vault_threshold` / `axcient_set_vault_threshold` | Vault connectivity threshold |\n| `axcient_list_appliances` / `axcient_list_appliances_by_client` / `axcient_get_appliance` | Appliances |\n\nNo destructive tools exist in this surface — the x360Recover public API (v0.3.1) has no\ndelete/disable operations, so no confirmation/elicitation flow is wired up. See\n`node-axcient`'s README for known API quirks (error-shape inconsistencies, list-endpoint\nschema documentation bugs) this server's error messages surface verbatim from the SDK.\n\n## License\n\nApache-2.0\n",
+  "status": "curated"
+}

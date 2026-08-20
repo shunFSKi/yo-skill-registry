@@ -1,0 +1,75 @@
+{
+  "id": "mcp:official/fm.lightning/lightning-fm-mcp",
+  "type": "mcp",
+  "name": "lightning-fm-mcp",
+  "description": "Search Lightning FM's Nostr music catalog, look up artists, and check what's live now.",
+  "author": "fm.lightning",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/Lightning-FM/lightning-fm-mcp",
+    "repo": "Lightning-FM/lightning-fm-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "lightning-fm-mcp"
+    ],
+    "env": [
+      {
+        "name": "LFM_NOSTR_RELAYS",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "LFM_BLOSSOM_URL",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "LFM_CACHE_TTL_MS",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-19T19:37:36.215976Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "设计",
+    "featured": false
+  },
+  "readme": "# Lightning FM :: MCP Server\n\nAn [MCP](https://modelcontextprotocol.io) server for [Lightning FM](https://lightning.fm)'s music catalog: search tracks, look up artists, and check what's live on the station, all from an agent.\n\nThere is no separate agent API. This server reads exactly what a human client reads: kind 31337 track events and kind 0 profiles from public Nostr relays, audio and images from the public Blossom server, and the kind 30311 live activity event the station publishes on every track change. Every track is signed by the artist's own key. This is the canonical catalog, not a curated subset the platform maintains for agents. Artists keep their exit rights: the catalog lives in events they signed, and nothing this server returns depends on the platform's goodwill.\n\n## Who this is for\n\n- **Agent developers**: you want the tools in your MCP client. Go to [Use it](#use-it) and [Tools](#tools). No install, no API key, no account.\n- **Contributors**: you want to change or extend the server. Go to [What works today](#what-works-today) and [Development](#development). The wire format this server parses is documented at [lightning.fm/interop](https://lightning.fm/interop).\n\n## Use it\n\nAdd it to your MCP client's server config. For Claude Code or Claude Desktop:\n\n```json\n{\n  \"mcpServers\": {\n    \"lightning-fm\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"lightning-fm-mcp\"]\n    }\n  }\n}\n```\n\nNo install, no API key, no account. It talks to `relay.lightning.fm` and `media.lightning.fm` by default. See [Configuration](#configuration) to point it elsewhere.\n\n## Tools\n\n- **`search_catalog`**: free-text search plus genre/tag filters over the full catalog. Leave every filter empty to browse newest-first.\n- **`get_artist`**: look up an artist by display name (partial match), hex pubkey, or npub. Returns their profile and full discography.\n- **`get_now_playing`**: what's currently on air, and the stream URL.\n\n## What works today\n\nVerified against `src/`, not against ambition.\n\n| Feature | Status |\n|---|---|\n| `search_catalog`: free text matched against title, artist, album, genre, and description, plus genre and tag filters | Works |\n| `get_artist`: partial display-name match, hex pubkey, or npub; returns profile plus discography | Works |\n| `get_now_playing`: reads the station's kind 30311 live activity event, returns the current track and stream URL | Works |\n| Read-only guarantee: the server holds no keys, never signs, never publishes; there are no write tools | Works, by construction |\n| Relay snapshot caching (default 60s TTL) so repeated tool calls don't hammer relays | Works |\n| Transport | stdio only; no HTTP transport yet |\n| Writes of any kind (publishing tracks, zapping, tipping) | Not built, and out of scope by design |\n\n## Configuration\n\nAll environment variables are optional; defaults point at production. Nothing here is a secret. This server is read-only and never signs or publishes anything.\n\n| Variable | Default | What it does |\n|---|---|---|\n| `LFM_NOSTR_RELAYS` | `wss://relay.lightning.fm` | Comma-separated relay URLs to query. Only add a relay here if it gates writes the way relay.lightning.fm does. Kind 31337 isn't exclusive to Lightning FM, and an unrestricted public relay hands back every other app's tracks too. |\n| `LFM_BLOSSOM_URL` | `https://media.lightning.fm` | Blossom server audio/image hashes resolve against. |\n| `LFM_CACHE_TTL_MS` | `60000` | How long a fetched snapshot is reused before the next tool call re-queries the relays. |\n\n## Development\n\n```sh\nnpm install\nnpm run dev     # runs src/index.ts directly via tsx\nnpm run build   # tsc, emits dist/\nnpm test        # tsx --test tests/*.test.ts\n```\n\n### Layout\n\n- `src/index.ts` server entry, stdio transport\n- `src/tools.ts` the three MCP tool registrations\n- `src/nostr/` relay reads: `catalog.ts`, `profiles.ts`, `now-playing.ts`, and `track.ts` (kind 31337 parsing)\n- `src/config.ts` env handling and defaults\n- `tests/` parsing and catalog tests\n\n`src/nostr/track.ts` mirrors the kind 31337 parsing in `station-server/src/catalog/track.ts` (private repo) and [`app-desktop/src-tauri/src/relay.rs`](https://github.com/Lightning-FM/lightning-fm-desktop/blob/main/src-tauri/src/relay.rs). All three must agree on tag names. This is the platform's public wire format, documented in full at [lightning.fm/interop](https://lightning.fm/interop).\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

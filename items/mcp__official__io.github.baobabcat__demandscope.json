@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.baobabcat/demandscope",
+  "type": "mcp",
+  "name": "DemandScope",
+  "description": "Demand-signal MCP server over GitHub, Hacker News, npm, and PyPI public APIs with trend deltas.",
+  "author": "io.github.baobabcat",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/baobabcat/demandscope",
+    "repo": "baobabcat/demandscope"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "https://github.com/baobabcat/demandscope/releases/download/v0.2.0/demandscope.mcpb"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-19T19:06:00.141825Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# DemandScope\n\nPublic-API demand-signal scanner for validating digital-product and dev-tool\nideas, plus a dependency-free MCP (Model Context Protocol) stdio server that\nexposes the signals as tools any MCP-compatible agent can call.\n\n> **Transparency notice:** this project is built, tested, and maintained by an\n> autonomous AI agent (Hermes, by Nous Research) operating in the Autonomous\n> Income Research Lab. A human owner reviews and authorizes external actions.\n\n## Why\n\nBuilt by the Autonomous Income Research Lab (2026-08-17) as its first product\nprototype: demand validation for niche dev tools is itself a recurring need for\nindie builders, and MCP integrations are a fast-growing ecosystem\n(evidence: `research/2026-08-17-opportunity-scan.md`).\n\n## Signals (all free, no-auth, ToS-friendly APIs)\n\n| Tool                 | Source                       | Proxy for                            |\n|----------------------|------------------------------|--------------------------------------|\n| `github_repo_signal` | api.github.com/search        | developer interest / competition     |\n| `github_trend`       | api.github.com (created:)    | supply/interest acceleration (delta) |\n| `hn_signal`          | hn.algolia.com (Hacker News) | tech-audience attention              |\n| `hn_trend`           | hn.algolia.com               | attention acceleration (delta)       |\n| `npm_downloads`      | api.npmjs.org                | comparable-product demand            |\n| `pypi_downloads`     | pypistats.org                | comparable-product demand            |\n\nAbsolute download counts include CI/mirror traffic — use directionally, not as\nexact market sizes. Trend tools return `growth_ratio` (current window ÷ prior\nwindow); >1 means accelerating.\n\n## Reliability (v0.2)\n\n- **Cache:** file-based TTL cache (`DEMANDSCOPE_CACHE_DIR`, default\n  `.cache/demandscope`). TTLs: GitHub/HN 1h, npm/PyPI 24h. Repeat calls are\n  free and instant.\n- **Backoff:** exponential retry (max 4) on HTTP 429/5xx, honoring\n  `Retry-After`. pypistats is treated as best-effort.\n\n## Usage\n\nCLI-style (batch scan):\n```bash\npython3 ../demand-scanner/demand_scanner.py candidates.json out/\n```\n\nAs an MCP server (newline-delimited JSON-RPC 2.0 over stdio):\n```bash\npython3 mcp_server.py\n```\nMCP client config example:\n```json\n{\"mcpServers\": {\"demandscope\": {\"command\": \"python3\", \"args\": [\"/path/to/mcp_server.py\"]}}}\n```\n\n## Tests\n\n```bash\npython3 test_mcp_server.py\n```\n10 end-to-end protocol tests (handshake, notifications, ping, tools/list,\ntools/call incl. trend + cache-hit assertion, error paths). Network needed for\nthe `npm_downloads` and `hn_trend` call tests.\n\n## Status / roadmap\n\n- **v0.2 (2026-08-17):** trend-delta tools (`github_trend`, `hn_trend`), TTL\n  cache + rate-limit backoff, `pyproject.toml` packaging, MIT license.\n  10/10 tests pass.\n- v0.1 (2026-08-17): protocol subset `initialize`, `ping`, `tools/list`,\n  `tools/call`; 4 signal tools.\n- Next: `resources` support, hosted HTTP transport, second asset\n  (`mcp-registry-lint`) in the lab pipeline.\n",
+  "status": "curated"
+}
