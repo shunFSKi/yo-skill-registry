@@ -1,0 +1,69 @@
+{
+  "id": "mcp:official/io.github.amadeuserras/leaseclear-mcp",
+  "type": "mcp",
+  "name": "leaseclear-mcp",
+  "description": "MCP server for LeaseClear lease Q&A.",
+  "author": "io.github.amadeuserras",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/amadeuserras/leaseclear-mcp",
+    "repo": "amadeuserras/leaseclear-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "leaseclear-mcp"
+    ],
+    "env": [
+      {
+        "name": "LEASECLEAR_API_KEY",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "LEASECLEAR_API_URL",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-20T18:21:47.630171Z",
+    "score": 49
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# leaseclear-mcp\n\nA [Model Context Protocol](https://modelcontextprotocol.io) server that exposes [LeaseClear](https://github.com/amadeuserras/leaseclear) lease Q&A.\n\n<!-- mcp-name: io.github.amadeuserras/leaseclear-mcp -->\n\nListed in the [official MCP Registry](https://registry.modelcontextprotocol.io) as `io.github.amadeuserras/leaseclear-mcp`.\n\n## Tools\n\n- `lease_qa` — ask one question about lease terms; returns an answer grounded in the lease, or states that the lease is silent\n\n## Usage\n\nAdd this to your MCP client config (e.g. `claude_desktop_config.json` or Cursor `mcp.json`):\n\n```json\n{\n  \"mcpServers\": {\n    \"lease-qa\": {\n      \"command\": \"uvx\",\n      \"args\": [\"leaseclear-mcp\"]\n    }\n  }\n}\n```\n\nThe package is on [PyPI](https://pypi.org/project/leaseclear-mcp/). `uvx` fetches and runs it as a local subprocess, communicating over stdio. [uv](https://docs.astral.sh/uv/getting-started/installation/) required.\n\n### Optional environment variables\n\n\n| Variable             | Description                                            | Default                       |\n| -------------------- | ------------------------------------------------------ | ----------------------------- |\n| `LEASECLEAR_API_KEY` | Use the server with your own LeaseClear account        | LeaseClear demo mode          |\n| `LEASECLEAR_API_URL` | Override the API endpoint (local or private instances) | LeaseClear production backend |\n\n\n```json\n{\n  \"mcpServers\": {\n    \"lease-qa\": {\n      \"command\": \"uvx\",\n      \"args\": [\"leaseclear-mcp\"],\n      \"env\": {\n        \"LEASECLEAR_API_KEY\": \"lc_...\",\n        \"LEASECLEAR_API_URL\": \"https://...\"\n      }\n    }\n  }\n}\n```\n\n\n\n## `lease_qa` usage\n\n**Argument**\n\n- `question` (string, required) — one question about the lease\n\n`_meta`\n\n- `document_ids` (string[], optional) — UUIDs of the documents to query. Omitted means all.\n\n**Security**: The `_meta` field is used to pass metadata to the tool call that the model doesn't see. Having `document_ids` there is intentional: it prevents cross-document prompt injection because the model is never able to choose which documents it has access to. See a real-world example in [LeaseOps: prompt injection and the tenants table](https://github.com/amadeuserras/leaseops#security-prompt-injection-and-the-tenants-table).\n\n## MCP Python SDK example\n\nTool call:\n\n```python\nresult = await session.call_tool(\n    name=\"lease_qa\",\n    arguments={\n        \"question\": \"How much is the security deposit for Yuna Kim?\"\n    },\n    meta={\n        \"document_ids\": [\n            \"a1b2c3d4-e5f...\"\n        ]\n    }\n)\n```\n\nOutput:\n\n```json\n{\n  \"answer\": \"The security deposit is $6,400.00. This deposit is held in Owner's Broker's trust account [california-johnson-kim §4].\"\n}\n```\n\n\n\n## Project structure\n\n```\nleaseclear-mcp/\n├── src/leaseclear_mcp/\n│   ├── server.py        # MCP server + lease_qa\n│   ├── leaseclear.py    # LeaseClear HTTP client\n│   ├── schemas.py\n│   └── config.py\n├── tests/\n├── pyproject.toml\n├── .env.example\n└── README.md\n```\n\n\n\n## Local Development\n\n```bash\ngit clone https://github.com/you/leaseclear-mcp.git\ncd leaseclear-mcp\nuv sync\ncp .env.example .env\nuv run pytest\nuv run ruff check .\nuv run pyright\n```\n\n\n\n### Debugging\n\nUse the [MCP Inspector](https://github.com/modelcontextprotocol/inspector) to test the server interactively:\n\n```bash\nnpx @modelcontextprotocol/inspector uvx leaseclear-mcp\n```\n\nFrom a checkout, use `uv run leaseclear-mcp` instead of `uvx leaseclear-mcp`.\n\n## License\n\nMIT",
+  "status": "curated"
+}

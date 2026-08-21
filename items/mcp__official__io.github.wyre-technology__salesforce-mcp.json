@@ -15,7 +15,7 @@
     "command": "npx",
     "args": [
       "-y",
-      "ghcr.io/wyre-technology/salesforce-mcp:v1.0.2"
+      "ghcr.io/wyre-technology/salesforce-mcp:v1.0.3"
     ],
     "env": [
       {
@@ -72,8 +72,8 @@
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-07-19T00:53:59.342059Z",
-    "score": 37
+    "pushed_at": "2026-08-20T18:53:53.800403Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -105,6 +105,6 @@
     "category": "营销",
     "featured": false
   },
-  "readme": null,
+  "readme": "# salesforce-mcp\n\n> MCP (Model Context Protocol) server for Salesforce CRM, scoped to the WYRE Gateway BYOC use case.\n\nA focused HTTP MCP server that exposes a Salesforce org's CRM data surface to Claude (and other MCP clients) through the [WYRE MCP Gateway](https://mcp.wyre.ai/). Built for the multi-tenant gateway pattern: credentials are injected per-request via HTTP headers, no startup secrets are baked into the container.\n\n## Scope discipline\n\nThis package intentionally ships a **narrow tool surface** — six CRM data tools — and deliberately omits the Apex code-management / custom-object-creation / EXECUTE_ANONYMOUS surfaces that broader Salesforce MCP servers include. The use case is read/write access to standard CRM objects (Accounts, Contacts, Opportunities, Leads, Cases). Customers who need DX or admin tooling should use the official `@salesforce/mcp` package instead.\n\n## Tools\n\n| Tool | Purpose |\n| --- | --- |\n| `salesforce_search_objects` | Find standard + custom objects by partial name. |\n| `salesforce_describe_object` | Full schema (fields, picklists, relationships) for an object. |\n| `salesforce_query_records` | Execute SOQL with relationship traversal. |\n| `salesforce_aggregate_query` | SOQL GROUP BY / COUNT / SUM / AVG / MIN / MAX. |\n| `salesforce_dml_records` | Insert / update / delete / upsert records. |\n| `salesforce_search_all` | Cross-object SOSL search. |\n\n## Run modes\n\n- **`http` (default)**: listens on `:8080`, exposes `/mcp` (JSON-RPC) + `/health`. Per-request credentials from `X-Salesforce-*` headers. This is the gateway deployment shape.\n- **`stdio`**: traditional MCP client transport (Claude Desktop / Cursor). Credentials read once from env. Useful for local testing.\n\n```bash\n# HTTP mode (gateway default)\nPORT=8080 MCP_TRANSPORT=http AUTH_MODE=gateway npm start\n\n# stdio mode (env-baked, local testing)\nMCP_TRANSPORT=stdio \\\nSALESFORCE_AUTH_FLOW=client_credentials \\\nSALESFORCE_CLIENT_ID=... SALESFORCE_CLIENT_SECRET=... \\\nSALESFORCE_INSTANCE_URL=https://yourorg.my.salesforce.com \\\nnode dist/entry.js\n```\n\n## Header contract (gateway mode)\n\n| Header | Required? | Notes |\n| --- | --- | --- |\n| `X-Salesforce-Auth-Mode` | optional | `client_credentials` (default) or `username_password`. |\n| `X-Salesforce-Client-Id` | for client_credentials | Connected App consumer key. |\n| `X-Salesforce-Client-Secret` | for client_credentials | Connected App consumer secret. |\n| `X-Salesforce-Instance-Url` | for client_credentials | Customer's My Domain URL (e.g. `https://acmecorp.my.salesforce.com`). |\n| `X-Salesforce-Username` | for username_password | Salesforce user. |\n| `X-Salesforce-Password` | for username_password | Salesforce password. |\n| `X-Salesforce-Token` | for username_password | Security token (required unless IP allowlisted). |\n\nPer-request authentication means the same container instance can service many customers without restart — each MCP `tools/call` builds a fresh `jsforce.Connection` from the headers on that request.\n\n## Salesforce Connected App setup\n\nFor Client Credentials flow (the recommended path):\n\n1. Salesforce Setup → App Manager → New Connected App.\n2. Under **API (Enable OAuth Settings)**: turn on **Enable OAuth Settings** and **Enable Client Credentials Flow**.\n3. Save, wait ~5 minutes for propagation.\n4. Manage → Edit Policies → Client Credentials Flow → set a **Run As** user (the API calls run with that user's permissions).\n5. Copy the Consumer Key and Consumer Secret from the Connected App into the gateway BYOC fields as `clientId` and `clientSecret`.\n6. Set `instanceUrl` to the customer's My Domain URL (Setup → My Domain).\n\n## Build\n\n```bash\nnpm install\nnpm run build\n```\n\n## Container\n\n```bash\ndocker build -t salesforce-mcp:dev .\ndocker run --rm -p 8080:8080 -e MCP_TRANSPORT=http salesforce-mcp:dev\ncurl -s http://localhost:8080/health\n```\n\nThe published image lives at `ghcr.io/wyre-technology/salesforce-mcp` with `:latest`, `:sha-<short_sha>`, and `:v<version>` tags.\n\n## License\n\nApache-2.0.\n",
   "status": "curated"
 }

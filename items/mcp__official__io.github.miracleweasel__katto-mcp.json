@@ -28,7 +28,7 @@
   "quality": {
     "stars": null,
     "pushed_at": "2026-08-20T08:46:19.789226Z",
-    "score": 52
+    "score": 42
   },
   "security": {
     "score": 100,
@@ -60,6 +60,6 @@
     "category": "设计",
     "featured": false
   },
-  "readme": "# katto-mcp\n\nMCP server for [Katto](https://katto.tech) — turn long videos into scored, captioned 9:16 clips from any MCP client (Claude Desktop, Cursor, Claude Code, ChatGPT, …).\n\nTwo ways to connect:\n\n## Hosted (zero-install, recommended)\n\nPoint any OAuth-capable MCP client (ChatGPT, Claude web/desktop, MCP Inspector) at the hosted endpoint and sign in with your Katto account — the key never touches your disk, and you can revoke access anytime:\n\n```\nhttps://mcp.katto.tech/mcp   (Streamable HTTP · OAuth)\n```\n\n## Local (npx)\n\nFor Cursor, CI and scripts. Create an API key at **[katto.tech/dashboard/api-keys](https://katto.tech/dashboard/api-keys)**, then add the server to your MCP client config:\n\n```json\n{\n  \"mcpServers\": {\n    \"katto\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"katto-mcp\"],\n      \"env\": { \"KATTO_API_KEY\": \"sk_live_...\" }\n    }\n  }\n}\n```\n\nThe hosted endpoint above also accepts `Authorization: Bearer sk_live_...` directly for key-based clients.\n\n## Tools\n\n- **`katto_create_clip_job(url, config?)`** — submit a long video (YouTube, Twitch, Vimeo, Rumble, Zoom, Dailymotion). Returns a job id.\n- **`katto_get_job(id)`** — poll until `status` is `completed`; `clips` holds the finished MP4 + caption (SRT) urls.\n- **`katto_list_jobs(limit?, cursor?, status?)`** — list your recent jobs, newest first (keyset pagination via `cursor`).\n- **`katto_get_clips(id)`** — just the finished clips of a job.\n- **`katto_get_transcript(id)`** — the job's timestamped transcript segments (`[{ start, end, text }]`).\n- **`katto_get_usage()`** — your plan and remaining monthly video quota.\n- **`katto_cancel_job(id)`** — cancel a running job and refund the monthly video slot.\n- **`katto_get_account()`** — the connected account, this key's scopes, and quota.\n\nJobs draw from your Katto plan's monthly video quota (25 on Creator, 2 on Free). Videos up to 90 minutes. The underlying REST API also supports `Idempotency-Key` safe retries and read-only scoped keys — see the [docs](https://katto.tech/docs/api).\n\n## Env\n\n| var | required | default |\n| --- | --- | --- |\n| `KATTO_API_KEY` | yes | — |\n| `KATTO_API_URL` | no | `https://katto.tech` |\n\nFull docs: **[katto.tech/docs/api](https://katto.tech/docs/api)**\n\nMIT\n",
+  "readme": null,
   "status": "curated"
 }

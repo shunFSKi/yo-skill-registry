@@ -1,0 +1,65 @@
+{
+  "id": "mcp:official/io.github.layergen/eodly-mcp",
+  "type": "mcp",
+  "name": "eodly-mcp",
+  "description": "Read your team's end-of-day reports and roster from Eodly.",
+  "author": "io.github.layergen",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/layergen/eodly-mcp",
+    "repo": "layergen/eodly-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@eodly/mcp"
+    ],
+    "env": [
+      {
+        "name": "EODLY_API_KEY",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-20T18:54:29.555199Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Eodly MCP server\n\nRead your team's sourced end-of-day reports and roster from any MCP client, using an Eodly API key.\n\n[Eodly](https://eodly.io) sends founders and team leads one sourced report every evening: who shipped, who is silent, who is slipping. Your team checks in from Slack, Telegram, Microsoft Teams, or Discord, and Eodly weighs each claim against the real work in GitHub and Linear. This server exposes those reports to MCP clients such as Claude and Cursor, so you can ask an agent \"who is slipping this week?\" and have it pull the sourced answer.\n\nRead-only. It cannot change anything in your workspace.\n\n## Install\n\n### Hosted (recommended)\n\nA remote Streamable HTTP endpoint, nothing to install:\n\n```\nhttps://eodly.io/api/mcp\n```\n\n### Local (stdio)\n\n```bash\nnpx @eodly/mcp\n```\n\n## Configure\n\nCreate an API key in the Eodly app under **Settings → Developer → API keys**, then add the server to your client.\n\n**Claude Desktop** (`claude_desktop_config.json`):\n\n```json\n{\n  \"mcpServers\": {\n    \"eodly\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@eodly/mcp\"],\n      \"env\": { \"EODLY_API_KEY\": \"eodly_sk_...\" }\n    }\n  }\n}\n```\n\nCursor and other MCP clients use the same shape.\n\n## Tools\n\n| Tool | What it does | Scope |\n| --- | --- | --- |\n| `whoami` | Identify the key: which organization it belongs to and what scopes it holds | none |\n| `list_reports` | Recent end-of-day report summaries, most recent first (`limit`, 1-50, default 14) | `reports:read` |\n| `get_report` | Full structured content of one report by id | `reports:read` |\n| `list_team` | The team roster: names, roles, departments | `team:read` |\n\n## Environment\n\n| Variable | Required | Default |\n| --- | --- | --- |\n| `EODLY_API_KEY` | yes | none. An Eodly API key (`eodly_sk_...`) |\n| `EODLY_API_BASE` | no | `https://eodly.io/api/v1` |\n\nKeys are organization-scoped and read-only. Revoke one at any time in the app.\n\n## Links\n\n- [Eodly](https://eodly.io)\n- [Developer and API documentation](https://eodly.io/developers)\n- [OpenAPI specification](https://eodly.io/openapi.json)\n\n## License\n\nMIT. See [LICENSE](./LICENSE).\n",
+  "status": "curated"
+}

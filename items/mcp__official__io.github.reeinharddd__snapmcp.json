@@ -1,0 +1,105 @@
+{
+  "id": "mcp:official/io.github.reeinharddd/snapmcp",
+  "type": "mcp",
+  "name": "snapmcp",
+  "description": "Visual capture MCP server: terminal colors, code, diffs, PDFs, GIFs. 13 tools, SSRF on by default.",
+  "author": "io.github.reeinharddd",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/reeinharddd/snapmcp",
+    "repo": "reeinharddd/snapmcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "snapmcp"
+    ],
+    "env": [
+      {
+        "name": "SNAPMCP_DIR",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "SNAPMCP_THEME",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "SNAPMCP_FORMAT",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "SNAPMCP_QUALITY",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "SNAPMCP_SHADOW",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "SNAPMCP_ALLOWED_PATHS",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "SNAPMCP_SSRF_PROTECTION",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "SNAPMCP_CHROME_EXECUTABLE",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "SNAPMCP_CHROME_PROFILE",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-20T19:51:45.048579Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "<p align=\"center\">\n  <img src=\"./brand/logo/snapmcp-logo-horizontal.svg\" alt=\"snapmcp\" width=\"380\" />\n</p>\n\n<p align=\"center\">\n  <b>The visual documentation MCP server.</b><br/>\n  Terminal · Code · Browser · Markdown · Diff · HTML · PDF · GIF<br/>\n  <em>For documentation workflows — when structured snapshots aren't enough.</em>\n</p>\n\n<p align=\"center\">\n  <a href=\"https://www.npmjs.com/package/snapmcp\"><img src=\"https://img.shields.io/npm/v/snapmcp?style=flat&label=npm&color=%2300d4aa\" alt=\"npm version\"/></a>\n  <a href=\"https://www.npmjs.com/package/snapmcp\"><img src=\"https://img.shields.io/npm/dm/snapmcp?style=flat&label=downloads&color=%2300d4aa\" alt=\"npm downloads\"/></a>\n  <a href=\"https://github.com/reeinharddd/snapmcp/actions/workflows/ci.yml\"><img src=\"https://github.com/reeinharddd/snapmcp/actions/workflows/ci.yml/badge.svg\" alt=\"tests\"/></a>\n  <a href=\"https://github.com/reeinharddd/snapmcp\"><img src=\"https://img.shields.io/github/stars/reeinharddd/snapmcp?style=flat&color=%2300d4aa\" alt=\"stars\"/></a>\n  <img src=\"https://img.shields.io/badge/license-MIT-%2300d4aa\" alt=\"MIT\"/>\n</p>\n\n---\n\nReal terminal colors, Shiki-highlighted code, visual diffs, PDFs and GIFs — one MCP server, 13 tools, zero heavy dependencies. SSRF protection on by default. Built for agents that write documentation, not just drive browsers.\n\n## Quick Start\n\nThree steps, under two minutes:\n\n**1. Install**\n\n```bash\nnpm install -g snapmcp\n# or run without installing: npx -y snapmcp\n```\n\n**2. Add to Claude Code** (`~/.claude/claude.json`)\n\n```json\n{\n  \"mcpServers\": {\n    \"snapmcp\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"snapmcp\"],\n      \"env\": {\n        \"SNAPMCP_DIR\": \"./captures\",\n        \"SNAPMCP_THEME\": \"nord\"\n      }\n    }\n  }\n}\n```\n\n**3. Capture**\n\nAsk your agent in natural language:\n\n> \"Capture a terminal screenshot of `git log --oneline -5` and a syntax-highlighted PNG of `src/index.ts`.\"\n\nThe agent calls `capture_terminal` and `capture_file` — images land in `./captures/` with your real terminal theme and the chosen syntax theme applied.\n\n<details>\n<summary><strong>Other clients: OpenCode, VS Code / Cline, Docker</strong></summary>\n\n**OpenCode** (`opencode.json`):\n\n```json\n{\n  \"mcpServers\": {\n    \"snapmcp\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"snapmcp\"],\n      \"env\": {\n        \"SNAPMCP_DIR\": \"./captures\",\n        \"SNAPMCP_FORMAT\": \"jpeg\",\n        \"SNAPMCP_QUALITY\": \"95\"\n      }\n    }\n  }\n}\n```\n\n**VS Code / Cline / Roo-Cline** (`settings.json` → `cline.mcpServers`):\n\n```json\n{\n  \"mcpServers\": {\n    \"snapmcp\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"snapmcp\"],\n      \"env\": {\n        \"SNAPMCP_DIR\": \"./captures\",\n        \"SNAPMCP_FORMAT\": \"jpeg\"\n      }\n    }\n  }\n}\n```\n\n**Docker**:\n\n```bash\ndocker run -i --rm \\\n  -e SNAPMCP_DIR=/captures \\\n  -e SNAPMCP_THEME=nord \\\n  -v /path/to/output:/captures \\\n  ghcr.io/reeinharddd/snapmcp\n```\n</details>\n\n## What it looks like\n\n<!-- TODO(demo assets): replace the static table below with three high-impact captures at the repo root:\n     - assets/demo-terminal.png  — capture_terminal output of a real CLI session (ls -la + git log), Kitty/Gnome theme auto-detected, showing TRUE terminal colors (the unique selling point vs Playwright accessibility snapshots)\n     - assets/demo-code.png      — capture_code output, a ~20-line TypeScript function, nord theme, window chrome on, soft shadow\n     - assets/demo-diff.png      — capture_diff output of a real commit, green/red highlighting visible at a glance\n     Optional fourth: assets/demo-gif.gif — capture_gif animating 3-4 frames of a terminal typing session.\n     Until those exist, the real generated captures below serve as proof. -->\n\nReal screenshots generated by snapmcp:\n\n| Capture | Preview |\n|---------|---------|\n| Terminal (real detected colors) | <img src=\"docs/assets/test-terminal.png\" alt=\"terminal capture\" width=\"300\"/> |\n| Code (Shiki syntax) | <img src=\"docs/assets/test-code.png\" alt=\"code capture\" width=\"300\"/> |\n| Diff (green/red) | <img src=\"docs/assets/diff-example.png\" alt=\"diff capture\" width=\"300\"/> |\n| Markdown render | <img src=\"docs/assets/markdown-preview.png\" alt=\"markdown render\" width=\"300\"/> |\n\n## Why snapmcp vs Playwright MCP\n\nDifferent tools for different jobs. Playwright MCP drives a browser through token-efficient accessibility snapshots; snapmcp renders pixel-faithful images for humans to read. If your agent needs to *click*, use Playwright. If it needs to *show*, use snapmcp.\n\n| Use case | snapmcp | Playwright MCP |\n|----------|:-------:|:--------------:|\n| Terminal capture with real colors | ✅ auto-detects Kitty, Gnome, Alacritty, WezTerm themes | ❌ no terminal support |\n| Code → syntax-highlighted image | ✅ Shiki, 50+ languages, 27 themes | ❌ not its purpose |\n| Git diff → visual red/green image | ✅ `capture_diff` | ❌ |\n| URL → PDF document | ✅ `capture_pdf` | ❌ |\n| Animated GIF from captures | ✅ `capture_gif` (zero-dep gifenc) | ❌ |\n| Markdown → styled document | ✅ `capture_markdown`, `capture_to_document` | ❌ |\n| Browser page screenshot | ✅ `capture_browser` (full-page or viewport) | ✅ |\n| Browser **automation** (click, fill, navigate) | ❌ screenshots only | ✅ accessibility-tree driven, token-efficient — the right tool for this |\n\nMost documentation pipelines pair them: Playwright MCP to *interact*, snapmcp to *document*.\n\n## Tools\n\n| Tool | Description |\n|------|-------------|\n| `capture_terminal` | Terminal output with syntax-colored prompts (auto-detects real terminal theme) |\n| `capture_code` | Syntax-highlighted code via Shiki (50+ languages, 27 themes) |\n| `capture_browser` | Full-page or viewport screenshots (uses system Chrome profile when available) |\n| `capture_file` | File → auto-detected language → highlighted screenshot |\n| `capture_markdown` | Rendered markdown as a styled document |\n| `capture_html` | Arbitrary HTML snippet rendered as image |\n| `capture_diff` | Git diffs with green additions / red deletions |\n| `capture_pdf` | URL → PDF document |\n| `capture_batch` | Batch capture multiple items in one call |\n| `capture_gif` | Animated GIF from multiple screenshots |\n| `capture_sequence` | Side-by-side animated sequence |\n| `capture_to_document` | Multi-section markdown document render |\n| `snapmcp-hint` | Server capability hints for MCP clients |\n\n## Use cases\n\n**Automated documentation** — an agent writes a setup guide and embeds real captures: the terminal output of the install command (with your actual theme), the config file syntax-highlighted, the diff of the migration. One prompt, three `capture_*` calls, images saved next to the markdown.\n\n**Visual QA** — after a UI change, the agent captures the affected pages with `capture_browser`, batches before/after with `capture_batch`, and assembles an animated comparison with `capture_gif` for the PR description.\n\n**Terminal guides** — CLI tutorials where the screenshots must match what readers will see: `capture_terminal` reproduces the real prompt colors instead of a generic dark rectangle.\n\n## Security\n\nSSRF protection is **on by default** — no opt-in required.\n\n| Feature | Description |\n|---------|-------------|\n| **SSRF Protection** | On by default (disable with `SNAPMCP_SSRF_PROTECTION=false`). Blocks IP literals (v4 + v6), localhost variants, and DNS names that resolve to private ranges (`127.0.0.0/8`, `10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`, `fc00::/7`, `fe80::/10`, etc.); every page request (redirects included) is re-checked |\n| **File Allowlist** | `SNAPMCP_ALLOWED_PATHS` defaults to deny-all when unset; only explicitly allowed paths can be captured |\n| **Path Traversal** | Prevents `../` escapes, symlink traversal (via realpath), and null byte injection |\n| **Input Limits** | Terminal 1000 lines; code/markdown/HTML 200KB; diff 500KB; file reads 5MB; max GIF frames 60; max GIF canvas 8192×8192 |\n| **Audit Log** | Optional structured JSON log file with timestamped events |\n| **Chromium Sandbox** | Sandbox availability checked at startup |\n\n## Configuration\n\nEnvironment variables for the MCP server:\n\n| Variable | Default | Description |\n|----------|---------|-------------|\n| `SNAPMCP_DIR` | `./captures` | Output directory for captures |\n| `SNAPMCP_THEME` | auto-detected | Syntax theme (27 built-in themes + auto-detected terminal) |\n| `SNAPMCP_FORMAT` | `png` | Output format (`png`, `jpeg`) |\n| `SNAPMCP_QUALITY` | `90` | JPEG quality (1-100) |\n| `SNAPMCP_PADDING` | `32` | Content padding in pixels |\n| `SNAPMCP_SHADOW` | `none` | Drop shadow (`none`, `soft`, `medium`, `strong`; aliases `sm`/`md`/`lg`) |\n| `SNAPMCP_WINDOW_CHROME` | `false` | macOS-style title bar frame |\n| `SNAPMCP_BORDER_RADIUS` | `0` | Window corner radius |\n| `SNAPMCP_BADGE` | `false` | Footer badge |\n| `SNAPMCP_LOG_FILE` | — | Audit log file path |\n| `SNAPMCP_CHROME_EXECUTABLE` | — | Path to Chrome/Chromium binary |\n| `SNAPMCP_CHROME_CHANNEL` | — | Chrome channel (`stable`, `beta`, `dev`, `canary`) |\n| `SNAPMCP_CHROME_PROFILE` | — | Chrome profile directory name |\n| `SNAPMCP_ALLOWED_PATHS` | (deny-all) | Comma- or semicolon-separated allowed file paths for `capture_file` |\n\n27 built-in Shiki themes: `dracula`, `one-dark-pro`, `nord`, `tokyo-night`, `catppuccin-mocha`, `catppuccin-latte`, `ayu-dark`, `ayu-light`, `vitesse-dark`, `vitesse-light`, `min-dark`, `min-light`, `poimandres`, `rose-pine`, `rose-pine-moon`, `rose-pine-dawn`, `slack-dark`, `slack-ochin`, `snazzy-light`, `github-dark-dimmed`, `github-light`, `one-light`, `solarized-light`, `solarized-dark`, `material-theme`, `material-theme-lighter`, `material-theme-ocean`\n\n## CLI\n\nSnapMCP ships with a full CLI beyond the MCP server:\n\n```\nsnapmcp        — Start the MCP server\nsnapmcp init   — Interactive setup wizard (detects Chrome, terminal theme, output dir)\nsnapmcp doctor — Health check: 7 checks across Node, Chromium, paths, env\nsnapmcp test   — Generate test captures (terminal + code) to verify the setup\n```\n\n## Documentation\n\n| Page | Contents |\n|------|----------|\n| [Getting Started](docs/getting-started.md) | Installation, quick start, MCP client setup |\n| [Tools Reference](docs/tools.md) | All 13 tools with parameters and examples |\n| [Configuration](docs/configuration.md) | All SNAPMCP_* env vars, themes, defaults |\n| [CLI Reference](docs/cli.md) | Init, doctor, test commands |\n| [Guides](docs/guides/) | Terminal capture, browser capture, GIF animation |\n| [ARCHITECTURE.md](./ARCHITECTURE.md) | Module map, data flow, security architecture |\n| [CONTRIBUTING.md](./CONTRIBUTING.md) | Dev workflow, testing guidelines, PR checklist |\n\n## Development\n\n```bash\ngit clone https://github.com/reeinharddd/snapmcp\ncd snapmcp\nbun install\nbun run build    # tsc → dist/\nbun test         # 317 tests\n```\n\nRequirements: Node.js ≥ 20 or Bun ≥ 1.2. CI runs on ubuntu / macOS / windows via GitHub Actions.\n\n## License\n\nMIT — see [LICENSE](./LICENSE).\n",
+  "status": "curated"
+}

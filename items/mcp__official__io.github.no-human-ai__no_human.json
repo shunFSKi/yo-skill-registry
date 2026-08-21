@@ -1,0 +1,57 @@
+{
+  "id": "mcp:official/io.github.no-human-ai/no_human",
+  "type": "mcp",
+  "name": "no_human",
+  "description": "File a task with your local no_human and check on it: task_add and task_status over stdio.",
+  "author": "io.github.no-human-ai",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/no-human-ai/no_human",
+    "repo": "no-human-ai/no_human"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "no-human"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-20T22:55:58.143916Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "办公",
+    "featured": false
+  },
+  "readme": "<div align=\"center\">\n\n<img src=\"docs/assets/nh-mark.png\" alt=\"\" width=\"140\" height=\"140\">\n\n# no_human\n\n<!-- mcp-name: io.github.no-human-ai/no_human -->\n\n**From ticket to reviewed pull request.**<br>***Free and open-source, on your machine.***\n\n[![latest release](https://img.shields.io/github/v/release/no-human-ai/no_human?label=release&color=4C9AFF)](https://github.com/no-human-ai/no_human/releases/latest) [![CI](https://img.shields.io/github/actions/workflow/status/no-human-ai/no_human/ci.yml?branch=main&label=CI)](https://github.com/no-human-ai/no_human/actions/workflows/ci.yml) [![python 3.12+](https://img.shields.io/badge/python-3.12%2B-blue)](https://www.python.org/) [![license MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)\n\n[getnohuman.com](https://getnohuman.com) · [Quickstart](docs/quickstart.md) · [Docs](docs/README.md) · [Watch it work a sprint](https://getnohuman.com/demo)\n\n[![Download for macOS](https://img.shields.io/badge/Download%20for-macOS-4C9AFF?style=for-the-badge)](https://github.com/no-human-ai/no_human/releases/latest) [![Download for Windows](https://img.shields.io/badge/Download%20for-Windows-4C9AFF?style=for-the-badge)](https://getnohuman.com/) [![Download for Linux](https://img.shields.io/badge/Download%20for-Linux-4C9AFF?style=for-the-badge)](https://getnohuman.com/)\n\n<a href=\"https://getnohuman.com/\"><img src=\"docs/assets/hero-loop-poster.jpg\" alt=\"The no_human board: one task waiting on a question in Needs answer, four tasks working in parallel, one pull request ready for review.\" width=\"880\"></a>\n\n<sub>▶ <a href=\"https://getnohuman.com/\">Watch the loop</a> — a ticket in, a reviewed pull request out; the whole loop in 57 seconds.</sub>\n\n</div>\n\nThe AI coding factory you <ins>**can trust**</ins>:\n\n- **A plan before any code**, from the ticket plus what it finds in your repo.\n- **An adversarial review.** A different model, fresh context, read-only tools,\n  told to refute \"done\". You get a pass/fail checklist citing file and line —\n  never a numeric self-score.\n- **A tamper guard.** Deleted tests, new skips, an assertion turned into a\n  tautology — blocked before a reviewer token is spent.\n- **Proof the fix fixed the bug.** For a bug fix, the tests offered as evidence\n  must fail at the merge base and pass on the new tree — the reproduction gate\n  enforces that, and you can require it for every change.\n- **Your tests run**, locally and optionally through your CI.\n- **An honest stop.** When it cannot finish, it parks with one specific question\n  instead of inventing a plausible diff.\n\n## Install\n\nWhichever way you install, you need a **Claude credential**: an OAuth token\nfrom `claude setup-token` (personal subscription or enterprise), so install the\nClaude Code CLI first — `npm install -g @anthropic-ai/claude-code`, or\n`curl -fsSL https://claude.ai/install.sh | bash`. The desktop app also calls\nthat CLI for every task. To pay Anthropic directly instead, set\n`llm.auth_mode: \"api_key\"` and put your `ANTHROPIC_API_KEY` in\n`~/.no_human/.env`.\n\n### One line (CLI + board)\n\n```bash\nuv tool install no-human   # or: pipx install no-human — the wheel ships the board\nnh init && nh doctor       # token, config, first repo; then prove the install is real\n```\n\n### Desktop app\n\n[![Download for macOS](https://img.shields.io/badge/Download%20for-macOS-4C9AFF?style=for-the-badge)](https://github.com/no-human-ai/no_human/releases/latest) [![Download for Windows](https://img.shields.io/badge/Download%20for-Windows-4C9AFF?style=for-the-badge)](https://getnohuman.com/) [![Download for Linux](https://img.shields.io/badge/Download%20for-Linux-4C9AFF?style=for-the-badge)](https://getnohuman.com/)\n\nEach release ships a SHA-256 alongside the artifact. Platform notes and the\nfirst-run walk-through: [docs/quickstart.md](docs/quickstart.md).\n\n### From source\n\n```bash\ngit clone https://github.com/no-human-ai/no_human.git && cd no_human\nuv sync                 # installs the `nh` entry point into .venv\n(cd web && npm install && npm run build)   # builds the board (cold first install can take minutes)\nuv run nh init          # token, config, first repo (about 2 minutes)\nuv run nh doctor        # verify the install is real before relying on it\n```\n\nThe `web` build is not optional if you want the board: a source checkout ships\nno `web/dist`, so without it `nh start` serves the API only and renders no UI.\nNeeds Python 3.12+, [uv](https://github.com/astral-sh/uv), git, and Node with\nnpm for the board build.\n\n## Run one task\n\nRun `nh` with no arguments for the shell: your lanes, a live event tail, and an\nintake you describe a task to in plain English. Every command below still works.\n\n```bash\nnh                                   # the shell\nnh start                             # board + worker on 127.0.0.1:8420\nnh task add https://github.com/org/repo/issues/42 --repo ~/git/repo\nnh status                            # needs-you / working / waiting / done\nnh review <id>                       # the reviewer's evidence checklist\nnh diff <id>                         # the diff it wants to ship\nnh approve <id>                      # your approval squash-lands the PR (git.approve_identity)\nnh reject <id> --reason \"...\"        # send it back with feedback\n```\n\n## Integrations\n\nPoint no_human at the tracker you already use and it pulls the tickets to your\nboard — a tracker's filter lives in your config, never in a task's own text,\nand a transport error logs and retries on the next tick instead of crashing\nthe pool.\n\n| Tracker | How tickets arrive | Filter you configure |\n|---|---|---|\n| **Jira Cloud** | Polled via REST `search/jql` (HTTP Basic `email:token`) | `integrations.jira.jql` |\n| **Linear** | Polled via the GraphQL API | `integrations.linear.team_key` + `state_types` + `label` |\n| **monday.com** | Polled via GraphQL v2 | `integrations.monday.board_id` + `status_column` + `todo_labels` |\n\nWith write-back on (`write_back`, off by default), the ticket moves with the\ntask — matched by status category, type, or the label you name, never a\nhard-coded transition id — and gets the PR link; a task that needs a human is commented on, never\ntransitioned. GitHub and\nGitLab issues import as tasks by URL, and PRs or MRs open on your own host;\nSlack and Teams get a message when a task needs you; Jenkins and CircleCI can\nrun your test layers and gate the loop. Setup for each:\n[docs/adapters.md](docs/adapters.md).\n\n**Watch the Jira flow end to end** — tickets synced from a Jira board, scoped,\nimplemented, and delivered as a review-passed pull request (click for the full\nvideo with every step):\n\n[![Jira flow demo](https://getnohuman.com/assets/demo-jira.gif)](https://getnohuman.com/assets/demo-jira.mp4)\n\n<p align=\"center\">▶️&nbsp;&nbsp;<strong><a href=\"https://getnohuman.com/assets/demo-jira.mp4\">Play the full demo</a></strong> — 1:33, from Jira board to review-passed PR</p>\n\n## MCP server — hand it work from the agent you are already in\n\nno_human ships an **MCP (Model Context Protocol) server**: a stdio bridge, built\non the official Python MCP SDK, that lets Claude Code, Cursor or any MCP client\nfile work with your local no_human and check on it.\n\n```bash\nnh mcp-serve        # the MCP server, over stdio\n```\n\nTwo tools, and no more:\n\n| Tool | What it does |\n|---|---|\n| `task_add(title, description, repo_path)` | Files a task. no_human then plans it, writes the change, runs your tests, has a second model review it, and opens the pull request. |\n| `task_status(task_id_or_external_id)` | Returns that task's current state — status, attempts, the PR link once there is one. |\n\nIt talks to your own no_human at `http://127.0.0.1:8420` and nothing else: no\nauth, because that address is localhost, and no service of ours in between. For\nClaude Code, the same server ships as a plugin — point it at\n[`plugins/no-human/`](plugins/no-human/) and the two tools appear in your\nsession.\n\n```jsonc\n// .mcp.json\n{ \"mcpServers\": { \"no_human\": { \"command\": \"nh\", \"args\": [\"mcp-serve\"] } } }\n```\n\n## Docs\n\n| | |\n|---|---|\n| [quickstart.md](docs/quickstart.md) | Zero to first task, per platform |\n| [configuration.md](docs/configuration.md) | Every setting and default |\n| [verification.md](docs/verification.md) | The gates, the bounded loop, the limits |\n| [security.md](docs/security.md) | Auth boundary, the never-merge rule, guards |\n| [blockers.md](docs/blockers.md) | Escalation, wake watcher, `nh reply` |\n| [adapters.md](docs/adapters.md) | Intake, context, VCS and CI backends |\n| [eval.md](docs/eval.md) | Golden set, replay scoring, shadow mode |\n| [CHANGELOG.md](CHANGELOG.md) | What changed, per release |\n\n## Development\n\n```bash\nuv sync\nuv run pytest -q\nuv run nh --help\n```\n\nIssues and pull requests welcome; run `uv run pytest -q` before submitting.\n\nIf no_human saved you a review cycle, a star helps other people find it:\n[![GitHub stars](https://img.shields.io/github/stars/no-human-ai/no_human?style=social)](https://github.com/no-human-ai/no_human/stargazers)\n\n## License\n\nMIT — see [LICENSE](LICENSE). The licence covers the code, not the name:\n[TRADEMARK.md](TRADEMARK.md) is the policy on using \"no_human\" and the logo.\nPackaging a binary carries obligations the source tree does not, listed in\n[THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).\n",
+  "status": "curated"
+}

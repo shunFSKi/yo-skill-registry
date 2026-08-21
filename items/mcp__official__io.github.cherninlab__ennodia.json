@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.cherninlab/ennodia",
+  "type": "mcp",
+  "name": "ennodia",
+  "description": "Local MCP server for AI team advice, multi-agent review, Compare, and traceable receipts",
+  "author": "io.github.cherninlab",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/cherninlab/ennodia",
+    "repo": "cherninlab/ennodia"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "ennodia"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-20T17:07:02.452213Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "<div align=\"center\">\n\n<a href=\"https://ennodia.cherninlab.com\">\n<picture> \n  <source media=\"(prefers-color-scheme: dark)\" srcset=\"https://github.com/cherninlab/ennodia/raw/main/docs/assets/logo-dark.svg\">\n  <source media=\"(prefers-color-scheme: light)\" srcset=\"https://github.com/cherninlab/ennodia/raw/main/docs/assets/logo.svg\">\n  <img alt=\"Ennodia\" src=\"https://github.com/cherninlab/ennodia/raw/main/docs/assets/logo.svg\" width=\"235\" height=\"50\">\n</picture>\n</a>\n\n<p><strong>Model Context Protocol (MCP) server for multi-agent review with Compare and traceable receipts</strong></p>\n\n<p>\n  <a href=\"LICENSE\"><img alt=\"License: MIT\" src=\"https://img.shields.io/badge/License-MIT-informational\"></a>\n  <img alt=\"Continuous integration\" src=\"https://github.com/cherninlab/ennodia/actions/workflows/ci.yml/badge.svg\" />\n  <a href=\"https://smithery.ai/servers/cherninlab/ennodia\"><img alt=\"Smithery: Ennodia\" src=\"https://img.shields.io/badge/Smithery-Ennodia-FF5601\"></a>\n</p>\n\n<p align=\"center\">\n  <img alt=\"Ennodia terminal with three completed artificial intelligence reviews\" src=\"https://github.com/cherninlab/ennodia/raw/main/docs/assets/terminal.png\" width=\"600\">\n</p>\n\n</div>\n\nEnnodia gives your primary agent access to installed agent command-line\ninterfaces (CLIs). It tracks each child task and uses model-led Compare to show\nagreements, disagreements, omissions, and one recommended answer with receipts.\n\nBefore work, an optional Plan Advisor can propose a bounded set of harnesses,\nmodels, and skills. It does not start the proposed work.\n\n## Install\n\nSend this address to your primary agent. The agent can then complete the\ninstallation:\n\n```text\ntry-ennodia.cherninlab.com\n```\nTo run Ennodia directly as a standard input/output (stdio) MCP server, use:\n\n```sh\nnpx -y ennodia\n```\nTo use Bun directly, run `bunx ennodia`.\n\nFor a registry or client installer, use the\n[Ennodia Smithery page](https://smithery.ai/servers/cherninlab/ennodia).\n\nFor manual installation or local development, see\n[Quickstart](https://ennodia.cherninlab.com/docs/getting-started/).\n\n## What Ennodia does\n\n- Discovers available local artificial intelligence (AI) tools\n- Plans a route with a caller-provided category or keyword fallback\n- Estimates preflight input tokens and enforces local caps on that estimate\n- Starts and monitors child tasks\n- Shows status, elapsed time, logs, and failures\n- Cancels tasks and runs explicitly\n- Lets a Plan Advisor propose an inert, validated work plan\n- Compares multiple completed outputs with a Judge\n- Lets a Result Advisor combine the Judge findings into one answer\n\n`ennodia_run` is the main entrypoint. It plans and starts tasks. It can also use\nCompare. It returns a run identifier (ID) for use with `ennodia_get_run`.\n\nSee [MCP tools](https://ennodia.cherninlab.com/docs/reference/mcp-tools/) for\nthe full tool and parameter reference.\n\nUse Ennodia for work that needs additional model analysis. A run usually takes\nminutes. Compare adds two serial model passes after the child agents finish.\n\n## Judge, Plan Advisor, and Result Advisor\n\nEach role has limited responsibilities:\n\n- **Plan Advisor** runs before work when requested. It proposes explicit\n  harness, model, and skill assignments as inert data. Ennodia validates the\n  proposal against a frozen inventory. Plan Advisor cannot execute it. The\n  caller must use a separate call to start the validated plan once.\n- **Judge** runs during Compare and maps agreements, contradictions, unique\n  evidence, omissions, and risks across completed outputs.\n- **Result Advisor** follows the Judge. It uses the Judge findings and original\n  outputs to recommend an answer. If Judge analysis is not usable, it uses\n  `basis: \"candidates-only\"`. This status makes the degradation visible.\n\n## Ennodia IO\n\nThe separate `@cherninlab/ennodia-io` package provides a local Hypertext\nTransfer Protocol (HTTP) and TypeScript interface. Apps can use it with\nuser-supplied keys and installed local agents:\n\n```sh\nnpx -y @cherninlab/ennodia-io\n```\n\nSee [Ennodia IO](https://ennodia.cherninlab.com/docs/reference/ennodia-io/) for\nsupported fields, authentication behavior, cross-origin resource sharing\nrules, and current limits.\n\n## Supported harnesses\n\n- Codex CLI\n- Claude Code\n- OpenCode\n- Kilo Code\n- Kiro CLI\n- Cline CLI\n- Hermes Agent\n- Antigravity\n\nAdapters stay thin. Core modules contain shared routing, trace data, task state,\nrecovery, and Compare logic.\n\nEvaluated candidates include Gemini CLI, GitHub Copilot CLI, Amp, Aider, Goose,\nQwen Code, and Cursor CLI. Ennodia does not include these candidates.\n\nEnnodia can add a candidate after verification of a supported prompt-in and\ntext-out interface. Verification must not use permission-bypass flags or\nprovider-private APIs.\n\n## Documentation\n\n- [Installation for Agents](https://ennodia.cherninlab.com/docs/install/): agent-controlled installation\n- [Quickstart](https://ennodia.cherninlab.com/docs/getting-started/): manual installation and local development\n- [MCP Tools](https://ennodia.cherninlab.com/docs/reference/mcp-tools/): full tool parameter reference\n- [How Ennodia Works](https://ennodia.cherninlab.com/docs/concepts/how-ennodia-works/): orchestration pipeline\n- [Second Opinions](https://ennodia.cherninlab.com/docs/concepts/second-opinions/): replicate, decompose, and red-team patterns\n- [Data Governance](https://ennodia.cherninlab.com/docs/concepts/data-governance/): local storage and data movement boundaries\n- [Controlled English](https://ennodia.cherninlab.com/docs/reference/controlled-english/): ASD-STE100 rules and Ennodia technical terms\n- [Comparisons](https://ennodia.cherninlab.com/docs/comparisons/): comparisons with adjacent tools\n- [Benchmarks](https://ennodia.cherninlab.com/docs/reference/benchmarks/): deterministic bug-recall results\n- [Better Audits](https://ennodia.cherninlab.com/docs/guides/running-better-audits/): prompt rubrics for Compare\n\n## Benchmarks\n\nThe current benchmark is `multi-model-bug-recall`. It uses small TypeScript\nreview fixtures and committed bug oracles. Run the deterministic suite with:\n\n```sh\nbun run bench:bug-recall\n```\n\nLive harness runs are available through `bun run bench:bug-recall:live` and are\nkept out of `bun run verify`.\n\nThe current dated fixture snapshot is published in\n[Benchmarks](https://ennodia.cherninlab.com/docs/reference/benchmarks/): 4\ncases, with `ennodia-parallel-compare` at 100% recall and 100% precision.\n\n## Contribute\n\nEnnodia is under active development. You can submit bug reports and small,\nfocused pull requests. See [CONTRIBUTING.md](CONTRIBUTING.md) for the local\nverification workflow.\n",
+  "status": "curated"
+}

@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/al.square/fiskalizimi",
+  "type": "mcp",
+  "name": "Fiskalizimi — Albanian tax & payroll",
+  "description": "Albanian NIPT validation, TVSH (VAT) & invoice math, gross↔net payroll on verified 2026 rates.",
+  "author": "al.square",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/square-al/fiskalizimi-utils",
+    "repo": "square-al/fiskalizimi-utils"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "https://github.com/square-al/fiskalizimi-utils/releases/download/v0.2.0/fiskalizimi-mcp.mcpb"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-20T15:50:07.379872Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "金融",
+    "featured": false
+  },
+  "readme": "# fiskalizimi-utils\n\nZero-dependency utilities for **Albanian fiscalization** (Law 87/2019 \"On the invoice and the circulation monitoring system\") **and payroll**: NIPT/NUIS validation, TVSH (VAT) math, fiscal invoice totals with the per-rate VAT breakdown every fiscalized invoice must report, and gross↔net salary / profit-tax math over a verified, dated rates config. Also available as an **MCP server** for AI agents.\n\nBuilt and maintained by [Square Software](https://square.al), a software company in Tirana that ships [fiscalization integrations](https://square.al/fiscalization-api) for POS, ERP and e-commerce systems. These are the same pure functions that power our free online tools:\n\n- [Verifikues NIPT / NUIS](https://square.al/sq/llogarites/nipt)\n- [Llogaritësi i TVSH-së](https://square.al/sq/llogarites/tvsh)\n- [Llogaritësi i faturës / fiskalizimit](https://square.al/sq/llogarites/fiskalizimi)\n\n📖 **Full documentation: [fiskalizimi-utils.readthedocs.io](https://fiskalizimi-utils.readthedocs.io)**\n\n## Install\n\n| Where | Install | Contents |\n| --- | --- | --- |\n| [npm](https://www.npmjs.com/package/fiskalizimi-utils) | `npm install fiskalizimi-utils` | NIPT, TVSH, invoice totals, payroll, profit tax (ESM + types) |\n| [JSR](https://jsr.io/@square-al/fiskalizimi-utils) | `deno add jsr:@square-al/fiskalizimi-utils` | same, TypeScript source |\n| [PyPI](https://pypi.org/project/fiskalizimi-utils/) | `pip install fiskalizimi-utils` | the above **+ severance, annual leave** |\n| MCP | `al.square/fiskalizimi` in the [MCP registry](https://registry.modelcontextprotocol.io) · `.mcpb` on [Releases](https://github.com/square-al/fiskalizimi-utils/releases) | every calculator as a tool for AI agents — see [mcp/](mcp/) |\n| Docker | `docker run --rm squaresoftware/fiskalizimi --help` | the CLI, no runtime to install |\n\n```bash\nnpm install fiskalizimi-utils\n# or straight from GitHub:\nnpm install github:square-al/fiskalizimi-utils\n```\n\n## Usage\n\n### Validate a NIPT / NUIS\n\n```ts\nimport { validateNipt } from 'fiskalizimi-utils'\n\nconst res = validateNipt(' m5 1418-039h ') // separators + case are normalized\nres.valid       // true\nres.normalized  // 'M51418039H'\nres.parts       // { prefix: 'M', digits: '51418039', checkLetter: 'H' }\n\nvalidateNipt('M5141803OH')\n// { valid: false, issues: ['digits-not-numeric'], likelyTypo: true }  ← O vs 0\n```\n\nFormat-level validation only (letter A–M + 8 digits + control letter). A well-formed NIPT is not necessarily registered — check existence in the official registry (QKB), e.g. `https://opencorporates.al/sq/nipt/m51418039h`.\n\n### TVSH (VAT) math\n\n```ts\nimport { addVat, extractVat, ALBANIA_VAT, KOSOVO_VAT } from 'fiskalizimi-utils'\n\naddVat(1000, ALBANIA_VAT.standard)   // { net: 1000, vat: 200, gross: 1200, rate: 0.2 }\nextractVat(1180, KOSOVO_VAT.standard) // net 1000, vat 180 — Kosovo 18%\n```\n\n### Fiscal invoice totals\n\n```ts\nimport { invoiceTotals } from 'fiskalizimi-utils'\n\nconst t = invoiceTotals([\n  { description: 'Service A', quantity: 2, unitPrice: 500, vatRate: 0.2 },\n  { description: 'Book', quantity: 1, unitPrice: 800, vatRate: 0.06, discountRate: 0.1 },\n])\nt.subtotal  // net total\nt.totalVat  // VAT total\nt.vatByRate // [{ rate: 0.2, base: 1000, vat: 200 }, { rate: 0.06, base: 720, vat: 43.2 }]\n```\n\n`vatByRate` is the per-rate base/VAT table a fiscalized invoice reports.\n\n### Payroll — gross ↔ net (Albania 2026)\n\n```ts\nimport { grossToNet, netToGross, profitTax, AL_2026 } from 'fiskalizimi-utils'\n\nconst b = grossToNet(100_000, AL_2026.salary)\nb.empSocial     // 9500     (9.5%)\nb.empHealth     // 1700     (1.7%)\nb.incomeTax     // 5044     (progressive 0 / 13 / 23%)\nb.net           // 83756\nb.employerCost  // 116700   (gross + employer 15% + 1.7%)\n\nnetToGross(83_756, AL_2026.salary)          // ≈ 100000\nprofitTax(20_000_000, AL_2026.profitTax).tax // 900000  (0% to 14M, 15% above)\n```\n\nEvery number comes from `AL_2026` — a dated config verified against tatime.gov.al on 2026-06-29 — and none are hard-coded in the functions. Read `AL_2026.notes` for the disclosed approximation in the 50,000–60,000 ALL/month band.\n\n## MCP server\n\n`mcp/` wraps all of the above as an [MCP](https://modelcontextprotocol.io) server (`al.square/fiskalizimi`) so AI agents can validate a NIPT, total an invoice or compute a net salary without a network call: `validate_nipt`, `add_vat`, `extract_vat`, `invoice_totals`, `net_salary`, `gross_salary_from_net`, `profit_tax`, `tax_rates`. Claude Desktop users install the `.mcpb` from the [latest release](https://github.com/square-al/fiskalizimi-utils/releases); any stdio client can run `node mcp/dist/main.js`. Details in [mcp/README.md](mcp/README.md).\n\n## Python\n\nThe Python package is a faithful port with the payroll calculators added, and it\ncarries the dated rates config the [square.al calculators](https://square.al/sq/llogarites)\nread:\n\n```python\nfrom fiskalizimi_utils import AL_2026, gross_to_net, validate_nipt, add_vat\n\nvalidate_nipt(\"m5141 8039h\").normalized    # 'M51418039H'\nadd_vat(1000, 0.20).gross                  # 1200.0\n\nb = gross_to_net(100_000, AL_2026.salary)\nb.net             #  83756.0\nb.employer_cost   # 116700.0\n```\n\nA parity test suite generates fixtures from this TypeScript source and asserts\nthe Python implementation against them — down to the half-up rounding JavaScript\ndoes and Python does not — so the two packages cannot silently diverge.\nRegenerate the fixtures with `npx tsx scripts/gen-parity-fixture.mjs`.\n\n## Command line\n\n```console\n$ fiskalizimi nipt M51418039H     # pip install fiskalizimi-utils\n$ fiskalizimi paga 100000 --json\n$ fiskalizimi tvsh 1200 --extract\n$ docker run --rm squaresoftware/fiskalizimi rates\n```\n\nEvery subcommand takes `--json`. `nipt` exits non-zero on a bad format, so it\ncomposes in shell scripts.\n\n## Open data\n\n[`dataset/`](dataset/) publishes the same figures as a\n[Frictionless](https://frictionlessdata.io) data package under CC-BY-4.0:\nincome-tax and profit-tax bands, contribution rates and their base window, VAT\nrates, the minimum wage, and the filing deadlines — one row per band, rates as\ndecimal fractions. It is generated from the library\n(`cd dataset && PYTHONPATH=../python/src python3 generate.py`), so the data and\nthe code cannot drift apart.\n\n## Shqip\n\nMjete TypeScript pa varësi për fiskalizimin shqiptar: verifikim i formatit të **NIPT/NUIS**, llogaritje **TVSH-je** (shto/hiq nga një vlerë) dhe **totalet e faturës** me TVSH-në e ndarë sipas normës — ashtu siç e raporton një faturë e fiskalizuar. I njëjti kod që fuqizon [llogaritësit tanë falas](https://square.al/sq/llogarites). Për integrime fiskalizimi në sistemet tuaja, shihni [square.al](https://square.al/sq/program-fiskalizimi).\n\n## Accuracy\n\nThe `AL-2026` rates config was confirmed against\n[tatime.gov.al](https://www.tatime.gov.al) on 2026-06-29 and carries\n`verified = true`. Two limitations are disclosed in the config's own `notes`\nfield: the personal-income-tax bracket model is a deliberate approximation of the\nofficial schedule inside the ~50,000–60,000 ALL/month transitional band, and the\nseverance figures are *orientues* values from the Labor Code's general\nprinciples rather than a statutory table. See\n[Accuracy & limitations](https://fiskalizimi-utils.readthedocs.io/en/latest/accuracy/).\n\nRates and rules change; confirm with the tax authority before invoicing. Nothing\nhere is tax or legal advice.\n\n- No network calls, no dependencies, side-effect free — safe for browser and Node.\n- Tests: `npm test` (TypeScript) and\n  `cd python && PYTHONPATH=src python -m unittest discover -s tests -t tests` (104 tests).\n\n## Releasing\n\nSee [PUBLISHING.md](PUBLISHING.md). Tagging `vX.Y.Z` publishes to PyPI and JSR\nover OIDC with no stored tokens and attaches the MCP bundle to the GitHub release;\nthe MCP registry entry is then refreshed with `mcp-publisher publish`.\n\n## License\n\nMIT © [Square Software SHPK](https://square.al)\n",
+  "status": "curated"
+}
