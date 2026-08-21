@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/com.inclusifyapp/inclusify",
+  "type": "mcp",
+  "name": "Inclusify Accessibility",
+  "description": "Accessibility and WCAG data for your own websites: fix lists, live checks, and fix validation.",
+  "author": "com.inclusifyapp",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/magebitcom/inclusify-plugin",
+    "repo": "magebitcom/inclusify-plugin"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://app.inclusifyapp.com/api/mcp/customer"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-21T09:51:42.623951Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Inclusify for AI agents\n\nConnect your AI assistant to [Inclusify](https://inclusifyapp.com) and ask about the\naccessibility of your own websites: what is failing, where it lives in your source, and whether\nthe fix you just wrote actually fixes it.\n\nThis repository is the install surface — the plugin manifests, the registry entry and one skill.\nThe MCP server itself runs at `https://app.inclusifyapp.com/api/mcp/customer` and is not open\nsource.\n\n## Install\n\n**Cursor** — [Add to Cursor](cursor://anysphere.cursor-deeplink/mcp/install?name=inclusify&config=eyJ1cmwiOiJodHRwczovL2FwcC5pbmNsdXNpZnlhcHAuY29tL2FwaS9tY3AvY3VzdG9tZXIifQ==),\nor install the Inclusify plugin from the Cursor marketplace.\n\n**Claude Code**\n\n```bash\nclaude mcp add --transport http inclusify https://app.inclusifyapp.com/api/mcp/customer\n```\n\nOr install this repository as a plugin marketplace, which brings the skill with it:\n\n```bash\n/plugin marketplace add magebitcom/inclusify-plugin\n```\n\n**Gemini CLI**\n\n```bash\ngemini extensions install https://github.com/magebitcom/inclusify-plugin\n```\n\n**Everything else** — Claude web and desktop, ChatGPT, VS Code, Windsurf, Continue and the rest\nare one URL each. The exact file and field name per client are documented at\n[inclusifyapp.com/docs/integrations/mcp](https://inclusifyapp.com/docs/integrations/mcp).\n\n## First connection\n\nYour client registers itself and opens a browser tab. You sign in to Inclusify or create an\naccount; if you have no organisation yet you are asked to name one, which is your workspace.\nA consent screen shows what the client gets — your basic profile and email address, nothing\nelse. No API key is involved anywhere.\n\n## What you need for it to say anything useful\n\n- The website has to be in your Inclusify account. Asking about a domain you have not added\n  returns \"no website by that name here\" rather than scanning a stranger's site.\n- The tools work per website on the Pro plan. Account-wide questions across every site need\n  Enterprise on at least one website.\n- A site that has never been scanned has no score yet.\n\n## What it can do\n\nTwenty-two tools: where a site stands, the fix list with the strings to grep for in your own\ntemplates, live keyboard and screen-reader checks, rendering under forced colours and 400% zoom,\nalt-text review, checking a fix before you deploy it, and a pass/fail gate for CI.\n\nThey are the same tools on every client. Each one, along with what it deliberately does not know\nand the two allowances that bound the live checks, is documented on the page linked above — the\nreference lives in one place on purpose, so this README does not restate it.\n\n## The skill\n\n`skills/accessibility-fix-loop` teaches the loop that actually resolves issues rather than\nsilencing them: read the fix list, grep your source for the strings it hands you, validate the\nmarkup before deploying, then confirm against a later scan. It also tells the assistant to take\na `masked` verdict seriously — `aria-hidden`, `display: none` and swapping a button for a div\nall make a scanner go quiet while leaving the barrier in place.\n\n## Contributing\n\nIssues and pull requests on the manifests, the skill and the docs are welcome. Problems with the\nserver itself, your account or your billing go to support@inclusifyapp.com.\n\n## Licence\n\nMIT, see [LICENSE](LICENSE). The Inclusify name and logo are trademarks of Magebit.\n",
+  "status": "curated"
+}

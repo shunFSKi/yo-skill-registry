@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.mcp-dir/easyjur-mcp",
+  "type": "mcp",
+  "name": "EasyJur",
+  "description": "Wrapper for the official EasyJur API (legal practice management): cases (with parties, claims, finan",
+  "author": "io.github.mcp-dir",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/mcp-dir/easyjur-mcp",
+    "repo": "mcp-dir/easyjur-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://api.mcp.ai/p_easyjur"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-21T13:25:37.162504Z",
+    "score": 55
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# EasyJur\n\n### EasyJur para Claude, ChatGPT e agentes de IA\n\nWrapper da API oficial do EasyJur (gestão jurídica): processos (e partes, pedidos, financeiros, documentos, mensagens), pessoas, agenda, oportunidades, timesheet, financeiro (receitas/despesas), grupos e usuários. Leitura + criação de processos, pessoas, agenda e oportunidades. Autenticação por token de API do escritório.\n\n- 📊 **41 ferramentas**\n- ✏️ **Leitura e escrita**\n- 💬 **Funciona com qualquer cliente MCP**: Claude Desktop, Cursor, VS Code, Cline, Continue\n- 🔑 **Login via magic-link (sem senha)**\n\n[English version](README.en.md) · [Documentação completa](docs/) · [Skill pra agentes](skills/)\n\n---\n\n## Instalar em 1 clique\n\n### Claude (Web e Desktop)\n\nA Anthropic unificou a instalação de MCPs em `claude.ai/customize/connectors`. **O mesmo link serve pra Claude Web e Claude Desktop** (basta estar logado):\n\n[➕ Abrir no Claude e conectar](https://claude.ai/new?modal=add-custom-connector#settings/customize-connectors)\n\n**Manual** (se o deeplink não abrir): [claude.ai/customize/connectors](https://claude.ai/customize/connectors?surface=cowork) → **+** → **Adicionar conector personalizado** → cole **Nome** `EasyJur` e **URL** `https://api.mcp.ai/p_easyjur`.\n\n### Cursor\n\n[➕ Instalar EasyJur no Cursor](cursor://anysphere.cursor-deeplink/mcp/install?name=easyjur&config=eyJ1cmwiOiJodHRwczovL2FwaS5tY3AuYWkvcF9lYXN5anVyIn0=)\n\n### VS Code (Copilot Chat)\n\n[➕ Instalar EasyJur no VS Code](vscode:mcp/install?name=easyjur&config=%7B%22type%22%3A%22http%22%2C%22url%22%3A%22https%3A%2F%2Fapi.mcp.ai%2Fp_easyjur%22%7D)\n\n### ChatGPT, Manus, OpenClaw e mais 40+ clientes\n\nFunciona em qualquer cliente MCP que suporte **MCP over HTTP**. A URL do servidor é sempre:\n\n```\nhttps://api.mcp.ai/p_easyjur\n```\n\nDetalhes por cliente: [INSTALL.md](INSTALL.md).\n\n---\n\n## Exemplos de uso\n\n```\nBusque o processo número X no EasyJur e mostre as últimas mensagens\nListe processos com movimentação nos últimos 7 dias\nCrie um item de agenda vinculado ao processo Y para registrar a movimentação\n```\n\n---\n\n## 41 ferramentas disponíveis\n\n| Tool | Descrição |\n|---|---|\n| `easyjur_api_status` | Status da API EasyJur do escritório autenticado (identidade + limites). |\n| `easyjur_list_tokens` | Lista os tokens de API da empresa. |\n| `easyjur_get_token` | Consulta um token de API por ID. |\n| `easyjur_list_pessoas` | Lista pessoas (clientes, contrários, terceiros). |\n| `easyjur_get_pessoa` | Busca uma pessoa por ID. Bulk support: accepts pessoa_ids for batched execution. |\n| `easyjur_list_pessoas_grupo` | Lista pessoas de um grupo. Bulk support: accepts grupo_ids for batched execution. |\n| `easyjur_create_pessoa` | Cria uma pessoa. Obrigatórios: nome, fisica_juridica. |\n| `easyjur_list_processos` | Lista/busca processos. Filtros úteis: numero, nome_parte, cpf, cnpj, advogado_nome, status, comarca, uf, data_inicio, data_fim, movimentacao, dias_movimentacao. Demais filtros via `query`. |\n| `easyjur_list_tribunais` | Lista tribunais/órgãos disponíveis. |\n| `easyjur_list_processos_grupo` | Lista processos de um grupo. Bulk support: accepts grupo_ids for batched execution. |\n| `easyjur_get_processo` | Busca um processo por ID (dados completos). |\n| `easyjur_processo_pedidos` | Pedidos de um processo. Bulk support: accepts processo_ids for batched execution. |\n| `easyjur_processo_financeiros` | Lançamentos financeiros de um processo. |\n| `easyjur_processo_documentos` | Documentos de um processo. Bulk support: accepts processo_ids for batched execution. |\n| `easyjur_processo_partes` | Partes de um processo. Bulk support: accepts processo_ids for batched execution. |\n| `easyjur_processo_vinculados` | Processos vinculados a um processo. |\n| `easyjur_processo_mensagens` | Mensagens/andamentos de um processo. |\n| `easyjur_create_processo` | Cria um processo. Obrigatórios: numero, id_advogado. (A API oficial não tem update — para registrar movimentação use easyjur_create_agenda vinculada ao processo.) |\n| `easyjur_list_agenda` | Lista itens de agenda (prazos, compromissos, tarefas). |\n| `easyjur_get_agenda` | Busca um item de agenda por ID. |\n| `easyjur_agenda_etapas` | Etapas de workflow de um item de agenda. |\n| `easyjur_agenda_comentarios` | Comentários de um item de agenda. |\n| `easyjur_agenda_envolvidos` | Envolvidos em um item de agenda. |\n| `easyjur_list_agenda_grupo` | Lista agenda de um grupo. Bulk support: accepts grupo_ids for batched execution. |\n| `easyjur_create_agenda` | Cria item de agenda. Obrigatórios: tipo, id_advogado. Vincule a um processo (campo `processo`) para registrar uma movimentação/atualização. |\n| `easyjur_list_timesheet` | Lista lançamentos de timesheet. |\n| `easyjur_get_timesheet` | Detalha um lançamento de timesheet. |\n| `easyjur_list_oportunidades` | Lista oportunidades (CRM/pré-venda). |\n| `easyjur_get_oportunidade` | Busca uma oportunidade por ID. |\n| `easyjur_list_oportunidades_grupo` | Lista oportunidades de um grupo. |\n| `easyjur_create_oportunidade` | Cria oportunidade. Obrigatórios: nome, status, responsavel, cliente. |\n| `easyjur_list_receitas` | Lista receitas. |\n| `easyjur_get_receita` | Busca uma receita por ID. Bulk support: accepts receita_ids for batched execution. |\n| `easyjur_list_receitas_grupo` | Lista receitas de um grupo. Bulk support: accepts grupo_ids for batched execution. |\n| `easyjur_list_despesas` | Lista despesas. |\n| `easyjur_get_despesa` | Busca uma despesa por ID. Bulk support: accepts despesa_ids for batched execution. |\n| `easyjur_list_despesas_grupo` | Lista despesas de um grupo. Bulk support: accepts grupo_ids for batched execution. |\n| `easyjur_list_grupos` | Lista grupos (pastas/áreas). |\n| `easyjur_get_grupo` | Busca um grupo por ID. Bulk support: accepts grupo_ids for batched execution. |\n| `easyjur_list_users` | Lista usuários do escritório. |\n| `easyjur_get_user` | Busca um usuário por ID. Bulk support: accepts user_ids for batched execution. |\n\nDetalhe de cada tool: [docs/ferramentas.md](docs/ferramentas.md)\n\n---\n\n## Preços\n\nGrátis.\n\n---\n\n## Privacidade & LGPD\n\n- **Sub-processadores**: o LLM host que você escolher (Claude, ChatGPT, Cursor, agente próprio). Lista completa em [docs/privacidade-lgpd.md](docs/privacidade-lgpd.md).\n- Os dados retornados pelas tools são enviados ao **LLM host que você escolher**, sub-processador fora do nosso controle. Recomendamos planos com opt-out de treinamento.\n\n---\n\n## Perguntas frequentes\n\n**O servidor é open source?**\nO servidor é proprietário (hosted). Este repositório é o wrapper público com manifestos, docs e skills — tudo MIT.\n\n**Posso usar com agente próprio (não Claude/Cursor)?**\nSim — qualquer cliente que suporte MCP over HTTP. URL: `https://api.mcp.ai/p_easyjur`.\n\n\n---\n\n## Suporte\n\n- 📧 [easyjur@mcp.ai](mailto:easyjur@mcp.ai)\n- 🐛 [GitHub Issues](https://github.com/mcp-dir/easyjur-mcp/issues)\n- 📄 [docs/](docs/)\n\n---\n\n## Licença\n\nMIT — veja [LICENSE](LICENSE). O servidor MCP em `api.mcp.ai/p_easyjur` é proprietário (hosted); este repositório (manifestos, docs, skills) é MIT.\n",
+  "status": "curated"
+}

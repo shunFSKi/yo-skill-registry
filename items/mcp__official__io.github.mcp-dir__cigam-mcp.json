@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.mcp-dir/cigam-mcp",
+  "type": "mcp",
+  "name": "CIGAM",
+  "description": "CIGAM ERP (management for industry, retail and franchises) via session capture with your authorizati",
+  "author": "io.github.mcp-dir",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/mcp-dir/cigam-mcp",
+    "repo": "mcp-dir/cigam-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://api.mcp.ai/p_cigam"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-21T13:22:26.892992Z",
+    "score": 55
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "办公",
+    "featured": false
+  },
+  "readme": "# CIGAM\n\n### CIGAM para Claude, ChatGPT e agentes de IA\n\nERP CIGAM (gestão para indústria, varejo e franquias) por captura de sessão com a sua autorização. Como o CIGAM não tem API pública, você informa a sua Chave de acesso, usuário e senha e a plataforma entra na sua conta para ler os seus próprios dados, na mesma API que o portal CIGAM usa. Somente leitura: vendas, notas fiscais, contas a pagar e a receber, fechamento de caixa, lançamentos financeiros e fornecedores.\n\n- 📊 **22 ferramentas**\n- ✏️ **Leitura e escrita**\n- 💬 **Funciona com qualquer cliente MCP**: Claude Desktop, Cursor, VS Code, Cline, Continue\n- 🔑 **Login via magic-link (sem senha)**\n\n[English version](README.en.md) · [Documentação completa](docs/) · [Skill pra agentes](skills/)\n\n---\n\n## Instalar em 1 clique\n\n### Claude (Web e Desktop)\n\nA Anthropic unificou a instalação de MCPs em `claude.ai/customize/connectors`. **O mesmo link serve pra Claude Web e Claude Desktop** (basta estar logado):\n\n[➕ Abrir no Claude e conectar](https://claude.ai/new?modal=add-custom-connector#settings/customize-connectors)\n\n**Manual** (se o deeplink não abrir): [claude.ai/customize/connectors](https://claude.ai/customize/connectors?surface=cowork) → **+** → **Adicionar conector personalizado** → cole **Nome** `CIGAM` e **URL** `https://api.mcp.ai/p_cigam`.\n\n### Cursor\n\n[➕ Instalar CIGAM no Cursor](cursor://anysphere.cursor-deeplink/mcp/install?name=cigam&config=eyJ1cmwiOiJodHRwczovL2FwaS5tY3AuYWkvcF9jaWdhbSJ9)\n\n### VS Code (Copilot Chat)\n\n[➕ Instalar CIGAM no VS Code](vscode:mcp/install?name=cigam&config=%7B%22type%22%3A%22http%22%2C%22url%22%3A%22https%3A%2F%2Fapi.mcp.ai%2Fp_cigam%22%7D)\n\n### ChatGPT, Manus, OpenClaw e mais 40+ clientes\n\nFunciona em qualquer cliente MCP que suporte **MCP over HTTP**. A URL do servidor é sempre:\n\n```\nhttps://api.mcp.ai/p_cigam\n```\n\nDetalhes por cliente: [INSTALL.md](INSTALL.md).\n\n---\n\n## Exemplos de uso\n\n```\nQuanto a loja Z136 vendeu neste mês?\nQuais contas a pagar vencem nos próximos 7 dias?\nMostre o fechamento de caixa da última semana\n```\n\n---\n\n## 22 ferramentas disponíveis\n\n| Tool | Descrição |\n|---|---|\n| `cigam_list_accounts` | Lista as contas CIGAM conectadas a este install — id, label (instância/usuário). |\n| `cigam_listar_lojas` | Lista as lojas/empresas que a conta enxerga (código, nome, CNPJ). |\n| `cigam_notas_fiscais` | Lista notas fiscais de uma loja por período. |\n| `cigam_vendas` | Vendas de uma loja por período (notas fiscais de saída do tipo Venda). |\n| `cigam_compras` | Compras de uma loja por período (notas fiscais de entrada do tipo Compra). |\n| `cigam_devolucoes` | Devoluções de uma loja por período (notas fiscais com movimento de devolução, entrada e saída). |\n| `cigam_vendas_resumo` | Panorama do período numa loja: totais de vendas, compras e devoluções (quantidade e valor de cada). |\n| `cigam_fluxo_caixa` | Fluxo de caixa projetado de uma loja por período: total a receber (contas a receber em aberto) vs total a pagar (contas a pagar), e o saldo projetado. |\n| `cigam_ranking_clientes` | Ranking de clientes por valor vendido no período (agrupa as vendas por destinatário/CNPJ-CPF). |\n| `cigam_vendas_por_dia` | Série de vendas por dia no período (quantidade e valor por data) + resumo com total e ticket médio. |\n| `cigam_inadimplencia` | Contas a receber vencidas e ainda em aberto (inadimplência). |\n| `cigam_resultado` | Resultado gerencial simplificado de uma loja por período: receita (vendas faturadas líquidas de devolução) menos despesas (lançamentos financeiros por plano de contas), com o detalhe das despesas por categoria. |\n| `cigam_formas_pagamento` | Mix de formas de recebimento de uma loja por período: total recebido por forma de pagamento, por bandeira de cartão e por adquirente (maquininha). |\n| `cigam_relatorio` | Gera um relatório do CIGAM (operação LENTA, ~2 min, produz um arquivo Excel). |\n| `cigam_job` | Busca o resultado de um job assíncrono (ex.: relatório) pelo `job_id` retornado por outra tool. |\n| `cigam_estoque` | Posição atual de estoque (saldo por código de barras). |\n| `cigam_contas_receber` | Lista contas a receber por período. |\n| `cigam_contas_pagar` | Lista contas a pagar por período. |\n| `cigam_caixa` | Lista fechamentos de caixa por período. |\n| `cigam_lancamentos` | Lista lançamentos financeiros por período. |\n| `cigam_fornecedores` | Lista/pesquisa fornecedores cadastrados. |\n| `cigam_consulta` | Consulta genérica ao gateway do CIGAM (ObterCarga) para listas auxiliares (planos de conta, formas de pagamento, marcas, etc.). |\n\nDetalhe de cada tool: [docs/ferramentas.md](docs/ferramentas.md)\n\n---\n\n## Preços\n\nPlanos a partir do tier grátis. Veja [docs/precos.md](docs/precos.md).\n\n---\n\n## Privacidade & LGPD\n\n- **Sub-processadores**: CIGAM (Senior Sistemas), o LLM host que você escolher (Claude, ChatGPT, Cursor, agente próprio). Lista completa em [docs/privacidade-lgpd.md](docs/privacidade-lgpd.md).\n- Os dados retornados pelas tools são enviados ao **LLM host que você escolher**, sub-processador fora do nosso controle. Recomendamos planos com opt-out de treinamento.\n\n---\n\n## Perguntas frequentes\n\n**O servidor é open source?**\nO servidor é proprietário (hosted). Este repositório é o wrapper público com manifestos, docs e skills — tudo MIT.\n\n**Posso usar com agente próprio (não Claude/Cursor)?**\nSim — qualquer cliente que suporte MCP over HTTP. URL: `https://api.mcp.ai/p_cigam`.\n\n\n---\n\n## Suporte\n\n- 📧 [cigam@mcp.ai](mailto:cigam@mcp.ai)\n- 🐛 [GitHub Issues](https://github.com/mcp-dir/cigam-mcp/issues)\n- 📄 [docs/](docs/)\n\n---\n\n## Licença\n\nMIT — veja [LICENSE](LICENSE). O servidor MCP em `api.mcp.ai/p_cigam` é proprietário (hosted); este repositório (manifestos, docs, skills) é MIT.\n",
+  "status": "curated"
+}

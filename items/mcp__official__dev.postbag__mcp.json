@@ -1,0 +1,70 @@
+{
+  "id": "mcp:official/dev.postbag/mcp",
+  "type": "mcp",
+  "name": "mcp",
+  "description": "Form backend that routes: one tool per Postbag API operation, plus quickstart and explain.",
+  "author": "dev.postbag",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/faahim/postbag",
+    "repo": "faahim/postbag"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@postbag/mcp"
+    ],
+    "env": [
+      {
+        "name": "POSTBAG_API_KEY",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "POSTBAG_API_URL",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-21T15:11:44.374639Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# Postbag\n\n[![CI](https://github.com/faahim/postbag/actions/workflows/ci.yml/badge.svg)](https://github.com/faahim/postbag/actions/workflows/ci.yml)\n[![npm: postbag](https://img.shields.io/npm/v/postbag?label=postbag%20CLI)](https://www.npmjs.com/package/postbag)\n[![npm: @postbag/sdk](https://img.shields.io/npm/v/%40postbag%2Fsdk?label=%40postbag%2Fsdk)](https://www.npmjs.com/package/@postbag/sdk)\n[![npm: @postbag/mcp](https://img.shields.io/npm/v/%40postbag%2Fmcp?label=%40postbag%2Fmcp)](https://www.npmjs.com/package/@postbag/mcp)\n[![License: AGPL-3.0](https://img.shields.io/badge/license-AGPL--3.0-blue)](./LICENSE)\n\n**A form backend that routes.** Point any HTML form at a Postbag endpoint and it\nlands in your inbox — then goes wherever it should: email, Telegram, a webhook, a\npartner, your CRM. Built for people who run many sites, and for the AI agents that\nbuild them.\n\n```html\n<form action=\"https://api.postbag.dev/s/fm_8f3kq2\" method=\"POST\">\n  <input name=\"email\" type=\"email\" required>\n  <textarea name=\"message\"></textarea>\n  <button>Send</button>\n</form>\n```\n\nThat's the whole integration for one form. Everything else — grouping forty forms\ninto one stream, mapping their different fields onto one shape, sending that shape\nto a partner between two dates, a daily digest, never losing a submission — is there\nwhen you need it and invisible when you don't.\n\n> **New here (human or AI agent)? Read [`CLAUDE.md`](./CLAUDE.md) first.**\n\n## Why it exists\n\nEvery website has forms. Every form needs somewhere to go. Formspree and friends\nsolve \"somewhere\" for one site; they fall over when you have fifteen sites feeding\none partner with fifteen slightly different forms. Postbag is the **source of truth**\nfor what each form collects, what each downstream system receives, and the versioned\ncontract between them.\n\n## The one idea\n\n> **The database makes it correct; events make it fast.**\n\nA submission is accepted the instant it is a row. Delivery is a durable outbox that a\nworker drains with retries. Realtime nudges are an accelerator, never a transport.\nIf every event stream in the system died, every submission would still arrive — late,\nnever lost. (Inherited from the lead pipeline this generalises; see\n[`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md).)\n\n## Status\n\n**Phase 1 — MVP live** at [postbag.dev](https://postbag.dev) (site, docs, dashboard at\n`/app`, API at `/v1`). See [`PROGRESS.md`](./PROGRESS.md) for the live blueprint and\n[`docs/ROADMAP.md`](./docs/ROADMAP.md) for phases.\n\n## Documentation\n\nStart at [`docs/README.md`](./docs/README.md).\n\n## License\n\nThe server, dashboard, site and domain packages (`apps/*`, `packages/core`, `packages/db`,\n`packages/auth`) are licensed under [AGPL-3.0](./LICENSE). The client packages that run\ninside your own code — `@postbag/sdk`, the `postbag` CLI and `@postbag/mcp` — are\n[MIT](./packages/sdk/LICENSE). Rationale in [ADR-006](./docs/decisions/ADR-006-license-and-business-model.md).\n",
+  "status": "curated"
+}

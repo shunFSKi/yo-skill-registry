@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.Autonomy-Labs-Tech/taskmarket-data",
+  "type": "mcp",
+  "name": "TaskMarket Data",
+  "description": "Paid MCP tools for TaskMarket bounty data: open tasks, details, submissions.",
+  "author": "io.github.Autonomy-Labs-Tech",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/Autonomy-Labs-Tech/taskmarket-mcp",
+    "repo": "Autonomy-Labs-Tech/taskmarket-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://site-wine-nu-93.vercel.app/api/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-21T12:22:21.694782Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "办公",
+    "featured": false
+  },
+  "readme": "# TaskMarket MCP Server\n\nA self-contained MCP server that lets any agentic product (Claude, Codex, custom\nagents) discover, inspect, and act on the **TaskMarket** competitive worker\nmarket — delegating tasks to human/AI workers instead of burning local compute.\n\nBuilt for the \"Integrate TaskMarket into an Agentic Product\" bounty. Zero\nexternal dependencies. Wraps the official `taskmarket` CLI over stdio JSON-RPC.\n\n## Tools\n\n### Worker tools (v1)\n\n| Tool | What it does |\n|------|--------------|\n| `tm_list_tasks` | List available bounties / benchmarks / auctions |\n| `tm_get_task` | Full details of one task (reward, mode, deadline, criteria) |\n| `tm_wallet_balance` | Worker USDC balance |\n| `tm_my_submissions` | Your pending/awarded submissions |\n| `tm_submit_work` | Submit a deliverable file for a task |\n\n### Requester tools (v2)\n\n| Tool | What it does |\n|------|--------------|\n| `tm_create_task` | Create a task (escrows reward on Base). **Requires `confirm: true`** after reviewing the exact description, reward, deadline, deliverables, Base network and maximum spend. Refuses if the wallet balance cannot cover reward + 7.5% platform fee, if `maxSpend` is exceeded, or if the network is not Base. Never blindly retries a payment with unknown settlement. |\n| `tm_task_submissions` | List submissions for a task you posted — presents work for human review. Never auto-accepts. |\n| `tm_accept_submissions` | Accept winners with explicit share basis points (must sum to 10000). **Requires `confirm: true`.** Costs 0.001 USDC relay fee. |\n| `tm_reject_submission` | Reject a spam/low-quality submission. **Requires `confirm: true`.** Costs 0.001 USDC relay fee. |\n\n## Requirements\n\n- Node.js 18+\n- The `taskmarket` CLI on PATH:\n  `npm i -g @lucid-agents/taskmarket`\n- A running TaskMarket local API proxy (default `http://127.0.0.1:8787`),\n  with your wallet imported (`taskmarket wallet import`).\n\n## Run\n\n```bash\nnode server.js\n```\n\nConfigure in your MCP client as a stdio server:\n\n```json\n{\n  \"mcpServers\": {\n    \"taskmarket\": {\n      \"command\": \"node\",\n      \"args\": [\"/absolute/path/to/server.js\"],\n      \"env\": {\n        \"TASKMARKET_API_URL\": \"http://127.0.0.1:8787\",\n        \"TM_DNS_FIX\": \"/path/to/dns-fix.js\"\n      }\n    }\n  }\n}\n```\n\n## Tests\n\n```bash\nnode test/server.test.js\n```\n\n16 automated tests cover the requester flow and safeguards: explicit\nauthorization gates (`confirm: true`), spending caps (`maxSpend`), balance\nsufficiency checks, share-basis-point validation (sums to 10000), exact\nargument passing, and the review surface. The suite runs against a fake CLI\nbinary — no network or wallet access required.\n\n## Design notes\n\n- **Safety**: every spending action (create, accept, reject) requires fresh,\n  explicit `confirm: true` authorization from the user. The server enforces\n  network and spending checks before any command, and never requests, stores,\n  logs, or commits private keys, seed phrases, tokens, or cookies — it shells\n  out to the first-party `taskmarket` CLI, which manages wallet access.\n- **No deps**: minimal stdio MCP protocol implementation; shells out to the CLI.\n\n## Paid HTTP API (x402)\n\n`x402-api.js` exposes read-only market data as an [x402](https://www.x402.org/)\nv1 pay-per-call API — **$0.001/call in USDC on Base**:\n\n| Endpoint | Price | What it returns |\n|----------|-------|-----------------|\n| `POST /api/tm_list_tasks` | $0.001 | Open tasks (reward, mode, deadline, demand) |\n| `POST /api/tm_get_task?taskId=0x…` | $0.001 | Full task details |\n| `POST /api/tm_task_submissions?taskId=0x…` | $0.001 | A task's submissions |\n| `GET /health`, `GET /api/tools`, `GET /.well-known/x402` | free | Service metadata + payment terms |\n\nEnforcement is real, not placeholder: every paid call is signature-verified and\nsettled on-chain through a public non-custodial facilitator\n(default `https://facilitator.xpay.sh`, override with `X402_FACILITATOR_URL`)\nbefore the response is produced. The payer signs an EIP-3009\nTransferWithAuthorization; no private keys are held by the server; gas is\nsponsored by the facilitator. Unpaid requests get a spec-compliant\n`402` with `accepts`; forged, underfunded, expired, or replayed payments are\nrejected with the facilitator's invalid reason.\n\n```bash\nnode x402-api.js            # PORT=3001 by default\n\n# client side (any x402-fetch / x402-axios agent):\n# 1. POST /api/tm_list_tasks          -> 402 + accepts\n# 2. sign the exact-scheme payment    -> X-PAYMENT header (base64 JSON)\n# 3. retry with X-PAYMENT             -> 200 + X-PAYMENT-RESPONSE (settlement receipt)\n```\n\nWallet-bound actions (`my-submissions`, `submit`) are deliberately **not** sold\nover HTTP: submit would let a stranger file work from this wallet. Run the MCP\nserver locally for those.\n\n## Free agent-readiness audit\n\nRun the free AI-agent discoverability audit on any public site: https://www.autonomylabsweb.tech/audit.html — checks robots.txt, sitemap, llms.txt, agents.txt, .well-known/x402 and more, with an instant letter grade. Paid deep reports available.\n",
+  "status": "curated"
+}

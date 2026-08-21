@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.mcp-dir/discord-mcp",
+  "type": "mcp",
+  "name": "Discord",
+  "description": "Connect a Discord bot (bot token from the developer portal) to read/send messages, list guilds and c",
+  "author": "io.github.mcp-dir",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/mcp-dir/discord-mcp",
+    "repo": "mcp-dir/discord-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://api.mcp.ai/p_discord"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-21T13:25:05.387331Z",
+    "score": 55
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# Discord\n\n### Discord para Claude, ChatGPT e agentes de IA\n\nConecte um bot Discord (token de bot do developer portal) para ler/enviar mensagens, listar servidores e canais, reagir, mandar DMs e gerenciar mensagens via a API REST oficial (discord.com/api/v10). Guild ID opcional define o servidor padrão usado por tools como list_channels e list_guild_members.\n\n- 📊 **15 ferramentas**\n- ✏️ **Leitura e escrita**\n- 💬 **Funciona com qualquer cliente MCP**: Claude Desktop, Cursor, VS Code, Cline, Continue\n- 🔑 **Login via magic-link (sem senha)**\n\n[English version](README.en.md) · [Documentação completa](docs/) · [Skill pra agentes](skills/)\n\n---\n\n## Instalar em 1 clique\n\n### Claude (Web e Desktop)\n\nA Anthropic unificou a instalação de MCPs em `claude.ai/customize/connectors`. **O mesmo link serve pra Claude Web e Claude Desktop** (basta estar logado):\n\n[➕ Abrir no Claude e conectar](https://claude.ai/new?modal=add-custom-connector#settings/customize-connectors)\n\n**Manual** (se o deeplink não abrir): [claude.ai/customize/connectors](https://claude.ai/customize/connectors?surface=cowork) → **+** → **Adicionar conector personalizado** → cole **Nome** `Discord` e **URL** `https://api.mcp.ai/p_discord`.\n\n### Cursor\n\n[➕ Instalar Discord no Cursor](cursor://anysphere.cursor-deeplink/mcp/install?name=discord&config=eyJ1cmwiOiJodHRwczovL2FwaS5tY3AuYWkvcF9kaXNjb3JkIn0=)\n\n### VS Code (Copilot Chat)\n\n[➕ Instalar Discord no VS Code](vscode:mcp/install?name=discord&config=%7B%22type%22%3A%22http%22%2C%22url%22%3A%22https%3A%2F%2Fapi.mcp.ai%2Fp_discord%22%7D)\n\n### ChatGPT, Manus, OpenClaw e mais 40+ clientes\n\nFunciona em qualquer cliente MCP que suporte **MCP over HTTP**. A URL do servidor é sempre:\n\n```\nhttps://api.mcp.ai/p_discord\n```\n\nDetalhes por cliente: [INSTALL.md](INSTALL.md).\n\n---\n\n## Exemplos de uso\n\n```\nMostre as últimas 20 mensagens do canal #geral\nEnvie no canal de avisos: 'Reunião às 15h hoje'\nListe todos os canais do servidor\n```\n\n---\n\n## 15 ferramentas disponíveis\n\n| Tool | Descrição |\n|---|---|\n| `discord_list_accounts` | List Discord bot connections linked to this install — id, label, default guild_id. |\n| `discord_get_me` | Return the bot's own user profile (id, username, discriminator, avatar, etc). |\n| `discord_list_guilds` | List the servers (guilds) the bot is a member of. |\n| `discord_get_guild` | Get one guild's metadata. Falls back to the connection's default guild_id. Bulk support: accepts guild_ids for batched execution. |\n| `discord_list_channels` | List channels in a guild. Falls back to the connection's default guild_id. Bulk support: accepts guild_ids for batched execution. |\n| `discord_list_guild_members` | List members of a guild. Requires the bot to have the Server Members intent enabled in the developer portal — may return 403 otherwise. Bulk support: accepts guild_ids for batched execution. |\n| `discord_get_channel` | Get a channel's metadata (type, name, topic, parent, permissions). |\n| `discord_list_messages` | Read recent messages from a channel (newest first). |\n| `discord_get_message` | Fetch a single message by id. Bulk support: accepts channel_ids, message_ids for batched execution. |\n| `discord_get_user` | Public profile of any Discord user by id. |\n| `discord_send_message` | Post a message to a channel. Provide `content` (text up to 2000 chars), `embeds` (rich JSON), or both. `reply_to` makes it a reply. Bulk support: accepts channel_ids for batched execution. |\n| `discord_send_dm` | Open a DM channel with a user and send them a message. |\n| `discord_edit_message` | Edit a previously-sent message (must be authored by this bot). |\n| `discord_add_reaction` | Add a reaction to a message. `emoji` is either unicode (e.g. `👍`) or `name:id` for custom guild emoji. Bulk support: accepts channel_ids, message_ids for batched execution. |\n| `discord_delete_message` | Delete a message. Irreversible. Bot needs Manage Messages to delete messages authored by other users. Bulk support: accepts channel_ids, message_ids for batched execution. |\n\nDetalhe de cada tool: [docs/ferramentas.md](docs/ferramentas.md)\n\n---\n\n## Preços\n\nGrátis.\n\n---\n\n## Privacidade & LGPD\n\n- **Sub-processadores**: o LLM host que você escolher (Claude, ChatGPT, Cursor, agente próprio). Lista completa em [docs/privacidade-lgpd.md](docs/privacidade-lgpd.md).\n- Os dados retornados pelas tools são enviados ao **LLM host que você escolher**, sub-processador fora do nosso controle. Recomendamos planos com opt-out de treinamento.\n\n---\n\n## Perguntas frequentes\n\n**O servidor é open source?**\nO servidor é proprietário (hosted). Este repositório é o wrapper público com manifestos, docs e skills — tudo MIT.\n\n**Posso usar com agente próprio (não Claude/Cursor)?**\nSim — qualquer cliente que suporte MCP over HTTP. URL: `https://api.mcp.ai/p_discord`.\n\n\n---\n\n## Suporte\n\n- 📧 [discord@mcp.ai](mailto:discord@mcp.ai)\n- 🐛 [GitHub Issues](https://github.com/mcp-dir/discord-mcp/issues)\n- 📄 [docs/](docs/)\n\n---\n\n## Licença\n\nMIT — veja [LICENSE](LICENSE). O servidor MCP em `api.mcp.ai/p_discord` é proprietário (hosted); este repositório (manifestos, docs, skills) é MIT.\n",
+  "status": "curated"
+}

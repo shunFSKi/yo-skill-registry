@@ -1,0 +1,70 @@
+{
+  "id": "mcp:official/io.github.heocoi/mailsink",
+  "type": "mcp",
+  "name": "mailsink",
+  "description": "Disposable inboxes for AI agents and CI: catch the verification email, read the OTP or link.",
+  "author": "io.github.heocoi",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/heocoi/mailsink-mcp",
+    "repo": "heocoi/mailsink-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@mailsink/mcp"
+    ],
+    "env": [
+      {
+        "name": "MAILSINK_API_KEY",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "MAILSINK_API_URL",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-21T07:32:08.447853Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "办公",
+    "featured": false
+  },
+  "readme": "# @mailsink/mcp\n\nModel Context Protocol server for [MailSink](https://mailsink.dev) —\nprogrammatic temporary email inboxes for AI agents and test automation.\n\nGives your agent eight typed tools for provisioning disposable addresses,\nwaiting on signup emails, extracting OTP codes and magic links, and cleaning\nup after itself. Works in Claude Code, Claude Desktop, Cursor, Windsurf, and\nany other MCP-aware client.\n\n## Install\n\n```bash\nnpm install -g @mailsink/mcp\n```\n\nOr run via `npx` without installing:\n\n```bash\nnpx @mailsink/mcp\n```\n\n## Get an API key\n\n1. Sign in at <https://mailsink.dev/app> with GitHub.\n2. Copy the key from the one-time reveal. Store it in your password manager\n   or `.env`.\n3. Export it so the MCP server can read it:\n\n   ```bash\n   export MAILSINK_API_KEY=\"msk_...\"\n   ```\n\nFree tier is 50 inboxes/month and includes MCP. Pro ($15/mo) and Team\n($49/mo) lift the inbox cap, raise email size limits, extend TTL, and\nbump request rates. See [pricing](https://mailsink.dev/#pricing).\n\n## Configure your client\n\n### Claude Code\n\n```bash\nclaude mcp add mailsink -- npx -y @mailsink/mcp\n```\n\n### Claude Desktop / Cursor / Windsurf\n\nAdd to the `mcpServers` section of the client's config file:\n\n```json\n{\n  \"mcpServers\": {\n    \"mailsink\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@mailsink/mcp\"],\n      \"env\": {\n        \"MAILSINK_API_KEY\": \"msk_...\"\n      }\n    }\n  }\n}\n```\n\nRestart the client. You should see the `mailsink` server listed with its\neight tools.\n\n## Tools\n\n| Tool | Purpose |\n|---|---|\n| `create_inbox` | Provision a throwaway address. Returns `email`, `id`, `expires_at`. |\n| `list_inboxes` | List active inboxes on the account. |\n| `wait_for_email` | Block up to `timeout` seconds (max 120) for any email to arrive. |\n| `get_verification_code` | Extract the most recent OTP from the inbox (polls until found or timeout). |\n| `get_verification_link` | Extract the most recent magic link. |\n| `list_messages` | Summaries of all messages in an inbox. |\n| `get_message` | Full content of a specific message by ID. |\n| `delete_inbox` | Burn an inbox immediately. |\n\n## Example agent flow\n\n```\n> Sign me up for Figma, capture the verification code, confirm, and\n> tell me the plan once you're in.\n\n[agent invokes]\n  create_inbox()                                → agent@codenotify.net\n  [agent fills the Figma signup form with that address]\n  wait_for_email(inbox_id)                      → blocks 30s…\n                                                → returns email + OTP\n  [agent types the OTP into the Figma form]\n  delete_inbox(inbox_id)                        → cleanup\n```\n\nNo webhook plumbing. No IMAP credentials. No parsing MIME.\n\n## Environment variables\n\n- `MAILSINK_API_KEY` *(required)* — your account's API key.\n- `MAILSINK_API_URL` *(optional, default `https://api.mailsink.dev`)* —\n  override for self-hosted or dev API.\n\n## Source\n\n<https://github.com/heocoi/mailsink/tree/main/mcp>\n\n## License\n\nMIT — see [LICENSE](../LICENSE).\n",
+  "status": "curated"
+}

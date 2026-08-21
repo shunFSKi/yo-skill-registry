@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.mcp-dir/legalone-mcp",
+  "type": "mcp",
+  "name": "LegalOne",
+  "description": "Wrapper for the official LegalOne API (Thomson Reuters / Novajus, Premium package): lawsuits and lit",
+  "author": "io.github.mcp-dir",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/mcp-dir/legalone-mcp",
+    "repo": "mcp-dir/legalone-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://api.mcp.ai/p_legalone"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-21T13:29:31.888553Z",
+    "score": 55
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# LegalOne\n\n### LegalOne para Claude, ChatGPT e agentes de IA\n\nWrapper da API oficial do LegalOne (Thomson Reuters / Novajus, pacote Premium): processos e litígios, contatos, agenda de compromissos e tarefas, andamentos, documentos, áreas, tipos de serviço e campos personalizados. Leitura, criação e edição, com filtros no padrão OData. Autenticação OAuth2 (client_credentials) provisionada pela Thomson Reuters por escritório. Cada coleção depende do escopo contratado com a TR, e tools genéricas cobrem qualquer endpoint fora da lista.\n\n- 📊 **39 ferramentas**\n- ✏️ **Leitura e escrita**\n- 💬 **Funciona com qualquer cliente MCP**: Claude Desktop, Cursor, VS Code, Cline, Continue\n- 🔑 **Login via magic-link (sem senha)**\n\n[English version](README.en.md) · [Documentação completa](docs/) · [Skill pra agentes](skills/)\n\n---\n\n## Instalar em 1 clique\n\n### Claude (Web e Desktop)\n\nA Anthropic unificou a instalação de MCPs em `claude.ai/customize/connectors`. **O mesmo link serve pra Claude Web e Claude Desktop** (basta estar logado):\n\n[➕ Abrir no Claude e conectar](https://claude.ai/new?modal=add-custom-connector#settings/customize-connectors)\n\n**Manual** (se o deeplink não abrir): [claude.ai/customize/connectors](https://claude.ai/customize/connectors?surface=cowork) → **+** → **Adicionar conector personalizado** → cole **Nome** `LegalOne` e **URL** `https://api.mcp.ai/p_legalone`.\n\n### Cursor\n\n[➕ Instalar LegalOne no Cursor](cursor://anysphere.cursor-deeplink/mcp/install?name=legalone&config=eyJ1cmwiOiJodHRwczovL2FwaS5tY3AuYWkvcF9sZWdhbG9uZSJ9)\n\n### VS Code (Copilot Chat)\n\n[➕ Instalar LegalOne no VS Code](vscode:mcp/install?name=legalone&config=%7B%22type%22%3A%22http%22%2C%22url%22%3A%22https%3A%2F%2Fapi.mcp.ai%2Fp_legalone%22%7D)\n\n### ChatGPT, Manus, OpenClaw e mais 40+ clientes\n\nFunciona em qualquer cliente MCP que suporte **MCP over HTTP**. A URL do servidor é sempre:\n\n```\nhttps://api.mcp.ai/p_legalone\n```\n\nDetalhes por cliente: [INSTALL.md](INSTALL.md).\n\n---\n\n## Exemplos de uso\n\n```\nListe os processos do LegalOne com movimentação nos últimos 7 dias\nBusque o contato (cliente) X no LegalOne e mostre os processos vinculados\nCrie um compromisso na agenda do LegalOne vinculado ao processo Y\n```\n\n---\n\n## 39 ferramentas disponíveis\n\n| Tool | Descrição |\n|---|---|\n| `legalone_odata_get` | GET genérico em qualquer coleção/recurso OData do LegalOne. |\n| `legalone_request` | Escape hatch: chamada OData crua. |\n| `legalone_metadata` | Metadados da conexão: escopos que a Thomson Reuters liberou para este escritório, produtos da API, base da API e as coleções disponíveis com as tools de cada uma. |\n| `legalone_customfield_options` | Opções de um campo personalizado (/CustomFieldsDefinitions/{id}/options), resolve o texto por trás dos valores listItemId que aparecem em customFields. |\n| `legalone_list_litigations` | Lista Processos/litígios, visão consolidada do contencioso (OData /Litigations). |\n| `legalone_get_litigations` | Busca um(a) Processos/litígios, visão consolidada do contencioso por id (OData /Litigations/{id}). |\n| `legalone_create_litigations` | Cria um(a) Processos/litígios, visão consolidada do contencioso (OData POST /Litigations). |\n| `legalone_update_litigations` | Atualiza um(a) Processos/litígios, visão consolidada do contencioso (OData PATCH /Litigations/{id}). |\n| `legalone_list_lawsuits` | Lista Processos judiciais com os campos próprios do módulo (valor da causa, partes, pedidos) (OData /Lawsuits). |\n| `legalone_get_lawsuits` | Busca um(a) Processos judiciais com os campos próprios do módulo (valor da causa, partes, pedidos) por id (OData /Lawsuits/{id}). |\n| `legalone_create_lawsuits` | Cria um(a) Processos judiciais com os campos próprios do módulo (valor da causa, partes, pedidos) (OData POST /Lawsuits). |\n| `legalone_update_lawsuits` | Atualiza um(a) Processos judiciais com os campos próprios do módulo (valor da causa, partes, pedidos) (OData PATCH /Lawsuits/{id}). |\n| `legalone_list_contacts` | Lista Contatos (pessoas físicas/jurídicas: clientes, partes, advogados) (OData /Contacts). |\n| `legalone_get_contacts` | Busca um(a) Contatos (pessoas físicas/jurídicas: clientes, partes, advogados) por id (OData /Contacts/{id}). |\n| `legalone_create_contacts` | Cria um(a) Contatos (pessoas físicas/jurídicas: clientes, partes, advogados) (OData POST /Contacts). |\n| `legalone_update_contacts` | Atualiza um(a) Contatos (pessoas físicas/jurídicas: clientes, partes, advogados) (OData PATCH /Contacts/{id}). |\n| `legalone_list_appointments` | Lista Compromissos/agenda (OData /Appointments). |\n| `legalone_get_appointments` | Busca um(a) Compromissos/agenda por id (OData /Appointments/{id}). |\n| `legalone_create_appointments` | Cria um(a) Compromissos/agenda (OData POST /Appointments). |\n| `legalone_update_appointments` | Atualiza um(a) Compromissos/agenda (OData PATCH /Appointments/{id}). |\n| `legalone_list_tasks` | Lista Tarefas/providências (o prazo vem no campo deadLine) (OData /Tasks). |\n| `legalone_get_tasks` | Busca um(a) Tarefas/providências (o prazo vem no campo deadLine) por id (OData /Tasks/{id}). |\n| `legalone_create_tasks` | Cria um(a) Tarefas/providências (o prazo vem no campo deadLine) (OData POST /Tasks). |\n| `legalone_update_tasks` | Atualiza um(a) Tarefas/providências (o prazo vem no campo deadLine) (OData PATCH /Tasks/{id}). |\n| `legalone_list_appointmentstasks` | Lista Agenda unificada: compromissos e tarefas na mesma lista (OData /AppointmentsTasks). |\n| `legalone_get_appointmentstasks` | Busca um(a) Agenda unificada: compromissos e tarefas na mesma lista por id (OData /AppointmentsTasks/{id}). |\n| `legalone_list_updates` | Lista Andamentos/publicações/atualizações do processo (OData /Updates). |\n| `legalone_get_updates` | Busca um(a) Andamentos/publicações/atualizações do processo por id (OData /Updates/{id}). |\n| `legalone_create_updates` | Cria um(a) Andamentos/publicações/atualizações do processo (OData POST /Updates). |\n| `legalone_list_documents` | Lista Documentos (GED) (OData /Documents). |\n| `legalone_get_documents` | Busca um(a) Documentos (GED) por id (OData /Documents/{id}). |\n| `legalone_list_areas` | Lista Áreas de atuação (OData /Areas). |\n| `legalone_get_areas` | Busca um(a) Áreas de atuação por id (OData /Areas/{id}). |\n| `legalone_list_servicetypes` | Lista Tipos de serviço/processo (OData /ServiceTypes). |\n| `legalone_get_servicetypes` | Busca um(a) Tipos de serviço/processo por id (OData /ServiceTypes/{id}). |\n| `legalone_list_users` | Lista Usuários/responsáveis do escritório (OData /Users). |\n| `legalone_get_users` | Busca um(a) Usuários/responsáveis do escritório por id (OData /Users/{id}). |\n| `legalone_list_customfielddefinitions` | Lista Definições de campos personalizados (OData /CustomFieldsDefinitions). |\n| `legalone_get_customfielddefinitions` | Busca um(a) Definições de campos personalizados por id (OData /CustomFieldsDefinitions/{id}). |\n\nDetalhe de cada tool: [docs/ferramentas.md](docs/ferramentas.md)\n\n---\n\n## Preços\n\nPlanos a partir do tier grátis. Veja [docs/precos.md](docs/precos.md).\n\n---\n\n## Privacidade & LGPD\n\n- **Sub-processadores**: o LLM host que você escolher (Claude, ChatGPT, Cursor, agente próprio). Lista completa em [docs/privacidade-lgpd.md](docs/privacidade-lgpd.md).\n- Os dados retornados pelas tools são enviados ao **LLM host que você escolher**, sub-processador fora do nosso controle. Recomendamos planos com opt-out de treinamento.\n\n---\n\n## Perguntas frequentes\n\n**O servidor é open source?**\nO servidor é proprietário (hosted). Este repositório é o wrapper público com manifestos, docs e skills — tudo MIT.\n\n**Posso usar com agente próprio (não Claude/Cursor)?**\nSim — qualquer cliente que suporte MCP over HTTP. URL: `https://api.mcp.ai/p_legalone`.\n\n\n---\n\n## Suporte\n\n- 📧 [legalone@mcp.ai](mailto:legalone@mcp.ai)\n- 🐛 [GitHub Issues](https://github.com/mcp-dir/legalone-mcp/issues)\n- 📄 [docs/](docs/)\n\n---\n\n## Licença\n\nMIT — veja [LICENSE](LICENSE). O servidor MCP em `api.mcp.ai/p_legalone` é proprietário (hosted); este repositório (manifestos, docs, skills) é MIT.\n",
+  "status": "curated"
+}

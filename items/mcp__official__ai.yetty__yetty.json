@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/ai.yetty/yetty",
+  "type": "mcp",
+  "name": "yetty",
+  "description": "Build, edit and run real hosted websites from your AI - content, SEO, menus, publish with rollback.",
+  "author": "ai.yetty",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/avniy/yetty-mcp",
+    "repo": "avniy/yetty-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://mcp.yetty.ai/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-21T12:41:37.021403Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "营销",
+    "featured": false
+  },
+  "readme": "# Yetty MCP Server\n\n**Run a real, hosted website from your AI.** [Yetty](https://yetty.ai) turns any static HTML into a fully managed, hosted site with a CMS built around it - byte-true, nothing redesigned - and this MCP server is the control plane: your AI can build, edit, publish and monitor the site end to end.\n\n- **Remote server**: `https://mcp.yetty.ai/mcp` (Streamable HTTP)\n- **Auth**: OAuth 2.0 (PKCE + dynamic client registration) - or a `yk_` API key as a Bearer header\n- **Registry**: published as [`ai.yetty/yetty`](https://registry.modelcontextprotocol.io) in the official MCP Registry\n\n## What your AI can do with it\n\n| Area | Tools |\n|---|---|\n| Build & convert | create a site from HTML/zip, upload in chunks, start the free conversion, reprocess through the latest engine |\n| Content | edit any text/image field, compose posts, manage collections and items, menus, taxonomies and terms, global content, translations |\n| Publish | publish with a version history, check readiness, roll back anything, staged drafts with one publish door |\n| Grow | SEO (titles, descriptions, robots, AI-crawler policy), site search, redirects, permalinks, sitemaps + llms.txt |\n| Run | real traffic analytics (incl. browsers, devices, referrer types, countries), leads inbox, forms, integrations/webhooks, link checks |\n| Commerce | store status and readiness (Yetty Shops) |\n\nEvery mutation lands as a **rollbackable version** - nothing is ever lost.\n\n## Connect\n\n### Claude (claude.ai / Claude Desktop)\nSettings → Connectors → **Add custom connector** → `https://mcp.yetty.ai/mcp` → sign in with your Yetty account (OAuth).\n\n### Claude Code\n```bash\nclaude mcp add --transport http yetty https://mcp.yetty.ai/mcp\n# or with an API key instead of OAuth:\nclaude mcp add --transport http yetty https://mcp.yetty.ai/mcp --header \"Authorization: Bearer yk_your_key\"\n```\n\n### Cursor / Windsurf / VS Code (and any client with remote MCP)\n```json\n{\n  \"mcpServers\": {\n    \"yetty\": {\n      \"url\": \"https://mcp.yetty.ai/mcp\",\n      \"headers\": { \"Authorization\": \"Bearer yk_your_key\" }\n    }\n  }\n}\n```\n\n### ChatGPT / Grok / other MCP-capable apps\nAdd a remote MCP connector pointing at `https://mcp.yetty.ai/mcp`. Clients that support OAuth sign in with your Yetty account; the rest use a `yk_` API key in the `Authorization: Bearer` header.\n\n### Local stdio bridge (no remote-MCP support)\n`yetty-mcp.py` in this repo is a zero-dependency Python bridge:\n```json\n{\n  \"mcpServers\": {\n    \"yetty\": {\n      \"command\": \"python\",\n      \"args\": [\"/path/to/yetty-mcp.py\"],\n      \"env\": { \"YETTY_API_KEY\": \"yk_your_key\" }\n    }\n  }\n}\n```\n\n## Getting a key\n\n1. Sign up free at [yetty.ai](https://yetty.ai)\n2. Dashboard → **API Keys** → Create API key (shown once)\n3. Or skip keys entirely: use OAuth from any connector-capable client.\n\nFull client-by-client setup: [yetty.ai → Dashboard → Connect your AI](https://app.yetty.ai/dashboard/connect).\n\n## Notes for builders\n\nBefore sending a site, call the free `yetty_authoring_guide` tool - it returns the structure rules (repeated items share one class, semantic class names, headings before sections, no JS-rendered content) that decide how clean the generated CMS is. Conversion is free; hosting plans are per site.\n\n## License\n\nMIT - see [LICENSE](LICENSE).\n",
+  "status": "curated"
+}

@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.mcp-dir/tiflux-mcp",
+  "type": "mcp",
+  "name": "Tiflux",
+  "description": "Wrapper for the official Tiflux API v2 (help desk and service desk): tickets with replies to the req",
+  "author": "io.github.mcp-dir",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/mcp-dir/tiflux-mcp",
+    "repo": "mcp-dir/tiflux-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://api.mcp.ai/p_tiflux"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-21T13:35:15.450503Z",
+    "score": 55
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# Tiflux\n\n### Tiflux para Claude, ChatGPT e agentes de IA\n\nWrapper da API oficial v2 do Tiflux (help desk e service desk): chamados com respostas ao solicitante, notas internas, anexos, histórico de estágios e SLAs, apontamentos de horas, clientes e solicitantes, mesas com estágios, prioridades e catálogo de serviços, base de conhecimento, contratos e relatórios de faturamento e satisfação. Consulta e operação. Autenticação por token de Sessão API do usuário.\n\n- 📊 **30 ferramentas**\n- ✏️ **Leitura e escrita**\n- 💬 **Funciona com qualquer cliente MCP**: Claude Desktop, Cursor, VS Code, Cline, Continue\n- 🔑 **Login via magic-link (sem senha)**\n\n[English version](README.en.md) · [Documentação completa](docs/) · [Skill pra agentes](skills/)\n\n---\n\n## Instalar em 1 clique\n\n### Claude (Web e Desktop)\n\nA Anthropic unificou a instalação de MCPs em `claude.ai/customize/connectors`. **O mesmo link serve pra Claude Web e Claude Desktop** (basta estar logado):\n\n[➕ Abrir no Claude e conectar](https://claude.ai/new?modal=add-custom-connector#settings/customize-connectors)\n\n**Manual** (se o deeplink não abrir): [claude.ai/customize/connectors](https://claude.ai/customize/connectors?surface=cowork) → **+** → **Adicionar conector personalizado** → cole **Nome** `Tiflux` e **URL** `https://api.mcp.ai/p_tiflux`.\n\n### Cursor\n\n[➕ Instalar Tiflux no Cursor](cursor://anysphere.cursor-deeplink/mcp/install?name=tiflux&config=eyJ1cmwiOiJodHRwczovL2FwaS5tY3AuYWkvcF90aWZsdXgifQ==)\n\n### VS Code (Copilot Chat)\n\n[➕ Instalar Tiflux no VS Code](vscode:mcp/install?name=tiflux&config=%7B%22type%22%3A%22http%22%2C%22url%22%3A%22https%3A%2F%2Fapi.mcp.ai%2Fp_tiflux%22%7D)\n\n### ChatGPT, Manus, OpenClaw e mais 40+ clientes\n\nFunciona em qualquer cliente MCP que suporte **MCP over HTTP**. A URL do servidor é sempre:\n\n```\nhttps://api.mcp.ai/p_tiflux\n```\n\nDetalhes por cliente: [INSTALL.md](INSTALL.md).\n\n---\n\n## Exemplos de uso\n\n```\nListe os chamados abertos com SLA vencendo nas próximas 4 horas\nAbra um chamado na mesa de Suporte para o cliente X sobre a impressora fora do ar\nResponda o chamado 1234 avisando que a correção foi aplicada e encerre\nQuantas horas foram apontadas por atendente no mês passado\n```\n\n---\n\n## 30 ferramentas disponíveis\n\n| Tool | Descrição |\n|---|---|\n| `tiflux_me` | Dados do usuário dono do token (nome, e-mail, perfil, feature flags). |\n| `tiflux_list_tickets` | Lista chamados com filtros (situação, mesa, cliente, estágio, responsável, solicitante, período, SLA a vencer). |\n| `tiflux_get_tickets` | Detalha um ou vários chamados pelos números, numa única chamada. |\n| `tiflux_create_ticket` | Abre um novo chamado. Resolva desk_id e client_id antes com tiflux_list_desks e tiflux_list_clients. Identifique o solicitante por requestor_id, ou pelos campos requestor_name e requestor_email quando ele ainda não ex… |\n| `tiflux_update_ticket` | Atualiza um chamado existente. |\n| `tiflux_close_ticket` | Encerra um chamado, marcando-o como resolvido. |\n| `tiflux_cancel_ticket` | Cancela um chamado, encerrando-o SEM tratá-lo como atendido (duplicado, aberto por engano, fora de escopo). |\n| `tiflux_list_ticket_answers` | Lista as respostas (comunicações visíveis ao solicitante) de um chamado. |\n| `tiflux_create_ticket_answer` | Responde um chamado. Esta resposta É VISÍVEL PARA O SOLICITANTE e dispara notificação. Para uma nota que só a equipe vê, use tiflux_create_internal_communication. |\n| `tiflux_list_internal_communications` | Lista as comunicações internas de um chamado (notas visíveis só para a equipe, nunca para o solicitante). |\n| `tiflux_create_internal_communication` | Cria uma comunicação interna num chamado. |\n| `tiflux_list_ticket_files` | Lista os arquivos anexados a um chamado. |\n| `tiflux_get_ticket_stages_slas` | Histórico de estágios e SLAs de um chamado (quando entrou em cada estágio e como ficou o SLA). |\n| `tiflux_list_ticket_appointments` | Lista os apontamentos de horas de um chamado. |\n| `tiflux_create_appointment` | Lança um apontamento de horas num chamado, em nome do usuário dono do token. |\n| `tiflux_list_appointments` | Lista apontamentos de horas de toda a organização por período, atendente e mesa. |\n| `tiflux_list_clients` | Lista clientes da organização, com busca parcial por nome. |\n| `tiflux_get_clients` | Detalha um ou vários clientes pelos ids, numa única chamada. |\n| `tiflux_list_requestors` | Busca solicitantes por nome, e-mail ou telefone. |\n| `tiflux_list_desks` | Lista as mesas de atendimento, com busca parcial por nome. |\n| `tiflux_list_desk_stages` | Lista os estágios (etapas do fluxo) de uma mesa. |\n| `tiflux_list_desk_priorities` | Lista as prioridades configuradas numa mesa, com os respectivos SLAs. |\n| `tiflux_list_desk_services_catalogs` | Lista os catálogos de serviços de uma mesa (a classificação do chamado). |\n| `tiflux_list_technical_users` | Lista os atendentes, com filtro por nome, e-mail, mesa ou cliente. |\n| `tiflux_list_technical_groups` | Lista os grupos de atendentes da organização. |\n| `tiflux_list_departments` | Lista os departamentos da organização. |\n| `tiflux_list_knowledges` | Busca artigos da base de conhecimento por texto e por pasta. |\n| `tiflux_list_contracts` | Lista os contratos de atendimento, com filtro por cliente, tipo e situação. |\n| `tiflux_billings_history` | Histórico de faturamentos. Os pares de data são obrigatórios em conjunto: billing_start_date com billing_end_date, e due_start_date com due_end_date. Bulk support: accepts client_ids for batched execution. |\n| `tiflux_tickets_feedback_report` | Relatório de satisfação (feedback) dos chamados por período, com recorte por responsável, departamento ou grupo de atendentes. |\n\nDetalhe de cada tool: [docs/ferramentas.md](docs/ferramentas.md)\n\n---\n\n## Preços\n\nPlanos a partir do tier grátis. Veja [docs/precos.md](docs/precos.md).\n\n---\n\n## Privacidade & LGPD\n\n- **Sub-processadores**: Tiflux Sistema de Gestão, o LLM host que você escolher (Claude, ChatGPT, Cursor, agente próprio). Lista completa em [docs/privacidade-lgpd.md](docs/privacidade-lgpd.md).\n- Os dados retornados pelas tools são enviados ao **LLM host que você escolher**, sub-processador fora do nosso controle. Recomendamos planos com opt-out de treinamento.\n\n---\n\n## Perguntas frequentes\n\n**O servidor é open source?**\nO servidor é proprietário (hosted). Este repositório é o wrapper público com manifestos, docs e skills — tudo MIT.\n\n**Posso usar com agente próprio (não Claude/Cursor)?**\nSim — qualquer cliente que suporte MCP over HTTP. URL: `https://api.mcp.ai/p_tiflux`.\n\n\n---\n\n## Suporte\n\n- 📧 [tiflux@mcp.ai](mailto:tiflux@mcp.ai)\n- 🐛 [GitHub Issues](https://github.com/mcp-dir/tiflux-mcp/issues)\n- 📄 [docs/](docs/)\n\n---\n\n## Licença\n\nMIT — veja [LICENSE](LICENSE). O servidor MCP em `api.mcp.ai/p_tiflux` é proprietário (hosted); este repositório (manifestos, docs, skills) é MIT.\n",
+  "status": "curated"
+}

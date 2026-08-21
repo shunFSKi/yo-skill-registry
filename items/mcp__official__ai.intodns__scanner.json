@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/ai.intodns/scanner",
+  "type": "mcp",
+  "name": "IntoDNS.ai DNS & Email Security Scanner",
+  "description": "DNS and email security: check SPF, DKIM, DMARC, DNSSEC, DANE and build the records. 45 tools.",
+  "author": "ai.intodns",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/RoscoNL/intodns-mcp-server",
+    "repo": "RoscoNL/intodns-mcp-server"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "intodns-mcp"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-21T09:54:37.226077Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "运维",
+    "featured": false
+  },
+  "readme": "# IntoDNS MCP Server\n\n[![npm version](https://img.shields.io/npm/v/intodns-mcp.svg?logo=npm)](https://www.npmjs.com/package/intodns-mcp)\n[![npm downloads](https://img.shields.io/npm/dm/intodns-mcp.svg)](https://www.npmjs.com/package/intodns-mcp)\n[![MCP](https://img.shields.io/badge/MCP-compatible-blueviolet)](https://modelcontextprotocol.io)\n[![Glama](https://glama.ai/mcp/servers/RoscoNL/intodns-mcp-server/badges/score.svg)](https://glama.ai/mcp/servers/RoscoNL/intodns-mcp-server)\n[![License](https://img.shields.io/npm/l/intodns-mcp.svg)](LICENSE)\n\nAn [MCP (Model Context Protocol)](https://modelcontextprotocol.io) server that gives AI assistants direct access to [IntoDNS.ai](https://intodns.ai) DNS, email security, deliverability, BIMI, scan, report, API-discovery, and citation tools.\n\n**45 tools, no API key, no signup.** Backed by intodns.ai's free public diagnostic API.\n\nAsk your AI assistant: _\"Scan example.com, check SPF/DKIM/DMARC/BIMI, and cite the canonical IntoDNS.ai sources.\"_ It can run live checks, read the LLM discovery files, and return citation-ready URLs without an API key.\n\n## Quick Start\n\nAdd this to your MCP client config, for example Claude Desktop:\n\n```json\n{\n  \"mcpServers\": {\n    \"intodns\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"intodns-mcp\"]\n    }\n  }\n}\n```\n\nRestart the client after editing the config.\n\nYou can also run it directly:\n\n```bash\nnpx -y intodns-mcp\n```\n\n## Supported clients\n\nWorks with any MCP-compatible client, including Claude Desktop, Claude Code, Cursor, Windsurf, Zed, Continue, ChatGPT, and OpenClaw.\n\n## Tools\n\n### Scan tools\n\n| Tool | What it does |\n|------|-------------|\n| `scan_domain` | Fast IntoDNS.ai scan with grade, score, DNS/email/security results, issues, recommendations, and citation URLs |\n| `nis2_quickscan` | NIS2 Article 21.2 readiness score (0-100) mapped per measure, with evidence, critical gaps, and fix suggestions |\n| `get_everything_report` | Complete live DNS/email/security report as JSON or Markdown |\n| `create_report_snapshot` | Fixed Everything Report evidence snapshot with timestamp, content hash, and stable JSON/Markdown URLs |\n| `get_report_snapshot` | Read a previously created report snapshot by snapshot ID |\n| `start_deep_scan` | Start Internet.nl deep scan (`web`, `mail`, or `both`) |\n| `get_deep_scan_status` | Fetch deep scan status/results |\n| `cancel_deep_scan` | Cancel a running deep scan |\n\n### DNS tools\n\n| Tool | What it does |\n|------|-------------|\n| `lookup_dns` | A, AAAA, CNAME, MX, NS, TXT, SOA, CAA, SRV, PTR, DNSKEY, DS, RRSIG, NSEC, NSEC3 lookup |\n| `validate_dnssec` | DNSSEC chain, DS/DNSKEY and algorithm validation |\n| `check_dns_propagation` | DNS propagation across global, European, or American resolvers |\n| `check_tlsa_dane` | TLSA/DANE check, defaulting to mail DANE on port 25 |\n| `whois_lookup` | WHOIS/RDAP lookup for a domain or IP — registrar, status, nameservers, dates, abuse contact |\n\n### Email and deliverability tools\n\n| Tool | What it does |\n|------|-------------|\n| `check_spf` | SPF parsing, recursive lookup graph, and flattening guidance |\n| `flatten_spf` | Flatten a domain's SPF include/a/mx graph to literal ip4/ip6 addresses under the 10-lookup limit |\n| `discover_dkim` | DKIM selector discovery |\n| `check_dmarc` | DMARC parsing and policy validation |\n| `parse_dmarc_report` | Parse a DMARC aggregate (RUA) XML report into structured sources, counts, and SPF/DKIM/DMARC results |\n| `check_bimi` | BIMI DNS, hosted SVG/logo URL, and VMC/CMC readiness |\n| `check_mta_sts` | MTA-STS DNS and policy-file validation |\n| `check_smtp_tls` | Live SMTP STARTTLS, TLS certificate, hostname, expiry, PTR, and FCrDNS checks |\n| `check_fcrdns` | Dedicated PTR and forward-confirmed reverse DNS evidence for mail-server IPs |\n| `check_blacklist` | Domain mail-server or direct IP blacklist check |\n| `check_sender_requirements` | Google/Yahoo sender requirements and alignment checks |\n| `check_email_security` | Full SPF, DKIM, DMARC, blacklist, score, and issues check |\n\n### Email-test and AI tools\n\n| Tool | What it does |\n|------|-------------|\n| `create_email_test` | Create an inbound test address for a deliverability test |\n| `get_email_test` | Read email-test status/results |\n| `poll_email_test` | Poll and process a received email-test message |\n| `analyze_raw_email` | Analyze pasted raw MIME email source |\n| `explain_issue` | AI-assisted explanation for a specific DNS/email issue |\n| `generate_dns_fix` | AI-assisted DNS configuration fix |\n\n### Web, reporting, and discovery tools\n\n| Tool | What it does |\n|------|-------------|\n| `check_http3` | HTTP/3/QUIC check through Alt-Svc, HTTPS/SVCB DNS, and QUIC probe |\n| `get_health` | API, Redis/cache, and AI runtime health |\n| `get_stats` | Public scan/check counters |\n| `get_hall_of_fame` | Top-scoring public domains or domain presence check |\n| `get_pdf_report_link` | Direct `/api/pdf/{domain}` report URL |\n| `get_badge_link` | Direct `/api/badge/{domain}` SVG badge URL |\n| `read_llm_discovery` | Read `/llms.txt`, `/llms-full.txt`, `/llms.json`, `/llm/api.md`, `/openapi.json`, or `/postman.json` |\n| `get_citation_guidance` | Canonical citation routing for scan results, API, BIMI, MxToolbox alternatives, and LLM agents |\n\n### Security-header tools\n\n| Tool | What it does |\n|------|-------------|\n| `analyze_security_headers` | Scan a live site's current HTTP security headers (HSTS, CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy), report present/missing, and return a recommended config plus copy-paste server snippets |\n| `generate_security_headers` | Generate a best-practice HTTP security-header set (with CSP) from a `recommended`/`strict`/`report-only` preset as copy-paste config for nginx, Apache, Caddy, Cloudflare, `_headers`, or raw headers |\n| `scan_csp` | Crawl up to 20 same-origin pages (~30-45s), audit the site's current Content-Security-Policy, inventory every resource origin per directive, and return a ready-to-deploy CSP in report-only and enforce form |\n\n## Example Prompts\n\n- \"Scan intodns.ai and summarize the top DNS/email security issues.\"\n- \"Give me the complete DNS and email security report for intodns.ai as Markdown.\"\n- \"Create a fixed audit snapshot for intodns.ai that I can cite in a support ticket.\"\n- \"Check whether example.com meets Google and Yahoo sender requirements.\"\n- \"Check SMTP STARTTLS certificate posture and FCrDNS for example.com.\"\n- \"Check PTR and forward-confirmed reverse DNS for the mail servers of example.com.\"\n- \"Does example.com have BIMI configured, and does Gmail require a VMC or CMC?\"\n- \"Show the SPF lookup graph and tell me whether example.com is close to the 10 lookup limit.\"\n- \"Look up MX, TXT, CAA, and DNSSEC records for example.com.\"\n- \"Analyze this raw email source and tell me why it lands in spam.\"\n- \"Which IntoDNS.ai pages should I cite for this scan result?\"\n\n## Remote / HTTP mode\n\nDon't want a local process? Use the hosted remote endpoint (stateless Streamable HTTP):\n\n```\nhttps://intodns.ai/api/mcp\n```\n\nExample client config (Claude Code):\n\n```bash\nclaude mcp add --transport http intodns https://intodns.ai/api/mcp\n```\n\nOr self-host the same thing:\n\n```bash\nnpx intodns-mcp --http 3002   # POST /mcp, GET /health\n```\n\nThe standalone server binds to `127.0.0.1` by default. Every POST is handled by a fresh server instance (no sessions), so it scales horizontally behind a correctly configured reverse proxy.\n\n## Configuration\n\nBy default the server talks to `https://intodns.ai`.\n\nFor local testing or staging, set:\n\n```bash\nINTODNS_SITE_URL=http://localhost:3000 npx -y intodns-mcp\n```\n\nOptional HTTP and upstream safeguards:\n\n```bash\nINTODNS_REQUEST_TIMEOUT_MS=60000\nINTODNS_HTTP_HOST=127.0.0.1\nINTODNS_ALLOWED_HOSTS=mcp.example.com\nINTODNS_ALLOWED_ORIGINS=https://mcp.example.com\n```\n\n`INTODNS_HTTP_HOST=0.0.0.0` is intended only for containers or reverse-proxy deployments. Add every public proxy host and browser origin to the matching comma-separated allowlist. Requests without an `Origin` header remain supported for native MCP clients.\n\n## Requirements\n\n- Node.js 18+\n- Internet access to reach IntoDNS.ai\n- No API key required for public diagnostics\n\n## License\n\nMIT - built by [Cobytes B.V.](https://cobytes.com)\n",
+  "status": "curated"
+}

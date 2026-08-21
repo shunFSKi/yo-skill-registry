@@ -1,0 +1,65 @@
+{
+  "id": "mcp:official/com.firsthandapi/mcp-server",
+  "type": "mcp",
+  "name": "FirstHandAPI",
+  "description": "Post crowdsourced content collection jobs and fetch approved files via FirstHandAPI",
+  "author": "com.firsthandapi",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/jjfisherdev/firsthandapi-mcp-server",
+    "repo": "jjfisherdev/firsthandapi-mcp-server"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@firsthandapi/mcp-server"
+    ],
+    "env": [
+      {
+        "name": "FIRSTHAND_API_KEY",
+        "required": false,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-21T12:08:25.495338Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# @firsthandapi/mcp-server — FirstHandAPI MCP Server\n\n## Zero-to-job for agents (bootstrap mode)\n\nNo API key yet? Start the server anyway — it exposes a single `signup` tool:\n\n```bash\nnpx @firsthandapi/mcp-server        # no env var needed\n```\n\nCall `signup` with an `org_name` and `email` to receive an API key and $2.50\nin free credits (the key is shown once — save it), then restart configured:\n\n```bash\nclaude mcp add firsthandapi -e FIRSTHAND_API_KEY=fh_live_... -- npx @firsthandapi/mcp-server\n```\n\nWith the key set, all 7 job tools unlock: `create_job`, `create_job_and_wait`,\n`get_job`, `list_jobs`, `get_job_files`, `cancel_job`, `get_credits`.\n\n\nOfficial [MCP](https://modelcontextprotocol.io) server for [FirstHandAPI](https://firsthandapi.com) — human-in-the-loop (HITL) crowdsourced data collection. Enables Claude Code, Cursor, and other AI agents to collect photos, audio, video, and screen recordings from real human workers with automated AI quality scoring.\n\nUse cases: UGC collection, ground truth data for AI evaluation, LLM training data for multimodal models.\n\n## Installation\n\n```bash\nnpm install @firsthandapi/mcp-server\n```\n\n## Configuration\n\n### Claude Code\n```json\n{\n  \"mcpServers\": {\n    \"firsthand\": {\n      \"command\": \"npx\",\n      \"args\": [\"@firsthandapi/mcp-server\"],\n      \"env\": {\n        \"FIRSTHAND_API_KEY\": \"fh_live_your_key_here\"\n      }\n    }\n  }\n}\n```\n\n### Cursor\nAdd to `.cursor/mcp.json`:\n```json\n{\n  \"firsthand\": {\n    \"command\": \"npx @firsthandapi/mcp-server\",\n    \"env\": { \"FIRSTHAND_API_KEY\": \"fh_live_...\" }\n  }\n}\n```\n\n## Tools\n\n| Tool | Description |\n|------|-------------|\n| `create_job` | Post a content collection job |\n| `get_job` | Get job status and details |\n| `create_job_and_wait` | Post a job and wait for completion |\n| `list_jobs` | List all jobs with filters |\n| `cancel_job` | Cancel an open job |\n| `get_job_files` | Get approved files with download URLs |\n| `get_credits` | Check credit balance |\n\nAll job creation tools accept an optional `location` parameter: `{ city, state }` for text-based or `{ latitude, longitude, radius_km }` for coordinate-based constraints.\n\n## Environment Variables\n\n- `FIRSTHAND_API_KEY` (required) — Your API key\n- `FIRSTHAND_BASE_URL` (optional) — API base URL (default: https://api.firsthandapi.com)\n- `FIRSTHAND_TIMEOUT_MS` (optional) — Request timeout (default: 30000)\n\n## License\n\nProprietary\n",
+  "status": "curated"
+}
