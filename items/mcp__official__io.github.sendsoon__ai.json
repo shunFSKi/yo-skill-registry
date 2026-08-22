@@ -1,0 +1,75 @@
+{
+  "id": "mcp:official/io.github.sendsoon/ai",
+  "type": "mcp",
+  "name": "ai",
+  "description": "Send email, look up public IP information, and convert files to Markdown through SendSoon.",
+  "author": "io.github.sendsoon",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/sendsoon/ai",
+    "repo": "sendsoon/ai"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@sendsoon/mcp-server"
+    ],
+    "env": [
+      {
+        "name": "SENDSOON_EMAIL_RECIPIENT",
+        "required": true,
+        "secret": false
+      },
+      {
+        "name": "SENDSOON_API_KEY",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "SENDSOON_API_BASE_URL",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-22T03:57:41.419201Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "写作",
+    "featured": false
+  },
+  "readme": "# SendSoon AI MCP\n\n[English](README.md) | [简体中文](README.zh-CN.md) | [日本語](README.ja.md)\n\nUse [SendSoon](https://sendsoonai.com/) email, IP lookup, and file-to-Markdown capabilities from Codex, Claude, Cursor, and other AI agents.\n\nConfigure it once, then describe tasks in natural language. You usually do not need to mention SendSoon in every prompt.\n\n## What you can do\n\n| Tool | Purpose | Example |\n| --- | --- | --- |\n| `send_email` | Send a single email | “Send me a test email” |\n| `ip_lookup` | Look up public IP information | “Look up the location of 8.8.8.8” |\n| `markitdown_convert` | Convert a file to Markdown | “Convert this PDF to Markdown” |\n\n## Try it in Google Colab\n\nSkip local setup and try `ip_lookup`, `markitdown_convert`, and `send_email` in the browser.\n\n[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sendsoon/ai/blob/main/docs/SendSoon.ipynb)\n\nThe notebook calls the same SendSoon HTTP APIs used by these MCP tools. To use them from Cursor, Claude, or Codex, continue with the local MCP setup below.\n\n## Step 1: Check the requirements\n\n- Node.js 20 or later\n- Codex, Claude, Cursor, or another client that supports local stdio MCP servers\n\nThere is nothing to install by hand. Every configuration below starts the server with `npx`, which downloads [`@sendsoon/ai`](https://www.npmjs.com/package/@sendsoon/ai) on first use and reuses the cached copy afterwards.\n\nIf you prefer to run from a local checkout, see [Build from source](#build-from-source).\n\n## Step 2: Prepare the configuration\n\nAll clients use the same environment variables:\n\n| Setting | Required | What to enter |\n| --- | --- | --- |\n| `SENDSOON_EMAIL_RECIPIENT` | Yes | Replace `<YOUR_EMAIL>` with your recipient address |\n| `SENDSOON_API_KEY` | No | Leave empty for an unregistered trial. One public IP can send up to three free test emails per day. Enter your generated Key for continued use |\n| `SENDSOON_API_BASE_URL` | No | Defaults to `https://www.sendsoonai.com`. Set it only to target a different environment |\n\nNever commit a real Key to Git or share it with anyone.\n\n### Get an API Key\n\n1. Sign up or sign in on the [SendSoon registration page](https://sendsoonai.com/login-register).\n2. Open [Profile](https://sendsoonai.com/profile) and generate a Key in the API Key section.\n3. Copy the one-time `ssk_live_...` Key immediately and enter it as `SENDSOON_API_KEY` in your MCP configuration.\n4. Save the configuration and restart your MCP client. Requests with a valid Key do not use the anonymous IP daily quota.\n\nIf the anonymous quota is exhausted, `send_email` will tell you to register and configure a Key. An invalid or revoked Key is rejected and does not fall back to the anonymous quota.\n\n## Step 3: Choose your client\n\n### Cursor\n\nOpen `Settings > Tools & MCP` in Cursor and add an MCP server. You can also save the following configuration as `.cursor/mcp.json` in your project or `~/.cursor/mcp.json` in your user directory:\n\n```json\n{\n  \"mcpServers\": {\n    \"sendsoon\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@sendsoon/ai\"],\n      \"env\": {\n        \"SENDSOON_EMAIL_RECIPIENT\": \"<YOUR_EMAIL>\",\n        \"SENDSOON_API_KEY\": \"\"\n      }\n    }\n  }\n}\n```\n\nUse only one top-level `mcpServers` object. Save the file, reopen Cursor, and confirm that `sendsoon` is enabled.\n\n### Codex\n\nOpen the user configuration file at `~/.codex/config.toml` and add:\n\n```toml\n[mcp_servers.sendsoon]\ncommand = \"npx\"\nargs = [\"-y\", \"@sendsoon/ai\"]\n\n[mcp_servers.sendsoon.env]\nSENDSOON_EMAIL_RECIPIENT = \"<YOUR_EMAIL>\"\nSENDSOON_API_KEY = \"\"\n```\n\nSave the file and reopen Codex. Use `/mcp` to confirm that `sendsoon` is connected. In the desktop app, you can also check `Settings > MCP servers`.\n\n### Claude Code\n\nReplace the placeholder and run:\n\n```powershell\nclaude mcp add --transport stdio --scope user --env SENDSOON_EMAIL_RECIPIENT=<YOUR_EMAIL> sendsoon -- npx -y @sendsoon/ai\n```\n\nRun `/mcp` in Claude Code and confirm that `sendsoon` is connected. To use an API Key, add `--env SENDSOON_API_KEY=<SENDSOON_API_KEY>` before the `sendsoon` server name.\n\n### Claude Desktop\n\nOpen the configuration file from `Settings > Developer` and add:\n\n```json\n{\n  \"mcpServers\": {\n    \"sendsoon\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@sendsoon/ai\"],\n      \"env\": {\n        \"SENDSOON_EMAIL_RECIPIENT\": \"<YOUR_EMAIL>\",\n        \"SENDSOON_API_KEY\": \"\"\n      }\n    }\n  }\n}\n```\n\nSave the file, fully quit and restart Claude Desktop, and confirm that `sendsoon` appears in the tool list.\n\n### Other MCP clients\n\nFor Windsurf, Cline, Continue, or another client that supports local stdio MCP servers, enter:\n\n| Setting | Value |\n| --- | --- |\n| Transport | `stdio` |\n| Command | `npx` |\n| Arguments | `-y @sendsoon/ai` |\n| Environment | The environment variables listed above |\n\n## Confirm that it works\n\nRestart the client, open a new conversation, and enter:\n\n```text\nLook up the location and ISP for 8.8.8.8.\n```\n\nThe MCP connection works if the agent calls `ip_lookup` and returns the result.\n\nTo test email, enter:\n\n```text\nSend a test email to <YOUR_EMAIL> with the subject “SendSoon MCP test” and the body “Configuration successful.”\n```\n\nThe address must exactly match `SENDSOON_EMAIL_RECIPIENT`. Your client may ask for permission the first time a tool runs; approve it to continue.\n\n## Everyday examples\n\n```text\nLook up information about 1.1.1.1.\n```\n\n```text\nConvert <YOUR_FILE_PATH> to Markdown and summarize the key points.\n```\n\n```text\nSend an email to <YOUR_EMAIL> with the subject “Meeting reminder” and the body “The meeting starts at 3 PM today.”\n```\n\nIf the agent does not select a tool automatically, say:\n\n```text\nUse the sendsoon MCP to complete this task.\n```\n\nYou usually need this explicit instruction only on the first use.\n\n## Agent Skills\n\nThis repository also ships Agent Skills that teach agents when to reach for each tool and how to handle its error codes. In Claude Code, install them as a plugin:\n\n```text\n/plugin marketplace add sendsoon/ai\n/plugin install sendsoon-skills@sendsoon\n```\n\nYou can also copy any folder under [`skills/`](skills) into `.claude/skills/` in your project or `~/.claude/skills/` in your user directory.\n\n## Build from source\n\nOnly needed if you want to modify the server or run an unreleased revision. Requires pnpm 11.\n\n```powershell\ngit clone https://github.com/sendsoon/ai.git\ncd ai\npnpm install\npnpm run build\npnpm run bundle\n```\n\nThen point your client at the built entry file instead of `npx`, using the absolute path printed by:\n\n```powershell\n(Resolve-Path .\\mcp\\bin\\sendsoon-mcp.mjs).Path.Replace('\\', '/')\n```\n\n```bash\nrealpath ./mcp/bin/sendsoon-mcp.mjs\n```\n\nUse `\"command\": \"node\"` with that absolute path as the only argument. Run `pnpm run check` to lint and test your changes.\n\n## Official references\n\n- [OpenAI Codex: Model Context Protocol](https://developers.openai.com/codex/mcp)\n- [Anthropic: Claude Code MCP](https://docs.anthropic.com/en/docs/claude-code/mcp)\n- [Cursor: Model Context Protocol](https://docs.cursor.com/context/model-context-protocol)\n- [Model Context Protocol](https://modelcontextprotocol.io/)\n\n## License\n\nSee [LICENSE](LICENSE).\n",
+  "status": "curated"
+}

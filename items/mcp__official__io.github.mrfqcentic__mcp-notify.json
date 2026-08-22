@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.mrfqcentic/mcp-notify",
+  "type": "mcp",
+  "name": "mcp-notify",
+  "description": "Minimal MCP server that plays a sound and shows a system banner when an AI agent finishes a task",
+  "author": "io.github.mrfqcentic",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/mrfqcentic/mcp-notify",
+    "repo": "mrfqcentic/mcp-notify"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@mrfqcentic/mcp-notify"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-21T19:39:02.587949Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "办公",
+    "featured": false
+  },
+  "readme": "# mcp-notify\n\nMinimal MCP server that plays a **notification sound** and shows a **system banner** on your computer whenever your AI agent finishes a task or needs your attention.\n\nWorks with any MCP client: Claude Desktop, Claude Code, Cursor, VS Code, opencode, Cline, and more. One 3-line config, no API keys, no network calls — it only touches your local audio and notification facilities.\n\n## Install\n\nAdd to your client's MCP config (Claude Desktop `claude_desktop_config.json`, Cursor / VS Code `mcp.json`, or opencode config):\n\n```json\n{\n  \"mcpServers\": {\n    \"mcp-notify\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@mrfqcentic/mcp-notify\"]\n    }\n  }\n}\n```\n\n(opencode users: same shape under the `mcp` key with `\"type\": \"local\"` and `\"command\": [\"npx\", \"-y\", \"@mrfqcentic/mcp-notify\"]`.)\n\nRequires Node.js >= 20.\n\n## Make the agent call it\n\nAdd one line to your `AGENTS.md` / `CLAUDE.md` / system prompt:\n\n```\nWhen a task is done or the user should be alerted, call the `notify` tool with a short title and a 1–2 sentence description of the result.\n```\n\n## Tools\n\n### `notify`\n\nPlays the sound and shows a banner. The agent always supplies `title` (max 50 chars) and `message` (max 200 chars).\n\n| Param | Required | Description |\n|---|---|---|\n| `title` | yes | Short banner title, e.g. \"Build finished\" |\n| `message` | yes | 1–2 sentence description, e.g. \"All 142 tests passed\" |\n| `sound` | no | Absolute path to any audio/video file with audio (mp4, m4a, mp3, wav, aiff) |\n\n### `list_sounds`\n\nLists available sounds and the currently selected default.\n\n## Choosing your sound\n\nResolution order:\n\n1. `NOTIFY_SOUND` env var — absolute path, explicit and deterministic\n2. A file in the `sounds/` folder whose name starts with `default` (your pin)\n3. First audio file in the `sounds/` folder (alphabetical — `notify-me.mp3` ships here as the bundled default)\n4. The generated chime in `assets/`\n5. The system sound (macOS `Glass.aiff`, Linux `bell.oga`)\n\nTip: rename or copy your favorite sound to `sounds/default.mp3` (or set `NOTIFY_SOUND`) to make it stick.\n\nThe bundled `sounds/notify-me.mp3` was generated with [ElevenLabs](https://elevenlabs.io) under a commercial license.\n\n```json\n{\n  \"mcpServers\": {\n    \"mcp-notify\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@mrfqcentic/mcp-notify\"],\n      \"env\": { \"NOTIFY_SOUND\": \"/absolute/path/to/your-sound.mp3\" }\n    }\n  }\n}\n```\n\nTip: MP4 files with an audio track work too (macOS `afplay` reads the audio stream).\n\n## Platforms\n\n| OS | Sound | Banner |\n|---|---|---|\n| macOS | `afplay` (tested) | `osascript` (tested) |\n| Linux | `ffplay` / `mpg123` / `paplay` / `aplay` fallback chain (best effort) | `notify-send` (best effort) |\n| Windows | PowerShell `MediaPlayer` (best effort) | PowerShell `NotifyIcon` balloon (best effort) |\n\nAny `CI` env value makes sound and banner playback no-ops (set automatically in CI workflows) so the test suite can run on machines without audio.\n\n## Development\n\n```sh\nnpm install\nnpm run typecheck\nnpm test          # builds, then runs the e2e suite (sound + banner fire locally)\n```\n\n## License\n\nMIT — see [LICENSE](./LICENSE).\n",
+  "status": "curated"
+}

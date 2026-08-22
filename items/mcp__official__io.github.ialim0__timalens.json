@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.ialim0/timalens",
+  "type": "mcp",
+  "name": "timalens",
+  "description": "AI whiteboard explainer video platform: script to storyboard to narrated MP4.",
+  "author": "io.github.ialim0",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/ialim0/be-timalens",
+    "repo": "ialim0/be-timalens"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://api.timalens.com/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-22T00:53:21.640492Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "设计",
+    "featured": false
+  },
+  "readme": "# TimaLens — MCP Server\n\n> AI whiteboard explainer videos for training agencies and instructional designers.\n\n**Paste a script → scenes → hand-drawn storyboard → AI narration + captions → export MP4.**\n\nThis repository is the public MCP registry manifest for [TimaLens](https://timalens.com).\nThe live API is hosted at `https://api.timalens.com`.\n\n---\n\n## Connecting via MCP\n\nTimaLens exposes a [Streamable HTTP](https://modelcontextprotocol.io/specification/2025-06-18/basic/transports#streamable-http) MCP endpoint at:\n\n```\nhttps://api.timalens.com/mcp\n```\n\nAuthentication uses **OAuth 2.1 with PKCE** — your MCP client handles the flow automatically.\n\n### Quick connect (any MCP client)\n\n```json\n{\n  \"mcpServers\": {\n    \"timalens\": {\n      \"type\": \"streamable-http\",\n      \"url\": \"https://api.timalens.com/mcp\"\n    }\n  }\n}\n```\n\nYour client will auto-discover the OAuth server from the WWW-Authenticate header and open the TimaLens consent screen in your browser.\n\n### Claude Desktop\n\nAdd to `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or\n`%APPDATA%\\Claude\\claude_desktop_config.json` (Windows):\n\n```json\n{\n  \"mcpServers\": {\n    \"timalens\": {\n      \"type\": \"streamable-http\",\n      \"url\": \"https://api.timalens.com/mcp\"\n    }\n  }\n}\n```\n\n### Cursor / VS Code (Cline, Continue, etc.)\n\n```json\n{\n  \"mcp\": {\n    \"servers\": {\n      \"timalens\": {\n        \"type\": \"streamable-http\",\n        \"url\": \"https://api.timalens.com/mcp\"\n      }\n    }\n  }\n}\n```\n\n---\n\n## OAuth endpoints\n\n| Endpoint | URL |\n|---|---|\n| Authorization | `https://api.timalens.com/oauth/authorize` |\n| Token | `https://api.timalens.com/oauth/token` |\n| Dynamic registration | `https://api.timalens.com/oauth/register` |\n| Revocation | `https://api.timalens.com/oauth/revoke` |\n| Protected resource metadata | `https://api.timalens.com/.well-known/oauth-protected-resource` |\n| Authorization server metadata | `https://api.timalens.com/.well-known/oauth-authorization-server` |\n\nAll flows use **PKCE (S256)**. Public clients (no client secret) are supported via dynamic client registration (RFC 7591).\n\n---\n\n## Available tools\n\nOnce authenticated, your AI assistant can:\n\n| Tool | Scope | Description |\n|---|---|---|\n| `list_projects` | `projects:read` | List all your TimaLens video projects |\n| `get_project` | `projects:read` | Full project details, boards, narration, and preview links |\n| `get_generation_status` | `projects:read` | Poll generation or render progress |\n| `create_video_draft` | `projects:write` | Create a draft from a script or topic (free, no credits charged) |\n| `upload_reference_image` | `projects:write` | Upload a PNG/JPEG/WebP logo or character reference (max 10 MB) |\n| `start_generation` | `projects:write` | Generate storyboard and narration for a draft |\n| `get_render_quote` | `render:write` | Preview exact credit cost before any charge |\n| `confirm_render` | `render:write` | Confirm a quoted render and start the paid export |\n\n> Credits are only charged after you explicitly call `confirm_render` with a valid quote token.\n> Every render failure automatically refunds the cost to your account.\n\n---\n\n## OAuth scopes\n\n| Scope | What it allows |\n|---|---|\n| `projects:read` | Read-only access to your projects and generation status |\n| `projects:write` | Create and modify drafts, upload reference assets |\n| `render:write` | Request render quotes and confirm paid renders |\n\nYou can grant a narrower set of scopes at the consent screen.\n\n---\n\n## Support\n\n- Website: [timalens.com](https://timalens.com)\n- Docs: [timalens.com/support](https://timalens.com/support)\n- Issues with the MCP integration: open an issue in this repository\n",
+  "status": "curated"
+}

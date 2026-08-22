@@ -1,0 +1,65 @@
+{
+  "id": "mcp:official/io.github.piotr-agier/google-drive-mcp",
+  "type": "mcp",
+  "name": "Google Drive MCP",
+  "description": "Secure access to Google Drive, Docs, Sheets, Slides, and Calendar through MCP.",
+  "author": "io.github.piotr-agier",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/piotr-agier/google-drive-mcp",
+    "repo": "piotr-agier/google-drive-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@piotr-agier/google-drive-mcp"
+    ],
+    "env": [
+      {
+        "name": "GOOGLE_DRIVE_OAUTH_CREDENTIALS",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-21T19:10:24.39913Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "办公",
+    "featured": false
+  },
+  "readme": "# Google Drive MCP Server\n\n[![MCP Toplist](https://mcptoplist.com/badge/glama%2Fpiotr-agier%2Fgoogle-drive-mcp.svg)](https://mcptoplist.com/server/glama%2Fpiotr-agier%2Fgoogle-drive-mcp)\n\nConnect an MCP client to Google Drive, Docs, Sheets, Slides, and Calendar through one self-hosted server. Search and organize files, create and edit Workspace content, manage sharing, and automate multi-step workflows while keeping control of the Google identity and credentials used for every call.\n\n## Why this server\n\n- **Drive-first workflows:** 116 tools cover file management, Shared Drives, permissions, revisions, rich Docs editing, Sheets formatting, Slides authoring, and Calendar events.\n- **Local or hosted:** use stdio for a personal desktop client, Streamable HTTP for a hosted integration, or OAuth-protected team mode for a shared service.\n- **Identity control:** local OAuth supports multiple Google accounts and per-tool account selection; service accounts and externally managed OAuth tokens are also supported.\n- **Agent-friendly access:** tools expose targeted operations, while the optional `gdrive:///` resource interface supports direct reading and discovery.\n- **Open and self-hosted:** credentials and tokens stay in the environment you operate.\n\nThis project remains focused on deep Drive and editor workflows rather than attempting to expose every Google Workspace API.\n\n## Client compatibility\n\nCompatibility is determined by the transport and authentication flow a client supports.\n\n| Client type | Transport | Recommended mode |\n|---|---|---|\n| Claude Desktop | stdio | Local OAuth |\n| Other local MCP clients, including Gemini CLI | stdio | Local OAuth |\n| claude.ai custom connectors | Streamable HTTP | Team mode |\n| Other remote MCP clients | Streamable HTTP | Single identity behind access control, or team mode with OAuth 2.1 |\n\nSee [Client configuration](docs/clients.md#client-configuration) for configuration examples and transport requirements.\n\n## Quick start\n\n### 1. Create Google OAuth credentials\n\nIn a Google Cloud project:\n\n1. Enable the Drive, Docs, Sheets, Slides, and Calendar APIs.\n2. Configure the OAuth consent screen and add your Google account as a test user when the app is in testing.\n3. Create an OAuth client with application type **Desktop app**.\n4. Download the JSON file and save it as:\n\n```text\n~/.config/google-drive-mcp/gcp-oauth.keys.json\n```\n\nThe [setup guide](docs/setup.md) has the complete Google Cloud walkthrough and alternative credential locations.\n\n### 2. Authenticate\n\n```bash\nnpx -y @piotr-agier/google-drive-mcp auth\n```\n\nComplete the Google consent flow in the browser. Tokens are stored by default at `~/.config/google-drive-mcp/tokens.json`.\n\n### 3. Add the server to your MCP client\n\nFor clients that use the common `mcpServers` configuration shape:\n\n```json\n{\n  \"mcpServers\": {\n    \"google-drive\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@piotr-agier/google-drive-mcp\"]\n    }\n  }\n}\n```\n\nRestart the client after saving its configuration. Claude Desktop paths and HTTP examples are documented in [Client configuration](docs/clients.md#client-configuration).\n\n### 4. Make a first tool call\n\nAsk your client:\n\n```text\nRun authGetStatus and tell me which Google account is active.\n```\n\nThen try a read-only Drive request:\n\n```text\nSearch my Google Drive for files modified in the last seven days.\n```\n\nIf the identity is wrong or search returns no files, use the [troubleshooting guide](docs/troubleshooting.md).\n\n## What you can do\n\n### Organize Drive\n\n```text\nFind PDF files in /Reports, create an Archive folder there, and move files older\nthan one year into it.\n```\n\n### Build a report\n\n```text\nCreate a Google Sheet for monthly results, summarize it in a Google Doc, and\ncreate a short Google Slides presentation from the summary.\n```\n\n### Edit a document\n\n```text\nFind the \"Project Plan\" document, replace the old launch date, format the new\ndate in bold, and add a comment describing the change.\n```\n\n### Prepare a meeting\n\n```text\nCreate a Calendar event with a Google Meet link and attach the project brief\nfrom Drive.\n```\n\n<!--\n  Anchors for sections that lived in this README before the guides moved to docs/.\n  External deep links (directory listings, issue replies, blog posts) land on the\n  table below, which names the guide each section moved to. Do not remove.\n-->\n<a id=\"features\"></a><a id=\"example-usage\"></a><a id=\"requirements\"></a>\n<a id=\"google-cloud-setup\"></a><a id=\"installation\"></a><a id=\"docker-usage\"></a>\n<a id=\"configuration\"></a><a id=\"runtime-configuration-cli-args-or-env-vars\"></a>\n<a id=\"usage-with-claude-desktop\"></a><a id=\"streamable-http-transport\"></a>\n<a id=\"team-mode-multi-user-http-deployments\"></a><a id=\"available-tools\"></a>\n<a id=\"external-authentication\"></a><a id=\"multi-account-support\"></a>\n<a id=\"authentication-flow\"></a><a id=\"troubleshooting\"></a><a id=\"development\"></a>\n<a id=\"advanced-configuration\"></a><a id=\"contributing\"></a><a id=\"support\"></a>\n\n## Documentation\n\nEvery section that used to live in this README is now in one of these guides.\n\n| Guide | Contents |\n|---|---|\n| [Setup](docs/setup.md) | Requirements, Google Cloud APIs, OAuth credentials, and installation |\n| [Client configuration](docs/clients.md) | Supported transports and client configuration |\n| [Authentication](docs/authentication.md) | Local OAuth, multi-account, service accounts, external tokens, and scopes |\n| [Configuration](docs/configuration.md) | CLI flags, environment variables, defaults, and precedence |\n| [Deployment](docs/deployment.md) | Docker, Streamable HTTP, team mode, and reverse-proxy security |\n| [Tool reference](docs/tools.md) | All Drive, Docs, Sheets, Slides, Calendar, and account tools |\n| [Troubleshooting](docs/troubleshooting.md) | Authentication, API, identity, Docker, and rate-limit problems |\n| [Development](docs/development.md) | Repository structure, build commands, tests, and contributions |\n\n## Security\n\n- Never commit OAuth credentials, service-account keys, access tokens, refresh tokens, or `tokens.json`.\n- Use the narrowest OAuth scopes that support the tools you need.\n- Keep the default HTTP bind address on `127.0.0.1` unless the server is protected by TLS and access control.\n- Use [team mode](docs/deployment.md#team-mode-multi-user-http-deployments) for shared deployments so every request is authenticated as its caller.\n- Treat `team-store.json` as a secret because it contains members' Google refresh tokens.\n\nSee [Authentication](docs/authentication.md) and [Deployment](docs/deployment.md) for the complete security and identity model.\n\n## Development and support\n\nSee the [development guide](docs/development.md) to build and test the project.\n\n- Report defects and request features in [GitHub Issues](https://github.com/piotr-agier/google-drive-mcp/issues).\n- Review released changes in the [changelog](CHANGELOG.md).\n- Contributions are welcome through pull requests.\n\n## License\n\n[MIT](LICENSE)\n\n## Acknowledgments\n\n- Built on the [Model Context Protocol](https://modelcontextprotocol.io).\n- Uses the [Google APIs Node.js Client](https://github.com/googleapis/google-api-nodejs-client).\n",
+  "status": "curated"
+}

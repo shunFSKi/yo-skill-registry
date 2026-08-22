@@ -1,0 +1,79 @@
+{
+  "id": "mcp:official/io.github.reesehammer/umbra-mcp",
+  "type": "mcp",
+  "name": "Umbra open SAR archive",
+  "description": "Search, quicklook and measure Umbra's open SAR archive from any MCP client.",
+  "author": "io.github.reesehammer",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/reesehammer/umbra-py",
+    "repo": "reesehammer/umbra-py"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "umbra-py"
+    ],
+    "env": [
+      {
+        "name": "UMBRA_CANOPY_TOKEN",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "UMBRA_INDEX_DB",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "ANTHROPIC_API_KEY",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "OPENAI_API_KEY",
+        "required": false,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-21T22:11:22.229971Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# umbra-py\n\n[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)\n[![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)\n[![CI](https://github.com/reesehammer/umbra-py/actions/workflows/ci.yml/badge.svg)](https://github.com/reesehammer/umbra-py/actions/workflows/ci.yml)\n[![codecov](https://codecov.io/gh/reesehammer/umbra-py/branch/main/graph/badge.svg)](https://codecov.io/gh/reesehammer/umbra-py)\n[![Docs](https://img.shields.io/badge/docs-umbra--py.space-informational.svg)](https://umbra-py.space/)\n\n**A Python toolkit to discover, preview, load, and analyze [Umbra](https://umbra.space/open-data/) open SAR data.**\n\nUmbra publishes 16–25 cm synthetic aperture radar as CC BY 4.0 open data, but\nthere is no search API — only a 17+ TB S3 bucket and a static STAC tree.\n`umbra-py` is the missing layer: search, preview, download, and analysis-ready\narrays without writing the same 500 lines of glue first.\n\n📖 **Docs:** [umbra-py.space](https://umbra-py.space/)\n· **Showcase:** [browse the archive in the browser](https://umbra-py.space/showcase/)\n(no install)\n\n> **Status:** v0.1.1. Discovery, download, xarray loading,\n> SICD → geocoded COG, change/timescan composites, chips, a local STAC API, and\n> an MCP server all ship. This is **not** an InSAR toolbox (phase is not\n> preserved through convert). Not affiliated with Umbra Lab, Inc.\n\n## Install\n\n```bash\npip install umbra-py              # core: search + download + metadata\npip install \"umbra-py[load]\"      # + xarray / rasterio\npip install \"umbra-py[viz]\"       # + quicklooks, maps, galleries\npip install \"umbra-py[convert]\"   # + SICD → geocoded COG\npip install \"umbra-py[all]\"       # convert + load + viz + export\n```\n\nPython 3.10+. Other extras (`dask`, `serve`, `mcp`, `ai`, `langchain`,\n`llamaindex`) are listed in the [install guide](https://umbra-py.space/install/).\n\n## Five minutes to a scene\n\nFetch the weekly catalog snapshot, then search and preview offline. A live\nwalk of the bucket (`umbra search` without `--local`) works but is slow.\n\n```bash\npip install \"umbra-py[viz,load]\"\numbra index fetch\numbra search --local --area Centerfield --product GEC --limit 3\numbra gallery --local --area Centerfield --limit 6 --out gallery.html --db\n```\n\n```python\nfrom umbra_py import CatalogIndex, to_xarray\n\nwith CatalogIndex.from_release() as index:\n    item = next(iter(index.search(area=\"Centerfield\", product_types=[\"GEC\"], limit=1)))\n\n# Stream a downsampled window over HTTP — no multi-GB download. Needs [load].\nda = to_xarray(item, max_size=1024, db=True)\nprint(item.summary())\n```\n\nIf the snapshot is missing, the same search against the live bucket is\n`UmbraCatalog().search(...)` / `umbra search --area Centerfield`.\n\n## What you can do\n\nMore detail, options, and caveats live in the\n[docs](https://umbra-py.space/).\n\n**Search** by bbox, place name, polygon, or Umbra task (`area=`).\n`--local` reads the snapshot; omit it to walk S3.\n\n```python\nfrom umbra_py import UmbraCatalog\n\nfor item in UmbraCatalog().search(area=\"Centerfield\", product_types=[\"GEC\"], limit=5):\n    print(item.summary())\n```\n\n**Preview** without downloading the scene: `umbra gallery`, `umbra quicklook\n<stac-url> --out scene.png --db`, `umbra view <stac-url>` (full-res tiles),\nor `umbra change --area Centerfield --out change.png`.\n\n**Load** a geocoded GEC into xarray or a GeoTIFF (`to_xarray`, `to_geotiff`,\n`to_stack`). Needs `[load]`.\n\n**Convert** a SICD to a north-up COG (`sicd_to_geocoded_cog`, `umbra convert`).\nNeeds `[convert]`. Open products generally have no radiometric metadata, so\n`--calibrate` / `--noise-model measured` refuse rather than invent numbers.\nSee [limitations](https://umbra-py.space/guides/limitations/).\n\n**Chip** scenes into georeferenced ML tiles: `umbra chips --area Centerfield\n--out chips/`.\n\n**Drive it from an agent.** Zero-install MCP server:\n\n```bash\nuvx --from 'umbra-py[mcp]' umbra-mcp\n```\n\n```json\n{\n  \"mcpServers\": {\n    \"umbra\": {\n      \"command\": \"uvx\",\n      \"args\": [\"--from\", \"umbra-py[mcp]\", \"umbra-mcp\"]\n    }\n  }\n}\n```\n\nThat command is published to the [MCP registry](https://registry.modelcontextprotocol.io/)\nas `io.github.reesehammer/umbra-mcp`. A local STAC API is `umbra serve` (needs\n`[serve]`); `docker compose up` is the one-command form. There is no public\nhosted instance yet.\n\n<!-- mcp-name: io.github.reesehammer/umbra-mcp -->\n\n## What the data looks like\n\n| Asset | What it is | Use it for |\n|-------|------------|------------|\n| `GEC`  | Geocoded cloud-optimized GeoTIFF | Map-ready imagery. **Start here.** |\n| `CSI`  | Color sub-aperture GeoTIFF | Quick-look RGB, not a measurement |\n| `SIDD` | Geocoded detected image (NITF) | Detected imagery in a standard format |\n| `SICD` | Complex data in the radar slant plane (NITF) | Phase-preserving work, InSAR *inputs* |\n| `CPHD` | Compensated phase history | Custom image formation |\n\n`umbra-py` downloads SICD/CPHD and can geocode a SICD to amplitude. It does\nnot form interferograms or compute coherence.\n\n## Data license & attribution\n\nUmbra's imagery is **CC BY 4.0**. If you use or redistribute the data or\nderived products you must attribute Umbra, e.g.:\n\n> Contains Umbra open data, licensed under CC BY 4.0.\n\n`umbra-py` itself is **Apache 2.0** ([LICENSE](LICENSE)). The two licenses\nare independent and compatible.\n\n## Citing umbra-py\n\nMachine-readable metadata lives in [CITATION.cff](CITATION.cff). GitHub\nrenders it as a **\"Cite this repository\"** button. Please also honor the\nCC BY 4.0 line above for any Umbra data you use.\n\n## Community\n\n- [Contributing](CONTRIBUTING.md) · [Code of Conduct](CODE_OF_CONDUCT.md) · [Security](SECURITY.md)\n- [Example notebooks](examples/) · [Limitations](https://umbra-py.space/guides/limitations/)\n\n## Acknowledgements\n\nBuilt on the SAR open-source community, including\n[`sarpy`](https://github.com/ngageoint/sarpy) and Umbra's open data program.\n**Not affiliated with or endorsed by Umbra Lab, Inc.**\n",
+  "status": "curated"
+}

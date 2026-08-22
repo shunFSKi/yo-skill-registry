@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.kingymon1/venue-authority",
+  "type": "mcp",
+  "name": "Venue Authority",
+  "description": "Verify food-service facilities against supported regulator records.",
+  "author": "io.github.kingymon1",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/kingymon1/venue-authority-api",
+    "repo": "kingymon1/venue-authority-api"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "https://github.com/kingymon1/venue-authority-api/releases/download/clients-v0.1.0/venue-authority-mcp-0.1.0.mcpb"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-21T19:02:38.376794Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Venue Authority API\n\nVenue Authority checks a food-service merchant's name and street address against supported US regulator records. Each decision includes the matched source and evidence boundary, so merchant onboarding teams can keep an audit receipt instead of relying on an opaque yes or no.\n\nIt is built for payment facilitators, marketplaces, KYB providers, and restaurant platforms that need to verify locations during onboarding. Watchlist and webhook operations are documented for supported workspaces. Paid monitoring expansion is not available yet. Check current availability on the status and pricing pages.\n\n## Check coverage first\n\nThe coverage endpoint does not require an API key:\n\n```bash\ncurl https://venueauthority.com/api/v1/coverage\n```\n\nThe response shows the jurisdictions, regulator sources, source classes, and freshness state currently available to the API. Check it before sending merchant records.\n\n## See a decision before signing up\n\n[Open the public Portfolio Proof example](https://venueauthority.com/portfolio-proof#example-report) to inspect a source-linked accepted decision, a rejected decision, and the evidence boundary. The fixed example does not require an account or upload a file.\n\n## Test a decision\n\n1. [Create a verified workspace](https://venueauthority.com/sign-up?redirect_url=/dashboard/keys).\n2. Create a test key in the dashboard. An eligible verified workspace receives a one-time allowance of 25 test units.\n3. Send a merchant name and street address with a stable request ID.\n\n```bash\ncurl -X POST https://venueauthority.com/api/v1/resolve \\\n  -H 'Authorization: Bearer YOUR_ONE_TIME_KEY' \\\n  -H 'X-Request-Id: quickstart-000001' \\\n  -H 'Content-Type: application/json' \\\n  --data '{\"name\":\"MERCHANT NAME\",\"address\":\"STREET ADDRESS\"}'\n```\n\nA valid decision returns the disposition, policy reason, source identity, source class, source attribution, snapshot, and evidence boundary. Replaying the same request ID with the same payload returns the stored result without another debit.\n\n## Integration files\n\n- [OpenAPI 3.1 contract](openapi.json)\n- [Postman collection](postman/venue-authority.json)\n- [Ten-minute quick start](docs/quick-start.md)\n\nThe contract also covers canonical facility records, portfolios, audit exports, webhooks, and webhook delivery history.\n\n## Client packages\n\nThe repository includes three reviewed, versioned integrations:\n\n- [Node.js SDK](packages/node-sdk) for Node 18 and later. It has no runtime dependencies.\n- [Python SDK](packages/python-sdk) for Python 3.9 and later. It uses only the standard library at runtime.\n- [MCP server](packages/mcp-server) for MCP hosts that need public coverage, facility resolution, or canonical facility evidence.\n\nThe [v0.1.0 release](https://github.com/kingymon1/venue-authority-api/releases/tag/clients-v0.1.0) includes a one-click MCP bundle and downloadable archives for all three clients. npm and PyPI releases will be documented here only after the corresponding registry publication succeeds.\n\n## Product boundaries\n\nVenue Authority resolves a submitted facility to a supported regulator record. It does not infer the legal operator, prove that a business is physically open, or search outside the coverage returned by the API. Uncertain matches are rejected.\n\n## Links\n\n- [Developer documentation](https://venueauthority.com/developers)\n- [Coverage](https://venueauthority.com/coverage)\n- [Pricing](https://venueauthority.com/pricing)\n- [Service status](https://venueauthority.com/status)\n- [Support](https://venueauthority.com/support)\n- [Terms](https://venueauthority.com/terms)\n\nThis repository contains public integration artifacts. Use of the hosted API is governed by the Venue Authority terms.\n",
+  "status": "curated"
+}

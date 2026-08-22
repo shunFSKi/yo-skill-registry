@@ -1,0 +1,64 @@
+{
+  "id": "mcp:official/io.github.sparta2025/postgres-mcp",
+  "type": "mcp",
+  "name": "postgres-mcp",
+  "description": "PostgreSQL MCP server with 15 tools (SQL, EXPLAIN, health, indexes) plus a Gradio UI with LLM chat.",
+  "author": "io.github.sparta2025",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/sparta2025/postgres-mcp",
+    "repo": "sparta2025/postgres-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "postgres-mcp-pro"
+    ],
+    "env": [
+      {
+        "name": "DATABASE_URL",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-21T16:39:35.80675Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# 📘 Postgres MCP Pro — сервер MCP для PostgreSQL\n\n<!-- mcp-name: io.github.sparta2025/postgres-mcp -->\n\n<img src=\"assets/postgres-mcp-pro.png\" alt=\"Postgres MCP Pro Logo\" width=\"600\"/>\n\n[![Лицензия: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)\n[![Версия PyPI](https://img.shields.io/pypi/v/postgres-mcp-pro)](https://pypi.org/project/postgres-mcp-pro/)\n[![Discord](https://img.shields.io/discord/1336769798603931789?label=Discord)](https://discord.gg/4BEHC7ZM)\n[![Twitter Follow](https://img.shields.io/twitter/follow/auto_dba?style=flat)](https://x.com/auto_dba)\n[![Contributors](https://img.shields.io/github/contributors/crystaldba/postgres-mcp)](https://github.com/crystaldba/postgres-mcp/graphs/contributors)\n\n---\n\n## 🔎 Обзор\n\n**Postgres MCP Pro** — это open-source сервер **Model Context Protocol (MCP)**, предназначенный для помощи разработчикам и AI-агентам на всех этапах разработки: от начального кода и тестирования до деплоя и продакшн-оптимизации.\n\n> 🙌 Основано на [crystaldba/postgres-mcp](https://github.com/crystaldba/postgres-mcp) (MIT, © 2025 Crystal Corp / Johann Schleier-Smith).\n> Форк развивается и поддерживается [sparta2025](https://github.com/sparta2025) — автономный MCP-сервер, Gradio-оболочка, LLM-чат с tool-calling, сертификаты шифрования.\n\n> 📚 **Полная документация**: [docs/DOCUMENTATION.md](docs/DOCUMENTATION.md) — развёртывание (Docker/облако), Gradio-оболочка, подключение клиентов (stdio/SSE), все инструменты и переменные окружения.\n\nОтличается от простого подключения к базе данных следующими возможностями:\n\n* **Анализ состояния БД**: индекс, буферный кэш, autovacuum, последовательности, репликация и др.\n* **Оптимизация индексов**: автоматический подбор лучших индексов с помощью промышленных алгоритмов.\n* **Планы выполнения**: EXPLAIN и симуляция с гипотетическими индексами.\n* **Интеллект схемы**: генерация SQL с учётом структуры базы.\n* **Безопасное выполнение SQL**: поддержка режима только для чтения и защита в продакшне.\n\nПоддерживает транспорты: **stdio** и **SSE**.\n\n[Запуск проекта и причины его создания](https://www.crystaldba.ai/blog/post/announcing-postgres-mcp-server-pro)\n\n---\n\n## 📺 Демонстрация\n\n**От медленного к молниеносному**\nAI сгенерировал приложение на SQLAlchemy ORM — но оно было слишком медленным.\nPostgres MCP Pro с Cursor решил проблему за считанные минуты.\n\n* 🚀 Оптимизация ORM-запросов, индексации и кэширования\n* 🛠️ Исправление сломанной страницы\n* 🧠 Улучшение вывода \"топ-фильмов\" путём анализа данных и корректировки запросов\n\n👉 Подробнее: [movie-app.md](examples/movie-app.md)\n\n---\n\n## ⚡ Быстрый старт\n\n### Требования:\n\n1. Доступ к вашей базе данных PostgreSQL\n2. Docker *или* Python 3.12+\n\n#### Удостоверьтесь в доступе:\n\nПример — подключение через `psql` или [pgAdmin](https://www.pgadmin.org/)\n\n> 💡 Для запуска через `docker compose` заранее создайте пустые файлы хранилищ\n> подключений (иначе Docker смонтирует каталоги вместо файлов):\n>\n> ```bash\n> touch connections.json llm_connections.json\n> ```\n\n---\n\n### Установка\n\n#### 🐳 Docker\n\n```bash\ndocker pull crystaldba/postgres-mcp\n```\n\n#### 🐍 Python (через `pipx`)\n\n```bash\npipx install postgres-mcp-pro\n```\n\nили через `uv`:\n\n```bash\nuv pip install postgres-mcp-pro\n```\n\n> Консольная команда после установки — `postgres-mcp`\n> (автономный MCP-сервер, stdio по умолчанию; `--transport sse` для SSE).\n\n---\n\n## ⚙️ Настройка AI-ассистента (на примере Claude Desktop)\n\nОткройте конфигурационный файл:\n\n* **MacOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`\n* **Windows**: `%APPDATA%/Claude/claude_desktop_config.json`\n\n### Пример конфигурации:\n\n#### Через Docker\n\n```json\n{\n  \"mcpServers\": {\n    \"postgres\": {\n      \"command\": \"docker\",\n      \"args\": [\n        \"run\", \"-i\", \"--rm\", \"-e\", \"DATABASE_URI\",\n        \"crystaldba/postgres-mcp\", \"--access-mode=unrestricted\"\n      ],\n      \"env\": {\n        \"DATABASE_URI\": \"postgresql://username:password@localhost:5432/dbname\"\n      }\n    }\n  }\n}\n```\n\n#### Через `pipx`\n\n```json\n{\n  \"mcpServers\": {\n    \"postgres\": {\n      \"command\": \"postgres-mcp\",\n      \"args\": [\"--access-mode=unrestricted\"],\n      \"env\": {\n        \"DATABASE_URI\": \"postgresql://username:password@localhost:5432/dbname\"\n      }\n    }\n  }\n}\n```\n\n#### Через `uv`\n\n```json\n{\n  \"mcpServers\": {\n    \"postgres\": {\n      \"command\": \"uv\",\n      \"args\": [\n        \"run\", \"postgres-mcp\", \"--access-mode=unrestricted\"\n      ],\n      \"env\": {\n        \"DATABASE_URI\": \"postgresql://username:password@localhost:5432/dbname\"\n      }\n    }\n  }\n}\n```\n\n#### Режимы доступа:\n\n* `--access-mode=unrestricted`: полный доступ (dev)\n* `--access-mode=restricted`: только чтение (prod)\n\n> ⚠️ Флаг `--access-mode` поддерживает только легаси-сервер\n> (`python -m postgres_mcp.server`). Автономный MCP-сервер\n> (`postgres_mcp.autonomous.mcp_server`) всегда выполняет переданный SQL;\n> разграничение делайте на стороне пользователя БД.\n\n---\n\n## 🔄 SSE Transport\n\nЧтобы использовать SSE:\n\n```bash\ndocker run -p 8000:8000 \\\n  -e DATABASE_URI=postgresql://username:password@localhost:5432/dbname \\\n  crystaldba/postgres-mcp --access-mode=unrestricted --transport=sse\n```\n\nПример для Cursor:\n\n```json\n{\n  \"mcpServers\": {\n    \"postgres\": {\n      \"type\": \"sse\",\n      \"url\": \"http://localhost:8000/sse\"\n    }\n  }\n}\n```\n\n---\n\n## 🧩 Установка расширений (опционально)\n\nНужно для:\n\n* `pg_stat_statements` — для анализа запросов\n* `hypopg` — симуляция индексов\n\n```sql\nCREATE EXTENSION IF NOT EXISTS pg_stat_statements;\nCREATE EXTENSION IF NOT EXISTS hypopg;\n```\n\n---\n\n## 🧪 Примеры использования\n\n* **Проверка БД**: \"Check the health of my database...\"\n* **Медленные запросы**: \"What are the slowest queries...\"\n* **Рекомендации**: \"How can I make it faster?\"\n* **Индексы**: \"Suggest indexes to improve performance\"\n* **Оптимизация запроса**: \"Help me optimize this query: SELECT ...\"\n\n---\n\n## 📡 MCP API (интерфейс)\n\nАвтономный сервер (`postgres_mcp.autonomous.mcp_server`) предоставляет **15 MCP tools**:\n\n| Tool                       | Назначение                          |\n| -------------------------- | ----------------------------------- |\n| `list_schemas`             | Список схем БД                      |\n| `list_objects`             | Список таблиц, представлений и т.п. |\n| `get_object_details`       | Подробности по объекту              |\n| `execute_sql`              | Выполнение SQL                      |\n| `explain_query`            | EXPLAIN план запроса                |\n| `analyze_db_health`        | Здоровье БД по множеству метрик     |\n| `get_top_queries`          | Самые медленные запросы (pg_stat_statements) |\n| `analyze_index_performance`| Анализ использования индексов       |\n| `get_active_queries`       | Выполняющиеся запросы               |\n| `get_table_sizes`          | Размеры таблиц/индексов             |\n| `get_database_locks`       | Текущие блокировки                  |\n| `format_sql_query`         | Форматирование SQL (sqlparse)       |\n| `get_database_info`        | Версия, размер БД, расширения, uptime |\n| `manage_encryption_key`    | Управление Fernet-сертификатами     |\n| `list_tools`               | Список всех инструментов сервера    |\n\n---\n\n## 📌 Отличия от других MCP-серверов\n\n| Postgres MCP Pro                  | Другие MCP-серверы      |\n| --------------------------------- | ----------------------- |\n| ✅ Проверки здоровья с гарантией   | ❌ Генерация LLM         |\n| ✅ Оптимизация индексов алгоритмом | ❌ Гипотетические советы |\n| ✅ Симуляции EXPLAIN               | ❌ \"Попробуй сам\"        |\n| ✅ Детальный workload-анализ       | ❌ Нет анализа запросов  |\n\n---\n\n## 🧠 Почему нужны инструменты MCP?\n\nLLM отлично справляется с генерацией SQL, но медленно, дорого и непредсказуемо.\nОптимизация БД давно решается алгоритмами.\nMCP Pro сочетает лучшее от LLM и классических алгоритмов.\n\n---\n\n## 🛠️ Технические заметки (ключевые моменты)\n\n* **Индексы**: использование `pg_stat_statements`, генерация кандидатов, анализ через `hypopg`\n* **LLM-оптимизация**: экспериментальная, с использованием OpenAI API (`OPENAI_API_KEY`)\n* **Здоровье БД**: адаптация проверок из PgHero\n* **Библиотека подключения**: `psycopg3` с `libpq`\n* **Безопасность SQL**: чтение, защита от `ROLLBACK; DROP ...`\n* **Интеграция со схемой**: передаёт схему агенту через инструменты, а не ресурсы\n* **Конфигурация соединений**: через переменные среды\n* **Dev-сборка**: `uv`, `pip`, запуск с локальной БД\n",
+  "status": "curated"
+}

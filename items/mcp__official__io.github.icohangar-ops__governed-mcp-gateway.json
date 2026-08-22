@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.icohangar-ops/governed-mcp-gateway",
+  "type": "mcp",
+  "name": "governed-mcp-gateway",
+  "description": "HTTP MCP gateway: principal on tools/call + SSE, allowlists, vault rotate, CHP gates.",
+  "author": "io.github.icohangar-ops",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/icohangar-ops/governed-mcp-gateway",
+    "repo": "icohangar-ops/governed-mcp-gateway"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@cubiczan/governed-mcp-gateway"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-22T03:15:56.06295Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# @cubiczan/governed-mcp-gateway\n\nHTTP MCP **control plane** (default port **7474**). Principal on every `tools/call` and every SSE frame — not a tool catalog.\n\nProduction MCP auth often dies when work hops threads or workers. This gateway resolves a Bearer credential to a **Principal**, injects it into `params._meta.cubiczan.principal`, repeats it on SSE, enforces allowlists, rotates vaulted secrets in place, and runs a lightweight CHP spend gate before priced tools.\n\n## Install / run\n\n```bash\nnpm i -g @cubiczan/governed-mcp-gateway   # or use npx\nnpx -y @cubiczan/governed-mcp-gateway\n# → http://127.0.0.1:7474\n```\n\nFrom source:\n\n```bash\nnpm install\nnpm run build\nnpm start\nnpm test\n```\n\n## Cursor / Claude config\n\nStart the gateway in a terminal (or a process manager), then point the client at the HTTP MCP endpoints:\n\n```json\n{\n  \"mcpServers\": {\n    \"governed-gateway\": {\n      \"url\": \"http://127.0.0.1:7474/mcp\",\n      \"headers\": {\n        \"Authorization\": \"Bearer mcp_agt_payops_demo\"\n      }\n    },\n    \"chp\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@cubiczan/chp-mcp\"]\n    },\n    \"conductor\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@cubiczan/agent-conductor\"]\n    }\n  }\n}\n```\n\nDemo keys: `mcp_agt_payops_demo`, `mcp_agt_research_demo`, `mcp_human_controller_demo`.\n\n## Stack\n\n```text\n┌─────────────────┐     ┌──────────────────────────┐     ┌────────────────────┐\n│ Cursor / Claude │────▶│ governed-mcp-gateway     │────▶│ spend-mandate-plane│\n│ (MCP client)    │ SSE │ :7474  principal+vault   │ opt │ :7475              │\n└────────┬────────┘     └────────────┬─────────────┘     └────────────────────┘\n         │                           │\n         │ stdio                     │ CHP gate (embedded)\n         ▼                           ▼\n┌─────────────────┐     ┌──────────────────────────┐\n│ @cubiczan/      │     │ @cubiczan/chp-mcp        │\n│ agent-conductor │     │ Profile B spend / HITL   │\n└─────────────────┘     └──────────────────────────┘\n```\n\nSister packages: [@cubiczan/chp-mcp](https://github.com/icohangar-ops/cubiczan-chp-mcp), [@cubiczan/agent-conductor](https://github.com/icohangar-ops/agent-conductor), [consensus-hardening-protocol](https://github.com/icohangar-ops/consensus-hardening-protocol).\n\n## API\n\n| Method | Path | Auth | What |\n|--------|------|------|------|\n| `GET` | `/health` | — | `{ ok, service }` |\n| `POST` | `/mcp` | Bearer | JSON-RPC `initialize`, `tools/list`, `tools/call` |\n| `GET` | `/mcp/sse` | Bearer | SSE with principal on `_meta` |\n| `POST` | `/v1/credentials` | Human | Put a named secret |\n| `POST` | `/v1/credentials/:name/rotate` | Human | New hash, same name |\n| `POST` | `/v1/credentials/verify` | — | `{ ok }` |\n| `POST` | `/v1/locks` | Human | CHP approve / reject |\n\n```bash\ncurl -sS -H \"Authorization: Bearer mcp_agt_payops_demo\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"tools/call\",\"params\":{\"name\":\"echo.ping\",\"arguments\":{\"hello\":\"world\"}}}' \\\n  http://127.0.0.1:7474/mcp\n```\n\n## Notes\n\n- This is an **HTTP** MCP gateway (JSON-RPC + SSE), not a stdio MCP process. The `governed-mcp-gateway` bin starts the HTTP server.\n- Shared CHP / HTTP / ledger helpers are **vendored** under `src/shared/` (no `@cubiczan/shared` workspace dep).\n- Optional: set `SPEND_PLANE_URL` to hook the spend-mandate plane before priced tools.\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

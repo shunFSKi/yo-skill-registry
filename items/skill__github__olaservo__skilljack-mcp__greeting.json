@@ -10,14 +10,20 @@
     "repo": "olaservo/skilljack-mcp",
     "path": "evals/skills/greeting/SKILL.md"
   },
-  "license": null,
+  "license": "MIT",
   "install": {
     "kind": "skill-dir"
   },
   "quality": {
-    "stars": null,
-    "pushed_at": null,
-    "score": 22
+    "stars": 16,
+    "pushed_at": "2026-08-17T01:24:17Z",
+    "score": 63,
+    "star_history": [
+      {
+        "d": "2026-08-22",
+        "s": 16
+      }
+    ]
   },
   "security": {
     "score": 100,
@@ -49,6 +55,6 @@
     "category": null,
     "featured": false
   },
-  "readme": null,
+  "readme": "# Skilljack MCP\n\nAn MCP server that jacks [Agent Skills](https://agentskills.io) directly into your LLM's brain.\n\n> **Tool search / deferred tools.** By default, skilljack delivers its skill catalog via MCP **server instructions**, which arrive in the `initialize` handshake and are visible to the model even when **tool search / deferred tool loading** is enabled (the default on modern Claude Code) — so automatic skill activation works out of the box. The legacy `--catalog=tool-description` mode (not recommended — see [Catalog channel](#usage) below) delivers the catalog through the `load-skill` tool description instead, but tool-search clients defer tool descriptions out of context, so that mode needs `ENABLE_TOOL_SEARCH=false` to auto-activate.\n\n## Installation\n\n```bash\nnpm install @skilljack/mcp\n```\n\nOr run directly with npx:\n\n```bash\nnpx @skilljack/mcp /path/to/skills\n```\n\n### From Source\n\n```bash\ngit clone https://github.com/olaservo/skilljack-mcp.git\ncd skilljack-mcp\nnpm install\nnpm run build\n```\n\n## Usage\n\n```bash\n# Single directory\nskilljack-mcp /path/to/skills\n\n# Multiple directories\nskilljack-mcp /path/to/skills /path/to/more/skills\n\n# GitHub repository (allowlisted via GITHUB_ALLOWED_ORGS / _USERS)\nGITHUB_ALLOWED_ORGS=acme skilljack-mcp github.com/acme/skills\n\n# Well-known publisher (allowlisted via WELL_KNOWN_ALLOWED_ORIGINS).\n# Each entry's SHA-256 digest is verified against the published index.\n# Every fetched URL — the index, each artifact, and any redirect target — must\n# match an allowlisted origin, so if a publisher serves artifacts from a\n# separate CDN origin, add that origin to the list too (comma-separated).\nWELL_KNOWN_ALLOWED_ORIGINS=https://example.com \\\n  skilljack-mcp https://example.com/.well-known/agent-skills/\n\n# Using environment variable\nSKILLS_DIR=/path/to/skills skilljack-mcp\n\n# Static mode (no file watching)\nskilljack-mcp --static /path/to/skills\n\n# Serve over HTTP instead of stdio (stateless Streamable HTTP on POST /mcp)\nskilljack-mcp --http=3000 /path/to/skills\n# or: SKILLJACK_HTTP_PORT=3000 skilljack-mcp /path/to/skills\n```\n\n**Transports:** stdio (default) or stateless HTTP (`--http[=port]`, default `3000`, or `SKILLJACK_HTTP_PORT`). HTTP serves the core skill surface (`load-skill`, `skill-resource`, `skill://` resources, `/skill` prompts) at `POST /mcp`. Discovery-on-change works the same as stdio — file watchers and remote-source polling keep the skill state fresh, and every request (including each new client's `initialize`) reads it. Because the transport is stateless it does not *push* `listChanged`/`resources/updated` notifications: already-connected clients see changes on their next request or reconnect. The MCP-Apps configuration UI is stdio-only.\n\n**Catalog channel:** `--catalog=<instructions|tool-description>` (or `SKILLJACK_CATALOG`) picks which single channel delivers the `<available_skills>` catalog — never both. `instructions` (default): server `instructions`, sent in the `initialize` handshake so it survives tool-search deferral; on stdio it is frozen at startup — skill changes need a restart (over HTTP, newly connecting clients always get a current catalog). `tool-description` is **not recommended** and is retained only as a legacy escape hatch (and as the control condition in the evals): the `load-skill` tool description is invisible to clients that defer MCP tool descriptions (e.g. Claude Code tool search, the modern default), so auto-activation silently breaks unless the client sets `ENABLE_TOOL_SEARCH=false`; and its one advantage — live catalog refresh via `tools/listChanged` — is a prompt-cache trap, because tool definitions sit at the top of the cached prompt prefix, so every refresh invalidates the entire cache (tools + system prompt + conversation history) and re-writes it at cache-write prices. Measured 2026-07-06 ([#78](https://github.com/olaservo/skilljack-mcp/issues/78)): it has no cost advantage over `instructions` in steady state either.\n\n## Configuration and Skills Display UI\n\nThis server comes along with a [MCP Apps](https://blog.modelcontextprotocol.io/posts/2026-01-26-mcp-apps/)-based UI for clients that support it.  Instead of fiddling with config files or environment variables, you can just configure your skills locations and skill visiblity directly in your chat window.\n\n(Screenshots below are from Claude Desktop in dark mode.)\n\n![Skills Configuration UI](docs/images/skills-config-ui.png)\n\n![Skill Display UI](docs/images/skill-display-ui.png)\n\n## Documentation\n\nFor complete documentation, just ask your assistant:\n\n> \"how do I use skilljack?\" or \"how does skilljack work behind the scenes?\"\n\nThis loads the [full reference](https://github.com/olaservo/skilljack-mcp/blob/main/skills/skilljack-docs/SKILL.md) including tools, prompts, resources, configuration options, and architecture details.\n\n## Related\n\n- [Agent Skills Specification](https://agentskills.io)\n- [Skills Over MCP Interest Group repository](https://github.com/modelcontextprotocol/experimental-ext-skills)\n- [MCP TypeScript SDK](https://github.com/modelcontextprotocol/typescript-sdk)\n- [Example MCP Clients](https://modelcontextprotocol.io/clients)\n",
   "status": "curated"
 }

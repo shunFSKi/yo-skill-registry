@@ -1,0 +1,70 @@
+{
+  "id": "mcp:official/io.github.LuxorLabs/tenki-mcp",
+  "type": "mcp",
+  "name": "Tenki Sandbox MCP",
+  "description": "Disposable microVM sandboxes for AI agents: run code, read/write files, git, preview URLs.",
+  "author": "io.github.LuxorLabs",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/LuxorLabs/tenki-mcp",
+    "repo": "LuxorLabs/tenki-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@tenkicloud/mcp"
+    ],
+    "env": [
+      {
+        "name": "TENKI_API_KEY",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "TENKI_API_ENDPOINT",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-21T16:29:47.9306Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# tenki-mcp — `@tenkicloud/mcp`\n\n**A [Model Context Protocol](https://modelcontextprotocol.io) server for [Tenki Cloud](https://tenki.cloud).** Give any agent — Claude, Codex, Cursor — a disposable microVM it can create, run code in, read and write files, run git, and expose to the web. Sandboxes boot in ~2 seconds and are billed per second.\n\nPart of making Tenki the execution layer coding agents reach for: the agent writes code and Tenki runs it in isolation. (Tenki's **Code Reviewer** and **Runners** — AI PR review and managed CI — are separate products; this server currently exposes the Sandbox.)\n\n```\n\"Run this Python in a fresh sandbox and tell me what it prints.\"\n        │\n        ▼   tenki_run_code\n   boots a microVM → runs it → returns stdout → tears it down\n```\n\n## Quickstart\n\n```bash\nexport TENKI_API_KEY=tk_your_key_here\nnpx -y @tenkicloud/mcp     # speaks MCP over stdio\n```\n\nNothing to clone or build. The package installs one command, `tenki-mcp`.\n\n### Use it in Claude Code\n\n```bash\nclaude mcp add tenki --env TENKI_API_KEY=tk_your_key_here -- npx -y @tenkicloud/mcp\n```\n\n### Use it in Claude Desktop\n\nAdd to `claude_desktop_config.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"tenki\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@tenkicloud/mcp\"],\n      \"env\": { \"TENKI_API_KEY\": \"tk_your_key_here\" }\n    }\n  }\n}\n```\n\n### Use it in Cursor\n\nAdd the same block to `.cursor/mcp.json` (project) or `~/.cursor/mcp.json` (global):\n\n```json\n{\n  \"mcpServers\": {\n    \"tenki\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@tenkicloud/mcp\"],\n      \"env\": { \"TENKI_API_KEY\": \"tk_your_key_here\" }\n    }\n  }\n}\n```\n\n### Use it in Codex\n\nThe OpenAI Codex CLI reads MCP servers from `~/.codex/config.toml`. Add:\n\n```toml\n[mcp_servers.tenki]\ncommand = \"npx\"\nargs = [\"-y\", \"@tenkicloud/mcp\"]\nenv = { TENKI_API_KEY = \"tk_your_key_here\" }\n```\n\n### Confirm it's working\n\nAfter adding the server, **start a fresh session** so the client loads it, then ask your agent one of:\n\n- *\"Check tenki auth status.\"* — confirms your credential was picked up.\n- *\"Run `print(2+2)` in a fresh Tenki sandbox.\"* — a full boot → run → teardown round-trip.\n\nIf the `tenki_*` tools don't show up, restart the client so it re-reads its config.\n\nNo key yet? Start the server without one and ask the agent to check `tenki_auth_status` — it reports what to set and where. See [Auth](#auth).\n\n### Run it from a clone instead\n\nFor development, or to run an unreleased change:\n\n```bash\ngit clone https://github.com/LuxorLabs/tenki-mcp.git && cd tenki-mcp\nnpm install && npm run build\nTENKI_API_KEY=tk_your_key_here node dist/index.js\n```\n\nSubstitute `node /absolute/path/to/tenki-mcp/dist/index.js` for the `npx` command in any of the configs above. See [CONTRIBUTING.md](CONTRIBUTING.md) for the full development loop.\n\n### Environment variables\n\n| Variable | Default | Purpose |\n|---|---|---|\n| `TENKI_API_KEY` | — | API key (`tk_…`). One of this or `TENKI_AUTH_TOKEN` is required. |\n| `TENKI_AUTH_TOKEN` | — | Session token (`ory_st_…` or cookie value). **Takes precedence over `TENKI_API_KEY`** when both are set. |\n| `TENKI_API_ENDPOINT` | `https://api.tenki.cloud` | Control-plane base URL (`TENKI_API_URL` is an alias). |\n| `TENKI_MCP_READONLY` | off | `1` registers only read tools (no create/run/delete/spend). |\n| `TENKI_MCP_DISABLED_TOOLS` | — | Comma-separated tool names to skip registering. |\n| `TENKI_MCP_AUDIT` | off | `1` logs each tool call name + arg keys to stderr. |\n| `TENKI_MCP_TRANSPORT` | `stdio` | `http` serves Streamable HTTP instead (see below). |\n| `PORT` | `3000` | HTTP transport port. |\n| `TENKI_MCP_HTTP_HOST` | `127.0.0.1` | HTTP bind host; non-loopback requires `TENKI_MCP_HTTP_TOKEN`. |\n| `TENKI_MCP_HTTP_TOKEN` | — | Bearer token for the HTTP endpoint; optional on loopback, required on a non-loopback host. |\n\n## Tools\n\n**71 tools** — all 68 public unary API methods (enforced by a CI [parity audit](scripts/parity-audit.mjs)), two workflow helpers, and `tenki_auth_status`. Implementation-only control-plane methods are intentionally excluded. Grouped by domain:\n\n| Domain | Tools |\n|---|---|\n| **Auth** | `tenki_auth_status` (which credential is configured, and does it work — the only tool available when none is) |\n| **Identity** | `tenki_whoami` |\n| **Run** | `tenki_run_code` (one-shot: boot → run shell/python/js → tear down) |\n| **Sandboxes** | `tenki_create_sandbox` · `tenki_get_sandbox` · `tenki_list_sandboxes` · `tenki_terminate_sandbox` · `tenki_pause_sandbox` · `tenki_resume_sandbox` |\n| **Session admin** | `tenki_extend_sandbox` · `tenki_update_sandbox` · `tenki_terminate_sandboxes` (bulk) · `tenki_report_sandbox_activity` · `tenki_list_workspace_sandboxes` |\n| **Exec** | `tenki_exec` (stdout/stderr/exit inline) |\n| **Files** | `tenki_read_file` · `tenki_write_file` · `tenki_list_files` · `tenki_stat_path` · `tenki_make_dir` · `tenki_remove_path` · `tenki_move_path` |\n| **Git** | `tenki_git` (clone/checkout/diff/log — the API supports exactly these four; run other git commands via `tenki_exec`) |\n| **Ports & previews** | expose · list-exposed · unexpose · create-preview-url · open-preview · list/get/delete-preview-url · touch-preview · bind/unbind-preview-url · resolve-preview-token |\n| **Artifacts** (binary transfer) | `tenki_get_upload_url` · `tenki_get_download_url` (signed URLs for binary PUT/GET) |\n| **SSH** | `tenki_update_ssh_keys` · `tenki_issue_ssh_cert` · `tenki_list_ssh_gateways` |\n| **Snapshots** | create · get · list · list-session · list-workspace · list-dangling · update · delete · get-download-url |\n| **Volumes** | create · get · list · update · delete · resize · attach · detach |\n| **Templates** | create · get · list · update · delete · build · cancel-build · get-build · list-active-builds |\n| **Workspace** | `tenki_get_workspace_usage` · `tenki_get_workspace_settings` · `tenki_update_workspace_settings` · `tenki_get_snapshot_retention_settings` · `tenki_update_snapshot_retention_settings` |\n\nFull per-release breakdown in [CHANGELOG.md](CHANGELOG.md).\n\n## Auth\n\nSet one of `TENKI_API_KEY` or `TENKI_AUTH_TOKEN` — when both are set, `TENKI_AUTH_TOKEN` wins. The header is chosen by token prefix: `tk_…` → `Authorization: Bearer`, `ory_st_…` → `X-Session-Token`, otherwise a session cookie. Override the endpoint with `TENKI_API_ENDPOINT` (default `https://api.tenki.cloud`).\n\n**Without a credential the server still starts**, registering only `tenki_auth_status` — so instead of an MCP client reporting an opaque \"server failed to start\", the agent can call that tool and get told what to set. Ask it \"check tenki auth status\" any time other tools return auth errors: it reports the credential kind (API key vs session token), the endpoint, and whether a live identity probe succeeded — never the token itself. It reports status only; get a credential with `tenki login` or from the dashboard.\n\n## Host it over HTTP (v2.0-beta)\n\nBesides stdio, the server speaks **Streamable HTTP** so it can be hosted for remote MCP clients:\n\n```bash\nTENKI_MCP_TRANSPORT=http PORT=3000 TENKI_API_KEY=… npx -y @tenkicloud/mcp\n# → tenki-mcp running on http://127.0.0.1:3000/mcp (Streamable HTTP) [loopback only, no auth]\n```\n\n**Security — this endpoint is a capability.** In HTTP mode the process holds one shared `TENKI_API_KEY` and exposes every tool, including arbitrary code execution and credit spend. So by default it:\n\n- **binds to loopback (`127.0.0.1`) only** — set `TENKI_MCP_HTTP_HOST=0.0.0.0` to expose it, but then\n- it **requires a bearer token**: set `TENKI_MCP_HTTP_TOKEN` and send `Authorization: Bearer <token>`. It **refuses to start** on a non-loopback host without one.\n- **DNS-rebinding protection** is on (Host-header allowlist), so a malicious web page can't drive your local server.\n\n```bash\n# expose to a network safely:\nTENKI_MCP_TRANSPORT=http TENKI_MCP_HTTP_HOST=0.0.0.0 PORT=3000 \\\n  TENKI_MCP_HTTP_TOKEN=$(openssl rand -hex 32) TENKI_API_KEY=… npx -y @tenkicloud/mcp\n```\n\nPoint an HTTP-capable MCP client at `/mcp`. v2.0-beta uses one shared `TENKI_API_KEY` for all sessions; per-request auth (multi-tenant hosting) is not yet implemented. Verified end-to-end (`test/http-transport.test.mjs`: auth gate, DNS-rebinding rejection, connect → tools/list → tool call over HTTP).\n\n## How it works\n\nTenki's API is **ConnectRPC** — JSON over HTTP/1.1, not REST. Every control-plane call is `POST https://api.tenki.cloud/tenki.sandbox.v1.SandboxService/{Method}` with a lowerCamelCase JSON body. Per-session file I/O runs on a **separate data-plane endpoint** returned at create time, authenticated with a short-lived session certificate. This server owns both transports so the tools stay one-liners.\n\nCommand output: `tenki_exec` and `tenki_run_code` capture `stdout`/`stderr` by redirecting to files (`sh -c '… > out 2> err'`) and reading them back over the data plane, so you get the output inline through a plain HTTP client.\n\nThe wire details are ported from the live-verified [n8n community node](https://github.com/opencolin/n8n-nodes-tenki).\n\n## Security\n\nThis server holds a Tenki API key and can run code + spend credits, so treat it as a capability. Full model + [CSA MCP Server Top-10](https://modelcontextprotocol-security.io/top10/server/) mapping in **[SECURITY.md](SECURITY.md)**. Quick controls:\n\n- **Least privilege:** every tool carries MCP annotations (`readOnlyHint` / `destructiveHint`). Run `TENKI_MCP_READONLY=1` for an inspection-only server (read tools only), or `TENKI_MCP_DISABLED_TOOLS=tenki_run_code,…` to drop specific tools.\n- **HTTP transport** is loopback-only by default and requires a bearer token to expose to a network (see [Host it over HTTP](#host-it-over-http-v20-beta)).\n- **Audit:** `TENKI_MCP_AUDIT=1` logs each tool call's name to stderr.\n- **Untrusted output:** `tenki_run_code`/`tenki_exec`/`tenki_read_file` return output from untrusted code — clients should treat tool results as data, not instructions.\n\nReport vulnerabilities via a private [security advisory](https://github.com/LuxorLabs/tenki-mcp/security/advisories/new), not a public issue.\n\n## Related\n\n- **Tenki Sandbox** — the platform: https://tenki.cloud\n- **n8n-nodes-tenki** — Tenki as an n8n node: https://github.com/opencolin/n8n-nodes-tenki\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

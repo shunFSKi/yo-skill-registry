@@ -10,14 +10,20 @@
     "repo": "r6t/nixos-r6t",
     "path": ".agents/skills/incus/SKILL.md"
   },
-  "license": null,
+  "license": "GPL-3.0",
   "install": {
     "kind": "skill-dir"
   },
   "quality": {
-    "stars": null,
-    "pushed_at": null,
-    "score": 25
+    "stars": 4,
+    "pushed_at": "2026-08-06T00:14:34Z",
+    "score": 61,
+    "star_history": [
+      {
+        "d": "2026-08-22",
+        "s": 4
+      }
+    ]
   },
   "security": {
     "score": 100,
@@ -49,6 +55,6 @@
     "category": "编程",
     "featured": false
   },
-  "readme": null,
+  "readme": "### [Flake](https://www.youtube.com/watch?v=JCeYq72Sko0) modules for personal [NixOS](https://nixos.org/) systems\n\n![](./docs/nixos-r6t-flake.drawio.svg)\n\n### Public/Private Split\n\nThis repository is the public module/profile layer. Real host inventory lives in a\nseparate private wrapper flake so hardware identifiers, network topology, storage\npaths, and runtime runbooks do not have to be public.\n\nPublic outputs are reusable modules, profiles, checks, and devshells. The main\ndendritic API for downstream flakes is `modules.nixos.*`.\nConcrete `nixosConfigurations` are intentionally not exported here.\n\nSee `docs/PRIVATE-FLAKE.md` for the private wrapper pattern.\n\n### NixOS and Home Manager\n\nPrivate host flakes import profiles from this repo and build NixOS plus Home\nManager in one step. A private host rebuild can still use a local helper such as:\n\n```fish\nnrs\n```\n\n`nrs` is a fish function from `modules/home/fish/config.nix` that rebuilds the\ncurrent host from the configured flake path.\n\n### Containers\n\n[Incus](https://linuxcontainers.org/incus/) image definitions and runtime\nprofiles are private because they expose service inventory, bind mounts, domains,\nLAN layout, and passthrough devices.\n\n### Structure\n\n```\n.\n├── docs/                    # Reference docs for humans and agents\n├── flake/                   # flake-parts output modules and discovery helpers\n├── modules/                 # NixOS, Home Manager, Flatpak, and profile modules\n├── pkgs/                    # Optional custom package outputs\n├── devshells.nix            # Devshell declarations\n├── flake.nix                # Inputs and flake-parts root\n├── format.fish              # Format and lint entrypoint\n└── README.md\n```\n\nSee `docs/DENDRITIC.md` for the current flake structure and public output\ncontract.\n\n### devshell\n\nI'm increasingly making use of [devshells](https://github.com/numtide/devshell) to manage nixpkgs that activate on-demand. Basically an OS-level virtual environment.\nDevshell activation is done via a [shell function](https://github.com/r6t/nixos-r6t/blob/bddac92b6da1879f021f0b3f7875e4dd65acefe0/modules/home/fish/default.nix#L55) to allow quick devshell activation without explicitly specifying my flake path:\n\n- Default/Nix: `nd`\n- Add name argument for other devshells. Ex: `nd aws`\n",
   "status": "curated"
 }
