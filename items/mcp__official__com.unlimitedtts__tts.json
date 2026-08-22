@@ -1,0 +1,80 @@
+{
+  "id": "mcp:official/com.unlimitedtts/tts",
+  "type": "mcp",
+  "name": "UnlimitedTTS",
+  "description": "Quote-first, non-custodial x402 text-to-speech with spend policy, MP3 artifacts, and receipts.",
+  "author": "com.unlimitedtts",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/sisygoboom/unlimitedtts-agents",
+    "repo": "sisygoboom/unlimitedtts-agents"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@unlimitedtts/mcp"
+    ],
+    "env": [
+      {
+        "name": "UNLIMITEDTTS_ENVIRONMENT",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "UNLIMITEDTTS_MAX_USDC_PER_CALL",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "UNLIMITEDTTS_ROLLING_24H_USDC",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "UNLIMITEDTTS_OUTPUT_DIRECTORY",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-22T14:38:01.780274Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "设计",
+    "featured": false
+  },
+  "readme": "# UnlimitedTTS for Agents\n\nNon-custodial, quote-first text-to-speech for AI agents:\n\n- `@unlimitedtts/core` validates live x402 challenges, enforces spend policy, persists sanitized receipts, and writes private MP3 artifacts.\n- `@unlimitedtts/mcp` exposes `tts_list_voices`, `tts_quote`, and irreversible `tts_synthesize` tools over stdio.\n- `@unlimitedtts/openclaw` bundles the MCP server and the `unlimitedtts` agent skill.\n- `skills/unlimitedtts` supports MCP-guided and direct wallet-aware HTTP workflows.\n\nThe implemented v1 path is external-signature mode. A separate wallet tool creates the x402 v2 `PAYMENT-SIGNATURE`; this code never accepts a seed phrase or private key.\n\n## Install and build\n\nNode.js 20 or newer and pnpm are required.\n\n```bash\npnpm install --frozen-lockfile\npnpm check\n```\n\nRun the local server from this checkout:\n\n```bash\npnpm --filter @unlimitedtts/mcp build\nnode packages/mcp/dist/cli.js\n```\n\nGeneric MCP configuration after npm publication:\n\n```json\n{\n  \"mcpServers\": {\n    \"unlimitedtts\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@unlimitedtts/mcp@0.1.0\"],\n      \"env\": {\n        \"UNLIMITEDTTS_MAX_USDC_PER_CALL\": \"0.10\",\n        \"UNLIMITEDTTS_ROLLING_24H_USDC\": \"1.00\",\n        \"UNLIMITEDTTS_OUTPUT_DIRECTORY\": \"/absolute/approved/output\"\n      }\n    }\n  }\n}\n```\n\nOpenClaw local development:\n\n```bash\npnpm --filter @unlimitedtts/openclaw build\nopenclaw plugins install -l ./packages/openclaw\nopenclaw plugins enable unlimitedtts\nopenclaw gateway restart\nopenclaw plugins inspect unlimitedtts --runtime --json\nopenclaw plugins doctor\n```\n\n## Payment flow\n\n1. `tts_list_voices` retrieves `/docs` and `/tts/voices` and caches the result for five minutes.\n2. `tts_quote` sends the exact synthesis body to `/x402/tts` without payment, validates the returned `PAYMENT-REQUIRED`, enforces local policy, reserves rolling budget, and returns a short-lived HMAC token.\n3. A wallet signs only the returned `selectedRequirement`.\n4. `tts_synthesize` verifies the token, unchanged body hash, complete x402 v2 `accepted` entry, exact-EVM payee and value, then sends one paid retry.\n5. A successful call requires both `audio/mpeg` and `PAYMENT-RESPONSE`. It commits the budget, writes a sanitized receipt, atomically stores the MP3 with mode `0600`, and returns structured metadata plus MCP audio/resource content.\n\n`PAYMENT_OUTCOME_UNKNOWN` permanently quarantines that quote in the local ledger. The server never automatically submits or authorizes a second payment.\n\n## Configuration\n\n| Environment variable | Default |\n|---|---|\n| `UNLIMITEDTTS_ENVIRONMENT` | `production`; set `staging` explicitly for the staging API and Base Sepolia |\n| `UNLIMITEDTTS_API_ORIGIN` | `https://api.unlimitedtts.com` |\n| `UNLIMITEDTTS_ALLOWED_NETWORKS` | `eip155:8453` |\n| `UNLIMITEDTTS_ALLOWED_ASSETS` | Base USDC contract |\n| `UNLIMITEDTTS_ALLOWED_PAYEES` | Payee pinned from the verified 30 July 2026 release contract |\n| `UNLIMITEDTTS_MAX_USDC_PER_CALL` | `0.10` |\n| `UNLIMITEDTTS_ROLLING_24H_USDC` | `1.00` |\n| `UNLIMITEDTTS_APPROVAL_THRESHOLD_USDC` | `0.05` |\n| `UNLIMITEDTTS_REQUIRE_APPROVAL` | `first-payment-and-over-threshold` |\n| `UNLIMITEDTTS_OUTPUT_DIRECTORY` | `.unlimitedtts-artifacts` under the server working directory |\n| `UNLIMITEDTTS_QUOTE_TOKEN_SECRET` | Random per process; configure a secret for multi-instance deployments |\n\nPayee rotation must be released through trusted configuration. The server never learns an allowed payee from an untrusted challenge.\n\nProduction remains the default and is pinned to Base mainnet. For staging validation, set `UNLIMITEDTTS_ENVIRONMENT=staging`; this selects `https://staging-api.unlimitedtts.com`, Base Sepolia (`eip155:84532`), and staging USDC. The core rejects the staging origin, network, or asset when the environment is not explicitly `staging`.\n\n## Scope\n\nThis checkout implements the portable local MCP, external wallet adapter contract, agent skill, OpenClaw package, tests, and registry metadata. Hosted Streamable HTTP, temporary R2 storage, prepaid-card synthesis, and a concrete managed automatic signer are intentionally not advertised as completed v1 features.\n\nSee [required and recommended upstream changes](docs/upstream-api-changes.md) before enabling unattended automatic signing or a hosted service.\n",
+  "status": "curated"
+}

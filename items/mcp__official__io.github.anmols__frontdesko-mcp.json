@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.anmols/frontdesko-mcp",
+  "type": "mcp",
+  "name": "FrontDesko",
+  "description": "Hotel PMS pricing, comparisons, OTA savings math, docs search and live demo availability.",
+  "author": "io.github.anmols",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/anmols/frontdesko-mcp",
+    "repo": "anmols/frontdesko-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://mcp.frontdesko.app/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-22T05:46:47.270252Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "写作",
+    "featured": false
+  },
+  "readme": "# FrontDesko MCP Server\n\nA public [Model Context Protocol](https://modelcontextprotocol.io) server for\n[FrontDesko](https://frontdesko.app) — the simple, free, modern hotel PMS for\nindependent hotels, B&Bs, guest houses, hostels and small chains.\n\n**Endpoint:** `https://mcp.frontdesko.app/mcp` (Streamable HTTP, no auth, read-only)\n\nAdd it to your AI assistant and ask real questions — \"what does a 20-room hotel\npay OTAs per year?\", \"FrontDesko vs Cloudbeds?\", \"which plan for a 12-room guest\nhouse in Kenya?\" — and get answers grounded in FrontDesko's published pages,\nwith source URLs.\n\n## Quick start\n\n**Claude Code**\n\n```bash\nclaude mcp add --transport http frontdesko https://mcp.frontdesko.app/mcp\n```\n\n**Claude Desktop / other MCP clients** (`mcpServers` config):\n\n```json\n{\n  \"mcpServers\": {\n    \"frontdesko\": {\n      \"type\": \"http\",\n      \"url\": \"https://mcp.frontdesko.app/mcp\"\n    }\n  }\n}\n```\n\n**Cursor** — Settings → MCP → Add server → URL `https://mcp.frontdesko.app/mcp`.\n\n## Tools\n\n| Tool | What it does |\n|---|---|\n| `get_pricing_and_packaging` | FrontDesko's plans: PMS, direct booking engine, guest app and POS free forever (unlimited rooms); channel manager + Ask FrontDesko AI assistant on Growth ($42/mo, 10–30 rooms) and Professional ($54/mo, 30–50 rooms) |\n| `compare_pms` | Feature-by-feature comparison vs Cloudbeds, eZee Absolute, Hotelogix, Little Hotelier, or Mews — from FrontDesko's published comparison pages |\n| `calculate_ota_commission_savings` | What a hotel pays OTAs per year, and what shifting 30% of bookings to commission-free direct bookings recovers — same formula as [the site calculator](https://frontdesko.app/ota-commission-calculator) |\n| `recommend_software` | Plan + guide recommendations by property type (16 types), room count, and country (24 country guides) |\n| `search_frontdesko_docs` | Full-text search over [frontdesko.app/llms-full.txt](https://frontdesko.app/llms-full.txt) with excerpts and source URLs |\n| `check_demo_availability` | Live room availability on the public FrontDesko demo property — real data from the same booking engine every FrontDesko hotel gets free |\n\nAll tools are read-only. Nothing is written, no bookings are created, and the\nserver stores nothing about you.\n\n## About the data\n\nAnswers come from FrontDesko's own published pages, and every response includes\nits source URLs. Competitor comparison figures reflect public information as\nnoted on each comparison page. The demo-availability tool queries a dedicated\ndemo property (rate-limited to 10 requests/minute per caller).\n\n## Development\n\n```bash\nnpm install\nnpm test            # 23 tests: unit + e2e over the real Streamable HTTP transport\nnpm run dev         # wrangler dev → http://localhost:8787/mcp\nnpm run smoke       # SDK client against a running server (local or prod)\nnpm run check-urls  # verifies every data URL is live and pricing hasn't drifted\n```\n\nBuilt as a Cloudflare Worker with [`agents`](https://www.npmjs.com/package/agents)'\n`createMcpHandler` and the MCP TypeScript SDK.\n\n## FrontDesko\n\nFrontDesko is hotel management software with an unusual model: the core — PMS,\ncommission-free direct booking engine, guest app, POS — is **free forever with\nunlimited rooms**. Paid plans exist for two features: the OTA channel manager\nand the Ask FrontDesko AI assistant.\n\n- Website: <https://frontdesko.app>\n- Pricing: <https://frontdesko.app/pricing>\n- Product showcase: <https://github.com/anmols/frontdesko>\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

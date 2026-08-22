@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.voicelogica/voice-logica",
+  "type": "mcp",
+  "name": "Voice Logica",
+  "description": "Manage Voice Logica agents, calls, phones, workflows, messaging, and integrations.",
+  "author": "io.github.voicelogica",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/voicelogica/voice-logica-plugin",
+    "repo": "voicelogica/voice-logica-plugin"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://api.voicelogica.ai/api/v1/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-22T11:05:59.883725Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Voice Logica plugin\n\nOne plugin folder for Cursor, Claude Code, ChatGPT, Codex, Gemini CLI, and Grok. Users install it, click Connect, and sign in at Voice Logica. After that they can manage AI voice agents, phones, integrations, workflows, calls, and billing from chat.\n\nThe default MCP is the hosted endpoint at https://api.voicelogica.ai/api/v1/mcp. Clients that support OAuth open a Connect flow to https://app.voicelogica.ai. This is not the Voice Logica backend.\n\n## What users can do\n\n- List, create, and edit AI voice agents (prompts, greetings, languages, voices, versions)\n- Change transfer, end-call, analysis, notification, memory, and appointment settings\n- Turn agent tools on or off (SMS, appointments, e-shop, HubSpot, silence, IVR, and more)\n- Register VoIP phones, assign numbers, and manage edge-device forwards\n- Connect CRM, e-commerce, ERP, calendar, SMS, and helpdesk integrations, then test them on a Call ID\n- Book on Google or Microsoft calendars, manage contacts, and use Google Chat\n- Send SMS or Viber and manage verified senders\n- Build workflows (call start/end, keywords, email, API) and assign them to agents\n- Review calls, SIP logs, outbound campaigns, and scheduled calls\n- Generate and run test scenarios (treat scenario \"succeeded\" as a judge, not live truth)\n- Read plans, add-ons, payment method, and subscription; update operating hours\n- File and follow Voice Logica app support tickets\n- Work across companies they belong to (switch / request access)\n\nThe full MCP tool catalog, grouped by job, lives in `skills/use-voice-logica-mcp`.\n\nExample prompts: list my agents, update the Support Bot greeting, connect HubSpot and test it, show calls from the last 7 days, book a calendar slot, send an SMS from the verified sender.\n\n## Company\n\nVoice Logica. Website: https://voicelogica.ai. App: https://app.voicelogica.ai. Support: support@voicelogica.ai.\n\nPrivacy: https://legal.voicelogica.ai/privacy. Terms: https://legal.voicelogica.ai/terms.\n\n## Connect\n\n1. Install the plugin\n2. Click Connect on the Voice Logica MCP\n3. Sign in at https://app.voicelogica.ai\n\nNo API key is required when the client supports OAuth.\n\n### Fallback for clients without Connect\n\nSome local/stdio clients cannot open a browser. For those only:\n\n1. Sign in at https://app.voicelogica.ai\n2. Open Settings, then API Keys\n3. Run `npx -y @voicelogica/mcp-server` with `VOICE_LOGICA_API_KEY` set\n\nNever commit a real key into this repo.\n\n## Local test\n\n### Cursor\n\nCopy this folder to %USERPROFILE%\\.cursor\\plugins\\local\\voice-logica, reload Cursor, click Connect, then ask it to list your agents.\n\n### Claude Code\n\n    claude plugin validate .\n    claude --plugin-dir .\n\nConnect Voice Logica MCP if prompted. Then try /voice-logica:manage-voice-agents or ask it to list your agents.\n\n### ChatGPT / Codex\n\nUse the hosted MCP URL `https://api.voicelogica.ai/api/v1/mcp` with OAuth. Codex can also load this folder as a local plugin.\n\n### Gemini CLI\n\n    gemini extensions install voicelogica/voice-logica-plugin\n\nThen authenticate the remote MCP if Gemini asks.\n\n## Publish\n\nSame folder, several submissions. Listing on one store does not list you on the others.\n\n- Cursor official: https://cursor.com/marketplace/publish\n- cursor.directory: https://cursor.directory/plugins/new\n- Claude community: run claude plugin validate ., then https://platform.claude.com/plugins/submit\n- Official Claude marketplace is invite-only\n- ChatGPT / Codex: https://developers.openai.com/plugins/deploy/submission\n- Gemini CLI: `gemini-extension.json` plus the `gemini-cli-extension` GitHub topic\n- Grok: listing PR against xai-org/plugin-marketplace\n\n## Layout\n\n    gemini-extension.json        Gemini CLI gallery manifest\n    plugin.json                 Agent Plugins (portable)\n    mcp.json                    Cursor + Agent Plugins MCP (hosted OAuth)\n    .mcp.json                   Claude Code + Codex MCP (hosted OAuth)\n    .cursor-plugin/plugin.json  Cursor manifest\n    .claude-plugin/plugin.json  Claude Code manifest\n    .codex-plugin/plugin.json   ChatGPT / Codex manifest\n    skills/manage-voice-agents              Router: confirm MCP, list agents, pick a skill\n    skills/edit-voice-agents                Editor tabs, prompts, knowledge files\n    skills/fix-agent-behavior               Call behavior fixes\n    skills/troubleshoot-voice-agents        Diagnose with Call IDs and tool logs\n    skills/manage-phones                    VoIP phones, DIDs, assign numbers to agents\n    skills/manage-integrations              3-layer connect → enable tool → test Call ID\n    skills/manage-crm                       HubSpot, Zoho, Salesforce\n    skills/manage-ecommerce                 Woo, Shopify, and eshop_integration\n    skills/manage-erp                       Soft1, Galaxy, Pylon, Entersoft, tunnels\n    skills/manage-calendar-google-microsoft Calendar, contacts, Chat, appointments\n    skills/manage-sms                       SMS / Viber senders\n    skills/manage-helpdesk-ops              Freshdesk, Jira, couriers, payments\n    skills/manage-workflows                 Triggers, nodes, versions, apiCall shape\n    skills/manage-calls-campaigns           Call logs, outbound, test scenarios\n    skills/manage-company-billing           Companies, plans, operating hours\n    skills/create-support-ticket            File a ticket in the Voice Logica app\n    skills/use-voice-logica-mcp             Full public MCP tool catalog\n    assets/favicon.png            Marketplace icon (official)\n    assets/logo.png               Wordmark\n    assets/logo.svg               Fallback mark\n\n## Brand\n\nOfficial icon: https://www.voicelogica.ai/images/setup/voice-logica-logo-site-favicon.png\nWordmark: https://app.voicelogica.ai/assets/logo.png",
+  "status": "curated"
+}

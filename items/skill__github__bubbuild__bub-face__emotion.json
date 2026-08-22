@@ -15,15 +15,9 @@
     "kind": "skill-dir"
   },
   "quality": {
-    "stars": 7,
-    "pushed_at": "2026-04-18T01:14:39Z",
-    "score": 50,
-    "star_history": [
-      {
-        "d": "2026-08-22",
-        "s": 7
-      }
-    ]
+    "stars": null,
+    "pushed_at": null,
+    "score": 22
   },
   "security": {
     "score": 100,
@@ -55,6 +49,6 @@
     "category": null,
     "featured": false
   },
-  "readme": "# bub-face\n\n`bub-face` is a `bub` plugin that provides a web-based robot eyes UI backed by `aiohttp` and registers the `face` channel through the `bub` plugin entry point.\n\n## Demo\n\nhttps://github.com/user-attachments/assets/4e0baa87-4e93-4d39-8416-1a8db84af99f\n\n## Demo Limitation\n\nThis Web UI requires the display to stay active and visible. It is intended for demo and presentation use only, not for production scenarios where the screen may sleep, turn off, or run unattended.\n\nIf you want a longer-running physical setup, use a dedicated low-power display device instead of a general-purpose monitor.\n\n## Installation\n\nInstall this plugin into the same Python environment as `bub`.\n\n```bash\nuv pip install git+https://github.com/bubbuild/bub-face.git\n```\n\n\n## Behavior\n\n- The screen shows the robot face by default.\n- After 10 minutes of inactivity, the UI switches to a full-screen date/time clock.\n- `POST /api/sleep` switches the UI to `clock` immediately.\n- Any `GET /api/state` request wakes the screen and switches it back to `face`.\n- Emotion changes, state patches, resets, and WebSocket control messages also count as activity.\n\n## Local Run\n\nIf you want to debug the web UI provided by this plugin on its own, you can start the bundled server directly:\n\n```bash\npython -m bub_face.server\n```\n\nThen open `http://127.0.0.1:28282`.\n\n## API\n\n```bash\ncurl http://127.0.0.1:28282/api/state\n\ncurl -X POST http://127.0.0.1:28282/api/emotion \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"emotion\":\"happy\"}'\n\ncurl -X POST http://127.0.0.1:28282/api/state \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"pupil_x\":0.35,\"pupil_y\":-0.2,\"openness\":0.85}'\n\ncurl -X POST http://127.0.0.1:28282/api/sleep\n```\n\nWebSocket clients can connect to `/ws` and send:\n\n```json\n{\"action\":\"set_emotion\",\"emotion\":\"curious\"}\n{\"action\":\"patch\",\"state\":{\"pupil_x\":-0.5,\"pupil_y\":0.2}}\n{\"action\":\"reset\"}\n{\"action\":\"sleep\"}\n```\n\n`GET /api/state` and WebSocket `state` events include:\n\n```json\n{\n  \"display_mode\": \"face\",\n  \"idle_timeout_seconds\": 600\n}\n```\n\nSupported emotions:\n\n- `neutral`\n- `happy`\n- `sad`\n- `angry`\n- `surprised`\n- `sleepy`\n- `curious`\n- `love`\n- `thinking`\n",
+  "readme": null,
   "status": "curated"
 }

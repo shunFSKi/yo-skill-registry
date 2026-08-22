@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.Diogoup26/mcp-x402",
+  "type": "mcp",
+  "name": "Diogo AI URL Analysis",
+  "description": "Remote MCP and x402 service for paid public URL analysis and auditable condition verification.",
+  "author": "io.github.Diogoup26",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/Diogoup26/mcp-x402",
+    "repo": "Diogoup26/mcp-x402"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://mcp-x402-production.up.railway.app/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-22T13:16:23.14944Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# MCP x402 — Evidence-Backed Web Verification for AI Agents\n\n## Verify a seller, product, offer, policy, or claim before an agent acts\n\nGive an AI agent a public HTTP(S) page and 1 to 10 concrete conditions. The `verificar_condicoes` tool returns an evidence-based decision for every condition:\n\n- `confirmado` — the page clearly supports the condition.\n- `rejeitado` — the page clearly contradicts the condition.\n- `incerto` — the available page evidence is insufficient.\n\nEach verification includes the final source URL, page title, timestamp, condition-by-condition explanation, quoted evidence when available, a unique `verificationId`, and a SHA-256 `pageHash`.\n\n### Designed for\n\n- AI purchasing and procurement agents;\n- seller, product and offer verification;\n- pre-purchase due diligence;\n- policy and terms checking;\n- commercial automation that requires evidence before taking action.\n\n### Simple x402 integration\n\n- Free preflight validation before payment.\n- `$0.05 USDC` per verification on Base mainnet.\n- No account or subscription required.\n- Available through MCP and HTTP.\n- Ready-to-run buyer included in this repository.\n- Coinbase x402 validation passed and Bazaar discovery enabled.\n\n### Live endpoints\n\n- MCP: `https://mcp-x402-production.up.railway.app/mcp`\n- Free verification preflight: `POST https://mcp-x402-production.up.railway.app/preflight/verify-conditions`\n- Paid verification: `POST https://mcp-x402-production.up.railway.app/verify-conditions`\n- Health: `GET https://mcp-x402-production.up.railway.app/health`\n\nThe service also provides paid public URL analysis and general AI consultation through `analisar_url` and `consultar_ia`.\n\n## Live Service\n\n- Base URL: `https://mcp-x402-production.up.railway.app`\n- Health check: `GET /health`\n- MCP endpoint: `POST /mcp`\n- Paid URL analysis: `POST /analyze`\n- Price: `$0.05 USDC` per paid request\n- Network: Base mainnet (`eip155:8453`)\n\n## Production Status\n\n- Production deployment active on Railway\n- x402 version 2 payment flow\n- Base mainnet payments (`eip155:8453`)\n- Coinbase x402 validation passed\n- Simulation accepted with HTTP 402\n- Bazaar discovery metadata enabled\n- Coinbase index active\n\n## MCP Tools\n\n## Decision verification\n\n### `verificar_condicoes` — $0.05 USDC\n\nA paid decision-verification tool for agents.\n\nGive it a public URL and one or more concrete conditions. It returns a decision based only on evidence extracted from that page:\n\n- `confirmado` — the page clearly proves the condition.\n- `rejeitado` — the page clearly contradicts the condition.\n- `incerto` — the page does not provide enough evidence.\n\nEach result includes the final source URL, page title, verification timestamp, condition-by-condition explanation, and a short quoted proof where available.\n\nExample conditions:\n\n- “The page identifies the seller.”\n- “The product is available in Portugal.”\n- “The page shows a price in euros.”\n- “The document states that the service supports x402.”\n\nThis is designed for agents that need an evidence-based decision before taking the next action.\n\n| Tool | Description | Price |\n| --- | --- | --- |\n| `consultar_ia` | Sends a prompt to the OpenAI Responses API. | $0.02 USDC |\n| `analisar_url` | Fetches and analyzes a public HTTP or HTTPS page. | $0.05 USDC |\n| `verificar_condicoes` | Verifies concrete conditions on a public page and returns evidence-based decisions. | $0.05 USDC |\n\n## Technology\n\n- Node.js and TypeScript\n- Express\n- Model Context Protocol\n- OpenAI Responses API\n- x402 payments\n- viem\n- Cheerio\n- Railway\n\n## Security\n\n- HTTPS provided by Railway\n- Helmet security headers\n- Rate limit of 100 requests per 15 minutes\n- Structured request logs with unique request IDs\n- Host validation and Railway health-check support\n- Restricted OpenAI API key with access only to `/v1/responses`\n- Environment files and secrets excluded from Git\n\n## Environment Variables\n\n### Server\n\n| Variable | Required | Description |\n| --- | --- | --- |\n| `OPENAI_API_KEY` | Yes | OpenAI project API key. |\n| `OPENAI_MODEL` | No | OpenAI model. Defaults to `gpt-5-mini`. |\n| `HOST` | No | Listening host. Defaults to `0.0.0.0`. |\n| `PORT` | No | Listening port. Defaults to `3000`. |\n| `RAILWAY_PUBLIC_DOMAIN` | Railway | Automatically supplied by Railway. |\n\n### Local Buyer\n\n| Variable | Required | Description |\n| --- | --- | --- |\n| `EVM_PRIVATE_KEY` | Yes | Private key of the Base mainnet buyer wallet. Never commit this value. |\n\nExample local `.env.test` file:\n\n```env\nEVM_PRIVATE_KEY=your_private_key_here\n```\n\n## Local Development\n\nInstall dependencies:\n\n```bash\nnpm install\n```\n\nStart the development server:\n\n```bash\nnpm run dev\n```\n\nBuild the project:\n\n```bash\nnpm run build\n```\n\nStart the compiled server:\n\n```bash\nnpm start\n```\n\n## Health Check\n\nThe health endpoint is public and does not require payment:\n\n```bash\ncurl https://mcp-x402-production.up.railway.app/health\n```\n\n\n## Ready-to-Run x402 Buyer\n\nThe repository includes ready-to-run buyers for applications and AI agents. The MCP buyer connects to the live service, validates the x402 payment requirements against Base mainnet USDC and a maximum payment of $0.05, signs the payment, retries the same tool call, and prints the settlement receipt and result.\n\nClone and prepare the buyer:\n\n```bash\ngit clone https://github.com/Diogoup26/mcp-x402.git\ncd mcp-x402\nnpm install\n```\n\nCreate a local `.env.test` file in the project root:\n\n```env\nEVM_PRIVATE_KEY=0xYOUR_64_HEX_CHARACTER_PRIVATE_KEY\n```\n\nNever commit `.env.test` or expose the private key.\n\nBuild the project:\n\n```bash\nnpm run build\n```\n\nThe following commands authorize real x402 payments on Base mainnet:\n\n- `consultar_ia`: $0.02 USDC\n- `analisar_url`: $0.05 USDC\n- `verificar_condicoes`: $0.05 USDC\n\n### HTTP URL Analysis\n\n```bash\nnpm run analyze -- \"https://example.com\" \"Summarize this page.\"\n```\n\n### HTTP Decision Verification\n\n```bash\nnpm run verify -- \"https://example.com\" \"The page identifies the seller.\"\n```\n\n### MCP URL Analysis\n\n```bash\nnpm run mcp:analyze -- \"https://example.com\" \"Summarize this page.\"\n```\n\n### MCP AI Consultation\n\n```bash\nnpm run mcp:consult -- \"Reply only with: MCP OK\"\n```\n\n### MCP Decision Verification\n\n```bash\nnpm run mcp:verify -- \"https://example.com\" \"The page identifies the seller.\"\n```\n\nA successful MCP payment prints:\n\n- `PAGAMENTO MCP: success`\n- the settlement receipt\n- the tool response\n\nThe MCP buyer never prints the private key and rejects any payment that:\n\n- is not on Base mainnet;\n- does not use the configured Base USDC contract;\n- exceeds $0.05 USDC.\n## Deployment\n\nThe `main` branch is connected to Railway. Every successful push triggers a new deployment. Railway uses:\n\n```bash\nnpm run build\nnpm start\n```\n\nThe deployment health-check path is `/health`.\n\n## License\n\nISC\n",
+  "status": "curated"
+}

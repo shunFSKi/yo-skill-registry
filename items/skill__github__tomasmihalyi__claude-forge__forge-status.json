@@ -10,20 +10,14 @@
     "repo": "tomasmihalyi/claude-forge",
     "path": ".claude/skills/forge-status/SKILL.md"
   },
-  "license": "MIT",
+  "license": null,
   "install": {
     "kind": "skill-dir"
   },
   "quality": {
-    "stars": 5,
-    "pushed_at": "2026-02-12T01:50:31Z",
-    "score": 44,
-    "star_history": [
-      {
-        "d": "2026-08-22",
-        "s": 5
-      }
-    ]
+    "stars": null,
+    "pushed_at": null,
+    "score": 22
   },
   "security": {
     "score": 100,
@@ -55,6 +49,6 @@
     "category": null,
     "featured": false
   },
-  "readme": "# Forge\n\n**A Claude Code agent that builds its own tools.**\n\nForge detects when it lacks the capability to fulfill a request, then autonomously designs, builds, validates, and registers a new MCP tool server — and uses it immediately. Every tool it creates persists forever. The agent gets permanently smarter with every request.\n\n```\nUser: \"What time is it in Tokyo?\"\n\nForge: I don't have a tool for this. Forging one now...\n       [Designs world-clock server]\n       [Generates servers/world-clock/server.py]\n       [Validates: 11/11 checks passed]\n       [Registers with Claude Code]\n       [Uses it]\n\n       The current time in Tokyo is 2:30 AM JST.\n       Tool used: world-clock (forged just now)\n\nUser: \"What time is it in London?\"\n\nForge: I already have a tool for this: world-clock\n       The current time in London is 5:30 PM GMT.\n```\n\n## Quick Start\n\n```bash\n# Clone and set up\ngit clone https://github.com/tomasmihalyi/claude-forge.git && cd claude-forge\nuv sync\n\n# Start the Forge agent\nclaude --agent forge\n```\n\nThen ask it anything:\n- `\"What time is it in Tokyo?\"` — forges a timezone tool (stdlib)\n- `\"Analyze demo/sales.csv\"` — forges a CSV analysis tool (stdlib)\n- `\"What's trending on Hacker News?\"` — forges an HN API tool (httpx)\n- `\"What time is it in London?\"` — reuses the timezone tool instantly\n\nCheck what's been forged: type `/forge-status` in the agent session.\n\n## How It Works\n\n### The Forge Protocol (9 steps)\n\n```\nUser Request\n    │\n    ▼\n1. CHECK REGISTRY ─── Match found? ──Yes──► 8. USE EXISTING TOOL\n    │                                              │\n    No                                             ▼\n    ▼                                        9. CONFIRM\n2. ASSESS GAP ──── Reusable capability?\n    │\n    Yes\n    ▼\n3. ANNOUNCE ──── \"Forging a new tool...\"\n    ▼\n4. DESIGN ───── Reason about architecture (visible to user)\n    ▼\n5. GENERATE ─── Write FastMCP server to servers/{name}/server.py\n    ▼\n6. VALIDATE ─── 11-check validation (syntax, async, types, imports...)\n    │            Retry up to 3x on failure\n    ▼\n7. REGISTER ─── claude mcp add + update registry.json\n    ▼\n8. USE TOOL ─── Invoke via CLI wrapper\n    ▼\n9. CONFIRM ──── Return answer + \"Tool is now permanent\"\n```\n\n### Architecture\n\n```\nforge/\n├── .claude/\n│   ├── agents/forge.md              ← The agent brain (Forge Protocol)\n│   ├── settings.json                ← Permissions + hooks\n│   └── skills/forge-status/         ← /forge-status slash command\n├── forge/\n│   ├── templates/server_template.py ← Pattern for code generation\n│   ├── validate_server.py          ← 11-check server validator\n│   └── registry.py                 ← Atomic registry operations\n├── servers/                         ← Auto-generated MCP servers\n│   ├── world-clock/server.py\n│   ├── csv-analyzer/server.py\n│   └── hacker-news/server.py\n├── registry.json                    ← Persistent tool memory\n├── .mcp.json                        ← Claude Code MCP server config\n└── demo/sales.csv                   ← Sample data for demos\n```\n\n### Key Design Decisions\n\n**CLI wrapper pattern**: Every generated server includes a `--call` CLI wrapper so Forge can use tools immediately in the same session, without waiting for MCP registration to take effect.\n\n**11-check validator**: Before any server is registered, it passes through AST-based validation: syntax, async functions, docstrings, type hints, return types, no stdout contamination, successful imports, FastMCP instance, tool registration, and main block.\n\n**Atomic registry**: The registry helper (`forge/registry.py`) uses temp-file-and-rename for safe writes, prevents duplicate entries, and provides increment operations.\n\n**Security policy**: The agent refuses to forge tools that delete files, execute shell commands, access credentials, or call non-public APIs.\n\n## Claude Code Platform Integration\n\n| Feature | How Forge Uses It |\n|---------|------------------|\n| **Custom Agents** | `.claude/agents/forge.md` — the entire Forge Protocol |\n| **MCP Servers** | Forge creates and registers new MCP servers dynamically |\n| **Skills** | `/forge-status` — reports forged tools and usage stats |\n| **Hooks** | `PostToolUse` hook logs validation events |\n| **Opus 4.6** | Extended thinking drives server architecture design (Step 4) |\n\n## Built With\n\n- **Claude Opus 4.6** — extended thinking for tool architecture design\n- **Claude Code** — agents, skills, hooks, MCP integration\n- **FastMCP** (Python) — MCP server SDK\n- **Python 3.13** — stdlib + httpx for generated servers\n",
+  "readme": null,
   "status": "curated"
 }

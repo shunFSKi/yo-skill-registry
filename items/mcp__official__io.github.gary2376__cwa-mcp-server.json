@@ -1,0 +1,64 @@
+{
+  "id": "mcp:official/io.github.gary2376/cwa-mcp-server",
+  "type": "mcp",
+  "name": "cwa-mcp-server",
+  "description": "MCP server for Taiwan CWA open data: weather forecast, earthquake, warnings, typhoon.",
+  "author": "io.github.gary2376",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/gary2376/cwa-mcp-server",
+    "repo": "gary2376/cwa-mcp-server"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "cwa-mcp-server"
+    ],
+    "env": [
+      {
+        "name": "CWA_API_KEY",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-22T09:02:05.031314Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "生活",
+    "featured": false
+  },
+  "readme": "# cwa-mcp-server\n\n<!-- mcp-name: io.github.gary2376/cwa-mcp-server -->\n\nMCP server，包中央氣象署（CWA）開放資料 API，讓 agent 能查天氣預報、地震報告、天氣特報、颱風警報，並產生避難建議。\n\n## 功能\n\n- **Tool** `get_weather_forecast(county)` — 縣市未來 36 小時天氣預報\n- **Tool** `get_earthquake_report(limit)` — 最近 N 筆顯著有感地震報告\n- **Tool** `get_weather_warning(county)` — 縣市目前生效中的天氣特報（豪雨、強風等）\n- **Tool** `get_typhoon_warning(limit)` — 最近 N 筆颱風警報\n- **Resource** `cwa://counties` — 合法縣市名稱清單\n- **Prompt** `evacuation_advisory(county)` — 根據即時天氣/特報/地震/颱風資料生成避難建議的提示模板\n\n## 申請 API Key\n\n1. 到 [氣象資料開放平台](https://opendata.cwa.gov.tw) 註冊會員（email + 密碼即可，免審核）\n2. 登入後點「API 授權碼」→「取得授權碼」，立即產生 key\n\n## 安裝（一般使用者）\n\n已發布到 [PyPI](https://pypi.org/project/cwa-mcp-server/)，不需要 clone 這個 repo。在 Claude Desktop / Claude Code 的 MCP 設定裡指定 `uvx` 執行即可，會自動抓套件：\n\n```json\n{\n  \"mcpServers\": {\n    \"cwa-weather\": {\n      \"command\": \"uvx\",\n      \"args\": [\"cwa-mcp-server\"],\n      \"env\": { \"CWA_API_KEY\": \"你申請到的授權碼\" }\n    }\n  }\n}\n```\n\n或用 Claude Code CLI：\n```bash\nclaude mcp add cwa-weather -e CWA_API_KEY=你申請到的授權碼 -- uvx cwa-mcp-server\n```\n\n## 開發（改這個 repo 原始碼）\n\n```bash\ngit clone https://github.com/gary2376/cwa-mcp-server\ncd cwa-mcp-server\nuv sync\ncp .env.example .env   # 填入 CWA_API_KEY\n\nuv run python tests/test_client.py   # 最小自我檢查（不打真網路）\nuv run mcp dev src/cwa_mcp/server.py # 本地用 inspector 手動測試 tools\n```\n\n## 狀態\n\n四個 tool（天氣預報、地震報告、天氣特報、颱風警報）都已用真實 key 打過線上 API 驗證，也已接上 Claude Code 實測對話流程，能正確判斷風險等級並給出具體建議。已發布到 PyPI 與 MCP Server Registry。\n\n**已知修過的坑**：v0.1.0 最初上傳的 wheel 因為 `uv_build` 預設用 `project.name` 猜模組名（`cwa_mcp_server`），跟實際原始碼目錄 `src/cwa_mcp/` 對不上，打包出一個空殼套件，`uvx cwa-mcp-server` 會直接 `ModuleNotFoundError`。已在 `pyproject.toml` 加 `[tool.uv.build-backend] module-name = \"cwa_mcp\"` 修正，重新 build 驗證過 wheel 內容正確。\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

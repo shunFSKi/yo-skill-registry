@@ -1,0 +1,85 @@
+{
+  "id": "mcp:official/io.github.deckflow/deckprobe",
+  "type": "mcp",
+  "name": "deckprobe",
+  "description": "Inspect PDF, Office, and iWork documents without rendering: counts, metadata, security signals",
+  "author": "io.github.deckflow",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/deckflow/deckprobe-mcp-server",
+    "repo": "deckflow/deckprobe-mcp-server"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@deckflow/deckprobe-mcp"
+    ],
+    "env": [
+      {
+        "name": "DECKPROBE_MCP_ROOTS",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "DECKPROBE_MCP_TIMEOUT_MS",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "DECKPROBE_MCP_MAX_CONCURRENCY",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "DECKPROBE_MCP_MAX_BATCH",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "DECKPROBE_MCP_BIN",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-22T13:13:41.869792Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "写作",
+    "featured": false
+  },
+  "readme": "<div align=\"center\">\n\n# DeckProbe MCP Server\n\n**Let an agent ask what's inside a PDF, Office, or iWork file — without opening it.**\n\n[![CI](https://github.com/deckflow/deckprobe-mcp-server/actions/workflows/ci.yml/badge.svg)](https://github.com/deckflow/deckprobe-mcp-server/actions/workflows/ci.yml)\n[![npm](https://img.shields.io/npm/v/@deckflow/deckprobe-mcp.svg)](https://www.npmjs.com/package/@deckflow/deckprobe-mcp)\n[![License: MIT](https://img.shields.io/badge/license-MIT-2f80ed.svg)](LICENSE)\n\n[Install](#install) · [Tools](#tools) · [Configuration](#configuration) · [Security](#security) · [How it works](#how-it-works) · [DeckProbe](https://github.com/deckflow/deckprobe)\n\n</div>\n\nAn [MCP](https://modelcontextprotocol.io) server that exposes\n[DeckProbe](https://github.com/deckflow/deckprobe) — `ffprobe` for documents — as\nfour typed tools. Ask for page counts, slide counts, metadata, encryption and\nmacro signals, structure, or integrity, and get back bounded, deterministic JSON\nwith confidence, evidence, and measured I/O cost.\n\nNothing is rendered, no macro runs, no external reference is followed, and no\nnetwork connection is opened. It is safe to point at untrusted files.\n\n```jsonc\n// probe { \"path\": \"deck.pptx\", \"targets\": [\"slide_count\"], \"view\": \"values\" }\n{\n  \"schema_version\": 2,\n  \"status\": \"ok\",\n  \"driver\": { \"id\": \"powerpoint\", \"profile\": \"pptx\" },\n  \"values\": { \"powerpoint.slide_count\": 31 },\n  \"view\": \"values\"\n}\n```\n\n## Install\n\nNothing to install ahead of time — `npx` fetches the server and the engine\ntogether.\n\n**Claude Code**\n\n```sh\nclaude mcp add deckprobe -- npx -y @deckflow/deckprobe-mcp\n```\n\n**Claude Desktop, Cursor, VS Code, Zed, and anything else reading `mcpServers`**\n\n```jsonc\n{\n  \"mcpServers\": {\n    \"deckprobe\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@deckflow/deckprobe-mcp\"]\n    }\n  }\n}\n```\n\nFor a pinned install, `npm install -g @deckflow/deckprobe-mcp` and use\n`deckprobe-mcp` as the command.\n\nRequires Node.js 20 or newer. The engine binary arrives as a per-platform\noptional dependency for macOS, Linux (glibc and musl), and Windows on x86-64 and\nARM64; anywhere else the server falls back to the same engine compiled to\nWebAssembly, so `npx` works wherever Node does.\n\n## Tools\n\n| Tool | Use it for |\n| --- | --- |\n| `probe` | Everything about one document |\n| `probe_batch` | Inventory or triage many documents in one call |\n| `list_formats` | Which formats are supported, and where support stops |\n| `list_targets` | The exact target names a format offers |\n\nThere is also one resource, `deckprobe://schema`, carrying the report JSON\nSchema bundled with the running engine.\n\n### `probe`\n\n```jsonc\n{\n  \"path\": \"reports/q3.pptx\",\n  \"targets\": [\"@summary\", \"@security\"],  // presets, short names, or canonical names\n  \"level\": \"metadata\",                   // header | metadata | deep\n  \"min_confidence\": \"high\",              // low | medium | high | exact\n  \"target_confidence\": { \"slide_count\": \"exact\" },\n  \"view\": \"report\",                      // report | values\n  \"budget\": { \"max_physical_bytes\": 8388608, \"timeout_ms\": 1000 }\n}\n```\n\n`targets` accepts short names (`slide_count`), canonical names\n(`powerpoint.slide_count`), and presets:\n\n| Preset | Expands to |\n| --- | --- |\n| `@header` | Container identity only — format, size, extension match, encryption flag |\n| `@summary` | Identity, common metadata, and primary structure |\n| `@security` | Encryption, macros, signatures, external references, active content |\n| `@structure` | Format-owned counts, names, and dimensions |\n| `@assets` | Images, media, previews, fonts, embedded objects |\n| `@quality` | Integrity, repair, extension match, conformance |\n| `@format` | Every format-specific target at the active level |\n| `@all` | Everything available at the active level |\n\n`@summary` deliberately omits statistics that need a full-file read. A PDF's\n`page_count` is the notable case — ask for it explicitly.\n\n### `probe_batch`\n\n```jsonc\n{ \"paths\": [\"a.pdf\", \"b.pptx\", \"c.xlsx\"], \"targets\": [\"@security\"] }\n```\n\nOne engine process handles the whole batch. Results come back in input order,\neach with its own report or its own error, so one bad file never spoils the run.\nDefaults to the compact `values` view. Literal paths only — expand globs\nyourself.\n\n### `list_formats` and `list_targets`\n\n`list_targets` takes a `format` (`pdf`, `docx`, `xlsx`, `pptx`, `doc`, `xls`,\n`ppt`, `key`, `numbers`, `pages`) and returns each target's aliases,\ndescription, value type, minimum level, cost class, and selector membership.\nPass `detail: \"full\"` for the engine's complete report, including per-target\nJSON Schema fragments and expanded selector lists.\n\nBoth are cached for the lifetime of the server process.\n\n## Reading a report\n\nThe tool result is the engine's own schema-v2 envelope, unmodified. Two things\nare worth knowing before consuming it:\n\n- **`status: \"partial\"` is not a failure.** It means at least one requested\n  target could not be resolved at the requested confidence. It is named in\n  `execution.unresolved_targets`, and every other result still stands.\n- **`confidence_score` is a fixed constant per label** (`0.4`, `0.7`, `0.95`,\n  `1.0`), not a calibrated probability. `0.95` does not mean the value is right\n  95% of the time.\n\nOnly results with status `resolved` or `estimated` carry a `value`. `unknown` is\ncommon and usually means the document simply does not record that fact.\n\nA failing call returns `isError` with the engine's error envelope plus one line\nsaying what to do about it. Failures the server itself raises before the engine\nruns — a missing path, a directory, a path outside the allow-list, an exceeded\ndeadline — use the same envelope shape with an `MCP_`-prefixed code and\n`origin: \"mcp-server\"`.\n\n## Configuration\n\nEvery setting is an environment variable, set in your client's MCP config.\nAll are optional.\n\n| Variable | Default | Meaning |\n| --- | --- | --- |\n| `DECKPROBE_MCP_BIN` | – | Engine binary to use instead of the bundled one |\n| `DECKPROBE_MCP_ROOTS` | unrestricted | Allowed directories, separated like `PATH` |\n| `DECKPROBE_MCP_TIMEOUT_MS` | `30000` | Hard per-call deadline on an engine process |\n| `DECKPROBE_MCP_MAX_CONCURRENCY` | `4` | Concurrent engine processes |\n| `DECKPROBE_MCP_MAX_BATCH` | `64` | Paths accepted by one `probe_batch` call |\n\n```jsonc\n{\n  \"deckprobe\": {\n    \"command\": \"npx\",\n    \"args\": [\"-y\", \"@deckflow/deckprobe-mcp\"],\n    \"env\": { \"DECKPROBE_MCP_ROOTS\": \"/Users/me/Documents:/Users/me/Downloads\" }\n  }\n}\n```\n\n## Security\n\nDeckProbe is built for untrusted input: bounded parsing, no renderer, no macro\ninterpreter, no external-reference resolution, and no network access. This\nserver adds two things on top.\n\n- **Process isolation and a hard deadline.** Each probe runs in its own\n  short-lived process, killed if it outruns `DECKPROBE_MCP_TIMEOUT_MS`.\n- **An optional read allow-list.** `DECKPROBE_MCP_ROOTS` pins the reachable\n  tree; paths are symlink-resolved before the check, so a link cannot step\n  around it. The default is unrestricted, matching the CLI the user could run\n  themselves — set it for shared or automated deployments.\n\nReports describe a document (metadata, counts, signals) rather than reproducing\nits contents. Note that report values such as a document title are still\nattacker-controlled strings: the server passes them through as JSON data and\nnever interpolates them into instructions, and a consumer should treat them the\nsame way.\n\nReport a vulnerability privately as described in [SECURITY.md](SECURITY.md).\n\n## How it works\n\n```text\nMCP client\n    │  JSON-RPC over stdio\n    ▼\ndeckprobe-mcp ── validates arguments, resolves the path, maps the result\n    │  argv + stdout (one process per probe, or one --jsonl process per batch)\n    ▼\nDeckProbe engine ── plans the cheapest paths that answer the request\n```\n\nThe server spawns the native DeckProbe CLI rather than calling the WebAssembly\nbuild. The CLI reads only the byte ranges a probe plan needs, where the\nWebAssembly path holds the whole file in memory, and a separate OS process both\nisolates untrusted parsing and can be killed outright. The engine is chosen in\nthis order:\n\n1. `DECKPROBE_MCP_BIN`\n2. the binary that ships with this package's `@deckflow/deckprobe` dependency\n3. `deckprobe` on `PATH`\n4. the bundled WebAssembly engine\n\nThe resolved engine is logged to stderr at startup. stdout belongs to the MCP\ntransport and carries nothing else.\n\n## MCP server or agent skill?\n\nDeckProbe also ships an [Agent Skill](https://github.com/deckflow/deckprobe#use-from-a-coding-agent)\nthat teaches a shell-capable agent to use the CLI directly. Both teach the same\nvocabulary. Use the skill when the agent has a shell and you want the CLI's full\nsurface; use this server when it does not, or when you want typed arguments\nvalidated before the engine ever runs.\n\n## Development\n\n```sh\nnpm install\nnpm test          # typecheck, lint, build, and the full suite\nnpm run test:watch\n```\n\nContributions are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md). The design\nrationale, including the alternatives that were rejected, is in\n[docs/rfc.md](docs/rfc.md).\n\n## License\n\nMIT. See [LICENSE](LICENSE).\n",
+  "status": "curated"
+}
