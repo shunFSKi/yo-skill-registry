@@ -1,0 +1,69 @@
+{
+  "id": "mcp:official/io.github.CynaCons/powerplan",
+  "type": "mcp",
+  "name": "powerplan",
+  "description": "MCP server that makes PLAN.md the operational backbone of agentic development",
+  "author": "io.github.CynaCons",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/CynaCons/powerplan",
+    "repo": "CynaCons/powerplan"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "powerplan-mcp"
+    ],
+    "env": [
+      {
+        "name": "PYTHONUNBUFFERED",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "PYTHONIOENCODING",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-22T21:22:32.264653Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "<!-- mcp-name: io.github.CynaCons/powerplan -->\n\n# powerplan\n\n**PLAN.md as the operational backbone of agentic development.**\n\n`powerplan` is an [MCP](https://modelcontextprotocol.io) server that gives\ncoordinators and worker agents a human-language API over your project’s\n`PLAN.md`: show progress, create iterations, complete tasks, keep the header\ntruthful — without freeform file thrash.\n\nmcp-name: io.github.CynaCons/powerplan\n\n| | |\n|---|---|\n| **MCP server name** | `powerplan` |\n| **PyPI** | [`powerplan-mcp`](https://pypi.org/project/powerplan-mcp/) (`powerplan` is a different, unrelated package) |\n| **Registry** | `io.github.CynaCons/powerplan` |\n| **Status** | v0.6.1 — public package + registry listing ([PLAN.md](PLAN.md)) |\n| **Site** | [GitHub Pages](https://cynacons.github.io/powerplan/) |\n| **Pairs with** | [PowerSpawn](https://github.com/CynaCons/PowerSpawn) (optional) |\n\n---\n\n## Install\n\nYou need [uv](https://docs.astral.sh/uv/) (provides `uvx`) or Python 3.10+.\n\n```bash\nuvx powerplan-mcp\n```\n\nThat is the stdio MCP server. Point your client at it:\n\n### Claude Code / Cursor / `.mcp.json`\n\n```json\n{\n  \"mcpServers\": {\n    \"powerplan\": {\n      \"command\": \"uvx\",\n      \"args\": [\"powerplan-mcp\"],\n      \"env\": {\n        \"PYTHONIOENCODING\": \"utf-8\",\n        \"PYTHONUNBUFFERED\": \"1\"\n      }\n    }\n  }\n}\n```\n\n### Claude Desktop\n\nSame block in `claude_desktop_config.json` (`mcpServers`).\n\n### Grok (`~/.grok/config.toml` or project config)\n\n```toml\n[mcp_servers.powerplan]\ncommand = \"uvx\"\nargs = [\"powerplan-mcp\"]\nenv = { PYTHONUNBUFFERED = \"1\", PYTHONIOENCODING = \"utf-8\" }\nenabled = true\n```\n\n### pip (no uv)\n\n```bash\npip install powerplan-mcp\n```\n\n```json\n{\n  \"mcpServers\": {\n    \"powerplan\": {\n      \"command\": \"python\",\n      \"args\": [\"-m\", \"powerplan\"],\n      \"env\": {\n        \"PYTHONIOENCODING\": \"utf-8\",\n        \"PYTHONUNBUFFERED\": \"1\"\n      }\n    }\n  }\n}\n```\n\n---\n\n## Agent guide\n\nPrefer scoped tools. Do **not** read all of `PLAN.md` to figure out what to do.\n\n1. If tools fail with “no PLAN.md” → `create_plan` first.\n2. `get_current_iteration` — what to work on now (JSON).\n3. `get_iteration(version)` — one iteration’s tasks and progress.\n4. Mutate with `add_task` / `complete_task` / `start_iteration` / `close_iteration`.\n5. `show_plan` is a human skim, not a dump.\n\nEvery tool accepts optional `plan_path` (relative or absolute). Default: walk up\nfrom cwd to the nearest `PLAN.md`.\n\nOptional `agent` on mutations writes a trailing `[agent: id]` tag on the touched line.\n\n---\n\n## Why\n\nAgents often edit `PLAN.md` by hand. Headers drift, “COMPLETE” gets stamped\nwithout proof, and multi-agent swarms step on each other. powerplan is the\n**single writer**: tolerant reader, surgical writer, optional `[agent: …]` tags.\n\n---\n\n## Tools\n\n| Tool | Behavior |\n|------|----------|\n| `create_plan` | Bootstrap `./PLAN.md` (or `plan_path`) when missing; `force` to overwrite |\n| `get_current_iteration` | **Preferred for agents** — scoped JSON for current work |\n| `get_iteration` | JSON for one version (tasks, progress) |\n| `list_iterations` / `find_task` / `get_backlog` | Navigate without full-file reads |\n| `create_major` / `create_iteration` / `add_task` / … | Surgical mutations |\n| `complete_task` / `reopen_task` | Checkbox updates; optional `[agent: id]` |\n| `start_iteration` / `close_iteration` | ACTIVE/current vs COMPLETE lifecycle |\n| `check_plan` | Structure lint |\n| `show_plan` / `show_current_iteration` | Compact human skim (not a full dump) |\n\n---\n\n## Managed plan format\n\n| Construct | Pattern |\n|-----------|---------|\n| Major | `## vX.Y — Title` |\n| Iteration | `### vX.Y.Z — Title` |\n| Goal | `**Goal:** …` |\n| Tasks | `- [ ]` / `- [x]` |\n| Backlog | `## Backlog` |\n\nPhase-like headers and other prose are **preserved as opaque blocks**.\n\n---\n\n## From source\n\nClone, editable install, or PowerSpawn submodule — for contributors.\n\n```bash\ngit clone https://github.com/CynaCons/powerplan.git\ncd powerplan\npip install -e \".[dev]\"\npython -m powerplan          # same stdio server\n# or: powerplan-mcp\n```\n\nPowerSpawn can vendor this repo as a git submodule. Register **both** MCP\nservers — they do not merge:\n\n```json\n{\n  \"mcpServers\": {\n    \"powerplan\": {\n      \"command\": \"uvx\",\n      \"args\": [\"powerplan-mcp\"]\n    },\n    \"powerspawn\": {\n      \"command\": \"python\",\n      \"args\": [\"-m\", \"powerspawn.mcp_server\"]\n    }\n  }\n}\n```\n\nPath-only (no install): `python /path/to/powerplan/powerplan_server.py`\n\nLanding page: `cd site && npm ci && npm run dev`\n\n---\n\n## Releasing (maintainers)\n\nFull procedure, identities, and failure history: **[docs/RELEASING.md](docs/RELEASING.md)**.\nAgent checklist: project skill `release-powerplan` (`/release-powerplan`).\n\nShort path: bump every version file listed in that guide → `pytest -q` → tag\n`vX.Y.Z` → push the tag. `.github/workflows/publish.yml` uploads `powerplan-mcp`\nto PyPI, then `server.json` to the MCP Registry as `io.github.CynaCons/powerplan`.\n\n---\n\n## License\n\nMIT — see [LICENSE](LICENSE).\n",
+  "status": "curated"
+}

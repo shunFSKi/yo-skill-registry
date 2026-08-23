@@ -10,14 +10,20 @@
     "repo": "Sea2049/multi-agents-sea",
     "path": "server/src/skills/bundled/result-discipline/SKILL.md"
   },
-  "license": null,
+  "license": "MIT",
   "install": {
     "kind": "skill-dir"
   },
   "quality": {
-    "stars": null,
-    "pushed_at": null,
-    "score": 22
+    "stars": 2,
+    "pushed_at": "2026-03-21T11:33:07Z",
+    "score": 46,
+    "star_history": [
+      {
+        "d": "2026-08-23",
+        "s": 2
+      }
+    ]
   },
   "security": {
     "score": 100,
@@ -49,6 +55,6 @@
     "category": null,
     "featured": false
   },
-  "readme": null,
+  "readme": "# agent-sea\n\n> agent-sea：一个用于浏览、搜索和编排 144+ 个 AI 专家角色的桌面可视化应用程序\n\n**当前版本**: V2.2.9 · **文档/发布基准日**（本机系统日期）: 2026-03-21（周六） · **[变更日志](CHANGELOG.md)**\n\n> 发布提醒：本次为硬切换改名版本。Windows 会将 `agent-sea` 识别为一个新应用，且默认本地数据库文件已切换为 `agent-sea.db`；旧的 `agency-agents.db` 不会自动迁移。\n\n## 📚 框架与文档索引\n\n- **[docs/FRAMEWORK.md](docs/FRAMEWORK.md)**：框架文件、配置、脚本与日志说明的一站式索引（推荐新成员先看）\n- **[CHANGELOG.md](CHANGELOG.md)**：版本与变更记录\n- **[buildResources/README.md](buildResources/README.md)**：品牌化资源与 `npm run brand:assets` 说明\n- **环境变量示例**：[.env.example](.env.example)（复制为 `.env` 使用，勿提交密钥）\n\n## 📋 项目简介\n\nagent-sea 是一个基于 Electron 的桌面应用程序，提供了一个直观的可视化界面来管理和使用上游专家角色生态中的 144+ 个 AI 专家角色。这些角色分布在 12 个专业部门中，涵盖工程、设计、营销、产品、项目管理、测试、支持、空间计算、专业领域、游戏开发、学术等多个领域。\n\n## 🏗️ 项目架构\n\n### 技术栈\n\n- **前端框架**: React 18 + TypeScript\n- **构建工具**: Vite 5\n- **UI 库**: Framer Motion + Lucide React\n- **桌面框架**: Electron 30\n- **后端框架**: Fastify 4\n- **数据库**: SQLite (better-sqlite3)\n- **向量搜索**: sqlite-vec + fastembed\n- **样式**: Tailwind CSS\n\n### 项目结构\n\n```\nmulti-agents-sea/\n├── src/                    # 前端源代码\n│   ├── lib/               # 工具库和 API 客户端\n│   └── ...\n├── server/                 # 后端服务器\n│   ├── src/\n│   │   ├── app.ts         # Fastify 应用配置\n│   │   ├── index.ts       # 服务器入口\n│   │   ├── storage/        # 数据库存储层\n│   │   ├── providers/     # AI 提供商集成\n│   │   ├── tools/         # 工具注册表\n│   │   └── skills/        # 技能系统\n│   └── package.json\n├── shared/                 # 共享模块\n│   └── agents/            # Agent 目录和分类\n├── electron/               # Electron 主进程\n│   ├── main.js            # 主进程入口\n│   └── server-host.js     # 本地服务器管理\n├── buildResources/        # 构建资源（图标、安装器等）\n├── dist/                  # 构建输出目录\n├── release/               # 打包输出目录\n└── package.json           # 根项目配置\n```\n\n## 🚀 快速开始\n\n### 环境要求\n\n- Node.js >= 18.0.0\n- npm >= 9.0.0\n\n### 安装依赖\n\n```bash\n# 安装根目录依赖\nnpm install\n\n# 安装服务器依赖\nnpm install --prefix server\n\n# shared/ 当前无 npm 依赖，一般无需执行 npm install --prefix shared\n```\n\n### 开发模式\n\n```bash\n# 启动开发服务器（前端 + Electron）\nnpm run electron:dev\n\n# 或者分别启动\nnpm run dev              # 仅启动前端开发服务器\nnpm run --prefix server dev  # 仅启动后端服务器\n```\n\n### 构建\n\n```bash\n# 构建前端\nnpm run build\n\n# 构建服务器\nnpm run server:build\n\n# 构建 Electron 应用（ZIP 包）\nnpm run electron:build\n\n# 构建安装器（NSIS）\nnpm run electron:build:installer\n```\n\n## 📦 功能特性\n\n### 核心功能\n\n- **Agent 浏览**: 按部门浏览 144+ 个 AI 专家角色\n- **智能搜索**: 基于向量搜索的语义检索\n- **团队组建**: 选择和组合多个 Agent 形成协作团队\n- **会话管理**: 与 Agent 进行对话和任务协作\n- **任务追踪**: 跟踪和管理多步骤任务执行\n- **技能系统**: 支持 prompt-only 和可执行技能\n- **提供商管理**: 支持多个 AI 提供商（OpenAI, Anthropic, Ollama, Minimax 等）\n\n### 数据存储\n\n- **SQLite 数据库**: 本地存储会话、消息、任务等数据\n- **向量搜索**: 使用 sqlite-vec 实现 Agent 语义搜索\n- **安全存储**: 使用 Electron safeStorage 加密存储 API 密钥\n\n## 🔧 配置\n\n### 环境变量\n\n完整示例见 [.env.example](.env.example)。常用项：\n\n- `APP_PORT`: 服务器端口（默认: 3701）\n- `APP_DB_PATH`: 数据库文件路径（例如 `./agent-sea.db`；未设置时使用应用默认本地数据库路径）\n- `VITE_DEV_SERVER_URL` / `ELECTRON_DISABLE_DEVTOOLS`: Electron 开发行为（见 `.env.example`）\n- `SEA_MARKET_PROVIDERS`: 外部 Skill 市场来源（默认 `clawhub`）\n- `SEA_MARKET_CLAWHUB_BASE_URL`: ClawHub API 基础地址（默认 `https://clawhub.ai`）\n- `SEA_MARKET_HTTP_TIMEOUT_MS` / `SEA_MARKET_RESULT_LIMIT`: 市场请求超时与结果上限\n- `SEA_MARKET_DETAIL_CONCURRENCY`: 市场详情拉取并发上限（默认 `4`，限流高峰期可下调）\n- `SEA_MARKET_RETRY_MAX_ATTEMPTS` / `SEA_MARKET_RETRY_BASE_DELAY_MS`: 外部市场 429/5xx 的重试与退避参数\n- `SEA_MARKET_SEARCH_CACHE_TTL_MS` / `SEA_MARKET_BUNDLE_CACHE_TTL_MS`: 市场搜索与 bundle 下载的本地缓存 TTL\n- `SEA_MARKET_SEARCH_CACHE_MAX_ENTRIES` / `SEA_MARKET_BUNDLE_CACHE_MAX_ENTRIES`: 市场缓存 LRU 上限，避免长时间运行内存增长\n\n### 外部 Skill 市场说明\n\n- `发现市场` 已切换为 provider 架构，不再依赖单一 `skills-index.json` 远程文件。\n- 第一阶段默认接入 `ClawHub`，`SkillHub` 预留扩展位，后续可按相同协议接入。\n- 第三方技能安装前会执行兼容性预检；被判定为不兼容或高风险的技能会被阻止安装。\n- 外部来源技能安装后默认处于禁用状态，需用户手动确认启用。\n- 外部市场请求内置 429 场景重试+退避，并在高峰期优先回退本地缓存结果，降低限流抖动影响。\n- 市场 provider 对同一 query / skill bundle 启用 in-flight 去重，避免并发重复下载导致限流放大。\n- 市场 provider 会输出结构化日志（缓存命中、缓存回退、LRU 淘汰、重试退避、重试耗尽），便于线上观察兜底频率。\n\n### 日志\n\n- 开发/运行时日志主要输出到**启动应用的终端**（如 `[server]`、`[server-host]`）。\n- 项目未强制写入磁盘日志；若自行重定向，建议使用 `logs/` 目录（已在 `.gitignore` 中忽略）。\n\n### Provider 配置\n\n应用支持通过 UI 界面配置以下 AI 提供商：\n\n- **OpenAI**: GPT-4, GPT-3.5 等\n- **Anthropic**: Claude 系列模型\n- **Ollama**: 本地模型服务\n- **Minimax**: 自定义 API 端点\n\n所有 API 密钥通过 Electron safeStorage 安全存储。\n\n## 📝 开发指南\n\n### 代码规范\n\n- 使用 TypeScript 严格模式\n- 遵循 ESLint 规则（如果配置）\n- 组件使用函数式组件和 Hooks\n- API 客户端统一使用 `src/lib/api-client.ts`\n\n### 测试\n\n```bash\n# 运行服务器测试\nnpm run server:test\n\n# 运行测试并生成覆盖率报告\nnpm run server:test:coverage\n```\n\n### 项目脚本\n\n| 脚本 | 说明 |\n|------|------|\n| `dev` | 启动前端开发服务器 |\n| `prebuild` | 构建前自动生成 Agent 内容与 runtime profiles |\n| `generate:agent-content` | 生成前端 Agent 内容 |\n| `build:profiles` | 构建 Agent runtime profiles |\n| `build` | 构建前端生产版本（含 prebuild） |\n| `electron:dev` | 启动 Electron 开发模式 |\n| `electron:build` | 构建 Electron 应用（ZIP） |\n| `electron:build:installer` | 构建 Windows 安装器 |\n| `server:build` | 构建后端服务器 |\n| `server:test` | 运行服务器测试 |\n| `server:test:coverage` | 服务器测试 + 覆盖率（输出到 `server/coverage/`，已 gitignore） |\n| `brand:assets` | 生成品牌资源（图标等） |\n| `preview` | 预览 Vite 生产构建 |\n\n## 📄 许可证\n\nMIT License\n\nCopyright © 2026 BOB\n\n## 👤 作者\n\nBOB\n\n## 🔗 相关资源\n\n- [上游 Agent 定义仓库](https://github.com/agency-agents) - 原始 Agent 定义仓库\n- [Electron 文档](https://www.electronjs.org/docs)\n- [Fastify 文档](https://www.fastify.io/docs/latest/)\n\n---\n\n**注意**: 这是一个活跃开发中的项目，API 和功能可能会发生变化。\n",
   "status": "curated"
 }

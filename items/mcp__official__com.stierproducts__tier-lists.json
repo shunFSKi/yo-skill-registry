@@ -6,8 +6,8 @@
   "author": "com.stierproducts",
   "source": {
     "registry": "mcp-official",
-    "url": "https://mcp.stierproducts.com/mcp",
-    "repo": null
+    "url": "https://github.com/stierproducts/mcp",
+    "repo": "stierproducts/mcp"
   },
   "license": null,
   "install": {
@@ -16,8 +16,8 @@
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-08-16T18:54:27.448521Z",
-    "score": 42
+    "pushed_at": "2026-08-22T22:27:45.938951Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -49,6 +49,6 @@
     "category": null,
     "featured": false
   },
-  "readme": null,
+  "readme": "# stierproducts MCP connector\n\nThe read-only [Model Context Protocol](https://modelcontextprotocol.io/) server for\n[stierproducts](https://stierproducts.com/), a review aggregator that publishes one\nS-to-F tier list per product category. Every placement is cited.\n\n- Endpoint (streamable HTTP): `https://mcp.stierproducts.com/mcp`\n- Official MCP Registry name: `com.stierproducts/tier-lists`\n- Documentation: https://stierproducts.com/mcp\n- No key, no account, no authentication. Rate limited by IP at 120 requests per minute.\n\nThis repository holds the registry manifest and the client configurations. The server\ncode and the research pipeline are not published here.\n\n## Install\n\n| Client | How |\n| --- | --- |\n| Claude Code | `claude mcp add --transport http stierproducts https://mcp.stierproducts.com/mcp` |\n| Claude Desktop | Settings, Connectors, Add custom connector, paste the endpoint |\n| ChatGPT | Settings, Plugins, search \"stierproducts\", turn it on |\n| Cursor | [`clients/cursor.json`](clients/cursor.json), or Settings, MCP, Add new global MCP server |\n| VS Code | [`clients/vscode.json`](clients/vscode.json) into `.vscode/mcp.json` |\n| Any other client | [`clients/mcpServers.json`](clients/mcpServers.json) |\n\n## Tools\n\nAll six are read-only.\n\n| Tool | Returns |\n| --- | --- |\n| `list_categories` | Every board, with product counts and research dates. Call this first, the slugs are not guessable. |\n| `search_products` | Slug, name, brand, category and tier for a free-text query. |\n| `get_tier_list` | A whole board: every product, rank, tier, LP, verdict and outlet count, plus the prose summary. |\n| `get_product` | One product in full, with its citation list, link statuses and what it beat. |\n| `compare_products` | Two to five products side by side. Refuses to compare across categories. |\n| `what_to_avoid` | The D and F tiers for a category, plus the trap vote counts and the reason. |\n\nEvery response carries the same five fields: `source_url`, `updated`, `license`,\n`attribution` and `monetization`.\n\n## Without tools\n\nA crawler that cannot call tools can fetch the same boards as files:\n\n- `https://stierproducts.com/llms.txt` indexes the whole site for a language model.\n- `https://stierproducts.com/categories/<slug>.md` is one board as Markdown.\n- `https://stierproducts.com/categories/<slug>.json` is the same board as JSON.\n\n## Licence\n\nThe rankings are published under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).\nAttribute to \"stierproducts\" and link to the board or product URL you used.\nProduct images are not covered. Full terms: https://stierproducts.com/license\n\nThis repository's files are under the same licence.\n\n## Support\n\nOpen an issue here, or email support@stierproducts.com.\n",
   "status": "curated"
 }

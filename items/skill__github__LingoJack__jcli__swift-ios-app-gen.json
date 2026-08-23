@@ -15,9 +15,15 @@
     "kind": "skill-dir"
   },
   "quality": {
-    "stars": null,
-    "pushed_at": null,
-    "score": 22
+    "stars": 6,
+    "pushed_at": "2026-08-17T02:30:50Z",
+    "score": 60,
+    "star_history": [
+      {
+        "d": "2026-08-23",
+        "s": 6
+      }
+    ]
   },
   "security": {
     "score": 100,
@@ -49,6 +55,6 @@
     "category": "编程",
     "featured": false
   },
-  "readme": null,
+  "readme": "<div align=\"center\"></div>\n\n# jcli\n\n**AI 驱动的命令行工作台**\n\n别名打开 · Agent 工作台 · 日报周报 · 待办备忘 · Markdown 预览 · 脚本工作流\n\n[![Rust](https://img.shields.io/badge/Rust-1.93%2B-orange?logo=rust)](https://www.rust-lang.org/) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT) [![Version](https://img.shields.io/badge/version-12.10.7-green.svg)](https://github.com/LingoJack/jcli)\n\n[在线文档](https://lingojack.github.io/j/) · [快速开始](#-快速开始) · [功能一览](#-功能一览) · [安装](#-安装) · [GUI 版本](https://github.com/LingoJack/j-gui.git)\n\n如果你更偏好图形界面，可以试试 [j-gui](https://github.com/LingoJack/j-gui) —— 基于 Tauri 的 GUI 版本（研发中），提供可视化操作体验。当前 j-cli 的 TUI 界面也支持部分鼠标操作（点击、滚动等），在终端中即可获得接近 GUI 的交互体验。\n\n---\n\n## 功能一览\n\n### Agent 工作台\n\n内置终端 Agent，支持多模型、流式输出、多步推理、工具调用、权限确认，适合直接在仓库里分析、修改、执行任务。\n\n### 别名打开\n\n`j set chrome \"/Applications/Google Chrome.app\"` 一次注册后，`j chrome`、`j chrome github`、`j vscode ./src`、`j deploy` 都能直接作为统一入口使用。\n\n### 日报周报\n\n`j report \"完成功能开发\"` 快速记录，支持整篇 Markdown 编辑、自动周数管理，以及 `reportctl push/pull` 做 Git 同步。\n\n### 待办备忘\n\n`j todo` 进入全屏 TUI 管理，支持 Markdown checkbox、筛选排序、长内容预览，完成事项时还能顺手写入日报。\n\n### Markdown 终端预览\n\n`j md`、`j reportctl open` 等入口可直接进入终端 Markdown 编辑器，边写边看渲染效果，适合日报、笔记和 AGENTS.md。\n\n<details></details>\n\n<summary><strong>更多功能</strong></summary>\n\n- **Skill 技能系统** — 可扩展的 AI 技能，按需加载，支持 `@skill` 触发\n- **Hook 系统** — 三级 Hook（用户/项目/Session），灵活扩展 AI 行为\n- **浏览器自动化** — Lite 模式（零依赖）和 CDP 模式（完整浏览器控制），AI 可直接操作网页\n- **移动端远程控制** — 扫码连接手机，远程操作 AI 对话\n- **交互模式** — `j` 回车即进入 REPL，Tab 补全 + 历史建议 + Shell 穿透\n\n---\n\n## 截图\n\n![jcli AI 工作台截图 1](docs/pics/jcli-ai/1.png)\n\n<p><em>图 1：AI 工作台终端界面。</em></p>\n\n![jcli AI 工作台截图 2](docs/pics/jcli-ai/2.png)\n\n<p><em>图 2：在同一终端会话中查看上下文、执行命令并持续对话。</em></p>\n\n![jcli AI 工作台截图 3](docs/pics/jcli-ai/3.png)\n\n<p><em>图 3：工具调用与结果展示。</em></p>\n\n![jcli AI 工作台截图 4](docs/pics/jcli-ai/4.png)\n\n<p><em>图 4：Agent 多轮工作流。回复内容、代码片段、Grep/Read/Bash 结果都在同一终端会话里连续展开，适合代码审查和问题排查。</em></p>\n\n![jcli AI 工作台截图 5](docs/pics/jcli-ai/5.png)\n\n<p><em>图 5：终端内的长内容展示与交互。</em></p>\n\n![jcli AI 工作台截图 6](docs/pics/jcli-ai/6.png)\n\n<p><em>图 6：别名列表视图。统一管理应用、脚本和路径入口，配合 `j &lt;alias&gt;` 形成很轻的个人命令工作流。</em></p>\n\n---\n\n## 安装\n\n**macOS / Linux：**\n\n```bash\ncurl -fsSL https://raw.githubusercontent.com/LingoJack/jcli/main/install.sh | sh\n```\n\n**Windows (PowerShell)：**\n\n```powershell\nirm https://raw.githubusercontent.com/LingoJack/jcli/main/install.ps1 | iex\n```\n\n**从 crates.io 安装：**\n\n```bash\ncargo install j-cli\n```\n\n**从源码编译：**\n\n```bash\ngit clone https://github.com/LingoJack/jcli.git\ncd jcli\ncargo install --path .\n```\n\n**完整版（CDP 浏览器自动化，需本地安装 Chrome）：**\n\n```bash\ncargo install j-cli --features browser_cdp\n```\n\n---\n\n```bash\ncargo install j-cli --features browser_cdp\n```\n\n```bash\n# 注册别名\nj set chrome \"/Applications/Google Chrome.app\"\nj set vscode \"/Applications/Visual Studio Code.app\"\nj set github https://github.com\n\n# 一键打开\nj chrome                  # 打开 Chrome\nj chrome github           # 用 Chrome 打开 github\nj chrome \"rust lang\"      # 用 Chrome 搜索\nj vscode ./src            # 用 VSCode 打开目录\n\n# 日报\nj report \"完成功能开发\"    # 写入日报\nj check                   # 查看最近 10 行\n\n# 待办\nj todo add 买牛奶         # 快速添加\nj todo                    # TUI 管理\n\n# AI 对话\nj chat                    # 进入 TUI 对话\nj chat \"你好\"             # 快速提问\n\n# 交互模式（Tab 补全 + 历史建议）\nj\n```\n\n---\n\n## 常用命令\n\n| 命令 | 说明 |\n| --- | --- |\n| `j <alias>` | 打开应用/文件/URL |\n| `j set <alias> <path>` | 注册别名 |\n| `j rm <alias>` | 删除别名 |\n| `j ls` | 列出别名 |\n| `j report <content>` | 写入日报 |\n| `j check [N]` | 查看日报 |\n| `j todo` | 待办管理 (TUI) |\n| `j chat` | AI 对话 (TUI) |\n| `j script <name> \"<cmd>\"` | 创建脚本 |\n| `j` | 进入交互模式 |\n\n> 完整命令文档请访问 [在线文档](https://lingojack.github.io/j/)\n\n\n\n---\n\n## 技术栈\n\n| 技术 | 用途 |\n| --- | --- |\n| Rust[](https://www.rust-lang.org/) | 核心语言 |\n| clap[](https://github.com/clap-rs/clap) | 命令行参数解析 |\n| ratatui[](https://github.com/ratatui/ratatui) | TUI 框架 |\n| rustyline[](https://github.com/kkawakam/rustyline) | REPL 交互 |\n| async-openai[](https://github.com/64bit/async-openai) | OpenAI API 客户端 |\n| serde[](https://github.com/serde-rs/serde) | 序列化框架 |\n",
   "status": "curated"
 }

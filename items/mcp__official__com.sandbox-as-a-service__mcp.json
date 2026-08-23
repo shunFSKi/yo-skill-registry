@@ -1,0 +1,65 @@
+{
+  "id": "mcp:official/com.sandbox-as-a-service/mcp",
+  "type": "mcp",
+  "name": "Sandbox as a Service",
+  "description": "Give an agent a real Linux VM: run commands, move files, expose a preview URL, destroy it.",
+  "author": "com.sandbox-as-a-service",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/fstandhartinger/sandbox-as-a-service-mcp",
+    "repo": "fstandhartinger/sandbox-as-a-service-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "https://github.com/fstandhartinger/sandbox-as-a-service-mcp/releases/download/mcp-v1.1.0/sandbox-as-a-service-mcp-1.1.0.tgz"
+    ],
+    "env": [
+      {
+        "name": "AAS_API_KEY",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-22T20:39:17.428205Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "运维",
+    "featured": false
+  },
+  "readme": "# sandbox-as-a-service-mcp\n\nAn [MCP](https://modelcontextprotocol.io) server that gives an agent a real Linux virtual machine it\ncan break.\n\nEleven tools: create a sandbox, run shell commands in it, write and read files, list what a run\nproduced, expose a port on a public preview URL, extend the lifetime, destroy it, and check what it\nall cost.\n\nEach sandbox is a dedicated VM with its own kernel — not a container sharing a host with other\npeople's code. It is never reused between accounts and is destroyed when it expires, whether or not\nanything remembered to ask.\n\n## Use it\n\n```bash\nAAS_API_KEY=aas_sk_... npx -y https://sandbox-as-a-service.com/mcp.tgz\n```\n\nGet a key at [sandbox-as-a-service.com](https://sandbox-as-a-service.com) — new accounts start with\nfree credit and no card.\n\n### Claude Desktop / Claude Code\n\n```json\n{\n  \"mcpServers\": {\n    \"sandbox\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"https://sandbox-as-a-service.com/mcp.tgz\"],\n      \"env\": { \"AAS_API_KEY\": \"aas_sk_...\" }\n    }\n  }\n}\n```\n\n## The tools\n\n| Tool | What it does |\n|---|---|\n| `create_sandbox` | Creates a VM and returns its id once it is ready. |\n| `run_command` | Runs a shell command as an unprivileged user. Returns stdout, stderr, exit code. |\n| `write_file` | Writes a file. Content travels out of band, so quotes and binary survive. |\n| `read_file` | Reads a file back — how an agent gets at what its code produced. |\n| `list_files` | Lists a directory tree, so an agent can find what a run produced. |\n| `expose_port` | Gives a server inside the sandbox a public https URL to share. |\n| `get_sandbox` | Status, size and expiry. |\n| `list_sandboxes` | Everything on the account, newest first — useful for finding strays. |\n| `extend_sandbox` | Pushes the expiry out when a job outgrows its timeout. |\n| `destroy_sandbox` | Destroys it and stops billing. |\n| `get_usage` | Remaining credit and recent usage. |\n\n## Notes for agents\n\n- Code runs as an unprivileged user. There is no `sudo`, so `apt-get` will not work; use\n  `pip install --user --break-system-packages` or `npm install`, both of which do.\n- `run_command` waits for the command to finish. Start a server with `&` or it will hold the call\n  open until the timeout.\n- A sandbox is destroyed when its timeout expires whether or not `destroy_sandbox` is called, so a\n  forgotten sandbox costs minutes, not money forever. Calling it anyway returns the minutes you were\n  not going to use.\n\n## Environment\n\n| Variable | |\n|---|---|\n| `AAS_API_KEY` | Required. Your API key. |\n| `AAS_BASE_URL` | Optional. Defaults to `https://sandbox-as-a-service.com/v1`. |\n\nMIT licensed. The service it talks to is at\n[sandbox-as-a-service.com](https://sandbox-as-a-service.com);\n[docs](https://sandbox-as-a-service.com/docs/mcp).\n",
+  "status": "curated"
+}

@@ -10,14 +10,20 @@
     "repo": "audiocontrol-org/audiocontrol",
     "path": ".agents/skills/deploy-bridge/SKILL.md"
   },
-  "license": null,
+  "license": "NOASSERTION",
   "install": {
     "kind": "skill-dir"
   },
   "quality": {
-    "stars": null,
-    "pushed_at": null,
-    "score": 22
+    "stars": 3,
+    "pushed_at": "2026-06-02T21:42:51Z",
+    "score": 52,
+    "star_history": [
+      {
+        "d": "2026-08-23",
+        "s": 3
+      }
+    ]
   },
   "security": {
     "score": 100,
@@ -49,6 +55,6 @@
     "category": "编程",
     "featured": false
   },
-  "readme": null,
+  "readme": "# Audio Control\n\nWeb-based editors for vintage synthesizers and samplers.\n\n## Overview\n\nAudio Control provides browser-based editors for programming vintage MIDI instruments. Each editor communicates directly with hardware via Web MIDI API and SysEx, enabling real-time parameter editing, backup, and sample management.\n\n## Editors\n\n| Editor | Device | Type | URL |\n|--------|--------|------|-----|\n| S-330 Editor | Roland S-330 | Sampler | [audiocontrol.org/roland/s330/editor](https://audiocontrol.org/roland/s330/editor) |\n| D-110 Editor | Roland D-110 | Synthesizer | [audiocontrol.org/roland/d110/editor](https://audiocontrol.org/roland/d110/editor) |\n| JV-1080 Editor | Roland JV-1080 | Synthesizer | [audiocontrol.org/roland/jv1080/editor](https://audiocontrol.org/roland/jv1080/editor) |\n\n## Features\n\n- **Real-time SysEx communication** - Direct parameter editing with instant hardware feedback\n- **Backup & restore** - Save complete device states to disk\n- **Sample export** - Extract audio samples from sampler memory\n- **Cross-format translation** - Convert between sampler formats\n\n## Modules\n\n- `s330-editor` / `d110-editor` / `jv1080-editor` - Web-based device editors\n- `editor-core` - Shared editor functionality\n- `sampler-midi` - MIDI SysEx protocol implementations\n- `sampler-lib` - Shared sampler data structures\n- `sampler-devices` - Device communication layer\n- `sampler-backup` - Backup and restore utilities\n- `sampler-export` - Audio export from sampler data\n\n## Technology\n\n- TypeScript\n- React\n- Web MIDI API\n- pnpm workspaces\n\n## Development\n\n### Prerequisites\n\n- [Node.js](https://nodejs.org/) v20+\n- [pnpm](https://pnpm.io/) v9+\n- GNU Make\n\n### Building\n\n```bash\nmake                                               # install deps + build everything\nmake clean && make                                 # full rebuild from scratch\nmake modules/sampler-devices/.build-stamp          # build one module and its deps\nmake clean                                         # remove all build artifacts\n```\n\nThe Makefile installs dependencies automatically (via `pnpm install`) and builds all 24 modules in topological order. Builds are incremental — only modules whose dependencies have changed will rebuild.\n\n#### Why Make?\n\npnpm workspaces don't enforce build order, so `pnpm -r build` can fail when a downstream module builds before its upstream dependencies. The Makefile encodes the dependency graph with stamp files (`modules/<name>/.build-stamp`) so Make's resolver builds modules in the correct order.\n\n#### Dependency layers\n\n```\nLayer 0  shared-midi, sampler-lib, audiotools-config, canonical-midi-maps,\n         ardour-midi-maps, launch-control-xl3, launch-control-xl3-editor,\n         lib-runtime, sampler-attic, sample-chopper\n\nLayer 1  editor-core, lib-device-uuid, sampler-devices, live-max-cc-router\n\nLayer 2  sampler-midi, sampler-library, sampler-translate, sampler-backup\n\nLayer 3  sampler-export, loop-editor, d110-editor, jv1080-editor\n\nLayer 4  sampler-editor, audiotools-cli\n```\n\n### Testing\n\n```bash\npnpm test                            # run all tests\npnpm --filter <module> test          # test a specific module\n```\n\n## License\n\nMIT\n",
   "status": "curated"
 }

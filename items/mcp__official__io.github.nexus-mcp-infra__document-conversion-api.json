@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.nexus-mcp-infra/document-conversion-api",
+  "type": "mcp",
+  "name": "document-conversion-api",
+  "description": "Converts between PDF/Office documents and structured JSON, both directions. Pure OSS libraries, x402",
+  "author": "io.github.nexus-mcp-infra",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/nexus-mcp-infra/document-conversion-api",
+    "repo": "nexus-mcp-infra/document-conversion-api"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://document-conversion-api-325572559480.us-central1.run.app/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-22T21:33:08.057857Z",
+    "score": 55
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "写作",
+    "featured": false
+  },
+  "readme": "# Document Conversion API\n\nConverts between PDF/Office documents and structured JSON, both directions. NEXUS candidate #6 --\n**manual build, not FORGE-generated**, following the same manual-Cloud-Run-asset pattern as candidate #3\n(`agent-verification-api`) and candidate #4 (`url-metadata-api`).\n\n- `POST /extract-pdf-to-json` -- text, tables (per page), page count, metadata. **$0.02/call.**\n- `POST /extract-docx-to-json` -- paragraphs (with heading levels/styles), tables, metadata. **$0.01/call.**\n- `POST /extract-xlsx-to-json` -- per-sheet cell grids, capped rows/cols. **$0.01/call.**\n- `POST /generate-pdf-from-json` -- structured blocks (heading/paragraph/table) -> PDF bytes. **$0.02/call.**\n- `POST /generate-docx-from-json` -- structured blocks -> .docx bytes. **$0.01/call.**\n- MCP tools at `/mcp` mirroring all 5 -- **currently free**, see \"Known limitations\".\n- `GET /health`, `GET /.well-known/agent-card.json`, `GET /openapi.json` (has `x-payment-info`).\n\nAll 5 endpoints take **base64-encoded file bytes directly in the request body** -- never a URL to fetch.\nThis is a deliberate scope boundary: it removes SSRF from this asset's risk surface entirely (unlike\n`url-metadata-api`/`agent-verification-api`, which both fetch caller-supplied URLs and need SSRF guards).\n\n## Why these libraries, why no external data source\n\nPure OSS, mature, no LLM calls, **zero external network calls at runtime** (fully local computation):\n`pdfplumber` (PDF extraction, wraps `pdfminer.six`), `python-docx` (Word), `openpyxl` (Excel),\n`reportlab` (PDF generation). No named third-party data source anywhere in this asset -- deliberately,\nto avoid the BuyWhere-style hallucination risk (`skills/asset-lifecycle`): there is nothing external to\nget wrong, the whole product is \"run a well-known library over bytes the caller sent us.\" No numpy/scipy\n(avoids the known Cloud Run Buildpacks failure -- no Fortran compiler for scipy's source build -- see\n`skills/infra-deploy-ops`; none of these libraries need them anyway).\n\n## Why $0.01-$0.02 (vs $0.35 for agent-verification-api, $0.01 for url-metadata-api)\n\nNo paid third-party API cost here (unlike WHOIS in `live-entity-verification`/`agent-verification-api`) --\npure CPU/memory cost, so this sits in the same low tier as `url-metadata-api`'s $0.01 single-fetch rather\nthan anywhere near `agent-verification-api`'s $0.35. PDF operations (`extract-pdf-to-json`,\n`generate-pdf-from-json`) are priced a notch higher ($0.02) than docx/xlsx ($0.01): `pdfplumber`/`reportlab`\ndo meaningfully more work per call (page-level layout parsing / PDF rendering) than `python-docx`/`openpyxl`\n(straight XML parsing of a zip archive). This asset is expected to be the most predictable of the 3 manual\ncandidates rather than the top earner -- document conversion is a common, low-variance agent need, not a\ndifferentiated/rare capability -- so pricing favors consistent low-friction usage over per-call margin.\n\n## Two risks this asset has that the other 3 manual assets don't\n\n1. **CPU-bound, not I/O-bound.** Every parser/generator call is synchronous (no async API in any of the 4\n   libraries), unlike the other 3 assets which are I/O-bound via `httpx.AsyncClient`. Every handler offloads\n   the actual work via `asyncio.to_thread()` inside an `asyncio.wait_for()` timeout (25s) so one caller's\n   slow parse never blocks the whole event loop / every concurrent request.\n   **Known residual limitation**: `asyncio.wait_for()` cancels the *awaiting* task, it cannot kill the\n   underlying OS thread -- Python has no API to forcibly terminate a running thread. A pathological input\n   that hangs `pdfminer`/`openpyxl` internally keeps that one worker thread occupied indefinitely even after\n   the caller gets a 504. Mitigated, not solved: a bounded semaphore (`NEXUS_MAX_CONCURRENT_JOBS`, default 4)\n   caps how many such \"leaked\" threads can accumulate concurrently -- new requests get a clean 503 instead of\n   unbounded thread growth, but an already-leaked thread is never reclaimed. A full fix would need the CPU-\n   bound work in a separate, killable process (`ProcessPoolExecutor` + hard terminate) rather than a thread;\n   not done here as disproportionate for a 7-day probation candidate.\n2. **Decompression-bomb / resource-exhaustion.** `.docx`/`.xlsx` are zip archives -- a crafted file with a\n   small compressed size but a huge uncompressed size (zip bomb) is a real DoS vector distinct from anything\n   the other 3 assets face. `_check_zip_bomb_safe()` inspects the zip central directory (`zipfile.infolist()`,\n   cheap, does NOT decompress entry data) before handing bytes to `python-docx`/`openpyxl`: rejects if total\n   uncompressed size would exceed 50MB, or if any single entry's compression ratio exceeds 100x. Every upload\n   is also capped at 8MB raw/decoded bytes before any parsing at all (PDFs included, even though they aren't\n   zip-based -- bounds worst-case input size regardless of format).\n\n## Known limitations (left unfixed on purpose -- CLAUDE.md §3, no gate without evidence it's needed)\n\n- **MCP tool calls are not charged.** Same in-process-call pattern (and same reason) as the sibling manual\n  assets: the MCP tool calls the shared conversion function directly, not via HTTP re-entry into the ASGI app.\n- **No per-caller rate limiting.** Fine for a 7-day disposable measurement; add if it survives.\n- **Generated documents are not validated for round-trip fidelity beyond what's smoke-tested locally** --\n  `reportlab`'s table/paragraph rendering and `python-docx`'s heading-level mapping are both mature,\n  widely-used code paths, not re-verified against every possible Office/PDF reader here.\n- See the \"CPU-bound\" risk above for the thread-leak residual limitation.\n\n## NEXUS_X402_FREE_MODE\n\nSame gate pattern as `similarity-search-api`/`live-entity-verification` (`skills/x402-payments`) -- default\n`false` (charges from day 1, no freemium window; engine has no external validation dependency the way\n`live-entity-verification`'s WHOIS-based engine did, so there's no equivalent \"already proven in production\"\nargument for skipping straight to paid -- it's charged anyway, per the session brief's \"moderate and stable\"\nrevenue framing, not because of a specific precedent). Set `true` locally for testing without a real facilitator\nround-trip.\n\n## Deploy target: Cloud Run, not Railway\n\nSame pipeline as candidates #3/#4 -- see `skills/infra-deploy-ops`. **Memory bumped to 1Gi** (vs. the shared\n`scripts/deploy_cloud_run.sh`'s hardcoded 512Mi default) -- this is the heaviest-in-memory of the 3 manual\ncandidates (PDF/Office parsing libraries, `pypdfium2`/`Pillow` transitively via `pdfplumber`). Deployed\ndirectly via `gcloud run deploy` (not through the shared script, to avoid editing shared infra tooling for a\none-candidate memory bump):\n\n```bash\n# 1. First deploy -- PUBLIC_DOMAIN not known yet, every real request 421s until step 2.\ngcloud run deploy document-conversion-api \\\n  --source manual_assets/document-conversion-api \\\n  --project nexus-505016 --region us-central1 \\\n  --allow-unauthenticated --min-instances=0 --max-instances=3 --memory=1Gi --quiet \\\n  --env-vars-file manual_assets/document-conversion-api/env-vars.deploy.yaml\n\n# 2. Grab the printed *.run.app URL, then:\ngcloud run services update document-conversion-api --region us-central1 --project nexus-505016 \\\n    --update-env-vars PUBLIC_DOMAIN=<the-real-domain>\n```\n\n## Measurement (candidate #6, 7-day window)\n\n7-day window from first real deploy. Source of truth: `traffic_events`/`revenue_events`/`mcp_call_events`\ntables (`asset_name = 'document-conversion-api'`), not Cloud Run logs. Day 7: if zero real traffic (filtering\ncrawlers), pause/delete the Cloud Run service, same decision rule as candidates #3/#4.\n",
+  "status": "curated"
+}

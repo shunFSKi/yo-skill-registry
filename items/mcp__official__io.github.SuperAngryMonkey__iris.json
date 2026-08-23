@@ -1,0 +1,79 @@
+{
+  "id": "mcp:official/io.github.SuperAngryMonkey/iris",
+  "type": "mcp",
+  "name": "iris",
+  "description": "Microsoft 365 mail MCP that drafts but cannot send: no Mail.Send scope.",
+  "author": "io.github.SuperAngryMonkey",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/SuperAngryMonkey/iris",
+    "repo": "SuperAngryMonkey/iris"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "iris-mcp"
+    ],
+    "env": [
+      {
+        "name": "IRIS_CLIENT_ID",
+        "required": true,
+        "secret": false
+      },
+      {
+        "name": "IRIS_TENANT_ID",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "IRIS_DRAFT_FOLDER",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "IRIS_ALLOWLIST",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-22T19:47:40.267081Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# iris\n\n**A Microsoft 365 mail server for AI agents that cannot send email.**\n\nNot \"will not\". Cannot. iris requests the delegated Graph scope `Mail.ReadWrite`\nand never `Mail.Send`. The access token it holds has no capability to transmit a\nmessage, so no prompt, no jailbreak and no bug in this code can make one go out.\nIt writes drafts into a folder in your mailbox. You open Outlook and press Send.\n\nThat is the whole design. Everything else is detail.\n\n---\n\n## Why this shape\n\nThe usual worry about giving an agent your mailbox is that it will send\nsomething you did not sanction — to the wrong person, with the wrong tone, or\nbecause someone talked it into doing so. The common answer is a confirmation\nprompt, which is a guardrail: code that asks permission, and code can be\nbypassed.\n\niris removes the capability instead. Microsoft Graph will reject a send attempt\nmade with this token, because the consent screen you approved never included\nthat permission. The security boundary is Microsoft's, not this program's, and\nit holds even if this program is wrong.\n\nThe trade is real: a human is in the loop on every message, by construction. If\nyou want autonomous sending, iris is the wrong tool.\n\n## Install\n\n```bash\nuvx iris-mcp        # run without installing\npip install iris-mcp\n```\n\nPython 3.10+.\n\n## Setup\n\n**You must register your own Entra application.** There is no shared app\nregistration and no hosted service — iris talks directly from your machine to\nyour tenant. This is deliberate: a shared app would mean trusting someone\nelse's client ID with access to your mail.\n\n1. Entra admin centre → **App registrations** → **New registration**. Single\n   tenant is fine. No redirect URI needed.\n2. **Authentication** → Settings → enable **Allow public client flows**. Device\n   code sign-in needs this. No client secret is used anywhere.\n3. **API permissions** → Microsoft Graph → **Delegated** → add\n   **`Mail.ReadWrite`**. Add nothing else. Do not add `Mail.Send` — if it is\n   present, the guarantee above is void.\n4. Copy the **Application (client) ID** and **Directory (tenant) ID**. Neither\n   is a secret.\n\nThen add iris to your MCP client:\n\n```json\n{\n  \"mcpServers\": {\n    \"iris\": {\n      \"command\": \"uvx\",\n      \"args\": [\"iris-mcp\"],\n      \"env\": {\n        \"IRIS_CLIENT_ID\": \"<application client id>\",\n        \"IRIS_TENANT_ID\": \"<directory tenant id>\"\n      }\n    }\n  }\n}\n```\n\nSign in once: call `iris_login`, open the URL, enter the code, then call\n`iris_login_finish`. The token cache is written next to the server, mode 600.\n\n## Tools\n\n| Tool | What it does |\n|---|---|\n| `iris_login` | Starts device-code sign-in, returns a URL and a code |\n| `iris_login_finish` | Completes sign-in; safe to call repeatedly while you type the code |\n| `iris_auth_status` | Who is signed in, which scopes, and whether Graph is reachable |\n| `iris_create_draft` | Writes a draft (to/cc/bcc, subject, body or HTML, optional reply-to) |\n| `iris_list_drafts` | Lists what is waiting in the draft folder |\n| `iris_update_draft` | Revises a draft in place |\n| `iris_delete_draft` | Deletes a draft; requires `confirm=true` |\n\n## Where drafts go\n\nInto a dedicated top-level mail folder, `AI Drafts` by default\n(`IRIS_DRAFT_FOLDER`). It is created on first use. Set the variable to an empty\nstring to use the normal Drafts folder instead.\n\nThese are real drafts and Outlook sends them normally — but because they live in\ntheir own folder, they do **not** appear in the Drafts view. That is the point:\nagent-written mail sits somewhere you have to go and look, rather than mixed in\nwith your own half-finished messages.\n\nOne wrinkle worth knowing: Graph's `createReply` always lands a reply in Drafts\nfirst, so iris moves it afterwards, and a move assigns a new message id.\n\n## Other controls\n\n- **Recipient allowlist** — `recipients.allow`, one address or domain per line.\n  Absent or empty means all recipients are permitted. Point `IRIS_ALLOWLIST`\n  elsewhere if you prefer.\n- **Kill switch** — create a `DISABLED` file beside the server, or set\n  `IRIS_DISABLED=1`, and every tool refuses.\n- **Audit log** — every call is appended to `audit.log` (`IRIS_AUDIT_LOG`).\n\n## Limits\n\nNo attachments. No shared or delegated mailboxes — `/me` only. No folder nesting\nvia `parentFolderId`. Sign-in is delegated device-code as a public client, so\nthe blast radius is exactly one mailbox: yours.\n\n## Security\n\nThe no-send guarantee, how to verify it yourself, and — just as important — what\niris *can* reach with `Mail.ReadWrite`: see [SECURITY.md](SECURITY.md).\n\n## License\n\nMIT — see [LICENSE](LICENSE).\n\n<!-- mcp-name: io.github.SuperAngryMonkey/iris -->\n",
+  "status": "curated"
+}

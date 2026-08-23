@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.rmartins1451/losbeto",
+  "type": "mcp",
+  "name": "Losbeto — Market Data for AI Agents",
+  "description": "Cross-asset market data for AI agents: forex, equities, Brazil macro (BCB/B3), crypto.",
+  "author": "io.github.rmartins1451",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/rmartins1451/losbeto",
+    "repo": "rmartins1451/losbeto"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://api.losbeto.xyz/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-22T23:10:40.362312Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "金融",
+    "featured": false
+  },
+  "readme": "# Losbeto — point-in-time Brazilian market data for AI agents\n\n[![Losbeto on x402-list — monitored uptime](https://x402-list.com/badge/losbeto-cross-asset-market-intelligence.svg?data=uptime)](https://x402-list.com/services/losbeto-cross-asset-market-intelligence)\n\n**The problem:** the IPCA number you fetch from the Banco Central API today is *not* the\nnumber that was published back then. Official Brazilian series are revised. Any backtest\nbuilt on the current series silently contains look-ahead bias.\n\nThe US has [ALFRED](https://alfred.stlouisfed.org/) for this. Brazil has nothing public.\n\n**What this is:** a node that has been recording Brazilian official statistics *as they\nwere published*, timestamping every reading, and signing each day with Ed25519 —\ncontinuously, since deploy. That archive cannot be scraped retroactively by anyone,\nincluding us. It only exists because the node was running.\n\nPaid per call over [x402](https://x402.org) — USDC on Base, Solana or Algorand.\nNo signup, no API key, no invoice.\n\n---\n\n## Quick start\n\n```bash\n# free — see the whole archive and how to verify it\ncurl https://api.losbeto.xyz/br-pit-proof\n\n# free — what the paid endpoints actually cost and why\ncurl https://api.losbeto.xyz/why-buy\n\n# free — the buying criterion, published: what is worth paying for here and what is not\ncurl https://api.losbeto.xyz/what-agents-buy\n\n# paid — IPCA as it was known on 5 Aug 2026 (not as revised since)\ncurl https://api.losbeto.xyz/br-asof?series=ipca_12m_pct&date=2026-08-05\n# -> HTTP 402 with the payment challenge; pay and repeat\n```\n\n### With an x402 client\n\n```ts\nimport { wrapFetchWithPayment } from \"x402-fetch\";\n\nconst fetchWithPay = wrapFetchWithPayment(fetch, wallet);\nconst r = await fetchWithPay(\n  \"https://api.losbeto.xyz/br-asof?series=selic_meta_pct&date=2026-06-30\"\n);\nconsole.log(await r.json());\n```\n\n### As an MCP server (Claude Desktop, Cursor, Claude Code)\n\n```json\n{\n  \"mcpServers\": {\n    \"losbeto\": {\n      \"url\": \"https://api.losbeto.xyz/mcp\",\n      \"headers\": { \"Authorization\": \"Bearer <credit-key>\" }\n    }\n  }\n}\n```\n\nGet a credit key with one on-chain payment: `POST https://api.losbeto.xyz/buy-credits`.\n\n---\n\n## The archive products (the moat)\n\n| Endpoint | Price | What you get |\n|---|---|---|\n| `/br-pit-proof` | free | Merkle roots, signer key, coverage window, verification recipe |\n| `/br-asof?series=&date=` | $0.09 | The value **as known on that date** — vintage, not revised |\n| `/br-revisions?series=` | $0.19 | First print → every correction, with size and observation timestamp |\n| `/br-archive?day=` | $0.05 | Signed daily snapshot: BCB macro + Ibovespa close |\n| `/br-brief` | $0.50 | Daily Brazil macro + equity brief, in English |\n\nSeries tracked: `selic_meta_pct`, `cdi_daily_pct`, `ipca_12m_pct`, `igpm_month_pct`,\n`usd_brl_ptax`, `eur_brl`.\n\n## The Brazilian primitives (zero upstream, sub-millisecond)\n\nPure computation over Brazilian specifications — no external API in the request path,\nno rate limit, no provider outage, priced for loops:\n\n| Endpoint | Price | What you get |\n|---|---|---|\n| `/br-pix-parse?code=` | $0.004 | Decode and CRC16-verify a PIX BR Code (EMV-MPM). Rejects a tampered or truncated QR *before* an agent moves money |\n| `/br-pix-code?key=&name=&city=` | $0.004 | Generate a valid static PIX BR Code with correct CRC16, self-checked by re-parsing |\n| `/br-bizdays?from=&to=` (or `?year=`) | $0.004 | Bank business days on the ANBIMA 252 convention — Easter-linked holidays and the 2024 Consciência Negra change included, `du/252` year fraction ready as an exponent |\n| `/br-doc?doc=` | $0.004 | CNPJ/CPF modulo-11 check-digit validation, formatted output, headquarters branch detection |\n\nThe spec-level traps these absorb: CRC16-CCITT/FALSE (poly `0x1021`, seed `0xFFFF`),\nCarnaval/Corpus Christi moving with Easter, and Consciência Negra becoming a national\nholiday only in 2024. Getting any of them wrong silently corrupts a rate calculation or\nmakes a QR refused at the register. Verifiable from outside: `GET /zero-upstream.json`\ndeclares which routes never touch the network.\n\nThe node also exposes ~80 other endpoints (crypto, FX, commodities, equities). Those are\nconvenience wrappers over public sources — see `/what-agents-buy`, where we publish the\nformula and tell you plainly which ones you should *not* pay for.\n\n---\n\n## Verify anything, offline\n\nEvery observation is a Merkle leaf:\n\n```\nleaf = sha256(\"<series>|<ref_date>|<value>|<seq>|<observed_ts>\")\n```\n\nLeaves are sorted and hashed into a daily Merkle root (sha256; an odd level duplicates its\nlast leaf). The root is signed:\n\n```\nEd25519( \"losbeto-pit|<day>|<root>\" )   # pubkey published at /br-pit-proof\n```\n\n```python\nimport base64, nacl.signing\npub = nacl.signing.VerifyKey(base58_decode(signer))\npub.verify(f\"losbeto-pit|{day}|{root}\".encode(), base64.b64decode(signature))\n```\n\nDaily roots are optionally anchored on Algorand as a zero-value note transaction, so the\ntimestamp does not depend on trusting us.\n\n---\n\n## For agents: start at the manifest\n\n`GET /agents.json` (also at `/.well-known/agents.json`) — the\n[agents.json](https://agents.json) manifest: outcome-based flows with exact parameters,\npayment networks, the free tier, and pointers to the OpenAPI contract, the x402 manifest,\nthe scorecard and the fidelity recipes. CORS open, cached 1h.\n\n## For indexers and QoS scorers\n\nIf you are ScoutScore, EntRoute, x402scan, x402-list, BlockRun or any other\nservice that probes and ranks x402 nodes, these are for you:\n\n| Surface | What it gives you |\n|---|---|\n| `/agents.json` | agents.json manifest — flows, payment networks, free tier |\n| `/scorecard.json` | Signed: 24h availability, p50/p95 latency, 402-challenge cost, traffic mix, organic-vs-operator revenue |\n| `/.well-known/fidelity.json` | Deterministic probe recipe per endpoint — exact free URL, required response fields, what \"healthy\" means |\n| `/zero-upstream.json` | Which endpoints make zero outbound calls (cannot rate-limit or 503 on a provider) |\n| `/bazaar-status` | Whether this node has settled on Base via the CDP facilitator (2,200+ settlements) |\n| `X-Scorecard` / `X-Fidelity` | Headers on every response, so you never need a second request to find them |\n\nFree probes never charge. A paid route that hits an unexpected internal error\ndegrades to a 402 rather than a 500 — the resource is still for sale. The OpenAPI and\nSwagger specs carry a stable `ETag` and answer `304` — no need to re-download 130 KB\nbetween probes.\n\n## Revenue transparency\n\n`GET /.well-known/honest-revenue.json` — signed, and it separates:\n\n- `organic` — paid by a wallet the operator does not control\n- `operator-test` — the operator's own declared wallets\n- `self-sweep` — one wallet settling many distinct endpoints in a short window\n\nOperator-funded traffic is labelled, not hidden. If the organic number is small, it says so.\n\n---\n\n## Run it yourself\n\n```bash\npip install -r requirements.txt\nexport SOLANA_WALLET_ADDRESS=...      # where payments land\nexport BASE_PAYTO_EVM=0x...           # optional\nexport ALGORAND_WALLET_ADDRESS=...    # optional\nexport BUYER_WALLETS=...              # your own test-buyer wallets, comma separated\ngunicorn --workers 2 --threads 8 --preload --bind 0.0.0.0:$PORT nexus_omega:app\n```\n\nUseful env vars: `AI_WARMER=1` (re-enable AI preview warming), `LLM_DAILY_BUDGET`,\n`LLM_PAID_RESERVE`, `PIT_INTERVAL_S`, `ALGO_ANCHOR_MNEMONIC` (+ `pip install py-algorand-sdk`).\n\n---\n\n## Contact\n\nRoberto Martins — roberto.martins622@gmail.com\n\nMissing a series or a market you need? Open an issue. New endpoints get built on request.\n\nMIT licensed.\n",
+  "status": "curated"
+}

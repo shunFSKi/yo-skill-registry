@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.skylarng89/cogmemory-mcp",
+  "type": "mcp",
+  "name": "cogmemory-mcp",
+  "description": "CogMemory MCP Server — Unified context subsystems for AI coding agents",
+  "author": "io.github.skylarng89",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/skylarng89/cogmemory-mcp",
+    "repo": "skylarng89/cogmemory-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "cogmemory-mcp"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-22T21:44:59.36413Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "AI",
+    "featured": false
+  },
+  "readme": "# CogMemory MCP Server\n\nA unified [Model Context Protocol](https://modelcontextprotocol.io/) server providing four context subsystems for AI coding agents:\n\n1. **Memory** — decisions, conventions, errors, active context, changelog, plan, tasks, sessions\n2. **Knowledge Graph** — entities, relations, observations\n3. **Specs** — long-form documents (PRD/SRS), optionally linked to a KG entity\n4. **Code Graph** — static structural graph (symbols/edges) + named execution traces + AI-generated annotations\n\nStorage: **SQLite** via `better-sqlite3`. One `.db` file per scope.\n\n---\n\n## Quick Start\n\n### Install\n\n```bash\ngit clone <repo> && cd cogmemory-mcp\npnpm install\npnpm run build\n```\n\n### Configure in VS Code\n\nAdd to `.vscode/mcp.json` (workspace-scoped):\n\n```json\n{\n  \"servers\": {\n    \"cogmemory\": {\n      \"command\": \"node\",\n      \"args\": [\"/absolute/path/to/cogmemory-mcp/dist/index.js\"]\n    }\n  }\n}\n```\n\nOr add to your user `mcp.json` for global availability.\n\n### Run with MCP Inspector (dev)\n\n```bash\npnpm run inspect\n```\n\n---\n\n## Scope Configuration\n\nCogMemory resolves scope in priority order:\n\n1. **`.cogmemory/config.json`** in workspace root:\n\n   ```json\n   { \"scope\": \"global\" }\n   ```\n\n2. **Environment variable**: `COGMEMORY_SCOPE=global`\n3. **Default**: `workspace`\n\n### Paths\n\n| Scope     | Database Path                           |\n| --------- | --------------------------------------- |\n| workspace | `<workspace_root>/.cogmemory/memory.db` |\n| global    | `~/.cogmemory/global.db`                |\n\n---\n\n## Workspace Resolution & Multi-Root Support\n\nCogMemory resolves the workspace root (where `.cogmemory/memory.db` lives) in this priority order:\n\n1. **`--workspace <path>`** CLI argument (highest priority)\n2. **`COGMEMORY_WORKSPACE`** environment variable\n3. **Walk up from CWD** looking for the nearest parent containing a `.cogmemory/` directory\n4. **Fallback to CWD**\n\n### Multi-Root VS Code Workspaces\n\nIn a VS Code multi-root workspace, each folder is a separate workspace root. CogMemory handles this:\n\n- **Single-root** — Works automatically. VS Code sets CWD to the workspace folder, and `--workspace` is passed via `mcp.json`.\n- **Multi-root** — Each workspace folder can have its own `.cogmemory/`. Point each to CogMemory with different `--workspace` paths, or place a shared `.cogmemory/` in a parent directory.\n\n**Recommended multi-root `mcp.json`** (per-folder):\n\n```json\n{\n  \"servers\": {\n    \"cogmemory-frontend\": {\n      \"command\": \"node\",\n      \"args\": [\n        \"/path/to/cogmemory-mcp/dist/index.js\",\n        \"--workspace\",\n        \"/path/to/frontend\"\n      ]\n    },\n    \"cogmemory-backend\": {\n      \"command\": \"node\",\n      \"args\": [\n        \"/path/to/cogmemory-mcp/dist/index.js\",\n        \"--workspace\",\n        \"/path/to/backend\"\n      ]\n    }\n  }\n}\n```\n\n**Or use a shared database** (all roots in one place):\n\n```json\n{\n  \"servers\": {\n    \"cogmemory\": {\n      \"command\": \"node\",\n      \"args\": [\n        \"/path/to/cogmemory-mcp/dist/index.js\",\n        \"--workspace\",\n        \"/shared/root\"\n      ]\n    }\n  }\n}\n```\n\n**Or use global scope** to share across all workspaces:\n\n```json\n{\n  \"servers\": {\n    \"cogmemory\": {\n      \"command\": \"node\",\n      \"args\": [\"/path/to/cogmemory-mcp/dist/index.js\"]\n    }\n  }\n}\n```\n\n```bash\nexport COGMEMORY_SCOPE=global\n```\n\n---\n\n## Tool Reference\n\n### Memory Tools\n\n| Tool                  | Description                                                    |\n| --------------------- | -------------------------------------------------------------- |\n| `start_session`       | Begin a work session (returns session ID)                      |\n| `end_session`         | Close session, store summary                                   |\n| `get_session_summary` | Recall session details including decisions, errors, changelog  |\n| `remember_decision`   | Log a decision with rationale and tags                         |\n| `remember_convention` | Log/update a convention (design token, pattern, style, naming) |\n| `log_error`           | Record an error with signature and resolution                  |\n| `set_active_context`  | Upsert current focus/task by key                               |\n| `get_active_context`  | Read current focus by key                                      |\n| `log_change`          | Append changelog entry                                         |\n| `add_plan_item`       | Add a roadmap item                                             |\n| `update_plan_status`  | Change plan item status                                        |\n| `create_task`         | Create a task, optionally linked to a plan                     |\n| `update_task_status`  | Change task status                                             |\n| `recall`              | Unified search across decisions/conventions/errors/changelog   |\n\n### Knowledge Graph Tools\n\n| Tool               | Description                             |\n| ------------------ | --------------------------------------- |\n| `create_entity`    | Add entity (deduped on name+type)       |\n| `create_relation`  | Link two entities with a typed relation |\n| `add_observation`  | Attach a fact to an entity              |\n| `search_knowledge` | Query entities, relations, observations |\n\n### Specs Tools\n\n| Tool          | Description                              |\n| ------------- | ---------------------------------------- |\n| `create_spec` | Store a long-form document               |\n| `get_spec`    | Retrieve by ID or exact title            |\n| `update_spec` | Update content/title, auto-bumps version |\n\n### Code Graph Tools\n\n| Tool               | Description                                                                |\n| ------------------ | -------------------------------------------------------------------------- |\n| `index_codebase`   | Walk workspace, extract symbols + edges via ts-morph (JS/TS)               |\n| `query_code_graph` | Look up a symbol's callers/callees/imports (1-hop)                         |\n| `generate_codemap` | BFS from entry symbol, bounded subgraph with optional traces + annotations |\n| `annotate_symbol`  | Attach narrative text to a symbol or trace                                 |\n\n---\n\n## Architecture\n\n```plain\ncogmemory-mcp/\n├── src/\n│   ├── index.ts                 # entry point, server bootstrap\n│   ├── config.ts                # scope resolution, path resolution\n│   ├── types.ts                 # shared TS types mirroring schema\n│   ├── db/\n│   │   ├── connection.ts        # DB open/close, pragma setup\n│   │   ├── schema.sql           # full schema (reference)\n│   │   └── migrate.ts           # idempotent schema application\n│   ├── tools/\n│   │   ├── memory.ts            # decisions/conventions/errors/context/changelog/recall\n│   │   ├── plan-tasks.ts        # plan + tasks tools\n│   │   ├── sessions.ts          # start/end session, summary\n│   │   ├── knowledge-graph.ts   # entities/relations/observations\n│   │   ├── specs.ts             # spec CRUD\n│   │   ├── code-graph.ts        # index_codebase, query_code_graph\n│   │   └── codemap.ts           # generate_codemap, annotate_symbol\n│   └── indexing/\n│       ├── ts-analyzer.ts       # ts-morph symbol/edge extraction\n│       └── walker.ts            # file discovery, gitignore respect\n├── schema.sql                   # reference copy\n├── package.json\n├── tsconfig.json\n└── README.md\n```\n\n---\n\n## Schema (15 tables)\n\n- **Memory (8):** `sessions`, `decisions`, `conventions`, `errors`, `context`, `changelog`, `plan`, `tasks`\n- **Knowledge Graph (3):** `entities`, `relations`, `observations`\n- **Specs (1):** `specs`\n- **Code Graph (4):** `symbols`, `edges`, `execution_traces`, `codemap_annotations`\n\n---\n\n## Pragmas\n\nSet on every connection open:\n\n```sql\nPRAGMA journal_mode = WAL;\nPRAGMA foreign_keys = ON;\n```\n\n---\n\n## Development\n\n```bash\npnpm run dev        # Run with tsx (no build step)\npnpm run build      # Compile TypeScript\npnpm run start      # Run compiled output\npnpm run inspect    # Launch MCP Inspector\npnpm run smoke-test # Run smoke test script\n```\n\n---\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

@@ -15,9 +15,15 @@
     "kind": "skill-dir"
   },
   "quality": {
-    "stars": null,
-    "pushed_at": null,
-    "score": 25
+    "stars": 2,
+    "pushed_at": "2026-03-14T03:48:21Z",
+    "score": 49,
+    "star_history": [
+      {
+        "d": "2026-08-23",
+        "s": 2
+      }
+    ]
   },
   "security": {
     "score": 100,
@@ -49,6 +55,6 @@
     "category": "办公",
     "featured": false
   },
-  "readme": null,
+  "readme": "![Discord](https://img.shields.io/discord/1381424110831145070?style=flat-square&logo=rust&link=https%3A%2F%2Fdiscord.gg%2FfHmRmuBDxF)\n[![Crates.io](https://img.shields.io/crates/v/skills)](https://crates.io/crates/skills)\n\nA CLI for managing AI coding assistant skills from a single source.\n\nBoth [Claude Code](https://docs.anthropic.com/en/docs/claude-code/skills) and\nagent tools support skills: reusable instructions that extend what the assistant can do.\nThis tool keeps them in sync across tools, so you can maintain skills in one place\n(your dotfiles, a team repo) and push them everywhere.\n\n- **One source** — No more copying files between `~/.claude/skills/` and `~/.agents/skills/`\n- **Sync everywhere** — Push to both tools with a single command\n- **Pull edits back** — Edit a skill in Claude Code, pull it to your repo, push to agents\n- **Team sharing** — Point everyone at a shared repo; they all get the same skills\n- **Version control** — Skills live in git, so you get history and can roll back\n\n## Install\n\n```bash\ncargo install skills\n```\n\n## Quick Start\n\n```bash\nskills init          # Set up ~/.skills.toml\nskills list          # See what you have\nskills push          # Push skills to your tools\n```\n\n## How It Works\n\nPoint the CLI at your source directories in `~/.skills.toml`:\n\n```toml\nsources = [\n    \"~/dotfiles/skills\",\n    \"~/work/team-skills\",\n]\n```\n\nEach skill is a folder with a `SKILL.md` file:\n\n```\ncode-review/\n  SKILL.md\n```\n\n```markdown\n---\nname: code-review\ndescription: Use when reviewing pull requests or code changes\n---\n\n# Code Review\n\nWhen reviewing code, focus on:\n- Correctness and edge cases\n- Readability and maintainability\n- Performance implications\n- Security considerations\n\nProvide specific, actionable feedback with line references.\n```\n\n## Commands\n\n### Core Commands\n\n| Command | What it does |\n|---------|--------------|\n| `skills list` | Show all skills and their sync status (aliases: `ls`, `status`) |\n| `skills push [SKILLS...]` | Push skills from source to tools |\n| `skills pull [SKILL]` | Pull edits from tools back to source |\n| `skills sync [SKILLS...]` | Two-way sync based on timestamps |\n| `skills diff [SKILL]` | Show differences between source and installed |\n\n### Skill Management\n\n| Command | What it does |\n|---------|--------------|\n| `skills new <path>` | Create a new skill skeleton |\n| `skills edit <skill>` | Open a skill in your editor ($EDITOR) |\n| `skills mv <old> <new>` | Rename a skill across source and tools |\n| `skills validate [SKILL]` | Check skill structure and template syntax |\n| `skills render <skill> --tool <tool>` | Preview rendered output for a tool |\n\n### Sharing & Import\n\n| Command | What it does |\n|---------|--------------|\n| `skills pack [SKILLS...]` | Package skills into ZIP files for sharing |\n| `skills import <source>` | Import from ZIP file, URL, or GitHub |\n| `skills unload <skill>` | Remove a skill from tool directories |\n| `skills promote <skill>` | Move a local skill to global directory (alias: `uplift`) |\n\n### Setup\n\n| Command | What it does |\n|---------|--------------|\n| `skills init` | Set up your configuration |\n\n### Common Flags\n\n- `--tool <tool>` — Target specific tool: `claude`, `agents`, or `all` (default)\n- `--project` — Work with project-local skills (`.claude/skills/`, `.agents/skills/`)\n- `-n, --dry-run` — Preview changes without writing\n- `-f, --force` — Skip confirmation prompts (shows diff for overwrites)\n- `-y, --yes` — Skip all prompts (use with `--force` for fully silent operation)\n\n### Typical Workflow\n\nCreate or edit a skill in Claude Code (it has a built-in skill editor), then sync:\n\n```bash\nskills pull          # Pull the new skill to your repo\nskills push          # Push it to agents\n```\n\nOr use two-way sync:\n\n```bash\nskills sync          # Sync based on timestamps\n```\n\nHandle conflicts:\n\n```bash\nskills sync --prefer-source   # Source wins on conflict\nskills sync --prefer-tool     # Newest tool version wins\n```\n\n## Templating\n\nSkills can include tool-specific sections using [MiniJinja](https://github.com/mitsuhiko/minijinja):\n\n```markdown\n{% if tool == \"claude\" %}\nUse the Task tool for background operations.\n{% elif tool == \"agents\" %}\nUse /background for async tasks.\n{% endif %}\n```\n\nValidate templates before pushing:\n\n```bash\nskills validate my-skill\nskills render my-skill --tool claude\n```\n\n## Supported Tools\n\n| Tool | Skills Directory | Documentation |\n|------|------------------|---------------|\n| Claude Code | `~/.claude/skills/` | [docs](https://code.claude.com/docs/en/skills) |\n| Agents | `~/.agents/skills/` | - |\n\n\n## Community\n\nWant to contribute? Have ideas or feature requests? Come tell me about it on\n[Discord](https://discord.gg/fHmRmuBDxF). \n\n\n## License\n\nMIT\n",
   "status": "curated"
 }

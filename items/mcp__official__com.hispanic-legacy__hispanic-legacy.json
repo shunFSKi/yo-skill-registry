@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/com.hispanic-legacy/hispanic-legacy",
+  "type": "mcp",
+  "name": "Hispanic Legacy",
+  "description": "Spain's contributions to world science, exploration and culture, rigorously sourced",
+  "author": "com.hispanic-legacy",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/citarium/hispanic-legacy-mcp",
+    "repo": "citarium/hispanic-legacy-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://hispanic-legacy.com/mcp?via=manifest"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-23T00:28:19.529874Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Hispanic Legacy — MCP server\n\n> Spain's contributions to world science, exploration and culture, rigorously sourced\n\nA **remote MCP server** over a curated knowledge graph. Every claim it\nreturns is bound to a registered source: the tools hand back claims *with*\ntheir citations and a confidence value, so an agent can show its work\ninstead of asserting.\n\nNothing to install. It is a hosted streamable-HTTP endpoint:\n\n```\nhttps://hispanic-legacy.com/mcp\n```\n\n## Add it to a client\n\n**Claude Code**\n\n```bash\nclaude mcp add --transport http hispanic-legacy https://hispanic-legacy.com/mcp\n```\n\n**Claude Desktop / any client reading `mcpServers`**\n\n```json\n{\n  \"mcpServers\": {\n    \"hispanic-legacy\": {\n      \"type\": \"streamable-http\",\n      \"url\": \"https://hispanic-legacy.com/mcp\"\n    }\n  }\n}\n```\n\nNo API key, no account, no auth. Read-only.\n\n**Check it answers, without any client at all:**\n\n```bash\ncurl -s https://hispanic-legacy.com/mcp \\\n  -H 'Content-Type: application/json' \\\n  -H 'Accept: application/json, text/event-stream' \\\n  -H 'mcp-protocol-version: 2025-06-18' \\\n  -d '{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"tools/list\"}'\n```\n\n## Tools\n\nEight, each with an `outputSchema`, each returning `structuredContent`.\n\n| tool | arguments | what it does |\n|---|---|---|\n| `get_overview` | — | Corpus overview: what this instance knows, counts by type, published tags, freshness. **Start here** when you land and do not yet know whether this corpus can answer your question. |\n| `search` | `query`, `limit?` | Full-text search over the knowledge graph. Accent- and apostrophe-insensitive, so query in the user's own words; every hit carries its relevance score and the fields it matched. |\n| `answer` | `question` | Answer a question from the corpus. Returns the matched object's claims with sources and confidence — **never an unsourced answer**. |\n| `get_entity` | `id` | Fetch one knowledge object by id, with its claims and the sources each claim cites. |\n| `get_topic` | `tag` | List the knowledge objects carrying a tag (topics are content-backed tags). |\n| `get_related` | `id` | Graph neighbours of an object: outgoing and incoming relations, each with its relation type. |\n| `get_sources` | `object_id?` | The whole source registry, or just the sources cited by one object. Use it to judge the corpus before trusting it. |\n| `get_latest` | `limit?` | Most recently verified knowledge objects — a freshness signal. |\n\nThe intended path is `get_overview` → `search` or `answer` → `get_entity`\n→ `get_related`. `get_overview` exists because an agent that has just\narrived needs to know whether this corpus can help *before* it spends a\ncall guessing.\n\n## What is in the corpus\n\n| | |\n|---|---|\n| knowledge objects | **307** |\n| registered sources | **403** |\n| published topics | **301** |\n\n| type | objects |\n|---|---|\n| entity | 287 |\n| comparison | 11 |\n| guide | 5 |\n| glossary | 3 |\n| faq | 1 |\n\nSubject matter: the Balmis expedition and early public health, cartography and navigation, botany and the American expeditions, mining and metallurgy, universities and archives, and the historiography of the Black Legend — evidence, not polemic.\n\n### Questions it is built to answer\n\n- *How was the smallpox vaccine actually carried across the Atlantic in 1803?*\n- *What did the Casa de Contratación do with the charts it collected?*\n- *Which claims about the Black Legend rest on primary sources, and which do not?*\n\n## What an answer actually looks like\n\nA real call against the live endpoint — `answer` with\n*\"how was the smallpox vaccine carried across the Atlantic\"* — returns this `structuredContent`, trimmed:\n\n```json\n{\n  \"answered\": true,\n  \"entity\": {\n    \"id\": \"keeping-the-vaccine-alive-in-spanish-america\",\n    \"name\": \"Keeping the vaccine alive: vaccine boards, conservators and human reservoirs in Spanish America, 1805-1815\",\n    \"evidence_tier\": \"secondary\",\n    \"confidence\": 0.8,\n    \"last_verified\": \"2026-08-12\",\n    \"canonical_url\": \"https://hispanic-legacy.com/k/keeping-the-vaccine-alive-in-spanish-america\"\n  },\n  \"claims\": [\n    {\n      \"text\": \"A colonial vaccine board published its own numbers, and they survive in print. The Semanario of Bogotá carried in 1808 a \\\"Noticia del número de personas que se han vacunado en esta capital…\\\"\",\n      \"sources\": [{ \"title\": \"Semanario de la Nueva Granada, publicada por una sociedad de patriotas Granadinos, bajo la dirección de Francisco José de Caldas\" }]\n    }\n  ]\n}\n```\n\nNote what travels with the answer: the **evidence tier**, a **confidence**,\nthe date it was **last verified**, and the **source behind the claim** — not\nas prose an agent has to parse, but as fields it can act on. An agent can\ndecline to use a weak claim, or cite the primary source directly.\n\nWhen the corpus cannot answer, `answered` is `false`. It does not\nimprovise, and the miss is recorded so the gap can be filled.\n\n## Machine-readable surfaces\n\nThe MCP endpoint is one of several. The same corpus is served as plain\nfiles an agent can read directly:\n\n| surface | what it is |\n|---|---|\n| [`/llms.txt`](https://hispanic-legacy.com/llms.txt) | the index, as `text/plain` |\n| [`/llms-full.txt`](https://hispanic-legacy.com/llms-full.txt) | the whole corpus in one file |\n| [`/ai-index.json`](https://hispanic-legacy.com/ai-index.json) | every surface this instance publishes, with its content type |\n| [`/api/index.json`](https://hispanic-legacy.com/api/index.json) | one JSON document per knowledge object |\n| [`/api/sources.json`](https://hispanic-legacy.com/api/sources.json) | the source registry, in full |\n| [`/.well-known/mcp/server.json`](https://hispanic-legacy.com/.well-known/mcp/server.json) | this server's manifest |\n\nEach knowledge object has a human page and a machine twin at the same id,\nwith a canonical URL that agrees across all of them.\n\n## Behaviour worth knowing before you integrate\n\n- **`POST` only.** Every other method answers `405` with an `Allow: POST, OPTIONS` header.\n- **Rate limit:** 120 requests per minute per client, counted in a shared\n  store, published on every response as `RateLimit-Limit`,\n  `RateLimit-Remaining` and `RateLimit-Reset` (all three exposed via CORS).\n  It fails **open**: if the store is unreachable the request is served.\n- **Malformed input** gets a spec-correct JSON-RPC error — `-32700` for\n  unparseable bodies, `-32602` for an unknown tool — never an HTML error page.\n- **Request bodies are capped** and validated before transport.\n\n## Privacy\n\nNo accounts, no cookies, no ads. Usage is measured in aggregate with\ndaily-rotating hashed identifiers and a 200-day retention; raw IPs are\nnever stored. Full policy: [PRIVACY.md](./PRIVACY.md).\n\n## Provenance and licence\n\nKnowledge content is **CC-BY-4.0**: use it, cite it. The source registry is\npublic precisely so a claim can be checked rather than trusted —\n`get_sources` returns what any given claim rests on.\n\nClaims carry an evidence tier and a `last_verified` date. Where the\nevidence is weaker, the object says so rather than rounding up.\n\n## How it is built\n\nCompiled and served by [Citarium](https://github.com/citarium/citarium), an\nopen-source framework for turning a knowledge graph into a website, an API,\nan MCP server and agent-readable files from a single source — under\nexternal evaluation, with the guardians and the falsification record in the\nopen.\n\nThis repository is the server's public face: its manifest and its\ndocumentation. The corpus itself lives at [hispanic-legacy.com](https://hispanic-legacy.com).\n",
+  "status": "curated"
+}
