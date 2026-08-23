@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.neprel/git-a2a",
+  "type": "mcp",
+  "name": "git-a2a",
+  "description": "Git module dependencies and owning-agent routing for coding agents",
+  "author": "io.github.neprel",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/neprel/git-a2a",
+    "repo": "neprel/git-a2a"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "git-a2a"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-23T13:51:20.003582Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# git-a2a\n\n[![built with HINT](https://img.shields.io/badge/built_with-HINT-5b4ee6)](https://openhint.dev/)\n\n**Import a Git repository together with the agents that own it.**\n\ngit-a2a is an open standard plus a static Go CLI for micro-agent architectures. A repository\npublishes one `a2amodule.yml`: what the module exports, which agents own it, how to contact them,\nand which other modules it consumes. The CLI resolves one Git commit, wires every detected\necosystem, maintains `a2amodule.lock`, and projects the useful ownership context into agent tools.\n\nRead the [human specification](spec/README.md), the [command reference](docs/cli.md), or the\nnormative [`spec/_.hint`](spec/_.hint) with `hint spec`.\n\nSee the feature end to end in the public\n[`acme-lib-utils`](https://github.com/neprel/git-a2a-demo-acme-lib) library and\n[`consumer-app`](https://github.com/neprel/git-a2a-demo-acme-app) consumer repositories. The\n[demo walkthrough](docs/demo.md) explains what to inspect and which commands to run.\n\n## What you can do\n\n| Capability | Commands and result |\n| --- | --- |\n| Dependency wiring | `add`, `wire`, `update`, `remove` edit native npm/Python/Go/Rust/Swift/Dart/Ruby/PHP/Elixir/Haskell/Zig/Clojure/Nix files at one resolved commit. |\n| Source changes | `set`, `pin`, and `unpin` transactionally change URL, ref, monorepo path, tracking, or identity. |\n| Owners and contacts | `who` routes an intent and path to the declared role, scoped agent, and ordered contacts. |\n| Agent roster | `sync` maintains a bounded dependency/owner block in `AGENTS.md` or another target. |\n| Contact delivery | `contact` sends through A2A or GitHub Issues; URL, email, and chat kinds print exact instructions. |\n| Cards, catalog, and trust | `card export/validate/verify/show` and `catalog export` project A2A v1.0 cards, ARD catalogs, and JWS trust. |\n| Liveness and drift | `status` compares upstream refs, manifest/cache hashes, native wiring, cards, trust, and synced context. |\n| Prerequisites | `doctor` reports Git and native ecosystem tools with versions and install hints; it never installs them. |\n\n## Quick start\n\n```sh\ngit-a2a init --id acme-app\ngit-a2a add https://github.com/acme/lib-utils.git\ngit-a2a sync\ngit-a2a who acme-lib-utils --intent change\ngit-a2a status\ngit-a2a update --review\n```\n\n## Installation\n\nGo-native channels are the simplest and come first. Every checkmark means the channel was\nexercised against a public stable artifact on its native platform. These commands follow the\nlatest stable release; pin an explicit version in CI.\n\n| Verified | Channel | Command |\n| --- | --- | --- |\n| ✔ | Go | `go install github.com/neprel/git-a2a/cmd/git-a2a@latest` |\n| ✔ | Go zero-install | `go run github.com/neprel/git-a2a/cmd/git-a2a@latest --version` |\n| ✔ | macOS/Linux installer | `curl -fsSL https://git-a2a.com/install.sh \\| bash` |\n| ✔ | Windows installer | `irm https://git-a2a.com/install.ps1 \\| iex` |\n| ✔ | Homebrew | `brew install neprel/tap/git-a2a` |\n| ✔ | Scoop | `scoop bucket add git-a2a https://github.com/neprel/scoop-bucket; scoop install git-a2a` |\n| ✔ | npm | `npx git-a2a@latest --version` |\n| ✔ | PyPI with uv | `uvx git-a2a --version` |\n| ✔ | PyPI with pipx | `pipx run git-a2a --version` |\n| ✔ | Container | `docker run --pull=always --rm ghcr.io/neprel/git-a2a:latest --version` |\n\nThe checksum-verifying standalone installers support `GIT_A2A_VERSION`, `--version`, `--dir`,\nand `--dry-run`. The macOS binaries are not yet Apple-notarized; use the Homebrew formula for a\nchecksum-verified first launch without a Gatekeeper quarantine prompt.\n\nLinux `.deb`, `.rpm`, and `.apk` packages are attached to every GitHub Release:\n\n```sh\nsudo dpkg -i git-a2a_*.deb\nsudo rpm -i git-a2a_*.rpm\nsudo apk add --allow-untrusted git-a2a_*.apk\n```\n\nThe scratch container contains only the binary:\n\n```sh\ndocker run --pull=always --rm ghcr.io/neprel/git-a2a:latest version\n```\n\nEvery channel executes the same Go binary. `git-a2a version --check` is the only automatic\nrelease lookup and prints the correct manager-specific update command. `git-a2a upgrade` is\navailable only to the standalone binary channel; it never overwrites a package-manager install.\nRelease archives cover Darwin, Linux, and Windows on amd64/arm64 and include checksums and SBOMs.\nMaintainer setup is in [docs/releasing.md](docs/releasing.md).\n\n## Documentation\n\n- [Manifest field reference](docs/manifest-reference.md): generated types, defaults, values, and consequences for every field.\n- [Authoring guide](docs/authoring.md): create and publish a module, its surface, agents, contacts, policy, and cards.\n- [Consumer guide](docs/consuming.md): add, fetch, sync, inspect, update, contact, and run deterministic CI.\n- [Contact kinds](docs/contact-kinds.md): generated allowed fields and delivery/instruction behavior for every known kind.\n- [FAQ](docs/faq.md): design boundaries, offline operation, A2A, MCP, Agent Skills, and disposable cache.\n- [Consumer demo](docs/demo.md): inspect the public polyglot library and app end to end.\n- [CLI reference](docs/cli.md): exact commands, flags, outputs, and exit codes.\n- [MCP server](docs/mcp.md): attach the multi-repository stdio server to Claude Code, Codex,\n  Cursor, Copilot, Gemini CLI, OpenCode, Hermes Agent, or OpenClaw.\n\n## A2A, AGENTS.md, and Agent Skills\n\n- **A2A** is the agent-to-agent protocol. Agent Cards remain native A2A v1.0; the\n  `https://git-a2a.com/ext/module/v1` extension binds a card to a Git module without copying its\n  self-description. `contact` can deliver A2A `SendMessage` requests.\n- **AGENTS.md** is a consumer-facing context surface. `sync` renders only published module,\n  surface, ownership, and routing data into a managed block; it never imports dependency\n  instructions or private implementation knowledge.\n- **Agent Skills** teach a harness how to perform a task. They complement git-a2a: a Skill may\n  call this CLI, while `a2amodule.yml` remains the durable, harness-neutral ownership and\n  dependency contract shared by every agent environment. Install this repository's skill with\n  `npx skills add neprel/git-a2a` or, before the 1.1.0 tag, `gh skill install neprel/git-a2a\n  git-a2a --pin main`. From 1.1.0 onward the stable command is `gh skill install neprel/git-a2a\n  git-a2a`; detailed references ship with the skill and in the npm launcher package. Run\n  `git-a2a setup --dry-run` to preview repository-scoped skill, AGENTS.md, and MCP configuration\n  for detected Claude Code, Codex, Cursor, Copilot, Gemini CLI, OpenCode, Hermes Agent, and\n  OpenClaw environments.\n\ngit-a2a does not run agents, host endpoints, or choose a chat platform. Unknown contact kinds,\nroles, intents, and ecosystems remain valid open vocabulary.\n\n## Specification as source (HINT)\n\nThe repository's durable knowledge—decisions, invariants, and the normative standard in\n[`spec/_.hint`](spec/_.hint)—lives in `.hint` files beside the artifacts it governs; this is\nSpec-as-Source. `hint <path>` returns exactly the knowledge governing that path, `hint spec`\nprints the standard, and `hint status` checks for drift. [HINT](https://openhint.dev/) is an\nopen, agent-neutral tool by the same author; install it with `npm install -g @openhint/cli` or\nrun it with `npx @openhint/cli`. This repository's vocabulary comes from\n`hintbook-software-engineer`. Agents here run `hint` before editing; that requirement is the\npurpose of the `<hint>` block in [`AGENTS.md`](AGENTS.md), while [`hint.yml`](hint.yml) selects\nthe hintbook.\n\nLicense: MIT.\n\nBuilt with [HINT](https://openhint.dev/).\n",
+  "status": "curated"
+}

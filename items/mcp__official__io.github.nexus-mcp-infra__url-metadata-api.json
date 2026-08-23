@@ -17,7 +17,7 @@
   "quality": {
     "stars": null,
     "pushed_at": "2026-08-22T16:48:09.291766Z",
-    "score": 52
+    "score": 42
   },
   "security": {
     "score": 100,
@@ -49,6 +49,6 @@
     "category": "编程",
     "featured": false
   },
-  "readme": "# URL Metadata API\n\nGiven a URL, returns `title`/`description`/`image`/`site_name` scraped from its OpenGraph/meta tags\n(Microlink-style link-preview API). NEXUS candidate #4 -- **manual build, not FORGE-generated.**\n\n- `POST /extract {\"url\": \"...\"}` -- charged **$0.01 via x402** (Base Sepolia testnet).\n- MCP tool `extract_url_metadata` at `/mcp` -- **currently free**, see \"Known limitations\".\n- `GET /health`, `GET /.well-known/agent-card.json`, `GET /openapi.json` (has `x-payment-info`).\n\n## Deploy target: Cloud Run, not Railway\n\nBuilt from `products/mcp-boilerplate-gumroad/template/` (same MCP+x402+FastAPI pattern as\n`similarity-search-api`/`ws`), adapted for Cloud Run instead of Railway. See\n`skills/infra-deploy-ops` for the reusable deploy pipeline (`scripts/deploy_cloud_run.sh` at the repo\nroot). Two-step deploy (same gotcha the boilerplate README documents):\n\n```bash\n# 1. First deploy -- PUBLIC_DOMAIN not known yet, every real request 421s until step 2.\n./scripts/deploy_cloud_run.sh url-metadata-api manual_assets/url-metadata-api\n\n# 2. Grab the printed *.run.app URL, then:\ngcloud run services update url-metadata-api --region us-central1 --project nexus-505016 \\\n    --update-env-vars PUBLIC_DOMAIN=<the-real-domain>\n```\n\n## Known limitations (left unfixed on purpose -- CLAUDE.md SS3, no gate without evidence it's needed)\n\n- **MCP tool calls are not charged.** `PaymentMiddlewareASGI` only gates `POST /extract`; the MCP tool\n  calls the shared `extract_metadata()` function directly in-process (no HTTP re-entry into the ASGI\n  app -- that re-entry path is what caused the real \"every MCP call gets a spurious 402\" bug documented\n  in `skills/mcp-server-generation`). Adding a real MCP-native x402 gate (`x402[...,mcp]`'s own\n  payment-gate mechanism, same as what FORGE's generator does for `similarity-search-api`/`ws`) is real\n  work with a real footgun (duplicate `ctx` parameter injection, see memory) -- deferred until this\n  candidate shows real MCP traffic in the 7-day window. Until then this asset can log volume\n  (`traffic_events`/`mcp_call_events`) but not MCP revenue.\n- **No per-caller rate limiting.** Fine for a 7-day disposable measurement; add if it survives.\n- **SSRF guard is IP-range based, not a full allowlist.** Rejects private/loopback/link-local/reserved\n  destination IPs (including cloud metadata's `169.254.169.254`) on the initial request and on every\n  manually-followed redirect hop (max 3). Does not defend against DNS rebinding between the check and\n  the actual connect (accepted risk for this candidate's scope).\n\n## Measurement (Part 3 of the setup session)\n\n7-day window from first real deploy. Source of truth: `traffic_events`/`revenue_events`/`mcp_call_events`\ntables (`asset_name = 'url-metadata-api'`), not Cloud Run logs. Day 7: if zero real traffic (filtering\ncrawlers), pause/delete the Cloud Run service (`gcloud run services delete url-metadata-api --region\nus-central1 --project nexus-505016`) and move to candidate #3.\n",
+  "readme": null,
   "status": "curated"
 }

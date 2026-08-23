@@ -17,7 +17,7 @@
   "quality": {
     "stars": 2,
     "pushed_at": "2026-08-11T16:59:31Z",
-    "score": 59,
+    "score": 49,
     "star_history": [
       {
         "d": "2026-08-23",
@@ -55,6 +55,6 @@
     "category": "数据",
     "featured": false
   },
-  "readme": "# arktrace\n\n**Shadow fleet analyst dashboard — ranked watchlist, vessel investigation, and patrol handoff.**\n\n**Live app:** [arktrace.edgesentry.io](https://arktrace.edgesentry.io)\n\n---\n\n## What analysts get\n\n- **Ranked watchlist** — vessels scored by causal intent, not anomaly. Each entry shows confidence, region, AIS gap count, and STS transfer candidates.\n- **Vessel detail** — Feature attribution (SHAP) and ownership chain panels; AIS track; sanctions graph distance.\n- **Patrol brief** — plain-language dispatch summary generated locally in the browser. No score or evidence leaves the site.\n- **Review workflow** — triage (Watch / Escalate / Dismiss), handoff status, and review history synced across sessions.\n- **Pre-designation lead time** — validates detections against known OFAC designation dates; typical lead: 60–90 days.\n\n## Open the app\n\n```bash\ncd app && npm install && npm run dev   # http://localhost:5173\n```\n\nSelect a region → watchlist loads → click any vessel → feature attribution, ownership chain, and AIS track appear.\n\nDemo data (no pipeline required):\n\n```bash\nnpx skills add edgesentry/arktrace\n/arktrace-demo-data\n```\n\n---\n\n## Detection methodology\n\narktrace applies Difference-in-Differences (DiD) causal modelling to identify vessels whose behaviour changed *because of* a sanction event — not merely anomalous vessels.\n\n| | Anomaly detection (excluded) | arktrace causal inference |\n|---|---|---|\n| Unit of evaluation | A point — \"does this vessel look unusual?\" | A line — \"did behaviour change *because of* a sanctions event?\" |\n| False positive driver | Any vessel that deviates | Only vessels whose deviation is statistically linked to a trigger |\n| Lead time | Reactive | Pre-designation (see [indago dashboard](https://indago.edgesentry.io) / [C1 validation](https://github.com/edgesentry/edgesentry-commercial/blob/main/docs/programs/202606-capvista-ai-joint-challenge/submission/c1-validation-results.md)) |\n| Output | Score + threshold | ATT ± 95% CI, p-value, SHAP signal breakdown |\n\nScoring is fully deterministic — no LLM in the pipeline. The browser generates patrol briefs via a local LLM with strict grounding constraints; the LLM cannot modify scores. See [docs/ref-llm-grounding.md](docs/ref-llm-grounding.md).\n\n---\n\n## Agent Skills\n\n```bash\nnpx skills add edgesentry/arktrace\n```\n\n## License\n\nApache-2.0 OR MIT\n",
+  "readme": null,
   "status": "curated"
 }
