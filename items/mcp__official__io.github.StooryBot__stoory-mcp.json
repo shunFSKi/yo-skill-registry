@@ -1,0 +1,61 @@
+{
+  "id": "mcp:official/io.github.StooryBot/stoory-mcp",
+  "type": "mcp",
+  "name": "Stoory Hire Specialist",
+  "description": "Find and hire a human specialist from the Stoory marketplace, right from chat.",
+  "author": "io.github.StooryBot",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/StooryGitServer/stoory-mcp-server",
+    "repo": "StooryGitServer/stoory-mcp-server"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://mcp.stoory.io/mcp",
+    "env": [
+      {
+        "name": "x-api-key",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-24T13:38:20.645214Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Stoory MCP Server\n\n**Hire a human specialist from your AI workspace — without leaving it.**\n\nAI can build most of your app. It can't get you GDPR-compliant, review your\nStripe integration, design your landing page, or run your SEO. Stoory MCP lets\nyour AI coding assistant find, brief, and hire the right human for that —\nwithout you ever opening Upwork, writing a job post, or explaining your\nproblem from scratch.\n\n---\n\n## What it does\n\n- **Search** Stoory's marketplace (400+ specializations: dev, legal, design,\n  growth, operations) with a natural-language query.\n- **Package a task**: your AI assistant drafts the title, description, and\n  budget, and picks only the files the specialist actually needs — never your\n  whole repo.\n- **Hand off safely**: a private GitHub repo is created per task, shared only\n  with the invited specialist.\n- **Track progress**: check status and pull results back into your AI\n  workspace once the specialist is done.\n\nYou stay in control of the two decisions that matter — **who to hire** and\n**what budget to approve**. The agent does the rest.\n\nSee [Tools](#tools) below for the full list.\n\n---\n\n## Quickstart\n\n### Requirements\n\n- Any AI client that supports MCP over Streamable HTTP (Claude Code, Claude\n  Desktop, Claude.ai, Cursor, Windsurf, VS Code, Codex CLI, ...).\n- A free Stoory client account and API key (below).\n\n### 1. Get a client API key\n\nSign up at\n[stoory.io/login?step=register&u=Client_(user)](https://stoory.io/login?step=register&u=Client_\\(user\\)),\nthen open **MCP Server** on the Stoory homepage to generate your\n`client_api_key`.\n\n### 2. Add the server to your AI client\n\nPick your client below. The URL is always `https://mcp.stoory.io/mcp`, the\nheader is always `x-api-key`, but where you put them differs per client.\n\n<details>\n<summary><strong>Claude Code</strong></summary>\n\n```bash\nclaude mcp add --transport http stoory \\\n  https://mcp.stoory.io/mcp \\\n  --header \"x-api-key: YOUR_API_KEY_HERE\"\n```\n\nOr add directly to `.mcp.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"stoory\": {\n      \"url\": \"https://mcp.stoory.io/mcp\",\n      \"headers\": { \"x-api-key\": \"YOUR_API_KEY_HERE\" }\n    }\n  }\n}\n```\n</details>\n\n<details>\n<summary><strong>Claude Desktop / Claude.ai</strong></summary>\n\n**Settings → Connectors → Add custom connector.** Paste\n`https://mcp.stoory.io/mcp` as the URL, open **Request headers**, add\n`x-api-key` with your key, then click Add.\n\n(Request header auth is currently rolling out at Anthropic. If you don't see\na \"Request headers\" option yet, use Claude Code or another client below in\nthe meantime.)\n</details>\n\n<details>\n<summary><strong>Cursor</strong></summary>\n\nAdd to `.cursor/mcp.json` (project) or `~/.cursor/mcp.json` (global):\n\n```json\n{\n  \"mcpServers\": {\n    \"stoory\": {\n      \"url\": \"https://mcp.stoory.io/mcp\",\n      \"headers\": { \"x-api-key\": \"YOUR_API_KEY_HERE\" }\n    }\n  }\n}\n```\n</details>\n\n<details>\n<summary><strong>Windsurf</strong></summary>\n\nAdd to `~/.codeium/windsurf/mcp_config.json` — note the field is\n`serverUrl`, not `url`:\n\n```json\n{\n  \"mcpServers\": {\n    \"stoory\": {\n      \"serverUrl\": \"https://mcp.stoory.io/mcp\",\n      \"headers\": { \"x-api-key\": \"YOUR_API_KEY_HERE\" }\n    }\n  }\n}\n```\n</details>\n\n<details>\n<summary><strong>VS Code</strong></summary>\n\nAdd to `.vscode/mcp.json` — note the root key is `servers`, not\n`mcpServers`, and each entry needs `\"type\": \"http\"`:\n\n```json\n{\n  \"servers\": {\n    \"stoory\": {\n      \"type\": \"http\",\n      \"url\": \"https://mcp.stoory.io/mcp\",\n      \"headers\": { \"x-api-key\": \"YOUR_API_KEY_HERE\" }\n    }\n  }\n}\n```\n</details>\n\n<details>\n<summary><strong>Codex CLI</strong></summary>\n\nAdd to `~/.codex/config.toml`:\n\n```toml\n[mcp_servers.stoory]\nurl = \"https://mcp.stoory.io/mcp\"\nhttp_headers = { \"x-api-key\" = \"YOUR_API_KEY_HERE\" }\n```\n</details>\n\n### 3. Ask for help\n\n> \"My AI assistant keeps breaking my Stripe integration. Find me someone who can fix it.\"\n\nThat's it — the assistant searches, drafts the task, shows you cost and\nfiles before anything is sent, and waits for your go-ahead.\n\n---\n\n## Tools\n\n| Tool | What it does |\n|---|---|\n| `search_specialists` | Semantic search over Stoory's specialist marketplace |\n| `create_task` | Drafts and sends a task to one or more chosen specialists (requires explicit user confirmation) |\n| `get_task_status` | Checks whether a specialist has accepted / is working / has finished |\n| `get_task_result` | Returns the link to the task's private result repo |\n| `get_task_repo_files` | Reads the result files directly, so the assistant can review the work itself |\n| `cancel_task` | Cancels a task before a specialist has accepted it |\n\n---\n\n## How it works\n\n```\n\"I need a GDPR specialist\"\n        │\n        ▼\nAI searches the marketplace, you pick a specialist\n        │\n        ▼\nAI drafts the task + selects only the needed files\n        │\n        ▼\nYou confirm cost and file list\n        │\n        ▼\nPrivate GitHub workspace created, specialist invited\n        │\n        ▼\nYou pull the result back into your AI workspace\n```\n\n---\n\n## Security & privacy\n\n**Your private data doesn't need to become public just because you need\nhuman help.**\n\n- Your assistant chooses which files to share — never the whole repo.\n- Every task with attachments gets its own **private** GitHub repo, visible\n  only to the invited specialist.\n- Files are scanned for secrets (`.env`, private keys, API keys/tokens)\n  before anything leaves your machine.\n- Nothing is shared, and no task is created, without your explicit\n  confirmation.\n\n---\n\n## Example\n\n```\nUser: \"I've built my SaaS with AI. I need a privacy policy\n       and terms of service before I can launch.\"\n\nAI: 5 relevant specialists found.\n\nUser: \"Use #2, budget $200.\"\n\nAI: Creates the task, writes the brief, selects the relevant\n    project files, opens a private repo, and shares it with\n    the specialist. Done.\n```\n\n---\n\n## Community & support\n\n- Marketplace & signup: [stoory.io](https://stoory.io)\n- Issues / bugs: [GitHub Issues](https://github.com/StooryGitServer/stoory-mcp-server/issues)\n- MCP Registry entry: `io.github.stoorygitserver/stoory-mcp`\n\n---\n\n## Are you a specialist?\n\nStoory MCP recommends specialists from Stoory's marketplace to clients —\nif you're a developer, designer, lawyer, marketer, or any other freelancer,\na free profile makes you eligible to get invited. No commission, ever.\n[Create your free profile at stoory.io/for-specialists](https://stoory.io/for-specialists).\n\n---\n\n## Disclaimer\n\nStoory MCP does not replace your AI assistant and does not perform payments\nor hiring decisions on its own — it prepares the task and hands the decision\nto you. Stoory does not process payments: client and specialist settle\npayment for the work directly between themselves, entirely outside Stoory.\n",
+  "status": "curated"
+}

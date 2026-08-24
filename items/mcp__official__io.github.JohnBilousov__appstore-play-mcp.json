@@ -1,0 +1,85 @@
+{
+  "id": "mcp:official/io.github.JohnBilousov/appstore-play-mcp",
+  "type": "mcp",
+  "name": "App Store & Google Play",
+  "description": "Read-only access to App Store Connect and Google Play: apps, releases, and reviews.",
+  "author": "io.github.JohnBilousov",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/JohnBilousov/appstore-play-mcp",
+    "repo": "JohnBilousov/appstore-play-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "appstore-play-mcp"
+    ],
+    "env": [
+      {
+        "name": "ASC_KEY_ID",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "ASC_ISSUER_ID",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "ASC_KEY_PATH",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "PLAY_SERVICE_ACCOUNT_PATH",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "PLAY_PACKAGES",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-24T12:19:27.195959Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# appstore-play-mcp\n\n[![CI](https://github.com/JohnBilousov/appstore-play-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/JohnBilousov/appstore-play-mcp/actions/workflows/ci.yml)\n[![npm](https://img.shields.io/npm/v/appstore-play-mcp)](https://www.npmjs.com/package/appstore-play-mcp)\n[![license](https://img.shields.io/npm/l/appstore-play-mcp)](./LICENSE)\n\nA **read-only** MCP server for App Store Connect and Google Play. One set of tools over\nboth stores, so you can ask \"what's live, what's in review, and what are people\ncomplaining about?\" once instead of twice.\n\n```\n> Which of my apps have a release that isn't live yet?\n\n  Pocket Herbarium (App Store)\n    app-store: 2.1.0 (214) — in review\n  Pocket Herbarium (Google Play)\n    production: 2.0.3 (208) — rolling out at 20%\n    beta: 2.1.0 (214) — live\n```\n\nBuilt for indie developers who ship to both stores and are tired of two consoles, two\nauth schemes, and two vocabularies for the same thing.\n\n**Nothing here writes.** No metadata edits, no submissions, no review replies. Every\ntool is annotated `readOnlyHint`, and the test suite fails if that ever stops being true.\n\n## Try it in 30 seconds\n\nNo Apple key, no Google service account:\n\n```bash\nnpx -y appstore-play-mcp --demo\n```\n\nDemo mode serves fixtures for a fictional two-app developer — including a version stuck\nin review and a staged rollout at 20%, because those are the states worth looking at.\n\n```bash\nnpx @modelcontextprotocol/inspector npx -y appstore-play-mcp --demo\n```\n\n## Tools\n\n| Tool | What it does |\n|---|---|\n| `stores_health` | Which stores are configured and whether their credentials work. |\n| `list_apps` | Every reachable app, both stores, one list. |\n| `get_app` | One app by App Store id, Play package name, or bundle id. |\n| `get_releases` | What's live, in review, or mid-rollout — one app or the whole portfolio. |\n| `get_reviews` | Recent reviews from both stores, merged and sorted. `maxRating: 2` to triage complaints. |\n\n`appId` is optional on `get_releases` and `get_reviews`. Leave it out and the tool\nsweeps every app you have — that's the portfolio view.\n\n### One vocabulary for two stores\n\nThe App Store has `appStoreVersions` with an `appVersionState`; Play has tracks holding\nreleases with a `status` and a rollout fraction. Both are normalised:\n\n| Normalised `state` | App Store | Google Play |\n|---|---|---|\n| `live` | `READY_FOR_DISTRIBUTION` | `completed` |\n| `in_review` | `IN_REVIEW`, `WAITING_FOR_REVIEW` | — |\n| `pending_developer_release` | `PENDING_DEVELOPER_RELEASE` | — |\n| `rejected` | `REJECTED`, `METADATA_REJECTED` | — |\n| `rolling_out` | — | `inProgress` with `userFraction < 1` |\n| `halted` | — | `halted` |\n| `draft` | `PREPARE_FOR_SUBMISSION` | `draft` |\n\nEach store's own wording is preserved in `rawState`, so nothing is lost in translation.\n\nReviews get the same treatment, with one honest exception: the stores do not report the same\nthing about where a review came from, so they do not share a field.\n\n| Field | App Store | Google Play |\n|---|---|---|\n| `territory` | ISO country (`DEU`, `USA`) | — not exposed |\n| `language` | — not exposed | reviewer's language (`pl`, `en`) |\n| `device` | — not exposed | device model |\n| `appVersion` | — not exposed | version reviewed |\n\nCollapsing a language into a country field would have made the unified shape look tidier and\nreport something false, so each store fills only what it actually knows.\n\n## Setup\n\nListed in the [MCP Registry](https://registry.modelcontextprotocol.io) as `io.github.JohnBilousov/appstore-play-mcp`, so clients that read the registry can find it on\ntheir own.\n\nEither store works on its own — configure one, both, or neither (fixtures).\n\n<details open>\n<summary><b>App Store Connect</b></summary>\n\nIn App Store Connect → **Users and Access → Integrations → App Store Connect API**,\ncreate a key and download the `.p8` (Apple lets you download it once).\n\n```bash\nexport ASC_KEY_ID=XXXXXXXXXX\nexport ASC_ISSUER_ID=00000000-0000-0000-0000-000000000000\nexport ASC_KEY_PATH=/path/to/AuthKey_XXXXXXXXXX.p8\n```\n\nThe server signs its own ES256 JWT — no fastlane, no extra dependency. `ASC_PRIVATE_KEY`\ntakes the key inline instead, for CI.\n\n</details>\n\n<details>\n<summary><b>Google Play</b></summary>\n\nCreate a service account in Google Cloud, enable the **Android Publisher API** for its\nproject, then grant it access in Play Console → **Users and permissions**.\n\n```bash\nexport PLAY_SERVICE_ACCOUNT_PATH=/path/to/service-account.json\nexport PLAY_PACKAGES=com.example.app,com.example.other\n```\n\n`PLAY_PACKAGES` is not optional: **the Play API has no endpoint that lists a developer's\napps**, so the packages have to be declared. `PLAY_SERVICE_ACCOUNT_JSON` takes the JSON\ninline instead, for CI.\n\n</details>\n\n<details>\n<summary><b>MCP client config</b></summary>\n\n```json\n{\n  \"mcpServers\": {\n    \"stores\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"appstore-play-mcp\"],\n      \"env\": {\n        \"ASC_KEY_ID\": \"XXXXXXXXXX\",\n        \"ASC_ISSUER_ID\": \"00000000-0000-0000-0000-000000000000\",\n        \"ASC_KEY_PATH\": \"/path/to/AuthKey_XXXXXXXXXX.p8\",\n        \"PLAY_SERVICE_ACCOUNT_PATH\": \"/path/to/service-account.json\",\n        \"PLAY_PACKAGES\": \"com.example.app\"\n      }\n    }\n  }\n}\n```\n\nClaude Code:\n\n```bash\nclaude mcp add stores -- npx -y appstore-play-mcp\n```\n\n</details>\n\n## Platform limits worth knowing\n\nThese are the stores' constraints, not the server's:\n\n- **Play cannot list your apps.** Hence `PLAY_PACKAGES`.\n- **Play reviews go back about a week**, and only exist for apps that have reviews.\n- **Play track data is only readable inside an \"edit.\"** Every read here opens a\n  transient edit and deletes it in a `finally` block. Nothing is ever committed, so your\n  app is not modified — but that is why a read-only server makes a POST.\n- **App Store reviews are per-territory** and can lag the store page by a few hours.\n\n## Design notes\n\n**Two credentials, one interface.** `AppStoreClient` and `PlayClient` both implement\n`StoreClient`; a `DemoStoreClient` implements it a third time on fixtures. Tools never\nbranch on which store they are talking to.\n\n**One store failing doesn't sink the call.** Reads fan out across stores and across apps, and\na failure on either axis is collected rather than thrown. If Play is down, App Store reviews\nstill come back — with the Play failure named in the text and listed in `unavailable`, so the\nmodel can tell the user the answer is partial. An empty list and a broken credential must never\nlook the same; a test asserts they don't.\n\n**Errors carry the fix.** A `403` from Play says the service account may lack access *or*\nthe Android Publisher API may be disabled for its project. A `404` says to call\n`list_apps`. The model can usually recover without the user intervening.\n\n**Tokens are cached and refreshed early.** ES256 for Apple (20 min), RS256 → OAuth2 for\nGoogle (1 hour), both refreshed a minute before expiry so no call races the boundary. The Play\nside also memoizes the in-flight exchange: `listApps()` opens an edit per package concurrently,\nand without that, each concurrent caller would see no cached token yet and mint its own.\n\n## Development\n\n```bash\ngit clone https://github.com/JohnBilousov/appstore-play-mcp && cd appstore-play-mcp\nnpm install\nnpm run build\nnpm test          # tool surface + both auth clients against a mocked fetch, real key material throughout\nnpm run lint      # eslint\nnpm run format    # prettier --write\nnpm run inspect\n```\n\nCI runs `typecheck`, `lint`, `format:check`, `test`, and `build` on every push and pull request.\n\n```\nsrc/\n  index.ts          CLI entry, stdio transport\n  config.ts         env → Config; either store optional, fixtures as the floor\n  server.ts         tools + the registry that fans reads across stores\n  schemas.ts        zod input and output shapes\n  format.ts         human-readable summaries next to structuredContent\n  stores/\n    types.ts        shared vocabulary + state normalisation\n    appstore.ts     App Store Connect (ES256 JWT)\n    play.ts         Google Play (service account → OAuth2)\n    demo.ts         fixtures\ntest/\n  server.test.ts    tool surface, state normalisation, portfolio sweeps — over a real MCP transport\n  stores/\n    appstore.test.ts  ES256 signing verified against the public key, token caching, error mapping\n    play.test.ts       RS256/OAuth2 exchange, the transient-edit cleanup, the concurrency fix above\n```\n\n## Releasing\n\nPublishing uses npm's [trusted publishing](https://docs.npmjs.com/trusted-publishers/) (OIDC) —\nno `NPM_TOKEN` secret, nothing that can leak or expire. One-time setup on npmjs.com, under the\npackage's **Settings → Trusted publishing → GitHub Actions**: organization `JohnBilousov`, this\nrepository, workflow filename `publish.yml`.\n\nTo cut a release: bump the version in `package.json`, `server.json`, and `VERSION` in\n`src/server.ts` together (a test asserts they can't drift), commit, push, then publish a GitHub\nRelease with a matching `vX.Y.Z` tag. That triggers\n[`.github/workflows/publish.yml`](.github/workflows/publish.yml), which runs the test suite and\npublishes to npm with [provenance](https://docs.npmjs.com/generating-provenance-statements) — the\npackage page shows a verified link back to this exact commit and workflow run, not just a name on\nthe registry.\n\n## Roadmap\n\n- [ ] Sales and download reports from App Store Connect (needs a vendor number)\n- [ ] Crash and ANR vitals from the Play Developer Reporting API\n- [ ] TestFlight builds and tester groups\n- [ ] Streamable HTTP transport alongside stdio\n\nContributions welcome — especially from anyone who ships to both stores and has hit a\nlimit worth documenting here.\n\n## License\n\nMIT © Ivan Bilousov\n",
+  "status": "curated"
+}

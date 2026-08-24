@@ -1,0 +1,85 @@
+{
+  "id": "mcp:official/io.github.MoleCare/molecare-mcp",
+  "type": "mcp",
+  "name": "molecare-mcp",
+  "description": "Educational dermatology knowledge and lesion tooling. No credentials needed. Not a medical device.",
+  "author": "io.github.MoleCare",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/MoleCare/molecare-mcp",
+    "repo": "MoleCare/molecare-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "molecare-mcp"
+    ],
+    "env": [
+      {
+        "name": "MOLECARE_API_URL",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "MOLECARE_API_KEY",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "MLFLOW_TRACKING_URI",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "AWS_REGION",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "LOG_LEVEL",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-24T15:34:16.794931Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# MoleCare MCP Server\n\n[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](./LICENSE)\n[![Node](https://img.shields.io/badge/node-%3E%3D18-brightgreen.svg)](https://nodejs.org)\n[![MCP](https://img.shields.io/badge/MCP-compatible-purple.svg)](https://modelcontextprotocol.io)\n\n**Model Context Protocol (MCP) server** that gives Claude and other MCP clients access to:\n\n1. **Dermatology knowledge** — ABCDE education, SNOMED CT / ICD-10 helpers, risk-factor prompts  \n2. **Optional MoleCare API tools** — moles, trends, analysis (your backend + API key)  \n3. **Optional MLOps / ops tools** — health checks, MLflow, feature store, infra (mock-first)\n\n> **Not a medical device.** Outputs are educational and operational aids only. Do not use for diagnosis or treatment decisions.\n\nProduct site: [molecare.co.uk](https://www.molecare.co.uk/) · App: [iOS](https://apps.apple.com/us/app/molecare/id1448635328) · [Android](https://play.google.com/store/apps/details?id=com.mymolecare)\n\n---\n\n## Why this exists\n\nMoleCare helps people **track moles over time** and prepare for clinician visits. This MCP server lets developers and operators:\n\n- Query educational skin-health knowledge from Claude Desktop / Cursor  \n- Prototype assistant flows against a MoleCare-compatible API  \n- Explore MLOps tooling with **safe mock data** when no credentials are set  \n\n---\n\n## Quick start\n\nNo credentials, no database, no cloud account. Add this to your MCP client config\nand restart it:\n\n```json\n{\n  \"mcpServers\": {\n    \"molecare\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"molecare-mcp\"]\n    }\n  }\n}\n```\n\nFor Claude Desktop on macOS that file is\n`~/Library/Application Support/Claude/claude_desktop_config.json`.\n\nThe dermatology knowledge tools work immediately — they read from a knowledge base\nbundled in the package. Everything that talks to a backend returns clearly-labelled\nmock data until you configure it, so you can explore the whole tool surface before\ndeciding whether you want any of it.\n\nTo try it without a client at all:\n\n```bash\nnpx -y molecare-mcp\n```\n\nIt starts and waits on stdio. No output means it is working.\n\n---\n\n## Connecting a real backend\n\nOnly needed if you are running a MoleCare-compatible API:\n\n```json\n{\n  \"mcpServers\": {\n    \"molecare\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"molecare-mcp\"],\n      \"env\": {\n        \"MOLECARE_API_URL\": \"http://localhost:8080/api\",\n        \"MOLECARE_API_KEY\": \"your-local-api-key\"\n      }\n    }\n  }\n}\n```\n\nUse **localhost** (or your own deployment). Do not paste production keys into config\nfiles that sync to cloud drives.\n\n---\n\n## Environment variables\n\nAll optional unless you want live backends.\n\n| Variable | Purpose | Example |\n|----------|---------|---------|\n| `MOLECARE_API_URL` | MoleCare HTTP API | `http://localhost:8080/api` |\n| `MOLECARE_API_KEY` | API bearer / key | `local-dev-key` |\n| `ONTOLOGY_API_URL` | Ontology service | `http://localhost:8081` |\n| `MLFLOW_TRACKING_URI` | MLflow | `http://localhost:5000` |\n| `FEAST_REPO_PATH` / feature store URL | Feast | — |\n| `AWS_REGION` | EC2 / CloudWatch clients | `us-east-1` |\n| `GITHUB_TOKEN` | CI/CD tools | — |\n| `MCP_HEALTH_PORT` | Bind an HTTP `/health` endpoint. Unset by default — stdio clients do not need it | `3000` |\n| `PORT` | Same, for container health probes | `3000` |\n\nSee [`.env.example`](./.env.example).\n\n---\n\n## Tools\n\n### Dermatology knowledge — no setup required\n\nThese are the reason most people install this. They answer from a bundled knowledge\nbase and need no API, no key, and no network.\n\n| Tool | Description |\n|------|-------------|\n| `search_medical_info` | Search the dermatology knowledge base |\n| `lookup_medical_concept` | Look up a SNOMED CT concept |\n| `search_medical_concepts` | Search conditions by name or description |\n| `map_snomed_to_icd10` | Map a SNOMED CT code to ICD-10 |\n| `classify_lesion_features` | ABCDE-style feature descriptors for a lesion |\n| `assess_risk_from_factors` | Educational risk scoring from stated risk factors |\n| `get_condition_risk_factors` | Known risk factors for a condition |\n| `get_condition_progression` | Typical progression stages for a condition |\n| `get_malignant_conditions` | Malignant skin conditions with codes |\n\n**Resources:** `molecare://knowledge/*` — ABCDE criteria, Fitzpatrick skin types,\nprevention, when to see a dermatologist, SNOMED CT and ICD-10 references.\n\n### MoleCare product data — needs an API\n\nReturns labelled mock data until `MOLECARE_API_URL` is set.\n\n| Tool | Description |\n|------|-------------|\n| `get_user_moles` | List moles for a user id |\n| `get_mole_analysis` | Analysis payload for a mole |\n| `get_mole_changes` | Change history for a mole |\n| `get_user_risk_factors` | A user's risk profile |\n| `compare_moles` | Compare two moles |\n\n<details>\n<summary><b>Operations and MLOps tooling</b> (~35 tools — MoleCare's own infrastructure)</summary>\n\nThese exist because MoleCare operates this stack from an assistant. They are of\nlittle use outside that context, and all of them return mock data unless the\nmatching backend is configured.\n\n| Area | Tools |\n|------|-------|\n| Health | `get_system_health`, `check_server_health`, `get_service_health`, `clear_cache` |\n| MLflow | `get_mlflow_experiments`, `get_mlflow_runs`, `get_registered_models`, `get_model_version`, `compare_model_runs`, `get_training_runs` |\n| Feature store | `get_feature_views`, `get_feature_view_details`, `get_feature_freshness`, `get_online_features`, `get_feature_store_stats` |\n| CI/CD | `get_pipeline_runs`, `get_pipeline_summary`, `get_deployments`, `get_deployment_status`, `get_releases` |\n| AWS | `get_ec2_instances`, `get_ec2_instance`, `get_ec2_health`, `get_ec2_metrics` |\n| Apps | `get_app_status`, `get_web_app_status`, `get_mobile_api_status`, `get_all_apps_status`, `get_app_metrics`, `get_app_errors`, `get_app_versions`, `get_app_store_status` |\n| Database | `get_database_status`, `get_database_metrics`, `get_slow_queries`, `get_table_stats`, `get_backup_history`, `get_connection_pools` |\n| Kubernetes | `get_kubernetes_status` |\n\nThe AWS tools need `@aws-sdk/client-ec2` and `@aws-sdk/client-cloudwatch`, which are\n**optional peer dependencies** — they are not installed by default, because they add\n33 MB that nobody wanting the dermatology tools should have to download. Install them\nyourself if you want live AWS data:\n\n```bash\nnpm i @aws-sdk/client-ec2 @aws-sdk/client-cloudwatch\n```\n\n</details>\n\n---\n\n## Architecture\n\n```\nClaude / Cursor / MCP client\n        │ stdio (JSON-RPC)\n        ▼\n  molecare-mcp\n   ├─ medical KB (local)\n   ├─ MoleCare API client (optional)\n   ├─ ontology / MLflow / Feast clients (optional)\n   └─ AWS / CI clients (optional, mock if unset)\n        │\n        └─ optional HTTP GET /health  (Docker / ECS)\n```\n\n---\n\n## Docker\n\n```bash\ndocker build -t molecare-mcp .\ndocker run --rm -p 3000:3000 molecare-mcp\ncurl http://localhost:3000/health\n```\n\n---\n\n## Security\n\n- Never commit `.env` files or API keys — see [SECURITY.md](./SECURITY.md) to report a vulnerability  \n- Prefer mock mode for demos and screenshots  \n- Tools that accept `userId` can return PHI **only if** you point them at a real backend with real auth — treat that as production  \n- Rate-limit and auth belong on your API, not only on the MCP process  \n\n---\n\n## Medical disclaimer\n\nMoleCare MCP provides **educational** information and developer tooling. It does **not** diagnose melanoma or any disease. Always consult a qualified clinician for medical concerns.\n\n---\n\n## Development\n\n```bash\ngit clone https://github.com/MoleCare/molecare-mcp.git\ncd molecare-mcp\nnpm install\nnpm run build\nnpm run dev      # auto-reload\nnpm run inspect  # browse tools in MCP Inspector\n```\n\nContributions are welcome. Read [CONTRIBUTING.md](./CONTRIBUTING.md) first — it covers the mock-first rule,\nthe clinical-safety boundary for anything touching medical content, and how to pick up a `good first issue`.\n\nPlease keep secrets out of examples and prefer localhost defaults.\n\n---\n\n## Related\n\n> **Environment variables:** `.env.example` is the authoritative list (all 27 variables read by the source). Regenerate the ground truth with `grep -rhoE \"process\\.env\\.[A-Z_0-9]+\" src/`. `ONTOLOGY_API_URL` and `FEAST_REPO_PATH` are not read by any source file.\n\n- [Model Context Protocol](https://modelcontextprotocol.io)  \n- [MoleCare](https://www.molecare.co.uk/)  \n- [MoleCare-ML](https://github.com/MoleCare/MoleCare-ML) — melanoma classification service and training notebooks\n\n---\n\n## License\n\n[Apache-2.0](./LICENSE) © MoleCare LTD\n",
+  "status": "curated"
+}

@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/com.bynn/bynn",
+  "type": "mcp",
+  "name": "Bynn",
+  "description": "Document fraud detection for manipulated, fake and AI-generated PDF and image documents.",
+  "author": "com.bynn",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/Bynn-Intelligence/skills",
+    "repo": "Bynn-Intelligence/skills"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://mcp.bynn.com"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-24T14:20:31.801825Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "写作",
+    "featured": false
+  },
+  "readme": "# Bynn Agent Skills\n\nOfficial [Agent Skills](https://agentskills.io) for **Bynn**, **Agemin**, and\n**Detector24**. They teach any coding agent how to integrate **document fraud detection** for\nmanipulated, fake and AI-generated PDF and image documents, plus identity verification,\nage verification, and content detection, including the parts that are easy to get subtly\nand dangerously wrong.\n\nWorks with Claude Code, Cursor, Codex, Copilot, Gemini CLI, OpenCode, Windsurf, Zed, and\nevery other agent the `skills` CLI supports.\n\n## Onboard an agent in one shot\n\nPoint any coding agent at [`agent-setup.md`](agent-setup.md) and it will install the skills\nand wire up the MCP server itself:\n\n```\nFollow https://github.com/Bynn-Intelligence/skills/blob/main/agent-setup.md\n```\n\nIt covers Claude Code, Cursor, VS Code, Windsurf, Zed, Claude Desktop, ChatGPT, and\nheadless or CI setups, and tells the agent what to verify before it reports success.\n\n## Install\n\nAny agent:\n\n```bash\nnpx skills add Bynn-Intelligence/skills\n```\n\nThe installer shows a picker grouped by product (Bynn, Agemin, Detector24), so you can\ntoggle a whole product with one keypress on its group header. Press `a` to select\neverything. Nothing is pre-selected, which is the CLI's behaviour and not configurable\nper repository.\n\nTo skip the picker entirely:\n\n```bash\n# every skill, every detected agent, no prompts\nnpx skills add Bynn-Intelligence/skills --all\n\n# every skill, but choose the agents yourself\nnpx skills add Bynn-Intelligence/skills --skill '*'\n\n# just one product's skills\nnpx skills add Bynn-Intelligence/skills --skill bynn --skill bynn-mcp --skill bynn-kyc-sessions\n```\n\nRunning inside a coding agent skips the picker on its own and installs everything.\n\nClaude Code, with the bundled MCP server:\n\n```\n/plugin marketplace add Bynn-Intelligence/skills\n/plugin install bynn@bynn\n```\n\n## What is in here\n\n### `bynn`\n\nThe identity platform. Start with the `bynn` skill: it routes to the rest.\n\n| Skill | Covers |\n|---|---|\n| `bynn` | Router. Auth model, API base, errors, conventions. |\n| `bynn-mcp` | Connecting an agent to `mcp.bynn.com` and driving Bynn through tools. |\n| `bynn-document-fraud` | Forgery, tampering, and AI-generation analysis of documents. |\n| `bynn-kyc-sessions` | Identity verification sessions: liveness, NFC chip reads, preflight. |\n| `bynn-web-sdk` | Embedding verification in a website with `@bynn-intelligence/websdk`. |\n| `bynn-age-verification` | Age estimation and minor detection, selfie and liveness. |\n| `bynn-moderation` | Every detection model over image, video, text, and audio. |\n| `bynn-face-search` | Face collections, enrollment, and 1:N search. |\n| `bynn-autodoc` | Document requests sent over email or SMS. |\n| `bynn-webhooks` | Payloads, the event catalogue, and signature verification. |\n\n### `agemin`\n\nBiometric age verification for websites and apps.\n\n| Skill | Covers |\n|---|---|\n| `agemin` | Router. Asset ID versus private key, and why the browser result is not proof. |\n| `agemin-web-sdk` | `@bynn-intelligence/agemin-sdk`, age gating, SEO bypass, React and Vue. |\n| `agemin-api` | Server-side confirmation, email and selfie checks, reference lookups. |\n\n### `detector24`\n\nDetection models for image, video, audio, and text.\n\n| Skill | Covers |\n|---|---|\n| `detector24` | Reading a model's `input_schema` and `output_schema`, async submission, and the rule that media must never be preprocessed. |\n\n## Credentials\n\nNothing here ships a credential. Each skill says which key it needs and where to get it.\n\n| Product | Get keys at |\n|---|---|\n| Bynn | `https://dashboard.bynn.com` (agent token at `/authenticate`) |\n| Agemin | `https://agemin.com/app` |\n| Detector24 | `https://detector24.ai/app` |\n\n### Connect the MCP server\n\nInstalling skills does not connect the Bynn MCP server: `npx skills add` copies skill files\nonly. Connect it separately to get the Bynn tools.\n\n```bash\nclaude mcp add --transport http bynn https://mcp.bynn.com\n```\n\nThen run `/mcp` and sign in. The Claude Code plugin registers this URL for you, but it\nstays inert until that sign-in completes. For headless use, pass a token instead:\n\n```bash\nclaude mcp add --transport http bynn https://mcp.bynn.com \\\n  --header \"Authorization: Bearer $BYNN_API_TOKEN\"\n```\n\nThe endpoint is the root path. Appending `/mcp` returns a 404. Other clients, including\nClaude Desktop, ChatGPT, Cursor, VS Code, Windsurf, and Zed, are covered in the\n`bynn-mcp` skill.\n\n## Two rules worth reading before you build\n\n**Never preprocess media.** Do not resize, crop, re-encode, or strip metadata before\nsubmitting an image, video, or document for fraud, tampering, or AI-generation analysis.\nThose detectors read artifacts that live in the exact bytes of the original file, and\nprocessing destroys them silently. The result comes back looking clean.\n\n**The browser is never the verdict.** SDK callbacks run on the visitor's own machine.\nConfirm every result server side before unlocking anything.\n\n## Documentation\n\n- Agent onboarding: [`agent-setup.md`](agent-setup.md)\n- Bynn: `https://docs.bynn.com`, spec at `https://api.bynn.com/openapi.json`\n- Agemin: `https://agemin.com/docs`\n- Detector24: `https://detector24.ai/docs`\n\n## License\n\nMIT. See [LICENSE](LICENSE).\n",
+  "status": "curated"
+}

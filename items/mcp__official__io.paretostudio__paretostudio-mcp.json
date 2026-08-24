@@ -1,0 +1,70 @@
+{
+  "id": "mcp:official/io.paretostudio/paretostudio-mcp",
+  "type": "mcp",
+  "name": "paretostudio-mcp",
+  "description": "Read, create, and install your ParetoStudio prompts, agents, and skills from any MCP client.",
+  "author": "io.paretostudio",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/tane994/paretostudio-mcp",
+    "repo": "tane994/paretostudio-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "paretostudio-mcp"
+    ],
+    "env": [
+      {
+        "name": "PARETOSTUDIO_API_KEY",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "PARETOSTUDIO_API_URL",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-24T13:06:57.477253Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "AI",
+    "featured": false
+  },
+  "readme": "# paretostudio-mcp\n\n> Read your ParetoStudio prompt, agent, and skill library from Claude Code, Cursor, and any MCP client. Install agents and skills as files into Claude Code.\n\n## Quick Start\n\n### 1. Get your API key\n\nGo to [paretostudio.io/settings](https://paretostudio.io/settings) and navigate to Developer, then create an API Key.\n\n### 2. Configure your client\n\n**Claude Code** (`.mcp.json` in your project root):\n\n```json\n{\n  \"mcpServers\": {\n    \"paretostudio\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"paretostudio-mcp@latest\"],\n      \"env\": {\n        \"PARETOSTUDIO_API_KEY\": \"psk_your_key_here\"\n      }\n    }\n  }\n}\n```\n\n**Cursor** (Settings > MCP):\n\n```json\n{\n  \"mcpServers\": {\n    \"paretostudio\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"paretostudio-mcp@latest\"],\n      \"env\": {\n        \"PARETOSTUDIO_API_KEY\": \"psk_your_key_here\"\n      }\n    }\n  }\n}\n```\n\n**Claude Desktop** (`claude_desktop_config.json`):\n\n```json\n{\n  \"mcpServers\": {\n    \"paretostudio\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"paretostudio-mcp@latest\"],\n      \"env\": {\n        \"PARETOSTUDIO_API_KEY\": \"psk_your_key_here\"\n      }\n    }\n  }\n}\n```\n\n**Codex** (`~/.codex/config.toml`):\n\n```toml\n[mcp_servers.paretostudio]\ncommand = \"npx\"\nargs = [\"-y\", \"paretostudio-mcp@latest\"]\n\n[mcp_servers.paretostudio.env]\nPARETOSTUDIO_API_KEY = \"psk_your_key_here\"\n```\n\n### 3. Use it\n\nAsk Codex, Claude, or your MCP client to \"list my prompts\" or \"install my agent\" — the tools are available automatically.\n\n## Available Tools\n\n| Tool | Description |\n|------|-------------|\n| `list_prompts` | List all prompts in your library |\n| `get_prompt` | Get full prompt content (all 6 steps) |\n| `search_prompts` | Search prompts by title or description |\n| `list_agents` | List all agents |\n| `get_agent` | Get agent with full configuration |\n| `search_agents` | Search agents |\n| `list_skills` | List all skills |\n| `get_skill` | Get skill with full configuration |\n| `search_skills` | Search skills |\n| `install_skill` | Install skill for Claude or Codex project layouts |\n| `install_agent` | Download agent to `.claude/agents/` |\n| `install_bundle` | Install agent + skills in one operation |\n| `create_prompt` | Create a new prompt |\n| `update_prompt` | Update a prompt |\n| `delete_prompt` | Delete a prompt |\n| `create_skill` | Create a new skill |\n| `update_skill` | Update a skill |\n| `delete_skill` | Delete a skill |\n| `create_agent` | Create a new agent |\n| `update_agent` | Update an agent |\n| `delete_agent` | Delete an agent |\n\nInstall tools never overwrite existing files by default. Pass `overwrite: true`\nonly when you intentionally want to replace an installed agent or skill.\nFor Codex project skills, call `install_skill` with `client: \"codex\"`; the skill\nis written to `.agents/skills/<name>/SKILL.md` instead of `.claude/skills/`.\n\nWrite tools respect your plan's library caps (Free: 5 prompts / 2 agents / 2 skills; Pro and Team: unlimited).\n\n## Rate Limits\n\n| Plan | Daily Requests | Write Access |\n|------|---------------|--------------|\n| Free | 50 | Yes — within plan caps (5 prompts / 2 agents / 2 skills) |\n| Pro | 500 | Yes — unlimited |\n| Team | 500 | Yes — unlimited, shared team library |\n\n## Environment Variables\n\n| Variable | Required | Default | Description |\n|----------|----------|---------|-------------|\n| `PARETOSTUDIO_API_KEY` | Yes | -- | Your API key (starts with `psk_`) |\n| `PARETOSTUDIO_API_URL` | No | `https://paretostudio.io` | API base URL |\n\n## Source\n\nThe server source lives in the ParetoStudio application repository, because it\nimports the same business rules the API enforces (`src/rules/`) — duplicating them\nhere would let the two drift apart. This repository is the public home of the\npublished package: the manifest registries read, the configuration examples, and\nthe documentation.\n\nReleases are automatic: a version bump reaching `main` publishes to npm, and a CI\ngate refuses a build whose server changed since the last bump.\n\n## Links\n\n- [Documentation](https://paretostudio.io/docs/mcp-server)\n- [Get API Key](https://paretostudio.io/settings)\n- [ParetoStudio](https://paretostudio.io)\n\n## Privacy Policy\n\nThe server is a local process on your machine. It talks only to the\nParetoStudio API (`https://paretostudio.io`, or the `PARETOSTUDIO_API_URL` you\nconfigure) using the API key you provide, and sends nothing anywhere else.\nPrivacy policy: [paretostudio.io/privacy](https://paretostudio.io/privacy)\n\n## Security\n\nSee [SECURITY.md](SECURITY.md). Report vulnerabilities to\nsupport@paretostudio.io — not in public issues.\n\n## License\n\nMIT — see [LICENSE](LICENSE).\n",
+  "status": "curated"
+}

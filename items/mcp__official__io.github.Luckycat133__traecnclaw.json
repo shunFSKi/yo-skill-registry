@@ -2,7 +2,7 @@
   "id": "mcp:official/io.github.Luckycat133/traecnclaw",
   "type": "mcp",
   "name": "traecnclaw",
-  "description": "MCP server for TraeCN desktop automation: task delegation, model control, dialogs, code review.",
+  "description": "Local persistent TraeCN coding-task gateway with a focused MCP Agent surface.",
   "author": "io.github.Luckycat133",
   "source": {
     "registry": "mcp-official",
@@ -15,21 +15,16 @@
     "command": "npx",
     "args": [
       "-y",
-      "traecnclaw"
+      "@luckycat133/traecnclaw"
     ],
     "env": [
       {
-        "name": "TRAECN_HOST",
+        "name": "TRAECN_GATEWAY_HOST",
         "required": false,
         "secret": false
       },
       {
-        "name": "TRAECN_PORT",
-        "required": false,
-        "secret": false
-      },
-      {
-        "name": "TRAECN_MCP_TOOL_PROFILE",
+        "name": "TRAECN_GATEWAY_PORT",
         "required": false,
         "secret": false
       },
@@ -42,8 +37,8 @@
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-07-22T06:59:29.691544Z",
-    "score": 37
+    "pushed_at": "2026-08-24T10:34:20.316506Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -72,9 +67,9 @@
     ]
   },
   "tags": {
-    "category": "编程",
+    "category": "办公",
     "featured": false
   },
-  "readme": null,
+  "readme": "# TRAECNclaw MCP Skill\n\n> Generated from canonical TRAECNclaw 0.6.0 at commit `40bcf7707ed9b0ff7938aea8e511d0b87d300705`.\n\nTRAECNclaw is a local-first MCP server and Agent Skill for operating the TraeCN\ndesktop app on the user's Mac. This repository is the public distribution\nmirror: it carries the portable Skill, installable server archives, provenance,\nand marketplace metadata without publishing the private canonical history.\n\nTRAECNclaw exposes MCP contract version 5 with exactly 20 stable,\nsingle-intent tools. The normal Agent flow is:\n\n1. Open a workspace only when needed.\n2. Select model or mode only when needed.\n3. Send one message and release the caller context.\n4. Legacy MCP clients receive a durable notification; modern `2026-07-28`\n   hosts can negotiate Tasks and subscribe to the exact returned task ID.\n\nQueueing, waiting, recovery, routine non-command questions, task ownership, and\ndurable completion remain gateway-managed.\n\nThe local server uses newline-delimited stdio, implements MCP `2026-07-28`, and\nremains compatible with initialization-based `2025-11-25` and `2024-11-05`\nclients. TRAECNclaw contract version 5 is the tool-surface version, not the MCP\nprotocol revision. The independently negotiated, upstream-draft\n`io.modelcontextprotocol/tasks` extension does not add tools.\n\n## Install the server\n\nInstall the exact release through one verified channel:\n\n```sh\nnpm install --global @luckycat133/traecnclaw@0.6.0\n# or, after `brew info` reports 0.6.0\nbrew install Luckycat133/tap/traecnclaw\n```\n\nThe matching [GitHub Release](https://github.com/Luckycat133/traecnclaw-mcp-skill/releases/tag/v0.6.0)\nalso provides the complete scoped npm tarball and deterministic MCPB bundle.\nThe unrelated unscoped `traecnclaw@0.3.1` package is historical and is not a\ncurrent install path.\n\n## Install the Agent Skill\n\nInstall from the public GitHub repository with the open Skills CLI:\n\n```sh\nnpx skills add https://github.com/Luckycat133/traecnclaw-mcp-skill \\\n  --skill traecnclaw-mcp \\\n  -g\n```\n\nOr download the matching Skill archive from the GitHub Release. The Skill lives\nat `.codex/skills/traecnclaw-mcp` and includes\n`assets/mcp-client-config.json`, `scripts/setup-mcp.js`, and the server launcher.\nRestart the Agent host after installing or updating the Skill.\n\nUse `scripts/setup-mcp.js` to validate server discovery and generate the host\nentry. The normal runtime is:\n\n```text\nAgent host -> local stdio server -> gateway on the same Mac -> TraeCN\n```\n\nThe server and gateway run on the same user-owned Mac as TraeCN. Marketplace\ncontainers may inspect the stdio schema, but a cloud container cannot\ntransparently control the user's local TraeCN desktop.\n\nPrepared Official Registry metadata uses the scoped package\n`@luckycat133/traecnclaw@0.6.0` with local stdio transport. Smithery Local\nuses the matching verified MCPB bundle; the retired `smithery.yaml` format\nremains absent.\n\n## Configuration\n\nThe gateway defaults are `TRAECN_GATEWAY_HOST=127.0.0.1` and\n`TRAECN_GATEWAY_PORT=8788`. Non-loopback binds require\n`TRAECN_GATEWAY_TOKEN`. There is no MCP tool-profile setting.\n\n## Discovery channels\n\nThe same public repository is the canonical source for Skill and MCP directory\nsubmissions. A directory listing is trustworthy only when its version, local\nstdio transport, macOS requirement, 20-tool count, and generated install command\nmatch this Release.\n\nSelected channels include ClawHub, Glama, skills.sh, AwesomeSkills.dev,\nMCP.Directory, MCPB/Smithery Local, and—after a current public package exists—the\nOfficial MCP Registry and PulseMCP. Other directories should reuse the same\nprovenance and install copy rather than maintaining forks.\n\n## Glama\n\n`glama.json` and the generated root Dockerfile support directory registration,\nmaintainer verification, security/quality scanning, and tool-schema inspection.\nThe Dockerfile installs the current public Release and never contains a gateway\ntoken or mock bridge.\n\nTRAECNclaw should be listed as a **local stdio server**. Do not describe a Glama\nhosted container as an automatic remote connection to the user's Mac.\n\nSee `SOURCE_REVISION` and `release-manifest.json` for provenance and channel\nreadiness.\n",
   "status": "curated"
 }

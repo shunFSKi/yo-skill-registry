@@ -1,0 +1,64 @@
+{
+  "id": "mcp:official/com.1102tools/gsa-perdiem-mcp",
+  "type": "mcp",
+  "name": "GSA Per Diem",
+  "description": "GSA Per Diem federal travel lodging and meals and incidental expense rates. 6 tools.",
+  "author": "com.1102tools",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/1102tools-dev/federal-contracting-mcps",
+    "repo": "1102tools-dev/federal-contracting-mcps"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "gsa-perdiem-mcp"
+    ],
+    "env": [
+      {
+        "name": "PERDIEM_API_KEY",
+        "required": false,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-24T07:20:47.279426Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "生活",
+    "featured": false
+  },
+  "readme": "# federal-contracting-mcps\n\nFree and open source MCP servers for federal contracting data and policy tracking. SAM.gov, USASpending, GSA CALC+, BLS OEWS, per diem, eCFR, Federal Register, Regulations.gov, and Acquisition.gov are exposed through deterministic tool calls.\n\nYour assistant queries the real APIs instead of recalling what it thinks the FAR says. Same input, same output, every time.\n\nWebsite: [1102tools.com](https://1102tools.com)\n\n## Most users should start with an agent\n\nThe packaged [1102tools agents](https://github.com/1102tools-dev/federal-contracting-agents) already include the source connections required by each guided job. The beginner-facing [Agent Setup Guide](https://1102tools.com/downloads/1102tools-agent-setup-guide.pdf) covers Codex and Claude Code.\n\nUse this repository when you specifically want standalone source servers or custom MCP configurations. Follow each selected server's README and testing record; standalone setup is advanced and self-supported. The MCP-oriented [request library](https://github.com/1102tools-dev/federal-contracting-prompts) remains available as a repository, not a maintained PDF product.\n\n![Architecture diagram showing how a question travels from an AI client to a local MCP server and an official federal source. Regulatory and rulemaking coverage now includes eCFR, Federal Register, Regulations.gov, and Acquisition.gov.](docs/architecture.png)\n\n---\n\n## Safety release v1.0.9 (August 2026)\n\nEvery package enforces a provisional, cross-process anti-burst gate\nbefore every upstream request. SAM.gov, BLS OEWS, USASpending, GSA CALC+,\neCFR, Federal Register, and Acquisition.gov default to one request every 3 seconds. GSA Per\nDiem and Regulations.gov default to 4 seconds and share one `api.data.gov`\nbucket when they use the same key.\n\nThis is a 1102tools safety safeguard, not a statement that every provider\nrequires that exact interval. It protects independently launched MCP and agent\nprocesses on the same computer, honors `Retry-After` without automatically\nretrying, and never writes a raw credential to pacing state. It cannot\ncoordinate the same key running on another computer or create additional\ndaily quota.\n\nSet `FEDERAL_API_MIN_INTERVAL_SECONDS` to a different finite, non-negative\nnumber when you have a documented reason. Setting it to `0` deliberately\ndisables the local gate. `FEDERAL_API_PACING_DIR` overrides the per-user state\ndirectory for managed or temporary environments.\n\nThe release also makes PyPI publication depend on the complete offline test\nmatrix and wheel inspection. Current package versions are listed in each\nserver's changelog and README.\n\n## 1.0.0 stable baseline (August 2026)\n\n**The original eight servers first reached 1.0.0 together.** That was the first stable\nsuite release and the largest update since launch. Acquisition.gov joined at `1.0.0` with the same safety contract. Packages now version\nindependently so a correction to one server does not force no-op releases of\nthe others.\n\n### Rebuilt on v2 of the MCP Python SDK\n\nThe MCP Python SDK, the library every one of these servers is built on, released version 2.0 in July. It renamed its high-level server class from `FastMCP` to `MCPServer` and removed the old module entirely. Every server uses it.\n\nThe original eight retain the same 124 tools, parameters, and responses. Acquisition.gov adds five source-specific tools, bringing the catalog to 129. The dependency is bounded at `mcp>=2.0.0,<3`, so the next major SDK release produces a clean error at install time instead of a crash at startup.\n\n### Two problems this release fixes, and both were affecting people\n\n**BLS wage lookups were returning empty results.** When BLS published its May 2025 OEWS estimates this spring, it withdrew the 2024 series. `bls-oews-mcp` still defaulted to 2024, so any wage query that did not pass an explicit year came back with no values, which is indistinguishable from a privacy-suppressed cell. There was no error and no warning. The default is now 2025, and `detect_latest_year()` will confirm the current year at any time.\n\nIf you pulled wage figures for an IGCE between roughly April and August 2026, re-check them.\n\n**Fresh installs were failing outright.** Every 0.x package declared `mcp>=1.0.0` with no upper limit. When SDK 2.0.0 published on July 28, new installs resolved to it and died immediately with `ModuleNotFoundError: No module named 'mcp.server.fastmcp'`. Existing installs were unaffected, but anyone installing for the first time in that window hit a wall. Bounding the requirement fixes it permanently.\n\nApologies to anyone who lost time to either one.\n\n### Claude Desktop `.mcpb` bundles are discontinued\n\nThe double-click bundles are gone. They could not be signed in a way Claude Desktop recognizes, so every install showed an untrusted-developer prompt with no way to clear it, and the bundle re-resolved its dependencies on every launch rather than pinning them, which made it the install path most exposed to the failure above. The config block in [Install](#install) does the same job with fewer moving parts. Existing bundle installs keep working until removed, but will not receive updates.\n\n### Verified before shipping\n\nThe original eight recorded 5,078 collected regression tests during the v1.0.9 safety validation. Acquisition.gov adds 21 collected tests: 20 deterministic checks pass and one serialized live gate remains opt-in. Its 2026-08-22 release check passed against the index, one model part, one indexed agency PDF, and the FAQ. Per-server detail is in each `testing.md` and `changelog.md`.\n\n---\n\n## Server catalog\n\nAll source lives under `servers/<name>/`. Each server is self-contained: code, tests, per-server README with a copy-paste config block.\n\n**Procurement data**\n- [sam-gov-mcp](servers/sam-gov-mcp): SAM.gov entity registration, exclusions, opportunities, contract awards (FPDS replacement), federal hierarchy, FFATA subawards\n- [usaspending-gov-mcp](servers/usaspending-gov-mcp): federal contract, award, FFATA subaward, recipient, agency, and Treasury federal account data\n- [gsa-calc-mcp](servers/gsa-calc-mcp): GSA CALC+ awarded NTE hourly rates from MAS contracts (230K+ records)\n- [bls-oews-mcp](servers/bls-oews-mcp): BLS OEWS market wage data across ~830 occupations and 530+ metros\n- [gsa-perdiem-mcp](servers/gsa-perdiem-mcp): federal travel lodging and M&IE rates for all CONUS\n\n**Regulatory and policy tracking**\n- [ecfr-mcp](servers/ecfr-mcp): current CFR text updated daily, FAR / DFARS / agency supplement lookups\n- [federal-register-mcp](servers/federal-register-mcp): proposed rules, final rules, notices, executive orders, FAR cases\n- [regulations-gov-mcp](servers/regulations-gov-mcp): federal rulemaking dockets, public comments, comment period tracking\n- [acquisition-gov-mcp](servers/acquisition-gov-mcp): RFO model-part pages, the official posted agency-deviation index, indexed deviation PDFs, and approved RFO guidance\n\nCombined: 129 deterministic tool calls and 5,099 collected package tests. The Acquisition.gov live source gate passed on 2026-08-22; future releases must repeat it because upstream content and availability can change.\n\n## Install\n\nRequires Python 3.10+ and [uv](https://docs.astral.sh/uv/). MCP is an open standard, but standalone client setup is outside the beginner support path. Use the exact configuration and current evidence in the selected server directory.\n\n**1. Register the free API keys you need.** [BLS](https://data.bls.gov/registrationEngine/), [api.data.gov](https://api.data.gov/signup/) (covers Per Diem and Regulations.gov), [SAM.gov](https://sam.gov/). USASpending, GSA CALC+, eCFR, Federal Register, and Acquisition.gov need no key.\n\n**2. Add the servers you want to your client config.** Configuration surfaces differ by client. Use the selected server's README as the source of truth, verify the server starts, and confirm its tools are actually visible before relying on it.\n\n```json\n{\n  \"mcpServers\": {\n    \"ecfr\": {\n      \"command\": \"uvx\",\n      \"args\": [\"--refresh-package\", \"ecfr-mcp\", \"--from\", \"ecfr-mcp\", \"ecfr-mcp\"]\n    },\n    \"sam-gov\": {\n      \"command\": \"uvx\",\n      \"args\": [\"--refresh-package\", \"sam-gov-mcp\", \"--from\", \"sam-gov-mcp\", \"sam-gov-mcp\"],\n      \"env\": { \"SAM_API_KEY\": \"your-key-here\" }\n    }\n  }\n}\n```\n\nThe `--refresh-package` flag tells uv to check PyPI for a newer release each time your client launches the server, so fixes and new tools arrive automatically. Without it, uv keeps serving whatever version it first cached. It adds a moment of network time at startup; if your platform enforces a short MCP startup timeout, raise it (the setup guide covers this per platform).\n\n**3. Restart the client.** Each server's README has its own block with the correct package name and environment variable.\n\nDocker images and a [Smithery](https://smithery.ai) config ship with each server for hosted or containerized setups.\n\nIf you are pinned to `mcp` 1.x and cannot move, stay on the 0.x line of each package.\n\n## Repo layout\n\n```\nfederal-contracting-mcps/\n├── servers/\n│   ├── bls-oews-mcp/\n│   ├── acquisition-gov-mcp/\n│   ├── ecfr-mcp/\n│   ├── federal-register-mcp/\n│   ├── gsa-calc-mcp/\n│   ├── gsa-perdiem-mcp/\n│   ├── regulations-gov-mcp/\n│   ├── sam-gov-mcp/\n│   └── usaspending-gov-mcp/\n├── license\n└── readme.md\n```\n\nEach server directory ships its own `pyproject.toml`, source, regression tests, Dockerfile, and testing record.\n\n## Companion repo\n\n[federal-contracting-skills](https://github.com/1102tools-dev/federal-contracting-skills): portable skills that orchestrate these MCPs into acquisition deliverables and evidence workflows, including SOW/PWS, three IGCE methods, OT scope and cost, market research, GovCon growth, and acquisition policy.\n\nMCPs handle data. Skills handle deliverables.\n\n## Why MCPs (and not skills for the API calls)\n\n- **Deterministic.** MCP servers execute tested Python. Claude does not generate API-call code on the fly. Same input, same output.\n- **Low context cost.** Tool schemas are ~100 tokens each. The deprecated API-data skills cost 500-1000 lines of context per run.\n- **Production-hardened.** Each MCP went through 3-6 audit rounds with live testing against its production API.\n- **Portable protocol.** MCP is an open standard, so the same source server can be configured in multiple compatible clients. Current support claims remain bounded by each server's testing record.\n\n## Website\n\n[1102tools.com](https://1102tools.com)\n\n## License\n\nMIT\n\n## Author\n\nBuilt by [James Jenrette](https://www.linkedin.com/in/jamesjenrette/), lead systems analyst and contracting officer. Independently developed and not endorsed by any federal agency.\n",
+  "status": "curated"
+}

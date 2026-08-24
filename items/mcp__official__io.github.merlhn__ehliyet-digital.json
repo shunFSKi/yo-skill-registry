@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.merlhn/ehliyet-digital",
+  "type": "mcp",
+  "name": "ehliyet-digital",
+  "description": "Türkiye ehliyet sınavı hazırlık: 200 çıkmış soru, 76 hap bilgi, 43 ders özeti, deneme sınavı.",
+  "author": "io.github.merlhn",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/merlhn/ehliyet",
+    "repo": "merlhn/ehliyet"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://ehliyet-production.up.railway.app/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-24T15:25:03.040303Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# ehliyet.digital\n\n**Türkiye ehliyet (sürücü belgesi) sınavına ücretsiz hazırlık platformu.**\n\nMEB MTSK müfredatına uygun 43 ders notu, 76 hap bilgi, 200 çıkmış sınav sorusu ve gerçek formatta deneme sınavları. Reklamsız, açık kaynak.\n\n🌐 **Site:** [ehliyet.digital](https://ehliyet.digital)\n📄 **LLM dizini:** [llms.txt](https://ehliyet.digital/llms.txt) · [llms-full.txt](https://ehliyet.digital/llms-full.txt)\n🔌 **MCP:** [ehliyet-production.up.railway.app/mcp](https://ehliyet-production.up.railway.app/mcp) · [MCP Market](https://mcpmarket.com/server/ehliyet-digital) · [Smithery](https://smithery.ai/servers/omerlhn/ehliyet-digital) · MCP Registry: `io.github.merlhn/ehliyet-digital`\n\n---\n\n## Ne içerir?\n\n| İçerik | Adet | Açıklama |\n|--------|------|----------|\n| Ders notları | 43 | 4 kategoride sınav odaklı konu anlatımı |\n| Hap bilgiler | 76 | Tek cümlelik ezberlenecek kurallar |\n| Atomik özetler | ~560 | Her ders sayfasında makine-okunur bilgi satırları |\n| Sınav soruları | 200 | 4 deneme sınavından çıkmış sorular + cevaplar |\n| Bireysel soru sayfaları | 186 | Her soru kendi URL'inde, cevap + açıklama ile |\n| Bireysel hap bilgi sayfaları | 76 | Her hap bilgi kendi URL'inde, bağlam + ilgili ders ile |\n\n### Ders kategorileri\n\n| Kategori | Konu sayısı | Sınav dağılımı |\n|----------|-------------|----------------|\n| İlk Yardım | 12 | 12 soru (%24) |\n| Trafik ve Çevre Bilgisi | 11 | 23 soru (%46) |\n| Araç Tekniği (Motor) | 15 | 9 soru (%18) |\n| Trafik Adabı | 5 | 6 soru (%12) |\n\n### Sınav formatı\n\n- 50 soru, 45 dakika\n- Her doğru cevap 2 puan, yanlış doğruyu götürmez\n- Geçme notu: 70 puan (en az 35 doğru)\n\n---\n\n## API\n\nTüm verilere programatik erişim — CORS açık, kimlik doğrulama yok.\n\n### REST API (Vercel)\n\n```bash\n# 5 rastgele İlk Yardım sorusu\ncurl \"https://ehliyet.digital/api/questions?section=ilk_yardim&count=5\"\n\n# Trafik ve Çevre hap bilgileri\ncurl \"https://ehliyet.digital/api/quick-facts?section=trafik_ve_cevre\"\n\n# 50 soruluk deneme sınavı (gerçek dağılımla)\ncurl \"https://ehliyet.digital/api/mock-exam\"\n\n# Fren sistemi ders özeti\ncurl \"https://ehliyet.digital/api/lesson-summary?section=arac_teknigi&topic=fren\"\n```\n\n**Endpoint'ler:**\n\n| Endpoint | Parametreler | Açıklama |\n|----------|-------------|----------|\n| `/api/questions` | `section`, `count` | Rastgele soru döner |\n| `/api/quick-facts` | `section` | Hap bilgiler |\n| `/api/mock-exam` | — | 50 soruluk tam deneme |\n| `/api/lesson-summary` | `section`, `topic` | Ders atomik özeti |\n\n`section` değerleri: `ilk_yardim`, `trafik_ve_cevre`, `arac_teknigi`, `trafik_adabi`, `all`\n\n### Örnek yanıt\n\n```json\n{\n  \"count\": 1,\n  \"section\": \"ilk_yardim\",\n  \"source\": \"ehliyet.digital\",\n  \"questions\": [\n    {\n      \"id\": \"sinav1-q02\",\n      \"exam\": \"Sınav 1\",\n      \"section\": \"İlk Yardım\",\n      \"stem\": \"Yetişkinlerde temel yaşam desteği ile ilgili uygulamalardan hangisi doğrudur?\",\n      \"options\": [\n        \"A) Göğüs kemiği 3 cm aşağı inecek şekilde bası yapılması\",\n        \"B) Temel yaşam desteğine yapay solunum ile başlanması\",\n        \"C) 30 kalp masajı, 2 yapay solunum şeklinde uygulanması\",\n        \"D) Kalp masajı hızının dakikada 30 bası olacak şekilde ayarlanması\"\n      ],\n      \"correct_index\": 2,\n      \"correct_letter\": \"C\",\n      \"correct_text\": \"30 kalp masajı, 2 yapay solunum şeklinde uygulanması\",\n      \"has_image\": false\n    }\n  ]\n}\n```\n\n---\n\n## MCP Sunucusu\n\nAI agent'lar Model Context Protocol ile doğrudan bağlanabilir.\n\n**Remote (canlı):**\n```\nStreamable HTTP: https://ehliyet-production.up.railway.app/mcp   (önerilen)\nSSE (eski):      https://ehliyet-production.up.railway.app/sse\n```\n\n**Claude Desktop yapılandırması:**\n```json\n{\n  \"mcpServers\": {\n    \"ehliyet-digital\": {\n      \"type\": \"http\",\n      \"url\": \"https://ehliyet-production.up.railway.app/mcp\"\n    }\n  }\n}\n```\n\n**Lokal çalıştırma:**\n```bash\ncd mcp\npip install -r requirements.txt\npython server.py          # stdio (Claude Desktop/Code)\npython server.py --http   # HTTP/SSE (remote agent'lar)\n```\n\n**Araçlar:**\n\n| Araç | Açıklama |\n|------|----------|\n| `get_practice_questions(section, count)` | Rastgele soru döner |\n| `get_quick_facts(section)` | Hap bilgiler |\n| `generate_mock_exam()` | 50 soruluk deneme sınavı |\n| `get_lesson_summary(section, topic)` | Ders atomik özeti |\n| `explain_answer(question_id)` | Soru açıklaması + ilgili dersler |\n\n---\n\n## Veri dosyaları\n\nMakine-okunur JSON formatında:\n\n| Dosya | İçerik |\n|-------|--------|\n| [`mcp/data/questions.json`](mcp/data/questions.json) | 200 soru (4 sınav) |\n| [`mcp/data/quick-facts.json`](mcp/data/quick-facts.json) | 76 hap bilgi |\n| [`mcp/data/lesson-summaries.json`](mcp/data/lesson-summaries.json) | 43 ders, ~560 atomik bilgi |\n\n---\n\n## Teknoloji\n\n- **Frontend:** Statik HTML/CSS/JS — build adımı yok, SSR\n- **Hosting:** Vercel (site) + Railway (MCP)\n- **Auth:** Firebase (Google OAuth)\n- **Veritabanı:** Firestore (yalnızca kullanıcı profili ve sınav sonuçları)\n- **Analytics:** GA4 (custom event'ler: sign_up, login, exam_start, exam_complete, exam_abandon, feedback_submit)\n\n---\n\n## Yerelde çalıştırma\n\n```bash\npython3 -m http.server 8000\n# http://localhost:8000\n```\n\n---\n\n## Proje yapısı\n\n```\n├── index.html                  Ana sayfa\n├── dersler/                    43 ders notu (4 kategori)\n├── hap-bilgiler/               76 hap bilgi (4 kategori)\n├── ehliyet-sinav-sorulari/     20 örnek soru\n├── soru/                       186 bireysel soru sayfası\n├── panel/                      Giriş gerektiren alan (sınavlar)\n├── api/                        REST API (Vercel serverless)\n├── mcp/                        MCP sunucusu + veri dosyaları\n├── assets/js/questions-*.js    Soru bankaları (4 sınav)\n├── tools/                      Üretici scriptler\n│   ├── schema-uret.py          JSON-LD yapısal veri\n│   ├── sitemap-uret.py         sitemap.xml\n│   ├── llms-uret.py            llms-full.txt\n│   ├── feed-uret.py            RSS feed + discovery link\n│   ├── soru-sayfa-uret.py      Bireysel soru sayfaları\n│   ├── hap-sayfa-uret.py       Bireysel hap bilgi sayfaları\n│   ├── atomik-ekle.py          Ders atomik özetleri\n│   ├── cevap-ac.py             Soru cevaplarını HTML'e taşı\n│   └── mcp-veri-uret.py        MCP JSON veri dosyaları\n├── llms.txt                    AI/LLM site dizini\n├── llms-full.txt               Detaylı içerik dizini\n├── feed.xml                    RSS feed\n├── sitemap.xml                 251 URL\n├── robots.txt                  AI tarayıcıları açık\n└── 404.html                    Özel hata sayfası\n```\n\n---\n\n## İçerik kaynakları\n\n- MEB Motorlu Taşıt Sürücüleri Kursu (MTSK) müfredatı\n- 2918 sayılı Karayolları Trafik Kanunu ve ilgili yönetmelikler\n- Türkiye Kızılay Derneği ilk yardım eğitim materyalleri\n- Gerçek MTSK e-sınavlarında çıkmış sorular\n\n---\n\n## Lisans\n\nBu proje açık kaynak olarak yayınlanmıştır. İçerikler MEB MTSK müfredatından derlenmiştir.\n\n---\n\n## İletişim\n\n- **Site:** [ehliyet.digital](https://ehliyet.digital)\n- **Hakkında:** [ehliyet.digital/hakkinda](https://ehliyet.digital/hakkinda/)\n- **GitHub:** [github.com/merlhn/ehliyet](https://github.com/merlhn/ehliyet)\n- **MCP Market:** [mcpmarket.com/server/ehliyet-digital](https://mcpmarket.com/server/ehliyet-digital)\n- **Smithery:** [smithery.ai/servers/omerlhn/ehliyet-digital](https://smithery.ai/servers/omerlhn/ehliyet-digital)\n- **MCP Registry:** `io.github.merlhn/ehliyet-digital`\n",
+  "status": "curated"
+}

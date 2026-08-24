@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.Smartoire/paxaver-mcp",
+  "type": "mcp",
+  "name": "paxaver-mcp",
+  "description": "MCP adapter for the Paxaver school community platform. Streamable HTTP, OAuth 2.1, capability auth.",
+  "author": "io.github.Smartoire",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/Smartoire/paxaver-mcp",
+    "repo": "Smartoire/paxaver-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://mcp.paxaver.com/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-24T06:57:29.126256Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Paxaver MCP Server\n\n> AI-facing adapter over the [Paxaver](https://paxaver.com) school community platform.\n> Implements the Model Context Protocol (MCP) on Cloudflare Workers with RS256 JWT\n> validation, capability-first authorization, and Streamable HTTP transport.\n\n[![npm version](https://img.shields.io/npm/v/@paxaver/mcp.svg)](https://www.npmjs.com/package/@paxaver/mcp)\n[![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](./LICENSE)\n[![MCP Badge](https://lobehub.com/badge/mcp/paxaver)](https://lobehub.com/mcp/paxaver)\n\n---\n\n## What this is\n\nThe Paxaver MCP server lets AI assistants (ChatGPT, Claude, Perplexity, and any\nMCP-compatible client) act on behalf of a Paxaver user: check a lunch menu, order\nlunch, top up a wallet, register for fundraising events, donate to a school,\nvolunteer, and — for school administrators — manage restaurants, menu items,\nevents, and daily orders.\n\nIt is a **thin adapter**. It contains no business logic and never touches the\ndatabase, Stripe, or email directly. Every action is delegated to the private\nPaxaver backend API over a Cloudflare **service binding** (same region, no public\nnetwork hop). The MCP server's only responsibilities are:\n\n- MCP protocol handling (JSON-RPC 2.0, Streamable HTTP)\n- RS256 JWT validation via JWKS from the centralized Paxaver auth worker\n- Per-tool capability policy and role gating\n- Sanitized, user-safe error mapping\n\nAuthentication is handled by the Paxaver auth worker (`auth.paxaver.com`), which\nserves as the OAuth 2.0 / OIDC authorization server. The MCP server validates\nthe resulting RS256 JWTs and forwards them to the backend. The MCP server itself\nis not an authorization server.\n\n---\n\n## Architecture\n\n```\n┌───────────────┐     MCP (Streamable HTTP)      ┌──────────────────────┐\n│   AI Client   │ ─────────────────────────────▶ │   Paxaver MCP Worker │\n│ ChatGPT/Claude│ ◀───────────────────────────── │  (this repo)         │\n│  /Perplexity  │     RS256 JWT + JSON-RPC 2.0   │  Hono + jose         │\n└───────────────┘                                └──────────┬───────────┘\n                                                            │\n                                          Cloudflare service binding\n                                          (PAXAVER_API, same region)\n                                                            │\n                                                            ▼\n                                                 ┌──────────────────────┐\n                                                 │  Paxaver API Worker  │\n                                                 │  (private backend)   │\n                                                 │  D1 · Stripe · SES   │\n                                                 └──────────────────────┘\n```\n\nThe MCP worker **never** binds D1, Stripe, or SES. The service binding carries a\nshort-lived JWT (120s TTL, audience `paxaver-internal`) that the backend trusts as\nan internal call while still attributing the action to the authenticated Paxaver\nuser. See [`docs/architecture.md`](./docs/architecture.md) for the full picture.\n\n---\n\n## Quick start\n\n### Install\n\n```bash\nnpm install @paxaver/mcp\n```\n\n### Develop locally\n\n```bash\n# 1. Install dependencies (Node >= 22)\nnpm install\n\n# 2. Configure local secrets\ncp .dev.vars.example .dev.vars   # then fill in JWT_SECRET, OAUTH_STATE_SECRET, ...\n\n# 3. Run the worker locally (Miniflare)\nnpm run dev\n\n# 4. Typecheck, lint, and test\nnpm run typecheck\nnpm run lint\nnpm test\n```\n\nThe local dev server starts on `http://localhost:8787`. Discovery endpoints live\nunder `/.well-known/`; the MCP endpoint is `POST /mcp`.\n\n> **Note:** Local development without the `PAXAVER_API` service binding falls back\n> to authenticated HTTPS against `API_BASE_URL` (default `http://localhost:8787`).\n> For full integration testing, run the Paxaver backend worker locally and point\n> `API_BASE_URL` at it.\n\n---\n\n## Deployment\n\nTwo environments, each a separate Worker with its own custom domain:\n\n| Environment  | Worker name           | Domain            |\n| ------------ | --------------------- | ----------------- |\n| `staging`    | `paxaver-mcp-staging` | `mcp.paxaver.dev` |\n| `production` | `paxaver-mcp`         | `mcp.paxaver.com` |\n\nThe production worker serves both CA and US users through a single endpoint\n(`mcp.paxaver.com`). User region is resolved from the JWT `tenant_id` claim,\nand the worker routes to the correct regional backend via service bindings\n(`PAXAVER_API_CA`, `PAXAVER_API_US`). Currency is determined by the user's\nschool, not by the MCP endpoint.\n\n```bash\nnpm run deploy:staging   # wrangler deploy --env staging\nnpm run deploy:prod      # wrangler deploy --env production\n```\n\nSecrets must be set with `wrangler secret put --env production`:\n`JWT_SECRET`, `OAUTH_STATE_SECRET`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`,\n`CHATGPT_VERIFY_TOKEN`. See [`docs/deployment.md`](./docs/deployment.md).\n\n---\n\n## Tools\n\nThe server exposes 31 tools grouped into six categories. Visibility in\n`tools/list` is filtered by the caller's roles; every call is re-authorized\nbefore dispatch, and the backend re-checks data-level access (defense-in-depth).\n\n| Category           | Tools                                                                                                                                                                                |\n| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |\n| User / account     | `get_user_info`, `update_student`                                                                                                                                                    |\n| Wallet             | `get_wallet_balance`, `get_wallet_status`, `add_funds`, `top_up_balance`, `donate_to_school`                                                                                         |\n| Orders & menu      | `order_lunch`, `get_orders`, `get_daily_menu`, `get_updates`, `get_daily_orders`, `get_monthly_orders`, `get_published_menu`, `create_draft_order`, `finalize_order`, `cancel_order` |\n| Events             | `get_upcoming_events`, `create_event`, `update_event`, `cancel_event`, `register_event`, `request_volunteer`                                                                         |\n| Admin / restaurant | `list_school_restaurants`, `create_restaurant`, `list_menu_items`, `create_menu_item`, `update_menu_item`, `set_menu_item_price`, `delete_menu_item`, `set_daily_menu`               |\n\nFinancial and destructive tools are labeled and require user confirmation. Full\nreference: [`docs/tools.md`](./docs/tools.md). Authorization policy:\n[`docs/authorization.md`](./docs/authorization.md).\n\n---\n\n## Documentation\n\n| Document                                           | Topic                                                             |\n| -------------------------------------------------- | ----------------------------------------------------------------- |\n| [docs/architecture.md](./docs/architecture.md)     | System architecture, service binding boundary, regional isolation |\n| [docs/authentication.md](./docs/authentication.md) | JWT validation, JWKS, auth worker delegation, token format        |\n| [docs/authorization.md](./docs/authorization.md)   | Capability policy table, role gating, defense-in-depth            |\n| [docs/tools.md](./docs/tools.md)                   | Full tool reference with input schemas and classifications        |\n| [docs/deployment.md](./docs/deployment.md)         | Wrangler config, environments, secrets, custom domains            |\n| [docs/security.md](./docs/security.md)             | Security model, CORS, CSRF, error sanitization, headers           |\n| [docs/compatibility.md](./docs/compatibility.md)   | MCP protocol version, transports, supported AI clients            |\n| [docs/migration.md](./docs/migration.md)           | Migration from the legacy `mcp-server/` in the private monorepo   |\n| [CHANGELOG.md](./CHANGELOG.md)                     | Release history                                                   |\n| [SECURITY.md](./SECURITY.md)                       | Vulnerability reporting policy                                    |\n| [CONTRIBUTING.md](./CONTRIBUTING.md)               | Development setup and contribution process                        |\n\n---\n\n## Tech stack\n\n- **Runtime:** Cloudflare Workers (`compatibility_date: 2026-08-01`, `nodejs_compat`)\n- **Framework:** [Hono](https://hono.dev) v4\n- **JWT:** [jose](https://github.com/panva/jose) v6 (RS256 via JWKS)\n- **Protocol:** MCP `2025-06-18`, Streamable HTTP\n- **Auth:** RS256 JWT validation via centralized auth worker (`auth.paxaver.com`)\n- **Build/deploy:** [Wrangler](https://developers.cloudflare.com/workers/wrangler/) v4\n- **Test:** [Vitest](https://vitest.dev) v2 (Workers pool + Node pool)\n\n---\n\n## License\n\nApache-2.0. Copyright (c) 2026 Smartoire. See [`LICENSE`](./LICENSE).\n",
+  "status": "curated"
+}

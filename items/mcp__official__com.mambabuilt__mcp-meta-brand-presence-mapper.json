@@ -1,0 +1,65 @@
+{
+  "id": "mcp:official/com.mambabuilt/mcp-meta-brand-presence-mapper",
+  "type": "mcp",
+  "name": "mcp-meta-brand-presence-mapper",
+  "description": "Resolve a company domain to Instagram, Threads and Facebook accounts and counts.",
+  "author": "com.mambabuilt",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/mambalabsdev/mcp-meta-brand-presence-mapper",
+    "repo": "mambalabsdev/mcp-meta-brand-presence-mapper"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@mambalabsdev/mcp-meta-brand-presence-mapper"
+    ],
+    "env": [
+      {
+        "name": "APIFY_TOKEN",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-24T09:41:23.9382Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "生活",
+    "featured": false
+  },
+  "readme": "# Instagram Threads Facebook Brand Presence Mapper MCP Server\n\n[![Smithery](https://smithery.ai/badge/mambabuilt/mcp-meta-brand-presence-mapper)](https://smithery.ai/servers/mambabuilt/mcp-meta-brand-presence-mapper) [![Glama score](https://glama.ai/mcp/servers/mambalabsdev/mcp-meta-brand-presence-mapper/badges/score.svg)](https://glama.ai/mcp/servers/mambalabsdev/mcp-meta-brand-presence-mapper) [![npm version](https://img.shields.io/npm/v/@mambalabsdev/mcp-meta-brand-presence-mapper)](https://www.npmjs.com/package/@mambalabsdev/mcp-meta-brand-presence-mapper) [![npm downloads](https://img.shields.io/npm/dm/@mambalabsdev/mcp-meta-brand-presence-mapper)](https://www.npmjs.com/package/@mambalabsdev/mcp-meta-brand-presence-mapper) [![license](https://img.shields.io/github/license/mambalabsdev/mcp-meta-brand-presence-mapper)](https://github.com/mambalabsdev/mcp-meta-brand-presence-mapper/blob/main/LICENSE)\n\nMCP server for the Mamba Labs **Instagram Threads Facebook Brand Presence Mapper** actor on Apify.\n\nResolve a company domain to its Instagram, Threads and Facebook accounts with follower and post counts.\n\n## What it does\n\nResolve a company domain to its Instagram, Threads and Facebook accounts with follower and post counts, as one flat Clay ready row. The Threads handle is derived from the resolved Instagram handle at no extra discovery cost. Instagram and Threads counts are rounded by Meta and the row carries both the rounded integer and the platform's own display string. Facebook is best effort: Meta serves a login wall to anonymous clients, so blocked is a normal answer there and never a zero. Read only; requires an APIFY_TOKEN and consumes Apify credits per call.\n\n## Quick start\n\nAdd this to your MCP client configuration:\n\n```json\n{\n  \"mcpServers\": {\n    \"mamba-meta-brand-presence-mapper\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@mambalabsdev/mcp-meta-brand-presence-mapper\"],\n      \"env\": { \"APIFY_TOKEN\": \"your-apify-token\" }\n    }\n  }\n}\n```\n\n## Prerequisites\n\n- Node.js 18 or newer\n- An Apify API token from [console.apify.com/account/integrations](https://console.apify.com/account/integrations)\n\nThe actor is pay per event and consumes Apify credits per call. Pricing is on the\n[actor page](https://apify.com/mambalabs/meta-brand-presence-mapper).\n\n## Example prompts\n\n- \"Get the Instagram and Threads follower counts for glossier.com.\"\n- \"Has oatly.com adopted Threads yet, and how many posts do they have?\"\n- \"Find the Facebook Page for everlane.com.\"\n\n## Tool and inputs\n\nTool: `map_meta_brand_presence`\n\n| Input | Type | Meaning |\n|---|---|---|\n| `company_domain` | string | Bare company domain, for example shopify.com. Supply this or a handle. With a domain the actor runs full discovery; with a handle it skips straight to |\n| `company_name` | string | Optional. Improves search accuracy and is what the identity gate checks a discovered profile against, so supplying it reduces wrong matches. |\n| `handle` | string | Optional. The Instagram handle with or without the leading @. Supplying it skips Instagram discovery AND gives Threads its handle for free, because Th |\n| `platforms` | array | Which of the three Meta surfaces to map. Default is all three. Dropping Facebook is the common choice: it is the least reliable of the three and it co |\n| `includeFollowerCounts` | boolean | When \"true\" (default) the profile page is fetched and the counts are extracted. Set \"false\" to resolve the profile URL only, which is cheaper and need |\n| `skipCache` | boolean | When \"false\" (default) a successful lookup is cached for seven days and reused. Set \"true\" to force a fresh fetch. Sent as a string for Clay compatibi |\n\n## Reading the output\n\nEvery row carries a per platform `_status` field, and it is the field to read\nfirst. The vocabulary is the same across the whole Mamba Labs social family:\n\n| Status | Meaning |\n|---|---|\n| `ok` | fetched and parsed, the value is there |\n| `not_found` | we looked and there is no such profile |\n| `not_extractable` | the profile exists and the value is not on the wire to us |\n| `blocked` | the platform refused us, worth retrying later |\n| `identity_mismatch` | we found a real profile and it belongs to someone else |\n| `skipped` | you did not ask for this platform |\n\n**`false` and `null` are never interchangeable.** `false` means we looked and the\nanswer is no. `null` means we could not look. If you filter for companies with no\npresence, filter on `false`, because `null` rows are unknown rather than absent.\n\n## Full actor documentation\n\n[apify.com/mambalabs/meta-brand-presence-mapper](https://apify.com/mambalabs/meta-brand-presence-mapper)\n\n## Mamba Labs GTM Suite\n\nMamba Labs builds a fleet of GTM enrichment actors that share one flat, Clay\nready output convention, so their rows join on `company_domain` with no cleaning\nstep. Full fleet: [apify.com/mambalabs](https://apify.com/mambalabs)\n\n## License\n\nMIT\n",
+  "status": "curated"
+}
