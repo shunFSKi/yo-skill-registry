@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.dev55acc-ai/paid-mcp-metering",
+  "type": "mcp",
+  "name": "Paid MCP Metering",
+  "description": "Metered MCP tools: free discovery over MCP; per-call execution settled in USDC via x402 v2.",
+  "author": "io.github.dev55acc-ai",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/dev55acc-ai/paid-mcp-metering",
+    "repo": "dev55acc-ai/paid-mcp-metering"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://paid-mcp-metering-clsiojdd7-benlafreniere6-3913s-projects.vercel.app/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-23T16:55:12.740955Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "金融",
+    "featured": false
+  },
+  "readme": "# paid-mcp-metering\n\nMetered MCP tools, priced per call.\n\nDiscovery is free: `POST /mcp` speaks JSON-RPC 2.0 per the Model Context Protocol (`initialize`, `tools/list`, `ping`). Execution is metered: `POST /v1/t/{tool}` sits behind an x402 v2 paywall. An unpaid request gets HTTP `402` with payment requirements; a paid request carries a `PAYMENT-SIGNATURE` header and settles USDC through the facilitator before the tool runs.\n\n## Live deployment\n\nBase URL: `https://paid-mcp-metering.vercel.app`\n\n- `GET /health` — free, public\n- `POST /mcp` — free discovery\n- `POST /v1/t/{tool}` — metered; currently answers `503 settlement_not_configured` because `X402_PAY_TO` is unset on the deployment (`settlementConfigured:false` in `/health` is the honest switch). No payment can be accepted until a receiving address is configured.\n\n`server.json` declares this URL as the registry remote.\n\n## Tools\n\n| Tool | Price | What it returns |\n|------|-------|-----------------|\n| `web_search` | $0.001/call | Ranked live web results with source URLs |\n| `deep_research` | $0.01/call | Multi-source research pass with a synthesized answer plus cited sources |\n\nUpstreams are Exa (primary) and Tavily (fallback). Every handler returns live upstream output or throws — there is no canned response.\n\n## Rails\n\nx402 v2, USDC, EIP-155 network selected by `X402_NETWORK` (default Base Sepolia testnet, CAIP-2 `eip155:84532`). Facilitator defaults to `https://x402.org/facilitator`.\n\n| Env var | Purpose |\n|---------|---------|\n| `X402_PAY_TO` | Receiving address. Required for settlement; unset serves 402 requirements only |\n| `X402_NETWORK` | CAIP-2 network id (default `eip155:84532`) |\n| `X402_FACILITATOR_URL` | x402 facilitator endpoint |\n| `EXA_API_KEY` / `TAVILY_API_KEY` | Search upstream credentials |\n\n## Run\n\n```bash\nnpm install\nnpm run build\nnpm start          # node dist/x402-server.js\nnpm test           # build + node --test dist/test-x402.js\n```\n\nFree discovery:\n\n```bash\ncurl -s localhost:4021/mcp -H 'Content-Type: application/json' \\\n  -d '{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"tools/list\"}'\n```\n\nPaid execution:\n\n```bash\ncurl -s localhost:4021/v1/t/web_search -H 'Content-Type: application/json' \\\n  -d '{\"query\":\"x402 protocol\",\"max_results\":3}'\n# -> 402 with payment requirements; pay via an x402 client and retry with PAYMENT-SIGNATURE\n```\n\n## Registry\n\n`server.json` targets the official MCP Registry as `io.github.dev55acc-ai/paid-mcp-metering`. Tagging `v*` runs `.github/workflows/publish-mcp.yml`: tests, build, npm publish (when `NPM_TOKEN` is set), then registry publish authenticated by GitHub OIDC — no stored registry credential.\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

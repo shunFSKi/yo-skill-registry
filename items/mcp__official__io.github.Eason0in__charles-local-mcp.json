@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.Eason0in/charles-local-mcp",
+  "type": "mcp",
+  "name": "Charles Local MCP",
+  "description": "Guarded local Charles Proxy automation for macOS and Android testing",
+  "author": "io.github.Eason0in",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/Eason0in/charles-local-mcp",
+    "repo": "Eason0in/charles-local-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "https://github.com/Eason0in/charles-local-mcp/releases/download/v0.1.2/charles-local-mcp-0.1.2-universal-apple-darwin.mcpb"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-24T03:28:52.508236Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# charles-local-mcp\n\nLocal-only, profile-driven Charles Proxy automation for macOS. The same\napplication service is exposed through a JSON CLI and an MCP stdio server.\n\nVersion `0.1.2` supports Charles `4.6.8` on macOS. The public package contains\nonly generic `example.com` fixtures and no organization-specific hosts or paths.\n\n## Profile\n\n```toml\nschemaVersion = 1\n\n[profiles.demo]\nsourceHost = \"app.example.com\"\nsourcePath = \"/api*\" # optional Charles path pattern\ndestinationUrl = \"http://127.0.0.1:8080\"\nsslHosts = [\"app.example.com\"]\nverificationUrl = \"https://app.example.com/health\"\n```\n\nOmit `destinationUrl` for a proxy-only profile that disables Map Remote while\nretaining the exact SSL hosts and optional verification URL. When present,\n`destinationUrl` is restricted to loopback addresses.\n\nMap Remote destinations must resolve to a loopback host. `verificationUrl` is\noptional, must use HTTPS without embedded credentials, and must match\n`sourceHost`.\n\n## Commands\n\n```console\ncharles-local-mcp doctor --json\ncharles-local-mcp --profiles-file profiles.toml profiles validate --json\ncharles-local-mcp --profiles-file profiles.toml setup plan --profile demo --platform android --json\ncharles-local-mcp --profiles-file profiles.toml setup apply --token TOKEN --json\ncharles-local-mcp setup resume --token TOKEN --json\ncharles-local-mcp status --json\ncharles-local-mcp cleanup plan --json\ncharles-local-mcp cleanup apply --token TOKEN --json\ncharles-local-mcp serve\n```\n\nState defaults to `~/Library/Application Support/charles-local-mcp`. Tests and\nintegrators can isolate it with `CHARLES_LOCAL_MCP_HOME` or `--state-dir`.\nCLI stdout is JSON only; MCP stdout is protocol only. Diagnostics use stderr.\n\nMutation commands require macOS and Charles `4.6.8`. Setup and cleanup plans\nexpire after 15 minutes, are single-use, and are rejected if state changed.\nOnly one active session is allowed in a state directory.\n\nThe real-device procedure is intentionally manual: see\n[`docs/manual-smoke.md`](docs/manual-smoke.md).\n\n## Install\n\nBuild from crates.io when a local Rust toolchain is available:\n\n```console\ncargo install charles-local-mcp --locked\n```\n\nFor a one-click MCP client installation on macOS, use the universal `.mcpb`\nasset from the matching GitHub Release. The native binary and bundle are not signed or notarized by Apple, so macOS may show a security warning when opening a downloaded asset. Verify `SHA256SUMS` from that release before installing. The bundle asks for a TOML profiles file and starts `charles-local-mcp serve`; profiles remain read-only to MCP tools.\n\nRelease maintainers should follow [`docs/releasing.md`](docs/releasing.md).\n",
+  "status": "curated"
+}

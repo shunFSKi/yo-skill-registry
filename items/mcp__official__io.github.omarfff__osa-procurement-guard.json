@@ -1,0 +1,61 @@
+{
+  "id": "mcp:official/io.github.omarfff/osa-procurement-guard",
+  "type": "mcp",
+  "name": "OSA Procurement Guard",
+  "description": "Pre-purchase trust, pricing and budget decisions for AI agents buying APIs and MCP tools.",
+  "author": "io.github.omarfff",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/omarfff/OSA",
+    "repo": "omarfff/OSA"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://pkctqxeydfuiupadaoov.supabase.co/functions/v1/procurement-mcp",
+    "env": [
+      {
+        "name": "X-API-Key",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-23T20:57:04.26182Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# OSA\n\nOSA is a machine-commerce trust and procurement system for evaluating agent/API endpoints before purchase or routing spend.\n\n## Core product\n\nOSA combines live endpoint verification with historical evidence and produces a TrustScore plus confidence and reason codes.\n\n- `GET /best` — rank matching endpoints by trust, intent and optional max price.\n- `GET /score` — live-verify a registered endpoint.\n- `GET /history` — return historical snapshots.\n- `POST /ingest` — authenticated registry ingestion.\n- `POST /sources/mcp` and `POST /sources/bazaar` — ingest MCP/Bazaar-shaped records.\n- `/.well-known/osa.json` — machine-readable product metadata.\n\nTrustScore currently considers uptime, latency, price stability, schema stability, payment stability and transaction evidence. Confidence is reported separately.\n\n## Architecture\n\nOSA uses a split-plane design:\n\n- **Product/Data/Commercial plane** — procurement/MCP distribution, pricing and benchmark history, endpoint observations, product usage, leads/deals and payment reconciliation.\n- **Control/Execution/Security plane** — VPS agents, approvals, task policy, audit/control alerts, SSH bridge and certificate-only RAW SSH execution.\n- **GitHub** — canonical source, CI/security scanning and controlled deployment workflows.\n\nThe split keeps product data workloads separate from privileged infrastructure execution.\n\n## Security\n\n- Endpoint verification is read-only (`GET`/`HEAD`).\n- SSRF defenses reject local/private/link-local/documentation targets and unsafe URL schemes.\n- DNS results and redirect targets are revalidated.\n- Response size, redirect count, timeouts and concurrency are bounded.\n- Ingestion is authenticated in production.\n- Privileged VPS execution uses short-lived SSH certificates and host-key verification.\n- Secrets and private keys are not committed to this repository.\n\n## Commercial acquisition tool\n\n`npm run lead:audit -- https://example.com`\n\nThe Lead-Leakage Audit performs a public-page, read-only conversion-path audit. It does not submit forms, authenticate, bypass controls or access private systems. It can be used as an evidence-first acquisition wedge for OSA services without becoming a separate product strategy.\n\n## Quick start\n\n```bash\nnpm install\nnpm test\nnpm start\n```\n\n## Payments\n\nOptional x402 v2 payment middleware can protect `/best` and `/score`. Payments remain disabled when `OSA_PAY_TO` is not configured. Test/sandbox payment events must never be counted as revenue.\n\n## Operating rule\n\nOSA is one product. Agent Trust Oracle, Procurement Guard, pricing/benchmark intelligence, MCP reliability and payment-rail checks are modules of the same pre-transaction decision system.\n\nProgress means verified external usage, verified payment and repeat usage — not internal test rows, crawler probes, generated dashboards or speculative revenue.\n",
+  "status": "curated"
+}

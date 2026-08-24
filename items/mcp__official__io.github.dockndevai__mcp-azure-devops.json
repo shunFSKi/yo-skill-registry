@@ -1,0 +1,75 @@
+{
+  "id": "mcp:official/io.github.dockndevai/mcp-azure-devops",
+  "type": "mcp",
+  "name": "mcp-azure-devops",
+  "description": "Azure DevOps boards, repos, pipelines & projects for AI agents — governed.",
+  "author": "io.github.dockndevai",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/dockndevai/mcp-azure-devops",
+    "repo": "dockndevai/mcp-azure-devops"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@dockndevai/mcp-azure-devops"
+    ],
+    "env": [
+      {
+        "name": "AZDO_ORG_URL",
+        "required": true,
+        "secret": false
+      },
+      {
+        "name": "AZDO_PAT",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "AZDO_MODE",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-23T17:06:59.665649Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# mcp-azure-devops\n\n[![CI](https://github.com/dockndevai/mcp-azure-devops/actions/workflows/ci.yml/badge.svg)](https://github.com/dockndevai/mcp-azure-devops/actions/workflows/ci.yml)\n[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)\n[![npm](https://img.shields.io/npm/v/@dockndevai/mcp-azure-devops)](https://www.npmjs.com/package/@dockndevai/mcp-azure-devops)\n\nA [Model Context Protocol](https://modelcontextprotocol.io) server for **Azure DevOps**. It lets an MCP-capable client (Claude Desktop, Claude Code, Cursor, Codex, …) work across **boards, repos, pipelines, and projects** — with a governance layer that keeps an AI agent inside safe boundaries.\n\n## What this offers\n\n- **Projects & teams** — list projects/teams/members, inspect process templates.\n- **Boards / work items** — WIQL queries, get work items, create/update work items, list iterations (sprints).\n- **Repos / pull requests** — list repositories and branches, list/get PRs, open PRs.\n- **Pipelines / builds** — list pipelines and recent builds, get a build, queue a run.\n- **Admin / process** — list process templates, create a project, delete a project (guarded).\n- **Governance built in** — access modes, project allowlists, protected projects, delete gating, typed confirmation for high-impact ops, dry-run, and JSON audit logging.\n\n## Governance & security model\n\n| Concern | Flag | Default | Effect |\n| --- | --- | --- | --- |\n| What can the server do? | `AZDO_MODE` | `read-only` | `read-only` → reads; `read-write` → work items, PRs, pipeline runs; `admin` → create/delete project. Tools above the mode are **never registered**. |\n| Which projects are in scope? | `AZDO_PROJECT_ALLOWLIST` | *(all)* | Operations on other projects are refused. |\n| Which projects are read-only forever? | `AZDO_PROTECTED_PROJECTS` | *(none)* | Readable, never mutable. |\n| Can it delete? | `AZDO_ALLOW_DELETE` | `false` | `delete_project` needs this **and** admin mode. |\n| Typed confirmation | `AZDO_REQUIRE_CONFIRMATION` | `true` | High-impact ops require `confirm` to equal the target name — not just a boolean. |\n| Preview | `AZDO_DRY_RUN` | `false` | Write/admin tools validate + log intent, then return. |\n| Audit trail | `AZDO_AUDIT_LOG` | `true` | JSON line to stderr per guarded operation. |\n\n## Tools\n\n**Read** (`read-only`+): `list_projects`, `get_project`, `list_teams`, `list_team_members`, `list_processes`, `query_work_items`, `get_work_item`, `list_iterations`, `list_repositories`, `list_branches`, `list_pull_requests`, `get_pull_request`, `list_pipelines`, `list_builds`, `get_build`\n\n**Write** (`read-write`+): `create_work_item`, `update_work_item`, `create_pull_request`, `run_pipeline`\n\n**Admin** (`admin`): `create_project`, `delete_project` (needs `AZDO_ALLOW_DELETE` + typed `confirm`)\n\n## Quickstart — add to your agent\n\nPublished on npm as [`@dockndevai/mcp-azure-devops`](https://www.npmjs.com/package/@dockndevai/mcp-azure-devops). Runs via `npx`; needs an org and a PAT. See [docs/CLIENTS.md](docs/CLIENTS.md) for every client and [`.env.example`](.env.example) for all variables.\n\n**Claude Code**\n\n```bash\nclaude mcp add azure-devops -e AZDO_ORG_URL=\"https://dev.azure.com/your-org\" -e AZDO_PAT=\"your-pat\" -e AZDO_MODE=\"read-only\" -- npx -y @dockndevai/mcp-azure-devops\n```\n\n**Claude Desktop · Cursor · Windsurf**\n\n```json\n{\n  \"mcpServers\": {\n    \"azure-devops\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@dockndevai/mcp-azure-devops\"],\n      \"env\": {\n        \"AZDO_ORG_URL\": \"https://dev.azure.com/your-org\",\n        \"AZDO_PAT\": \"your-pat\",\n        \"AZDO_MODE\": \"read-only\"\n      }\n    }\n  }\n}\n```\n\n## Example prompts\n\n- *\"List active pull requests in the Payments project's api repo\"*\n- *\"Query work items assigned to me that are still Active\"*\n- *\"Show the last 10 builds in the Web project and which failed\"*\n- *\"Create a Bug in Payments titled 'Checkout 500 on retry'\"* (needs read-write)\n\n## Run from source (development)\n\n```bash\nnpm install\nnpm run build\nnode dist/index.js   # with the environment variables set\n```\n\n## Develop\n\n```bash\nnpm run dev\nnpm test          # governance policy: modes, allowlists, delete gating, confirmation\nnpm run typecheck\n```\n\n## Publishing\n\nShips a [`server.json`](server.json) for the official MCP registry and an [`mcpName`](package.json) for npm ownership validation. See **[PUBLISHING.md](PUBLISHING.md)**.\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

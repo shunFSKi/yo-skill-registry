@@ -1,0 +1,70 @@
+{
+  "id": "mcp:official/io.github.dockndevai/mcp-oci",
+  "type": "mcp",
+  "name": "mcp-oci",
+  "description": "Oracle Cloud discovery + Terraform generation for AI agents — read-only, secret-safe.",
+  "author": "io.github.dockndevai",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/dockndevai/mcp-oci",
+    "repo": "dockndevai/mcp-oci"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@dockndevai/mcp-oci"
+    ],
+    "env": [
+      {
+        "name": "OCI_PROFILE",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "OCI_MODE",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-23T17:06:48.049692Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "运维",
+    "featured": false
+  },
+  "readme": "# mcp-oci\n\n[![CI](https://github.com/dockndevai/mcp-oci/actions/workflows/ci.yml/badge.svg)](https://github.com/dockndevai/mcp-oci/actions/workflows/ci.yml)\n[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)\n[![npm](https://img.shields.io/npm/v/@dockndevai/mcp-oci)](https://www.npmjs.com/package/@dockndevai/mcp-oci)\n\nA [Model Context Protocol](https://modelcontextprotocol.io) server for **Oracle Cloud Infrastructure (OCI)**. It gives an MCP-capable client (Claude Desktop, Claude Code, Cursor, Copilot, …) the ability to **discover live OCI resources, map how they relate, and generate reproducible Terraform** — with behaviour controlled entirely by flags.\n\nThink of it as a Playwright-MCP for your cloud: instead of rebuilding infrastructure knowledge by hand, the model can ask *\"show all VCNs in the prod compartment\"* and *\"generate Terraform for this compartment\"* and get structured, secret-free answers.\n\n## Features\n\n- **Live discovery** — compartments, regions, and any resource via OCI Resource Search.\n- **Terraform generation** — faithful HCL for known types (VCN, subnet, instance, bucket, compartment) and annotated skeletons for the rest; whole-compartment modules with provider variables.\n- **Dependency graph** — nodes/edges plus a suggested provisioning order (dependencies first).\n- **Secrets never reach the model** — every payload is redacted before return.\n- **Security flags** — access modes, compartment/region allowlists, provisioning gate, dry-run, and JSON audit logging (see below).\n- **Standard auth** — OCI config file (`~/.oci/config`) or instance principals. No credentials stored by the server.\n\n## Security model\n\n| Concern | Flag | Default | Effect |\n| --- | --- | --- | --- |\n| What can the server do? | `OCI_MODE` | `read-only` | All shipped tools are read-only. `read-write`/`admin` are reserved for future provisioning and currently expose no extra tools. |\n| Which compartments are in scope? | `OCI_COMPARTMENT_ALLOWLIST` | *(all)* | When set, operations on other compartments are refused. |\n| Which regions are reachable? | `OCI_REGION_ALLOWLIST` | *(configured region)* | When set, only these regions may be targeted. |\n| Can it run `terraform apply`? | `OCI_ALLOW_APPLY` | `false` | Reserved gate for provisioning (not yet shipped). |\n| Preview without executing | `OCI_DRY_RUN` | `false` | For future write tools: validate + log intent without executing. |\n| Audit trail | `OCI_AUDIT_LOG` | `true` | Emits a JSON line to stderr per guarded operation. |\n| Secret redaction | *(always on)* | — | Secret-shaped fields are replaced with `***REDACTED***` before any result is returned. |\n\n## Tools\n\n**Discovery** (read): `list_compartments`, `list_regions`, `search_resources`, `list_compartment_resources`, `get_resource`\n\n**Terraform** (read): `generate_terraform`, `generate_compartment_terraform`, `build_dependency_graph`\n\n## Quickstart — add to your agent\n\nPublished on npm as [`@dockndevai/mcp-oci`](https://www.npmjs.com/package/@dockndevai/mcp-oci). No clone or build needed — your MCP client runs it on demand with `npx`. **Start in `read-only` mode**; see [`.env.example`](.env.example) for every variable and [docs/CLIENTS.md](docs/CLIENTS.md) for the full per-client guide.\n\n**Claude Code** (CLI)\n\n```bash\nclaude mcp add oci -e OCI_PROFILE=\"DEFAULT\" -e OCI_MODE=\"read-only\" -- npx -y @dockndevai/mcp-oci\n```\n\n**Claude Desktop · Cursor · Windsurf** — same block in `claude_desktop_config.json`, `.cursor/mcp.json`, or `~/.codeium/windsurf/mcp_config.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"oci\": {\n      \"command\": \"npx\",\n      \"args\": [\n        \"-y\",\n        \"@dockndevai/mcp-oci\"\n      ],\n      \"env\": {\n        \"OCI_PROFILE\": \"DEFAULT\",\n        \"OCI_MODE\": \"read-only\"\n      }\n    }\n  }\n}\n```\n\n**OpenAI Codex CLI** — in `~/.codex/config.toml`:\n\n```toml\n[mcp_servers.oci]\ncommand = \"npx\"\nargs = [\"-y\", \"@dockndevai/mcp-oci\"]\nenv = { OCI_PROFILE = \"DEFAULT\", OCI_MODE = \"read-only\" }\n```\n\n**VS Code (GitHub Copilot, Agent mode)** — in `.vscode/mcp.json`:\n\n```json\n{\n  \"servers\": {\n    \"oci\": {\n      \"type\": \"stdio\",\n      \"command\": \"npx\",\n      \"args\": [\n        \"-y\",\n        \"@dockndevai/mcp-oci\"\n      ],\n      \"env\": {\n        \"OCI_PROFILE\": \"DEFAULT\",\n        \"OCI_MODE\": \"read-only\"\n      }\n    }\n  }\n}\n```\n\n## Configure\n\nPoint it at a standard OCI config profile. For safety, use an IAM user/policy with\nread-only (`inspect`/`read`) permissions on the compartments you want the agent to see.\n\n## Example prompts\n\n- *\"List all compartments, then show every resource in the `prod` compartment.\"*\n- *\"Generate Terraform for VCN `ocid1.vcn.oc1..…`.\"*\n- *\"Build a dependency graph for compartment `…` and tell me the provisioning order.\"*\n\n## Run from source (development)\n\nPrefer the published package above. To run from a clone:\n\n```bash\nnpm install\nnpm run build\nnode dist/index.js   # with the environment variables set\n```\n\n## Develop\n\n```bash\nnpm run dev        # watch mode\nnpm test           # security policy + terraform generation + graph + redaction\nnpm run typecheck\n```\n\n## Roadmap\n\n- `terraform plan` / `apply` execution behind `read-write`/`admin` + `OCI_ALLOW_APPLY`.\n- More resource-type mappers (load balancers, databases, DRGs, IAM policies).\n- Cross-environment drift comparison.\n\n## Publishing\n\nThis server ships a [`server.json`](server.json) for the official MCP registry and an [`mcpName`](package.json) for npm ownership validation. See **[PUBLISHING.md](PUBLISHING.md)** for publishing to npm and listing on the MCP registry, Smithery, Glama, Cursor, and PulseMCP.\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

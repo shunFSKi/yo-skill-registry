@@ -17,7 +17,7 @@
   "quality": {
     "stars": null,
     "pushed_at": "2026-08-23T06:24:33.531882Z",
-    "score": 52
+    "score": 42
   },
   "security": {
     "score": 100,
@@ -49,6 +49,6 @@
     "category": null,
     "featured": false
   },
-  "readme": "# Plushwipes Agent Revenue V1\n\nApproved active production release of the machine-readable Agent Revenue program for `earn.plushwipes.com`.\n\nThe repository contains the public opportunity surface, agent registration, referral attribution, performance reporting, commission state transitions, a public leaderboard, sanitized Shopify webhook processing and local synthetic acceptance tests. It does not contain production credentials or customer/order data.\n\n## Runtime\n\n- Node.js `>=22.13.0`\n- vinext / Cloudflare Workers\n- Cloudflare D1 through the `DB` binding\n\n## Local setup\n\nInstall the locked dependency tree:\n\n```bash\nnpm ci --ignore-scripts\n```\n\nCreate and migrate a local D1 database:\n\n```bash\nnpx wrangler d1 create plushwipes-agent-revenue-v1-local --local --config wrangler.local.jsonc\nnpx wrangler d1 migrations apply DB --local --config wrangler.local.jsonc\n```\n\nStart with synthetic-only secrets:\n\n```bash\nSHOPIFY_WEBHOOK_SECRET=synthetic-test-webhook-secret \\\nADMIN_API_KEY=synthetic-test-admin-key \\\nREGISTRATION_RATE_LIMIT_SECRET=synthetic-test-rate-secret \\\nPROGRAM_STATUS=active \\\nnpm run dev\n```\n\nRun build, unit, static and rendered-content tests:\n\n```bash\nnpm test\n```\n\nWith the local server running, run the synthetic workflow:\n\n```bash\nnpm run test:e2e\n```\n\n## Public surfaces\n\n- `/skill.md`\n- `/opportunity.json`\n- `/products.json`\n- `/claims.json`\n- `/assets.json`\n- `/reviews.json`\n- `/service.json`\n- `/policy.json`\n- `/terms.md`\n- `GET /api/evaluate` (read-only; no registration, terms acceptance or credential creation)\n- `POST /api/register`\n- `GET /s/{source_token}/skill.md`\n- `POST /api/terms/accept`\n- `GET /r/{referral_code}`\n- `GET /api/performance/{agent_id}`\n- `GET /api/leaderboard`\n\n## Operator surfaces\n\nOperator endpoints require `Authorization: Bearer <ADMIN_API_KEY>`:\n\n- `POST /api/admin/commissions/{order_id}`\n- `GET /api/admin/daily-report`\n- `GET /api/admin/database-status`\n- `GET /api/admin/diagnostics/webhook-failures`\n- `GET /api/admin/distribution-report`\n\nShopify webhook endpoints require a valid raw-body HMAC:\n\n- `POST /api/webhooks/shopify/orders-paid`\n- `POST /api/webhooks/shopify/refunds-create`\n- `POST /api/webhooks/shopify/orders-cancelled`\n\nThe integration contract and prelaunch Shopify instructions are in `integration/shopify/`. No Shopify write is performed by local setup or tests.\n\n## Production gate\n\nThe committed public dataset is the approved `\"program_status\": \"active\"` production release. Rollback is the saved Sites version 1 with the `PROGRAM_STATUS=prelaunch` environment gate.\n",
+  "readme": null,
   "status": "curated"
 }

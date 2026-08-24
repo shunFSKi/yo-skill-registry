@@ -17,7 +17,7 @@
   "quality": {
     "stars": null,
     "pushed_at": "2026-08-22T22:21:55.952557Z",
-    "score": 52
+    "score": 42
   },
   "security": {
     "score": 100,
@@ -49,6 +49,6 @@
     "category": "金融",
     "featured": false
   },
-  "readme": "# HireMe MCP\n\n**The first portfolio AI agents can hire.** An open [Model Context Protocol](https://modelcontextprotocol.io) server that exposes Djaouad Frih's real profile, shipped products, fixed pricing and a project-brief intake — so Claude, Cursor, ChatGPT or any MCP client can vet the work and file a brief on your behalf.\n\nLive: **https://mcp.djaouad.tech** · MCP endpoint: `https://mcp.djaouad.tech/mcp`\n\n## Tools\n\n| Tool | Type | What it does |\n|---|---|---|\n| `get_profile` | read | Identity, stack, live products, availability, contact links |\n| `search_projects` | read | Semantic-ish search over shipped projects (proof of experience) |\n| `get_pricing` | read | Fixed-price services in USD with ETAs |\n| `get_next_slot` | read | Availability status + direct booking link |\n| `submit_project_brief` | **write** | Files a project brief → persisted + emailed. Rate limited per IP |\n\n## The famous flows\n\n1. **Founder delegate** — *\"Claude, find me an AI engineer under $2k and send them my requirements\"* → their agent calls `get_pricing` → `search_projects` → files a brief.\n2. **Recruiter deep-dive** — *\"Has he actually shipped RAG?\"* → grounded answers with demo links.\n3. **Comparison shopper** — pricing + timeline vs. an agency, plus next opening.\n\n## Structure\n\n```\nbackend/    Express + @modelcontextprotocol/sdk (Streamable HTTP, stateless)\n            POST /mcp            ← MCP clients\n            /api/tools/:id       ← same handlers over REST (widget, mobile)\n            /api/briefs          ← admin inbox (Bearer ADMIN_TOKEN)\n            /widget.js           ← embeddable badge\nfrontend/   Next.js console (Netlify → mcp.djaouad.tech): connect configs,\n            live playground, scenarios\nmobile/     Expo app: profile, tool runner, admin briefs inbox\n```\n\n## Run locally\n\n```bash\ncd backend  && npm i && npm run dev        # :4343\ncd frontend && npm i && npm run dev        # set NEXT_PUBLIC_API_URL=http://localhost:4343\ncd mobile   && npm i && npm start          # Expo Go\n```\n\nCopy `backend/.env.example` → `.env`. Without `DATABASE_URL` it runs in memory-only demo mode; without Gmail creds email notifications are skipped silently.\n\n## Deploy\n\n- **Backend → Render**: `render.yaml` included (free tier). Set `DATABASE_URL`, `ADMIN_TOKEN`, optional `GMAIL_USER`/`GMAIL_APP_PASSWORD`.\n- **Frontend → Netlify**: repo import picks up `netlify.toml` (static export). Attach custom domain `mcp.djaouad.tech`.\n- **Mobile → APK**: `eas build -p android --profile preview` or `expo run:android`.\n\n## Connect in one paste\n\n```json\n{ \"mcpServers\": { \"hireme-mcp\": { \"url\": \"https://mcp.djaouad.tech/mcp\" } } }\n```\n\n---\n\nBuilt by [Djaouad Frih](https://djaouad.tech) — this server is itself the demo of what he ships.\n",
+  "readme": null,
   "status": "curated"
 }

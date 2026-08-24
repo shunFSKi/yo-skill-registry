@@ -1,0 +1,61 @@
+{
+  "id": "mcp:official/io.github.Enigma-52/workway",
+  "type": "mcp",
+  "name": "workway",
+  "description": "Search 490k+ live jobs from company ATS boards, save roles, follow companies, manage talent profile.",
+  "author": "io.github.Enigma-52",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/Enigma-52/WorkWay--BE",
+    "repo": "Enigma-52/WorkWay--BE"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://www.workway.dev/api/mcp",
+    "env": [
+      {
+        "name": "Authorization",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-23T20:43:31.284279Z",
+    "score": 55
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# WorkWay Backend\n\nAPI service powering [WorkWay](https://www.workway.dev) — company/job discovery, filters, sitemaps, and Greenhouse/Ashby/YC ingestion.\n\n## Stack\n\n- Node.js (ES modules) + Express 5\n- PostgreSQL (`pg`)\n\n## Structure\n\n- `src/server.js` — app bootstrap, DB init, route mount, graceful shutdown\n- `src/config.js` — environment/config mapping\n- `src/routes/` — API route handlers\n- `src/services/` — business logic\n- `src/dao/` — SQL queries and DAO abstractions\n- `src/utils/` — logger, constants, parsing/classification helpers\n- `src/data/greenhouseCompanies.js` — seed list of Greenhouse namespaces\n- `docs/DETAILED_DOCS.md` — detailed architecture and endpoint reference\n\n## Setup\n\n```bash\nnpm install\n```\n\nCreate `.env` in repo root:\n\n```env\nAPP_ENV=dev\nPOSTGRES_DB_HOST=localhost\nPOSTGRES_DB_PORT=5432\nPOSTGRES_DB_USER=postgres\nPOSTGRES_DB_PASSWORD=root\nPOSTGRES_DB_DATABASE=eqhqdb\nPOSTGRES_DB_MAX_CONNECTIONS=20\nPORT=3000\n```\n\nRun:\n\n```bash\nnpm run dev   # or: npm start\n```\n\nDefaults to `http://localhost:3000`.\n\n## API\n\nBase path: `/api`\n\n- `/api/company`, `/api/job`, `/api/feed`, `/api/filter`, `/api/cron`\n- `/api/sitemap.xml`, `/api/sitemaps/*`\n- `GET /api/job/list` — paginated job listing with search/filters, returns `jobs`, `meta`, `applied_filters`, `facets`\n- `GET /api/job/filters` — facet counts for the filter UI\n\nFull request/response reference: `docs/DETAILED_DOCS.md`\n\n## Health\n\n- `GET /health` — uptime + timestamp\n- `GET /` — server-running check\n\n## Ingestion\n\nCron-style HTTP endpoints load Greenhouse, Ashby, and YC companies, fetch their jobs, classify them (domain/level/employment type), and upsert into PostgreSQL.\n\n## Production\n\nServes **[workway.dev](https://www.workway.dev)**.\n",
+  "status": "curated"
+}

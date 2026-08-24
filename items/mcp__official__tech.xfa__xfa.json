@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/tech.xfa/xfa",
+  "type": "mcp",
+  "name": "xfa",
+  "description": "XFA's remote MCP server — query device posture, compliance, policies & CVEs. Read-only.",
+  "author": "tech.xfa",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/gl-ventures/xfa-mcp",
+    "repo": "gl-ventures/xfa-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://mcp.xfa.tech/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-23T22:21:03.01615Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# XFA MCP\n\n[XFA](https://xfa.tech) is a BYOD device-trust platform. This is **XFA's remote [Model Context Protocol](https://modelcontextprotocol.io) server** — query your organization's device posture, compliance, policies, and software/CVE status from Claude, ChatGPT, Cursor, and other AI assistants. Read-only.\n\nThis repository is the **connector package** for AI marketplaces. The MCP server itself is hosted by XFA at `https://mcp.xfa.tech/mcp`; nothing runs locally. Authentication is OAuth 2.0 (PKCE) — you sign in with your XFA account on connect.\n\n## Where it's published\n\n| Surface | Status | Where to submit / find |\n| --- | --- | --- |\n| Official MCP Registry | ✅ Live | `tech.xfa/xfa` · [registry.modelcontextprotocol.io](https://registry.modelcontextprotocol.io) |\n| Glama | ⏳ Propagating from registry | [glama.ai/mcp/servers](https://glama.ai/mcp/servers) |\n| Smithery | ⏳ Propagating from registry | [smithery.ai](https://smithery.ai) |\n| PulseMCP | ⏳ Propagating from registry | [pulsemcp.com](https://www.pulsemcp.com) |\n| mcp.so | ⏳ Propagating from registry | [mcp.so](https://mcp.so) |\n| Cursor Marketplace | 🕒 Submitted — pending approval | [cursor.com/marketplace/publish](https://cursor.com/marketplace/publish) |\n| Claude Connectors Directory | 🕒 Pending | Claude.ai → Settings → Connectors (Team/Enterprise) |\n| ChatGPT app directory | 🕒 Pending | [Apps SDK submission](https://developers.openai.com/apps-sdk/app-submission-guidelines) |\n| Gemini / Antigravity CLI | ✅ Installable · ⏳ gallery auto-crawl | `gemini-cli-extension` topic set; also via the MCP Registry |\n| awesome-mcp-servers | 🕒 PR open — [#12739](https://github.com/punkpeye/awesome-mcp-servers/pull/12739) | Security section |\n\n_Legend: ✅ live · ⏳ propagating (no action) · 🕒 pending. Update a row when its listing goes live._\n\n> **Gemini note:** the Gemini CLI gallery has no submission form — it crawls public repos\n> tagged with the `gemini-cli-extension` GitHub topic daily (already set). Gemini CLI merged\n> into **Antigravity CLI** (June 2026); Antigravity discovers MCP servers via the MCP Registry,\n> where this server is already live, so no separate Antigravity submission is needed.\n\n## Install\n\n### Cursor\n\nOne-click:\n\n```\ncursor://anysphere.cursor-deeplink/mcp/install?name=xfa&config=eyJ1cmwiOiJodHRwczovL21jcC54ZmEudGVjaC9tY3AifQ==\n```\n\nOr add to `~/.cursor/mcp.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"xfa\": { \"url\": \"https://mcp.xfa.tech/mcp\" }\n  }\n}\n```\n\n### Claude\n\nSettings → Connectors → Add custom connector → URL `https://mcp.xfa.tech/mcp`.\n\n### ChatGPT\n\nSettings → Connectors → Add → MCP server URL `https://mcp.xfa.tech/mcp`.\n\n### Gemini CLI\n\nInstall the extension:\n\n```\ngemini extensions install https://github.com/gl-ventures/xfa-mcp\n```\n\nThe bundled `gemini-extension.json` points at the remote server; Gemini discovers OAuth from the server metadata and prompts you to sign in on first use.\n\n### VS Code / Windsurf / Zed / other MCP clients\n\nPoint the client at the remote URL `https://mcp.xfa.tech/mcp` (streamable HTTP / SSE, OAuth 2.0).\n\n## Tools\n\nAll tools are read-only. The live server is the source of truth — clients fetch the current tool list from the endpoint on every connection, so this list may lag the deployed server. See the [Connect an AI assistant](https://docs.xfa.tech/admin/connect-ai-assistant) docs for the maintained reference.\n\n**Your organization** (scoped to the signed-in user's org)\n\n| Tool | Description |\n| --- | --- |\n| `get_organization` | Get your XFA organization |\n| `get_current_user` | Get the signed-in user |\n| `list_devices` | List devices (active in the last 30 days) |\n| `get_device` | Get a single device |\n| `get_compliance_summary` | Org-wide compliance summary |\n| `get_posture_trends` | Posture trends over time |\n| `list_policies` | List policies |\n\n**Software & vulnerabilities** (XFA's tracked-software catalog)\n\n| Tool | Description |\n| --- | --- |\n| `get_latest_version` | Latest known version of a piece of software |\n| `list_versioned_software_catalog` | List the software XFA tracks |\n| `get_software_version_info` | Status of a specific software version |\n| `get_cves_for_version` | CVEs affecting a software version |\n\n## Authentication\n\nOAuth 2.0 with PKCE (S256), scope `mcp:read`. On connect you are redirected to XFA to authorize; no API keys or tokens are stored in this package. The client auto-discovers the OAuth endpoints from the server's already-published metadata:\n\n- `https://mcp.xfa.tech/.well-known/oauth-protected-resource`\n- `https://mcp.xfa.tech/.well-known/oauth-authorization-server`\n\n## Support\n\n- Docs: https://docs.xfa.tech/admin/connect-ai-assistant\n- Issues: https://github.com/gl-ventures/xfa-mcp/issues\n- Email: support@xfa.tech\n\n## Maintainers\n\nThe [`MCP Registry` workflow](.github/workflows/publish-registry.yml) validates `server.json`\non every change and publishes to the [official MCP Registry](https://registry.modelcontextprotocol.io)\non pushes to `main` (or via **Run workflow**). It authenticates by DNS against the\n`v=MCPv1` TXT record on the `xfa.tech` apex.\n\nTo release a new version: bump `version` in `server.json`, merge to `main`.\n\nRequired repo secret: **`MCP_REGISTRY_KEY_PEM`** — the Ed25519 private key PEM\n(pairs with the DNS TXT record). Keep the matching key backed up in a password manager.\n\n## License\n\nMIT — see [LICENSE](LICENSE).\n",
+  "status": "curated"
+}

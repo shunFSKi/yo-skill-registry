@@ -1,0 +1,80 @@
+{
+  "id": "mcp:official/io.github.dockndevai/mcp-clickhouse",
+  "type": "mcp",
+  "name": "mcp-clickhouse",
+  "description": "ClickHouse query & management for AI agents — SQL-classified read/write/destructive gating.",
+  "author": "io.github.dockndevai",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/dockndevai/mcp-clickhouse",
+    "repo": "dockndevai/mcp-clickhouse"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@dockndevai/mcp-clickhouse"
+    ],
+    "env": [
+      {
+        "name": "CLICKHOUSE_URL",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "CLICKHOUSE_USER",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "CLICKHOUSE_PASSWORD",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "CLICKHOUSE_MODE",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-23T17:06:54.498793Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "写作",
+    "featured": false
+  },
+  "readme": "# mcp-clickhouse\n\n[![CI](https://github.com/dockndevai/mcp-clickhouse/actions/workflows/ci.yml/badge.svg)](https://github.com/dockndevai/mcp-clickhouse/actions/workflows/ci.yml)\n[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)\n[![npm](https://img.shields.io/npm/v/@dockndevai/mcp-clickhouse)](https://www.npmjs.com/package/@dockndevai/mcp-clickhouse)\n\nA [Model Context Protocol](https://modelcontextprotocol.io) server for **ClickHouse**. It lets an MCP-capable client (Claude Desktop, Claude Code, etc.) explore schemas, run analytical queries, and manage the database — with behaviour controlled entirely by flags.\n\nThe security model is **statement-aware**: every SQL statement is classified as read, write, or destructive, and gated against the current access mode. Read-only mode additionally runs queries under ClickHouse's own `readonly=1` setting.\n\n## Features\n\n- **Exploration & monitoring** — databases, tables, columns, `SHOW CREATE`, table stats (parts/rows/bytes), running queries, server metrics, cluster topology.\n- **Read queries** — a `query` tool that only accepts read statements, capped at `CLICKHOUSE_MAX_ROWS`.\n- **Management** — an `execute` tool for INSERT/CREATE/ALTER (read-write) and DROP/TRUNCATE/DELETE (admin), each gated by classification.\n- **Access modes** — `read-only` → `read-write` → `admin`, layered so a mode never exposes statements above its level.\n- **Security flags** — database allowlist, protected databases, destructive gating, row cap, dry-run, and JSON audit logging (see below).\n\n## Security model\n\n| Concern | Flag | Default | Effect |\n| --- | --- | --- | --- |\n| What can the server do? | `CLICKHOUSE_MODE` | `read-only` | `read-only` exposes read tools only (and refuses non-SELECT in `query`); `read-write` adds `execute` for writes; `admin` allows destructive statements. |\n| Which databases are in scope? | `CLICKHOUSE_DATABASE_ALLOWLIST` | *(all)* | When set, operations on other databases are refused. |\n| Which databases are read-only forever? | `CLICKHOUSE_PROTECTED_DATABASES` | `system,information_schema` | Readable, never mutable. |\n| Can it run destructive SQL? | `CLICKHOUSE_ALLOW_DELETE` | `false` | DROP/TRUNCATE/DELETE/… need this **and** admin mode. |\n| Result size cap | `CLICKHOUSE_MAX_ROWS` | `1000` | Hard cap on rows returned to the model. |\n| Preview without executing | `CLICKHOUSE_DRY_RUN` | `false` | Write/destructive statements validate + log intent, then return. |\n| Audit trail | `CLICKHOUSE_AUDIT_LOG` | `true` | Emits a JSON line to stderr per guarded operation. |\n\nStatement classification lives in `src/sql.ts` and is fail-safe: `ALTER … DELETE/UPDATE` counts as destructive, and anything unparseable is treated as destructive.\n\n## Tools\n\n**Read** (`read-only`+): `list_databases`, `list_tables`, `describe_table`, `show_create_table`, `table_stats`, `running_queries`, `server_metrics`, `cluster_info`, `query`\n\n**Write/Admin** (`read-write`+): `execute` — runs a single statement after classifying it; writes need read-write mode, destructive statements need admin mode + `CLICKHOUSE_ALLOW_DELETE`.\n\n## Quickstart — add to your agent\n\nPublished on npm as [`@dockndevai/mcp-clickhouse`](https://www.npmjs.com/package/@dockndevai/mcp-clickhouse). No clone or build needed — your MCP client runs it on demand with `npx`. **Start in `read-only` mode**; see [`.env.example`](.env.example) for every variable and [docs/CLIENTS.md](docs/CLIENTS.md) for the full per-client guide.\n\n**Claude Code** (CLI)\n\n```bash\nclaude mcp add clickhouse -e CLICKHOUSE_URL=\"http://localhost:8123\" -e CLICKHOUSE_USER=\"default\" -e CLICKHOUSE_MODE=\"read-only\" -- npx -y @dockndevai/mcp-clickhouse\n```\n\n**Claude Desktop · Cursor · Windsurf** — same block in `claude_desktop_config.json`, `.cursor/mcp.json`, or `~/.codeium/windsurf/mcp_config.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"clickhouse\": {\n      \"command\": \"npx\",\n      \"args\": [\n        \"-y\",\n        \"@dockndevai/mcp-clickhouse\"\n      ],\n      \"env\": {\n        \"CLICKHOUSE_URL\": \"http://localhost:8123\",\n        \"CLICKHOUSE_USER\": \"default\",\n        \"CLICKHOUSE_MODE\": \"read-only\"\n      }\n    }\n  }\n}\n```\n\n**OpenAI Codex CLI** — in `~/.codex/config.toml`:\n\n```toml\n[mcp_servers.clickhouse]\ncommand = \"npx\"\nargs = [\"-y\", \"@dockndevai/mcp-clickhouse\"]\nenv = { CLICKHOUSE_URL = \"http://localhost:8123\", CLICKHOUSE_USER = \"default\", CLICKHOUSE_MODE = \"read-only\" }\n```\n\n**VS Code (GitHub Copilot, Agent mode)** — in `.vscode/mcp.json`:\n\n```json\n{\n  \"servers\": {\n    \"clickhouse\": {\n      \"type\": \"stdio\",\n      \"command\": \"npx\",\n      \"args\": [\n        \"-y\",\n        \"@dockndevai/mcp-clickhouse\"\n      ],\n      \"env\": {\n        \"CLICKHOUSE_URL\": \"http://localhost:8123\",\n        \"CLICKHOUSE_USER\": \"default\",\n        \"CLICKHOUSE_MODE\": \"read-only\"\n      }\n    }\n  }\n}\n```\n\n## Example prompts\n\n- *\"What are the biggest tables in the `analytics` database?\"*\n- *\"Show me the schema for `events` and run a query for daily counts this week.\"*\n- *\"Which queries are currently running and using the most memory?\"*\n\n## Run from source (development)\n\nPrefer the published package above. To run from a clone:\n\n```bash\nnpm install\nnpm run build\nnode dist/index.js   # with the environment variables set\n```\n\n## Develop\n\n```bash\nnpm run dev\nnpm test          # SQL classification + security policy (30 tests)\nnpm run typecheck\n```\n\n## Publishing\n\nThis server ships a [`server.json`](server.json) for the official MCP registry and an [`mcpName`](package.json) for npm ownership validation. See **[PUBLISHING.md](PUBLISHING.md)** for publishing to npm and listing on the MCP registry, Smithery, Glama, Cursor, and PulseMCP.\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

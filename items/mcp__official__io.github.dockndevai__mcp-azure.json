@@ -1,0 +1,85 @@
+{
+  "id": "mcp:official/io.github.dockndevai/mcp-azure",
+  "type": "mcp",
+  "name": "mcp-azure",
+  "description": "Azure Resource Manager inventory & ops for AI agents — governed, confirmation-gated.",
+  "author": "io.github.dockndevai",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/dockndevai/mcp-azure",
+    "repo": "dockndevai/mcp-azure"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@dockndevai/mcp-azure"
+    ],
+    "env": [
+      {
+        "name": "AZURE_TENANT_ID",
+        "required": true,
+        "secret": false
+      },
+      {
+        "name": "AZURE_CLIENT_ID",
+        "required": true,
+        "secret": false
+      },
+      {
+        "name": "AZURE_CLIENT_SECRET",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "AZURE_SUBSCRIPTION_ID",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "AZURE_MODE",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-23T17:07:00.498678Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# mcp-azure\n\n[![CI](https://github.com/dockndevai/mcp-azure/actions/workflows/ci.yml/badge.svg)](https://github.com/dockndevai/mcp-azure/actions/workflows/ci.yml)\n[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)\n[![npm](https://img.shields.io/npm/v/@dockndevai/mcp-azure)](https://www.npmjs.com/package/@dockndevai/mcp-azure)\n\nA [Model Context Protocol](https://modelcontextprotocol.io) server for **Azure** (via the Azure Resource Manager API — the programmatic layer behind the Azure Portal). It lets an MCP-capable client (Claude Desktop, Claude Code, Cursor, Codex, …) inventory and operate Azure resources — with a governance layer that keeps an AI agent inside safe boundaries.\n\n## What this offers\n\n- **Inventory** — list subscriptions, locations, resource groups, and resources; get any resource by ARM id.\n- **Operations** — create resource groups (in approved regions), merge tags onto any resource, and control VM power state (start / stop / restart / deallocate).\n- **Lifecycle** — delete resource groups and individual resources, guarded.\n- **Governance built in** — access modes, subscription/resource-group allowlists, protected resource groups, a location allowlist for new groups, delete gating, typed confirmation for high-impact deletes, dry-run, and JSON audit logging.\n\n## Governance & security model\n\n| Concern | Flag | Default | Effect |\n| --- | --- | --- | --- |\n| What can the server do? | `AZURE_MODE` | `read-only` | `read-only` → inventory; `read-write` → create RG, tag, VM power; `admin` → deletes. Tools above the mode are **never registered**. |\n| Which subscriptions? | `AZURE_SUBSCRIPTION_ALLOWLIST` | *(all)* | Operations on other subscriptions are refused. |\n| Which resource groups? | `AZURE_RESOURCE_GROUP_ALLOWLIST` | *(all)* | Operations outside the list are refused. |\n| Read-only-forever groups | `AZURE_PROTECTED_RESOURCE_GROUPS` | *(none)* | Readable, never mutable. |\n| Approved regions | `AZURE_LOCATION_ALLOWLIST` | *(any)* | New resource groups may only be created here. |\n| Can it delete? | `AZURE_ALLOW_DELETE` | `false` | Deletes need this **and** admin mode. |\n| Typed confirmation | `AZURE_REQUIRE_CONFIRMATION` | `true` | Deletes require `confirm` to equal the target name — not just a boolean. |\n| Preview | `AZURE_DRY_RUN` | `false` | Write/admin tools validate + log intent, then return. |\n| Audit trail | `AZURE_AUDIT_LOG` | `true` | JSON line to stderr per guarded operation. |\n\n## Tools\n\n**Read** (`read-only`+): `list_subscriptions`, `list_locations`, `list_resource_groups`, `list_resources`, `get_resource`\n\n**Write** (`read-write`+): `create_resource_group`, `tag_resource`, `control_vm`\n\n**Admin** (`admin`): `delete_resource_group`, `delete_resource` (both need `AZURE_ALLOW_DELETE` + typed `confirm`)\n\n## Quickstart — add to your agent\n\nPublished on npm as [`@dockndevai/mcp-azure`](https://www.npmjs.com/package/@dockndevai/mcp-azure). Runs via `npx` with an Entra ID service principal. See [docs/CLIENTS.md](docs/CLIENTS.md) for every client and [`.env.example`](.env.example) for all variables.\n\n**Claude Code**\n\n```bash\nclaude mcp add azure -e AZURE_TENANT_ID=\"…\" -e AZURE_CLIENT_ID=\"…\" -e AZURE_CLIENT_SECRET=\"…\" -e AZURE_SUBSCRIPTION_ID=\"…\" -e AZURE_MODE=\"read-only\" -- npx -y @dockndevai/mcp-azure\n```\n\n**Claude Desktop · Cursor · Windsurf**\n\n```json\n{\n  \"mcpServers\": {\n    \"azure\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@dockndevai/mcp-azure\"],\n      \"env\": {\n        \"AZURE_TENANT_ID\": \"…\",\n        \"AZURE_CLIENT_ID\": \"…\",\n        \"AZURE_CLIENT_SECRET\": \"…\",\n        \"AZURE_SUBSCRIPTION_ID\": \"…\",\n        \"AZURE_MODE\": \"read-only\"\n      }\n    }\n  }\n}\n```\n\n## Example prompts\n\n- *\"List all resource groups in my subscription and which region each is in\"*\n- *\"Show every resource in the rg-web group\"*\n- *\"Tag the app-plan resource with env=prod and owner=team-a\"* (needs read-write)\n- *\"Stop the build-agent VM in rg-ci\"* (needs read-write)\n\n## Run from source (development)\n\n```bash\nnpm install\nnpm run build\nnode dist/index.js   # with the environment variables set\n```\n\n## Develop\n\n```bash\nnpm run dev\nnpm test          # governance policy: modes, scoping, location allowlist, delete + confirmation\nnpm run typecheck\n```\n\n## Publishing\n\nShips a [`server.json`](server.json) for the official MCP registry and an [`mcpName`](package.json) for npm ownership validation. See **[PUBLISHING.md](PUBLISHING.md)**.\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

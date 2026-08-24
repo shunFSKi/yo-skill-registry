@@ -1,0 +1,65 @@
+{
+  "id": "mcp:official/io.github.dhughes6071/driftwatch",
+  "type": "mcp",
+  "name": "driftwatch",
+  "description": "What broke between two dependency versions, with a citation for every claim. No API key needed.",
+  "author": "io.github.dhughes6071",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/dhughes6071/driftwatch",
+    "repo": "dhughes6071/driftwatch"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "driftwatch-mcp"
+    ],
+    "env": [
+      {
+        "name": "ANTHROPIC_API_KEY",
+        "required": false,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-23T17:46:55.817972Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# driftwatch\n\n[![npm](https://img.shields.io/npm/v/driftwatch-mcp)](https://www.npmjs.com/package/driftwatch-mcp)\n[![license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)\n[![node](https://img.shields.io/badge/node-%3E%3D22.6-brightgreen)](https://nodejs.org)\n\n**Dependency migration intelligence for AI coding agents.**\n\nAnswers one question, precisely and with citations:\n\n> *This library moved from version A to version B. What broke, and what edits\n> does my code need?*\n\nNew here? Start with the [Beginner's Guide](BEGINNER_GUIDE.md).\n\n---\n\n## Install (30 seconds)\n\nAdd it to Claude Desktop, Claude Code, Cursor, or any MCP client:\n\n```json\n{\n  \"mcpServers\": {\n    \"driftwatch\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"driftwatch-mcp\"]\n    }\n  }\n}\n```\n\nThat is the whole setup. **No API key, no account, no payment, no config.** The\nengine runs locally on your machine and reads only public data — npm, PyPI,\nGitHub Releases, and OSV.dev.\n\nTwo tools appear in your agent:\n\n| Tool | What it does |\n|---|---|\n| `get_migration_delta` | What broke between version A and B, with a citation for every claim |\n| `check_package` | Does this package actually exist? Catches hallucinated and typosquatted names before you install them |\n\nOptionally set `ANTHROPIC_API_KEY` to add LLM-synthesized migration steps on top\nof the deterministic results. It works fully without one.\n\n---\n\n## Why this exists\n\nEvery LLM is frozen at a training cutoff. Libraries are not. When an agent\nwrites code against a version newer than its cutoff, it confidently emits an API\nthat no longer exists — and then burns roughly six failed build-fix iterations\nconverging on the truth.\n\nThe **SDKProof benchmark (July 2026)** measured this: models score 80/100 on\nPrisma v7 (the v6 `PrismaClient` pattern was removed) and 90/100 on Vercel AI\nSDK v5+ (parameters renamed, `maxSteps` deleted).\n\n```\nWithout driftwatch:  ~6 failed iterations x ~15k tokens  ->  $0.30-$1.50 + 10-20 min\nWith driftwatch:     1 call                              ->  $0.05\n```\n\nA 6–30x return the buyer computes for themselves. No trust required.\n\n---\n\n## Quick start\n\n```bash\nnpm install\ncp .env.example .env\nnpm start\n```\n\n```bash\n# The product\ncurl \"localhost:4021/v1/delta?ecosystem=npm&name=react&from=18.2.0&to=19.0.0\"\n\n# Free safety check -- catches hallucinated and typosquatted packages\ncurl \"localhost:4021/v1/check?ecosystem=npm&name=recat\"\n```\n\nRuns with payments off and paid AI features off. **Costs nothing.**\n\n---\n\n## What you get\n\n```jsonc\n{\n  \"package\": \"react\",\n  \"from\": \"18.2.0\", \"to\": \"19.0.0\",\n  \"jump\": { \"kind\": \"major\", \"majorsCrossed\": 1, \"releasesInRange\": 583 },\n  \"tier\": \"evidence\",\n  \"breakingChanges\": [\n    {\n      \"summary\": \"Removed: `ReactDOM.render`, `ReactDOM.hydrate` ...\",\n      \"version\": \"19.0.0\",\n      \"confidence\": \"medium\",\n      \"symbols\": [\"ReactDOM\", \"render\", \"hydrate\"],\n      \"citations\": [{ \"kind\": \"release-note\", \"url\": \"https://github.com/...\" }]\n    }\n  ],\n  \"advisories\": [],\n  \"citations\": [ /* every source we relied on */ ]\n}\n```\n\nEvery claim links to a primary source. We publish facts and short citations —\nnever wholesale documentation.\n\n---\n\n## Architecture\n\n```\n                 ┌──────────────────────────────────────────┐\n                 │   FREE PUBLIC SOURCES  (no licensed data) │\n                 │   npm · PyPI · GitHub Releases · OSV.dev  │\n                 └────────────────────┬─────────────────────┘\n                                      │\n                          ┌───────────▼───────────┐\n                          │   ENGINE               │\n                          │  ┌──────────────────┐  │\n                          │  │ deterministic    │  │  always on, $0\n                          │  │ extraction       │  │\n                          │  └────────┬─────────┘  │\n                          │  ┌────────▼─────────┐  │\n                          │  │ LLM synthesis    │  │  OPTIONAL, capped\n                          │  │ (off by default) │  │\n                          │  └────────┬─────────┘  │\n                          └───────────┼────────────┘\n                                      │\n                          ┌───────────▼───────────┐\n                          │  SQLite PERMANENT CACHE│  ← the margin\n                          │  + revenue ledger      │\n                          └───────────┬───────────┘\n                                      │\n              ┌───────────────────────┼───────────────────────┐\n              │                       │                       │\n      ┌───────▼───────┐      ┌────────▼────────┐    ┌────────▼────────┐\n      │  MCP server   │      │   HTTP API      │    │  x402 layer     │\n      │  (stdio)      │      │   + OpenAPI     │    │  (Base, USDC)   │\n      │               │      │                 │    │                 │\n      │ DISTRIBUTION  │      │    REVENUE      │    │   OPTIONALITY   │\n      └───────────────┘      └─────────────────┘    └─────────────────┘\n```\n\n**The strategy in one line:** MCP has the users, the API has the revenue, x402 is\ncheap positioning. See [DECISION.md](DECISION.md) for why, and\n[MARKET_RESEARCH.md](MARKET_RESEARCH.md) for the measured evidence.\n\n---\n\n## Endpoints\n\n| Endpoint | Price | Purpose |\n|---|---|---|\n| `GET /v1/delta` | $0.05 | The product — breaking changes between two versions |\n| `POST /v1/manifest` | $0.15 | Batch analysis, up to 50 packages |\n| `GET /v1/check` | free | Does this package exist? Is it a typosquat? |\n| `GET /health` | free | Liveness |\n| `GET /openapi.json` | free | Machine-readable spec |\n| `GET /llms.txt` | free | Agent-readable summary |\n| `GET /.well-known/x402` | free | Payment discovery |\n| `GET /admin/stats` | localhost | Revenue and cost ledger |\n\nEcosystems: **npm**, **PyPI**.\n\n---\n\n## MCP server\n\nThe distribution channel. Two tools: `get_migration_delta` and `check_package`.\n\nPublished as [`driftwatch-mcp`](https://www.npmjs.com/package/driftwatch-mcp) —\nsee [Install](#install-30-seconds) above for the one-block setup.\n\nTo run it from a clone instead of npm:\n\n```json\n{\n  \"mcpServers\": {\n    \"driftwatch\": {\n      \"command\": \"node\",\n      \"args\": [\"--experimental-strip-types\", \"/path/to/driftwatch/src/mcp/server.ts\"]\n    }\n  }\n}\n```\n\nRuns the engine locally by default — no network calls to us, no payment. Set\n`DRIFTWATCH_REMOTE_URL` to point it at a hosted instance instead.\n\n**No native dependencies required.** `better-sqlite3` is optional; if it cannot\nbuild on your machine the server falls back to a plain JSON cache and works\nidentically. A failed native build is the most common reason MCP servers die on\ninstall, and this one survives it.\n\n---\n\n## Commands\n\n```bash\nnpm start           # run the API server\nnpm run dev         # run with auto-reload\nnpm run mcp         # run the MCP server (stdio)\nnpm test            # unit tests -- no network, no cost\nnpm run testclient  # simulate a customer end to end\nnpm run wallet:new  # generate a TESTNET wallet\n```\n\n---\n\n## Security in one paragraph\n\n**This server never holds a private key.** Receiving crypto needs only a public\naddress; only spending needs a key, and we only ever receive. Compromise the\nserver and you get a cache and a ledger — you cannot get funds, because there is\nnothing to get. LLM spending is capped daily and checked before every call.\nFull detail: [docs/SECURITY.md](docs/SECURITY.md).\n\n---\n\n## Honest status\n\n**Shipped, and used by nobody yet.** As of 23 August 2026 the npm package is\nlive and verified working from a cold install, and it has zero organic users.\nThat is the honest state: the code works, the distribution has not started.\n\n**This is an unvalidated business.** The measured facts:\n\n- The entire independent x402 seller economy is **~$11,700/month** across\n  14,128 registered services (measured 2026-08-07 — see\n  [MARKET_RESEARCH.md](MARKET_RESEARCH.md)).\n- The best independent operator makes **~$872/month**.\n- Most coding agents run inside a human's subscription and **have no wallet**.\n\nSo: expect free MCP usage to vastly exceed paid calls, and expect x402 revenue\nnear zero in year one. The service is built so that outcome costs ~$1/month and\nstill produces something genuinely useful.\n\nThe metric that matters is not revenue — it is **calls per unique payer**. Below\n5 means tourism. Above 20 means a real business, even at tiny revenue.\n\n---\n\n## Documentation\n\n| File | What's in it |\n|---|---|\n| [BEGINNER_GUIDE.md](BEGINNER_GUIDE.md) | Everything, in plain English |\n| [MARKET_RESEARCH.md](MARKET_RESEARCH.md) | Measured state of x402, MCP, and agent payments |\n| [OPPORTUNITIES.md](OPPORTUNITIES.md) | 20 businesses considered, ranked |\n| [DECISION.md](DECISION.md) | Why this one, and the honest caveats |\n| [PROJECT_STATUS.md](PROJECT_STATUS.md) | Done / in progress / next |\n| [docs/SECURITY.md](docs/SECURITY.md) | Key custody, spending controls, threat model |\n| [docs/ECONOMICS.md](docs/ECONOMICS.md) | Unit economics and three scenarios |\n| [docs/COSTS.md](docs/COSTS.md) | Every recurring cost, before you commit |\n| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | Mac Mini → internet → mainnet → VPS |\n| [DAY_1.md](DAY_1.md) … [MONTH_1.md](MONTH_1.md) | Concrete launch plan |\n\n---\n\n## Data sources and ethics\n\nAll inputs are **free, public, and unlicensed**: the npm registry, PyPI, GitHub\nReleases, and OSV.dev.\n\nWe deliberately do **not** resell licensed data. The highest-earning independent\nx402 operators today proxy paid APIs (People Data Labs, Exa, Firecrawl) in\nprobable breach of their terms. That is the one business model demonstrably\nworking on x402, and we ruled it out.\n\nWe publish facts with short citations and links — never reproduced\ndocumentation.\n",
+  "status": "curated"
+}
