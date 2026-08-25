@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.charles-verdict/verdict-finance-mcp",
+  "type": "mcp",
+  "name": "Verdict: DeFi ratings, quantum readiness and hack incidents",
+  "description": "Keyless DeFi risk ratings: live letter grades, quantum readiness and a confirmed hack feed.",
+  "author": "io.github.charles-verdict",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/Verdict-Capital/verdict-finance-mcp",
+    "repo": "Verdict-Capital/verdict-finance-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "verdict-finance-mcp"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-24T22:21:42.189878Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "金融",
+    "featured": false
+  },
+  "readme": "# verdict-finance-mcp\n\n[Verdict](https://www.verdict.finance) is the institutional diligence layer for\nDeFi: independent ratings, rating-priced cover, security testing and continuous\nmonitoring, across seven entity types. This\n[Model Context Protocol](https://modelcontextprotocol.io) server lets AI agents\ncall that layer directly.\n\n**Live today: Verdict Ratings.** Letter grade (AAA to D) plus a composite score\n(0 to 100) built from 300+ criteria across the full dependency graph, for\nprotocols, chains, tokens, oracles, vaults, organisations and bridges. Plus\npost-quantum readiness for chains, and a live feed of confirmed DeFi hack\nincidents.\n\nKeyless. It wraps Verdict's live anonymous API, so there is no signup and no\nAPI key. Each user runs it locally and queries from their own IP.\n\n## Install\n\nAdd to your MCP client config (Claude Desktop: `claude_desktop_config.json`;\nClaude Code: `.mcp.json`):\n\n```json\n{\n  \"mcpServers\": {\n    \"verdict-finance\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"verdict-finance-mcp\"]\n    }\n  }\n}\n```\n\nThat is it. No key. (Requires Node 20+.)\n\n## Tools\n\n| Tool | What it does |\n| --- | --- |\n| `search_ratings({ query, entity_type? })` | Find entities by name or keyword. Omit `entity_type` to search all 7 types at once. |\n| `get_rating({ entity_type, identifier })` | Full free-tier rating for one entity, by slug (`aave-v4`, `ethereum`) or UUID. Includes dependency-drag provenance when it shaped the grade. |\n| `list_ratings({ entity_type, category?, chain?, limit? })` | Browse a set, best-rated first (default 25, cap 50). Category filters are lowercase, e.g. `lending`. |\n| `quantum_readiness({ chain? })` | Post-quantum cryptographic readiness for chains (QRI 0-100, readiness band, migration stage, hybrid-signature status), data by LayerQu. Omit `chain` for the full 72+ chain league table, including chains Verdict has not rated. |\n| `get_recent_incidents({ since?, slug?, limit? })` | Confirmed DeFi hack incidents, newest first (default 25, cap 200). Each is corroborated by more than one public hack-reporting source. Poll with `since`; filter to one rated protocol with `slug`. |\n\nEvery response ends with an attribution line linking back to the rating on\nverdict.finance.\n\nQuantum-readiness data is provided by\n[LayerQu](https://layerqu.com/dashboard/) and is companion data only. It never\nfeeds a Verdict grade; chain ratings simply carry an extra LayerQu line when a\nreading is available.\n\nThe incident feed carries confirmed hack incidents across DeFi, including ones\nat protocols Verdict does not rate. Two things are worth knowing when reading\nit. Matching to a rated protocol happens when an incident is received, so an\nincident stored before its protocol was rated is never retroactively\nre-matched. And an incident is a signal to look, never an automatic downgrade:\na matched entity may be flagged under review, but re-rating is always a human\ndecision.\n\n### Example prompts\n\n- *\"What does Verdict rate Aave?\"* runs `get_rating({ entity_type: \"protocol\", identifier: \"aave-v4\" })`\n- *\"Search Verdict for Chainlink.\"* runs `search_ratings({ query: \"chainlink\" })`\n- *\"List the chains Verdict rates.\"* runs `list_ratings({ entity_type: \"chain\" })`\n- *\"Is Ethereum quantum-ready?\"* runs `quantum_readiness({ chain: \"ethereum\" })`\n- *\"Any DeFi hacks this week?\"* runs `get_recent_incidents({ limit: 10 })`\n\n### Example output\n\n```\nAave V4 — BBB (78/100) · protocol · chains: Ethereum · categories: lending · https://www.verdict.finance/products/ratings#protocol-aave-v4\n\nRating by Verdict — https://www.verdict.finance/products/ratings#protocol-aave-v4 · Methodology + deeper analysis at https://www.verdict.finance\n```\n\nEntities that are not yet rated render as `unrated`. When a rating was pulled\ndown by a weak dependency, the response says which one.\n\n## The roadmap: the callable trust layer\n\nVerdict's diligence lifecycle is Assess, Rate, Cover, Secure, Monitor. Ratings\nare the first module agents can call. As the rest of the stack becomes\ncallable, this server grows a module per product:\n\n- **Cover**: rating-priced parametric cover on rated protocols.\n- **Audits**: hand over a repo, receive blind bids from top audit firms.\n- **Monitoring**: watchlists, live alerts and webhooks on rated entities.\n- **Pen testing**: engage frontend penetration tests.\n\nTool names are module-scoped (`search_ratings`, `get_rating`, `list_ratings`)\nso new modules arrive without breaking existing agents.\n\n## How it works\n\nVerdict's read API is anonymous and rate-limited per IP (120/min, 20k/day).\nThis server:\n\n- lists and looks up entities via `GET /{type}s` and `GET /{type}s/{identifier}`, and\n- fetches each entity's latest published scorecard\n  (`GET /{type}s/{id}/scorecards`) for the grade + composite score.\n\nThe API base is `https://api.verdict.finance/api/v1` and can be overridden with\nthe `VERDICT_API_BASE` environment variable (used for testing). The full API\nsurface is documented at\n[api.verdict.finance/openapi.json](https://api.verdict.finance/openapi.json).\n\nRate limits and outages are handled gracefully. Tools return a friendly text\nmessage, never a crash.\n\n## Attribution and trademark\n\nRatings and methodology are © Verdict. This tool surfaces the free tier; the\nfull methodology, domain breakdowns and deeper analysis live at\n[verdict.finance](https://www.verdict.finance). The code is Apache-2.0; the\nVerdict name and branding are not licensed by it.\n\n## Development\n\n```bash\nnpm install\nnpm run build     # tsc -> dist/\nnpm test          # vitest (unit tests, HTTP client mocked)\n\n# optional live smoke against the real API:\nVERDICT_LIVE_SMOKE=1 npx vitest run test/live.smoke.test.ts\n```\n\n## License\n\nApache-2.0. Copyright 2026 Verdict Capital.\n",
+  "status": "curated"
+}

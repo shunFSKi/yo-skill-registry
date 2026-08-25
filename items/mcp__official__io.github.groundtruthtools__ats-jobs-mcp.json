@@ -1,0 +1,57 @@
+{
+  "id": "mcp:official/io.github.groundtruthtools/ats-jobs-mcp",
+  "type": "mcp",
+  "name": "ATS Jobs",
+  "description": "Open jobs read from a company's own careers system: Greenhouse, Ashby, Lever.",
+  "author": "io.github.groundtruthtools",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/groundtruthtools/ats-jobs-mcp",
+    "repo": "groundtruthtools/ats-jobs-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "ats-jobs-mcp"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-24T23:07:02.160448Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# ats-jobs-mcp\n\n<!-- mcp-name: io.github.groundtruthtools/ats-jobs-mcp -->\n\n**An MCP server for open job postings, read first-hand from the applicant-tracking\nsystem behind a company's careers page.** Ask your assistant what Anthropic is\nhiring for and get the answer from Anthropic's own board, not from a job\naggregator's index.\n\nBuilt on the job board APIs that Greenhouse, Ashby and Lever publish so third\nparties can build job sites. No scraping, no API key, no account, no personal\ndata.\n\n---\n\n## Why this exists\n\nThose APIs are open, documented, and **useless unless you already know the\ncompany's board name**: that Anthropic's is `anthropic`, Ramp's is `ramp`,\nMistral's is `mistral.ai`.\n\n**None of the vendors publishes a directory of its customers**, and none could,\nsince no vendor knows about the others. Checked 2026-08-24: `sitemap.xml` on\njob-boards.greenhouse.io, boards.greenhouse.io, jobs.lever.co and\napply.workable.com all 404 or redirect.\n\nSo this ships one: **7,479 company boards**, every one confirmed against the\nvendor's own API, each carrying the date it was confirmed.\n\n## Three tools\n\n### `find_company_board` — which system is a company on?\n\nGive it a company name. Get the system and the board name, plus how many roles\nwere open when the board was last confirmed.\n\n### `list_open_jobs` — every open role at one company\n\nTitle, department, location, employment type, workplace type, posted date, a\nparsed salary range where the employer publishes one, and a `verify_url`\npointing at the employer's own advert.\n\n### `compare_companies` — several companies, one schema\n\nThe thing no single vendor can do. Companies on Greenhouse and companies on\nAshby come back with the same field names, so they can be compared directly.\nOne company failing does not lose the others.\n\n## Salaries, parsed, and refused when unclear\n\nAshby prints pay as `\"$211.4K - $290.6K\"`. Greenhouse prints it in cents,\nsometimes as several bands at once. Neither is filterable, so both are turned\ninto numbers:\n\n```json\n\"salary_min\": 211400.0, \"salary_max\": 290600.0,\n\"salary_currency\": \"USD\", \"salary_text\": \"$211.4K - $290.6K\"\n```\n\nThe parser refuses more often than it guesses, deliberately:\n\n- `$50 - $80 / hour` gives **no salary**. An hourly rate is a different\n  quantity and reporting it as annual would be a confident lie.\n- `600 000 kr` gives **no salary**. `kr` is Swedish, Norwegian *and* Danish.\n- `0.5% - 1.75% - Offers Equity` gives **no salary**. Equity is not pay.\n- Bands in two currencies are never spanned into a range that exists nowhere.\n\n`salary_text` always keeps what the employer actually wrote, so nothing is\nlost when the parser declines.\n\nEvery parsed figure is tested against the employer's own structured\n`baseSalary` block, the one published for Google to index — not against a\nnumber someone typed into a test.\n\n## No personal data\n\nRecruiter names are never returned. Email addresses and phone numbers are\n**removed from job descriptions**, because descriptions genuinely carry them\nand a column of work addresses is a marketing list rather than a job feed.\n\nUnlisted Ashby postings are dropped, because Ashby's documentation says\nplainly that they should not be shown publicly.\n\n## Coverage, stated honestly\n\n| System | Boards in the directory |\n|---|---:|\n| Greenhouse | 4,168 |\n| Ashby | 3,311 |\n\nLever is readable but has almost no boards in the directory yet, so name it\ndirectly (`lever:spotify`) or pass its careers URL. Workable has a confirmed\nendpoint but no adapter yet, so it is not listed at all: a directory entry for\nsomething nothing can read is a broken promise.\n\n## Install\n\n```bash\npip install ats-jobs-mcp\n```\n\nThen add to your MCP client configuration:\n\n```json\n{\n  \"mcpServers\": {\n    \"ats-jobs\": {\n      \"command\": \"ats-jobs-mcp\"\n    }\n  }\n}\n```\n\n## Relation to the hosted version\n\nThe same parsing runs as an Apify Actor at\n[apify.com/groundtruth/ats-job-listings](https://apify.com/groundtruth/ats-job-listings),\nwhich adds scheduling and an incremental mode that returns only postings you\nhave not been sent before. This server is free, runs on your machine, and\ntakes no cut of anything.\n\n`tests/test_core_parity.py` fails if the two copies of the parsing logic drift\napart.\n\n## Licence\n\nMIT. Job postings belong to the employers who published them.\n",
+  "status": "curated"
+}

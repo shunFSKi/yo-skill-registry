@@ -1,0 +1,85 @@
+{
+  "id": "mcp:official/dev.leclap/video",
+  "type": "mcp",
+  "name": "LeClap",
+  "description": "Compose and render video from one JSON template. Deterministic, runs locally, no generative model.",
+  "author": "dev.leclap",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/heristop/leclap",
+    "repo": "heristop/leclap"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@leclap/mcp"
+    ],
+    "env": [
+      {
+        "name": "LECLAP_MCP_OUTPUT_DIR",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "LECLAP_MCP_MEDIA_DIR",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "LECLAP_MCP_RENDER_TIMEOUT_MS",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "LECLAP_MCP_ALLOW_REMOTION",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "LECLAP_MCP_REMOTION_ENTRY",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-24T17:57:45.339387Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "设计",
+    "featured": false
+  },
+  "readme": "<div align=\"center\">\n\n<img src=\"apps/leclap-web/public/pwa-512x512.png\" alt=\"LeClap\" width=\"104\" height=\"104\" />\n\n# LeClap\n\n**Deterministic, on-device, agent-callable video — composed by prompt or by hand.**\n\nDescribe a video in one JSON _template_ — sections, filters, music, overlays — then render **that same template** on a phone (React Native, **on-device**) or in the **browser** (WebAssembly). No upload, no server, no generative model: the render is deterministic and reproducible, not sampled.\n\n[![CI](https://github.com/heristop/leclap/actions/workflows/ci.yml/badge.svg)](https://github.com/heristop/leclap/actions/workflows/ci.yml)\n[![Node.js Version](https://img.shields.io/badge/node-%3E%3D24-brightgreen.svg)](https://nodejs.org/en/)\n[![pnpm](https://img.shields.io/badge/pnpm-11-f69220.svg)](https://pnpm.io/)\n[![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6.svg)](https://www.typescriptlang.org/)\n[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)\n[![Trademark: LeClap](https://img.shields.io/badge/™-LeClap-blue.svg)](TRADEMARK.md)\n\n[Quick start](#-quick-start) · [Templates](docs/template-configuration.md) · [Library API](packages/ffmpeg-video-composer/README.md) · [Architecture](docs/architecture.md) · [Docs](#-documentation)\n\n</div>\n\n---\n\n## ✨ What is LeClap?\n\nOne JSON template. It renders on Node, in the browser via WebAssembly, and **natively on-device on React Native** — same template, same pipeline, reproducible run after run on a given platform. No upload, no server, no generative model.\n\n## 🎥 Demo\n\nTwo looks at LeClap — a finished clip rendered from a single JSON template, and the mobile app composing one fully **on-device**.\n\n<table>\n  <tr>\n    <td align=\"center\" width=\"60%\" valign=\"top\">\n      <strong>🎬 Template-driven render</strong><br />\n      <sub>one JSON template → a finished clip · <em>unmute for sound</em></sub>\n      <br /><br />\n      <video src=\"https://github.com/user-attachments/assets/19f59a73-d35a-470d-9c42-3945ba51e5ba\" controls muted width=\"100%\"></video>\n    </td>\n    <td align=\"center\" width=\"40%\" valign=\"top\">\n      <strong>📱 On-device on Android</strong><br />\n      <sub>the app: capture → compose → render, on the phone</sub>\n      <br /><br />\n      <video src=\"https://github.com/user-attachments/assets/4337ccdc-efa5-4d58-b201-1b50630e8cda\" controls muted width=\"260\"></video>\n    </td>\n  </tr>\n</table>\n\n<div align=\"center\">\n\n![A phone composing a LeClap template on-device: tapping Create my video, FFmpeg rendering on the handset, then the finished clip playing back — no upload, no server](https://raw.githubusercontent.com/heristop/leclap/main/.github/media/readme-hero.gif)\n\n</div>\n\n## 🤔 Why LeClap?\n\nGenerative tools can't reproduce a result twice. Cloud renderers can't run in your user's pocket. Remotion renders without a server, but needs a browser engine to do it — LeClap links FFmpeg into the app itself.\n\n|                                     |            **LeClap**             |             Remotion             |     Shotstack     |     Generative video     |\n| ----------------------------------- | :-------------------------------: | :------------------------------: | :---------------: | :----------------------: |\n| Renders in a native app, no browser | ✅ React Native, FFmpeg linked in |   ❌ needs a WebCodecs browser   |   ❌ cloud API    |       ❌ cloud API       |\n| Runs with no server                 |                ✅                 | ✅ in the browser, since 4.0.491 |   ❌ cloud API    |       ❌ cloud API       |\n| Same input → same output            |         ✅ per platform¹          |    ✅ if you avoid randomness    | ⚠️ not documented | ❌ sampled, not rendered |\n| Authored by an AI agent             |              ✅ MCP               |   ⚠️ an LLM writes React code    |  ✅ MCP (cloud)   |        ✅ prompt         |\n\n<sub>¹ Per platform, not across them: Node and the browser encode with libx264, Android with `libopenh264`, iOS with `h264_videotoolbox`, and the on-device build drops `boxblur` and rewrites `eq`→`lutyuv`. Same composition, different pixels.</sub>\n\n**[LeClap vs Remotion →](https://leclap.dev/compare/remotion)** — the reasoning behind each row, the full caveats, every claim sourced to vendor docs, and when to pick Remotion instead.\n\n## 🧰 Highlights\n\n| Highlight                         | What it means                                                                                                                                |\n| --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |\n| 🧩 **Template-driven**            | One JSON descriptor → a complete video. No imperative FFmpeg wrangling.                                                                      |\n| 🌍 **Runs everywhere**            | Node.js, browser (WASM), and React Native — one shared core, reproducible on each (the encoder differs per platform, see above).             |\n| 📹 **Capture → compose → render** | Record from the camera, trim/crop, mix music, add transitions, and render — captured, edited, and composed on-device.                        |\n| 🤖 **Agent-callable**             | An [MCP server](packages/leclap-mcp) lets an AI agent author & render a template — no LLM in the output path, so it's rendered, not sampled. |\n| 🎨 **Premium out of the box**     | A bundled [creative kit](packages/leclap-creative-kit) of polished, on-device-safe templates — by prompt or in the visual builder.           |\n| 🧱 **Typed & validated**          | Zod-validated templates, strict TypeScript, dependency-injected architecture.                                                                |\n\n## 🚀 Quick start\n\n> 💡 **Recommended: [mise](https://mise.jdx.dev).** `mise install` provisions the exact pinned toolchain — **Node 24, pnpm 11, FFmpeg 8.1.1, and Rust** — so every contributor and CI run identical versions. Managing versions yourself? Bring **Node ≥ 24** and **pnpm 11**.\n\n```bash\ngit clone https://github.com/heristop/leclap.git\ncd leclap\nmise install     # Node 24, pnpm 11, FFmpeg 8.1.1 + Rust\npnpm install\n```\n\nThen pick an app:\n\n```bash\npnpm app:web      # web app — compiles videos in-browser (no server)\npnpm app:expo     # Expo mobile app — compiles fully on-device (no server)\n```\n\nOr use the CLI — [`@leclap/cli`](packages/leclap-cli) is the `leclap` dev tool:\n\n```bash\nnpx @leclap/cli init my-video         # scaffold a starter project\nnpx @leclap/cli render template.json  # render it (`leclap diagnose` checks your FFmpeg)\n```\n\nOr drive it from an AI agent: the [`@leclap/mcp`](packages/leclap-mcp) server exposes the engine as MCP tools — schema → validate → render — with no LLM in the output path.\n\n## 📦 Monorepo\n\npnpm workspaces (`apps/*`, `packages/*`) — no turbo/nx. The root is a private orchestrator (`leclap`); `ffmpeg-video-composer`, `@leclap/cli`, and `@leclap/mcp` are published to npm. The web and mobile apps both run the same core — the mobile app drives it **fully on-device** via the embedded native engine (no server), the web app in-browser via WASM.\n\n| Package                                                   | Description                                                                      |\n| --------------------------------------------------------- | -------------------------------------------------------------------------------- |\n| [`ffmpeg-video-composer`](packages/ffmpeg-video-composer) | **The library** — cross-platform composition engine (Node, browser, WASM).       |\n| [`@leclap/cli`](packages/leclap-cli)                      | **The CLI** — the `leclap` dev tool: scaffold (`init`), `render`, `diagnose`.    |\n| [`@leclap/creative-kit`](packages/leclap-creative-kit)    | Shared creative catalog — templates, partials, fonts, media, bundled assets.     |\n| [`@leclap/mcp`](packages/leclap-mcp)                      | MCP server — the engine as agent-callable tools (schema/validate/compose/probe). |\n| [`@leclap/web`](apps/leclap-web)                          | React 19 + Vite + Tailwind — in-browser FFmpeg via WASM _(reference)_.           |\n| [`@leclap/expo`](apps/leclap-expo)                        | Expo / React Native — on-device compiles via the native engine _(reference)_.    |\n| [`ffmpeg-engine`](packages/ffmpeg-engine)                 | Rust engine embedding FFmpeg fftools for on-device compiles.                     |\n\n## 🧩 Templates & library\n\nA **template** is a Zod-validated JSON descriptor — a `global` block plus an ordered list of `sections`, each a clip with its own `inputs → maps → filters` pipeline and `{{ variable }}` placeholders. Start from a [creative-kit template](packages/leclap-creative-kit) and tweak text, colors, and media — by prompt (MCP) or in the visual builder.\n\n- 📖 **[Template configuration reference](docs/template-configuration.md)** — global config, sections, the FFmpeg pipeline, placeholders.\n- 📥 **[Use it as a library](packages/ffmpeg-video-composer/README.md)** — install, the `compile()` API, entry points (Node / browser / RN), and automatic FFmpeg detection.\n\n## 📚 Documentation\n\n- **[🌐 Descriptor reference (web)](https://leclap.pages.dev/doc)** — the full, schema-driven descriptor reference, one page per topic (sections, transitions, looks, grade, motion, audio, captions, filters, examples, JSON Schema).\n- **[🧩 Template Configuration](docs/template-configuration.md)** — the template JSON reference.\n- **[🏗 Architecture](docs/architecture.md)** — system architecture and design patterns.\n- **[🔧 FFmpeg Fallback Strategy](docs/architecture.md#cross-platform-support)** — how automatic FFmpeg detection works.\n- **[📱 On-Device Compilation](docs/on-device-compilation.md)** — the serverless Expo compile pipeline.\n- **[🤖 AGENTS.md](AGENTS.md)** — repo layout, commands, and conventions for contributors and AI agents.\n\n## 🤝 Contributing & License\n\nIssues and PRs welcome. Keep changes formatted (`pnpm fmt`) and lint-clean (`pnpm lint`) before committing. The code is licensed under the [MIT License](LICENSE).\n\n**Brand & trademark.** The MIT License covers the code, not the brand. The **LeClap** name and logo are trademarks of Alexandre Mogère — you can fork and reuse the code freely, but please give your fork a different name and don't imply endorsement. See [TRADEMARK.md](TRADEMARK.md) for details.\n",
+  "status": "curated"
+}

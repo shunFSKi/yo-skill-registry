@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.Alvi97/angular-signal-forms-migration-mcp",
+  "type": "mcp",
+  "name": "angular-signal-forms-migration-mcp",
+  "description": "Finds Angular Reactive Forms and returns verified Signal Forms recipes. Never edits code.",
+  "author": "io.github.Alvi97",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/Alvi97/angular-signal-forms-migration-mcp",
+    "repo": "Alvi97/angular-signal-forms-migration-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "angular-signal-forms-migration-mcp"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-24T20:12:51.769823Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# angular-signal-forms-migration-mcp\n\n[![npm](https://img.shields.io/npm/v/angular-signal-forms-migration-mcp.svg)](https://www.npmjs.com/package/angular-signal-forms-migration-mcp)\n[![node](https://img.shields.io/node/v/angular-signal-forms-migration-mcp.svg)](https://nodejs.org)\n[![license](https://img.shields.io/npm/l/angular-signal-forms-migration-mcp.svg)](./LICENSE)\n\nAn MCP server that helps an AI coding agent migrate **Angular Reactive Forms** to\n**Angular Signal Forms**.\n\nIt finds the Reactive Forms constructs in your codebase, separates the safe mechanical\nrenames from the ones that need a human decision, and hands back before→after recipes\nthat are verified against a real Angular release rather than written from memory.\n\n## Install\n\nRequires Node.js 20+. Nothing to clone — `npx` fetches it on demand.\n\n```bash\nclaude mcp add signal-forms-migration -- npx -y angular-signal-forms-migration-mcp@latest\n```\n\nOr add it to any MCP client config:\n\n```json\n{\n  \"mcpServers\": {\n    \"signal-forms-migration\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"angular-signal-forms-migration-mcp@latest\"]\n    }\n  }\n}\n```\n\n`@latest` makes `npx` re-resolve on every launch, so restarting your editor picks up new\nreleases. Without it, npx keeps serving whichever version it cached first — repoint the\nconfig at `@latest`, or clear the cache with `npm cache clean --force`.\n\nThe server also checks for a newer version once a day and writes a one-line notice to\n**stderr**. It is throttled, times out after 2 seconds, never touches stdout, and stays\nsilent on any failure. To turn it off, add\n`\"env\": { \"SIGNAL_FORMS_MCP_NO_UPDATE_CHECK\": \"1\" }` to the config block above. To see what\nis actually running:\n\n```bash\nnpx angular-signal-forms-migration-mcp@latest --version\n```\n\n> [!IMPORTANT]\n> **Do not `npm install` this into your Angular app.** It is a standalone process your\n> editor spawns, not a library your project depends on. `npx` keeps it in a cache outside\n> your project entirely.\n\n> [!NOTE]\n> **It detects and advises. It never edits your code.** There is no tool here that writes\n> to your source files, and there never will be. The server returns findings and recipes;\n> your agent decides what to change and makes the edits, so every change still goes\n> through your normal review and version control.\n\n## What it looks like\n\n```\n> Migrate the forms in src/app/checkout to Signal Forms.\n\n  1. find_form_candidates { path: \".../src/app/checkout\" }\n     → 9 findings across 2 files: 6 mechanical, 3 judgment\n       (the FormArray of line items is judgment — its shape changes)\n  2. get_signalforms_recipe { construct: \"FormBuilder.group\" }\n     → before/after + caveats\n  3. the agent applies the edits, you review the diff\n  4. verify_migration { path: \".../checkout.component.ts\" }\n     → traps that compile and are still wrong\n```\n\n## Prerequisites it checks before advising anything\n\nA migration report leads with the things that make migration impossible, because a plan\nyou cannot execute is worse than no plan:\n\n1. **Angular 21+.** `@angular/forms/signals` does not exist before v21. Below that the\n   server returns an upgrade plan instead of a migration plan.\n2. **Declared and installed versions agree.** An old branch checked out over newer\n   `node_modules` straddles the v21 line. Migrating against what is installed means the\n   next `npm ci` reverts you to a version where the target API is absent — so the server\n   refuses to pick a side and says so.\n3. **`moduleResolution` is exports-aware** (`bundler`, `node16`, or `nodenext`).\n   `@angular/forms/signals` is a package-exports subpath; legacy `node` resolution cannot\n   see it, and the import fails with an error that looks like a missing dependency.\n\n## Tools\n\n| Tool                           | What it answers                                                   |\n| ------------------------------ | ----------------------------------------------------------------- |\n| `find_form_candidates`         | Where are the Reactive Forms constructs, and which need a person? |\n| `get_signalforms_recipe`       | What is the verified before→after for this construct?             |\n| `analyze_migration_complexity` | How big is this job, and which file should I start with?          |\n| `get_migration_report`         | Give me the whole thing as one markdown document.                 |\n| `verify_migration`             | I already migrated this — what compiles but is still wrong?       |\n| `get_angular_upgrade_plan`     | I am below v21. How do I get to a version that supports this?     |\n\nFull parameters, response shapes and scope limits: **[docs/TOOLS.md](./docs/TOOLS.md)**.\n\n## How the recipes are verified\n\nSignal Forms is new and is not reliably present in any model's training data — recipes\nwritten from memory are wrong in ways that look right. So none of these are.\n\nRecipes are verified against **Angular v22** using the official Angular CLI MCP server,\ncross-checked against angular.dev, and carry structured provenance\n(`verifiedAgainstVersion`, `retrievedISO`, `sources`) that ships in the tool response so\nyour agent can judge how current the advice is. A recipe with an empty `sources` list\nfails CI.\n\nWhere the docs do not answer the question, the recipe **says so in its caveats** rather\nthan inventing an answer — `UNVERIFIED — confirm on <url>`, or `UNVERIFIED — tool-authored\nguidance` where Angular documents no migration path at all (the RxJS stream tiers are the\nmain case: the primitives are documented and compile, but choosing between them is this\ntool's judgement, not Angular's). **14 of 37 recipes** currently carry such a marker. That\nis the honest part of the output, not an oversight — and a test keeps this number true.\n\n**The recipes also compile.** CI installs a real `@angular/forms@22` and typechecks\nfixtures exercising every API the recipes use, so a recipe naming a function that does not\nexist — or calling it with the wrong argument shape — fails the build. That is what\nestablished `disabled(path, { when })` as the v22 signature; the docs demonstrate neither\nit nor the nested `schema()` + `apply()` composition.\n\nTwo things this caught that memory gets wrong:\n\n- The binding directive is `[formField]` / `FormField` — **not** `[control]` / `Control`,\n  which appeared in pre-release v21 material and is what models reproduce.\n- `disabled()` / `hidden()` gained an options-object form on v22 and marked the bare\n  callback `@deprecated` rather than removing it — so a v21-shaped rule still compiles,\n  with a warning. Established by diffing the shipped overloads, not the guides.\n\nRecipes whose behaviour genuinely differs across releases carry a `VERSION-SENSITIVE`\ncaveat naming the form each version takes, and the server resolves them against your\nproject's detected version. **Read the `caveats` array** — that is where the sharp edges\nlive.\n\nThe re-verification procedure for a new Angular release is\n[REVERIFICATION.md](./REVERIFICATION.md).\n\n## It tells you when there is no clean answer\n\nNot every Reactive Forms pattern has a Signal Forms equivalent, and a migration tool that\npretends otherwise is worse than none. Form streams are graded by the RxJS operators in\ntheir `.pipe()` chain:\n\n| Tier     | Operators                                                     | Answer                                             |\n| -------- | ------------------------------------------------------------- | -------------------------------------------------- |\n| trivial  | none / bare `subscribe`                                       | `computed()`, or `effect()` for a real side effect |\n| moderate | `map`, `filter`, `debounceTime`, `distinctUntilChanged`, …    | `computed()` + the `debounce()` schema rule        |\n| hard     | `switchMap`, `combineLatest`, `withLatestFrom`, `forkJoin`, … | **no direct equivalent**                           |\n\nFor the hard tier the recipe says so outright and offers three real strategies — async\nvalidation rules, `rxResource`, or keeping RxJS behind `toObservable`/`toSignal` — rather\nthan inventing a one-liner that does not exist.\n\nLikewise `addControl()` / `removeControl()` have no counterpart at all: the field tree is\nderived from the model signal's type. The recipe explains the three actual answers instead\nof implying an API that would not compile.\n\n## What it will not do\n\n- **Edit your files.** By design, permanently.\n- **Prove your migration is correct.** `verify_migration` proves the absence of _known_\n  defects. Run it after `tsc`, not instead of it.\n- **Migrate template-driven forms.** `ngModel` migration is undocumented upstream;\n  guessing it would be the exact failure mode this project exists to avoid.\n- **Read template literals with `${...}` substitutions**, because their text is not what\n  the Angular compiler sees. Inline `template:` strings without substitutions _are_\n  scanned.\n- **Scan CSS/SCSS**, or resolve types across files — detection is a single-file syntactic\n  pass, not a `ts.Program`.\n\n[ROADMAP.md](./ROADMAP.md) tracks these; the migration report repeats them in its own\n\"Scope\" section rather than letting the totals imply completeness.\n\n## Why not just the official Angular MCP server?\n\nUse both. The official `@angular/cli` MCP server knows about _Angular_; this one knows\nabout _migration_ — which constructs exist in your code, which are mechanical, which need\na decision, and what the verified replacement is. Your agent can pull findings and recipes\nfrom here, then confirm anything current or project-specific there before it edits.\n\n## Status\n\nFeature-complete through M16. Six tools ship, with doc-verified recipes covering basic\nconstructs, arrays, runtime shape mutation, async validators, custom controls, the three\nRxJS stream tiers, reading and writing form state, submission, model-shape constraints,\nCSS status classes, spec-file migration, and the `.html` template layer — bindings, state\nreads, the `<select multiple>` blocker, and the silent error-key rename.\n\nThe transport is stdio, so stdout is reserved for the protocol and all logging goes to\nstderr.\n\nContributions and local development: [CONTRIBUTING.md](./CONTRIBUTING.md).\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

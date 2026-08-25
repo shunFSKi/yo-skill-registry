@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.Kosta1985/accord-trace",
+  "type": "mcp",
+  "name": "AccordTrace",
+  "description": "Tamper-evident proof creation and verification for AI agents via MCP, A2A, and REST.",
+  "author": "io.github.Kosta1985",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/Kosta1985/notary-protocol",
+    "repo": "Kosta1985/notary-protocol"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://accordtrace.notary-labs.workers.dev/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-25T03:03:09.896946Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Notary Protocol\n\n<!-- mcp-name: io.github.kosta1985/accord-trace -->\n\n## AccordTrace agent service\n\nAccordTrace is the live agent-first evidence service built on this protocol repository.\n\n- Service: https://accordtrace.notary-labs.workers.dev\n- Agent Card: https://accordtrace.notary-labs.workers.dev/.well-known/agent-card.json\n- MCP: https://accordtrace.notary-labs.workers.dev/mcp\n- OpenAPI: https://accordtrace.notary-labs.workers.dev/openapi.json\n- Agent guidance: https://accordtrace.notary-labs.workers.dev/llms.txt\n\nExternal agents can create and verify tamper-evident records anonymously without sales contact or manual onboarding. AccordTrace attests integrity and service-recorded time; it does not establish that an underlying claim is true or legally valid.\n\n\nOpen cryptographic verification and evidence protocol for transactions between AI agents.\n\n**Live verifier:** https://notary-protocol.notary-labs.workers.dev\n\n**Source:** https://github.com/Kosta1985/notary-protocol\n\n**Public activity:** https://notary-protocol.notary-labs.workers.dev/v1/stats\n\n**Free early access through 24 November 2026:** https://notary-protocol.notary-labs.workers.dev/pilot.html\n\nNotary turns a signed `DealEnvelope` into a portable `NotaryReceipt`:\n\n`Agent A -> Offer -> Agent B -> Acceptance -> Signatures -> Notary Verification -> Notary Receipt`\n\nIt verifies structure, linkage, timestamps and Ed25519 signatures. It never decides whether a transaction is commercially or legally good.\n\n## Included\n\n- Protocol specification and JSON Schemas\n- Dependency-free Node.js verification API\n- Web verification interface and product landing page\n- TypeScript and Python SDKs\n- MCP stdio adapter\n- A2A task adapter and agent card\n- OpenAPI description, deployment notes and automated tests\n- Anonymous aggregate usage counters with no user identifiers\n- Published conformance vectors and runnable integration examples\n\n## Quick start\n\nRequires Node.js 20 or newer. There are no runtime package dependencies.\n\n```bash\nnpm start\n```\n\nOpen `http://127.0.0.1:8787`, choose **Load signed demo**, then **Verify envelope**.\nThe result panel verifies the notary signature locally and can copy or download the receipt. A stored receipt can be retrieved by its `ntr_…` identifier from the same workspace.\n\nContainer launch:\n\n```bash\ndocker compose up --build\n```\n\nPublic deployment without buying a domain:\n\n```bash\nnpx wrangler@latest login\nnpx wrangler@latest d1 create notary-protocol --location=oc\n# Configure the returned database ID, apply the migration, add the signing secret,\n# then deploy as described in docs/CLOUDFLARE_DEPLOYMENT.md.\n```\n\nCloudflare deployment uses Workers, D1 durable storage, static assets, and an encrypted Ed25519 signing secret. The complete step-by-step guide is in `docs/CLOUDFLARE_DEPLOYMENT.md`.\n\nRun the test suite:\n\n```bash\nnpm test\n```\n\nGenerate a signed example on the command line:\n\n```bash\nnpm run demo\n```\n\nCheck the deployed service and print its aggregate adoption report:\n\n```bash\nnpm run smoke:live\nnpm run adoption:report\n```\n\n## API\n\n```bash\ncurl http://127.0.0.1:8787/health\ncurl http://127.0.0.1:8787/v1/demo > envelope.json\ncurl -X POST http://127.0.0.1:8787/v1/verify \\\n  -H 'content-type: application/json' \\\n  --data-binary @envelope.json\n```\n\nEndpoints:\n\n- `POST /v1/verify` verifies an envelope and persists the signed result.\n- `GET /v1/receipts/{id}` retrieves a receipt.\n- `POST /v1/receipts/verify` verifies a receipt signature against this notary key.\n- `GET /v1/notary-key` publishes the notary verification key.\n- `GET /v1/capabilities` publishes supported versions, cryptography, limits and endpoints.\n- `GET /v1/demo` creates a short-lived signed example.\n- `GET /openapi.json` serves the API description.\n- `POST /a2a` accepts an A2A JSON-RPC message containing a DealEnvelope.\n\n## Repository\n\n```text\nprotocol/       Specification and schemas\napi/            Verification service and tests\nweb/            Landing page and live verifier\nsdk/            TypeScript and Python clients\nadapters/       MCP and A2A integrations\ndocs/           API and deployment documentation\ncloudflare/      Public Workers + D1 runtime and migrations\nexamples/        Runnable public integration examples\n```\n\n## Community\n\n- `CONTRIBUTING.md` explains protocol and implementation contributions.\n- `SECURITY.md` defines private vulnerability reporting expectations.\n- `ROADMAP.md` lists the path from public beta to a stable core.\n- `docs/AGENT_INTEGRATION.md` is the shortest agent integration guide.\n- `docs/EARLY_ADOPTER_GUIDE.md` lists practical first integrations and requested feedback.\n- `docs/COMMERCIAL_PILOT.md` defines free early access and the future bulk-export pricing hypothesis.\n- `docs/REVENUE_SETUP_AU.md` covers the operational path for invoicing the first Australian pilot.\n- `docs/PUBLISHING.md` covers the deployment and public-launch sequence.\n- `docs/LAUNCH_KIT.md` contains accurate public-beta messaging.\n- `protocol/test-vectors/` contains canonical payload, digest and signature fixtures.\n\n## Production\n\nPersist `api/data` on durable storage and protect the generated `notary-key.pem`. Put the service behind TLS, set `CORS_ORIGIN`, and apply deployment-specific authentication and retention rules. See `docs/DEPLOYMENT.md`.\n\nThe scheduled live smoke workflow runs every six hours. Synthetic checks identify themselves to the service and are excluded from aggregate activity counters.\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

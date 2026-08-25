@@ -1,0 +1,75 @@
+{
+  "id": "mcp:official/io.github.livevariant/livevariant",
+  "type": "mcp",
+  "name": "LiveVariant",
+  "description": "Build, inspect and read adaptive A/B tests. Config travels in the URL; no account or API key needed.",
+  "author": "io.github.livevariant",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/livevariant/livevariant",
+    "repo": "livevariant/livevariant"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@livevariant/mcp"
+    ],
+    "env": [
+      {
+        "name": "LIVEVARIANT_SERVER_URL",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "LIVEVARIANT_API_TOKEN",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "LIVEVARIANT_ASSET_UPLOAD_TOKEN",
+        "required": false,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-24T21:59:29.430455Z",
+    "score": 55
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "<picture>\n  <source\n    media=\"(prefers-color-scheme: dark)\"\n    srcset=\"design-assets/generated/logo-dark.svg\"\n  />\n  <img\n    alt=\"LiveVariant\"\n    src=\"design-assets/generated/logo-light.svg\"\n    height=\"72\"\n  />\n</picture>\n\n# LiveVariant\n\n**The test that keeps testing.**\n\nOpen-source A/B testing that never stops. One adaptive model routes\ntraffic toward what's winning while your campaign runs, learns a\ndifferent winner per audience, and tests several elements as one\ncombination. The whole test lives in a URL: no account, no platform,\nnothing to install on your site.\n\n[livevariant.com](https://livevariant.com) · built for LLM agents\nfirst, marketers and developers second, all touching the same object:\nthe URL.\n\n## See it live\n\nThe headline on [livevariant.com](https://livevariant.com) is itself a\nrunning LiveVariant test, served by the SDK snippet shown on that page:\ntwo slots, nine combinations, adapting per country and device. We test\nour own homepage with our own product.\n\n## Let your LLM run it\n\nThe whole setup is one conversation, and there is nothing to install:\nnaming the site in any AI chat is enough for the agent to discover the\ntools and take it from there.\n\n> \"I want to A/B test my next 'Daily brew' newsletter with\n> livevariant.com. Give me some ideas and set it up.\"\n\nYour assistant proposes a plan first: two slots tested as one\ncombination rather than as two separate tests, plus the audience\nsegments results split by.\n\n```\nslot hero: packshot / cafe / fireside    (three drafted scenes, one product)\nslot cta:  \"Shop the roast\" / \"Start your ritual\" / \"Brew better today\"\nctx:       utm_source · country (merge tag)\n```\n\n> \"Looks good!\"\n\nIt builds the test and hands back three links for the template (one\nimage link per slot, plus the click link that records the win and\nredirects) and your manage link with live results:\n\n```\nimg hero  livevariant.link/s/<config>?slot=hero&id={{email_or_any_id}}&auto=0\nimg cta   livevariant.link/s/<config>?slot=cta&id={{email_or_any_id}}&auto=0\nclick     livevariant.link/c/<config>?id={{email_or_any_id}}\nmanage    livevariant.com/manage/<config>#<stats-secret>\n```\n\nNine combinations, every recipient sticks to their own, traffic shifts\ntoward whatever combination is winning while the campaign runs, and a\ndifferent combination can win per audience. Ask for `get_stats` later\nand it tells you each combination's probability of being best, not\njust raw rates.\n\n### Give your agent the toolkit\n\nInstalling buys deeper integration: the full skill in context, tools\nwithout discovery. Skills (recommended, works with Claude Code and\nCowork):\n\n```bash\nnpx skills add livevariant/livevariant\n```\n\nClaude Code plugin (this repository is the marketplace):\n\n```bash\nclaude\n/plugin marketplace add livevariant/livevariant\n/plugin install livevariant@livevariant\n```\n\nCodex plugin:\n\n```bash\ncodex plugin marketplace add livevariant/livevariant\ncodex plugin add livevariant/livevariant\n```\n\nAny other agent: MCP hosted at `https://livevariant.com/mcp`, stdio via\n`npx -y @livevariant/mcp`, or plain HTTP at `POST /api/v1/<tool>`\n(interactive docs at `/docs`, spec at `/openapi.json`). No API keys: a\ntest's config and its stats secret carry all the authority there is.\n\n## Or do it yourself\n\nThe [builder](https://livevariant.com/builder) composes a test in the\nbrowser, no code and no account. Or write the URL by hand:\n\n```\nhttps://livevariant.link/s?v=https://cdn.you.com/hero-a.jpg&v=https://cdn.you.com/hero-b.jpg&id={{recipient_id}}\n```\n\nReplace your email's image URL with that, and the integration is done.\nEvery recipient sticks to their variant across opens, traffic shifts\ntoward the winner while the campaign runs, and clicks (`/c`) plus a\nthank-you-page pixel (`/px`) close the loop. Add `&kh=<your-stats-key>`\n(a stable value: generate one under Settings, or take the builder's) to\nmake results readable with your stats secret.\n\nMultiple elements? Slots test the **combination**, not isolated pieces\n(wrapped here for reading; variant values are full URLs):\n\n```\nhttps://livevariant.link/s?s=hero&v=https://cdn.you.com/hero-a.jpg\n                          &v=https://cdn.you.com/hero-b.jpg\n                          &s=product&v=https://cdn.you.com/shot-1.jpg\n                          &v=https://cdn.you.com/shot-2.jpg\n                          &id={{recipient_id}}&slot=hero\n```\n\nOne link per element (`&slot=`), one sticky combination per recipient,\nand the model learns that hero A only wins _with_ product shot 2, which\ntwo separate tests can never see.\n\nFor audience segments in email, use what survives mail proxies: campaign\ntags (`ctx=source:utm_source`) or your ESP's merge fields\n(`&c_country={{country}}`).\n\n### Test your website, too\n\nLanding pages are tests as well: images and content served directly on\nthe page. Developers and LLM coding agents wire one up by installing\nthe SDK; the config is readable on purpose, and this is the whole test:\n\n```bash\nnpm i @livevariant/sdk\n```\n\n```js\nimport { createTest } from \"@livevariant/sdk\";\n\nconst test = await createTest(\n  {\n    slots: {\n      headline: [\n        \"The daily cup, perfected\",\n        \"Mornings, upgraded\",\n        \"Coffee worth waking for\"\n      ],\n      cta: [\"Shop the roast\", \"Start your ritual\", \"See the blends\"]\n    },\n    ctx: {\n      dims: [\n        { key: \"country\", from: \"country\" },\n        { key: \"device\", from: \"device\" }\n      ]\n    }\n  },\n  { serverUrl: \"https://livevariant.link\" }\n);\n\nheadline.textContent = test.slots.headline.text;\ncta.textContent = test.slots.cta.text;\n// conversions auto-tracked from your existing GA events\n```\n\nTwo slots, nine combinations, a different winner per country and device,\nand the test is scoped to your domain automatically. If the server is\nunreachable, visitors get your control and nothing breaks. The headline\non [livevariant.com](https://livevariant.com) runs exactly this way; the\npage shows its own snippet.\n\n## Read your results\n\nBuilding a test (through the builder or `build_test`) shows the stats\nsecret exactly **once**; only its hash travels in the config, so nobody\ncan recover it later, including us. Keep it.\n\n- The **manage URL** carries the secret in its `#fragment` (which never\n  reaches server logs): open it for live per-combination and per-slot\n  numbers.\n- Agents call **`get_stats`** with the same secret and get win\n  probabilities plus an honest stop/continue call, instead of eyeballed\n  conversion rates.\n- A test built without a stats key still serves and learns, but its\n  results are unreadable forever: no secret can match a hash that is\n  not there.\n\n## Own your tests (optional)\n\nNo account is ever required, but on [livevariant.com](https://livevariant.com)\nyou can create one (email link or Google) and it buys three things:\n\n- **Claiming.** Open any manage link while signed in and click \"Add to\n  my account\": the stats key behind it is claimed to you, nobody else\n  can claim it, and every test built from it, past and future, appears\n  under My tests on any browser. Your stats secret keeps working; a\n  per-key lock can additionally require sign-in if it ever leaks.\n- **Verified domains.** Prove a domain with a DNS TXT record or a\n  well-known file and redirects to it skip the \"Redirecting you to…\"\n  confirmation screen that unverified destinations show to visitors.\n- **SDK auto-registration.** Create a publishable `pk_` key, pass it to\n  the SDK from a verified domain, and inline tests register themselves\n  under My tests, readable without any secret in the loop.\n\n## Why not a normal A/B test?\n\nThe classic email flow sends A to 10%, B to 10%, waits a few hours, and\nblasts the \"winner\" to the rest. Decided once, on early openers, one\nelement at a time, one answer for everyone, and it ends.\n\nLiveVariant keeps everyone in the test forever: allocation adapts on\nevery serve, per segment, across combinations, and priors (yours or\nyour LLM's) give it a head start that real data can always override.\nKeep your ESP's subject-line test (subjects render before anything\nloads); everything after the open is ours. The mechanics are the\npublished literature (Thompson 1933; Chapelle & Li 2011; Li et al.\n2010; Hill et al., KDD 2017; Shivaswamy & Joachims 2012), implemented\nsmall enough to audit.\n\nThat trade is not free, and it is worth stating plainly. Adaptive\nallocation buys lower regret and pays for it in measurement precision.\nStarving a losing variant is the point, but it also means that\nvariant's reported rate is biased low, by about 11% of its own value in\nour simulations, because an arm that has an unlucky start gets sampled\nless and few observations arrive to correct it. And any rule you poll\ncontinuously loses the guarantee it would have at a single look. So\nLiveVariant optimizes earnings-while-learning rather than the precision\nof the number you read afterwards. For a campaign whose goal is\nconversions that is the right way round; if you need a defensible\nmeasurement of the gap rather than the most conversions, a fixed\n50/50 split and a single pre-planned look is the better instrument.\n\n## Deploy your own\n\nThis product is designed to be self-deployed. Our server can be used\nfor testing, but its state can be destroyed at any time; a managed\nhosted version is in the works. Your deployment runs the same AGPL code\nwith none of those caveats:\n\n[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/livevariant/livevariant)\n\nOne click clones this repo into your account and deploys the whole\nthing: serving, dashboard, tools API, MCP endpoint. Nothing to\nconfigure; every URL is built from the origin the request arrived on.\nThe self-host build contains no auth framework at all (a test asserts\nit), and three optional env vars cover the trust knobs: comma-separated\n`LV_ALLOWED_ORIGINS` locks the SDK endpoints to your own sites,\n`LV_ALLOWED_DESTINATIONS` + `LV_UNLISTED_DESTINATIONS` decide whether\nredirect destinations off your list are allowed, blocked, or shown\nbehind a continue screen, and `LV_API_TOKEN` gates the tools API and\nMCP endpoint behind a bearer token for server-to-server calls. Custom\nlogic instead of env vars? Implement the two-method `TrustPolicy` (and\noptionally `AccountsProvider`) ports from `@livevariant/server` and\npass them to `createApp`.\n\n```bash\nnpm ci && npm run build && npm run deploy\n```\n\n## Development\n\nNode 24 (`nvm use`). `npm ci`, `npm run build`, `npm test`\n(`test:no-browser` for the Playwright-free subset). The deep technical\nreference lives in [CLAUDE.md](CLAUDE.md), which is also what your\ncoding agent reads; the design system in [DESIGN.md](DESIGN.md).\n\nContributions are welcome: see [CONTRIBUTING.md](CONTRIBUTING.md). Your\nfirst pull request asks you to sign the\n[Contributor License Agreement](.github/CLA.md).\n\n## License\n\n[AGPL-3.0](LICENSE). Self-hosting for your own use is unrestricted; if\nyou modify LiveVariant and offer it as a network service, publish your\nmodifications.\n",
+  "status": "curated"
+}

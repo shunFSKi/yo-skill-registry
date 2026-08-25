@@ -20,8 +20,8 @@
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-08-19T21:51:11.56197Z",
-    "score": 42
+    "pushed_at": "2026-08-24T22:32:38.099735Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -53,6 +53,6 @@
     "category": "写作",
     "featured": false
   },
-  "readme": null,
+  "readme": "# br8n\n\n**Owned, portable working memory.** A plain-files brain template and a tiny MCP server that lets any model read it.\n\n> Everything your team has taught a chat tool about how the work gets done is sitting inside somebody else's login. Switch tools and you're a stranger again. This repo is the other direction: the memory lives in files you own, and the model is just a reader.\n\nbr8n is the AI delivery practice of [Branded Mayhem Collective](https://brandedmayhem.com). This is the open part: the file layout and the door. The hosted install adds retrieval, governance, and someone running it with you — on the same files, which never change shape. [br8n.io](https://br8n.io)\n\n## What's here\n\n- `template/brain/` — the brain layout: `how-we-work/`, `decisions/`, `exceptions/`, `handoffs/`, `voice/`. Markdown only. One file, one thing. Write the *why*, so the model can push back later.\n- `src/` — an MCP server (stdio) with three tools: `brain_list`, `brain_read`, `brain_search`. Search returns file + line so answers cite their source. No vectors, no index, no account. Grep is the point.\n\n## Use it\n\n```bash\nnpx @br8n/mcp ~/my-brain                         # MCP server on stdio (or: npm i -g @br8n/mcp && br8n ~/my-brain)\n# template: git clone https://github.com/Branded-Mayhem-Collective-LLC/br8n && cp -r br8n/template/brain ~/my-brain\n```\n\nClaude Desktop / Claude Code / Cursor (any MCP client) — add:\n\n```json\n{ \"mcpServers\": { \"br8n\": { \"command\": \"npx\", \"args\": [\"-y\", \"@br8n/mcp\", \"/path/to/my-brain\"] } } }\n```\n\nThen ask the model something the brain knows. It answers from the file and names it. Switch the model; same answer, same file.\n\n## Why files\n\n- **Portable.** `cp -r brain/ new-machine/` is the whole migration. If you can't do that, you don't own it.\n- **Inspectable.** You can read every byte the model reads.\n- **Model-agnostic.** The folder doesn't care which model is on the other side of MCP.\n- **It can push back.** A decision stored with its *why* lets a model say \"this conflicts with what you decided in March.\" A chat history can't.\n\n## The method is public on purpose\n\nThe layout and this server are MIT. What br8n charges for is hands on a real operation: eliciting what's actually in people's heads, shaping retrieval for the role, running it, and keeping it current. If you'd rather do it yourself, start here — most people should. The free first course is at [br8n.io/lab](https://br8n.io/lab).\n\n## Not affiliated\n\n`br8n` on PyPI (a context-capture engine by a different author) is not this project.\n\nMIT © 2026 Branded Mayhem Collective LLC\n\n## Publishing (maintainers)\n\nConfigure npm's trusted publisher once for `@br8n/mcp`:\n\n- Publisher: GitHub Actions\n- Organization: `Branded-Mayhem-Collective-LLC`\n- Repository: `br8n`\n- Workflow: `publish.yml`\n- Allowed action: `npm publish`\n\nPublish the version already committed to `main`, then update the official MCP Registry:\n\n```bash\ngh workflow run publish.yml --ref main -f version=0.1.2\ngh run watch --exit-status\n\nmcp-publisher login github\nmcp-publisher publish\n```\n\nThe GitHub-hosted workflow uses npm trusted publishing (OIDC), so it requires no long-lived npm token. Change the version argument for future releases.\n",
   "status": "curated"
 }

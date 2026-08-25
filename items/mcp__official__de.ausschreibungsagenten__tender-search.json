@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/de.ausschreibungsagenten/tender-search",
+  "type": "mcp",
+  "name": "Ausschreibungsagenten Tender Search",
+  "description": "Search public procurement notices from 17 sources across Germany, the EU and the UK. Read-only.",
+  "author": "de.ausschreibungsagenten",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/shufflethis/ausschreibungsagenten-mcp",
+    "repo": "shufflethis/ausschreibungsagenten-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://api.ausschreibungsagenten.de/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-25T01:39:12.172315Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Ausschreibungsagenten MCP Server\n\nPublic procurement notices (tenders) from 17 connected sources across Germany,\nthe EU and the United Kingdom — as MCP tools.\n\n- **Endpoint:** `https://api.ausschreibungsagenten.de/mcp`\n- **Transport:** Streamable HTTP\n- **MCP registry:** `de.ausschreibungsagenten/tender-search`\n- **Smithery:** [@agentifizierung/ausschreibungsagenten](https://smithery.ai/servers/@agentifizierung/ausschreibungsagenten)\n\nRead-only. Every hit links to the authoritative original notice; this service\nnever submits a bid and gives no legal advice.\n\nThis repository is documentation and discovery metadata. The server itself is\noperated by Yawusa UG (haftungsbeschränkt), Berlin.\n\n## Connect\n\nClaude Code:\n\n```bash\nclaude mcp add --transport http ausschreibungsagenten https://api.ausschreibungsagenten.de/mcp\n```\n\nAny client that reads an `mcpServers` block:\n\n```json\n{\n  \"mcpServers\": {\n    \"ausschreibungsagenten\": {\n      \"type\": \"streamable-http\",\n      \"url\": \"https://api.ausschreibungsagenten.de/mcp\"\n    }\n  }\n}\n```\n\nNo credentials are needed to start. `search_tenders` is open to anonymous\ncallers at 60 requests per hour.\n\n## Tools\n\n| Tool | Purpose |\n| --- | --- |\n| `agentleads.search_tenders` | Search open notices by keyword, ISO-3 country, CPV code, relevance score, deadline window and contract value. Optional AI summary per hit. |\n| `agentleads.get_tender` | One notice in full, by id. |\n| `agentleads.summarize_tender` | Labelled AI short form of a notice, `de` or `en`. |\n| `agentleads.source_status` | Freshness per connected procurement portal — last successful poll, counts, last error. |\n| `agentleads.countries` | Indexed countries (ISO-3) with the number of open procedures. |\n| `agentleads.fulltext_search` | Full text across indexed notices. Requires a plan that permits it. |\n\nCPV filtering accepts full 8-digit codes for exact matches and shorter numeric\nprefixes for whole divisions — `45` matches all of construction.\n\n## Authentication\n\nAnonymous access covers the public preview. Higher limits and `fulltext_search`\nuse an API key as an HTTP Bearer token:\n\n```\nAuthorization: Bearer sk_...\n```\n\nNo other header is evaluated — a request sent with `X-API-Key` counts as\nunauthenticated and runs in the anonymous limit. Free keys:\n[ausschreibungsagenten.de/entwickler](https://www.ausschreibungsagenten.de/entwickler).\n\n## Sources\n\nTED, service.bund.de, Datenservice Öffentlicher Einkauf, DTVP, RIB, the state\nand regional portals of Bavaria, North Rhine-Westphalia, Baden-Württemberg,\nVergabeportal BW, Bremen, Saxony, Mecklenburg-Vorpommern, Hesse,\nRhineland-Palatinate and Metropolregion Rhein-Neckar, plus GB Find a Tender and\nContracts Finder. Above and below the EU threshold.\n\nCoverage is not claimed to be complete. `source_status` states per portal what\nis actually being polled and when it last succeeded — check it before relying on\ncompleteness.\n\n## Other ways in\n\n- REST + OpenAPI: [openapi.json](https://www.ausschreibungsagenten.de/openapi.json) · canonical surface `https://api.ausschreibungsagenten.de/api/v1/...`\n- CLI: `npx ausschreibungsagenten suche Fassade --land DEU --limit 5` ([npm](https://www.npmjs.com/package/ausschreibungsagenten))\n- A2A agent card: [/.well-known/agent-card.json](https://www.ausschreibungsagenten.de/.well-known/agent-card.json)\n- Agent instructions: [llms.txt](https://www.ausschreibungsagenten.de/llms.txt) · [agents.md](https://www.ausschreibungsagenten.de/agents.md)\n- Versioning and deprecation policy: [api-policy.md](https://www.ausschreibungsagenten.de/api-policy.md)\n\n## When not to use this\n\nBid pricing, writing bid documents, submitting through a procurement portal, or\nlegal advice on procurement law. This service is not built for any of those.\n\n## License\n\nMIT for the contents of this repository. The service itself is subject to the\n[terms of use](https://www.ausschreibungsagenten.de/agb).\n",
+  "status": "curated"
+}

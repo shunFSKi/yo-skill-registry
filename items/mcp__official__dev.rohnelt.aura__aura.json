@@ -1,0 +1,61 @@
+{
+  "id": "mcp:official/dev.rohnelt.aura/aura",
+  "type": "mcp",
+  "name": "Aura",
+  "description": "Email address, webhook, durable memory and zero-token waiting for agents. Paid in USDC via x402.",
+  "author": "dev.rohnelt.aura",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/phillypmack/aura-agent",
+    "repo": "phillypmack/aura-agent"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://aura.rohnelt.dev/mcp",
+    "env": [
+      {
+        "name": "Authorization",
+        "required": false,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-24T18:48:01.679379Z",
+    "score": 52
+  },
+  "security": {
+    "score": 85,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": false
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "办公",
+    "featured": false
+  },
+  "readme": "# Aura\n\n**The persistence layer for ephemeral agents.** A real email address, a webhook URL, durable memory, and the ability to wait for an event without burning tokens — sold to autonomous agents that pay in USDC over [x402](https://x402.org), with no account and no human in the loop.\n\nService: <https://aura.rohnelt.dev> · MCP: `https://aura.rohnelt.dev/mcp` · Docs for models: [llms-full.txt](https://aura.rohnelt.dev/llms-full.txt)\n\nThis repository holds the client side: SDKs, framework adapters, and the Claude Skill.\n\n---\n\n## The problem\n\nAn autonomous agent is ephemeral. That creates three hard blockers, and none of them is a matter of intelligence:\n\n| Blocker | What normally happens |\n| --- | --- |\n| **It has no address.** | It cannot sign up for anything, because it cannot receive the verification code. |\n| **It cannot wait.** | It polls in a loop, burning tokens on every turn, or it dies and loses the work. |\n| **It dies at the end of a run.** | Everything it learned is gone. |\n\nAura removes all three. An agent proves it controls a wallet with one signature and gets a handle, a **real mailbox**, a webhook base URL, durable memory, and two ways to wait.\n\n## Install\n\n```bash\nnpm install aura-agent     # JavaScript / TypeScript\npip install aura-x402    # Python\n```\n\nOr point any MCP client at the endpoint:\n\n```json\n{\n  \"mcpServers\": {\n    \"aura\": {\n      \"type\": \"http\",\n      \"url\": \"https://aura.rohnelt.dev/mcp\",\n      \"headers\": { \"Authorization\": \"Bearer aura_sk_...\" }\n    }\n  }\n}\n```\n\nWithout the header the tools still list, and `capabilities` and `identity_create` still work — an agent can evaluate the service before committing to anything.\n\n## The thirty-second version\n\n```python\nfrom aura_agent import Aura, LocalSigner\n\nclient = Aura.claim(LocalSigner(private_key))   # free, one signature, no signup\naddress = client.whoami()[\"email\"]              # a real mailbox\n\nsign_up_somewhere(email=address)                # whatever the task actually is\ncode = client.await_email_code()                # blocks; costs no tokens; refunds on timeout\n```\n\n```ts\nimport { Aura, toSigner } from \"aura-agent\";\nimport { privateKeyToAccount } from \"viem/accounts\";\n\nconst { client, identity } = await Aura.claim(toSigner(privateKeyToAccount(key)));\nconst code = await client.awaitEmailCode({ from: \"notifications@example.com\" });\n```\n\n## What is in here\n\n| Path | What |\n| --- | --- |\n| [`js/`](js) | `aura-agent` on npm — zero-dependency TypeScript client |\n| [`python/`](python) | `aura-x402` on PyPI (imported as `aura_agent`) — sync and async clients, plus LangChain and CrewAI adapters |\n| [`skill/aura/`](skill/aura) | A Claude Skill: drop it in and Claude knows when to reach for Aura |\n| [`server.json`](server.json) | The manifest published to the official MCP Registry |\n\n## Framework adapters\n\n```python\nfrom aura_agent.langchain import get_tools     # pip install \"aura-x402[langchain]\"\nfrom aura_agent.crewai import get_tools        # pip install \"aura-x402[crewai]\"\n\ntools = get_tools(client)\n```\n\nFourteen tools, each described for a model deciding whether to spend money: what it does, when *not* to use it, and what it costs.\n\n## Pricing\n\nOperations cost fractions of a cent, so they are debited off-chain from a prepaid balance: one on-chain settlement covers hundreds of calls. Claiming an identity is free and grants a small trial credit.\n\n| Call | Price |\n| --- | --- |\n| `capabilities`, `whoami`, `identity.create`, `forget` | free |\n| `recall`, `list_memory` | $0.0005 |\n| `remember` | $0.0008 |\n| `inbox`, `read_mail`, `create_hook` | $0.001 |\n| `search_memory`, `signal`, `resume` | $0.002 |\n| `await` | $0.004 |\n| `park` | $0.005 |\n\nTwo of these refund themselves: a timed-out `await` costs nothing, and `resume` is free when no parked work is ready. So calling `resume` at the start of every run is safe.\n\nDeposits are paid in USDC on Base: `POST /v1/credit/deposit/{1,5,20}` answers HTTP 402 with full x402 payment requirements.\n\n## Errors carry the fix\n\nAn agent has no human to ask, so every error returns what was missing *and* the corrected call. A `402` carries the exact deposit call; a memory `404` carries the keys that do exist; a `400` carries the schema plus a working example. Both SDKs preserve that rather than flattening it into a string.\n\n```python\ntry:\n    client.remember(\"k\", \"v\")\nexcept AuraError as err:\n    if err.needs_credit:\n        print(err.fix)     # the exact deposit call to make\n```\n\n## Discovery\n\nAura is built to be found and evaluated by a machine, without a signup:\n\n- [`/v1/capabilities`](https://aura.rohnelt.dev/v1/capabilities) — every operation, price and schema. Free.\n- [`/llms.txt`](https://aura.rohnelt.dev/llms.txt) and [`/llms-full.txt`](https://aura.rohnelt.dev/llms-full.txt)\n- [`/openapi.json`](https://aura.rohnelt.dev/openapi.json) — OpenAPI 3.1\n- `/.well-known/x402`, `/.well-known/agent.json`, `/.well-known/mcp.json`\n\n`GET /` returns JSON unless `Accept` explicitly asks for HTML.\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

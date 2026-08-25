@@ -2,7 +2,7 @@
   "id": "mcp:official/com.gatecoreai/marketplace",
   "type": "mcp",
   "name": "GateCore Marketplace",
-  "description": "Discover and procure governed AI capabilities with machine-readable price, scope, and trust terms.",
+  "description": "Procure governed AI capabilities: machine-readable price, scope, trust, gateway-delegation terms.",
   "author": "com.gatecoreai",
   "source": {
     "registry": "mcp-official",
@@ -16,8 +16,8 @@
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-08-18T17:23:25.734081Z",
-    "score": 42
+    "pushed_at": "2026-08-25T01:30:22.580458Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -49,6 +49,6 @@
     "category": null,
     "featured": false
   },
-  "readme": null,
+  "readme": "# GateCore\n\nGateCore is the governed transaction layer for AI agents. Every agent request is\nidentity-verified, policy-checked, priced, settled, and receipted on a tamper-evident\nledger before it touches tools, data, or money.\n\nThis repository is GateCore's public integration surface: the MCP server manifest, a\nquickstart, runnable client examples, and the agent-facing capability file. It is the\ncanonical reference for the `com.gatecoreai/marketplace` entry in the official MCP registry.\n\n## What you can do today\n\nPoint any MCP client at `https://mcp.gatecoreai.com/mcp` and, with no key and no account:\n\n- **Discover governed capabilities.** `discover_listings` returns published marketplace\n  listings with machine-readable price, required scopes, and minimum trust terms attached.\n- **Read the contract before you commit.** `get_listing` returns one listing and its\n  machine-enforceable contract: price, required scopes, minimum trust, target, and data\n  classification. Your agent can evaluate the terms programmatically instead of parsing\n  marketing copy.\n\nWith a GateCore MCP access key (`gcmk_` prefix), an agent can also:\n\n- **Request a governed procurement decision.** `procure` returns PROCURE, REVIEW, or DENY.\n  An eligible decision carries gateway delegation metadata, and execution happens through\n  GateCore's signed gateway API.\n- **Read its own audit trail.** `list_procurements` returns the procurement decisions\n  visible to the credential's tenant.\n- **Submit a consented lead.** `submit_lead` delivers a qualified consumer lead to a\n  listing that accepts them.\n\n[QUICKSTART.md](QUICKSTART.md) has the exact handshake and copy-pasteable calls.\n[examples/](examples/) has short, dependency-light clients for discovery and listing fetch.\n\n## Why terms are machine-readable\n\nAn agent that wants to buy something on the open web has to read a human sales page, guess\nat the price, guess at the scope of what it is allowed to do with the result, and take the\nseller's word for quality. GateCore replaces all three guesses with structured fields on\nthe listing:\n\n- **Price** is stated in cents on the contract, so an agent can filter by budget before it\n  ever asks to transact.\n- **Scope** is the explicit set of permissions the capability requires, so an agent can\n  check the request against its own policy instead of discovering the mismatch after the\n  fact.\n- **Trust** is a minimum threshold expressed on the contract. Trust on GateCore is earned\n  from verified outcomes. It cannot be asserted by the seller or purchased.\n\nBecause those terms are attached to the listing rather than to a sales page, the decision\nto transact is one an agent can make on its own and a human can audit afterward.\n\n## Receipts and the audit trail\n\nEvery governed decision produces a signed receipt that binds the request, the policy\ndecision, and the settlement together. Receipts are Ed25519-signed and independently\nverifiable: GateCore publishes the receipt signing keys at\n`https://api.gatecoreai.com/v1/receipts/keys`, and a client-side verifier at\n[gatecoreai.com/verify](https://gatecoreai.com/verify) recomputes the canonical\nbytes and checks the signature entirely in the browser. Verification requires no account\nand no call back to GateCore, so a receipt stands as evidence to a counterparty who does\nnot trust us.\n\nThat is the point of the design. The decision is bound to the evidence, so \"what did the\nagent do, under whose authority, at what price, and on what terms\" has one answer that\nsurvives the session.\n\n## Public endpoints\n\n| Purpose | URL |\n| --- | --- |\n| MCP endpoint (streamable HTTP) | `https://mcp.gatecoreai.com/mcp` |\n| MCP manifest | `https://mcp.gatecoreai.com/.well-known/mcp.json` |\n| Agent capability file | `https://gatecoreai.com/llms.txt` |\n| Public marketplace | `https://gatecoreai.com/marketplace/` |\n| Receipt verifier | `https://gatecoreai.com/verify` |\n| Receipt signing keys | `https://api.gatecoreai.com/v1/receipts/keys` |\n\n## Registry entry\n\nGateCore is listed on the official Model Context Protocol registry as\n`com.gatecoreai/marketplace`. [server.json](server.json) in this repository is that\nmanifest.\n\n## Access keys\n\nDiscovery is open. Procurement, procurement history, and lead submission require a\nGateCore-issued MCP access key so that agent identity and tenant scope come from the\ncredential rather than from tool-call arguments. To request one, contact\n[hello@gatecoreai.com](mailto:hello@gatecoreai.com).\n",
   "status": "curated"
 }
