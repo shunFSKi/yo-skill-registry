@@ -28,7 +28,7 @@
   "quality": {
     "stars": null,
     "pushed_at": "2026-08-25T02:37:29.755198Z",
-    "score": 52
+    "score": 42
   },
   "security": {
     "score": 100,
@@ -60,6 +60,6 @@
     "category": "金融",
     "featured": false
   },
-  "readme": "# Stelar Signals MCP\n\nAn MCP (Model Context Protocol) server that gives any MCP-compatible agent\n(Claude Code, Claude Desktop, Cursor, Windsurf, Codex …) live crypto market\nsignals and portfolio telemetry.\n\n**Six of its tools are pay-per-call over [x402](https://x402.org) — no signup,\nno account, and no API key.** Your agent pays cents in USDC on Base from its own\nwallet and gets the data back in the same request.\n\n## Install\n\n```bash\nclaude mcp add stelar -- npx -y stelar-signals-mcp\n```\n\nOr in any MCP client config:\n\n```json\n{\n  \"mcpServers\": {\n    \"stelar\": { \"command\": \"npx\", \"args\": [\"-y\", \"stelar-signals-mcp\"] }\n  }\n}\n```\n\nThe server starts and lists every tool with no environment variables set.\n\n## Paid tools — x402, USDC on Base, no key required\n\n| Tool | Price | What you get |\n|---|---|---|\n| `price` | $0.005 | Current price, 24h and 7d change, bull/bear/neutral signal |\n| `sentiment` | $0.005 | Sentiment score (-1 to +1) and label, for text or an asset |\n| `telemetry` | $0.005 | Live telemetry of an AI-managed crypto portfolio — allocation, reconciled P&L, signal votes, human-approval trail |\n| `risk` | $0.02 | Volatility / drawdown risk regime — ATR% vs its 30-day p80 baseline, labeled low/med/high |\n| `regime` | $0.03 | Market regime (chop / uptrend / downtrend / high-volatility) plus a grid-trading suitability verdict |\n| `gridparams` | $0.05 | Grid count, spacing %, price band and per-grid allocation from live 24h market structure |\n\nThese call `https://api.stelardigital.com`, which answers HTTP 402 with a payment\nchallenge. Any x402-capable client settles it and retries automatically. Assets\ncovered: SOL, BTC, ETH, XRP, DOGE, LTC, ADA, XLM.\n\nThese are live production endpoints backed by real market data — not demo stubs.\n\n## Free-tier tools — these DO need a RapidAPI key\n\n`crypto_regime`, `crypto_sentiment`, `pricecheck`, `token_risk`, `summarize`,\n`factcheck` are served through RapidAPI. Set `RAPIDAPI_KEY` to use them:\n\n```bash\nclaude mcp add stelar -e RAPIDAPI_KEY=your-key -- npx -y stelar-signals-mcp\n```\n\nWithout the key these six return a clear error; **the six paid x402 tools above\nkeep working**, because they do not use RapidAPI at all.\n\n## Discovery\n\n```\nGET https://api.stelardigital.com/catalog          endpoints, prices, parameters\nGET https://api.stelardigital.com/.well-known/x402 x402 discovery manifest\nGET https://api.stelardigital.com/openapi.json     OpenAPI 3.1 spec\n```\n\nA hosted streamable-HTTP MCP endpoint is also live at\n`https://api.stelardigital.com/mcp`.\n\n## Honest limits\n\n- Signals cover the eight majors listed above, not arbitrary tokens.\n- Paid tools need a funded wallet; without one they return HTTP 402 rather than data.\n- Every response carries `generated_at`; nothing is cached longer than a minute.\n\n## About\n\nBuilt by [Stelar Digital](https://stelardigital.com). One human. One AI. A whole company.\n\nMIT licensed.\n",
+  "readme": null,
   "status": "curated"
 }

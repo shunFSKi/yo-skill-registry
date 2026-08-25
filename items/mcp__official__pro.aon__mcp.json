@@ -1,0 +1,61 @@
+{
+  "id": "mcp:official/pro.aon/mcp",
+  "type": "mcp",
+  "name": "AON — Agent Offer Network",
+  "description": "Real, buyable product and service offers — live pricing and trackable links for any MCP agent.",
+  "author": "pro.aon",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/aonpro-dev/aonpro-mcp",
+    "repo": "aonpro-dev/aonpro-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://api.aon.pro/v1/mcp",
+    "env": [
+      {
+        "name": "Authorization",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-25T09:13:25.910247Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# AON MCP Server\n\nGive any MCP-capable agent the ability to recommend **real, buyable products\nand services** — live pricing and a trackable link on every offer, drawn from\nthe [Agent Offer Network](https://www.aon.pro).\n\n- **Endpoint**: `POST https://api.aon.pro/v1/mcp`\n- **Transport**: Streamable HTTP (stateless JSON-RPC 2.0 — no SSE, no session handshake)\n- **Auth**: `Authorization: Bearer <AON API key>` — free keys at the [Developer Portal](https://developer.aon.pro)\n- **Try it now**: a shared public demo key is published in the [Quick Start](https://docs.aon.pro/mcp/quickstart) — one curl, no signup\n- **Docs**: [docs.aon.pro/mcp](https://docs.aon.pro/mcp)\n\n## Tools\n\n| Tool | What it does |\n|------|--------------|\n| `aon_search_offers` | Search offers by natural-language intent. Arguments are an [AgentOffer Query](https://github.com/agentoffernetwork/protocol) request object — the same shape as the REST API. Returns offers with pricing, a tracking link each, and an `engagement` block of pre-validated follow-up suggestions the agent can act on. |\n| `aon_resolve_category` | Turn free text (\"hiking boots\", \"team chat software\") into AON Taxonomy v1 category ids — the model never has to memorize or invent them. |\n| `aon_get_category_schema` | Get the decision factors buyers weigh inside a category, to ask the right clarifying question before searching. |\n| `aon_submit_feedback` | Record an explicit \"dismissed\" / \"not interested\" from the user on an offer — never inferred from silence. *Early scaffold: the call is acknowledged with success, but feedback is not persisted yet; the workflow behind it is rolling out.* |\n| `aon_manage_watch` | Restore (`watch`) or cancel (`unwatch`) the default watch on an offer or category when the user explicitly asks. *Early scaffold: acknowledged with success, watch state not persisted yet.* |\n\nDesign notes agents benefit from:\n\n- **Forgiving by design** — invalid values never fail a search; they are\n  treated as \"not sent\" and corrected in `extra.hints[]`. Only bad auth,\n  invalid JSON, a missing `intent.content`, or an oversized body hard-fail.\n- **Relevance-gated** — an empty result list is a real answer, never filler.\n- **Guidance loop** — follow-up suggestions carry an RFC 7386 `request_patch`\n  that merges straight into the next call, plus an `origin` to echo back for\n  adoption attribution.\n\n## Quick start\n\n```bash\ncurl -s -X POST https://api.aon.pro/v1/mcp \\\n  -H \"Content-Type: application/json\" \\\n  -H \"Authorization: Bearer $AON_API_KEY\" \\\n  -d '{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"tools/call\",\n    \"params\": {\n      \"name\": \"aon_search_offers\",\n      \"arguments\": {\n        \"intent\": {\n          \"content\": [\n            { \"type\": \"input_text\", \"text\": \"credit card with cashback\" }\n          ]\n        }\n      }\n    },\n    \"id\": 1\n  }'\n```\n\nNo key yet? Copy the shared demo key from the\n[Quick Start](https://docs.aon.pro/mcp/quickstart) into `$AON_API_KEY`.\n\n## Client setup\n\nReady-to-paste configs live in [`examples/`](./examples):\n\n| Client | Config |\n|--------|--------|\n| Claude Code | [`examples/claude-code`](./examples/claude-code) |\n| Claude Desktop | [`examples/claude-desktop`](./examples/claude-desktop) (via `mcp-remote`) |\n| Cursor | [`examples/cursor`](./examples/cursor) |\n| VS Code | [`examples/vscode`](./examples/vscode) |\n| Plain curl | [`examples/curl`](./examples/curl) |\n\n## Rate limits\n\n`/v1/mcp` allows **60 `tools/call` requests per minute per key**; handshake\ncalls (`initialize`, `tools/list`, `notifications/*`) are never counted. An\nover-limit `tools/call` returns HTTP 200 with JSON-RPC error `-32000` so the\nmodel can read the retry advice. Details:\n[Rate Limits & FAQ](https://docs.aon.pro/mcp/faq).\n\n## Monetization & attribution\n\nEvery offer carries a tracked destination link (`action.payload.target`).\nSurface it verbatim — clicks and conversions attribute to your API key's\napplication, which is the basis for developer revenue share. Reporting lives\nin the [Developer Portal](https://developer.aon.pro).\n\n## Registry manifest\n\n[`server.json`](./server.json) is the MCP registry manifest for this server\n(schema `2025-12-11`, namespace `pro.aon` — DNS-verified against the aon.pro domain).\n\n## Related repositories\n\n- [`protocol`](https://github.com/agentoffernetwork/protocol) — AgentOffer Protocol specs (normative)\n- [`schema`](https://github.com/agentoffernetwork/schema) — JSON Schemas, TypeScript types, taxonomy\n- [`examples`](https://github.com/agentoffernetwork/examples) — HTTP / SDK / agent integration examples\n- [`rfcs`](https://github.com/agentoffernetwork/rfcs) — protocol evolution proposals\n\n## License\n\n[Apache-2.0](./LICENSE)\n",
+  "status": "curated"
+}

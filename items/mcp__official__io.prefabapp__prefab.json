@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.prefabapp/prefab",
+  "type": "mcp",
+  "name": "prefab",
+  "description": "List, create and deploy your Prefab project templates from any MCP agent.",
+  "author": "io.prefabapp",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/davidjaykelly/prefab-mcp",
+    "repo": "davidjaykelly/prefab-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "prefab-mcp"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-25T14:51:51.00473Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# prefab-mcp\n\nAn MCP server for [Prefab](https://www.prefabapp.io), so an agent can see your templates and\ndeploy one for you.\n\n    \"Set up a new client folder for Northwind, autumn campaign, on my Desktop\"\n\n## What it exposes\n\n| Tool | Does |\n| --- | --- |\n| `list_templates` | Every template, what it creates, what it asks for |\n| `describe_template` | One template in full: structure, placeholders, actions |\n| `preview_deploy` | What a deploy would create, and what values are still missing. Creates nothing |\n| `deploy_template` | Creates the folders, filling in the values given |\n| `list_watched_folders` | Folders Prefab is watching, and the rules on them |\n| `list_globals` | Library-wide placeholders, actions and value presets |\n\n## Setting it up\n\nWorks with any client that speaks MCP over stdio.\n\n**As a bundle** - download `prefab.mcpb` from the\n[releases page](https://github.com/davidjaykelly/prefab-mcp/releases) and double-click it. Clients\nthat install MCP bundles, Claude Desktop among them, bring their own Node, so there is nothing else\nto install.\n\n**From the command line** (Claude Code, and anything with the same idea):\n\n    claude mcp add prefab -- npx -y prefab-mcp\n\n**In a config file** - Cursor, Zed, and most others:\n\n```json\n{\n  \"mcpServers\": {\n    \"prefab\": { \"command\": \"npx\", \"args\": [\"-y\", \"prefab-mcp\"] }\n  }\n}\n```\n\nThen switch on **Let agents and scripts control Prefab** in Prefab's Settings ▸ Permissions. It is\noff by default; reading your templates works without it, creating and deploying does not.\n\nThat switch arrives in **Prefab 1.1.6**. On an earlier version the reading tools work and the rest\nsay so.\n\nRequires macOS, Prefab installed and opened once, and Node 18+ (except for the `.mcpb` route).\n\n## How it works\n\nPrefab is sandboxed and has no network access, so it cannot host anything. This server runs beside\nit instead: it **reads** the library straight out of the app group\n(`~/Library/Group Containers/group.VFDG327T66.prefab`) and **asks the app to deploy** through the\nsame `prefab://` URL the Finder extension uses. Two consequences worth knowing:\n\n- **Prefab has to be running** for a deploy. Reading works either way.\n- **The destination has to be a folder Prefab has been granted.** macOS keeps a sandboxed app out\n  of your folders until you point it at one. `preview_deploy` and `deploy_template` both check\n  first and say so, rather than leaving a permission dialog on screen that an agent cannot answer.\n  Grant folders in Prefab, under Settings ▸ Permissions.\n\nNothing here writes to Prefab's library. The app owns those files, and editing them behind its\nback would be overwritten the next time it saves.\n\n## Development\n\n    npm test    # checks placeholder resolution matches the app's Swift, case for case\n    npm run try '[[\"list_templates\",{}]]'    # call a tool the way a client does\n\n`src/resolve.js` is a deliberate duplicate of `RenamePattern.swift`. If you change one, change the\nother - `npm test` compiles the Swift and compares the two.\n",
+  "status": "curated"
+}

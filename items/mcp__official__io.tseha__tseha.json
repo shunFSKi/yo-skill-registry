@@ -6,8 +6,8 @@
   "author": "io.tseha",
   "source": {
     "registry": "mcp-official",
-    "url": "https://tseha.io/mcp",
-    "repo": null
+    "url": "https://github.com/MariuszHenn/tseha-mcp",
+    "repo": "MariuszHenn/tseha-mcp"
   },
   "license": null,
   "install": {
@@ -16,8 +16,8 @@
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-08-23T08:04:58.359755Z",
-    "score": 42
+    "pushed_at": "2026-08-25T12:54:57.195677Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -49,6 +49,6 @@
     "category": "设计",
     "featured": false
   },
-  "readme": null,
+  "readme": "# Tseha MCP Server\n\n**Serves your design system and coding standards to coding agents, so they stop guessing.**\n\nTseha is a hosted, remote MCP server. Point your coding agent at it and the agent reads your\nreal component APIs, design tokens and coding standards instead of inventing them.\n\n- **Website:** <https://tseha.io>\n- **Documentation:** <https://tseha.io/docs>\n- **MCP endpoint:** `https://tseha.io/mcp` (Streamable HTTP)\n- **Official MCP Registry name:** `io.tseha/tseha`\n\nThis repository holds the published `server.json` manifest and the connection documentation.\nTseha itself is a hosted commercial service and its source is not open; there is nothing to\ninstall or build here.\n\n## Quick start\n\nAdd a `.mcp.json` to the root of your repository:\n\n```json\n{\n  \"mcpServers\": {\n    \"tseha\": {\n      \"url\": \"https://tseha.io/mcp\"\n    }\n  }\n}\n```\n\nThat is the whole configuration. On first connection the agent opens an OAuth sign-in in your\nbrowser. Approve it once and the agent is connected.\n\n### Other clients\n\n| Client | Where the config lives |\n| --- | --- |\n| Claude Code | `.mcp.json` in the project root, or `claude mcp add --transport http tseha https://tseha.io/mcp` |\n| Cursor | `.cursor/mcp.json` (per project) or `~/.cursor/mcp.json` (global) |\n| VS Code / GitHub Copilot, and any other MCP client | point at `https://tseha.io/mcp` over the HTTP transport |\n\n## Authentication\n\n**OAuth 2.1 with PKCE (S256).** There is no API key to paste. Tseha publishes the standard\ndiscovery documents — `/.well-known/oauth-authorization-server` and\n`/.well-known/oauth-protected-resource` (RFC 9728) — and supports both Dynamic Client\nRegistration and Client ID Metadata Documents, so compliant clients configure themselves.\n\nThe issued token is scoped to your organization and your role. **The MCP surface is read-only\nfor every role.** Writes happen only in the Tseha admin panel.\n\n## Tools\n\nAll nine tools are read-only. Every tool except `list_projects` takes a `project_id`, which\n`list_projects` returns.\n\n| Tool | What it returns |\n| --- | --- |\n| `list_projects` | The projects in your organization, each with id, name and framework. Call this first — the id is required by every other tool. |\n| `list_packages` | The component packages assigned to a project, with version, and which one is active. |\n| `list_components` | Every UI component in the project's design system: name, source package, import path, intended use. |\n| `get_component` | The full spec for one component: import path, props schema, usage example, anti-patterns, when-to-use notes, Figma spec, dependencies. |\n| `search_components` | Components ranked by description, for finding one by need rather than by name. |\n| `get_style` | Style metadata for a design token collection. |\n| `get_style_tokens` | Design tokens by category: color, typography, spacing, radius, shadow, blur, or all. |\n| `get_standards` | Your organization's development standards, by section (global, react, nextjs, …). |\n| `get_component_updates` | What changed between the installed version of a component and the current one. |\n\n## Protocol conformance\n\n- MCP revision **2026-07-28**, Streamable HTTP transport\n- OAuth 2.1 + PKCE S256 (mandatory), RFC 9728 protected-resource metadata, RFC 9207 `iss` on\n  authorization responses, RFC 8252 §7.3 loopback redirect URIs\n- Dynamic Client Registration and Client ID Metadata Documents\n\n## Registry\n\nPublished to the [official MCP Registry](https://registry.modelcontextprotocol.io) under the\nDNS-verified namespace `io.tseha`:\n\n```bash\ncurl -s \"https://registry.modelcontextprotocol.io/v0/servers?search=tseha\"\n```\n\n## Support\n\nQuestions and issues: <https://tseha.io/docs>, or open an issue on this repository.\n",
   "status": "curated"
 }

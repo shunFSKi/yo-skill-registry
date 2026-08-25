@@ -1,0 +1,69 @@
+{
+  "id": "mcp:official/io.github.lucianoon/mcp-dados-br",
+  "type": "mcp",
+  "name": "MCP Dados Brasil",
+  "description": "Servidor MCP com dados oficiais brasileiros: IBGE, Banco Central, INMET, Câmara e Senado.",
+  "author": "io.github.lucianoon",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/lucianoon/mcp-dados-br",
+    "repo": "lucianoon/mcp-dados-br"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "mcp-dados-br"
+    ],
+    "env": [
+      {
+        "name": "INMET_TOKEN",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "MCP_LOG_LEVEL",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-25T12:33:28.034711Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# mcp-dados-br\n\n[![CI](https://github.com/lucianoon/mcp-dados-br/actions/workflows/ci.yml/badge.svg)](https://github.com/lucianoon/mcp-dados-br/actions/workflows/ci.yml)\n[![PyPI](https://img.shields.io/pypi/v/mcp-dados-br?color=2e7d32&label=PyPI)](https://pypi.org/project/mcp-dados-br/)\n[![Python](https://img.shields.io/badge/python-3.12%2B-blue)](https://www.python.org)\n[![Licença: MIT](https://img.shields.io/badge/licen%C3%A7a-MIT-green.svg)](LICENSE)\n\nServidor **MCP (Model Context Protocol)** que expõe dados públicos brasileiros como ferramentas para assistentes de IA: [Claude Desktop](https://claude.ai/download), Claude Code, Cursor e qualquer cliente MCP.\n\n<!-- mcp-name: io.github.lucianoon/mcp-dados-br -->\n\n## Instalação\n\nA forma mais simples, sem instalar nada permanentemente:\n\n```bash\nuvx mcp-dados-br\n```\n\nConfiguração no Claude Desktop:\n\n```json\n{\n  \"mcpServers\": {\n    \"dados-brasil\": {\n      \"command\": \"uvx\",\n      \"args\": [\"mcp-dados-br\"]\n    }\n  }\n}\n```\n\nOu no Claude Code:\n\n```bash\nclaude mcp add dados-brasil -- uvx mcp-dados-br\n```\n\n### A partir do código-fonte\n\n```bash\ngit clone https://github.com/lucianoon/mcp-dados-br\ncd mcp-dados-br\nuv sync\n```\n\n## Ferramentas disponíveis\n\n| Fonte | Tools | Descrição |\n|---|---|---|\n| IBGE/SIDRA | `ibge_populacao`, `ibge_pib`, `ibge_municipios`, `ibge_sidra` | População, PIB, busca de municípios e consulta genérica a qualquer agregado SIDRA |\n| Banco Central | `bcb_serie`, `bcb_cambio`, `bcb_moedas`, `bcb_focus` | Séries SGS com atalhos nomeados (`selic`, `ipca`, `cdi`...), cotações PTAX, lista de moedas e expectativas do Boletim Focus |\n| INMET | `inmet_estacoes`, `inmet_dados` | Lista de estações meteorológicas e dados horários observados (dados observacionais exigem token) |\n| Câmara dos Deputados | `camara_deputados`, `camara_detalhes_deputado`, `camara_proposicoes`, `camara_votacoes_proposicao`, `camara_agenda`, `camara_tramitacao` | Deputados, proposições, votações, agenda e tramitações |\n| Senado Federal | `senado_senadores`, `senado_materias`, `senado_votacoes` | Senadores em exercício, matérias legislativas e votações nominais com placar |\n\nTodas as fontes são APIs oficiais abertas — nenhuma chave de API necessária,\nexceto os dados horários do INMET (veja abaixo).\n\n## Configuração\n\n### Claude Desktop / Cursor\n\nAdicione ao arquivo de configuração (`claude_desktop_config.json` ou `mcp.json`):\n\n```json\n{\n  \"mcpServers\": {\n    \"mcp-dados-br\": {\n      \"command\": \"uv\",\n      \"args\": [\"run\", \"--directory\", \"/caminho/para/mcp-dados-br\", \"mcp-dados-br\"]\n    }\n  }\n}\n```\n\n### Claude Code\n\n```bash\nclaude mcp add mcp-dados-br -- uv run --directory /caminho/para/mcp-dados-br mcp-dados-br\n```\n\n## Token opcional do INMET\n\nA listagem de estações (`inmet_estacoes`) é aberta. Já os **dados horários\nobservados** (`inmet_dados`) exigem um token fornecido pelo INMET — solicite em\n[portal.inmet.gov.br](https://portal.inmet.gov.br) e configure a variável de\nambiente no cliente MCP:\n\n```json\n{\n  \"mcpServers\": {\n    \"mcp-dados-br\": {\n      \"command\": \"uv\",\n      \"args\": [\"run\", \"--directory\", \"/caminho/para/mcp-dados-br\", \"mcp-dados-br\"],\n      \"env\": { \"INMET_TOKEN\": \"seu-token\" }\n    }\n  }\n}\n```\n\nSem o token, as demais 14 ferramentas funcionam normalmente.\n\n## Transporte streamable-http\n\nAlém do stdio padrão, o servidor pode rodar em modo HTTP remoto:\n\n```bash\nMCP_TRANSPORTE=streamable-http MCP_PORTA=8000 mcp-dados-br\n```\n\nAponte clientes para `http://localhost:8000/mcp`. Útil para Docker ou\ncompartilhar o servidor na rede local.\n\n### Docker\n\n```bash\ndocker build -t mcp-dados-br .\ndocker run -p 8000:8000 -e INMET_TOKEN=seu-token mcp-dados-br\n```\n\n## Exemplos de uso\n\nDepois de configurar, pergunte diretamente ao assistente:\n\n- \"Qual foi o IPCA dos últimos 6 meses?\"\n- \"O que o mercado espera para a Selic nas próximas reuniões?\" (Boletim Focus)\n- \"Quem são os deputados federais de Minas Gerais do partido X?\"\n- \"Qual a população de São Paulo em 2022? E o PIB?\"\n- \"Como está o dólar PTAX nos últimos dias?\"\n- \"Busque projetos de lei de 2025 sobre saúde mental\"\n- \"O que está na agenda da Câmara esta semana?\"\n- \"Como o Senado votou a PEC X? Qual o placar?\"\n- \"Quem são os senadores de Minas Gerais?\"\n- \"Quais estações automáticas do INMET existem no Amazonas?\"\n\n## Desenvolvimento\n\n```bash\nuv sync --dev\nuv run pytest              # suíte unitária (mocks)\nuv run pytest -m integration   # consulta as APIs reais\nuv run ruff check .\nuv run mypy src\n```\n\nLogs de depuração: configure `MCP_LOG_LEVEL=DEBUG` no cliente MCP.\nPara contribuir, leia o [CONTRIBUTING.md](CONTRIBUTING.md).\n\n### Arquitetura\n\n```\nsrc/mcp_dados_br/\n├── server.py        # Servidor MCP e registro das tools\n├── http.py          # Cliente HTTP compartilhado, retry e tratamento de erros\n├── cache.py         # Cache TTL em memória para as respostas das APIs\n└── tools/\n    ├── ibge.py      # SIDRA v3 + localidades v1\n    ├── bcb.py       # SGS + Olinda (PTAX e Boletim Focus)\n    ├── inmet.py     # Estações e dados observacionais\n    ├── camara.py    # Dados Abertos da Câmara v2\n    └── senado.py    # Dados Abertos do Senado (LegisSaber)\n```\n\n- Transporte stdio (padrão MCP desktop)\n- Cache TTL de 10 minutos por requisição idêntica\n- Retry automático em falhas de rede\n- Saídas formatadas como texto legível pelo modelo\n\n## Roadmap\n\n- [x] v0.2 — INMET (estações + observacional com token) e Boletim Focus\n- [x] v0.3 — Agenda da Câmara, transporte streamable-http e testes de integração agendados no CI\n- [x] v0.4 — Tramitações, atalhos nomeados no SGS, imagem Docker\n- [ ] Publicação no PyPI (`uvx mcp-dados-br`)\n- [ ] DOU: busca no Diário Oficial da União (aguardando API pública estável)\n- [ ] TSE: resultados eleitorais\n\n## Licença\n\nMIT\n",
+  "status": "curated"
+}

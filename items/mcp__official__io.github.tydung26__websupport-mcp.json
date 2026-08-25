@@ -1,0 +1,90 @@
+{
+  "id": "mcp:official/io.github.tydung26/websupport-mcp",
+  "type": "mcp",
+  "name": "Websupport",
+  "description": "Manage a Websupport account: DNS, FTP, hosting, databases, mailboxes, VPS and invoices.",
+  "author": "io.github.tydung26",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/tydung26/websupport-mcp",
+    "repo": "tydung26/websupport-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "websupport-mcp"
+    ],
+    "env": [
+      {
+        "name": "WEBSUPPORT_API_KEY",
+        "required": true,
+        "secret": false
+      },
+      {
+        "name": "WEBSUPPORT_API_SECRET",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "WEBSUPPORT_API_BASE_URL",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "WEBSUPPORT_ACCEPT_LANGUAGE",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "WEBSUPPORT_ALLOW_WRITE",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "WEBSUPPORT_ALLOW_DESTRUCTIVE",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-25T06:46:44.978358Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "运维",
+    "featured": false
+  },
+  "readme": "# websupport-mcp\n\nAn MCP server (TypeScript, ESM, stdio) wrapping the [Websupport](https://www.websupport.sk) REST\nAPI v1 + v2 — DNS, FTP, hosting, databases, mailboxes, VPS and invoices — exposed as MCP tools with\nsigned HMAC-SHA1 authentication.\n\n[![npm](https://img.shields.io/npm/v/websupport-mcp)](https://www.npmjs.com/package/websupport-mcp)\n[![licence: MIT](https://img.shields.io/badge/licence-MIT-blue)](LICENSE)\n\n**Status: early.** All 50 tools are implemented and published, but most have been verified only as\nfar as reaching the API — routes, signing and error handling are proven; response shapes largely are\nnot. Read [`docs/verification-matrix.md`](docs/verification-matrix.md) before relying on any tool,\nand see [`IMPLEMENTATION_PLAN.md`](IMPLEMENTATION_PLAN.md) for progress.\n\n## Risk tiers\n\nTools are registered in three tiers, and the tier gates **registration** — a read-only deployment\nnever sees a write tool in `tools/list` at all, so it costs no client context and offers no\naffordance.\n\n| Tier | Opt-in | Extra per-call gate | Currently |\n| --- | --- | --- | --- |\n| `read` | always on | — | 30 tools |\n| `write` | `WEBSUPPORT_ALLOW_WRITE=1` | — | 13 tools |\n| `destructive` | `WEBSUPPORT_ALLOW_DESTRUCTIVE=1` | `confirm: true` argument | 7 tools |\n\nA tool is `destructive` when it destroys state you cannot cheaply recreate — not merely because it\nwrites. A graceful VPS reboot is `write`; a hard power-cycle is `destructive`, because it can\ncorrupt in-flight writes. Taking a snapshot is `write`; restoring one is `destructive`, because it\ndiscards everything since.\n\nThe two opt-ins are independent: `WEBSUPPORT_ALLOW_DESTRUCTIVE=1` alone does **not** unlock write\ntools, and vice versa.\n\nThe `confirm: true` argument, not MCP elicitation, is the safety boundary. Protocol negotiation may\nsettle well below the revision that supports elicitation — this server's SDK currently tops out at\n`2025-11-25` — and a gate that disappears against an older client is not a gate.\n\n## Install\n\nRequires **Node >= 22**. Nothing to install ahead of time — `npx` fetches the package on first run.\n\nAdd this to your MCP client's configuration:\n\n```jsonc\n{\n  \"mcpServers\": {\n    \"websupport\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"websupport-mcp\"],\n      \"env\": {\n        \"WEBSUPPORT_API_KEY\": \"…\",\n        \"WEBSUPPORT_API_SECRET\": \"…\"\n      }\n    }\n  }\n}\n```\n\nThat gives you the 30 read-only tools. Nothing in that configuration can change your account.\n\nTo allow changes, add only the opt-ins you need — see [Risk tiers](#risk-tiers) above:\n\n```jsonc\n\"env\": {\n  \"WEBSUPPORT_API_KEY\": \"…\",\n  \"WEBSUPPORT_API_SECRET\": \"…\",\n  \"WEBSUPPORT_ALLOW_WRITE\": \"1\",\n  \"WEBSUPPORT_ALLOW_DESTRUCTIVE\": \"1\"\n}\n```\n\nReady-made configurations for each combination live in\n[`examples/mcp-config/`](examples/mcp-config/). Pin a version with `websupport-mcp@0.1.1` in place\nof `websupport-mcp`.\n\nOnce it is wired up, ask your client to run `ws_auth_check`. It returns `{\"verified\": true}` when\nthe credentials work, which is the quickest way to separate a bad key from anything else.\n\n### From a local checkout\n\nFor development, or to run unreleased changes:\n\n```bash\nnpm install\nnpm run build\n```\n\nThen point `command` at `node` and `args` at the built entrypoint\n(`<checkout>/dist/index.js`) instead of `npx`.\n\n## Credentials\n\nGenerate a **Standard** API access pair in WebAdmin (Security → API keys). A DynDNS-only pair\nauthenticates against `/nic/update` and nothing else.\n\n| Variable | Required | Default | Notes |\n| --- | --- | --- | --- |\n| `WEBSUPPORT_API_KEY` | yes | — | The pair's *identifier*. |\n| `WEBSUPPORT_API_SECRET` | yes | — | The pair's *secret*. Used for HMAC-SHA1 signing; never logged, never returned in an error. |\n| `WEBSUPPORT_API_BASE_URL` | no | `https://rest.websupport.sk` | Market selection — see below. |\n| `WEBSUPPORT_ACCEPT_LANGUAGE` | no | `en_us` | One of `en_us`, `sk`, `cs_cz`, `hu`. |\n| `WEBSUPPORT_ALLOW_WRITE` | no | off | Set to `1` to register write tools. |\n| `WEBSUPPORT_ALLOW_DESTRUCTIVE` | no | off | Set to `1` to register destructive tools. |\n\nCopy [`.env.example`](.env.example) for local development. `.env` is gitignored.\n\n## Markets\n\nWebsupport is a regional team.blue/Loopia brand, so the API host selects the market. The same\napplication serves every host — `GET /v2/docs/openapi.json` is byte-identical across all of them —\nso switching markets is configuration, never a code change.\n\n| Market | `WEBSUPPORT_API_BASE_URL` |\n| --- | --- |\n| Slovakia (default) | `https://rest.websupport.sk` |\n| Czechia | `https://rest.websupport.cz` |\n| Hungary | `https://rest.websupport.hu` |\n| Sweden | `https://rest.websupport.se` |\n\nAn unrecognised host warns to stderr and is used anyway, so a newly added market works without\nwaiting for a release.\n\n## Documentation\n\n| Document | What it holds |\n| --- | --- |\n| [`docs/tools.md`](docs/tools.md) | Every tool: tier, method + path, confirm requirement. Generated from the registry — never hand-edited. |\n| [`docs/verification-matrix.md`](docs/verification-matrix.md) | What has actually been proven about each tool, and what has not. Read this before trusting any tool in production. |\n| [`docs/system-architecture.md`](docs/system-architecture.md) | The request path, the signing contract and its three counter-intuitive rules, and how the tier model works. |\n| [`docs/codebase-summary.md`](docs/codebase-summary.md) | Module map — what lives where and why. |\n| [`examples/mcp-config/`](examples/mcp-config/) | Ready-to-edit client configurations for each tier combination. |\n\n## Scope\n\nOrder creation and invoice/order payment endpoints are deliberately out of scope and are asserted\nabsent by test. v1 DNS-record CRUD and v1 FTP-account CRUD are deprecated upstream and are not\nexposed — the v2 tools cover both.\n\n## Development\n\n```bash\nnpm test              # offline suite\nnpm run test:network  # live, unauthenticated probes (market hosts + OpenAPI drift)\nnpm run typecheck\nnpm run lint\nnpm run build\n```\n\nNetwork suites are separated deliberately: a Websupport outage must not fail the build.\n\n### Toolchain\n\n**Node >= 22**, to run or to build. Node 20 reached end of life on 2026-04-30 and is not\nsupported. CI covers the two live LTS lines, 22 and 24, and builds and smoke-tests the bundle on\neach.\n\nBuilding also needs **npm >= 11**: npm 10 cannot resolve the bundler's dependency tree and fails\nwith an unhelpful `Cannot read properties of null (reading 'edgesOut')`. If you hit that, upgrade\nnpm rather than debugging the repository.\n\n## Security\n\nThe credentials this server holds grant full control of a Websupport account — there is no\nread-only API pair. [`SECURITY.md`](SECURITY.md) covers how they are handled, which tools return\nsensitive data, and how to report a vulnerability privately.\n\n## Contributing\n\nSee [`CONTRIBUTING.md`](CONTRIBUTING.md). Note two boundaries enforced by test rather than review:\nno order or payment endpoints, and every destructive tool must declare `confirm: true`.\n\n## Licence\n\nMIT — see [`LICENSE`](LICENSE).\n",
+  "status": "curated"
+}

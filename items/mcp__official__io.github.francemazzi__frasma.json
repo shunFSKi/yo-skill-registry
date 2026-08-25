@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.francemazzi/frasma",
+  "type": "mcp",
+  "name": "Frasma",
+  "description": "Read-only Frasma MCP: profile, knowledge search, diagnostic handoff. No email.",
+  "author": "io.github.francemazzi",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/francemazzi/frasma",
+    "repo": "francemazzi/frasma"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://www.frasma.org/api/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-25T14:59:25.368944Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "办公",
+    "featured": false
+  },
+  "readme": "[![smithery badge](https://smithery.ai/badge/francemazzi/frasma)](https://smithery.ai/servers/francemazzi/frasma)\n\n[Frasma on Smithery](https://smithery.ai/servers/francemazzi/frasma)\n\nThis is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).\n\n## Getting Started\n\nFirst, run the development server:\n\n```bash\nnpm run dev\n# or\nyarn dev\n```\n\nOpen [http://localhost:3000](http://localhost:3000) with your browser to see the result.\n\nYou can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.\n\n[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.\n\nThe `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.\n\n## Process brief (quote request)\n\nThe landing form and the chat widget both submit a **process brief** to `POST /api/request-process-assessment`. Francesco uses that brief to prepare a quote.\n\nFields: name, work email, optional company and role, process (required), optional current tools and volume.\n\nWhen `MONGODB_URI` is set, the same endpoint upserts `users`, inserts `leads`, and logs `project_brief_submitted`.\n\n### Required environment variables\n\nCreate a `.env.local` file in the project root with:\n\n```bash\n# Destination email (defaults to francemazzi@gmail.com)\nMEETING_NOTIFICATION_EMAIL=francemazzi@gmail.com\n\n# Sender identity (defaults to SMTP_USER if using SMTP)\nMEETING_FROM_EMAIL=francemazzi@gmail.com\n\n# Sender display name (defaults to \"Frasma\")\nMEETING_FROM_NAME=Frasma\n\n# --- Option A (recommended): Gmail SMTP via App Password ---\nSMTP_HOST=smtp.gmail.com\nSMTP_PORT=465\nSMTP_SECURE=true\nSMTP_USER=francemazzi@gmail.com\nSMTP_PASS=your_gmail_app_password\n\n# --- Option B: Resend ---\n# RESEND_API_KEY=your_resend_api_key\n```\n\nNotes:\n- In production you should set these variables in your hosting provider (e.g. Vercel).\n- If neither SMTP nor Resend is configured, the API returns an error and the popup shows it to the user.\n\n## Diagnostic chat agent\n\nThe website chat is a process-diagnostic assistant. It uses the bilingual, versioned knowledge base in `lib/knowledge/` to:\n\n- identify operational bottlenecks;\n- collect workflow, systems, volumes, baseline metrics, data, and constraints;\n- map the need to Frasma capabilities;\n- prepare an editable process brief;\n- submit that brief to `POST /api/request-process-assessment` only after explicit user review.\n\nIf the assistant times out, the widget shows the same process brief form, prefilled from the conversation history (no extra LLM call).\n\nEach browser session stores a `conversationId` in `localStorage`. Messages are persisted server-side in MongoDB Atlas through the official Node.js driver. On reopen, the widget restores the conversation via `GET /api/conversations/:id`. If MongoDB is not configured, the chat keeps working in stateless mode.\n\nDo not add prices, guaranteed savings, customer secrets, credentials, or personal data about third parties to the knowledge base or diagnostic examples.\n\nRequired OpenAI environment variable (chat agent + voice dictation on the process assessment form):\n\n```bash\nOPENAI_API_KEY=your_openai_api_key\n\n# Optional; defaults to gpt-4o-mini\nOPENAI_CHAT_MODEL=gpt-4o-mini\n\n# Optional; defaults to whisper-1 (process assessment voice dictation)\nOPENAI_WHISPER_MODEL=whisper-1\n```\n\n### Chat persistence (MongoDB Atlas)\n\nPersistence is optional but recommended in production. When configured, the API stores:\n\n- conversation metadata (`lang`, `timezone`, `pagePath`, conversion flags);\n- user and assistant messages;\n- conversion events from the process brief (`project_brief_submitted`).\n\nSetup:\n\n1. Create a free **M0** cluster on [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) (recommended region: Frankfurt or Ireland).\n2. Create a database user with read/write access.\n3. In Network Access, allow `0.0.0.0/0` (required for Vercel serverless).\n4. Copy the connection string and set these environment variables locally and on Vercel:\n\n```bash\nMONGODB_URI=mongodb+srv://user:pass@cluster.mongodb.net/frasma_chat?retryWrites=true&w=majority\nCHAT_RETENTION_DAYS=90\n```\n\nIndexes and a TTL policy on `conversations.expiresAt` are created automatically on first use.\n\nWithout `MONGODB_URI`, `POST /api/chat` and the form APIs continue to work; persistence calls are skipped silently.\n\nVerify the connection:\n\n```bash\nnpm run check:mongodb\ncurl http://localhost:3000/api/status\n```\n\nExpected when configured correctly:\n\n```json\n{\n  \"persistence\": { \"configured\": true, \"connected\": true }\n}\n```\n\nA successful chat response also includes `conversationId`.\n\n### MongoDB troubleshooting\n\n1. **Network Access** on Atlas must include `0.0.0.0/0` for Vercel serverless.\n2. The URI must include the database name: `...mongodb.net/frasma_chat?...`\n3. If you reset the Atlas user password, update both `.env.local` and Vercel, then redeploy.\n4. URL-encode special characters in the password (`@`, `#`, `%`, etc.).\n5. After changing Vercel env vars, trigger a new deployment; env changes are not applied to existing deployments automatically.\n\n## AI discovery and public MCP\n\nPublic discovery surfaces for agents and humans:\n\n| Resource | URL |\n|----------|-----|\n| Agents hub | https://www.frasma.org/for-agents |\n| Services hub | https://www.frasma.org/servizi |\n| Case studies | https://www.frasma.org/casi |\n| llms.txt | https://www.frasma.org/llms.txt |\n| llms-it.txt | https://www.frasma.org/llms-it.txt |\n| Home markdown | `GET /` with `Accept: text/markdown` |\n| OpenAPI | https://www.frasma.org/openapi.json |\n| API catalog | https://www.frasma.org/.well-known/api-catalog |\n| Agent skills | https://www.frasma.org/.well-known/agent-skills/index.json |\n| MCP (Streamable HTTP) | https://www.frasma.org/api/mcp |\n\n### MCP tools (read-only + handoff)\n\n- `get_frasma_profile`\n- `search_frasma_knowledge`\n- `get_diagnostic_framework`\n- `prepare_diagnostic_summary` — validates a diagnosis and returns handoff URLs; **never sends email**\n- `prepare_project_brief` — validates the process brief used for a quote; **never sends email**\n\nExample Cursor / Claude Desktop remote config:\n\n```json\n{\n  \"mcpServers\": {\n    \"frasma\": {\n      \"url\": \"https://www.frasma.org/api/mcp\"\n    }\n  }\n}\n```\n\nFor stdio-only clients:\n\n```json\n{\n  \"mcpServers\": {\n    \"frasma\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"mcp-remote\", \"https://www.frasma.org/api/mcp\"]\n    }\n  }\n}\n```\n\n### Directory listing (after production deploy)\n\n1. Confirm `/for-agents`, `/servizi`, `/llms.txt`, `/llms-it.txt`, and `/api/mcp` respond in production.\n2. Smoke: `curl -H 'Accept: text/markdown' https://www.frasma.org/` and `https://www.frasma.org/servizi/ddt-erp`, plus an MCP `initialize` + `tools/list` against `/api/mcp`.\n3. Submit the server to relevant MCP directories with the short description from `/for-agents` (mention the services hub).\n4. Keep the agent-skills digest in sync when `SKILL.md` changes (`shasum -a 256`).\n\nQuality checks:\n\n```bash\nnpm run lint\nnpm test\nnpm run build\n```\n\n## Learn More\n\nTo learn more about Next.js, take a look at the following resources:\n\n- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.\n- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.\n\nYou can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!\n\n## Deploy on Vercel\n\nThe easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.\n\nCheck out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.\n",
+  "status": "curated"
+}

@@ -1,0 +1,85 @@
+{
+  "id": "mcp:official/io.github.droplinkperformance/bitbucket-mcp-server",
+  "type": "mcp",
+  "name": "bitbucket-mcp-server",
+  "description": "Provider-agnostic, AI-review-first MCP server for Bitbucket Cloud.",
+  "author": "io.github.droplinkperformance",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/droplinkperformance/bitbucket-mcp-server",
+    "repo": "droplinkperformance/bitbucket-mcp-server"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@droplinkperformance/bitbucket-mcp-server"
+    ],
+    "env": [
+      {
+        "name": "BITBUCKET_ACCESS_TOKEN",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "BITBUCKET_EMAIL",
+        "required": true,
+        "secret": false
+      },
+      {
+        "name": "BITBUCKET_DEFAULT_WORKSPACE",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "LLM_PROVIDER",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "OPENAI_API_KEY",
+        "required": false,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-25T15:06:07.864951Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# @droplinkperformance/bitbucket-mcp-server\n\nProvider-agnostic, AI-review-first [Model Context Protocol](https://modelcontextprotocol.io) (MCP) server for Bitbucket Cloud.\n\nThe primary value of this server is **AI-powered code review and pull request analysis**, not CRUD against the Bitbucket API. Every major dependency (SCM access, cache, token storage, rate limiting, LLM, events) is hidden behind a provider-agnostic interface so the same business logic can later target GitHub / GitLab / Azure DevOps and OpenAI / Anthropic / Gemini / Bedrock without changes to use-cases, agents, or domain contracts.\n\n> Status: **Phase 1**. See [Roadmap](#roadmap).\n\n## Features (Phase 1)\n\n- Dual transports: **stdio** (Cursor / Claude Desktop) and **Streamable HTTP** (Node `http`, for remote/production).\n- **Auto-discovered tools** via a `ToolRegistry` — no manual registration.\n- Explicit **`BitbucketContext`** (`workspace` + optional `repository`) on every tool — multi-workspace ready.\n- Resilient `BitbucketClient`: auth injection, auto-pagination, retry/backoff, rate-limit handling, caching, secret masking.\n- Two auth strategies: **OAuth 2.0** (Authorization Code, with rotating refresh-token persistence) and **Bearer token**.\n- **AI code review** (`analyze_pull_request`) backed by a `CodeReviewAgent` that chunks large PRs and returns a standard `ReviewResult`.\n- Pluggable **LLM provider** (OpenAI / Anthropic / Gemini / Bedrock), **cache** (memory / Redis), and **token store** (file / memory / Redis).\n\n### Tools\n\n| Tool | Description |\n| --- | --- |\n| `get_current_user` | Authenticated user. |\n| `list_pull_requests` | List PRs (filter by state/query). |\n| `get_pull_request` | Fetch a PR by id. |\n| `create_pull_request` | Open a PR. |\n| `get_pull_request_diff` | Raw unified diff. |\n| `get_pull_request_files` | Changed files + line stats. |\n| `get_pull_request_comments` | PR comments. |\n| `comment_pull_request` | Add a (optionally inline) comment. |\n| `analyze_pull_request` | AI review returning a standard `ReviewResult`. |\n\nAll tool inputs accept `workspace` (optional if `BITBUCKET_DEFAULT_WORKSPACE` is set) and, where applicable, `repository`.\n\n## Architecture\n\n```\nsrc/\n  index.ts            entry: chooses transport\n  container.ts        composition root (the only place wiring concretes)\n  mcp/                McpServer + ToolRegistry (auto-discovery) + transports\n  tools/              thin MCP adapters (*.tool.ts) -> call exactly one use-case\n  application/        use-cases (CQRS-ish: command|query) with Input/Output DTOs\n  agents/             autonomous workflows implementing Agent<TInput,TOutput>\n  domain/             provider-agnostic types, repository contracts, ReviewResult\n  repositories/bitbucket/  Bitbucket implementations of the contracts\n  clients/bitbucket/  resilient REST client\n  auth/               AuthProvider (+ token/oauth) and TokenStore implementations\n  cache/              CacheProvider (+ memory/redis)\n  ratelimit/          RateLimitStrategy (+ bitbucket)\n  llm/                LlmProvider (+ openai/anthropic/gemini/bedrock)\n  events/             EventBus (+ in-memory)\n  services/           reusable services (masking, chunking)\n  telemetry/          OpenTelemetry bootstrap + metrics\n  infrastructure/     config, logger, http, attachments\n  shared/             errors, result envelope, http-status, BitbucketContext\n```\n\nFlow: `tool -> use-case -> (agent | repository contract) -> repositories/bitbucket -> BitbucketClient`. Agents may also use the `LlmProvider` and `EventBus`. Tools never contain business logic.\n\n## Requirements\n\n- Node.js 23+\n\n## Install\n\nPublished as [`@droplinkperformance/bitbucket-mcp-server`](https://www.npmjs.com/package/@droplinkperformance/bitbucket-mcp-server).\n\n```bash\nnpx -y @droplinkperformance/bitbucket-mcp-server\n```\n\nFrom source:\n\n```bash\nnpm install\nnpm run build\n```\n\n## Release\n\nMerges to `main` run [`.github/workflows/release.yml`](.github/workflows/release.yml): tests, build, then [semantic-release](https://semantic-release.gitbook.io/). Version and npm publish happen only when the merge includes [Conventional Commits](https://www.conventionalcommits.org/):\n\n| Commit | Bump |\n| --- | --- |\n| `fix:` | patch |\n| `feat:` | minor |\n| `BREAKING CHANGE` / `feat!:` | major |\n\nOther messages skip publish. The GitHub secret `NPM_TOKEN` (npm Automation token for the `droplinkperformance` org) is required.\n\nAfter a successful npm release, the same workflow publishes metadata to the [MCP Registry](https://modelcontextprotocol.io/registry/quickstart) as `io.github.droplinkperformance/bitbucket-mcp-server` (OIDC, no extra secret). [github.com/mcp](https://github.com/mcp) syncs from that registry; if the server does not appear, email partnerships@github.com.\n\nTo stay on `0.x` for the first release, tag the current commit (`git tag v0.1.0 && git push origin v0.1.0`) before the first conventional merge; otherwise semantic-release starts at `1.0.0`.\n\n## Configuration\n\nCopy `.env.example` to `.env` and fill in values. Load it with Node's built-in flag:\n\n```bash\nnode --env-file=.env dist/index.js\n```\n\nKey variables:\n\n| Variable | Default | Notes |\n| --- | --- | --- |\n| `MCP_TRANSPORT` | `stdio` | `stdio` or `http`. |\n| `HTTP_HOST` / `HTTP_PORT` | `0.0.0.0` / `3000` | HTTP transport bind. |\n| `BITBUCKET_DEFAULT_WORKSPACE` | – | Fallback when a tool omits `workspace`. |\n| `BITBUCKET_ACCESS_TOKEN` | – | API token (ATATT…), app password, or OAuth access token |\n| `BITBUCKET_EMAIL` | – | **Required** with API tokens (ATATT…) — your Atlassian account email |\n| `BITBUCKET_CLIENT_ID` / `BITBUCKET_CLIENT_SECRET` | – | Required for **OAuth** (when no access token). |\n| `BITBUCKET_REFRESH_TOKEN` | – | Optional seed for headless OAuth. |\n| `TOKEN_STORE` | `file` | `file` \\| `memory` \\| `redis`. |\n| `CACHE_PROVIDER` | `memory` | `memory` \\| `redis`. |\n| `LLM_PROVIDER` | `openai` | `openai` \\| `anthropic` \\| `gemini` \\| `bedrock`. |\n| `MAX_FILES_PER_CHUNK` / `MAX_DIFF_LINES_PER_CHUNK` | `50` / `5000` | Large-PR chunking thresholds. |\n| `OTEL_ENABLED` | `false` | No-op metrics unless enabled. |\n\n### Authentication\n\n**Bearer (OAuth access token):** set `BITBUCKET_ACCESS_TOKEN` only (non-ATATT tokens).\n\n**API token (recommended, ATATT…):** set `BITBUCKET_ACCESS_TOKEN` **and** `BITBUCKET_EMAIL` (your Atlassian account email from Bitbucket → Personal settings → Email aliases). API tokens use HTTP Basic auth, not Bearer.\n\n**App password (legacy, until June 2026):** set `BITBUCKET_ACCESS_TOKEN` and `BITBUCKET_USERNAME` (your Bitbucket username).\n\n**OAuth 2.0 (Authorization Code):** set `BITBUCKET_CLIENT_ID` / `BITBUCKET_CLIENT_SECRET`. Tokens are persisted by the configured `TOKEN_STORE`; Bitbucket rotates refresh tokens, and the server persists the new one on every refresh. For headless boot, provide a previously obtained `BITBUCKET_REFRESH_TOKEN`.\n\nBitbucket OAuth endpoints used: authorize `https://bitbucket.org/site/oauth2/authorize`, token `https://bitbucket.org/site/oauth2/access_token`. The authorize URL can be built from `OAuthProvider.buildAuthorizeUrl()` and the returned `?code=` exchanged via `OAuthProvider.loginWithCode(code)`.\n\n### LLM provider\n\nSet `LLM_PROVIDER` and the matching key:\n\n```env\nLLM_PROVIDER=openai      # OPENAI_API_KEY\nLLM_PROVIDER=anthropic   # ANTHROPIC_API_KEY\nLLM_PROVIDER=gemini      # GEMINI_API_KEY\nLLM_PROVIDER=bedrock     # AWS creds + BEDROCK_MODEL_ID (needs @aws-sdk/client-bedrock-runtime)\n```\n\n`ioredis` (Redis providers) and `@aws-sdk/client-bedrock-runtime` (Bedrock) are optional and loaded lazily — only needed when selected.\n\n## Running\n\n### stdio\n\n```bash\nMCP_TRANSPORT=stdio node --env-file=.env dist/index.js\n```\n\n### Streamable HTTP\n\n```bash\nMCP_TRANSPORT=http HTTP_PORT=3000 node --env-file=.env dist/index.js\n# health:   GET  http://localhost:3000/health\n# endpoint: POST http://localhost:3000/mcp\n```\n\n### MCP Inspector\n\n```bash\nnpx @modelcontextprotocol/inspector node dist/index.js\n```\n\n### Cursor\n\n`~/.cursor/mcp.json` (or project `.cursor/mcp.json`):\n\n```json\n{\n  \"mcpServers\": {\n    \"bitbucket\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@droplinkperformance/bitbucket-mcp-server\"],\n      \"env\": {\n        \"MCP_TRANSPORT\": \"stdio\",\n        \"BITBUCKET_ACCESS_TOKEN\": \"ATATT-your-api-token\",\n        \"BITBUCKET_EMAIL\": \"you@company.com\",\n        \"BITBUCKET_DEFAULT_WORKSPACE\": \"your-workspace\",\n        \"LLM_PROVIDER\": \"openai\",\n        \"OPENAI_API_KEY\": \"sk-...\"\n      }\n    }\n  }\n}\n```\n\n### Claude Desktop\n\n`claude_desktop_config.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"bitbucket\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@droplinkperformance/bitbucket-mcp-server\"],\n      \"env\": {\n        \"BITBUCKET_ACCESS_TOKEN\": \"your-token\",\n        \"BITBUCKET_DEFAULT_WORKSPACE\": \"your-workspace\",\n        \"LLM_PROVIDER\": \"anthropic\",\n        \"ANTHROPIC_API_KEY\": \"sk-ant-...\"\n      }\n    }\n  }\n}\n```\n\n## Development\n\n```bash\nnpm run dev          # tsx watch (stdio)\nnpm run typecheck\nnpm run lint\nnpm test\nnpm run test:coverage\n```\n\n## Roadmap\n\n- **Phase 1 (this release):** auth, abstractions, `BitbucketClient`, tool auto-discovery, PR tools, `analyze_pull_request`.\n- **Phase 2:** Pipelines + full-text paginated logs, `pipeline-investigator` agent, `auto_review_pull_request` (dry-run / publish inline comments).\n- **Phase 3:** Remaining CRUD — repositories, commits, branches, tags, issues, workspaces, members, search.\n- **Phase 4:** `analyze_dotnet_pull_request` (dotnet-review agent), advanced agents, automation workflows.\n- **Phase 5:** Docker, Compose, Helm, production deploy guide.\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

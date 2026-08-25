@@ -15,9 +15,15 @@
     "kind": "skill-dir"
   },
   "quality": {
-    "stars": null,
-    "pushed_at": null,
-    "score": 22
+    "stars": 5,
+    "pushed_at": "2026-08-05T10:02:51Z",
+    "score": 59,
+    "star_history": [
+      {
+        "d": "2026-08-25",
+        "s": 5
+      }
+    ]
   },
   "security": {
     "score": 100,
@@ -49,6 +55,6 @@
     "category": "编程",
     "featured": false
   },
-  "readme": null,
+  "readme": "# dotfiles\n\nA collection of my personal dotfiles and configuration settings for development tools,\ndesigned for easy setup and consistent experience across different machines.\n\n## NeoVim/iTerm2 Screenshot\n\n- 2026-01-05\n    - neovim: Nightfox theme\n    - ghostty: Nightfox theme\n\n![2026-01-05 NeoVim ghostty Nightfox Screenshot](./screenshots/20260105-neovim-ghostty-nightfox.png)\n\n## How to setup `dotfiles` on a new system\n\n### Prerequisites\n\n- macOS\n- Homebrew is installed\n- [`aqua`](https://aquaproj.github.io/) (You can manually install it by `brew install aqua`)\n- Your `.zshrc` will be installed and configured to point to your global `aqua.yaml` (e.g., via `AQUA_GLOBAL_CONFIG`)\n- Oh-my-zsh is installed\n    - https://ohmyz.sh/#install\n\n> 🛠️ Note: `aqua` and your `.zshrc` can be set up automatically by this setup process.\n\n### Manual Setup Required\n\n#### Git Configuration\n\nBefore running the setup script (`make gitconfig` or `make all`), edit `dotfiles/git/.gitconfig.local`\nto include your personal Git settings (e.g., user name and email).\nThis file will be copied to your home directory as `~/.gitconfig.local` during the setup process.\n\n#### tpm(tmux plugin manager)\n\nhttps://github.com/tmux-plugins/tpm\n\n#### Claude Code\n\nclaude code\n\n### Usage\n\n#### Clone the repository to your home directory\n\n```bash\ncd\ngit clone git@github.com:yyossy5/dotfiles.git\ncd dotfiles\n```\n\n#### Run setup\n\n##### Full setup\n\n```bash\nmake\n```\n\n##### Partial setup\n\ne.g., Setup `.zshrc` only\n\n```bash\nmake zsh\n```\n\n#### Show avaliable make commands\n\n```bash\nmake help\n```\n\n### ⚠️ Settings Note\n\n#### iTerm2\n\nTo use the iTerm2 config managed in this repository, make sure the following setting is enabled in iTerm2:\n\n1. Open **iTerm2 → Preferences → General → Settings**\n2. Enable: ✅ **Load settings from a custom folder or URL**\n3. Set the folder path to: ~/Documents/ConfigFiles/iTerm2\n\n#### brew\n\nSometimes, not everything gets installed properly with a single `brew install`.\n\nIn such cases, you can rerun it with `make brew`.\n\n## How to add `dotfiles` to this repository\n\nYou can add new dotfiles to this repository by following these steps:\n\n1. Copy or move the config file into the appropriate directory\n   For example, to add your `~/.gitconfig`:\n\n```bash\nmkdir -p ~/dotfiles/git\ncp ~/.gitconfig ~/dotfiles/git/.gitconfig\n```\n\n2. Update `setup.sh` to create a symbolic link\n\nEdit `setup.sh` and add a new `install_gitconfig()` function if it doesn't already exist:\n\n```bash\ninstall_gitconfig() {\n    log \"Setting up gitconfig...\"\n    backup_and_link \"$HOME/.gitconfig\" \"$DOTFILES_DIR/git/.gitconfig\"\n}\n```\n\nAlso, update the `main()` function to support this target:\n\n```bash\ngitconfig) install_gitconfig ;;\n```\n\n3. Add a Makefile target\n\n```bash\ngitconfig: ## Install .gitconfig\n ./setup.sh gitconfig\n```\n\n4. Test it\n\n```bash\nmake gitconfig\n```\n\nCheck that the symlink is created and the config works as expected.\n\n## Configs in this repo but not installed by the setup script\n\nThe following configuration files are included in this repository\nbut are not managed by the setup script,\nas they are not the kind that can simply be placed\nsomewhere on the local machine to be automatically loaded.\n\n- bettertouchtool\n\n## Tools that are not managed by dotfiles\n\n### Raycast\n\nRaycast pro plan can manage the settings via cloud sync.\n\n## Reference\n\n- https://github.com/neovim/nvim-lspconfig/blob/master/doc/configs.md#ruff\n\n## Past NeoVim/iTerm2 Screenshots\n\n- 2025-12-28\n    - neovim: everforest theme\n    - ghostty: Everforest Dark Hard theme\n\n![2025-12-28 NeoVim ghostty Screenshot](./screenshots/20251228-neovim-ghostty-everforest.png)\n\n- 2025-04-09\n    - neovim: carbonfox theme\n    - iTerm2: Oxocarbon theme\n\n![2025-04-09 NeoVim iTerm2 Screenshot](./screenshots/20250409-neovim-carbonfox-iterm2-oxocarbon.png)\n\n- vscode theme\n\n![2025-04-02 NeoVim iTerm2 Screenshot](./screenshots/20250402-neovim-iterm2-vscode.png)\n\n- Nightfox theme\n\n![2025-03-29 NeoVim iTerm2 Screenshot](./screenshots/20250329-neovim-iterm2-nightfox.png)\n\n- everforest theme\n\n![2025-03-28 NeoVim iTerm2 Screenshot](./screenshots/20250328-neovim-iterm2-everforest.png)\n",
   "status": "curated"
 }

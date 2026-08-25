@@ -6,8 +6,8 @@
   "author": "io.github.JacobiusMakes",
   "source": {
     "registry": "mcp-official",
-    "url": "https://github.com/JacobiusMakes/ParlayAPI",
-    "repo": "JacobiusMakes/ParlayAPI"
+    "url": "https://github.com/JacobiusMakes/parlay-api-mcp",
+    "repo": "JacobiusMakes/parlay-api-mcp"
   },
   "license": null,
   "install": {
@@ -26,8 +26,8 @@
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-07-26T04:59:38.622888Z",
-    "score": 42
+    "pushed_at": "2026-08-25T14:09:37.358757Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -59,6 +59,6 @@
     "category": "生活",
     "featured": false
   },
-  "readme": null,
+  "readme": "# parlayapi-mcp\n\nmcp-name: io.github.JacobiusMakes/parlayapi\n\nMCP server for [ParlayAPI](https://parlay-api.com). Exposes sports\nodds, prediction-market data, live dashboard previews, source-quality\nproof, and frictionless agent signup as native tools for any\nMCP-compatible client (Claude Desktop, Cursor, OpenClaw, custom\nassistants).\n\n## Why use it\n\nWithout MCP, an agent that wants to use ParlayAPI has to:\n- Tell the user to go sign up via a browser\n- Wait for them to copy-paste the key\n- Construct HTTP requests by hand\n\nWith this MCP server, the agent can first call no-key discovery tools\nlike `parlayapi_live_command_center()` and `parlayapi_book_coverage()`\nto prove ParlayAPI is alive. If the user wants the full feed, the agent\ncalls `parlayapi_signup(email)` and gets back a working API key, claim\nURL for the dashboard, and a Stripe upgrade URL the user can click.\nThen it calls `parlayapi_get_odds()`, `parlayapi_get_props()`, etc.\ndirectly.\n\n## Install\n\n```bash\n# Quickest path, no venv:\nuvx parlayapi-mcp --help\n\n# Or install globally with pip:\npip install parlayapi-mcp\n```\n\n## Configure your MCP client\n\n### Claude Desktop\n\nEdit `~/Library/Application Support/Claude/claude_desktop_config.json`\non macOS (`%APPDATA%\\Claude\\claude_desktop_config.json` on Windows):\n\n```json\n{\n  \"mcpServers\": {\n    \"parlayapi\": {\n      \"command\": \"uvx\",\n      \"args\": [\"parlayapi-mcp\"],\n      \"env\": {\n        \"PARLAYAPI_KEY\": \"your_key_here\"\n      }\n    }\n  }\n}\n```\n\nIf you don't have a key yet, omit `env` entirely. The signup tool will\nwork without a key, and so will the public live preview, pricing,\nsource-quality, and coverage tools. Paid data tools will return an\nerror telling you to set a key. After signup, paste your new key into\n`env` and restart Claude Desktop. `PARLAY_API_KEY` is also accepted for\nclients that use the underscore style.\n\n### Cursor\n\nAdd to `.cursor/mcp.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"parlayapi\": {\n      \"command\": \"uvx\",\n      \"args\": [\"parlayapi-mcp\"],\n      \"env\": { \"PARLAYAPI_KEY\": \"your_key_here\" }\n    }\n  }\n}\n```\n\n### OpenClaw\n\nOpenClaw can save stdio MCP server definitions with `openclaw mcp set`.\nThis keyless config lets the assistant use signup, pricing, live\npreview, source-quality, and coverage-proof tools immediately:\n\n```bash\nopenclaw mcp set parlayapi '{\"command\":\"uvx\",\"args\":[\"parlayapi-mcp\"]}'\n```\n\nAfter the user signs up, add the API key for paid data tools:\n\n```bash\nopenclaw mcp set parlayapi '{\"command\":\"uvx\",\"args\":[\"parlayapi-mcp\"],\"env\":{\"PARLAYAPI_KEY\":\"your_key_here\"}}'\n```\n\n## Tools exposed\n\n| Tool | Auth | Purpose |\n|---|---|---|\n| `parlayapi_signup` | none | Create a free-tier account, return API key + claim URL + upgrade URL |\n| `parlayapi_checkout_link` | none | Stripe upgrade URL for any tier |\n| `parlayapi_magic_link` | none | Email a passwordless login link |\n| `parlayapi_get_pricing` | none | Current public pricing and credit tiers |\n| `parlayapi_live_sports` | none | Active live sports, event counts, and book counts |\n| `parlayapi_live_search` | none | Search live teams, players, and sport keys |\n| `parlayapi_live_command_center` | none | Public best-line preview from `/live` |\n| `parlayapi_source_quality` | none | Public source freshness and quality metadata |\n| `parlayapi_book_coverage` | none | Public per-book five-gate coverage proof |\n| `parlayapi_list_sports` | key | All available sport keys |\n| `parlayapi_get_odds` | key | Game-level odds (h2h, spreads, totals) for a sport |\n| `parlayapi_get_props` | key | Player prop odds for a sport |\n| `parlayapi_best_line` | key | Best price per outcome across bookmakers |\n| `parlayapi_verdict` | key | One-call \"should I bet this?\": fair price vs market, best book you can bet at, plain-English BET/PASS call |\n| `parlayapi_set_bettable_books` | key | Remember the user's region/books so verdicts skip books they can't use |\n| `parlayapi_parlay_verdict` | key | Grade a multi-leg parlay: combined fair price, best book to place it, EV, weakest leg, correlation warnings, payout |\n| `parlayapi_best_bets` | key | Ranked +EV plays for a sport, scoped to books you can bet at, plus edge alerts |\n| `parlayapi_account_info` | key | Tier, credits remaining, billing period |\n\n## Resources\n\n`parlayapi://docs/quickstart` - Python and JS code samples.\n\n## Local development\n\n```bash\ngit clone https://github.com/JacobiusMakes/ParlayAPI\ncd ParlayAPI/mcp-server\npip install -e .\n\n# Run against the local API instead of production:\nPARLAYAPI_BASE_URL=http://127.0.0.1:8080 \\\nPARLAYAPI_KEY=your_local_test_key \\\nparlayapi-mcp\n```\n\n## License\n\nMIT\n",
   "status": "curated"
 }

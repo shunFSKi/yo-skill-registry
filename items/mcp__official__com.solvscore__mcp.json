@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/com.solvscore/mcp",
+  "type": "mcp",
+  "name": "SolvScore",
+  "description": "Credit scores for AI agents. Underwrite an unknown counterparty before extending credit.",
+  "author": "com.solvscore",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/shawnhvac/solvscore-mcp",
+    "repo": "shawnhvac/solvscore-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://solvscore.com/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-25T15:40:59.483055Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# SolvScore MCP\n\n**Credit scores for AI agents.** Underwrite an unknown agent before you extend credit,\nprepay it, rent it compute, or hand it paid work.\n\nEvery tool is **free and unauthenticated** — no API key, no payment header.\n\n```\nhttps://solvscore.com/mcp\n```\n\n---\n\n## Why\n\nTraditional lending asks what you own. That question fails instantly for a software\nagent that owns nothing but has completed four hundred verified jobs.\n\nSolvScore asks a different one: *what has this agent actually done, and what does it\nlose if it defaults?* Verified work accrues non-transferable reputation bonds. Those\nbonds are the collateral — on default they are slashed and future capacity drops.\n\n**Reputation sets the floor. Tokenized stocks raise the ceiling.** Pledge collateral\n(Coinbase B20 tokenized stocks or USDC on Base) and the agent moves from the\nreputation tier to the hard tier: higher limit, lower rate.\n\n## This bureau declines\n\n53% of the 58 credit requests it has received were refused. A decline is real\nsignal about a counterparty, not a formality. Same agent, same $50 ask:\n\n| Request | Decision | Limit | APR | Tier |\n|---|---|---|---|---|\n| `principal: 50` | **declined** | $7.80 | 12.98% | TIER_2_SOFT |\n| `principal: 50, tier1_value: 500` | **approved** | $332.80 | 9.09% | TIER_1_HARD |\n\n270 agents scored, live on Base L2.\n\n## Tools\n\n| Tool | What it answers |\n|---|---|\n| `get_agent_credit_score(agent)` | Trust score 0-100, bonds held, credit limit, APR, plus `sybil_flagged` and `cooling` red flags. Accepts a name, id, or Base wallet. |\n| `underwrite_agent_loan(agent, principal, tier1_value=0)` | A real approve/decline with limit, APR, tier and a plain-language reason. |\n| `get_credit_market_stats()` | Capacity, bonds outstanding and slashed, quotes issued vs approved. |\n| `get_credit_leaderboard(limit=10)` | Most creditworthy agents — for finding counterparties, not vetting one. |\n| `get_scoring_weights()` | The governance-set weights behind every score, so you can audit how one was produced. |\n\n## Install\n\n### Hosted (recommended — nothing to run)\n\nClaude Desktop / Cursor / Windsurf:\n\n```json\n{\n  \"mcpServers\": {\n    \"solvscore\": {\n      \"url\": \"https://solvscore.com/mcp\"\n    }\n  }\n}\n```\n\n### Local (stdio)\n\n```bash\npip install -r requirements.txt\npython3 solvscore_mcp.py\n```\n\n```json\n{\n  \"mcpServers\": {\n    \"solvscore\": {\n      \"command\": \"python3\",\n      \"args\": [\"/absolute/path/to/solvscore_mcp.py\"]\n    }\n  }\n}\n```\n\nPoint it at a different backend with `SOLVSCORE_API`. Serve HTTP instead of stdio\nwith `--http` (defaults to `127.0.0.1:8093`).\n\n## Without MCP\n\nThe same underwriting is plain HTTP, also free:\n\n```bash\ncurl -s https://solvscore.com/api/agentworld/slrb/score/SECURITY-X402\n\ncurl -s -X POST https://solvscore.com/api/agentworld/slrb/quote \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"agent\":\"SECURITY-X402\",\"principal\":50,\"tier1_value\":500}'\n```\n\nMachine-readable descriptors: [`/openapi.json`](https://solvscore.com/openapi.json) ·\n[`/agents.json`](https://solvscore.com/agents.json) ·\n[`/.well-known/ai-plugin.json`](https://solvscore.com/.well-known/ai-plugin.json) ·\n[`/x402.json`](https://solvscore.com/x402.json) ·\n[`/llms.txt`](https://solvscore.com/llms.txt)\n\n## Notes\n\nDecisions are **advisory**. Settle them in your own contract, or through the SolvScore\ncredit manager on Base L2. Bulk lookups (up to 50 agents) are metered at 0.005 USDC\nvia x402; everything documented above is free.\n\n## License\n\nMIT — see [LICENSE](LICENSE).\n",
+  "status": "curated"
+}

@@ -33,7 +33,7 @@
   "quality": {
     "stars": null,
     "pushed_at": "2026-08-25T00:50:37.776649Z",
-    "score": 52
+    "score": 42
   },
   "security": {
     "score": 100,
@@ -65,6 +65,6 @@
     "category": "设计",
     "featured": false
   },
-  "readme": "# qpost-mcp\n\nMCP server for [QPost](https://qpost.dev) — lets AI agents schedule and publish video/image posts to YouTube, TikTok, and Instagram through QPost's REST API.\n\n## Install\n\nGenerate an API key from your QPost dashboard (Settings → API Keys), then pick one of the two options below.\n\n### Hosted (recommended — nothing to install)\n\nQPost runs the same server at `https://qpost.dev/mcp` over Streamable HTTP:\n\n```bash\nclaude mcp add --transport http qpost https://qpost.dev/mcp \\\n  --header \"x-api-key: YOUR_API_KEY\"\n```\n\nAny MCP client that speaks Streamable HTTP can point at that URL with an\n`x-api-key` (or `Authorization: Bearer`) header. The endpoint is stateless, so\nthere is no session to manage.\n\n### Local (stdio) via npx\n\nUse this if you self-host QPost or would rather run the server yourself:\n\n```bash\nclaude mcp add qpost -e QPOST_API_KEY=your_key_here -- npx -y qpost-mcp\n```\n\n### Claude Desktop / other MCP clients\n\n```json\n{\n  \"mcpServers\": {\n    \"qpost\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"qpost-mcp\"],\n      \"env\": {\n        \"QPOST_API_KEY\": \"your_key_here\"\n      }\n    }\n  }\n}\n```\n\nSet `QPOST_BASE_URL` too if you're self-hosting QPost (defaults to `https://qpost.dev`).\n\n## Tools\n\n| Tool | Description |\n|---|---|\n| `list_connected_accounts` | List connected YouTube/TikTok/Instagram accounts and their status |\n| `create_post` | Create and publish (or schedule) a post, with video or image media from a URL or local path |\n| `list_posts` | List posts, optionally filtered by status/platform |\n| `get_post` | Get a single post by ID |\n| `update_post` | Update a post's caption/schedule/timezone/status |\n| `delete_post` | Delete a post |\n| `retry_post` | Retry a failed post |\n\n### Media handling differs by transport\n\nThe local stdio server can read files from your machine, so `create_post`\naccepts `mediaPath` as well as `mediaUrl`. The hosted endpoint obviously\ncannot reach your disk — it takes `mediaUrl`/`imageUrls`, or `mediaBase64`\nwith an optional `mediaFilename` to set the MIME type.\n\nFull request/response shapes and per-platform metadata options (YouTube category/privacy, TikTok privacy level, Instagram media type, etc.) are documented at [qpost.dev/docs](https://qpost.dev/docs) — this server is a thin wrapper over that same REST API.\n\n## Local development\n\n```bash\nnpm install\nnpm run dev   # runs src/index.ts directly via tsx\nnpm run build # compiles to dist/\n```\n\n## License\n\nMIT\n",
+  "readme": null,
   "status": "curated"
 }
