@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/vaibe-studio/vaibe-os/batch-operations",
+  "type": "skill",
+  "name": "batch-operations",
+  "description": "Patterns for mass file and task operations across the vault. Reference material (non-actionable knowledge).",
+  "author": "vaibe-studio",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/vaibe-studio/vaibe-os/blob/HEAD/.claude/skills/batch-operations/SKILL.md",
+    "repo": "vaibe-studio/vaibe-os",
+    "path": ".claude/skills/batch-operations/SKILL.md"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 6,
+    "pushed_at": "2026-07-01T18:32:38Z",
+    "score": 58,
+    "star_history": [
+      {
+        "d": "2026-08-26",
+        "s": 6
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "办公",
+    "featured": false
+  },
+  "readme": "# vAIbe-OS\n\n> **Your AI agent's operating system** — turn any AI IDE into a structured partner with memory, skills, and evolution.\n\n🇷🇺 [Читать на русском](README.ru.md)\n\n[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)\n[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)\n\n---\n\n## 🤔 The Problem\n\nYou open a new chat with your AI assistant. It's brilliant — for a couple of hours. Then it forgets what you said yesterday. It doesn't know your projects. It can't find that decision you made last week. Every session starts from scratch.\n\n**Sound familiar?**\n\nYou're not using AI wrong. Your AI just doesn't have a home.\n\n## 💡 The Solution\n\nvAIbe-OS gives your AI agent a **structured workspace** — a personal vault of projects, tasks, knowledge, and skills that persists across every session.\n\nThink of it as **Obsidian for AI agents**: everything is plain Markdown files in a Git repo. No vendor lock-in, no proprietary formats, no cloud dependency.\n\n| What you get | How it works |\n|---|---|\n| 🗂️ **Structure** | Projects, tasks, meetings, knowledge base — your AI knows where everything is from day one |\n| 🧠 **Memory** | Everything lives in files. Context doesn't disappear when you close the chat |\n| 🌱 **Evolution** | The system improves itself via `/evolve`, adapting to how *you* work |\n| 🎯 **Skills** | 48 skills for task management, planning, research, design, sales, and strategy — ready to use |\n| 📚 **Domain knowledge** | Curated reference skills — project management, strategy frameworks, sales methodologies, startup finance, and more. Your AI has domain expertise from the start |\n\n## 🚀 Quickstart\n\n```bash\n# 1. Clone the repository\ngit clone https://github.com/vaibe-studio/vaibe-os.git\ncd vaibe-os\n\n# 2. Run the installer (needs uv — https://docs.astral.sh/uv/)\nuv run --project .vaibe/scripts/installer .vaibe/scripts/installer/main.py\n\n# 3. Open in your AI IDE and introduce yourself!\n#    Just say: \"Hi! I'm [your name], I work on [what you do].\n#    Let's get to know each other so you can help me better.\"\n```\n\nThat's it. The installer creates your workspace, and your AI agent adapts to your personal work style from the very first conversation.\n\n### 🎮 First things to try\n\nOnce you're set up, just talk to your AI agent naturally:\n\n- **\"Create a task for my project\"** → organizes it in the right place with proper structure\n- **\"Process my inbox\"** → imports files from `Инбокс/` into your knowledge base\n- **\"What did we learn today? Evolve the system\"** → the system improves its own skills based on your session\n- **\"Give me a morning briefing\"** → summarizes your tasks, deadlines, and priorities\n\n## 🏗️ How It Works\n\nvAIbe-OS is built on **one canon, many native wrappers**. You write everything once in `.vaibe/`; per-IDE wrappers are generated from it and committed alongside (the `GENERATED` marker means *don't edit by hand*).\n\n```\nvAIbe-OS/\n├── 📋 AGENTS.md                              → AI reads this first (rule spine + judgment boundaries)\n├── 🧠 .vaibe/                                → The canon — the single source of truth\n│   ├── rules/                                → 15 always-on rules (structure, git, behavior, guards…)\n│   ├── skills/                               → 48 skills (task mgmt, planning, research, evolve…)\n│   ├── agents/                               → Specialized subagents (architect, explorer, reviewer)\n│   └── scripts/                              → Python tools as self-contained uv projects (doctor, pdf…)\n├── 🤖 .claude/ .cursor/ .codex/ .opencode/   → Generated native wrappers (GENERATED — don't edit)\n├── 🩺 CLAUDE.md                              → Generated IDE shim → AGENTS.md\n├── 📁 Проекты/                               → Your projects (tasks, meetings, docs)\n├── 📚 База знаний/                           → Your personal knowledge base\n└── 📥 Инбокс/                                → Drop files here for processing\n```\n\nChange the canon, then regenerate and verify the native layer with the built-in **doctor**:\n\n```bash\nD=.vaibe/scripts/doctor\nuv run --project $D $D/main.py treat       # regenerate native wrappers from the canon\nuv run --project $D $D/main.py diagnose    # check canon ↔ native integrity (CI gate)\n```\n\n> **Cross-IDE compatible**: works with Cursor, Claude Code, Codex, OpenCode, and any IDE that reads [AGENTS.md](https://agents.md/).\n\n## 🎯 Core Commands\n\n| Command | What it does |\n|---|---|\n| `/task-create` | Creates a structured task card in your project |\n| `/task-execute` | Executes a task with an interactive plan |\n| `/inbox-check` | Imports and organizes files from your inbox |\n| `/plan-update` | Creates or updates your project plan |\n| `/tasks-report` | Shows task status across projects |\n| `/daily-briefing` | Morning overview: tasks, deadlines, inbox |\n| `/weekly-review` | Weekly progress, blockers, and priorities |\n| `/evolve` | System learns from your session and improves itself |\n\nAll skills are Markdown playbooks in `.vaibe/skills/` — readable, editable, extensible. The agent discovers them automatically by their `description`; there is no registry to maintain.\n\n## 💚 Philosophy\n\nvAIbe-OS isn't just a folder structure. It's built on a belief that **AI should be a partner, not a tool** — and definitely not a replacement.\n\nThree principles that make it different:\n\n- 🤝 **Partnership** — your AI understands your context, suggests proactively, but never decides for you\n- 🛡️ **Autonomy** — if you remove vAIbe-OS tomorrow, you should be *more* competent than before you started using it\n- 🌱 **Evolution** — the system grows with you through `/evolve`, getting better at *your* way of working\n\n> Curious about the deeper foundations? See the [Ontology](.vaibe/rules/ontology.md) (5 laws of system evolution) and the [Manifesto](.vaibe/rules/manifesto.md) (behavioral principles).\n\n## 🖥️ Supported AI IDEs\n\n| IDE | How it connects | Status |\n|---|---|---|\n| **Cursor** | `.cursor/` (generated) | ✅ Full support |\n| **Claude Code** | `CLAUDE.md` + `.claude/` (generated) | ✅ Supported |\n| **Codex** | `.codex/` (generated) | ✅ Supported |\n| **OpenCode** | `AGENTS.md` + `.opencode/` (generated) | ✅ Supported |\n| **Any other** | `AGENTS.md` + `.vaibe/` | 🟡 Basic support |\n\n> 💎 **Tip on model choice.** vAIbe-OS works with any LLM, but we recommend leading models (Claude Opus/Sonnet, GPT-4o, Gemini Pro) — skill quality, planning, and `/evolve` are noticeably better on top-tier models. If you have the choice, go with the best.\n\n## 💬 Community\n\nJoin the conversation, share your skills, ask questions, and shape where vAIbe-OS goes next:\n\n- 📨 **Telegram** — [t.me/vAIbe_OS](https://t.me/vAIbe_OS)\n\n## 🌱 Supporting vAIbe-OS\n\nvAIbe-OS is free for personal and team use — forever. No strings attached.\n\nIf you use it commercially and it helps your business generate revenue, we'd be grateful for a voluntary contribution. We suggest 1–5% of the net profit vAIbe-OS helped create. These funds go directly toward development, community building, and keeping the project alive.\n\n| Method | Link | Best for |\n|--------|------|----------|\n| 🇷🇺 Boosty | [boosty.to/vaibe_os](https://boosty.to/vaibe_os/donate) | Russian cards, SBP, international cards (USD/EUR), PayPal |\n| ₿ Crypto | See below | Works worldwide, no restrictions |\n\n<details>\n<summary>💰 Crypto wallets</summary>\n\n| Coin | Network | Address |\n|------|---------|---------|\n| USDT | TRC-20 | `29YoJ7rdjVPkkpuHFbKj3picPQTW1N2vawU28NHgd7rF` |\n| BTC | Bitcoin | `bc1qj5s2tmtp4nvnr3vzpgjsd5m0568f2arfc8vucu` |\n| ETH | Ethereum | `0x98804f5e2E9BfEEec04f745c5A6C81f3a8E4FD12` |\n| SOL | Solana | `29YoJ7rdjVPkkpuHFbKj3picPQTW1N2vawU28NHgd7rF` |\n| TON | TON | `UQDCLj4yhDXX0RYyvcRJmsvDPWZvib75UxUA0FUWr0LS8e2A` |\n\n</details>\n\n## 🤝 Contributing\n\nWe'd love your help! Here's how to get started:\n\n**Add a new skill:**\n1. Create `.vaibe/skills/your-skill/SKILL.md` with YAML frontmatter (`name`, `description`)\n2. Include: Purpose, Procedure, Output format, Quality bar\n3. Regenerate the native wrappers: `uv run --project .vaibe/scripts/doctor .vaibe/scripts/doctor/main.py treat`\n4. The agent discovers it automatically by its `description` — no registration needed\n\n**Improve existing skills:** Every skill is a Markdown file in `.vaibe/skills/`. Read it, improve it, regenerate, submit a PR.\n\n**Report issues:** Found a bug or have an idea? [Open an issue](../../issues).\n\nSee [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.\n\n## 📄 License\n\n[MIT](LICENSE) — use it however you want. We just ask that you share the love. 💚\n\n---\n\n<p align=\"center\">\n  <strong>vAIbe-OS</strong> — your second brain, structured for AI<br>\n  <em>Built with 💚 by humans and AI agents working together</em>\n</p>\n",
+  "status": "curated"
+}

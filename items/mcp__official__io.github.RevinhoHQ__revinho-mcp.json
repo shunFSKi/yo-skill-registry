@@ -1,0 +1,61 @@
+{
+  "id": "mcp:official/io.github.RevinhoHQ/revinho-mcp",
+  "type": "mcp",
+  "name": "Revinho",
+  "description": "Read-only SaaS business intelligence from GA4, Stripe, and Google Search Console.",
+  "author": "io.github.RevinhoHQ",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/RevinhoHQ/revinho-mcp",
+    "repo": "RevinhoHQ/revinho-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://www.revinho.com/api/mcp",
+    "env": [
+      {
+        "name": "Authorization",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-25T18:38:45.926628Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "<p align=\"center\">\n  <a href=\"https://www.revinho.com\">\n    <img src=\"https://www.revinho.com/revinho-logo.svg\" alt=\"Revinho\" width=\"220\">\n  </a>\n</p>\n\n# Revinho MCP server\n\nRevinho gives AI agents read-only access to the business intelligence in a Revinho workspace. It combines Google Analytics 4, Stripe, and optionally Google Search Console to answer what changed, what matters, what makes money, what is underperforming, and where to focus next.\n\nThis repository is the public discovery, connection, and support home for Revinho's hosted MCP server. The production server is operated by Revinho and is not deployed from this repository.\n\n- MCP endpoint: `https://www.revinho.com/api/mcp`\n- Transport: Streamable HTTP\n- Authentication: workspace-scoped bearer token\n- Documentation: [revinho.com/docs](https://www.revinho.com/docs)\n- Registry metadata: [`server.json`](./server.json)\n\n## What it exposes\n\nThe server provides six focused tools:\n\n| Tool                | Use it for                                                                                                  |\n| ------------------- | ----------------------------------------------------------------------------------------------------------- |\n| `get_overview`      | Headline performance, period comparisons, trends, acquisition context, freshness, and deterministic signals |\n| `get_growth`        | Channels, sources, campaigns, countries, organic queries, and acquisition segments                          |\n| `get_funnels`       | Saved GA4 journeys and step-by-step funnel performance                                                      |\n| `get_pages`         | Page traffic, key events, conversion, search demand, classifications, and associated impact                 |\n| `get_revenue`       | Stripe-sourced revenue, MRR, subscriptions, customers, refunds, plans, and currency metadata                |\n| `get_opportunities` | Ranked deterministic opportunities with evidence and attribution provenance                                 |\n\nClients that support MCP prompts can also invoke `investigate_business`. It guides the agent through a bounded, evidence-led investigation and stops once the available facts answer the question.\n\nEvery tool is read-only, non-destructive, idempotent, and closed-world.\n\n## Connect\n\n1. Sign in to [Revinho](https://www.revinho.com) and open **Setup your agent**.\n2. Create a named workspace token. Tokens begin with `rv_live_` and are shown once.\n3. Add the hosted endpoint and token to an MCP-compatible client.\n\nGeneric configuration:\n\n```json\n{\n  \"mcpServers\": {\n    \"revinho\": {\n      \"type\": \"streamable-http\",\n      \"url\": \"https://www.revinho.com/api/mcp\",\n      \"headers\": {\n        \"Authorization\": \"Bearer rv_live_REPLACE_WITH_YOUR_TOKEN\"\n      }\n    }\n  }\n}\n```\n\nClient configuration formats differ. Use the client's secret or environment-variable mechanism when it supports one. Do not commit the token to a repository.\n\n## Example questions\n\n- What changed in the business over the last 30 days?\n- Which acquisition channel deserves attention first?\n- Did MRR growth coincide with a change in traffic or conversion?\n- Where does the purchase funnel lose the most users?\n- Which pages attract demand but underperform commercially?\n- What is the highest-confidence opportunity right now?\n\n## Evidence boundaries\n\nAgents using Revinho should preserve these product rules:\n\n- Stripe is the source of truth for revenue.\n- Revenue attached to acquisition or behavior retains its `verified`, `modeled`, or `associated` attribution label.\n- Non-deterministic relationships are described as coinciding or associated, never causal.\n- Provider freshness fields determine data freshness. Response generation time does not.\n- Missing or partial data is not silently treated as zero.\n- Opportunities come from deterministic rules and stored evidence.\n\n## Token safety\n\nRevinho API tokens are read-only, workspace-scoped, stored as cryptographic hashes, and revocable.\n\n- Create a separate token for each agent or environment.\n- Keep tokens in a secret manager or private client configuration.\n- Never place a token in a URL, prompt, screenshot, issue, log, or repository.\n- Revoke a token immediately if it may have been exposed.\n\nSee [SECURITY.md](./SECURITY.md) for reporting security issues.\n\n## Support\n\n- Product and connection help: [support@revinho.com](mailto:support@revinho.com)\n- Security reports: [security@revinho.com](mailto:security@revinho.com)\n- Documentation: [revinho.com/docs](https://www.revinho.com/docs)\n- Repository issues: use GitHub Issues for public, non-sensitive documentation or compatibility problems\n\n## License\n\nThe documentation and metadata in this repository are available under the [MIT License](./LICENSE). Revinho's hosted service, product code, name, and brand assets are not granted under this license.\n",
+  "status": "curated"
+}

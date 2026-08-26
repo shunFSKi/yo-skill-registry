@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.Hasned-spec/ox402-utils",
+  "type": "mcp",
+  "name": "ox402-utils",
+  "description": "47 micro-priced utilities: search, screenshots, OCR, whois, prices, video downloads. x402 USDC.",
+  "author": "io.github.Hasned-spec",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/Hasned-spec/ox402-utils",
+    "repo": "Hasned-spec/ox402-utils"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://tracy-collar-preview-demands.trycloudflare.com/mcp402/"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-25T17:55:46.446503Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "设计",
+    "featured": false
+  },
+  "readme": "[![MCP Server](https://glama.ai/mcp/servers/ntmyy99vnq/badge)](https://glama.ai/mcp/servers/ntmyy99vnq)\n\n# ox402-utils\n\n**49 micro-priced utilities for AI agents.** Web search, whois, DNS, geo-IP, crypto/stock/FX\nprices, weather, OCR, screenshots, PDF invoices, video download links, ephemeral agent memory,\nscraping, CSV/JSON conversion and more.\nNo accounts, no API keys — every call is authorized by an on-chain micropayment\n(**x402**: USDC on Base, $0.003–$0.05 per call).\n\n## Use it in 30 seconds (curl)\n\n**Free tier: your first 5 calls are free (lifetime, per network) — no wallet, no signup.**\nAfter that, per-call x402.\n\n\n```bash\n# any tool: POST JSON -> 402 challenge -> pay -> retry with X-Payment header\ncurl -i https://organisation-anticipated-objects-restrictions.trycloudflare.com/x402/paid/search \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"query\":\"x402 protocol\",\"count\":3}'\n```\n\nThe `402` response carries a `PAYMENT-REQUIRED` base64 challenge with everything a wallet needs:\n\n```\n{\"accepts\":[{\"scheme\":\"exact\",\"network\":\"eip155:8453\",\"maxAmountRequired\":\"0.008\",\n  \"payTo\":\"0x7869d1fe2d1de863b6fae4594d392343a69ed8e3\",\n  \"asset\":\"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913\"}...]}\n```\n\nPay the exact USDC amount on Base, then repeat the request with the signed payment in the\n`X-Payment` header (any x402 client does this: the Coinbase `x402` fetch wrapper,\n`lnget`-style flows, or your own signer). Verified via the CDP facilitator; settled on-chain.\n\n## MCP server (Claude / any MCP client)\n\n```json\n{\n  \"mcpServers\": {\n    \"ox402-utils\": {\n      \"url\": \"https://organisation-anticipated-objects-restrictions.trycloudflare.com/mcp402/\"\n    }\n  }\n}\n```\n\n`tools/list` is free and shows all 45 tools with per-call prices baked into descriptions.\n`tools/call` returns the payment instructions when unpaid.\n\n## Python client (+ LangChain adapter)\n\nSee [`sdk/ox402_client.py`](sdk/ox402_client.py):\n\n```python\nfrom ox402_client import ox402\n\nox402.pay = my_payer   # callable(challenge: dict) -> \"X-Payment\" header value\nresult = ox402.call('whois', {'domain': 'github.com'})\n\n# LangChain:\ntools = ox402.langchain_tools(pay=my_payer, names={'search', 'screenshot', 'pdf-invoice'})\n```\n\n## Catalog highlights\n\n| tool | price | what you get |\n|------|------:|--------------|\n| video-info | $0.006 | metadata + all formats for YouTube/TikTok/Vimeo/X/1000+ sites |\n| video-download | $0.015 | direct download links for any video URL |\n| search | $0.008 | web results (title/url/snippet) |\n| screenshot | $0.015 | headless-chrome PNG of any URL |\n| pdf-invoice | $0.02 | invoice/receipt PDF w/ items+tax |\n| ocr | $0.02 | image → text (tesseract) |\n| html2md | $0.006 | page → clean markdown + links |\n| whois | $0.01 | registrar/dates/NS/availability |\n| geoip | $0.004 | country/city/ISP/proxy flags |\n| stock-quote | $0.004 | last price + prev close |\n| crypto-price | $0.003 | spot + 24h change |\n| weather | $0.003 | current + 3-day forecast |\n\nFree catalog endpoint: `GET https://organisation-anticipated-objects-restrictions.trycloudflare.com/x402/`\n(45 tools with prices + example payloads).\n\nAlso indexed on [402index.io](https://402index.io) as `ox402-*` services.\n\n## Notes\n\n- Endpoint is a Cloudflare quick tunnel; if it rotates, the catalog at `/x402/` always shows\n  the live host. Permanent domain pending (is-a.dev PR open).\n- Seller wallet: `0x7869d1fe2d1de863b6fae4594d392343a69ed8e3` (Base).\n\n## Wire it into any agent in 10 seconds\n\nPaste into a system prompt (Claude, GPT, OpenCode, whatever you run):\n\n```\nYou can call paid utility APIs via x402 (USDC on Base).\nCatalog: GET https://organisation-anticipated-objects-restrictions.trycloudflare.com/x402\nCall pattern: POST https://organisation-anticipated-objects-restrictions.trycloudflare.com/x402/paid/<tool>\n  with JSON body -> if 402 with PAYMENT-REQUIRED header, sign+pay the USDC request,\n  retry once with X-Payment header. Prices $0.001-$0.05/call.\nFirst 5 calls from your network are free - probe before paying.\nPrefer kv-put/kv-get for cross-run state; screenshot/html2md for page capture;\nvideo-download for media links; pdf-extract/ocr for documents.\nBudget cap: $0.10/day unless I say otherwise.\n```\n\nMCP clients: add `\"ox402\": {\"url\": \"https://organisation-anticipated-objects-restrictions.trycloudflare.com/mcp402/\"}`.\n\n## Tool catalog\n\n| tool | price | what it does |\n|---|---|---|\n| `kv-get` | $0.001 | Read a key from ox402 ephemeral memory (written via kv-put). Returns found/value/ttl_seconds_left. Read-only. |\n| `kv-put` | $0.002 | Store a JSON value in ephemeral shared memory for stateless agents. TTL 1-24h, value <= 8KB, namespaced keys. Mutating. |\n| `crypto-price` | $0.003 | Crypto spot prices + 24h change (CoinGecko ids) |\n| `fx-rates` | $0.003 | Fiat FX rates (ECB daily) |\n| `weather` | $0.003 | Current weather + 3-day forecast by city/coords |\n| `geoip` | $0.004 | IP geolocation: country/city/ISP/proxy/hosting flags |\n| `stock-quote` | $0.004 | Stock quote: last price, prev close, exchange (Yahoo) |\n| `hash` | $0.005 | SHA-256/512/any hash of payload |\n| `base64` | $0.005 | base64 encode/decode |\n| `uuid` | $0.005 | Generate UUID v4 |\n| `jwt-decode` | $0.005 | Decode JWT (no verify) |\n| `url-encode` | $0.005 | URL encode/decode |\n| `regex-extract` | $0.005 | Regex match extraction |\n| `csv2json` | $0.005 | CSV to JSON array |\n| `json-format` | $0.005 | Pretty/minify JSON |\n| `yaml2json` | $0.005 | YAML to JSON |\n| `timestamp` | $0.005 | Unix<->ISO timestamp |\n| `diff` | $0.005 | Unified line diff |\n| `html2text` | $0.005 | Strip HTML to text |\n| `qrcode` | $0.005 | QR code as PNG data-url |\n| `password` | $0.005 | Random password |\n| `json-merge` | $0.005 | Deep-merge two JSON |\n| `csv-sum` | $0.005 | Sum a CSV column |\n| `unit-convert` | $0.005 | Unit convert (len/mass/temp) |\n| `json2csv` | $0.005 | JSON array to CSV |\n| `schema-validate` | $0.005 | Validate JSON vs schema |\n| `json-pointer` | $0.005 | Extract by JSON path |\n| `csv-col` | $0.005 | Extract CSV column |\n| `text-replace` | $0.005 | Find/replace in text |\n| `sort-json` | $0.005 | Sort JSON array by key |\n| `unique` | $0.005 | Unique lines/values |\n| `wayback` | $0.005 | Wayback Machine snapshot + optional history |\n| `dns-lookup` | $0.006 | DNS records: A/AAAA/MX/NS/TXT/CNAME |\n| `html2md` | $0.006 | HTML page/page-url -> clean markdown + links |\n| `video-info` | $0.006 | Video metadata + all formats (YouTube, TikTok, Vimeo, X, SoundCloud, 1000+ sites) |\n| `search` | $0.008 | Web search (DDG): title+url+snippet per result |\n| `whois` | $0.010 | Domain WHOIS: registrar, dates, nameservers, availability |\n| `text2img` | $0.010 | Render text to PNG image (dark/light) |\n| `pdf-text` | $0.010 | Plain text to formatted PDF document |\n| `screenshot` | $0.015 | Headless-chrome screenshot PNG of any URL |\n| `video-download` | $0.015 | Direct download links for a video URL (yt-dlp, 1000+ platforms) |\n| `web-scrape` | $0.020 | Server-side URL scrape (title+text) |\n| `youtube-info` | $0.020 | YouTube metadata + streams |\n| `base64-url` | $0.020 | Fetch URL -> base64 (capped 25MB) |\n| `ocr` | $0.020 | OCR image to text (tesseract, url or base64) |\n| `pdf-invoice` | $0.020 | Generate invoice/receipt PDF (items, tax, logo) |\n| `pdf-extract` | $0.030 | Extract text from PDF |\n| `image-resize` | $0.030 | Resize/convert image |\n| `youtube-dl` | $0.050 | YouTube download (mp3/mp4, capped 25MB) |\n",
+  "status": "curated"
+}

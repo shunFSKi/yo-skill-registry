@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.CacheCarti/dmoera-creator",
+  "type": "mcp",
+  "name": "dMoERA Creator",
+  "description": "Build, backtest, and deploy crypto trading strategies via MCP with 7-stage validation.",
+  "author": "io.github.CacheCarti",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/CacheCarti/dmoera-mcp",
+    "repo": "CacheCarti/dmoera-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://dmoera.xyz/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-26T01:38:34.796368Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "金融",
+    "featured": false
+  },
+  "readme": "# dMoERA Creator Studio — MCP Server\n\n[![smithery badge](https://smithery.ai/badge/mk9654/dMoERA-Creator)](https://smithery.ai/servers/mk9654/dMoERA-Creator)\n\nBuild, backtest, and deploy crypto trading strategies using any MCP-compatible AI agent (Claude, Cursor, Windsurf, Devin, Copilot, etc.).\n\n## What it does\n\nThe dMoERA MCP server exposes the [dMoERA](https://dmoera.xyz) Creator API as Model Context Protocol tools. Your AI agent can:\n\n- **Discover** trading domains, data feeds, and market regimes\n- **Inspect** existing bots and their live performance metrics\n- **Backtest** strategy code in a sandboxed environment\n- **Submit** strategies for full 7-stage validation and live deployment\n- **Monitor** tournament status, leaderboard rankings, and strategy report cards\n\nThis is a thin API client — it talks to a running dMoERA backend via HTTP. No internal dMoERA code is required.\n\n## Installation\n\n### Prerequisites\n\n- Python 3.11+\n- The `mcp` Python package (`pip install mcp`)\n- A running dMoERA backend (or connect to the public instance)\n\n### Setup\n\n```bash\ngit clone https://github.com/CacheCarti/dmoera-mcp.git\ncd dmoera-mcp\npip install -r requirements.txt\n```\n\n## MCP Configuration\n\nAdd this standard MCP configuration to Claude Desktop, Cursor, Windsurf, or another MCP client:\n\n```json\n{\n  \"mcpServers\": {\n    \"dmoera-creator\": {\n      \"command\": \"python\",\n      \"args\": [\"/absolute/path/to/dmoera-mcp/mcp_creator_server.py\"],\n      \"env\": {\n        \"DMOERA_API_URL\": \"https://dmoera.xyz\",\n        \"DMOERA_API_KEY\": \"your_optional_personal_access_token\"\n      }\n    }\n  }\n}\n```\n\nThe API key is optional for public market data and discovery tools. Create a Personal Access Token at [dmoera.xyz](https://dmoera.xyz) under **Settings → API Keys** to backtest, submit, fork, open-source, or delist strategies. Never commit your token.\n\nRemote clients can connect through the Streamable HTTP endpoint:\n\n```text\nhttps://dmoera.xyz/mcp\n```\n\n## Tools\n\n| Tool | Description | Auth Required |\n|------|-------------|---------------|\n| `list_domains` | List all available trading domains (ETH, BTC, SOL — spot and scalp) | No |\n| `list_bots` | List trading bots ranked by performance, optionally filtered by domain | No |\n| `get_bot_profile` | Get detailed profile and performance stats for a specific bot | No |\n| `get_feature_catalog` | List all data feeds available to strategies via `ctx.features` | No |\n| `get_market_regime` | Get current market regime classification | No |\n| `get_current_prices` | Get current live prices for all tracked symbols | No |\n| `sandbox_backtest` | Backtest strategy code in a sandboxed environment | Yes |\n| `submit_strategy` | Submit a strategy for full validation and live deployment | Yes |\n| `list_strategies` | List all strategies created by a user | Yes |\n| `get_strategy_report` | Get a detailed report card for a strategy | No |\n| `get_marketplace_bots` | List bots published to the marketplace | No |\n| `get_tournament_status` | Get current tournament round status and leaderboard | No |\n| `open_source_strategy` | Publish an eligible rejected strategy to the open-source leaderboard | Yes |\n| `fork_strategy` | Retrieve and fork an open-source strategy | Yes |\n| `get_open_source_leaderboard` | Browse open-source strategies with FIFA-style ratings | No |\n| `delist_strategy` | Retire or permanently delist one of your strategies | Yes |\n\n## Resources\n\n- `creator-api://docs` — Full strategy contract documentation\n- `creator-api://strategy-template` — Copy-pasteable strategy template\n\n## Example Usage\n\nAsk your AI agent:\n\n> \"List all trading domains on dMoERA, then backtest a simple RSI mean-reversion strategy for ETH/USDC.\"\n\nThe agent will call `list_domains`, inspect the available markets, then call `sandbox_backtest` with strategy code it generates. You can iterate:\n\n> \"The Sharpe is too low. Try adding a volatility filter — only trade when ATR is above its 20-period average.\"\n\n> \"Submit this strategy to the ETH/USDC domain.\"\n\nThe agent calls `submit_strategy`, which runs the full 7-stage validation pipeline. If it passes, the strategy enters the live Arena and competes for tournament payouts.\n\n## Strategy Contract\n\nStrategies subclass `Strategy` and implement `on_bar(self, ctx) -> Signal`. See the `creator-api://docs` resource for the full contract.\n\n```python\nclass MyStrategy(Strategy):\n    METADATA = {\n        \"name\": \"SMA Crossover\",\n        \"domain\": \"eth_usdc\",\n        \"declared_sl_bps\": 150.0,\n        \"declared_tp_bps\": 300.0,\n        \"declared_hold_seconds\": 3600,\n        \"warmup_bars\": 20,\n        \"required_features\": [],\n    }\n\n    def on_bar(self, ctx):\n        closes = ctx.closes(lookback=20)\n        if len(closes) < 20:\n            return None\n        fast = sum(closes[-5:]) / 5\n        slow = sum(closes) / 20\n        if fast > slow:\n            return ctx.signal(\n                direction=SignalDirection.LONG,\n                confidence=0.7,\n                stop_loss_bps=150.0,\n                take_profit_bps=300.0,\n                horizon_seconds=3600,\n            )\n        return None\n```\n\n## Tournament System\n\nBots compete in 3-day tournament rounds. Scoring is based on the bot's own performance:\n- **50%** risk-adjusted (rolling Sharpe ratio)\n- **30%** total return (log-scaled bps)\n- **20%** consistency (win rate × trade volume)\n\nTop 3 per domain win USDT from the reward pool. **No user following needed to qualify** — your bot competes on its own metrics.\n\n## Links\n\n- **Platform**: [dmoera.xyz](https://dmoera.xyz)\n- **GitHub**: [github.com/CacheCarti/dmoera-mcp](https://github.com/CacheCarti/dmoera-mcp)\n- **Twitter**: [@dMoERAHQ](https://x.com/dMoERAHQ)\n- **Discord**: [discord.gg/gXWDjDdQv](https://discord.gg/gXWDjDdQv)\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/com.kazejev/profile",
+  "type": "mcp",
+  "name": "profile",
+  "description": "Profile server for kazejev.com: biography, skills, projects and education.",
+  "author": "com.kazejev",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/theglobe/profile-mcp",
+    "repo": "theglobe/profile-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://mcp.kazejev.com/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-25T17:21:21.564186Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# profile-mcp\n\nPersonal MCP server for [kazejev.com](https://kazejev.com). The server operates\non Cloudflare Workers. The server is read-only: it gives a biography, skills,\nprojects and contact links to AI agents. The server has no runtime\ndependencies.\n\n## Language\n\nThis project uses Simplified Technical English (ASD-STE100). Write all\ndocumentation and all code comments in this style:\n\n- Keep sentences short. Use a maximum of 20 words for an instruction.\n- Use the active voice.\n- Use one word for one meaning. Use the same word for the same thing.\n- Write one instruction in one sentence.\n\n## Protocol support\n\nThe server supports two protocol eras.\n\nThe MCP `2026-07-28` revision removed the `initialize` handshake. It also\nremoved the protocol-level sessions. Thus a server for the new revision is very\ndifferent from a server for the older revisions. Most clients still use the\nolder revisions. Therefore this server supports the two eras on one endpoint.\n\n| Era | Versions | Description |\n|---|---|---|\n| Modern | `2026-07-28` | The server keeps no state. Each request contains the version, the identity and the capabilities in `_meta`. The client also puts these values in HTTP headers. The server examines the headers. The server has the `server/discover` method. |\n| Legacy | `2025-11-25`, `2025-06-18`, `2025-03-26` | The client and the server do the `initialize` handshake. |\n\nThe server selects the era for each request. If the `MCP-Protocol-Version`\nheader shows a modern version, the server uses the modern rules. If it does\nnot, the server uses the legacy rules.\n\nThe modern era has these rules:\n\n- The server sends 405 for a GET request and for a DELETE request. The GET\n  stream and the session teardown are no longer in the protocol.\n- The client must send the `Mcp-Method` header. For `tools/call`,\n  `resources/read` and `prompts/get`, the client must also send the `Mcp-Name`\n  header.\n- If a header value disagrees with the body value, the server sends 400 and\n  error code `-32020` (`HeaderMismatch`). The server first decodes the\n  `=?base64?…?=` format, then compares the two values.\n- If the server does not support the protocol version, the server sends 400 and\n  error code `-32022`. The error data shows the supported versions.\n- If the method is unknown, the server sends 404 and error code `-32601`. A\n  client uses this response to identify a modern server.\n- A list result contains `ttlMs` and `cacheScope`. Each result contains\n  `resultType`.\n\nThe server does not have `subscriptions/listen`, the MRTR input requests, or\nthe tasks extension. The server does not need them, because each tool is static\nand has no arguments.\n\n## Endpoint\n\n`POST /mcp`. The server sends 404 for all other paths.\n\n## Files\n\n    src/content.ts    All personal content. You change this file frequently.\n    src/protocol.ts   The MCP methods. This file is independent of the transport.\n    src/index.ts      The Cloudflare Worker entry point.\n    test/smoke.mjs    The protocol tests.\n\n## Development\n\n    npm install\n    npm run typecheck\n    npm test          # Compiles the code, then does the tests.\n    npm run dev       # Starts wrangler dev.\n\n## Deployment\n\n    npx wrangler login\n    npx wrangler deploy\n\nThen add the custom domain `mcp.kazejev.com` in the Cloudflare dashboard. Go to\nWorkers & Pages, then this Worker, then Settings, then Domains & Routes.\n\n## Server card\n\nThe repository `theglobe/theglobe.github.io` sends a discovery card at\n`/.well-known/mcp/server-card.json`. The `protocolVersion` field and the\n`transport.endpoint` field in the card must agree with this server.\n\nThe card gives the server name `kazejev-personal`. This name is different from\nthe repository name and from the Worker name. Do not change `SERVER_NAME` in\n`src/content.ts` unless you also change the card.\n\n## To do\n\n- Put the correct biography, skills and projects in `src/content.ts`.\n- Make a decision about a contact email address. The file has no email address.\n\n## Registry\n\nThe server is in the official MCP Registry as `com.kazejev/profile`.\n\n    https://registry.modelcontextprotocol.io/v0/servers?search=kazejev\n\n`server.json` holds the registry entry. To publish a new version, change the\n`version` field to match `SERVER_VERSION` in `src/content.ts`, then:\n\n    mcp-publisher login dns --domain kazejev.com --private-key <HEX>\n    mcp-publisher publish\n\nThe namespace `com.kazejev` is proved by a TXT record on `kazejev.com`:\n\n    v=MCPv1; k=ed25519; p=Z3Hxdi1IjSf8w1F4nnlcPJHX/X72+rsaXY4DTJJj5Ns=\n\nThat record must stay in place. The matching private key is not in this\nrepository. To use a different key, generate a new pair and replace the TXT\nrecord with the new public key.\n",
+  "status": "curated"
+}

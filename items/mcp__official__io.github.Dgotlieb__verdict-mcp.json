@@ -1,0 +1,64 @@
+{
+  "id": "mcp:official/io.github.Dgotlieb/verdict-mcp",
+  "type": "mcp",
+  "name": "verdict-mcp",
+  "description": "Sandboxed test runs for coding agents: compact typed verdicts with failure fingerprints and history",
+  "author": "io.github.Dgotlieb",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/Dgotlieb/verdict-mcp",
+    "repo": "Dgotlieb/verdict-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "verdict-mcp"
+    ],
+    "env": [
+      {
+        "name": "VERDICT_PROJECT",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-25T23:37:34.670129Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# verdict\n\n\nhttps://github.com/user-attachments/assets/62923912-98aa-4246-8bc8-4adf55ae3ff8\n\n\n\n[![CI](https://github.com/Dgotlieb/verdict-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/Dgotlieb/verdict-mcp/actions/workflows/ci.yml)\n[![PyPI](https://img.shields.io/pypi/v/verdict-mcp)](https://pypi.org/project/verdict-mcp/)\n[![Python](https://img.shields.io/pypi/pyversions/verdict-mcp)](https://pypi.org/project/verdict-mcp/)\n[![License](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)\n\n**Structured, sandboxed verification feedback for coding agents.**\n\nAn [MCP](https://modelcontextprotocol.io) server that replaces your agent's `pytest` shell-outs with something built for the agent inner loop: impact-selected tests, run in an isolated environment, returning **compact typed verdicts** instead of 40,000 tokens of raw runner output — with **failure fingerprints** that tell the agent whether a failure is *its* regression or was broken all along.\n\n```\nraw pytest dump:  ~40,000 tokens, unstructured, run un-sandboxed on your machine\nverdict:              ~400 tokens, typed JSON, run in a rootless container, with memory\n```\n\n## Why\n\nThe highest-frequency tool call in agentic coding is verification — and it's the least structured. Agents re-run whole suites when one module changed, burn context parsing ANSI-coded tracebacks, run arbitrary code directly on your machine, and routinely misdiagnose pre-existing breakage as their own regression (then \"fix\" code that wasn't broken). verdict fixes all four.\n\n## Tools\n\n| Tool | What it does |\n|---|---|\n| `verify(scope?, base?)` | Selects tests affected by your working-tree diff (static import graph via grimp), runs them via podman/docker with the worktree mounted **read-only**, returns typed failures with fingerprints and a `preexisting` flag |\n| `explain_failure(check_id)` | Full traceback for one failure, on demand — bulk never rides in the summary |\n| `history(fingerprint)` | First seen / last seen / times seen — regression vs. long-standing breakage |\n| `run_checks([\"ruff\",\"mypy\"])` | Lint and type checks, normalized into the same verdict schema |\n\nEvery failure carries a **fingerprint**: a stable hash of the normalized failure signature (volatile tokens — addresses, tmp paths, ids, durations — collapsed). Same logical failure, same fingerprint, across runs and refactors. Fingerprints are what give verdict memory.\n\n## Quickstart\n\nNo install step needed — `uvx` fetches it on first use. (Or `uv tool install verdict-mcp` / `pip install verdict-mcp` for a permanent `verdict-mcp` command.)\n\n**Claude Code** — `.mcp.json` in your project root:\n\n```json\n{\n  \"mcpServers\": {\n    \"verdict\": {\n      \"command\": \"uvx\",\n      \"args\": [\"verdict-mcp\"],\n      \"env\": { \"VERDICT_PROJECT\": \".\" }\n    }\n  }\n}\n```\n\n**Cursor** — same shape in `.cursor/mcp.json`.\n\nOptional `verdict.toml` in your repo root:\n\n```toml\n[project]\npackages = [\"your_package\"]          # for impact selection (auto-guessed if omitted)\n\n[runner]\nimage = \"ghcr.io/you/yourproj-test\"  # prebuilt env with your deps\nsetup_cmd = \"pip install -e .[test]\" # or install on the fly (runs with network; tests don't)\n# prefer = \"local\"                   # escape hatch if you have no container runtime\n\n[limits]\nmax_failures = 10\n```\n\nTry it without an agent:\n\n```bash\ncd examples/demo_project\nVERDICT_PROJECT=. verdict-mcp   # then connect any MCP client, or use the MCP inspector\n```\n\n## Sandbox posture (v0.1)\n\nChecks run in an ephemeral container (podman preferred, docker fallback): worktree mounted **read-only** at `/src`, copied to a writable `/work` inside the container, `--network=none` for the check run. Your host environment is never mutated by a test run. If `setup_cmd` is configured, that step runs *with* network before the check; prefer a prebuilt image for a tighter posture. No container runtime → explicit `prefer = \"local\"` fallback runs checks against a temp copy of your worktree (still never in place). See [SECURITY.md](SECURITY.md) for the full threat model and known limitations.\n\n**Troubleshooting:** if a verdict says `container engine 'podman' could not start the check`, run the suggested `podman pull <image>` by hand — the engine's own error is the answer. One known trap on macOS: a `\"credsStore\": \"gcloud\"` line in `~/.docker/config.json` makes podman call the gcloud credential helper for *every* registry, including docker.io; an expired gcloud login then breaks all pulls. Fix with `gcloud auth login` or remove that line.\n\n## Honest limitations\n\n- Impact selection uses the **static import graph** — approximate by design. Dynamic imports, fixture-by-name resolution, and data-driven tests can be missed; `verify(scope=\"all\")` is always available and verdict says in `selection_note` whenever it falls back.\n- Python/pytest only today, plus ruff/mypy. The adapter interface is small and documented — vitest and `go test -json` adapters are the most-wanted contributions ([CONTRIBUTING.md](CONTRIBUTING.md)).\n- Flake detection and coverage-map-based selection are v0.2 ([roadmap](#roadmap)).\n\n## Roadmap\n\n**v0.2:** coverage-based impact maps (precise selection), flake detection via fingerprint alternation, devcontainer.json support, result cache keyed on (tree hash, check, image digest). **Later:** vitest/jest, go test, cargo test adapters; per-repo verdict daemon mode.\n\n## License\n\nApache-2.0\n\n<!-- mcp-name: io.github.Dgotlieb/verdict-mcp -->\n",
+  "status": "curated"
+}

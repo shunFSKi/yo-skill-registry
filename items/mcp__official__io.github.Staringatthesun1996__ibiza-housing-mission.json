@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.Staringatthesun1996/ibiza-housing-mission",
+  "type": "mcp",
+  "name": "Ibiza Housing Mission",
+  "description": "Find affordable Ibiza homes with two bedrooms or verified legal expansion potential.",
+  "author": "io.github.Staringatthesun1996",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/Staringatthesun1996/ibiza-housing-mission",
+    "repo": "Staringatthesun1996/ibiza-housing-mission"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://ibiza-housing-mission-v2-davidperezmastersecundaria-4287.vercel.app/api/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-25T22:25:20.869919Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Ibiza Housing Mission\n\nServicio MCP público para descubrir y evaluar oportunidades de vivienda habitual en Ibiza.\n\n## Objetivo público\n\n- Precio objetivo: hasta 230.000 €.\n- Excepcionalmente hasta 250.000 € si la operación es especialmente sólida.\n- Requisito esencial: 2 dormitorios reales o posibilidad razonable y legal de crear el segundo mediante redistribución o ampliación.\n- Se admiten viviendas con jardín, terraza grande o terreno cuando exista potencial urbanístico verificable para ampliación.\n- Se penalizan ruina, ocupación, uso no residencial, no hipotecabilidad y problemas jurídicos graves.\n\n## MCP remoto\n\nEndpoint público de producción:\n\n`https://ibiza-housing-mission-v2-davidperezmastersecundaria-4287.vercel.app/api/mcp`\n\nTransporte: `streamable-http`.\n\n## Herramientas\n\n- `get_public_housing_brief`: devuelve el mandato inmobiliario público.\n- `evaluate_property`: puntúa un inmueble con criterios deterministas y auditables.\n- `mortgage_scenario`: calcula cuota orientativa y escenario de estrés.\n- `submit_property`: permite que otros agentes entreguen una oportunidad de vivienda. Valida municipio, URL HTTPS, precio, superficie, dormitorios, potencial de ampliación y riesgos básicos; genera un `receiptId` estable para deduplicación y coloca los candidatos válidos en la cola operativa.\n\n## Cola de oportunidades\n\nLa versión 1.1.0 registra cada envío como un evento estructurado `PROPERTY_SUBMISSION` en los runtime logs de Vercel. Es una capa de ingesta operativa inmediata. La interfaz de `submit_property` está diseñada para que el almacenamiento pueda migrarse posteriormente a una base persistente sin romper compatibilidad con los agentes que ya la utilicen.\n\nSe filtran antes de encolar:\n\n- inmuebles fuera de la isla de Ibiza;\n- precios por encima del sobre de búsqueda operativo;\n- ruina, ocupación ilegal, nuda propiedad/usufructo, uso no residencial o no hipotecabilidad;\n- inmuebles sin dos dormitorios ni una vía razonable hacia el segundo dormitorio.\n\n## Privacidad y anti-spam\n\nEste repositorio y el MCP **no contienen información privada del comprador**. `submit_property` tampoco solicita datos privados del propietario. Solo admite información del inmueble, URL pública o compartible y un identificador textual del agente remitente.\n\nNo deben enviarse credenciales, documentos confidenciales, teléfonos/emails privados, datos familiares, laborales o financieros sensibles del comprador, ni información personal no destinada a difusión.\n\n## Registro MCP\n\nServidor publicado en el Official MCP Registry como:\n\n`io.github.Staringatthesun1996/ibiza-housing-mission`\n\nVersión con ingesta de oportunidades: `1.1.0`.\n\nEl archivo `server.json` describe el servidor remoto para el Official MCP Registry.\n\n## Aviso\n\nLas puntuaciones y simulaciones son herramientas de preselección. No sustituyen comprobación registral, urbanística, técnica, jurídica ni aprobación hipotecaria.\n",
+  "status": "curated"
+}

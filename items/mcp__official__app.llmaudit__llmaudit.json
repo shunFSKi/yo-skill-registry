@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/app.llmaudit/llmaudit",
+  "type": "mcp",
+  "name": "LLM Audit",
+  "description": "Measure whether AI assistants actually recommend a brand, from measured answers.",
+  "author": "app.llmaudit",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/nahuelsoria/llmaudit-mcp",
+    "repo": "nahuelsoria/llmaudit-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://mcp.llmaudit.app/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-25T21:28:03.037547Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "AI",
+    "featured": false
+  },
+  "readme": "# llmaudit-mcp\n\nServidor MCP de [llmaudit.app](https://llmaudit.app). Deja que el asistente de\ncualquier persona mida si una marca aparece cuando los compradores le piden una\nrecomendacion a una IA.\n\nSpec completa: `specs/features/geo-13-mcp-server.md` en el repo privado\nllm-rank-tracker.\n\n## Lo que expone\n\n- `start_visibility_check` arranca la medicion y devuelve un `runId`.\n- `get_visibility_check` la cobra. Devuelve `running` hasta que los proveedores\n  contestan.\n- `llmaudit://methodology` explica como se mide.\n\nSon dos tools y no una porque la medicion tarda hasta dos minutos: el audit son\n15 a 60s y el mapa medido otro tanto.\n\n## Lo que devuelve, y lo que NO\n\nDevuelve el **mapa medido**: las preguntas del comprador consultadas en vivo y\nquien se llevo cada respuesta. Nunca el autoreporte de los proveedores, que es\nlo que cada modelo CREE de la marca. Los dos numeros se separan muchisimo en la\npractica, y el autoreporte siempre es el optimista: por eso el contrato de la\ntool no lo expone en ningun campo.\n\nNunca devuelve un puntaje 0-100: veredicto en tres bandas y conteos.\n\n## Plata\n\nCada medicion gratis gasta las API keys de llmaudit, del orden de USD 0,05 a\n0,15. Tres guardas, todas verificadas por tests:\n\n1. Una medicion gratis por dominio cada 30 dias, chequeada ANTES de llamar a la API.\n2. `MCP_MONTHLY_RUN_LIMIT` (default 200) como techo del canal, separado del\n   presupuesto del funnel web.\n3. El conteo de rate limit en prod va por identidad de cliente, no por la IP de\n   este servidor, que en serverless rota.\n\n## Env\n\n| Variable | Para que |\n| --- | --- |\n| `LLMAUDIT_API_BASE_URL` | Base de la API. Default `https://llmaudit.app` |\n| `MCP_SERVER_KEY` | Llave compartida con llm-rank-tracker. Sin ella prod bucketea por IP |\n| `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` | Tabla `mcp_runs`. Sin ellas el store es en memoria y NO sirve en serverless |\n| `MCP_MONTHLY_RUN_LIMIT` | Techo mensual de corridas del canal |\n\n## Uso del canal\n\n`npm run stats` lee `mcp_runs` y dice cuanto queda del techo del mes, quien\nllamo, que dominios se midieron y cual tiene tomada la cuota de 30 dias.\n\n```sh\nnode --env-file <archivo.env> scripts/stats.mjs\nnode --env-file <archivo.env> scripts/stats.mjs --days 30 --history 180\n```\n\nNecesita `SUPABASE_URL` (o `NEXT_PUBLIC_SUPABASE_URL`) y\n`SUPABASE_SERVICE_ROLE_KEY`. `--days` es el detalle diario, `--history` cuanto\npasado trae; el mes en curso siempre entra completo, porque ese numero tiene que\ndar igual que el del guard.\n\nLo primero que imprime, cuando aparece, son las corridas **huerfanas**: filas\nreservadas que nunca engancharon su `audit_id`. Le tiran \"Unknown runId\" al\ncliente para siempre y mientras tanto ocupan la cuota gratis de su dominio y\nsuman al techo del mes. Se borran por `run_id`.\n\nVercel Web Analytics no sirve para medir esto: mide inyectando un script en el\nHTML, y aca no hay HTML ni navegador que lo corra, cada request es un JSON-RPC\nde un cliente MCP. Marcaria cero para siempre.\n\n## Desarrollo\n\n```sh\nnpm run dev     # xmcp dev\nnpm test        # vitest, sin red\nnpm run build   # xmcp build\n```\n\nLos tests corren contra fixtures reales en `fixtures/` (corridas ya pagadas de\nla prospeccion). Ninguno sale a la red ni llama a un proveedor.\n",
+  "status": "curated"
+}

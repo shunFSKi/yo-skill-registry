@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.Itr3k/axiom-x402-payment-crypto-router",
+  "type": "mcp",
+  "name": "Axiom by Elevated AI",
+  "description": "Axiom by Elevated AI: buy x402-paid APIs, route non-custodial crypto swaps on Base. You sign.",
+  "author": "io.github.Itr3k",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/Itr3k/axiom-relay",
+    "repo": "Itr3k/axiom-relay"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://axiom.elevatedai.io/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-26T01:15:47.324744Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# Axiom by Elevated AI\n\n**The routing layer for AI spending.** Axiom is a non-custodial routing layer for\nautonomous AI agents. It helps agents discover and purchase paid machine\nservices and route crypto transactions based on total cost, reliability,\nsafety, and execution quality.\n\nTwo capabilities, one product:\n\n| | what it does | status |\n|---|---|---|\n| **Axiom Services** | Finds, ranks and buys x402-paid APIs. The buyer's signed authorization is relayed to the seller. | Live on Base mainnet |\n| **Axiom Crypto** | Compares swap routes on total cost, validates the calldata, and returns transactions for the agent to sign. | **Beta** on Base mainnet |\n\nAxiom never holds customer funds, never signs a customer transaction, and\nstores no customer key. In both capabilities the agent or user is the signer.\n\n**Canonical site:** <https://axiom.elevatedai.io> · **API origin:**\n`axiom-relay.reference-seller.workers.dev`\n\nThese are deliberately separate. The canonical site mirrors every machine\ncontract over GET and serves no execution route, so documents reference it\nwhile requests execute against the runtime.\n\nBuilt by [Elevated AI](https://elevatedai.io).\n\n---\n\n## Why this exists\n\nMost x402 tooling assumes the agent already knows the provider's URL. In\npractice it doesn't — and roughly **13% of advertised x402 providers do not\nanswer a valid challenge** when actually called (measured across the live\nCoinbase Bazaar catalogue). Axiom absorbs that problem.\n\n```\nintent -> discover candidates -> validate -> rank -> pay -> return result\n```\n\n## Pricing\n\n| | |\n|---|---|\n| Fee | **3%** of the seller price |\n| Maximum | **$0.50** per purchase |\n| Minimum | none |\n| Micropayments | fee **waived** when too small to settle, while free capacity remains |\n\nThe fee is a percentage below ~$16.67 and flat above it, so a $25 purchase and a\n$250 purchase both cost $0.50.\n\n## Non-custodial by construction\n\nThe buyer signs **two independent authorisations**: one payable directly to the\nseller, one payable to Axiom. Axiom relays the seller's authorisation without\nmodification and cannot alter its amount or destination.\n\n- Seller funds never enter an Axiom-controlled address.\n- **Axiom holds no signing key at all** — it cannot move your money.\n- Exactly one routing fee per completed purchase, charged only on success.\n- Fallback advances only on positive evidence the previous seller was not paid;\n  an ambiguous settlement halts the chain rather than risk a double payment.\n\n## Quickstart\n\n```bash\nnpm install axiom-relay\n```\n\n```ts\nimport { Axiom } from 'axiom-relay';\nimport { x402Client } from '@x402/core/client';\nimport { registerExactEvmScheme } from '@x402/evm/exact/client';\nimport { privateKeyToAccount } from 'viem/accounts';\n\nconst signer = new x402Client();\nregisterExactEvmScheme(signer, { signer: privateKeyToAccount(process.env.KEY) });\n\nconst axiom = new Axiom({ baseUrl: 'https://axiom-relay.reference-seller.workers.dev' });\n\nconst { route, result } = await axiom.buy(signer, 'crypto price', {\n  network: 'eip155:8453',\n});\n\nconsole.log(route.selectionReason);\nconsole.log(result.downstream.body);\n```\n\nOr with plain HTTP:\n\n```bash\ncurl -sX POST https://axiom-relay.reference-seller.workers.dev/v1/route \\\n  -H 'content-type: application/json' \\\n  -d '{\"capability\":\"crypto price\",\"requirements\":{\"network\":\"eip155:8453\"}}'\n```\n\n## How routing decides\n\nDeterministic, no learning, no hidden preference:\n\n```\nscore = (50*reliability + 30*price + 10*latency + 10*freshness) / 100\n```\n\nReliability leads on purpose — a cheap provider that fails costs the agent a\nround trip and earns Axiom nothing. When the winner is not the cheapest, the\nresponse says so and names the price premium and the reliability figures that\noutweighed it. Ties break on provider id, so ordering is stable.\n\n## Machine integration\n\n| Surface | Path |\n|---|---|\n| Service descriptor | `/.well-known/x402` |\n| OpenAPI 3.1 | `/openapi.json` |\n| Agent skill | `/SKILL.md` |\n| LLM navigation | `/llms.txt` |\n| A2A Agent Card | `/.well-known/agent-card.json` |\n| MCP manifest | `/.well-known/mcp.json` |\n| Health | `/health` |\n\n## MCP\n\n```json\n{\n  \"mcpServers\": {\n    \"axiom\": { \"type\": \"http\", \"url\": \"https://axiom-relay.reference-seller.workers.dev/mcp\" }\n  }\n}\n```\n\nTools: `find_paid_resource`, `quote_paid_resource`, `purchase_paid_resource`,\n`check_provider`. The MCP layer is a thin adapter over the HTTP API — it\ncontains no payment logic, so the safety properties are identical.\n\n## Examples\n\nSee [`examples/`](./examples): raw TypeScript, MCP, OpenAI tools, Claude Agent\nSkills, LangChain, Cloudflare Agents, and a generic x402 client.\n\n## Two behaviours worth knowing\n\n**Waived fee.** When `feePolicy` is `fee_waived_micropayment`, `axiomFee` is `0`\nand `payTo` is null. Do not sign a fee leg — there is nothing to authorise.\n\n**Free-route quota.** `free_route_quota_exhausted` (HTTP 429) means the purchase\nis valid and the provider healthy, but Axiom's free-routing allocation is spent.\nThe response carries `resetsAt`. Purchases whose fee is collectible are never\nquota-limited.\n\n## Security model\n\n- x402 v2, `exact` scheme, USDC on Base.\n- Destination URLs are validated against SSRF: loopback, RFC1918, link-local,\n  cloud metadata, IPv4-mapped and NAT64 embeddings, embedded credentials and\n  non-web ports are refused, and every redirect hop is revalidated independently.\n- Replay protection claims each EIP-3009 authorisation nonce atomically.\n- A discovered provider is an untrusted claim: schema-checked, SSRF-validated\n  and probed for a live challenge before it can be selected.\n\n## Status\n\nLive on Base mainnet with real settlements. Base Sepolia also supported for\ntesting. Current state is always readable at `/health`.\n\n## Licence\n\nMIT\n\n---\n\n## Axiom Crypto (Beta)\n\nDescribe a swap. Axiom queries execution providers, normalises every fee and\ngas cost, ranks routes on what you would actually receive, validates the\ncalldata against what you asked for, and hands back transactions **your** wallet\nsigns.\n\nAxiom never takes custody and never signs.\n\n### What it supports today\n\n| | |\n|---|---|\n| Network | Base mainnet |\n| Assets | USDC, WETH, ETH, USDT |\n| Execution provider | LI.FI |\n| Axiom fee | **15 bps (0.15%)** |\n| Max trade (beta) | **$500** |\n| Daily volume (beta) | **$5,000** |\n| Rate limit | 30 routes/min |\n\nThe beta ceilings are risk limits while the routing model is validated against\nlive markets, not product limits.\n\n### Fees are disclosed separately, always\n\nExecution providers often report one aggregate fee line. LI.FI's is 25 bps of\nits own plus Axiom's 15. Axiom splits them and attributes each to its\nrecipient, because presenting a provider's fee as Axiom revenue would misstate\nboth what you pay Axiom and what Axiom earns:\n\n```json\n\"costDisclosure\": {\n  \"providerFee\":  { \"amount\": \"5000\", \"token\": \"USDC\", \"bps\": 25 },\n  \"axiomFee\":     { \"amount\": \"3000\", \"token\": \"USDC\", \"bps\": 15 },\n  \"networkGas\":   { \"amount\": \"...\",  \"token\": \"ETH\" },\n  \"slippage\":     { \"toleranceBps\": 50, \"guaranteedOutput\": \"...\", \"worstCaseBps\": 50 },\n  \"priceImpactBps\": null,\n  \"expectedOutput\":   { \"amount\": \"...\", \"token\": \"WETH\" },\n  \"netAfterAllCosts\": { \"amount\": \"...\", \"token\": \"WETH\" },\n  \"totalEffectiveCostBps\": 87,\n  \"note\": \"providerFee is charged by the execution provider and is not Axiom revenue.\"\n}\n```\n\n`priceImpactBps` is `null` rather than `0` when a provider does not report it.\nAn unreported impact is unknown, not absent.\n\n### Quote a route\n\n```bash\ncurl -sX POST https://axiom-relay.reference-seller.workers.dev/v1/crypto/quote \\\n  -H 'content-type: application/json' \\\n  -d '{\n    \"fromChain\": 8453,\n    \"sellToken\": \"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913\",\n    \"buyToken\":  \"0x4200000000000000000000000000000000000006\",\n    \"sellAmount\": \"2000000\",\n    \"taker\": \"<your wallet>\",\n    \"slippageBps\": 100\n  }'\n```\n\nYou get back `selected`, `costDisclosure`, `selectionReason`,\n`savingsVsRunnerUp`, `alternatives`, and `transactions` — an exact-amount\napproval followed by the swap. Sign them in order from the taker wallet.\n\n### Analyse without receiving calldata\n\n`POST /v1/crypto/analyze` answers the same question and deliberately withholds\nthe means to act: identical economics, `transactions: null`, plus a\nrecommendation. Useful when an agent wants the cost of a trade without being\nhanded the ability to make it.\n\n### What Axiom will refuse\n\nRoute validation checks the provider's answer against what was asked, not\nagainst what the provider claims it did:\n\n- calldata built for a different chain\n- a sell amount that is not the one quoted\n- native value attached to an ERC-20 sale\n- an approval whose spender is not the route's allowance target\n- **unlimited approvals** — exact-amount only, unless an operator opts in\n- a floor implying wider slippage than you specified\n- a stale quote\n- a token that is not allowlisted\n- a route whose simulation fails\n\n### Signing model\n\n```\nintent → quote → inspect route → sign transaction → submit\n```\n\nAxiom performs the first three. Your wallet performs the last two. There is no\nexecution endpoint, because execution is signing, and Axiom cannot sign.\n\n",
+  "status": "curated"
+}
