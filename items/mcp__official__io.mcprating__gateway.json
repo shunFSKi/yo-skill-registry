@@ -6,8 +6,8 @@
   "author": "io.mcprating",
   "source": {
     "registry": "mcp-official",
-    "url": "https://github.com/mcprating/platform",
-    "repo": "mcprating/platform"
+    "url": "https://github.com/mcprating/mcp-gateway",
+    "repo": "mcprating/mcp-gateway"
   },
   "license": null,
   "install": {
@@ -20,8 +20,8 @@
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-08-27T20:20:53.741606Z",
-    "score": 42
+    "pushed_at": "2026-08-28T11:26:34.307581Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -53,6 +53,6 @@
     "category": null,
     "featured": false
   },
-  "readme": null,
+  "readme": "# @mcp-rating/gateway\n\n**MCP Gateway** is a meta-MCP server that auto-discovers, connects, and proxies other MCP servers. Add one line to your AI desktop client config and get dynamic access to the entire MCP ecosystem.\n\n## How It Works\n\n```\n┌────────────────────┐       ┌──────────────┐       ┌──────────────────┐\n│  Claude Desktop /  │ stdio │              │ stdio  │ MCP Server A     │\n│  Cursor / Windsurf │◄─────►│  MCP Gateway │◄──────►│ (e.g. filesystem)│\n│  (host client)     │       │              │◄──┐    └──────────────────┘\n└────────────────────┘       └──────────────┘   │    ┌──────────────────┐\n                                    │           └───►│ MCP Server B     │\n                                    ▼                │ (e.g. github)    │\n                             ┌──────────────┐        └──────────────────┘\n                             │ MCP-Rating   │\n                             │ Registry API │\n                             └──────────────┘\n```\n\nInstead of manually configuring each MCP server in your client, the Gateway:\n\n1. **Discovers** servers via the MCP-Rating registry\n2. **Connects** to them on-demand (spawns as child processes)\n3. **Proxies** their tools through namespaced names (`servername__toolname`)\n4. **Notifies** your client when tools are added/removed\n\n## Quick Start\n\n### With Claude Desktop\n\nAdd to your `claude_desktop_config.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"gateway\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@mcp-rating/gateway\"]\n    }\n  }\n}\n```\n\nThen ask Claude:\n- *\"Search for MCP servers that work with databases\"* (uses `mcp_discover`)\n- *\"Connect to the sqlite server\"* (uses `mcp_connect`)\n- *\"Query my database\"* (calls the proxied tool directly)\n\n### With Any MCP Client\n\n```json\n{\n  \"command\": \"npx\",\n  \"args\": [\"-y\", \"@mcp-rating/gateway\"]\n}\n```\n\n## Meta-Tools\n\nThe gateway exposes 5 built-in tools:\n\n| Tool | Description |\n|------|-------------|\n| `mcp_discover` | Search the MCP-Rating registry for servers |\n| `mcp_connect` | Connect to a server (by slug or explicit command) |\n| `mcp_disconnect` | Disconnect a server and remove its tools |\n| `mcp_list_active` | List all connected servers |\n| `mcp_server_info` | Get detailed info about a server |\n\n## Trust Tiers\n\nEvery connected server is labeled with a trust tier based on its MCP-Rating quality score:\n\n- **[Verified]** — High quality + officially verified\n- **[Trusted]** — Good quality with repository and install command\n- **[Community]** — Listed in registry with basic quality\n- **[Unverified]** — Unknown origin (manually connected)\n\n## Configuration\n\nThe gateway reads config from `~/.mcp-gateway/config.json`:\n\n```json\n{\n  \"registryApiUrl\": \"https://mcp-rating.example.com/api/v1\",\n  \"proxyTimeoutMs\": 30000,\n  \"maxConnections\": 10,\n  \"logLevel\": \"info\"\n}\n```\n\n### Environment Variables\n\n| Variable | Description | Default |\n|----------|-------------|---------|\n| `MCP_GATEWAY_REGISTRY_URL` | MCP-Rating API base URL | `https://mcprating.io/api/v1` |\n| `MCP_GATEWAY_TIMEOUT` | Proxy timeout (ms) | `30000` |\n| `MCP_GATEWAY_MAX_CONNECTIONS` | Max simultaneous connections | `10` |\n| `MCP_GATEWAY_LOG_LEVEL` | Log level (debug/info/warn/error) | `info` |\n\n## Development\n\n```bash\n# Install dependencies\npnpm install\n\n# Run in development mode\npnpm dev\n\n# Type check\npnpm typecheck\n\n# Build\npnpm build\n```\n\n## Architecture\n\nThe gateway is built on the [MCP SDK](https://github.com/modelcontextprotocol/typescript-sdk) and uses:\n\n- **StdioServerTransport** — communicates with the host client\n- **StdioClientTransport** — spawns and communicates with downstream servers\n- **Dynamic tool registration** — `McpServer.registerTool()` + `sendToolListChanged()`\n- **Tool namespacing** — `slug__toolname` pattern prevents collisions\n- **Passthrough Zod schemas** — preserves parameter names for host client UI while letting downstream servers validate\n\n## License\n\nISC\n",
   "status": "curated"
 }

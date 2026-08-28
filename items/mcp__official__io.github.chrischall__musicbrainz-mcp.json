@@ -42,8 +42,8 @@
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-07-19T12:46:07.144076Z",
-    "score": 37
+    "pushed_at": "2026-08-28T14:00:32.206157Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -75,6 +75,6 @@
     "category": "生活",
     "featured": false
   },
-  "readme": null,
+  "readme": "# musicbrainz-mcp\n\n[![CI](https://github.com/chrischall/musicbrainz-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/chrischall/musicbrainz-mcp/actions/workflows/ci.yml)\n[![npm](https://img.shields.io/npm/v/musicbrainz-mcp)](https://www.npmjs.com/package/musicbrainz-mcp)\n[![license](https://img.shields.io/npm/l/musicbrainz-mcp)](LICENSE)\n\nAn MCP server for [MusicBrainz](https://musicbrainz.org), the open music encyclopedia. It gives Claude live access to MusicBrainz metadata — artists, releases, recordings, labels, works, and more — plus Cover Art Archive images, and (optionally) lets you submit your own tags, ratings, and collection edits.\n\n> Developed and maintained by AI (Claude Code). Use at your own discretion.\n\n## Tools\n\n**Read (no credentials required):**\n\n| Tool | What it does |\n| --- | --- |\n| `musicbrainz_search` | Search any entity type with a Lucene query; returns ranked matches + MBIDs |\n| `musicbrainz_lookup` | Look up an entity by MBID, with `inc` subqueries for linked data |\n| `musicbrainz_browse` | List all entities linked to another (e.g. every release by an artist) |\n| `musicbrainz_cover_art` | Cover Art Archive image URLs for a release / release-group |\n| `musicbrainz_resolve` | Turn a pasted musicbrainz.org URL into its entity |\n| `musicbrainz_healthcheck` | Verify connectivity and whether OAuth writes are configured |\n\n**Write (OAuth, confirm-gated):**\n\n| Tool | What it does |\n| --- | --- |\n| `musicbrainz_submit_tags` | Apply user tags to an entity on your account |\n| `musicbrainz_submit_rating` | Set your 0–100 rating for an entity |\n| `musicbrainz_modify_collection` | Add/remove entities in one of your collections |\n\nEach write makes **no** network call without `confirm: true`; it returns a dry-run preview first.\n\n## Install\n\nThis is a Node MCP server (stdio). Point your MCP host at it:\n\n```json\n{\n  \"mcpServers\": {\n    \"musicbrainz\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"musicbrainz-mcp\"]\n    }\n  }\n}\n```\n\nReads work immediately. MusicBrainz asks clients to make **at most one request per second** — the server throttles itself to stay within that limit, so large browses are paced automatically.\n\n## Enabling the write tools (optional)\n\n1. Register an application at [musicbrainz.org/account/applications](https://musicbrainz.org/account/applications) (redirect URI `urn:ietf:wg:oauth:2.0:oob`).\n2. Complete the OAuth flow with the `tag`, `rating`, and `collection` scopes to obtain a **refresh token**.\n3. Provide these via your MCP host's env (or a local `.env`):\n\n```\nMUSICBRAINZ_OAUTH_CLIENT_ID=...\nMUSICBRAINZ_OAUTH_CLIENT_SECRET=...\nMUSICBRAINZ_OAUTH_REFRESH_TOKEN=...\n```\n\n## Development\n\n```bash\nnpm install\nnpm run build\nnpm test\n```\n\nSee [CLAUDE.md](CLAUDE.md) for architecture and [docs/MUSICBRAINZ-API.md](docs/MUSICBRAINZ-API.md) for the pinned API shapes.\n\n## License\n\nMIT. Data from MusicBrainz, licensed under [CC0 / CC BY-NC-SA](https://musicbrainz.org/doc/About/Data_License).\n",
   "status": "curated"
 }

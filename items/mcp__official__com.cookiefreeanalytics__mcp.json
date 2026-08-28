@@ -6,8 +6,8 @@
   "author": "com.cookiefreeanalytics",
   "source": {
     "registry": "mcp-official",
-    "url": "https://github.com/WesselsRepository/Cookie-Free-Analytics",
-    "repo": "WesselsRepository/Cookie-Free-Analytics"
+    "url": "https://github.com/PrestonsCreekCapital/CookieFreeAnalytics-MCP",
+    "repo": "PrestonsCreekCapital/CookieFreeAnalytics-MCP"
   },
   "license": null,
   "install": {
@@ -16,8 +16,8 @@
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-08-26T19:01:44.173531Z",
-    "score": 42
+    "pushed_at": "2026-08-28T05:44:33.731652Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -49,6 +49,6 @@
     "category": "数据",
     "featured": false
   },
-  "readme": null,
+  "readme": "# Cookie Free Analytics MCP\n\nRemote [Model Context Protocol](https://modelcontextprotocol.io) server for [Cookie Free Analytics](https://www.cookiefreeanalytics.com): cookieless web analytics, EU-hosted, GDPR.\n\nThis repository is the public listing (Official MCP Registry, Glama, and install copy). The server itself runs at the product origin. There is nothing to `npm install`.\n\nOperator: Prestons Creek Capital. Public contact: hello@cookiefreeanalytics.com.\n\n| | |\n|---|---|\n| Product | [cookiefreeanalytics.com](https://www.cookiefreeanalytics.com) |\n| MCP URL | `https://www.cookiefreeanalytics.com/mcp` |\n| Transport | Streamable HTTP |\n| Auth | OAuth 2.1 (RFC 9728 + PKCE). Optional hashed bearer from Account. |\n| Registry name | `io.github.PrestonsCreekCapital/cookie-free-analytics` |\n| Docs | [docs/api](https://www.cookiefreeanalytics.com/docs/api) |\n\nStarter and Growth. Hobby is the dashboard only.\n\nThe tools return the same aggregates as the dashboard. They do not return visitor hashes, raw IPs, or a user graph. They do not write pageviews, change settings, or send mail.\n\n## Install\n\nPaste this URL as a custom connector:\n\n```\nhttps://www.cookiefreeanalytics.com/mcp\n```\n\nThe client starts OAuth 2.1 on cookiefreeanalytics.com (protected-resource metadata, PKCE S256, dynamic client registration). You sign in to Cookie Free Analytics. A Google login on the website is not an MCP token.\n\n### Claude\n\nClaude.ai / Claude Desktop: **Settings → Connectors → Add custom connector**. URL above. No Client ID or secret.\n\nClaude Code:\n\n```bash\nclaude mcp add --transport http cookie-free-analytics https://www.cookiefreeanalytics.com/mcp\n```\n\n### Cursor\n\n`~/.cursor/mcp.json` (or project `.cursor/mcp.json`):\n\n```json\n{\n  \"mcpServers\": {\n    \"cookie-free-analytics\": {\n      \"url\": \"https://www.cookiefreeanalytics.com/mcp\"\n    }\n  }\n}\n```\n\n### VS Code\n\n`.vscode/mcp.json` or user MCP config. Command Palette: **MCP: Add Server**.\n\n```json\n{\n  \"servers\": {\n    \"cookie-free-analytics\": {\n      \"type\": \"http\",\n      \"url\": \"https://www.cookiefreeanalytics.com/mcp\"\n    }\n  }\n}\n```\n\nVS Code opens a browser for OAuth on first connect.\n\n### Grok\n\n[grok.com/connectors](https://grok.com/connectors) → custom connector → the same URL. There is no Grok public catalog entry to search for.\n\n## OAuth flow\n\n1. The client `GET`s RFC 9728 metadata for `https://www.cookiefreeanalytics.com/mcp`.\n2. PKCE S256 + dynamic client registration. You do not paste a Client ID or Client Secret.\n3. Browser sign-in on cookiefreeanalytics.com. Starter or Growth.\n4. The client calls `POST /mcp` with the access token.\n\ncurl and scripts may still send `Authorization: Bearer` with a hashed token from **Plan → Account → Read API** (`cfa_live_…`, shown once). Do not commit that token.\n\n## Tools (read-only)\n\n| Tool | Returns |\n|---|---|\n| `list_sites` | Sites the account owns |\n| `get_overview` | Visitors, visits, pageviews, bounce, duration, live, previous period |\n| `get_pages` | Top pages |\n| `get_sources` | Top sources |\n| `get_live` | Last pageview per visitor in five minutes (no heartbeat) |\n| `get_funnels` | Linear same-day funnels (Growth) |\n\n`range` is `today`, `7d`, `30d`, `90d`, or `YYYY-MM-DD..YYYY-MM-DD`. `f` is the same filter string the dashboard puts in the URL.\n\n## Docs\n\n- Product: https://www.cookiefreeanalytics.com\n- Read API + MCP: https://www.cookiefreeanalytics.com/docs/api\n- How-to: https://www.cookiefreeanalytics.com/blog/cookieless-analytics-mcp\n- Privacy: https://www.cookiefreeanalytics.com/privacy\n- Support: hello@cookiefreeanalytics.com\n\n## License\n\nMIT. Operator: Prestons Creek Capital.\n",
   "status": "curated"
 }

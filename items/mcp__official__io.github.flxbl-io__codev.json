@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.flxbl-io/codev",
+  "type": "mcp",
+  "name": "codev",
+  "description": "Connect AI agents to codev for Salesforce projects, builds, releases, validations, and insights.",
+  "author": "io.github.flxbl-io",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/flxbl-io/codev-mcp",
+    "repo": "flxbl-io/codev-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://{tenant}.flxbl.io/sfp/api/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-28T05:04:46.656965Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "<div align=\"center\">\n  <img src=\"assets/codev-icon.png\" alt=\"codev\" width=\"144\" />\n  <h1>codev MCP</h1>\n  <p><strong>Bring live Salesforce project delivery context into your AI agent.</strong></p>\n  <p>\n    <a href=\"https://docs.flxbl.io/flxbl/codev/agents/agents\">Connection guide</a>\n    ·\n    <a href=\"https://docs.flxbl.io/flxbl/sfp/api-reference/mcp\">MCP API reference</a>\n    ·\n    <a href=\"https://docs.flxbl.io/codev\">About codev</a>\n  </p>\n</div>\n\ncodev MCP gives AI agents a secure, live view of the Salesforce projects your team manages in codev. Connect Claude, Codex, GitHub Copilot, or any client that supports MCP over Streamable HTTP to understand delivery state, investigate failures, and act with the same permissions you have in codev.\n\n## What your agent can do\n\nWith codev MCP, an agent can:\n\n- Discover Salesforce projects and their repository configuration.\n- Follow builds, release candidates, releases, and what is deployed or pending in each environment.\n- Inspect pull-request validations, deployment and test results, code analysis, compliance findings, and review status.\n- Read connected work items from Jira, Azure DevOps, or GitHub.\n- Explore registered environments, Salesforce orgs, pool capacity, assignments, and review environments.\n- Query delivery performance insights for a project.\n- Fetch, extend, and release a pool environment for the signed-in user.\n\nMost capabilities are read-only. The pool environment actions are the state-changing operations, and interactive users can manage only their own assignments.\n\n## Connect\n\nEvery codev instance exposes an MCP endpoint at:\n\n```text\nhttps://<your-tenant>.flxbl.io/sfp/api/mcp\n```\n\nReplace `<your-tenant>` with your codev tenant subdomain. Do not put credentials in the client configuration: interactive clients discover codev's OAuth 2.1 authorization server and open browser sign-in when they first connect.\n\n### Claude Code\n\n```bash\nclaude mcp add --transport http codev https://<your-tenant>.flxbl.io/sfp/api/mcp\n```\n\nRun `/mcp` in Claude Code and select **codev** to complete sign-in.\n\n### Codex\n\n```bash\ncodex mcp add codev --url https://<your-tenant>.flxbl.io/sfp/api/mcp\ncodex mcp login codev\n```\n\n### Cursor\n\nInstall **codev** from the Cursor Marketplace and enter your codev tenant subdomain when prompted. For example, if your codev URL is `https://acme.flxbl.io`, enter `acme`.\n\nCursor then connects to the tenant's MCP endpoint and opens codev sign-in through OAuth when authentication is required. The marketplace configuration never stores a password or access token.\n\n### GitHub Copilot and other clients\n\nUse this generic MCP configuration:\n\n```json\n{\n  \"mcpServers\": {\n    \"codev\": {\n      \"type\": \"http\",\n      \"url\": \"https://<your-tenant>.flxbl.io/sfp/api/mcp\"\n    }\n  }\n}\n```\n\nIn VS Code with GitHub Copilot, place the configuration in `.vscode/mcp.json`. Claude Desktop and claude.ai users can add the URL as a custom connector.\n\nTo verify the connection, ask your agent:\n\n> List the available pools.\n\n## Authentication and identity\n\nInteractive connections use OAuth 2.1. Each tool call runs with the signed-in user's codev role, and pool checkouts are attributed to that user's email.\n\nCI jobs and scripted agents can use a codev application token in an `Authorization: Bearer` header. Application tokens are intended for controlled automation and can act independently of an individual user, so store them in a secret manager and grant access carefully.\n\n## Registry and implementation\n\nThis repository is the public home for codev's MCP registry metadata and connection documentation. The remote MCP implementation is delivered as part of codev; it is not duplicated in this repository and remains governed by the codev product licence.\n\nThe registry definition is maintained in [`server.json`](server.json) and published to the official MCP Registry for standards-based discovery. Downstream catalogs, including GitHub's public MCP Registry, decide independently when and which entries to index.\n\n## Documentation and support\n\n- [Connect an agent to codev](https://docs.flxbl.io/flxbl/codev/agents/agents)\n- [Complete MCP tools and actions reference](https://docs.flxbl.io/flxbl/sfp/api-reference/mcp)\n- [codev product overview](https://docs.flxbl.io/codev)\n- [Report a documentation or connection issue](https://github.com/flxbl-io/codev-mcp/issues)\n\nFor a security concern, follow the private reporting process in [SECURITY.md](SECURITY.md).\n",
+  "status": "curated"
+}

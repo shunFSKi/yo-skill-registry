@@ -1,8 +1,8 @@
 {
   "id": "mcp:official/io.github.mangelmartinezfer-hue/returncheck",
   "type": "mcp",
-  "name": "returncheck",
-  "description": "Verified return-policy answers for AI shopping agents: can this product actually be returned?",
+  "name": "ReturnCheck",
+  "description": "Can this product actually be returned? The merchant's exact clause, its URL and the date.",
   "author": "io.github.mangelmartinezfer-hue",
   "source": {
     "registry": "mcp-official",
@@ -11,13 +11,39 @@
   },
   "license": null,
   "install": {
-    "kind": "remote",
-    "remote_url": "https://returncheck.m-angelmartinez-fer.workers.dev/mcp"
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "returncheck-mcp"
+    ],
+    "env": [
+      {
+        "name": "RETURNCHECK_API_KEY",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "RETURNCHECK_URL",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "RETURNCHECK_FETCH_LOCALLY",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "RETURNCHECK_TIMEOUT_MS",
+        "required": false,
+        "secret": false
+      }
+    ]
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-08-23T09:22:38.939998Z",
-    "score": 42
+    "pushed_at": "2026-08-28T15:10:01.626961Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -49,6 +75,6 @@
     "category": null,
     "featured": false
   },
-  "readme": null,
+  "readme": "# ReturnCheck — Verified return-policy API for AI shopping agents\n\n**Can this specific product actually be returned?** ReturnCheck answers that one\nquestion for AI shopping agents, with a **verified** verdict — not a guess.\n\nGive it a `product_url` and a `buyer_country` and it returns a verdict\n(`YES` / `YES_WITH_CONDITIONS` / `NO` / `UNKNOWN`) with the **exact policy clause\nquoted from the page**, the **source URL**, the return window, and a confidence\nscore. If it cannot verify a clause on the page, it returns `UNKNOWN` — it\n**never invents**.\n\nBuilt for **agent-to-agent commerce**: an MCP tool plus x402-friendly\nmicro-pricing at **$0.02 per verified answer** (UNKNOWN is free; a keyless free\ntrial is available).\n\n---\n\n## Why it exists\n\nAI agents are starting to buy things. Before they buy, they need to know if a\npurchase is reversible — and today no one answers \"is this returnable?\" in a way\na machine can trust and act on. ReturnCheck is the neutral verification primitive\nfor that: it sells to **every** shopping agent and competes with none of them.\n\n## Quick start\n\n**MCP (Streamable HTTP)** — tool: `check_return`\n```\nhttps://returncheck.m-angelmartinez-fer.workers.dev/mcp\n```\n\n**HTTP**\n```bash\ncurl -X POST https://returncheck.m-angelmartinez-fer.workers.dev/v1/check \\\n  -H \"content-type: application/json\" \\\n  -d '{\"product_url\":\"https://store.example/p/shoe\",\"buyer_country\":\"US\",\"item_condition\":\"unopened\"}'\n```\n\nIf you already have the product/policy page rendered, pass it as `page_html` or\n`page_text` — ReturnCheck verifies against it and skips fetching (best coverage,\nbypasses sites that block server-side reads). It still never invents.\n\n## What you get back\n\n```json\n{\n  \"verdict\": \"YES_WITH_CONDITIONS\",\n  \"returnable\": true,\n  \"confidence\": 0.9,\n  \"policy\": { \"merchant_return_days\": 30, \"return_category\": \"FiniteReturnWindow\" },\n  \"evidence\": {\n    \"source_url\": \"https://store.example/policies/refund-policy\",\n    \"exact_clause\": \"Items may be returned within 30 days of delivery for a full refund.\",\n    \"verified_on\": \"2026-08-23\"\n  }\n}\n```\n\n## Pricing\n\n| | |\n|---|---|\n| Verified answer (YES / NO / conditions) | **$0.02** |\n| UNKNOWN | **Free** |\n| Keyless free trial | a few calls/day, no signup |\n\n## Discovery for agents\n\n- OpenAPI: `/openapi.json`\n- Plugin manifest: `/.well-known/ai-plugin.json`\n- Agents manifest: `/agents.json`\n- LLM manifest: `/llms.txt`\n- MCP tool list: `/mcp`\n\n## Design principles\n\n- **Never invent.** Every determinate verdict carries a clause verified literally\n  against the page. If it can't be verified, the answer is `UNKNOWN`.\n- **Frozen contract (v1.0).** Fields are only ever added, never broken.\n- **US data first, global architecture.** Runs 100% serverless on the edge\n  (Cloudflare Workers + D1 + Workers AI).\n\n## Keywords\n\nreturn policy API · returns verification · AI shopping agents · agentic commerce ·\nMCP server · check_return · x402 · agent-to-agent payments · e-commerce returns ·\nis this returnable · refund policy checker\n",
   "status": "curated"
 }

@@ -32,7 +32,7 @@
   "quality": {
     "stars": null,
     "pushed_at": "2026-08-27T17:32:33.205557Z",
-    "score": 52
+    "score": 42
   },
   "security": {
     "score": 100,
@@ -64,6 +64,6 @@
     "category": "编程",
     "featured": false
   },
-  "readme": "# MailFlat SDKs\n\nOfficial client libraries for [MailFlat](https://mailflat.net): email inboxes your code owns, with\n**one-line OTP retrieval**. Built for test suites (Selenium, pytest, Playwright) and AI agents.\n\nAddresses are **permanent**, so a suite does not need a fresh one per run. Only the messages\nexpire, on a retention window you choose.\n\n> This repo holds only the open-source SDKs. The MailFlat service itself is closed-source.\n\n## Packages\n\n| Package | For | Install |\n|---|---|---|\n| [`mailflat`](https://pypi.org/project/mailflat/) | Python | `pip install mailflat` |\n| [`@mailflat/sdk`](https://www.npmjs.com/package/@mailflat/sdk) | JavaScript / TypeScript | `npm i @mailflat/sdk` |\n| [`mailflat-mcp`](https://pypi.org/project/mailflat-mcp/) | AI assistants (Claude, Cursor) — MCP | `uvx mailflat-mcp` |\n| [`@mailflat/ai-sdk`](https://www.npmjs.com/package/@mailflat/ai-sdk) | Vercel AI SDK agents | `npm i @mailflat/ai-sdk` |\n| `mailflat.langchain` | LangChain agents | `pip install \"mailflat[langchain]\"` |\n| `mailflat-sdk` (Java) | Java / Selenium | via [JitPack](https://jitpack.io) — see below |\n\nEach client is a thin, typed wrapper over the same `/api/v1` Agent API, so they behave identically.\nAuthenticate with your account key (`mf_live_…`) from the dashboard (**Agents → API keys**).\n\n## Java / Selenium (JitPack)\n\n> JitPack derives the `groupId` from the GitHub owner. This repo moved to the official\n> `MailFlat` account in August 2026, so releases from `v0.4.4` on publish as\n> `com.github.MailFlat:mailflat-sdks`. Earlier versions still resolve under the old\n> coordinate `com.github.onderyentar21:mailflat-sdks`; the old repo stays up for them.\n> The client is moving to Maven Central (`net.mailflat`) next, which ends the owner coupling.\n\n```xml\n<repositories>\n  <repository><id>jitpack.io</id><url>https://jitpack.io</url></repository>\n</repositories>\n\n<dependency>\n  <groupId>com.github.MailFlat</groupId>\n  <artifactId>mailflat-sdks</artifactId>\n  <version>v0.4.5</version>\n</dependency>\n```\n\n```java\nMailFlat mf = new MailFlat(\"mf_live_…\");\nInbox inbox = mf.create(\"signup\");\ndriver.findElement(By.id(\"email\")).sendKeys(inbox.address());\nString otp = inbox.waitForOtp(30);          // polls until the code arrives\ndriver.findElement(By.id(\"code\")).sendKeys(otp);\n```\n\n## Quick examples\n\n**Python**\n```python\nfrom mailflat import MailFlat\nmf = MailFlat(api_key=\"mf_live_…\")\ninbox = mf.create(label=\"signup\")\notp = inbox.wait_for_otp(timeout=30)\n```\n\n**JavaScript / TypeScript**\n```ts\nimport { MailFlat } from \"@mailflat/sdk\";\nconst mf = new MailFlat({ apiKey: process.env.MAILFLAT_API_KEY });\nconst inbox = await mf.create({ label: \"signup\" });\nconst otp = await inbox.waitForOtp({ timeout: 30000 });\n```\n\n## License\n\nMIT. The full text is in `LICENSE` at the repository root; each package directory carries an identical copy.\n",
+  "readme": null,
   "status": "curated"
 }

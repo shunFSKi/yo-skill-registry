@@ -10,14 +10,20 @@
     "repo": "tonnychiulab/wordpress-plugin-setup",
     "path": ".agent/skills/memory_os/SKILL.md"
   },
-  "license": null,
+  "license": "MIT",
   "install": {
     "kind": "skill-dir"
   },
   "quality": {
-    "stars": null,
-    "pushed_at": null,
-    "score": 19
+    "stars": 4,
+    "pushed_at": "2026-02-15T11:57:47Z",
+    "score": 40,
+    "star_history": [
+      {
+        "d": "2026-08-28",
+        "s": 4
+      }
+    ]
   },
   "security": {
     "score": 100,
@@ -49,6 +55,6 @@
     "category": null,
     "featured": false
   },
-  "readme": null,
+  "readme": "# 🔧 WordPress Plugin Setup — AI 外掛開發工作流程\n\n> 一套為 [Google Antigravity](https://antigravity.google/) 設計的 **Agent Skill**，讓 AI 能從零開始幫你建立、驗證、記錄、打包 WordPress 外掛。\n\n---\n\n## ✨ 這是什麼？\n\n如果你用 Google Antigravity（AI 輔助程式開發）來開發 WordPress 外掛，這個 Skill 就像一本**標準作業手冊**——AI 會按照手冊裡的步驟，從建立外掛到打包發布，每一步都幫你做到位。\n\n**適合誰？**\n- 🆕 不太會寫程式，但想做 WordPress 外掛的人\n- 🔧 想讓 AI 按照一致的標準幫你開發外掛的人\n- 📚 想學習 WordPress 外掛開發最佳實踐的人\n\n---\n\n## 🚀 完整 8 步工作流程\n\n```\nStep 1 → Step 2 → Step 3 → Step 4 → Step 5 → Step 6 → Step 7 → Step 8\n建立架構   安裝依賴   編譯 CSS   部署啟用   語法檢查   產生文件   品質掃描   打包發布\n```\n\n| Step | 名稱 | 自動化程度 | 說明 |\n|:----:|------|:---:|------|\n| 1 | **Generate Plugin Template** | 🤖 全自動 | 用腳本一鍵建立外掛骨架，自動替換名稱 |\n| 2 | **Install Dependencies** | 🤖 全自動 | `npm install` 安裝 Tailwind CSS 依賴 |\n| 3 | **Build CSS** | 🤖 全自動 | 編譯 Tailwind CSS，輸出到 `dist/` |\n| 4 | **Activate in WordPress** | 👤 手動 | 上傳到 WordPress 並啟用外掛 |\n| 5 | **PHP Syntax Check** | 🤖 全自動 | 用 `php -l` 檢查所有 PHP 檔案語法 |\n| 6 | **Generate Documentation** | 🤝 半自動 | AI 產生文件骨架，你提供截圖 |\n| 7 | **SonarCloud Quality Check** | 🤝 半人工 | AI 準備檔案清單，你到 SonarCloud 掃描 |\n| 8 | **Package for Release** | 🤖 全自動 | 產生 README + LEARN.md + 打包 .zip |\n\n---\n\n## 📁 目錄結構\n\n```\nwordpress-plugin-setup/\n│\n├── SKILL.md                         ← AI 讀取的主指令檔\n│\n├── scripts/                         ← 🔧 自動化腳本\n│   ├── setup-plugin.bat / .sh       ← 建立外掛模板\n│   └── build-tailwind.bat / .sh     ← 編譯 Tailwind CSS\n│\n├── assets/                          ← 📦 靜態資源\n│   ├── plugin-template/             ← 外掛模板檔案\n│   │   ├── {{plugin-name}}.php      ← 主檔案（含佔位符）\n│   │   ├── admin/settings-page.php  ← 設定頁面範例\n│   │   ├── inc/class-validator.php  ← 輸入驗證類別\n│   │   └── ...                      ← Tailwind 設定檔等\n│   └── plugin-doc-template.md       ← 使用說明 MD 模板\n│\n├── examples/                        ← 📝 範例外掛\n│   └── validation-demo/             ← 輸入驗證示範外掛（完整可用）\n│\n└── references/                      ← 📚 參考文件\n    ├── validation-rules.md          ← 驗證規則大全\n    └── plugin-structure.md          ← WordPress 外掛結構規範\n```\n\n---\n\n## ⚡ 快速開始\n\n### 前置需求\n\n- [XAMPP](https://www.apachefriends.org/) 或其他 PHP 環境（需要 `php` 指令）\n- [Node.js](https://nodejs.org/)（用於 Tailwind CSS 編譯）\n- [Google Antigravity](https://antigravity.google/)（AI 編程助手）\n\n### 使用方式\n\n**方法一：直接作為 Skill 使用**\n\n將此專案 clone 到你的工作區，Antigravity 會自動讀取 `SKILL.md` 並按照流程操作：\n\n```bash\ngit clone https://github.com/你的帳號/wordpress-plugin-setup.git\n```\n\n然後在 Antigravity 中對話：\n> 「幫我建立一個叫 My Cool Plugin 的 WordPress 外掛」\n\nAI 就會自動按照 8 步流程開始工作。\n\n**方法二：放到其他專案的 `.agent/skills/` 中**\n\n```bash\n# 在你的 WordPress 專案中\nmkdir -p .agent/skills\ngit clone https://github.com/你的帳號/wordpress-plugin-setup.git .agent/skills/wordpress-plugin-setup\n```\n\n### 手動建立外掛\n\n不用 AI 也能用腳本建立外掛：\n\n```cmd\n# Windows\nscripts\\setup-plugin.bat \"My Plugin Name\" .\\output-directory\n\n# Mac / Linux\n./scripts/setup-plugin.sh \"My Plugin Name\" ./output-directory\n```\n\n---\n\n## 🛡️ 輸入驗證三層優先順序\n\n本 Skill 遵循的驗證優先順序原則：\n\n```\n🔵 WordPress 官方函式（第一優先）\n  ↓ 如果 WordPress 沒有\n🐘 PHP 內建函式（第二優先）\n  ↓ 如果 PHP 也沒有\n🟠 OWASP 正規表示式（第三優先）\n```\n\n| 優先順序 | 來源 | 範例 |\n|:--------:|------|------|\n| 1️⃣ | 🔵 WordPress | `sanitize_email()`、`is_email()`、`sanitize_hex_color()` |\n| 2️⃣ | 🐘 PHP | `filter_var()`、`ctype_alpha()`、`preg_match()` |\n| 3️⃣ | 🟠 OWASP | 密碼複雜度 regex、MAC 位址 regex |\n\n詳見 [references/validation-rules.md](references/validation-rules.md)\n\n---\n\n## 📎 範例外掛：Validation Demo\n\n`examples/validation-demo/` 包含一個完整可用的示範外掛，展示 12 種輸入驗證：\n\n- **Email**、**CSS 色碼**、**URL Slug**（WordPress 函式）\n- **IPv4**、**純數字**、**正整數**、**英文字母**、**英數字**（PHP 函式）\n- **台灣手機號碼**、**身分證字號**、**日期格式**（自訂 regex）\n- **密碼複雜度**、**MAC 位址**（OWASP regex）\n\n> 可直接安裝到 WordPress 測試站使用。\n\n---\n\n## 🤖 什麼是 Agent Skill？\n\nAgent Skill 是一種開放、輕量的格式，用來教 AI 助手特定領域的知識和工作流程。Skill 的核心是一個 `SKILL.md` 檔案，AI 會在需要時自動讀取並按照指示操作。\n\n想像你僱了一個新助手，你不需要每次都從頭教他怎麼做事——你給他一本 SOP 手冊（`SKILL.md`），他就能按照手冊自己完成工作。\n\n更多資訊：[Antigravity Skills 文件](https://antigravity.google/docs/skills)\n\n---\n\n## 📄 授權\n\nMIT License\n\n---\n\n## 🙌 貢獻\n\n歡迎提交 Issue 和 Pull Request！如果你有好用的驗證規則或外掛模板想分享，歡迎貢獻。\n",
   "status": "curated"
 }

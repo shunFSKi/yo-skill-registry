@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.munhq/distil",
+  "type": "mcp",
+  "name": "distil",
+  "description": "Context optimization for LLM agents: tool registry, result masking, budgeting, compaction.",
+  "author": "io.github.munhq",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/munhq/distil",
+    "repo": "munhq/distil"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@munhq/distil"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-28T14:31:49.044291Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "AI",
+    "featured": false
+  },
+  "readme": "<img src=\"docs/brand/logo.svg\" alt=\"distil\" width=\"210\" height=\"70\">\n\n[![npm](https://img.shields.io/npm/v/%40munhq%2Fdistil?label=npm&color=cb3837)](https://www.npmjs.com/package/@munhq/distil)\n[![MCP Registry](https://img.shields.io/badge/MCP%20Registry-io.github.munhq%2Fdistil-000)](https://registry.modelcontextprotocol.io/v0/servers?search=distil)\n[![Smithery](https://img.shields.io/badge/Smithery-munhq%2Fdistil-7c3aed)](https://smithery.ai/servers/munhq/distil)\n[![license](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue)](LICENSE-MIT)\n\n[![Install in Cursor](https://img.shields.io/badge/Install-Cursor-000?logo=cursor)](cursor://anysphere.cursor-deeplink/mcp/install?name=distil&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyIteSIsIkBtdW5ocS9kaXN0aWwiXX0=)\n[![Install in VS Code](https://img.shields.io/badge/Install-VS%20Code-007ACC?logo=visualstudiocode)](vscode:mcp/install?%7B%22name%22%3A%22distil%22%2C%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22%40munhq%2Fdistil%22%5D%7D)\n\n```\nclaude mcp add distil -- npx -y @munhq/distil\n```\n\nNo account, no API key, nothing to configure. The package is a small wrapper that\nfetches the binary for your platform and verifies it against the published\nchecksums; `install.sh` and a prebuilt binary remain for anyone without Node.\n\n---\n\nMeasure what context compression actually costs, on real agent traffic.\n\nEvery tool in this space publishes a savings percentage measured on its own\nfixtures. What none publishes is the denominator: what share of a real session\nit is allowed to touch, and what that share costs once prompt-cache pricing is\napplied. `distil` measures both on transcripts an agent actually wrote.\n\n**What is prior art, and what is not.** The cache arithmetic below is not a\ndiscovery. Anthropic's [context editing\ndocs](https://platform.claude.com/docs/en/build-with-claude/context-editing)\nstate that clearing tool results invalidates the cached prefix, and ship\n`clear_at_least` so a clear only fires when it is large enough to pay for that.\nThe break-even rule is published too: on a 5-minute cache, cleared tokens times\nrequests-before-the-next-clear must exceed 11.5 times the tokens you keep. The\ntable in this README reproduces that rule exactly — it was derived\nindependently, which is a check on the arithmetic, not a contribution.\n\nThe gap is empirical. Every source says to calibrate against your own workload,\nand none ships a way to do it or publishes what the values turn out to be. That\nis what this crate is for: measuring the numbers you need in order to choose\n`clear_at_least`, or to decide not to clear at all.\n\n## The result that shapes the rest\n\nMeasured over 13,681 local Claude Code transcripts — 366,008 assistant turns,\n195M tokens of unique text:\n\n| | tokens | share |\n|---|---|---|\n| tool results | 117,460,908 | 60.1% |\n| tool calls | 32,391,631 | 16.6% |\n| user text | 29,363,474 | 15.0% |\n| assistant text | 14,187,961 | 7.3% |\n| thinking | 2,076,716 | 1.1% |\n\nThose 195M unique tokens were billed as **100.6 billion input tokens** — every\ntoken paid for 515 times, because a request resends the whole history.\n\nPrice that at real cache multipliers (read 0.1x, write 1.25x for the 5-minute\nTTL and 2.0x for the 1-hour):\n\n| | share of tokens | share of **cost** |\n|---|---|---|\n| cache read | 97.8% | 71.1% |\n| cache writes | **2.1%** | **28.1%** |\n\n**Cache writes are 2% of the tokens and 28% of the bill.** Editing history\ninvalidates the cached prefix from the edit onwards, converting reads at 0.1x\ninto writes at 1.25x or 2.0x. So a rewrite must shrink what it invalidates below:\n\n| turns remaining | 5m TTL | 1h TTL |\n|---|---|---|\n| 1 | 8.0% | 5.0% |\n| 10 | 46.5% | 34.5% |\n| 20 | 63.5% | 51.3% |\n| 100 | 89.7% | 84.0% |\n\nThat table is the published break-even rule in another form: at every row,\n`cleared x turns / kept` equals 11.5 for the 5-minute tier. Use it to pick a\n`clear_at_least` value, and use `distil-bench` to find the turn count and tail\nsize to put into it — those are workload properties, and they are the part\nnobody publishes.\n\nPer unit of history, at 10 remaining turns: keeping it costs 1.00, compressing\nit costs 2.15, and never admitting it costs 0. **You cannot compress your way\nout of context cost. You can only decline to admit tokens.**\n\n## What that means for using this crate\n\nLayers that do not touch history are on the right side of that arithmetic:\n`CacheAlignLayer` (orders content so the stable prefix stays cacheable) and\n`ScratchpadLayer` (keeps working state outside the window).\n\nLayers that rewrite history — `MaskingLayer`, `SummarizationLayer`,\n`CompactionLayer` — cost more than they save in the common case. Reach for them\nat one boundary only: **context overflow**, where the alternative is a failed\nrequest and cache price stops being the comparison. `BudgetLayer` exists for\nexactly that moment.\n\n`RegistryLayer` and `CodeModeLayer` predate Anthropic's Tool Search Tool and\nProgrammatic Tool Calling, which do the same jobs natively and better. Prefer\nthe native features.\n\nFor clearing old tool results, prefer the provider's `clear_tool_uses` context\nediting over `MaskingLayer`: it runs server-side, it takes `clear_at_least`, and\nit is one API parameter against a dependency. Reach for a layer here only when\nyou need behaviour the API does not offer.\n\n## Measuring\n\n```bash\ncargo build --features bench --release\n\n# Where tokens are, what they cost, and the break-even table\n./target/release/distil-bench ~/.claude/projects --json baseline.json\n\n# Sessions that called a given tool, against those that did not\n./target/release/distil-bench ~/.claude/projects --split-by-tool mcp__codeindex__\n\n# Export real traffic so other compressors run on the same input\n./target/release/distil-bench ~/.claude/projects --export-sessions ./sessions --min-turns 40\n```\n\nSee [`bench/README.md`](bench/README.md) for the external-tool comparison, the\nfairness rules, and the two harness mistakes that produced wrong numbers first.\n\n## Retention\n\nA saving is only a saving if the model can still answer what the original\ncontext could answer.\n\n```bash\n# No LLM judge: file paths checked against ground truth from the transcript\npython bench/artifact_retention.py ./sessions 12\n\n# LLM-graded probes (recall / artifact / continuation / decision)\ncargo build --features probe --release\n./target/release/distil-probe <session.jsonl> --probes 6 --model qwen2.5:3b\n```\n\nThe probe taxonomy is [Factory.ai's](https://factory.ai/news/evaluating-compression);\ntheir write-up defines it and ships no harness. The judge is a `Completer`,\nnever a `Summarizer` — a summarizer may impose summarization framing, which\nrewrites both the probe format and the grading instruction.\n\n## Using it as a library\n\n```rust\nuse distil::{CacheAlignLayer, Ctx, EstimateCounter, Pipeline};\n\nlet pipeline = Pipeline::builder()\n    .counter(EstimateCounter)\n    .layer(CacheAlignLayer::generic())\n    .build();\n\nlet mut ctx = Ctx::new(messages, tools, turn);\nlet result = pipeline.optimize(&mut ctx);\nprintln!(\"{result}\");\n```\n\nThis example is kept compilable as\n[`examples/readme_quickstart.rs`](examples/readme_quickstart.rs) — run it with\n`cargo run --example readme_quickstart`.\n\nEvery layer implements `Layer` and reports `tokens_before`, `tokens_after` and a\ndetail line, so each one can be measured on its own.\n\n## Features\n\n| feature | what it adds |\n|---|---|\n| `corpus` | transcript loader (no extra dependencies) |\n| `bench` | `distil-bench`, needs `tiktoken` |\n| `probe` | `distil-probe`, needs `proxy` for the HTTP judge |\n| `tiktoken` | accurate BPE counts instead of the chars/3.5 estimate |\n| `proxy` | `distil-proxy` HTTP server |\n| `mcp` | `distil-mcp` MCP server |\n| `metrics` | Prometheus `/metrics` |\n\n## Install\n\n```\n./install.sh                       # binaries, the skill, and the MCP server\n/plugin marketplace add munhq/distil\n/plugin install distil             # Claude Code: skill and server in one step\n```\n\n`install.sh` installs both binaries, drops the skill into every Claude home it\nfinds, and registers the MCP server at user scope. When the plugin is already\ninstalled it installs the binary only, since the plugin declares the server and\nships the skill itself.\n\nThe plugin launches the server with `npx -y @munhq/distil`, so it needs Node.\nIt cannot use a plugin-relative path: Claude Code expands `${CLAUDE_PLUGIN_ROOT}`\nand nothing else does, so a plugin declaring one hands every other client a\nliteral path that does not exist. `install.sh` and the prebuilt binaries remain\nfor anyone without Node.\n\n### Platform support\n\n| platform | binaries | scripts |\n|---|---|---|\n| Linux x86_64 / arm64 | released, tested | yes |\n| macOS x86_64 / arm64 | released, built in CI | yes |\n| Windows x86_64 / arm64 | released, built in CI | needs a shell: Git Bash, MSYS2 or WSL |\n\nThe release publishes six targets and `plugin/test_platform.sh` holds both the\ninstaller and the plugin launcher to that matrix, so an asset name and the name\nasked for cannot drift apart. `install.sh` and the launcher are bash scripts, so\non Windows they need a shell — `cmd` and PowerShell cannot run them. Linux\nbinaries are static musl builds, so they do not need a matching glibc.\n\n## Caveats\n\nThe corpus is one developer's machine. The **ratios** are the finding; the\nabsolute totals are personal. Counts use `cl100k_base`, which approximates\nClaude's tokenizer within a few percent. The break-even model assumes a single\ncache breakpoint, so a rewrite confined to the tail costs less than the table\nshows — that refines it, it does not reverse it.\n\n## Contributing\n\nBuild and test instructions, the rules a benchmark change has to follow, and what\na pull request needs before review: [`CONTRIBUTING.md`](CONTRIBUTING.md).\nReport a vulnerability privately — [`SECURITY.md`](SECURITY.md).\n\n## License\n\nLicensed under either of\n\n- Apache License, Version 2.0 ([LICENSE-APACHE](LICENSE-APACHE))\n- MIT license ([LICENSE-MIT](LICENSE-MIT))\n\nat your option.\n\nUnless you explicitly state otherwise, any contribution you intentionally submit\nfor inclusion in this work, as defined in the Apache-2.0 license, shall be dual\nlicensed as above, without any additional terms or conditions.\n",
+  "status": "curated"
+}

@@ -1,0 +1,64 @@
+{
+  "id": "mcp:official/io.github.phil-bryant/spot-ai-mcp",
+  "type": "mcp",
+  "name": "Spot AI MCP (Unofficial)",
+  "description": "Unofficial community MCP server for the Spot AI camera and video-intelligence REST API. Read-only.",
+  "author": "io.github.phil-bryant",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/phil-bryant/spot-ai-mcp",
+    "repo": "phil-bryant/spot-ai-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "spot-ai-mcp"
+    ],
+    "env": [
+      {
+        "name": "SPOT_AI_API_KEY",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-28T08:03:42.103761Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "<!-- mcp-name: io.github.phil-bryant/spot-ai-mcp -->\n\n# spot-ai-mcp\n\n**Unofficial community MCP server for the [Spot AI](https://developers.spot.ai)\ncamera / video-intelligence REST API. Not affiliated with or endorsed by Spot AI.**\n\nSingle-file, stdio transport, no dependencies beyond Python 3.9+.\nRead-only by design: only GET endpoints are exposed, so it can browse cameras and\nintelligence data but can never modify anything in your Spot AI org.\n\n## Install\n\n```bash\nuvx spot-ai-mcp\n```\n\nor `pip install spot-ai-mcp`, or run straight from a checkout with\n`python3 -m spot_ai_mcp` (no dependencies to install).\n\nRegister with Claude Code:\n\n```bash\nclaude mcp add spot-ai -s user -e SPOT_AI_API_KEY=YOUR_KEY -- uvx spot-ai-mcp\n```\n\n## API key\n\nCreate a key in the Spot AI dashboard's API settings, then **add an authorization**\n(a role, e.g. Owner, optionally scoped) on the key's settings page. A key without a\nrole returns empty lists from every resource endpoint while `get_camera_count` still\nworks — that's the tell.\n\nThe server resolves the key lazily on the first API call:\n\n1. `SPOT_AI_API_KEY` environment variable — the normal path.\n2. Optionally, a secret-helper command, so the key never sits in an env var or config:\n   the server runs `$SPOT_AI_OP_BIN -f $SPOT_AI_OP_ITEM $SPOT_AI_OP_FIELD`\n   (defaults `1psa -f spot.ai api_key`, per [1psa](https://github.com/phil-bryant/1psa),\n   a vault-scoped 1Password service-account CLI). Point these at any command with the\n   same flag convention.\n\nThe key is never written to disk or config by this server.\n\n## Tools\n\n| Tool | What it does |\n|------|--------------|\n| `list_locations` | Locations the key can see (paginated) |\n| `list_cameras` | Cameras with status, location, IP, MAC (paginated) |\n| `get_camera` | One camera by id |\n| `get_camera_count` | Number of enabled cameras in the org |\n| `list_appliances` | Intelligent Video Recorders (paginated) |\n| `get_zones` | Zones defined on a camera |\n| `get_intelligence` | Counting / idle / presence events for people, vehicles, or forklifts over a date range |\n| `get_lpr_report` | License-plate-recognition report for an LPR camera |\n| `spot_api_get` | Escape hatch: GET any documented `/v1/` or `/v2/` path |\n\n## Notes\n\n- Dual-era MCP server: speaks both the modern per-request protocol\n  (`server/discover`, spec 2026-07-28) and the legacy `initialize` handshake\n  (2024-11-05 through 2025-06-18), so old and new clients both work.\n- Base URL is `https://dev-api.spot.ai`, auth is `Authorization: Bearer <key>`.\n- Cloudflare in front of the API rejects Python's default user agent with error 1010;\n  the server sends `User-Agent: spot-ai-mcp/<version>`.\n- Endpoint index: <https://developers.spot.ai/llms.txt> (append `.md` to any docs URL\n  for markdown, including the OpenAPI definition per endpoint).\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

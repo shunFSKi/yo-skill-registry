@@ -2,7 +2,7 @@
   "id": "mcp:official/io.github.attestifyagent/attestify-mcp",
   "type": "mcp",
   "name": "Attestify OS",
-  "description": "MCP stdio server for Attestify OS — governed agent execution with on-chain receipts.",
+  "description": "MCP stdio server for Attestify OS — governed agent execution and Attestify Trust signed evidence.",
   "author": "io.github.attestifyagent",
   "source": {
     "registry": "mcp-official",
@@ -27,13 +27,23 @@
         "name": "ATTESTIFY_API_KEY",
         "required": false,
         "secret": true
+      },
+      {
+        "name": "TRUST_AGENT_ID",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "TRUST_PRIVATE_KEY",
+        "required": false,
+        "secret": true
       }
     ]
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-08-13T16:11:16.547999Z",
-    "score": 42
+    "pushed_at": "2026-08-28T11:27:19.321174Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -62,9 +72,9 @@
     ]
   },
   "tags": {
-    "category": "金融",
+    "category": null,
     "featured": false
   },
-  "readme": null,
+  "readme": "# attestify-mcp\n\n> MCP server exposing Attestify OS agents — and [Attestify Trust](https://attestifyos.com/trust)'s no-wallet agent identity + signed evidence — as callable tools for Claude Desktop, Cursor, Windsurf, and any MCP-compatible host.\n\nAttestify OS is infrastructure for AI agents operating in financial, compliance, and regulated workflows. Every governed run delivers: routing → governance enforcement → budget check → SLA check → execution → output verification → immutable receipt → on-chain settlement evidence.\n\n**Live base URL:** `https://attestifyos.com`\n\nThis package is a real [Model Context Protocol](https://modelcontextprotocol.io) stdio server — your MCP host spawns it as a subprocess and talks JSON-RPC to it directly. It is not a plain HTTP client library.\n\n## Quick start\n\nAdd to your MCP host's config (e.g. Claude Desktop's `claude_desktop_config.json`):\n\n```json\n{\n  \"mcpServers\": {\n    \"attestify\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"attestify-mcp\"],\n      \"env\": {\n        \"ATTESTIFY_BASE_URL\": \"https://attestifyos.com\",\n        \"ATTESTIFY_API_KEY\":  \"<your-tenant-api-key>\",\n        \"TRUST_AGENT_ID\":     \"<optional — see Attestify Trust below>\",\n        \"TRUST_PRIVATE_KEY\":  \"<optional — see Attestify Trust below>\"\n      }\n    }\n  }\n}\n```\n\n`ATTESTIFY_API_KEY` is a tenant API key issued via `POST /api/keys` — it's sent as the `X-API-Key` header on every run. Without one, runs are unauthenticated and subject to the plan/x402 limits that apply to anonymous callers.\n\n`TRUST_AGENT_ID` / `TRUST_PRIVATE_KEY` are optional and unlock two more tools — see [Attestify Trust](#attestify-trust) below.\n\n## Tools\n\n### `attestify_research`\n\nRuns a deep research query through the Attestify Research Agent (`researcher-v2`) via `POST /api/run`. Returns a structured briefing with executive summary, key findings, and caveats. Each call is metered at $0.023 USDC and logged to the Attestify evidence ledger.\n\n**Arguments:**\n\n| Field | Required | Description |\n|---|---|---|\n| `query` | Yes | The research question, topic, or subject to investigate. |\n| `url` | No | Optional source URL to include as context for the research run. |\n| `session_id` | No | Optional session ID for conversation continuity. |\n\n**Returns:** a JSON blob with `summary`, `loop_id`, `run_id`, `input_hash`, `output_hash`, `price_usdc`, `agent_id`, `receipt_url`, and `created_at`.\n\n### `attestify_trust_submit_evidence` / `attestify_trust_verify`\n\nAvailable whenever `TRUST_AGENT_ID` and `TRUST_PRIVATE_KEY` are both set. A separate concern from `attestify_research` above — no x402, no lanes, no spend, no wallet at any point.\n\n`attestify_trust_submit_evidence` signs (Ed25519, via Node's built-in `node:crypto` — no extra dependency) and submits evidence that the agent completed real work, returning a signed, timestamped, publicly verifiable receipt.\n\n| Field | Required | Description |\n|---|---|---|\n| `summary` | Yes | Plain-language description of the work done. Gets signed and permanently recorded. |\n| `schema` | No | Evidence schema version. Default `work-completion/v1`. |\n| `action_basis` | No | `explicit` (default) or `discretionary`. |\n\n`attestify_trust_verify` independently re-verifies any receipt by ID — public, no API key needed, works for receipts from any agent.\n\n| Field | Required | Description |\n|---|---|---|\n| `receipt_id` | Yes | The receipt ID to verify. |\n\n**Getting `TRUST_AGENT_ID` / `TRUST_PRIVATE_KEY`:** run this once, outside of any MCP session — never generate a fresh identity per session, it would both break the agent's own verified-active streak and add noise to Attestify's public census instead of a real, citable number:\n\n```bash\nnpx attestify trust-init --name \"My MCP Agent\"\n```\n\nThis registers a free Trust agent, generates its Ed25519 signing key locally, and prints the two values to set in your MCP host's config. The private key never leaves your machine except as a signature.\n\n## Enterprise self-serve\n\nIssue a tenant key, set a budget, attach policies — every subsequent run through this server is auto-governed:\n\n```\n1. POST /api/keys      → issue tenant API key\n2. POST /api/budgets   → set USDC spend ceiling\n3. POST /api/policies  → attach governance rules\n4. (this MCP server)   → every run auto-enforced\n```\n\n## Links\n\n- **Homepage:** https://attestifyos.com\n- **Attestify Trust:** https://attestifyos.com/trust\n- **Quickstart:** https://attestifyos.com/quickstart\n- **OpenAPI spec:** https://attestifyos.com/openapi.json\n- **x402 discovery:** https://attestifyos.com/.well-known/x402.json\n- **GitHub:** https://github.com/attestifyagent/attestify-mcp\n",
   "status": "curated"
 }

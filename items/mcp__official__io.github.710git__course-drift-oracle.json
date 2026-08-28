@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.710git/course-drift-oracle",
+  "type": "mcp",
+  "name": "Course Drift Oracle",
+  "description": "Signed drift reports for the ai-agents-for-beginners course. Free summary; $0.25 full report.",
+  "author": "io.github.710git",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/710git/course-drift-oracle",
+    "repo": "710git/course-drift-oracle"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://signetworks.atelieri.workers.dev/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-28T06:41:07.38297Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "写作",
+    "featured": false
+  },
+  "readme": "# Course Drift Oracle\n\nA signed drift report for Microsoft's [ai-agents-for-beginners](https://github.com/microsoft/ai-agents-for-beginners)\ncourse. It scans the course for two things that go wrong quietly:\n\n- **model pins** that name a deployment which is deprecated or scheduled to\n  retire\n- **package version floors** whose open `>=` requirement now resolves to a\n  newer major version than the course was written against\n\nBoth are invisible in a diff. Nothing in a course repo tells you a pinned\nmodel is about to stop serving, or that `pip install` today pulls a package\ntwo majors ahead of what the lessons assume. Answering that question takes\nsomeone actually checking each pin against the platform's own retirement\ncalendar and the package's real release history. This repository does that\nchecking, continuously, and sells the result as a signed report.\n\n## Why trust it\n\nEvery report is signed, not just asserted:\n\n- **Ed25519 signatures over RFC 8785 canonical JSON.** The exact bytes that\n  were signed can be reconstructed and re-hashed by anyone, in any language.\n  A Python-signed receipt verifies against the TypeScript verifier with no\n  shared trust between them - see `oracle/receipt.py` (signs) and\n  `worker/src/logic.ts` (verifies).\n- **Append-only publication chain.** Every report ever published is a link\n  in `oracle/chain.jsonl`, each entry pointing at the hash of the one before\n  it. Drop an entry, edit one, or reorder two and every later link stops\n  matching. `oracle/verify_chain.py` checks this independently of the code\n  that writes it.\n- **`verify_report` is free.** Call it before paying to confirm the free\n  summary's claims are backed by a real signature, and after paying to\n  confirm the paid report matches the hash the free summary already\n  committed to. A seller who serves fewer findings than promised gets\n  caught by arithmetic, not by trust.\n- **This repository is the source.** Nothing here is a description of the\n  product; it is the product's actual scanner, signing code, and server,\n  in the same form that runs the live service.\n\n## Use it in five minutes\n\nThe service is an MCP server over streamable HTTP:\n\n```\nhttps://signetworks.atelieri.workers.dev/mcp\n```\n\nFour tools:\n\n| Tool | Price | Returns |\n|---|---|---|\n| `drift_summary` | free | finding counts by severity and lesson, plus a signed receipt |\n| `verify_report` | free | checks a receipt's signature and, optionally, that a findings array matches it |\n| `drift_report` | $0.25 | every finding: file, line, diagnosis, fix. Paid via MPP (Tempo testnet) |\n| `drift_report_x402` | $0.25 | the same report, paid via x402/USDC |\n| `model_status` | free | one model id in, its signed catalog entry out: current, deprecated, retired, or an honest \"unknown: not in catalog\" |\n| `model_status_batch` | $0.10 | a list of model ids in, one entry per id plus an `any_action_needed` gate boolean, paid via MPP (Tempo testnet) |\n| `model_status_batch_x402` | $0.10 | the same batch lookup, paid via x402/USDC |\n\nA typical run:\n\n1. Call `drift_summary`. It costs nothing and returns a signed receipt\n   describing how many findings exist, their severity, and which lessons\n   are affected. Decide from that whether the full report is worth buying.\n2. Call `verify_report` with the receipt from step 1. Confirm the signature\n   is valid before you pay anything.\n3. Pay $0.25 and call `drift_report` (or `drift_report_x402` if you are\n   paying with USDC). You get every finding with a file, a line number,\n   what is wrong, and the fix.\n4. Call `verify_report` again, this time passing the findings array you\n   just received alongside the same receipt. Confirm the hash matches -\n   this is what proves you got everything you paid for, not a trimmed\n   version of it.\n\n## Verifying a receipt yourself\n\nEvery response carries a `receipt` object: a signed statement of what was\nfound, when, and by which key, chained to every report published before it.\n`verify_report` does the check for you over MCP, but nothing about it is a\nblack box - the two files that do the actual work are short and readable:\n\n- `oracle/receipt.py` builds and signs a receipt: canonicalize the payload\n  (RFC 8785), hash it (SHA-256), sign the hash (Ed25519).\n- `worker/src/logic.ts` does the same steps in TypeScript to check a\n  signature. Read both side by side and there is nothing left to take on\n  faith.\n\n`oracle/verify_chain.py` walks the full publication history in\n`oracle/chain.jsonl` and confirms every signature is valid and every entry\nlinks correctly to the one before it - the check a buyer or an outside\nauditor would run against the whole record, not just one receipt.\n\n## Payments\n\nTwo rails carry identical goods:\n\n- **MPP** (Machine Payments Protocol) is designed to settle by card or\n  stablecoin; this deployment currently charges on the Tempo testnet.\n- **x402** settles in USDC and exists mainly for discovery: agents that\n  search for services through the x402 Bazaar only find ones that settle\n  through an x402 facilitator.\n\n**Both rails currently run on testnets** - MPP against the Tempo testnet,\nx402 against Base Sepolia. Nothing here has taken a real payment yet. That\nis stated plainly rather than glossed over: verify the mechanics work\nbefore relying on either rail for anything that matters to you.\n\n## What this repository contains\n\n```\noracle/     the scanner and the signing code\nworker/     the MCP server: two free tools, two paid tools, HTTP 402\nweb/        the storefront pages served alongside the endpoint\nclients/    an independent buyer client - run it yourself before you pay\n```\n\n`Project-Office`, the private repository this mirror is drawn from, holds\nthe day-to-day working process, deploy automation, and credentials. None of\nthat is needed to use or verify this service, so none of it is here.\n\n## Honest limits\n\n- Payments settle on testnets, not mainnet, as of this writing.\n- The model and package catalog this scanner checks against is maintained\n  by hand and covers a limited set of models today. Coverage expands every\n  cycle; it is not exhaustive yet.\n- Signature verification proves a report was produced by this service and\n  has not been altered. It does not prove the report is correct - that\n  claim rests on the sources cited inside each finding, which you are free\n  to check yourself.\n\n## License\n\nNo license file is included. Absent one, all rights are reserved by\ndefault; this is a decision for the repository owner to make explicitly,\nnot an oversight.\n\n## Contact\n\npm.agent.svc@gmail.com\n",
+  "status": "curated"
+}

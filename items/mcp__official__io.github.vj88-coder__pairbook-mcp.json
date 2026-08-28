@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.vj88-coder/pairbook-mcp",
+  "type": "mcp",
+  "name": "pairbook-mcp",
+  "description": "Correlation and ETF overlap for 4,700+ US stocks and ETFs, any of 11.3M pairs. Free, no API key.",
+  "author": "io.github.vj88-coder",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/vj88-coder/pairbook-mcp",
+    "repo": "vj88-coder/pairbook-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "pairbook-mcp"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-28T11:17:17.977002Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "金融",
+    "featured": false
+  },
+  "readme": "# pairbook-mcp\n\n[![npm](https://img.shields.io/npm/v/pairbook-mcp)](https://www.npmjs.com/package/pairbook-mcp) [![license: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)\n\nMCP server and CLI for [PairBook](https://www.pairbook.io), the correlation and ETF-overlap engine covering 4,700+ US stocks and ETFs. Any of the 11.3 million possible pairs can be compared: 52,000+ popular pairs come precomputed with issuer-sourced holdings overlap, and every other combination is computed on demand from weekly return series. The underlying JSON API is free and static, needs no key, and refreshes every trading day after the US close.\n\nAsk your AI assistant things like *\"how correlated are QQQ and VOO, and how much do they overlap?\"* or *\"find me diversifiers for NVDA\"* and it can answer with fresh, sourced numbers instead of guessing.\n\n## MCP setup\n\n**Claude Code**\n\n```bash\nclaude mcp add pairbook -- npx -y pairbook-mcp\n```\n\n**Cursor**: one-click install with [![Add to Cursor](https://img.shields.io/badge/Add%20to-Cursor-black)](cursor://anysphere.cursor-deeplink/mcp/install?name=pairbook&config=eyJjb21tYW5kIjogIm5weCIsICJhcmdzIjogWyIteSIsICJwYWlyYm9vay1tY3AiXX0=)\n\n**Claude Desktop**: add this to `claude_desktop_config.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"pairbook\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"pairbook-mcp\"]\n    }\n  }\n}\n```\n\nAny other MCP client works the same way: run `npx -y pairbook-mcp` over stdio.\n\n## Tools\n\n| Tool | What it answers |\n|---|---|\n| `compare_pair` | Correlation (1/3/5y, weekly), covariance, beta vs S&P 500, volatility and holdings overlap for two assets |\n| `symbol_profile` | One asset: beta, volatility, returns, most correlated assets |\n| `find_diversifiers` | Lowest/most negative 3-year correlations to a given asset |\n| `weekly_returns` | Weekly return series (up to 156 weeks) for custom math |\n| `resolve_symbol` | \"nvidia\" → NVDA across the covered universe |\n\n## CLI\n\nThe same data in your terminal, no install needed:\n\n```bash\nnpx -y -p pairbook-mcp pairbook QQQ VOO\n```\n\nor after `npm i -g pairbook-mcp`:\n\n```bash\npairbook QQQ VOO         # compare two assets\npairbook NVDA            # one asset's profile\npairbook search nvidia   # find a ticker\npairbook AAPL MSFT --json\n```\n\nExit codes: 0 on success, 1 on any error (errors go to stderr). `--json` prints one valid JSON document on stdout, so `pairbook qqq voo --json | jq .correlation_weekly` just works.\n\n```text\nDGRO vs SCHD  (data as of 2026-08-27)\n  correlation   1y 0.74   3y 0.88   5y 0.93\n  beta vs SPY   DGRO 0.65   SCHD 0.52\n  volatility    DGRO 11.4%   SCHD 12.9%\n  overlap       20.8% across 32 common holdings (issuer files 2026-08-26)\n  https://www.pairbook.io/pair/dgro-vs-schd/\n```\n\n## Scope\n\nPairBook is a specialist: correlation, overlap and diversification structure. It pairs well with a general market-data MCP server that brings quotes, fundamentals and news, so install both and let your assistant combine them.\n\n## Data\n\nEverything comes from the free [PairBook API](https://www.pairbook.io/api/): correlations computed on weekly returns (1/3/5-year windows), overlap from issuer portfolio disclosures, recomputed every trading day. The dataset is also published as [CSV downloads](https://www.pairbook.io/data/) with a DOI.\n\nFree with attribution (a link back to [pairbook.io](https://www.pairbook.io)). US-listed stocks and ETFs only. **Nothing here is investment advice.**\n\n## Privacy\n\nThe server and CLI run entirely on your machine and are read-only. They call a single host (www.pairbook.io) to fetch public market data, identify themselves with a version and surface string in the user agent, and send nothing else: no prompts, no conversation content, no personal data, no telemetry. Full policy: [pairbook.io/privacy](https://www.pairbook.io/privacy/).\n\n## License\n\n[MIT](LICENSE) © VoidLab\n",
+  "status": "curated"
+}

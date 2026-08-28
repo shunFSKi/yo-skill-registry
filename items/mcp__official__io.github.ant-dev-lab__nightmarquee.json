@@ -1,0 +1,75 @@
+{
+  "id": "mcp:official/io.github.ant-dev-lab/nightmarquee",
+  "type": "mcp",
+  "name": "nightmarquee",
+  "description": "16 cinematic website prompts as slash commands, tuned for Lovable, Bolt, Cursor and Claude.",
+  "author": "io.github.ant-dev-lab",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/ant-dev-lab/nightmarquee-mcp",
+    "repo": "ant-dev-lab/nightmarquee-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "nightmarquee"
+    ],
+    "env": [
+      {
+        "name": "NIGHTMARQUEE_TOKEN",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "NIGHTMARQUEE_NO_TELEMETRY",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "NIGHTMARQUEE_TIMEOUT_MS",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-28T07:29:46.402903Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "AI",
+    "featured": false
+  },
+  "readme": "# nightmarquee\n\nCinematic website prompts with live previews, inside your editor.\n\n16 art-directed prompts for hero sections, landing pages, SaaS, portfolio,\ne-commerce and 3D/WebGL scenes — each tuned for Lovable, Bolt, Cursor and\nClaude, each with a live demo you can scroll.\n\nAn MCP (Model Context Protocol) stdio server. Node 20 or newer.\n\n## Install\n\n**Claude Code**\n\n```bash\nclaude mcp add nightmarquee -- npx -y nightmarquee\n```\n\n**Claude Desktop / Cursor** — add to your MCP config:\n\n```json\n{\n  \"mcpServers\": {\n    \"nightmarquee\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"nightmarquee\"]\n    }\n  }\n}\n```\n\nClaude Desktop reads `~/Library/Application Support/Claude/claude_desktop_config.json`\non macOS and `%APPDATA%\\Claude\\claude_desktop_config.json` on Windows. Cursor\nreads `~/.cursor/mcp.json`, or `.cursor/mcp.json` inside a project.\n\nNo account needed. Free prompts work immediately.\n\n## Use\n\n- `nightmarquee_search_prompts` — browse by `query`, `category` or `tier`\n- `nightmarquee_get_prompt` — fetch one by `slug`, optionally with your own\n  `brand` name and a `tool` dialect (`lovable`, `bolt`, `cursor`, `claude`)\n- `nightmarquee_sign_in` — connect an account to unlock Unlimited prompts\n- `nightmarquee_whoami` — check what's connected\n\nCategories are `hero`, `landing`, `saas`, `portfolio`, `ecommerce` and `3d`.\n\nAsk for a design in plain language and the model will usually reach for\n`nightmarquee_search_prompts` on its own. Or drive it directly:\n\n```\nnightmarquee_get_prompt(slug: \"glasshouse-nine\", tool: \"cursor\", brand: \"Northwind\")\n```\n\nEvery prompt in the catalog is also registered as an MCP prompt, so the whole\nlibrary shows up in your client's command palette. In Claude Code that means a\nslash command per design:\n\n```\n/mcp__nightmarquee__glasshouse-nine\n```\n\nOther clients surface MCP prompts their own way — Claude Desktop lists them in\nthe attachment (`+`) menu. The list is built from the catalog fetched at\nstartup, so if the server can't reach nightmarquee.com when your editor\nlaunches, the tools still work but the per-prompt commands won't appear until\nyou restart.\n\n## Unlimited\n\n5 of the 16 prompts are free: `glasshouse-nine`, `aetheris-voyage`,\n`nordlys-fintech`, `solstice-festival` and `lumen-observatory`. The other 11\nneed [Unlimited](https://nightmarquee.com/pricing?ref=mcp).\n\nRun `nightmarquee_sign_in` and approve the code in your browser. It waits about\na minute; if you took longer, run it again and it picks up the same request\nrather than issuing a new code. Either way the rest unlock in the same session,\nno restart. Fetching a locked prompt without an entitlement returns a\nteaser and a pricing link, never the body.\n\nFor headless environments where no browser is reachable, carry a token across\ninstead: sign in once on a machine that has a browser, copy the `token` value\n(`nm_live_…`) out of `~/.nightmarquee/credentials.json`, and set it there.\n\n```json\n{ \"env\": { \"NIGHTMARQUEE_TOKEN\": \"nm_live_...\" } }\n```\n\nConnections are listed on [your account page](https://nightmarquee.com/account)\nand can be revoked from there; the next call falls back to free-only.\n\n## Configuration\n\n| Variable | Effect |\n|---|---|\n| `NIGHTMARQUEE_TOKEN` | Use this token instead of the stored one. Wins over `credentials.json`. |\n| `NIGHTMARQUEE_API` | Point at a different backend. Defaults to `https://nightmarquee.com`. |\n| `NIGHTMARQUEE_HOME` | Directory for `credentials.json`. Defaults to `~/.nightmarquee`. |\n| `NIGHTMARQUEE_TIMEOUT_MS` | Ceiling on every API request, in milliseconds. Defaults to `10000`; unparseable or non-positive values fall back to the default, and anything above `2147483647` is clamped to it. |\n| `NIGHTMARQUEE_NO_TELEMETRY` | Set to `1` (any non-empty value works) to stop sending the install ID and your client's name. See below for exactly what this does and doesn't cover. |\n\n## Privacy Policy\n\nFull policy: <https://nightmarquee.com/privacy>\n\n### What is collected\n\nCredentials are stored locally at `~/.nightmarquee/credentials.json`, mode 0600.\n\nFetching a prompt is an HTTP request to nightmarquee.com, so the server\nnecessarily sees which prompt slug and tool dialect you asked for, and logs\nthat. That is true in every configuration.\n\nOn top of that, each request carries three headers by default:\n\n- `x-nm-install` — a random UUID generated on your machine on first run and\n  kept in `credentials.json`. Not derived from anything, tied to nothing else.\n- `x-nm-client` — the name and version your MCP client reports, e.g.\n  `claude-code/2.1.240`.\n- `x-nm-version` — the version of this package.\n\nIf you are signed in, the request also carries a bearer token identifying your\nNightMarquee account.\n\n**Never sent, in any configuration:** the prompts or code you write, file\npaths, file contents, or anything else from your project.\n\n### How it is used and stored\n\nRequest records are used to operate the service and to understand which prompts\npeople use — nothing else. They are held in our Supabase database.\n\n### Opting out\n\n`NIGHTMARQUEE_NO_TELEMETRY=1` drops `x-nm-install` and `x-nm-client`.\n**`x-nm-version` is still sent**, and requests are still made and still logged\nserver-side — the log rows just carry no install ID and no client name. If you\nare signed in, the bearer token identifies your account regardless of this\nsetting.\n\n### Third-party sharing\n\nYour data is not sold, rented, or shared with third parties for their own\npurposes. It is processed only by the infrastructure providers running the\nservice on our behalf: Vercel (hosting), Supabase (database), and Lemon Squeezy\n(payments, for subscribers only). No advertising or analytics networks receive\nany of it.\n\n### Retention\n\nAccount data is kept while your account exists. Email\n<support@nightmarquee.com> to delete your account and we remove your data\nwithin 30 days, except records we must keep for tax and accounting (held by the\nmerchant of record).\n\nRequest records are not currently expired on a fixed schedule; they are deleted\non request along with your account.\n\nTokens and local credentials are under your control at any time: revoke a\nconnected editor from your [account page](https://nightmarquee.com/account),\nwhich deletes the token outright, or delete `~/.nightmarquee/credentials.json`\nto remove the local copy.\n\n### Contact\n\nPrivacy questions, data access, and deletion requests:\n<support@nightmarquee.com>\n\n## License\n\nThe server code in this package is MIT.\n\nThe prompt text it fetches is licensed separately: free prompts cover personal\nand non-commercial projects, Unlimited adds commercial use, and the prompt text\nitself may not be republished or resold. Full terms:\n<https://nightmarquee.com/license>.\n\nMIT © NightMarquee\n",
+  "status": "curated"
+}

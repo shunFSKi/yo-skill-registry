@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.sandraschi/leanforge-mcp",
+  "type": "mcp",
+  "name": "leanforge-mcp",
+  "description": "MCP server for AI-driven formal proof search in Lean 4",
+  "author": "io.github.sandraschi",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/sandraschi/leanforge-mcp",
+    "repo": "sandraschi/leanforge-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "https://github.com/sandraschi/leanforge-mcp/releases/download/v0.1.0/leanforge-mcp-v0.1.0.mcpb"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-28T13:56:08.259134Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# leanforge-mcp\n\n[![Python](https://img.shields.io/badge/python-3.12%2B-blue?logo=python&logoColor=white)](https://www.python.org/)\n[![FastMCP](https://img.shields.io/badge/FastMCP-3.4%2B-blueviolet)](https://github.com/jlowin/fastmcp)\n[![Lean 4](https://img.shields.io/badge/Lean-4-orange)](https://lean-lang.org/)\n[![Mathlib](https://img.shields.io/badge/Mathlib-4-orange)](https://leanprover-community.github.io/mathlib4_docs/)\n[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)\n[![Status: Phase B complete](https://img.shields.io/badge/status-Phase%20B%20complete-brightgreen)](docs/ASSESSMENT_2026-06-24.md)\n[![AlphaProof Nexus](https://img.shields.io/badge/inspired%20by-AlphaProof%20Nexus-informational)](https://arxiv.org/abs/2605.22763)\n\nMCP server for AI-driven formal proof search in Lean 4. Submit a theorem with `sorry`; get back a machine-verified proof. Implements Agent A from [AlphaProof Nexus](https://arxiv.org/abs/2605.22763) (DeepMind, May 2026).\n\n**Stack:** Python 3.12+ . FastMCP 3.4+ . FastAPI . React/Vite . Tailwind . Lean 4 / Mathlib\n\n---\n\n## Table of Contents\n\n- [What it does](#what-it-does)\n- [Quick Install](#quick-install)\n- [What You Can Do](#what-you-can-do)\n- [Tools](#tools)\n- [Requirements](#requirements)\n- [Documentation](#documentation)\n- [Status](#status)\n- [License](#license)\n\n---\n\n## What it does\n\nFeed it a Lean 4 theorem with a `sorry` placeholder. It runs N parallel agents in a loop: the LLM proposes a proof edit, the Lean compiler judges it, errors feed back to the LLM. First agent to produce a sorry-free compile wins.\n\n```lean\n-- Input\ntheorem sum_formula (n : ℕ) : 2 * ∑ i ∈ Finset.range (n + 1), i = n * (n + 1) := by\n  sorry\n\n-- Output (machine-verified)\ntheorem sum_formula (n : ℕ) : 2 * ∑ i ∈ Finset.range (n + 1), i = n * (n + 1) := by\n  induction n with\n  | zero => simp\n  | succ n ih => rw [Finset.sum_range_succ]; ring_nf; linarith\n```\n\nThe compiler is the only oracle -- if it compiles without `sorry`, the proof is correct.\n\n---\n\n## Quick Install\n\n```powershell\ngit clone https://github.com/sandraschi/leanforge-mcp\ncd leanforge-mcp\nuv sync\nCopy-Item config.example.toml config.toml\n```\n\nThen add to `claude_desktop_config.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"leanforge\": {\n      \"command\": \"uv\",\n      \"args\": [\"--directory\", \"C:\\\\path\\\\to\\\\leanforge-mcp\", \"run\", \"python\", \"-m\", \"leanforge_mcp\"],\n      \"env\": { \"DEEPSEEK_API_KEY\": \"...\", \"ANTHROPIC_API_KEY\": \"...\" }\n    }\n  }\n}\n```\n\nSee [INSTALL.md](INSTALL.md) for the Lean + Mathlib workspace setup (~4GB, one-time -- already provisioned and verified on Goliath as of 2026-07-09).\n\n---\n\n## What You Can Do\n\n```\n\"Prove that the sum of the first n natural numbers is n*(n+1)/2\"\n\n\"Submit this MiniF2F problem and check back in 10 minutes\"\n\n\"Show me all the proof attempts for job abc-123 -- why is it stuck?\"\n\n\"Run validate_lean on this tactic proof to see if it compiles\"\n```\n\n---\n\n## Tools\n\n| Tool | Description |\n|------|-------------|\n| `submit_theorem` | Submit a theorem statement → job ID (async) |\n| `submit_lean_file` | Submit a full `.lean` file with sorry placeholders |\n| `get_proof_status` | Poll job status; returns proof when complete |\n| `list_attempts` | Inspect the attempt trajectory per agent/turn |\n| `list_jobs` | List all jobs with status summary |\n| `validate_lean` | Raw Lean 4 compile -- no job tracking |\n| `cancel_job` | Cancel a running job |\n| `get_mathlib_search` | Natural language search over Mathlib theorems |\n\n---\n\n## Requirements\n\n- Python 3.11+\n- [Lean 4 via elan](https://lean-lang.org/lean4/doc/setup.html) (`winget install leanprover.elan`)\n- Mathlib workspace with cached oleans (~4GB, one-time setup -- see [INSTALL.md](INSTALL.md))\n- Ollama with `deepseek-prover-v2:7b` for tier-1 (local, free)\n- DeepSeek or Anthropic API key for tier-2/3 (optional)\n\n---\n\n## Documentation\n\n| Doc | Contents |\n|-----|----------|\n| [INSTALL.md](INSTALL.md) | Prerequisites, Lean workspace setup, Claude Desktop config |\n| [docs/CONFIGURATION.md](docs/CONFIGURATION.md) | All config options and environment variables |\n| [docs/TOOLS.md](docs/TOOLS.md) | Full tool reference with parameters and examples |\n| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Proof loop, tier escalation, job lifecycle, SQLite schema |\n| [docs/LEAN.md](docs/LEAN.md) | Lean 4 language reference, tactic guide, bibliography, link collection |\n| [docs/LEAN_PRIMER.md](docs/LEAN_PRIMER.md) | Quick Lean 4 intro for engineers (short version) |\n| [docs/ALPHAPROOF_NEXUS.md](docs/ALPHAPROOF_NEXUS.md) | The technique: AlphaProof Nexus paper explained |\n| [docs/COVERAGE_GAP.md](docs/COVERAGE_GAP.md) | Why DeepMind got MSM coverage and a startup wouldn't |\n| [docs/BENCHMARK_RESULTS.md](docs/BENCHMARK_RESULTS.md) | MiniF2F, PutnamBench, Erdős results |\n| [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) | Contributing, dev setup, test commands |\n| [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) | Common errors and fixes |\n\n---\n\n## Roadmap\n\n| Phase | What | Status |\n|-------|------|--------|\n| **A** | Core loop: LLM proposes, Lean judges, error feeds back | Done |\n| **B** | Correctness hardening, edge case handling, timeout tuning | **Done (2026-07-09)** -- tamper guard closed against default-arg truncation and a decoy-duplicate attack, cross-process job ownership/cancellation fixed, stateless-prompting mitigations added. 56/56 tests passing on real hardware. See [docs/ASSESSMENT_2026-06-24.md](docs/ASSESSMENT_2026-06-24.md) |\n| **C** | **Performance and safety**: REPL worker pool (compile-time is the real bottleneck), LLM timeout/retry, token/cost accounting (hard gate before any batch run) | In progress -- see [TODO.md](TODO.md) |\n| **D** | **Multi-agent parallel scheduling** (Agent B from paper) -- run N loops in parallel, first to finish wins | Planned |\n| **E** | **Self-critique step** -- LLM reviews its own proof before compile, catches obvious errors early | Planned |\n| **F** | **Webapp proof explorer** -- interactive tree view of attempted proof paths, live tactic streaming | Planned |\n| **G** | **Premise selection** -- before generating tactics, search Mathlib for relevant lemmas | Planned |\n| **H** | **Cumulative context windowing** -- smart summarization of long error chains instead of blind concatenation | Planned |\n| **I** | **Benchmark dashboard** -- webapp page tracking MiniF2F, PutnamBench, Erdős results per model/config | Stretch |\n| **J** | **Human-in-the-loop** -- when the agent is stuck, pause and surface the current state for a human hint | Stretch |\n| **K** | **Proof caching** -- deduplicate sub-proofs so repeated lemmas compile instantly | Stretch |\n\n### What each phase enables\n\n**A + B** let you submit a theorem and get a proof back on the other end.\nIt works, it's useful, but it's single-threaded, pays a full compile per\nturn, and has no spend controls -- Phase C closes those gaps.\n\n**D** changes the game: N parallel agents means wall-clock time drops from\n\"however long one LLM takes\" to \"however long the fastest of N LLMs takes.\"\nFor hard theorems where the LLM wanders into dead ends, this is the\ndifference between 5 minutes and 30 seconds.\n\n**E** prevents the LLM from wasting compiles on obviously wrong tactics.\nCheap to add (one extra LLM call per attempt) and the paper shows it\nimproves solve rate by ~15 percentage points on Agent A alone.\n\n**F** is the user-facing payoff: instead of staring at \"status: running\"\nand polling, you watch the LLM try tactics in real time, see which paths\nit abandoned, and understand why it eventually succeeded or failed.\n\n**G** addresses the most common failure mode: the LLM writes a correct\ntactic for a lemma that doesn't exist in the current context. Premise\nselection (a small retrieval step before tactic generation) cuts this\ndramatically.\n\n**H** is invisible but critical: as the LLM accumulates 10+ failed\nattempts, the error context grows past the model's window. Smart\nsummarization keeps relevant signal without drowning the LLM in noise.\n\nFull gap analysis: [docs/ASSESSMENT_2026-06-24.md](docs/ASSESSMENT_2026-06-24.md)\n\n---\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

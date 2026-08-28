@@ -1,0 +1,65 @@
+{
+  "id": "mcp:official/io.github.cheevahagadog/forency",
+  "type": "mcp",
+  "name": "forency",
+  "description": "Detect the tech stack behind any website: CMS, ecommerce, analytics, CRM, payments, hosting.",
+  "author": "io.github.cheevahagadog",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/cheevahagadog/forency-mcp",
+    "repo": "cheevahagadog/forency-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "forency-mcp"
+    ],
+    "env": [
+      {
+        "name": "FORENCY_API_KEY",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-28T15:12:07.911873Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "金融",
+    "featured": false
+  },
+  "readme": "# Forency MCP Server\n\n[![smithery badge](https://smithery.ai/badge/nathan-cheever12/forency-mcp)](https://smithery.ai/servers/nathan-cheever12/forency-mcp)\n\nLet your AI assistant investigate any website's technology stack — CMS, ecommerce platform, JavaScript frameworks, analytics, CRM, marketing automation, payments, chat widgets, CDN, and hosting.\n\nAsk Claude (or Cursor, or any MCP client):\n\n> \"What tech stack does competitor.com run?\"\n\n> \"Which of these 15 prospects use HubSpot vs Salesforce?\"\n\n> \"Compare the analytics and payment stacks of these three stores.\"\n\n## Two ways to connect\n\n**Hosted — no install.** If your client supports remote MCP servers, point it at\n`https://forency.io/api/mcp` with your API key as a Bearer token. Nothing to\ndownload, and you always get the current tools. Also listed on\n[Smithery](https://smithery.ai/servers/nathan-cheever12/forency-mcp).\n\n**Local — this package.** For clients that run MCP servers on your machine:\n\n## Install\n\nAdd to your MCP config — `claude_desktop_config.json`, `.mcp.json`, or your client's equivalent:\n\n```json\n{\n  \"mcpServers\": {\n    \"forency\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"forency-mcp\"],\n      \"env\": { \"FORENCY_API_KEY\": \"fcy_your_key\" }\n    }\n  }\n}\n```\n\nOr with Claude Code:\n\n```bash\nclaude mcp add forency -e FORENCY_API_KEY=fcy_your_key -- npx -y forency-mcp\n```\n\nGet a free API key at [forency.io](https://forency.io) — 100 scans/month, no credit card.\n\n## Tools\n\n| Tool | What it does |\n|------|--------------|\n| `lookup_tech_stack(url)` | Full technology breakdown for one website |\n| `batch_lookup(urls)` | Up to 25 websites in one call, full detail for each |\n| `compare_stacks(urls, categories?)` | Side-by-side table across sites, optionally filtered to categories like `[\"CRM\", \"Analytics\"]` |\n\nEach URL scanned counts as one scan against your plan.\n\n## What this package does, and doesn't\n\nThis repository is **the whole client**. It is a thin stdio MCP server that forwards your request to the Forency REST API and formats the reply. Worth knowing before you hand any tool an API key:\n\n- it talks to `https://forency.io` and nothing else\n- it sends your API key and the URLs you asked about, nothing more\n- no telemetry, no analytics, no third-party calls\n- detection happens server-side, so it is not in this repo\n\nYou can read the entire thing in [`src/index.ts`](src/index.ts) in about five minutes. Point it somewhere else with `FORENCY_API_URL` if you want to watch what it sends.\n\n## Environment\n\n| Variable | Required | Description |\n|----------|----------|-------------|\n| `FORENCY_API_KEY` | Yes | Your key from [forency.io](https://forency.io) |\n| `FORENCY_API_URL` | No | API base URL (defaults to `https://forency.io`) |\n\n## A note on detection\n\nForency reads the HTML and headers a site's server returns. It does not run a\nbrowser, so technologies injected purely by client-side JavaScript may not show\nup — a sparse result means little was *detectable*, not that a site runs nothing.\n\n## Pricing\n\n| Tier | Price | Scans/mo |\n|------|-------|----------|\n| Free | $0 | 100 |\n| Starter | $29/mo | 1,000 |\n| Pro | $49/mo | 10,000 |\n| Enterprise | Custom | Unlimited |\n\nBuiltWith's API starts at $295/mo and Wappalyzer's at $250/mo. Neither ships an MCP server.\n\n## Acknowledgements\n\nForency's detection is built on the technology fingerprints maintained by the\n[**webappanalyzer**](https://github.com/enthec/webappanalyzer) project, the\ncommunity-maintained continuation of Wappalyzer's open-source fingerprint\ndatabase, which is licensed **GPL-3.0**. That work is what makes accurate\ndetection possible at this price, and it deserves the credit.\n\nThis MCP client contains no fingerprint data or detection code of its own and is\nreleased under the MIT license (see [LICENSE](LICENSE)).\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

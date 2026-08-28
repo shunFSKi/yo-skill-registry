@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.sexylin/hipo-work",
+  "type": "mcp",
+  "name": "HiPo Work",
+  "description": "AI-agent recruitment platform for resume import, job publishing, and candidate matching.",
+  "author": "io.github.sexylin",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/sexylin/hipo-mcp",
+    "repo": "sexylin/hipo-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://mcp.hipowork.com/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-28T09:18:21.679961Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "办公",
+    "featured": false
+  },
+  "readme": "# HiPo Work MCP Server\n\n[![MCP Server](https://img.shields.io/badge/MCP-Server-blue)](https://modelcontextprotocol.io)\n[![OAuth 2.0](https://img.shields.io/badge/Auth-OAuth2.0-green)](https://oauth.net/2/)\n[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)\n\n将 HiPo Work 招聘平台工具暴露为 MCP (Model Context Protocol) 工具，供 AI Agent 调用。支持 OAuth 2.0 自动授权，无需手动配置 API Key。\n\n**适用客户端：** Claude Desktop、Hermes Agent、Cursor、VS Code、Cline 等所有支持 MCP 的客户端\n\n---\n\n## 功能一览\n\nHiPo Work 是一个面向 AI Agent 的招聘平台：\n\n- **求职者**：通过 Agent 导入结构化简历（`import_resume`），可保留工作经历、项目经历、教育经历、技能、证书和语言能力\n- **招聘方**：通过 Agent 发布岗位（`publish_job`）、智能匹配候选人（`match_candidates`）、市场分析（`market_analysis`）\n- **自动认证**：OAuth 2.0 授权码流程，无需手动管理 Key\n\n---\n\n## 快速开始\n\n### 1. 配置 MCP 客户端\n\n**Claude Desktop** (`claude_desktop_config.json`):\n\n```json\n{\n  \"mcpServers\": {\n    \"hipo\": {\n      \"url\": \"https://mcp.hipowork.com/mcp\"\n    }\n  }\n}\n```\n\n**Hermes Agent** (`~/.hermes/config.yaml`):\n\n```yaml\nmcp_servers:\n  hipo:\n    url: \"https://mcp.hipowork.com/mcp\"\n```\n\n**VS Code / Cursor** MCP 配置面板，添加：\n\n```\nhttps://mcp.hipowork.com/mcp\n```\n\n### 2. 首次授权\n\n1. 首次调用工具时，自动打开浏览器 `https://mcp.hipowork.com/authorize`\n2. 输入邮箱 → 获取验证码 → 输入验证码\n3. 授权完成，自动返回客户端，**后续无需再操作**\n\n> Token 30 天有效，自动刷新，无需手动配置 API Key。\n\n---\n\n## 工具列表\n\n| 工具名 | 说明 | 认证 |\n|--------|------|------|\n| `send_verification_code` | 发送邮箱验证码（注册/登录前调用） | 公开 |\n| `register_or_login` | 邮箱验证码注册/登录 | 公开 |\n| `publish_job` | 发布招聘岗位（结构化条件） | employer |\n| `match_candidates` | 匹配候选人（含评分明细+工作经历） | employer |\n| `match_job_requirement` | 按岗位 ID 自动匹配候选人 | employer |\n| `search_candidates` | 自然语言搜索候选人 | employer |\n| `get_stats` | 平台统计数据 | employer |\n| `market_analysis` | 技能/行业人才供需分析 | employer |\n| `import_resume` | 导入简历（Agent 解析后传入结构化数据，包含工作/项目/教育经历） | candidate |\n\n---\n\n## 认证机制\n\n### OAuth 2.0（唯一推荐方式）\n\nHiPo Work 自己作为 OAuth Authorization Server：\n\n- 使用 Authorization Code + PKCE（S256）\n- 用户在 HiPo Work 授权页面完成邮箱验证码登录\n- 用户明确授权当前 MCP 客户端\n- 客户端自动获得 HiPo Work access token 和 refresh token\n- Access token 15 分钟有效，Refresh token 90 天，用于自动刷新\n- 支持 token 吊销（`POST /revoke`）\n- 用户不需要接收、复制或配置 API Key\n\n首次登录时的流程：\n\n```text\n配置 MCP 地址\n→ 客户端打开 HiPo Work 授权页\n→ 输入邮箱和验证码\n→ 确认角色及客户端权限\n→ 自动返回 MCP 客户端\n→ 后续自动使用 OAuth Token\n```\n\n### API Key\n\n当前新用户流程不再创建或发送 API Key。此前的 API Key 代码仅作为历史数据兼容保留，不属于当前 MCP 接入方式。\n\n---\n\n## 部署\n\n### 启动服务\n\n```bash\n# 安装\npip install fastmcp httpx uvicorn\n\n# 启动\nHIPO_BACKEND_URL=http://127.0.0.1:8000 \\\nHIPO_MCP_BASE_URL=https://mcp.hipowork.com \\\nuvicorn hipo_mcp.server:app --host 127.0.0.1 --port 8003\n```\n\n### Nginx 反代（必须配 HTTPS）\n\nMCP 使用独立子域名，所有 MCP、OAuth 和 metadata 路由统一反代到 MCP 服务；新增路由无需逐条修改 nginx。\n\n```nginx\nserver {\n    listen 80;\n    server_name mcp.hipowork.com;\n    return 301 https://$host$request_uri;\n}\n\nserver {\n    listen 443 ssl http2;\n    server_name mcp.hipowork.com;\n\n    ssl_certificate /etc/letsencrypt/live/hipowork.com/fullchain.pem;\n    ssl_certificate_key /etc/letsencrypt/live/hipowork.com/privkey.pem;\n\n    location / {\n        proxy_pass http://127.0.0.1:8003;\n        proxy_http_version 1.1;\n        proxy_set_header Host $host;\n        proxy_set_header X-Real-IP $remote_addr;\n        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\n        proxy_set_header X-Forwarded-Proto $scheme;\n        proxy_set_header Authorization $http_authorization;\n        proxy_buffering off;\n        proxy_request_buffering off;\n        proxy_read_timeout 300s;\n    }\n}\n```\n\n> ⚠️ MCP 通信包含用户凭证，必须使用 HTTPS。\n\n---\n\n## 本地开发\n\n```bash\ngit clone https://github.com/sexylin/hipo-mcp.git\ncd hipo-mcp\npip install -e .\n```\n\n---\n\n## License\n\nMIT",
+  "status": "curated"
+}

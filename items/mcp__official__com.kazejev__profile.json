@@ -17,7 +17,7 @@
   "quality": {
     "stars": null,
     "pushed_at": "2026-08-27T19:46:00.970015Z",
-    "score": 52
+    "score": 42
   },
   "security": {
     "score": 100,
@@ -49,6 +49,6 @@
     "category": null,
     "featured": false
   },
-  "readme": "# profile-mcp\n\nAn MCP server that answers questions about Jaroslav Kazejev: biography,\nskills, projects and education. It is read-only, it needs no authentication,\nand it has no runtime dependencies.\n\n**Endpoint:** `https://mcp.kazejev.com/mcp`\n\n## Connect\n\nWith the Claude Code CLI:\n\n    claude mcp add --transport http kazejev https://mcp.kazejev.com/mcp\n\nWith a client that reads a JSON configuration:\n\n```json\n{\n  \"mcpServers\": {\n    \"kazejev\": {\n      \"type\": \"http\",\n      \"url\": \"https://mcp.kazejev.com/mcp\"\n    }\n  }\n}\n```\n\n## Tools\n\n| Tool | Arguments | Returns |\n|---|---|---|\n| `get_profile_summary` | none | The complete profile in one response: headline, location, work status, focus, the strongest work, the main skills, education and links |\n| `query_profile` | `topic` | The projects, skills and education that match the topic, with the detail behind each one |\n| `get_bio` | none | The short professional biography |\n| `list_skills` | none | The technical and professional skills |\n| `list_projects` | none | The projects and the work |\n| `get_contact_info` | none | The public contact details and profile links |\n\nOne resource, `kazejev://profile`, holds the same content as one JSON\ndocument.\n\n## Protocol support\n\nThe server answers two protocol eras on the same endpoint, and selects the\nera for each request.\n\n| Era | Versions | Description |\n|---|---|---|\n| Modern | `2026-07-28` | The server keeps no state. Each request carries its version, identity and capabilities in `_meta` and in HTTP headers, which the server examines. `server/discover` is available. |\n| Legacy | `2025-11-25`, `2025-06-18`, `2025-03-26` | The client and the server do the `initialize` handshake. |\n\nThe `2026-07-28` revision removed the `initialize` handshake and the\nprotocol-level sessions. Most clients still use the older revisions, thus the\nserver keeps both.\n\nNotable behaviour in the modern era:\n\n- `GET` and `DELETE` return 405. The GET stream and the session teardown are\n  no longer in the protocol.\n- A header that disagrees with the body returns 400 and `-32020`.\n- An unsupported version returns 400 and `-32022` with the supported list.\n- An unknown method returns 404 and `-32601`.\n\n## Where else this server appears\n\n- Registry entry: `com.kazejev/profile` in the\n  [official MCP Registry](https://registry.modelcontextprotocol.io/v0/servers?search=kazejev)\n- Server card: <https://kazejev.com/.well-known/mcp/server-card.json>\n- Site: <https://kazejev.com>\n\n## Development and maintenance\n\nSee [docs/maintenance.md](docs/maintenance.md).\n",
+  "readme": null,
   "status": "curated"
 }

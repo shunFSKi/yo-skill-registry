@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.Sitten-Tokyo/sippion",
+  "type": "mcp",
+  "name": "Sippion",
+  "description": "Local read-only repository context retrieval for AI coding agents.",
+  "author": "io.github.Sitten-Tokyo",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/Sitten-Tokyo/Sippion.git",
+    "repo": "Sitten-Tokyo/Sippion"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "https://github.com/Sitten-Tokyo/Sippion/releases/download/v0.1.0-rc.36/sippion-linux-x86_64.mcpb"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-28T11:12:24.536381Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Sippion\n\n**English** | [日本語](README.ja.md)\n\nSippion is a local, read-only MCP server that helps AI coding agents find the\nright parts of a repository before they start opening source files broadly.\n\nSippion exposes one MCP tool, `repo_context`, which combines bounded lexical search,\nstructural context, and source-only semantic ranking to return a small,\nrelevant set of code excerpts.\n\n## Quick start\n\nInstall Sippion with one command. The bootstrap verifies its downloaded\ninstaller checksum **and GitHub artifact attestation before executing the\ninstaller**. The installer then verifies the selected binary checksum and its\nGitHub artifact attestation before installing it and running transactional\n`sippion setup`.\n\nThe default path fails closed unless the GitHub CLI (`gh`) is installed, has\n`gh attestation` support, and can authenticate to GitHub. This deliberately\nkeeps release provenance verification enabled on the primary install path.\n\n### macOS / Linux\n\n```sh\ncurl -fsSL --proto '=https' --proto-redir '=https' --tlsv1.2 https://raw.githubusercontent.com/Sitten-Tokyo/Sippion/a28b611f169a2731ca89dd59db89ccf00940185f/scripts/bootstrap.sh | sh\n```\n\n### Windows PowerShell\n\n```powershell\nirm https://raw.githubusercontent.com/Sitten-Tokyo/Sippion/a28b611f169a2731ca89dd59db89ccf00940185f/scripts/bootstrap.ps1 | iex\n```\n\nAfter installation:\n\n```text\nverify installer checksum + GitHub artifact attestation\n    ↓\nverify binary checksum + GitHub artifact attestation\n    ↓\nSippion installed\n    ↓\nCodex + Claude Code + Antigravity pre-registered\n    ↓\nRestart those AI clients\n```\n\nBoth attestation checks are bound to the Sippion repository, the expected\nrelease signer workflow, and the exact commit SHA resolved from the selected\nrelease tag.\n\nSippion pre-registers **all three clients**, even if one is not installed yet.\nEach client launches Sippion with `--root-auto`. Sippion selects the nearest\nrecognized Git/project boundary and refuses automatic selection of the user's\nhome directory or filesystem root. On Unix, shared group/other-writable\nancestor directories are not trusted as automatic boundaries. On Windows,\n`--root-auto` is deliberately limited to projects under the canonical current\nuser profile because Sippion cannot safely verify arbitrary shared-directory\nACLs through stable safe Rust APIs; trusted projects elsewhere can use an\nexplicit `--root`. You do not need to register Sippion separately for every\nrepository under the normal automatic scope.\n\nA checksum-only direct installer mode remains available as an explicit opt-out\nfor controlled environments where provenance was verified by another trusted\nmechanism. See [Security and trust boundary](docs/security.md).\n\n## Official MCP Registry\n\nSippion is published in the Official MCP Registry as\n`io.github.Sitten-Tokyo/sippion`. The canonical Registry record can be inspected\nthrough the stable API at\n[the latest Sippion Registry entry](https://registry.modelcontextprotocol.io/v0.1/servers/io.github.Sitten-Tokyo%2Fsippion/versions/latest).\n\nEach release intended for Registry distribution contains four checksummed,\nprovenance-attested MCPB bundles alongside the native binaries:\n\n```text\nsippion-linux-x86_64.mcpb\nsippion-windows-x86_64.mcpb\nsippion-macos-aarch64.mcpb\nsippion-macos-x86_64.mcpb\n```\n\nThe MCPB manifest asks the host for an explicit project root and launches the\nsame local stdio server. The bootstrap + `sippion setup` path above remains the\nrecommended route when you want Sippion to configure Codex, Claude Code, and\nAntigravity automatically; Registry/MCPB distribution is an additional\nstandards-based installation and discovery channel.\n\n## What Sippion does\n\nA client can ask Sippion for focused repository context such as:\n\n```text\nrepo_context {\"q\":\"authentication token validation\"}\n```\n\nSippion returns bounded excerpts and structural evidence instead of dumping a\nlarge part of the repository into the model context.\n\nTypical flow:\n\n```text\nAI coding agent\n    ↓ asks what part of the repo matters\nSippion repo_context\n    ↓ returns focused evidence\nAI opens the relevant source files normally\n```\n\nThis is useful for large repositories, unfamiliar codebases, and multi-agent\nworkflows where broad source exploration would otherwise consume time and\ncontext.\n\nOptional `session_id` and `agent_id` values can coordinate cooperating agents\nin process memory. They are not persisted.\n\n## Safety model\n\nSippion itself is:\n\n- local stdio MCP\n- project-scoped\n- read-only\n- no-network while serving repository context\n- RAM-only for retrieval state; it does not create a persistent index\n\nIt does **not** run repository code, proxy model traffic, store provider\ncredentials, start a daemon, or modify the repository.\n\nRepository reads are bounded, reject symlinks and unsafe hard links, revalidate\nsource identity around reads, and redact high-confidence secrets before output.\nRepository text is treated as **untrusted data**, not as instructions to the AI.\n\nFor the full trust boundary and installation trust model, see\n[Security and trust boundary](docs/security.md).\n\n## Supported clients\n\n`sippion setup` configures the current user for:\n\n- Codex\n- Claude Code\n- Antigravity\n\nRestart an already-running client after installation so it reloads its MCP\nconfiguration.\n\nUseful commands:\n\n```sh\nsippion setup\nsippion doctor\nsippion uninstall\n```\n\n`setup` is idempotent and transactional across the managed client files. It\nrefuses to rewrite a Sippion-managed text block if its management markers are\nmissing, duplicated, or out of order, rather than risking unrelated user\nsettings. Managed files and their managed parent directories are refused when\nthey are symlinks. On Unix, MCP client configuration files are created or\nrepaired as owner-only `0600`; rollback also restores the previous permission\nbits. Persistent `.sippion-backup` copies are not created, and legacy copies\nfrom older releases are removed transactionally. If any client update fails,\nfiles touched by that setup attempt are restored.\n\n`doctor` checks registration health and exits non-zero when any expected\nregistration is unhealthy. `uninstall` is transactional too: it snapshots the\nmanaged configuration/rule files before removal and restores the pre-attempt\nstate if any removal fails. It removes Sippion-managed client configuration and\nrules but does not remove unrelated settings or the binary.\n\nSee [Client setup](docs/clients.md) for manual configuration and diagnostics.\n\n## Run Sippion manually\n\nTo infer a safe project root from the current directory:\n\n```sh\nsippion mcp --root-auto\n```\n\nAutomatic discovery uses the nearest recognized Git/project marker. It does not\ncontinue past a nearer project manifest merely to find a farther `.git` marker;\non Unix it also stops before trusting a group/other-writable shared directory.\nResolving the current user's home directory is part of the safety check, so\nfailure to resolve it stops automatic discovery instead of silently disabling\nthe home/ancestor guard.\n\nOn Windows, `--root-auto` is limited to projects under the canonical current\nuser profile. To use a trusted project elsewhere, bind it explicitly:\n\n```sh\nsippion mcp --root /ABSOLUTE/PATH/TO/PROJECT\n```\n\nHome-directory, filesystem-root, and home-ancestor scans are rejected by\ndefault. An intentional broad manual scan requires the explicit\n`--allow-broad-root` opt-in. Setup never enables that override.\n\nTo lower the adaptive scan ceiling:\n\n```sh\nsippion mcp --root /ABSOLUTE/PATH/TO/PROJECT --scan-budget-mib 128\n```\n\n## How it works\n\nRetrieval starts with a RAM-only lexical index, parses only ranked candidates,\nadds bounded source-only semantic evidence, and packs verified excerpts into a\nbounded response. Structural parsing currently covers Rust, Python,\nJavaScript/TypeScript, Go, Java, C#, C, and C++. Search-term matching is\nUnicode-aware while filesystem safety policy remains deliberately separate and\nconservative.\n\nSippion is a repository-context tool, not a compiler or language server. It\ndoes not claim compiler-authoritative type resolution or LSP-grade references.\n\nSee [Architecture](docs/architecture.md) and\n[Integration boundaries](docs/integrations.md) for details.\n\n## Development\n\nThe project pins Rust 1.85.0 and commits `Cargo.lock`.\n\n```sh\ncargo fmt --check\ncargo build --release --locked\ncargo test --locked\ncargo clippy --all-targets --all-features --locked -- -D warnings\n```\n\nCI also audits `Cargo.lock` against the RustSec advisory database.\n\nThe native binary is `target/release/sippion` or\n`target/release/sippion.exe` on Windows.\n\n## For maintainers: releases\n\nSupported release binaries:\n\n```text\nsippion-linux-x86_64\nsippion-windows-x86_64.exe\nsippion-macos-aarch64\nsippion-macos-x86_64\n```\n\nRelease workflows build all four targets, generate portable SHA-256 files, and\nproduce GitHub artifact attestations. Third-party GitHub Actions are pinned to\nfull commit SHAs. Pull-request supply-chain smoke builds and assembles the\nrelease payload without minting distributable attestations, then separately\nverifies a published installer and binary with the same strict repository,\nsigner-workflow, and source-SHA policy used by the installers.\n\nFor an automated prerelease after a version bump reaches `main`, create a\none-shot `release/vX.Y.Z[-prerelease]` branch that points exactly at current\n`main`. The release workflow validates the version, creates or verifies the tag,\npublishes the prerelease, and deletes the one-shot branch after success.\nManual draft-release dispatches must be run from the exact tag ref supplied as\ninput so the workflow source SHA and built source SHA cannot diverge.\n\n## Documentation\n\n- [日本語 README](README.ja.md)\n- [Architecture](docs/architecture.md)\n- [Security and trust boundary](docs/security.md)\n- [Client setup](docs/clients.md)\n- [Integration boundaries](docs/integrations.md)\n- [Historical RC changes and validation](docs/history/README.md)\n- [Third-party notices](THIRD_PARTY_NOTICES.md)\n",
+  "status": "curated"
+}
