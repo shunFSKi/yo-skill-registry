@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.pipeworx-io/us-auctions",
+  "type": "mcp",
+  "name": "US Auctions",
+  "description": "Live US auction lots and sold prices from commercial auction houses and government surplus",
+  "author": "io.github.pipeworx-io",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/pipeworx-io/mcp-us-auctions",
+    "repo": "pipeworx-io/mcp-us-auctions"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://gateway.pipeworx.io/us-auctions/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-27T19:42:34.351229Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# @pipeworx/us-auctions\n\nLive US auction lots from both halves of the market — roughly 1,900 commercial\nauction houses and every reachable government surplus, seized and tax-deed\nsource — searchable by keyword, state or distance from a ZIP, plus the sold\nprices auction sites delete when a lot closes.\n\nPart of [Pipeworx](https://pipeworx.io) — an MCP gateway connecting AI agents to 1481+ live data sources.\n\n## Tools\n\n- `us_auctions_search(keyword?, state?, asset_type?, segment?, source?, auction_house?, near_zip?, radius_miles?, max_price?, closing_within_hours?, limit?)` — the general lot search. Pass `near_zip` and results come back ordered by distance with `distance_miles` on each row.\n- `us_auctions_closing_soon(...)` — the same pool ordered by soonest close, with `hours_remaining`. Answers \"what can I still bid on\".\n- `us_auction_events(state?, keyword?, auction_house?, closes_after?, closes_before?, min_lots?, limit?)` — the sales themselves rather than the lots. \"What auctions are happening near me next week.\"\n- `us_auction_houses(state?, keyword?, limit?)` — which auctioneers we cover and how much each has live, ranked by lot count. Feed a name back into the two tools above.\n- `us_auctions_sold_comps(keyword?, asset_type?, state?, segment?, limit?)` — min / median / average / max realized price plus recent examples. The differentiator.\n- `us_auctions_coverage()` — per-source counts, open sale count, retained comps, per-source last-refresh time.\n\n## Auth\n\nKeyless to the caller. The gateway injects the pack's data credentials per call;\nthe pack itself is stateless and holds no secret.\n\n## Relationship to the neighbouring packs\n\n- `gov-auctions` — the same store filtered to `segment='government'`. Kept\n  separate because it is published to npm and the MCP Registry under that\n  narrower contract, and a caller asking for surplus pickup trucks must not\n  start getting estate-sale antiques.\n- `gsa-auctions` — the live GSA federal-surplus API. Not DB-backed, so its lots\n  are not in this store and do not appear here.\n\n## Data sources\n\nIngested by `workers/auction-scraper` (one adapter per source, cursor-resumed\nacross cron firings). See that worker for the per-source traps.\n\n- `hibid` — commercial. GraphQL, unauthenticated. ~1,900 US auction houses.\n- `govdeals`, `allsurplus` — state/local and business surplus. `allsurplus` also\n  covers **govliquidation.com** and **go-dove.com**, which are the same catalogue\n  served under different domains — do not build adapters for those.\n- `publicsurplus`, `bid4assets`, `irs`, `txauction` — the rest of the government\n  half.\n\n## Things the next person would otherwise rediscover the hard way\n\n- **Aggregate functions and `group=` are DISABLED on this project (PGRST123).**\n  There is no `count()`. Exact counts come from `Prefer: count=exact` and the\n  `Content-Range` tail; the per-house rollup in `us_auction_houses` is computed\n  in the pack over a bounded row pull, not by the database.\n- **`final_price > 0`, never merely `not.is.null`.** The close-out sweep freezes\n  `final_price` from the last known bid, and a commercial lot that drew no bids\n  freezes at zero. Counting those as comps drags every median toward $0 while the\n  response still looks perfectly well-formed.\n- **Event dates are LOCAL CALENDAR DATES, not instants.** `closes_on` /\n  `starts_on` are dates because HiBid publishes sale times with no timezone.\n  Lot-level `closes_at` IS a true instant (derived from a countdown), which is\n  why `closing_within_hours` keys off lots and `us_auction_events` off dates.\n  Don't \"fix\" this by parsing the local string — that silently shifts evening\n  West-coast sales onto the next day.\n- **The unfiltered search is two queries, not one `or=`.** Ordering by\n  `closes_at` while OR-ing `closes_at >= now()` with `closes_at IS NULL` cannot\n  be served from an index, and on the plainest possible call it scanned the whole\n  active pool and blew the 8s statement timeout — alternating between a hard 500\n  and a *silent empty result*. The split returns identical rows in identical\n  order.\n- **Coordinates are ZIP centroids.** Most sources publish a ZIP and nothing\n  finer, so a lot's position is its town's position. `distance_miles` is\n  town-level; the response says so, and it should keep saying so.\n- **Keyword search is full-text first, substring second.** `search_tsv` (a\n  weighted stored column, migration 092) stems and reaches the description; the\n  trigram `ILIKE` pass only runs when full-text found nothing, because auction\n  titles are full of partial model numbers a tsquery cannot match inside a word.\n\n## Quick Start\n\nAdd to your MCP client (Claude Desktop, Cursor, Windsurf, etc.):\n\n```json\n{\n  \"mcpServers\": {\n    \"us-auctions\": {\n      \"url\": \"https://gateway.pipeworx.io/us-auctions/mcp\"\n    }\n  }\n}\n```\n\n### What this endpoint actually serves\n\n`tools/list` at `https://gateway.pipeworx.io/us-auctions/mcp` returns the tools in the table\nabove **plus the shared Pipeworx meta-tools** — `ask_pipeworx`,\n`discover_tools`, `search_within`, `remember`/`recall` and the rest of the\ngateway-wide set. So the tool count you see is larger than this table: a\nsingle-pack endpoint currently lists roughly 30 shared tools alongside the\npack's own. The connection's `initialize` response states its exact scope, and\nis the authoritative answer for a given day.\n\nThis is deliberate, not multiplexing by accident. The meta-tools are what let a\nscoped connection answer a question this pack does not cover — via\n`ask_pipeworx`, which routes across the whole catalog — without you adding a\nsecond MCP server. There is currently no way to mount a pack endpoint without\nthem; if the extra schemas cost you more context than the routing is worth,\nconnect to the full gateway once rather than to several pack endpoints.\n\nOr connect to the full Pipeworx gateway to get every pack's tools listed\ndirectly, instead of just this one's:\n\n```json\n{\n  \"mcpServers\": {\n    \"pipeworx\": {\n      \"url\": \"https://gateway.pipeworx.io/mcp\"\n    }\n  }\n}\n```\n\nBoth URLs reach the same gateway and the same 1481+ data sources. The\nonly difference is which pack's tools are listed **directly**; `ask_pipeworx`\nreaches all of them from either one.\n\n## Using with ask_pipeworx\n\nInstead of calling tools directly, you can ask questions in plain English —\nthis works on the pack endpoint above as well as on the full gateway:\n\n```\nask_pipeworx({ question: \"your question about Us Auctions data\" })\n```\n\nThe gateway picks the right tool and fills the arguments automatically.\n\n## More\n\n- [Docs and guides](https://pipeworx.io/docs)\n- [pipeworx.io](https://pipeworx.io)\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

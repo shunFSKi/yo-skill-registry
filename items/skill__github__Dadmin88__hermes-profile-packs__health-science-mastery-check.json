@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/Dadmin88/hermes-profile-packs/health-science-mastery-check",
+  "type": "skill",
+  "name": "health-science-mastery-check",
+  "description": "Check health-science understanding through anatomy labeling-in-words, mechanism explanation, terminology, and hypothetical case interpretation.",
+  "author": "Dadmin88",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/Dadmin88/hermes-profile-packs/blob/HEAD/hermes-academy/profiles/academy-health-sciences-professor/skills/health-science-mastery-check/SKILL.md",
+    "repo": "Dadmin88/hermes-profile-packs",
+    "path": "hermes-academy/profiles/academy-health-sciences-professor/skills/health-science-mastery-check/SKILL.md"
+  },
+  "license": "AGPL-3.0",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 8,
+    "pushed_at": "2026-08-24T07:16:39Z",
+    "score": 64,
+    "star_history": [
+      {
+        "d": "2026-08-28",
+        "s": 8
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "生活",
+    "featured": false
+  },
+  "readme": "# Hermes Profile Packs\n\nCurated profile packs for [Hermes Agent](https://github.com/NousResearch/hermes-agent).\n\nThis repository is the public upstream home for reusable Hermes profile distributions maintained as coherent teams rather than isolated prompts.\n\n## Packs\n\n| Pack | Namespace | Purpose |\n| --- | --- | --- |\n| **Hermes Agency** | `agency-*` | Professional specialists for engineering, product, design, QA, operations, marketing, content, and coordinated project work. |\n| **Hermes Council** | `council-*` | Personal specialists for growth, health, fitness, parenting, relationships, communication, community, faith, finances, home stewardship, personal admin, career, learning, recreation, travel, nutrition, sleep, and preparedness. |\n| **Hermes Academy** | `academy-*` | Professors and instructors for academic, technical, vocational, and professional learning. |\n\nThe packs deliberately separate durable context domains. Agency executes professional work, Council supports the person, and Academy teaches. A work profile should not need private life context, a personal profile should not inherit repository state merely because both run on Hermes, and a teaching profile should not silently become a production executor.\n\nHermes Council currently contains 21 focused profiles and 84 purpose-built personal-life skills. Hermes Academy v0.2 contains 30 faculty profiles and 120 purpose-built teaching skills. Hermes Agency contains 109 professional specialists.\n\n### Academy Continuing Education\n\nHermes Academy includes a Continuing Education flow for profile-to-profile competency transfer. A learner can receive a natural-language request such as `Go learn API security`, route through the real Academy Dean when the user did not name a teacher, establish native Hermes goal state, study with the selected faculty member through canonical Bot messaging, prove transfer, and persist a reusable capability through native `/learn` into the learner's normal skill store. It adds no custom training runtime or Fleet dependency.\n\nThe implementation passed Phase 15 independent production-profile verification and the Phase 16 whole-change/release review on the maintained `Dadmin88/hermes-agent-downstream` integration. It is **production-validated on that maintained downstream path**. Stock NousResearch Hermes compatibility remains pending until the normal Hermes release provides equivalent generic support for the native seams required by the validated flow, so do not read this as an unqualified stock-Hermes readiness claim.\n\nPhase 16 also hardened Dean routing: category fallbacks are manifest-owned, cross-category CE objectives fail closed instead of falling into an unrelated broad chair, unavailable specialists may use only a safe installed fallback from their own category, and the installed Dean's preloaded routing contract no longer depends on a pack-root Python helper that is absent after normal profile installation.\n\nSee [`docs/CONTINUING_EDUCATION.md`](docs/CONTINUING_EDUCATION.md), the normative [`docs/CONTINUING_EDUCATION_ARCHITECTURE.md`](docs/CONTINUING_EDUCATION_ARCHITECTURE.md), and the [`Phase 16 release review`](docs/CONTINUING_EDUCATION_RELEASE_REVIEW.md).\n\n## Start small with Team Recipes\n\nYou rarely need all 160 profiles. Team Recipes are validated compositions of existing profiles for common outcomes, with `minimal`, `recommended`, and `expanded` tiers.\n\nThe main installer understands them directly:\n\n```bash\npython install.py --list-recipes\npython install.py --recommend \"build and ship a web app\"\npython install.py --recipe software-delivery --tier minimal --dry-run\npython install.py --recipe software-delivery --tier recommended --yes\n```\n\nRecommendation is confidence-aware. A recipe is promoted only when one formation is a strong, unambiguous fit; otherwise the installer falls back to individual profile matches instead of forcing a template.\n\nRecipes are portable selection guidance only. They do not create memory, cron jobs, Bot groups, Kanban state, credentials, or other runtime state. Installation still uses the normal Profile Packs/Hermes distribution path.\n\nSee [`docs/TEAM_RECIPES.md`](docs/TEAM_RECIPES.md) and [`docs/FIRST_TEAM.md`](docs/FIRST_TEAM.md).\n\n## Repository layout\n\n```text\nhermes-profile-packs/\n├── hermes-agency/\n├── hermes-council/\n├── hermes-academy/\n├── docs/\n│   ├── CONTINUING_EDUCATION.md\n│   ├── CONTINUING_EDUCATION_ARCHITECTURE.md\n│   └── CONTINUING_EDUCATION_RELEASE_REVIEW.md\n├── examples/\n├── tests/\n├── packs.json\n├── recipes.json\n├── recipe_catalog.py       # Shared recipe loading/scoring/confidence engine\n├── install.py              # Canonical human + agent profile/recipe selector\n├── recipes.py              # Focused recipe-only convenience client\n└── validate.py\n```\n\nRuntime state is never distributed. Authentication material, `.env` files, logs, caches, databases, local paths, session history, and machine-specific configuration do not belong in this repository.\n\n## Install\n\nFor most people, launch the selector:\n\n```bash\npython install.py\n```\n\nThe wizard can recommend a validated Team Recipe when a goal maps cleanly to one, browse recipes directly, browse packs/categories, search exact profiles, preview the exact install plan, and still offer an explicit install-everything path.\n\nFor agents and scripts:\n\n```bash\npython install.py --agent-help --json\npython install.py --catalog --json\npython install.py --list-recipes --json\npython install.py --recommend \"build a web app\" --json\npython install.py --recipe software-delivery --tier minimal --dry-run --json\npython install.py --recipe software-delivery --tier recommended --yes --json\npython install.py --profiles agency-backend-engineer agency-frontend-engineer --dry-run --json\npython install.py --all --yes --json\n```\n\n`--catalog`, `--list-recipes`, and `--recommend` are read-only. Existing `--recommend --json` consumers keep the individual-profile `recommendations` array; recipe results are additive through `recipe_match` and `recipe_recommendations`.\n\nLegacy pack-first commands remain supported.\n\nSee [`docs/INSTALLER.md`](docs/INSTALLER.md) for the full contract.\n\n## Focused recipe client\n\n`recipes.py` remains supported when a recipe-only surface is convenient:\n\n```bash\npython recipes.py --list\npython recipes.py --recommend \"learn cybersecurity\"\npython recipes.py cybersecurity-learning --tier recommended --dry-run\n```\n\nBoth entry points use the same shared recipe engine.\n\n## Operate the team\n\nUse [`docs/OPERATING_PLAYBOOK.md`](docs/OPERATING_PLAYBOOK.md), [`docs/INSTALLATION_VERIFICATION.md`](docs/INSTALLATION_VERIFICATION.md), and [`docs/TROUBLESHOOTING.md`](docs/TROUBLESHOOTING.md).\n\n## Validate\n\n```bash\npython validate.py\npython -m unittest discover -s tests -p 'test_*.py'\n```\n\nThis validates pack manifests, namespaces, distribution metadata, skills, portability, secret/path hygiene, team recipe references/tier invariants, and root selector behavior.\n\n## Design principles\n\n1. **Coherent teams, not prompt dumps.** Profiles have explicit ownership and clean handoffs.\n2. **Namespace isolation.** `agency-*` is professional, `council-*` is personal, and `academy-*` is educational.\n3. **Portable distributions only.** No runtime state, secrets, personal filesystem paths, or local caches.\n4. **Specialists remain specialists.** Profiles hand off rather than silently absorbing unrelated domains.\n5. **Smallest useful team.** Add profiles only for distinct expertise, independent review, or useful parallelism.\n6. **Conservative recommendation.** A recipe is promoted only when the deterministic match is strong and unambiguous.\n7. **Human agency stays central.** Council supports decisions and capability; it does not run a person's life.\n8. **Safety beats role-play.** Profiles do not manufacture authority they do not possess.\n9. **Academy teaches for transfer.** Teaching should make the learner progressively more capable.\n\nSee [`PACK_SPEC.md`](PACK_SPEC.md), [`CONTRIBUTING.md`](CONTRIBUTING.md), and [`SECURITY.md`](SECURITY.md).\n\n## License\n\nAGPL-3.0-only. See [`LICENSE`](LICENSE).",
+  "status": "curated"
+}

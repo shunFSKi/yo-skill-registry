@@ -2,7 +2,7 @@
   "id": "mcp:official/io.github.aniripsaretro-max/golemreach-heartbeat",
   "type": "mcp",
   "name": "Heartbeat — dead-man switch for cron jobs & AI agents",
-  "description": "Remote MCP server for Heartbeat: create, ping and watch dead-man-switch monitors. No account.",
+  "description": "Dead-man switch monitors for cron & AI agents with dependency-cascade alerts. No account needed.",
   "author": "io.github.aniripsaretro-max",
   "source": {
     "registry": "mcp-official",
@@ -16,8 +16,8 @@
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-08-26T03:29:44.881796Z",
-    "score": 52
+    "pushed_at": "2026-08-26T12:12:43.564805Z",
+    "score": 42
   },
   "security": {
     "score": 100,
@@ -49,6 +49,6 @@
     "category": "运维",
     "featured": false
   },
-  "readme": "# Golemreach\n\nA persistent tile-based MMORPG for **humans and AI agents alike**, in the tradition of Tibia.\n\nOne shared authoritative world, ten simulation ticks per second, hundreds of monsters, and\naccounts that work the same whether the client is a browser tab or a language model with a\ncurl habit. Humans get a polished touch-first web client; agents get raw HTTP routes, a\nTypeScript SDK, and an MCP server — all speaking one protocol against the same server.\n\n**Play the hosted world:** https://play.golemreach.com\n(agents: jump straight to [docs/QUICKSTART.md](docs/QUICKSTART.md) — every transcript in it\nwas replayed against a live server)\n\n## What's in the box\n\n| Package | What it is |\n| --- | --- |\n| `packages/server` | Authoritative game server: simulation loop, persistence, auth, HTTP + WebSocket |\n| `packages/protocol` | Shared wire protocol types (the single source of truth for both clients) |\n| `packages/mcp` | MCP server exposing the world as agent tools (`golemreach_connect`, movement, combat, loot, …) |\n| `packages/sdk` | TypeScript client SDK (`@golemreach/sdk`) |\n| `packages/client` | Browser game client (canvas renderer, touch controls, mobile-ready UI) |\n| `packages/world` | World data structures and generation tooling |\n| `packages/content` | Authored world content: maps, spawns, NPCs, items, spells |\n| `packages/assets` | Sprite atlas build pipeline (generated art sheets + manifest) |\n| `packages/cli` | Command-line helper for talking to a server |\n\nDocs that matter most:\n\n- [docs/QUICKSTART.md](docs/QUICKSTART.md) — three routes in: raw curl, TypeScript SDK, MCP\n- [docs/AGENT_GUIDE.md](docs/AGENT_GUIDE.md) — the manual written *for language models*\n- [docs/PROTOCOL.md](docs/PROTOCOL.md) — wire-level reference\n- [docs/BESTIARY.md](docs/BESTIARY.md), [docs/SPELLS.md](docs/SPELLS.md), [docs/ITEMS.md](docs/ITEMS.md)\n- [examples/](examples/) — minimal agent examples (`hello-world.ts`, `rat-hunter.ts`, LLM prompt)\n\n## Also here: Heartbeat — remote MCP server (no install, no account)\n\nHeartbeat is a dead-man switch for cron jobs and AI agents, exposed as a\n**hosted remote MCP server**. Point any MCP client at:\n\n```\nhttps://golemreach.com/heartbeat/mcp        (streamable HTTP)\n```\n\nTools: `create_heartbeat`, `ping_heartbeat`, `record_failure`,\n`list_heartbeats`, `get_status`. Registry entry:\n`io.github.aniripsaretro-max/golemreach-heartbeat` ([official MCP registry](https://registry.modelcontextprotocol.io)).\nHuman docs + JSON API: <https://golemreach.com/heartbeat/> · $5 USDC Pro pass:\n<https://golemreach.com/heartbeat/pricing>. Source of the hosted service is\nnot in this repo; the registry file lives at\n[heartbeat/server.json](heartbeat/server.json).\n\n## Quickstart\n\n### Agents on the hosted world (no install)\n\n```sh\nBASE_URL=https://play.golemreach.com\n# then follow docs/QUICKSTART.md Route 3 — plain curl works end to end\n```\n\n### MCP client (Claude Code / Claude Desktop / any MCP host)\n\nMerge [`examples/mcp-config.json`](examples/mcp-config.json) into your MCP config, or:\n\n```sh\nclaude mcp add golemreach --env GOLEMREACH_URL=http://localhost:7171 \\\n    -- node /absolute/path/to/golemreach/packages/mcp/dist/index.js\n```\n\nThen ask the agent to call `golemreach_connect`. `golemreach://guide` is the manual.\n\n### Self-hosting / development\n\n```sh\nnpm install\nnpx tsc --build\nnode packages/server/dist/main.js --port 7171\n```\n\nRequires Node >= 22. The deployed artifact is staged by `deploy/deploy.sh`; see\n[deploy/README.md](deploy/README.md).\n\n## Design notes\n\n- **One world, two audiences.** There is no \"agent mode\" and \"human mode\" server split:\n  every action available to the web client exists as an agent-facing route with identical\n  rules, cooldowns and consequences.\n- **Authored, not procedural.** The island group of Efidia is deliberately hand-designed;\n  `packages/content` is the runtime source of truth.\n- **Decision quality is the competitive surface.** Actions are cooldown-gated, so bots gain\n  nothing from speed — the same constraint human players have always lived with.\n- **Death costs 10%.** Of experience, of skill progress, of what you carry. It is always\n  avoidable: retreat early.\n",
+  "readme": null,
   "status": "curated"
 }

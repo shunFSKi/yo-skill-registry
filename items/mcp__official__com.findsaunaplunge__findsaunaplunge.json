@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/com.findsaunaplunge/findsaunaplunge",
+  "type": "mcp",
+  "name": "FindSaunaPlunge — US cold plunge & sauna studios",
+  "description": "Cold plunge, sauna and contrast-therapy studios across US metros, each fact dated.",
+  "author": "com.findsaunaplunge",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/findsaunaplunge/mcp",
+    "repo": "findsaunaplunge/mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://findsaunaplunge.com/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-27T18:48:29.105323Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# FindSaunaPlunge MCP server\n\nModel Context Protocol server for [findsaunaplunge.com](https://findsaunaplunge.com): cold plunge, sauna and contrast-therapy venues across 23 US metros (548 venues, August 2026). Every published temperature and price is read from the venue's own pages and carries its source URL, capture date and verbatim quote. **Absent fields mean the venue does not publish that detail — never zero.**\n\n- **Endpoint:** `https://findsaunaplunge.com/mcp` — Streamable HTTP, stateless, no auth, open CORS. `GET` serves human documentation; `POST` is JSON-RPC.\n- **Registry:** [`com.findsaunaplunge/findsaunaplunge`](https://registry.modelcontextprotocol.io) (domain-verified).\n- **Data:** same records as the CC BY 4.0 feed [`/api/v1/venues.json`](https://findsaunaplunge.com/api/v1/venues.json); archived monthly at [github.com/findsaunaplunge/data](https://github.com/findsaunaplunge/data), DOI [10.5281/zenodo.22132913](https://doi.org/10.5281/zenodo.22132913).\n\n## Tools\n\n| Tool | Arguments | Returns |\n| --- | --- | --- |\n| `search_venues` | `query?`, `citySlug?`, `modality?`, `access?`, `maxDropInUsd?`, `limit?` | Compact venue records; filters AND-combine. `maxDropInUsd` matches only venues with a **published** drop-in price. |\n| `get_venue` | `id` | The full feed record, including per-fact `sources`. |\n| `list_cities` | — | Covered cities with venue counts and available modalities. |\n| `get_city_stats` | `citySlug` | Counts, published price and temperature ranges, contrast-capable venues. |\n| `get_data_freshness` | — | When the feed was built and the newest/oldest `lastVerified`. |\n\n## Connect\n\n```bash\n# Claude Code\nclaude mcp add --transport http findsaunaplunge https://findsaunaplunge.com/mcp\n\n# Any client, by hand\ncurl -s -X POST https://findsaunaplunge.com/mcp -H 'Content-Type: application/json' \\\n  -d '{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"tools/call\",\"params\":{\"name\":\"search_venues\",\"arguments\":{\"citySlug\":\"austin-tx\",\"modality\":\"cold_plunge\",\"limit\":3}}}'\n```\n\n## Run it yourself\n\nThe handler needs nothing but the public feed, so it runs anywhere with Node 24+:\n\n```bash\nnode src/serve.ts            # Streamable HTTP on :8080 — POST /mcp\nnode src/serve.ts --stdio    # JSON-RPC over stdio, one message per line\ndocker build -t findsaunaplunge-mcp . && docker run -i findsaunaplunge-mcp   # stdio\n```\n\nBoth modes read `https://findsaunaplunge.com/api/v1/venues.json` (override with `FINDSAUNAPLUNGE_ORIGIN`), so a self-hosted copy serves exactly what the site serves.\n\n## How it runs\n\n`src/mcp.ts` is the whole server: one `handleMcp(request, env)` function mounted at `/mcp` inside the site's Cloudflare Worker. It has no dependencies. Tool results come from the static `/api/v1/venues.json` asset produced by the site build (fetched through the Worker's `ASSETS` binding and memoized per isolate), so the server can never disagree with the site and a deploy refreshes it automatically. `server.json` is the registry manifest.\n\nThis repository is the published source of that server. The site itself is not open source.\n\n## Design rules\n\n- Stateless: no sessions, no server-initiated SSE. Every `POST` is self-contained.\n- Unknown arguments are rejected with a message naming the valid ones, rather than silently ignored.\n- Nothing here is, or will be, a paid placement.\n\n## Licence\n\nMIT — see [LICENSE](LICENSE). The venue data the server serves is separately licensed CC BY 4.0.\n",
+  "status": "curated"
+}

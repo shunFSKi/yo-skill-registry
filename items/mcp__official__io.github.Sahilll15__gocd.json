@@ -1,0 +1,70 @@
+{
+  "id": "mcp:official/io.github.Sahilll15/gocd",
+  "type": "mcp",
+  "name": "gocd",
+  "description": "MCP server for GoCD: dashboard, pipelines, artifacts, agents. Context-lean output.",
+  "author": "io.github.Sahilll15",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/Sahilll15/gocd-mcp",
+    "repo": "Sahilll15/gocd-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "gocd-mcp"
+    ],
+    "env": [
+      {
+        "name": "GOCD_BASE_URL",
+        "required": true,
+        "secret": false
+      },
+      {
+        "name": "GOCD_ACCESS_TOKEN",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-27T21:34:49.800433Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "设计",
+    "featured": false
+  },
+  "readme": "# gocd-mcp\n\nAn MCP server for [GoCD](https://www.gocd.org/). It exposes GoCD's REST API as MCP\ntools so any MCP client (Claude Code, Claude Desktop, Cursor) can read pipeline\nstate and drive pipelines. Two implementations live here and behave identically on\nthe wire: pick whichever fits how you want to install it.\n\n- `go/` — Go implementation. Ships as a single static binary or a Docker image. Fast cold start, low memory.\n- `ts/` — TypeScript implementation. Runs on Node with no dependencies, so `npx` needs no build step.\n\nBoth return the same context-lean output: the dashboard is summarized by default,\nrows are column-oriented, and responses are compact JSON. A full GoCD dashboard is\nseveral MB across many pipelines; these tools trim it to what the model needs.\n\n## Tools\n\nRead tools (safe):\n\n| Tool | What it does |\n|------|--------------|\n| `gocd_dashboard` | Dashboard health. No args = summary; `filter`/`status`/`detail` drill down |\n| `gocd_pipeline_status` | Paused / locked / schedulable for one pipeline |\n| `gocd_pipeline_instance` | One run: stages with per-job result, plus trigger |\n| `gocd_pipeline_history` | Recent runs for one pipeline. Optional `limit` |\n| `gocd_stage_instance` | One stage run with per-job state and agent |\n| `gocd_stage_history` | Recent runs of one stage |\n| `gocd_compare` | What changed between two runs: commits per material |\n| `gocd_list_artifacts` | A job's artifact files as `[path, url]` |\n| `gocd_get_artifact` | One artifact file, tail-capped (`cap_kb`) to stay context-lean |\n| `gocd_list_agents` | Build agents and state. Optional `filter`, `limit` |\n| `gocd_get_agent` | One agent by uuid |\n| `gocd_materials` | Configured materials. Optional `filter` |\n| `gocd_environments` | Environments and their pipeline/var counts |\n| `gocd_pipeline_groups` | Pipeline groups. Filter to list a group's pipelines |\n| `gocd_server_health` | Server health messages, counted by level |\n| `gocd_version` | GoCD server version |\n\nWrite tools (operate):\n\n| Tool | What it does |\n|------|--------------|\n| `gocd_trigger_pipeline` | Schedule a pipeline run |\n| `gocd_pause_pipeline` | Pause a pipeline |\n| `gocd_unpause_pipeline` | Resume a pipeline |\n\nSet `GOCD_READONLY=1` to hide the three write tools. Large listings\n(`dashboard`, `pipeline_groups`, `materials`, `environments`) are summarized or\nfilterable so they never dump the raw multi-MB body into the model's context.\n\n## Configuration\n\nTwo environment variables, both required:\n\n```\nGOCD_BASE_URL=https://gocd.example.com\nGOCD_ACCESS_TOKEN=<personal access token>\n```\n\n`GOCD_BASE_URL` is the bare host, without a trailing `/go`. The tools append\n`/go/api/...` themselves. Create the token in GoCD under your profile, Personal\nAccess Tokens.\n\n## Install\n\n### npx (Node >= 18), recommended\n\nZero install, nothing to build. This is the simplest way to run the server:\n\n```bash\nclaude mcp add gocd -e GOCD_BASE_URL=... -e GOCD_ACCESS_TOKEN=... -- npx -y gocd-mcp\n```\n\nPublished on npm as [`gocd-mcp`](https://www.npmjs.com/package/gocd-mcp) and on the\nMCP Registry as `io.github.Sahilll15/gocd`, so registry-aware clients can find it by name.\n\n### Go binary\n\nDownload a prebuilt binary from Releases, or build it:\n\n```bash\ncd go && go build -o gocd-mcp .\n```\n\nRegister it:\n\n```bash\nclaude mcp add gocd -e GOCD_BASE_URL=... -e GOCD_ACCESS_TOKEN=... -- /path/to/gocd-mcp\n```\n\n### Docker\n\n```bash\nclaude mcp add gocd -e GOCD_BASE_URL=... -e GOCD_ACCESS_TOKEN=... \\\n  -- docker run -i --rm -e GOCD_BASE_URL -e GOCD_ACCESS_TOKEN ghcr.io/sahilll15/gocd-mcp\n```\n\nTo run the TypeScript source directly during development (Node >= 22.6, uses\ntype-stripping):\n\n```bash\ncd ts && node --experimental-strip-types src/server.ts\n```\n\n## Which one\n\nThey are functionally identical. In a local benchmark the Go build started about\n4x faster (~21ms vs ~80ms cold start) and used about 6x less memory; per-request\nlatency was a tie because the GoCD network round-trip dominates. Prefer the Go\nbinary or Docker image for a spawned-per-session server; prefer `npx` when you want\nthe zero-install path and already have Node.\n\n## Layout\n\n```\ngocd-mcp/\n├── go/            Go implementation (main.go, internal/gocd)\n├── ts/            TypeScript implementation (src/server.ts source; publishes as compiled dist/server.js)\n├── Dockerfile     builds the Go binary into a distroless image\n├── .goreleaser.yaml + .github/workflows/release.yml   prebuilt binaries + ghcr image on tag\n└── server.json    MCP Registry manifest\n```\n",
+  "status": "curated"
+}

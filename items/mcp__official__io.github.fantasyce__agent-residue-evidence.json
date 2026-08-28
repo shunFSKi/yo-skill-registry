@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.fantasyce/agent-residue-evidence",
+  "type": "mcp",
+  "name": "Agent Residue Evidence",
+  "description": "Report local task-scoped test and build residue without cleaning resources.",
+  "author": "io.github.fantasyce",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/fantasyce/agent-residue-evidence",
+    "repo": "fantasyce/agent-residue-evidence"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "https://github.com/fantasyce/agent-residue-evidence/releases/download/v0.3.0/agent-residue-evidence_0.3.0.mcpb"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-27T15:47:20.883689Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# Agent Residue Evidence\n\nAgent Residue Evidence (ARE) adds an evidence checkpoint to an Agent's test and\nbuild workflow:\n\n```text\nobserve → Agent reviews evidence → user authorizes cleanup\n        → Agent cleans with its own tools → ARE verifies\n```\n\nARE shows task-scoped files, directories, attributed processes, and their\nlistening ports. It never deletes files, stops processes, closes ports, decides\nthat something is safe to delete, scans the full machine, uploads data, uses\nthe network, or collects telemetry.\n\nVisit the [project site](https://fantasyce.github.io/agent-residue-evidence/),\nrun the [reproducible task-residue demo](docs/demo.md), or download the\n[latest verified release](https://github.com/fantasyce/agent-residue-evidence/releases/latest).\n\n## Standard task\n\nBefore the first test or build, the Agent calls `begin_task_observation` with\nthe exact workspace and any task-owned temporary roots. Events are optional;\nsafe generic events or empty heartbeats can be sent with\n`append_task_events`. Before its final answer, the Agent calls\n`end_task_observation`, explains the candidates, and asks the user what to do.\nOnly after explicit authorization does the Agent clean with its normal tools.\nIt then calls `verify_task_residue` to recheck the same stable candidates.\n\n`NO_CANDIDATES_OBSERVED` means only that no candidate appeared inside the\ndeclared observation scope. It is not a host-wide cleanliness claim.\n\n## Completed task without a baseline\n\n`inspect_completed_task` accepts explicit roots and a bounded time window.\nThe result is always `PARTIAL_EVIDENCE`; it can use Event, receipt, inferred,\nor unattributed evidence, but never claims `BASELINE_OBSERVED`. Use\n`get_residue_report` to read a saved report without observing again.\n\nEvery observation is isolated by an opaque owner capability. Task IDs, report\nIDs, observation IDs, and candidate IDs are display references only and never\nauthorize access. State is encrypted at rest with opaque filenames; exact\npaths are revealed only through an authorized candidate-resolution call.\nShort-lived executor capabilities can append only explicitly allowed event\ntypes and root aliases and cannot read, end, verify, or resolve a task.\n\nThe MCP surface contains exactly eight tools:\n\n- `begin_task_observation`\n- `append_task_events`\n- `end_task_observation`\n- `inspect_completed_task`\n- `get_residue_report`\n- `verify_task_residue`\n- `delegate_task_executor`\n- `resolve_residue_candidate`\n\nThere is deliberately no cleanup, delete, execute, terminate, or close tool.\n\n## Local-first packaging\n\nOne release contains a native CLI/stdio MCP server, thin Agent Plugin, MCPB,\nchecksums, provenance, and SPDX SBOM. See [Quickstart](docs/quickstart.md) and\n[Install](docs/install.md). Runtime operation is fully local and offline.\nReports default to seven-day retention and a 100 MB total cap; retained reports\nand active baselines are protected. Uninstall never silently deletes reports.\n\nThe MCP Registry namespace is\n`io.github.fantasyce/agent-residue-evidence`.\n\nNative acceptance covers macOS 14+ arm64, Linux amd64, and Windows 11 amd64\nthrough mandatory native CI jobs. Cross-compilation alone is not reported as\nnative acceptance.\n\n## Development\n\nGo 1.26 or 1.27 is required.\n\n```bash\nbash scripts/check.sh\nbash scripts/run_native_acceptance.sh\n```\n\nApache-2.0 licensed. See [Security](SECURITY.md),\n[Contributing](CONTRIBUTING.md), and [native acceptance](docs/native-acceptance.md).\n",
+  "status": "curated"
+}

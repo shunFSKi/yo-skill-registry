@@ -21,7 +21,7 @@
   "quality": {
     "stars": null,
     "pushed_at": "2026-08-26T01:58:39.957261Z",
-    "score": 52
+    "score": 42
   },
   "security": {
     "score": 100,
@@ -53,6 +53,6 @@
     "category": null,
     "featured": false
   },
-  "readme": "# screenverity-mcp\n\nMCP server for **[ScreenVerity](https://screenverity.com)** — U.S. exclusion, debarment and\nlicence screening for agents, with an Ed25519-signed receipt of exactly which list snapshots\nwere checked.\n\nScreening one name through a state or federal portal usually costs an agent **~50k–200k tokens**\nof browse-and-parse traffic and leaves no audit artefact. One `POST /v1/screen` is **~2k tokens**\nof structured JSON, and it leaves evidence.\n\nCoverage is explicit and deliberately unexaggerated — call `sources` and read it. This is not a\n\"50 states\" product.\n\n## Install\n\n```bash\nnpx screenverity-mcp\n```\n\nOr run the single file directly — it has **no dependencies**:\n\n```bash\ncurl -O https://api.screenverity.com/mcp/server.js\nnode server.js\n```\n\n### Claude Code\n\n```bash\nclaude mcp add screenverity -- npx -y screenverity-mcp\n```\n\n### Any MCP client (stdio)\n\n```json\n{\n  \"mcpServers\": {\n    \"screenverity\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"screenverity-mcp\"]\n    }\n  }\n}\n```\n\n## Tools\n\n| Tool | What it does |\n|------|--------------|\n| `screen` | Screen one subject across every loaded list; returns `clear` / `possible_match` / `match` + a signed receipt |\n| `sources` | Which lists are loaded, their jurisdiction, freshness, and `full` / `partial` / `never_loaded` coverage |\n| `verify_receipt` | Check an Ed25519 receipt against its request/response |\n\n**All three are free.** No API key, no account, no wallet.\n\nCall `sources` before assuming any particular list is covered.\n\n## Cost\n\nFree. There is no payment, no key and no account.\n\nThe public endpoint is rate limited. If you are limited, `screen` returns\n`{\"error\": \"rate_limited\"}` — **it never fabricates a `clear` result.** That property is\ndeliberate: a screening tool that guesses is worse than no screening tool.\n\n> 0.1.0 charged $0.25 per call via x402. That is gone. If you pinned 0.1.0, upgrade —\n> it points at an endpoint that no longer exists in that form.\n\n## Using the results\n\n- `possible_match` means **adjudicate**, not auto-reject.\n- If `complete` is `false`, a list was unavailable — it is not a full screen.\n- Always pass `npi`, `dob`, or `license` when you have them. Common names without identifiers are\n  capped at `possible_match` by design.\n\n## Not a consumer report\n\nScreenVerity is compliance-workflow tooling that retrieves and signs public exclusion-list data.\nIt is **not** a consumer reporting agency and its output is not a consumer report. Do not use it\nto make eligibility decisions about employment, credit, insurance, or housing. Consult counsel\nabout FCRA obligations for your use case.\n\n## More\n\n- Skill description for agents: [`SKILL.md`](SKILL.md)\n- Integration guide: [`INTEGRATION.md`](INTEGRATION.md)\n- API spec: [`openapi.json`](openapi.json) · live at https://api.screenverity.com/openapi.json\n- Coverage, right now: https://api.screenverity.com/v1/sources\n\n## License\n\nMIT\n",
+  "readme": null,
   "status": "curated"
 }

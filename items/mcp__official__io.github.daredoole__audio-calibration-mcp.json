@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.daredoole/audio-calibration-mcp",
+  "type": "mcp",
+  "name": "Audio Calibration MCP",
+  "description": "Evidence-bound REW measurement, analysis, conservative EQ, DSP, and listening-test tools.",
+  "author": "io.github.daredoole",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/daredoole/audio-calibration-mcp",
+    "repo": "daredoole/audio-calibration-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "https://github.com/daredoole/audio-calibration-mcp/releases/download/v0.2.0-beta.1/audio-calibration-mcp-0.2.0-beta.1.mcpb"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-27T18:20:58.192323Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# Audio Calibration MCP\n\n<p align=\"center\">\n  <img src=\"assets/audio-calibration-mcp-icon.png\" alt=\"Audio Calibration MCP calibration-bunny logo\" width=\"280\">\n</p>\n\nAudio Calibration MCP is a local-first, cross-platform Model Context Protocol\nserver for Room EQ Wizard (REW). It guides acoustic measurement, speaker and\nroom calibration, subwoofer and crossover analysis, conservative EQ, DSP\ndeployment, and measured verification for general, powered-speaker, car, and\nlaptop audio systems.\n\nThis project does not promise universally “perfect” sound. REW can measure an\nacoustic system; it cannot infer listener preference, microphone placement, or a\nspeaker's safe output capability without evidence. The MCP reports missing data\nand keeps preference separate from engineering calculations.\n\n[![CI](https://github.com/daredoole/audio-calibration-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/daredoole/audio-calibration-mcp/actions/workflows/ci.yml)\n[![CodeQL](https://github.com/daredoole/audio-calibration-mcp/actions/workflows/codeql.yml/badge.svg)](https://github.com/daredoole/audio-calibration-mcp/actions/workflows/codeql.yml)\n[![Release](https://img.shields.io/github/v/release/daredoole/audio-calibration-mcp?include_prereleases&label=release)](https://github.com/daredoole/audio-calibration-mcp/releases)\n[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)\n[![Buy Me a Coffee](https://img.shields.io/badge/support-Buy%20Me%20a%20Coffee-FFDD00)](https://buymeacoffee.com/daredoole)\n\n## Choose the right audio MCP\n\n| Use this project when you need | Use [EvoBurrow MCP](https://github.com/daredoole/evoburrow-mcp) when you need |\n|---|---|\n| General REW acoustic measurement and evidence-based EQ | A1 Evo AcoustiX artifact inspection or terminal workflows |\n| Room, speaker, subwoofer, car, powered-speaker, or laptop calibration | Denon/Marantz AVR status, preset mapping, backup, or guarded LAN control |\n| JamesDSP, CamillaDSP, Equalizer APO, FIR, or listening-test workflows | Audyssey `.ady`/`.oca` review tied to live receiver state |\n\nThe projects share measurement discipline, but this MCP deliberately stays hardware-neutral; EvoBurrow owns the A1 and AVR-specific safety boundary.\n\n## Measured laptop example — before and after\n\n![REW frequency-response comparison of factory laptop speakers and the JamesDSP-tuned preset](assets/laptop-before-after.svg)\n\nThis is measured evidence from four repeated REW sweeps per state, averaged with\n1/12-octave smoothing. Factory is amber and the cut-only JamesDSP preset is cyan.\nThe shaded area below 500 Hz marks the protection-limited bass region where no\nboost was applied. The plot preserves measured SPL; preference was assessed in a\nseparate level-matched listening comparison. Device, microphone, and preset\nidentifiers are intentionally removed from the public artifact.\n\n## Compatibility\n\n| Component | Support |\n|---|---|\n| Node.js | 20 and 22 |\n| Operating systems | Windows x64, macOS Intel/Apple Silicon, Linux x64/ARM64 |\n| REW | Local API on port 4735; cross-platform install discovery and confirmed startup |\n| JamesDSP | Linux/JDSP4Linux inspect, preview, backup, apply, verify, rollback, blinded level-matched A/B |\n| Equalizer APO | Export; guarded apply when an explicit config path is configured |\n| CamillaDSP | YAML export; guarded file apply when explicitly configured |\n| miniDSP | REW-compatible text export; no hardware mutation in the beta |\n| A1 Evo/Denon | Optional separate bridge; no AVR assumptions in this plugin |\n\n## Install\n\nDownload a GitHub release archive and point Codex at its `.mcp.json`. For a source\ncheckout:\n\n```text\nnpm ci --ignore-scripts\nnpm test\nnpm run validate:release\n```\n\nThe checked-in MCP configuration starts the self-contained `dist/server.mjs`.\nThe packaged CLI is also bundled, and the published artifact declares zero\nruntime npm dependencies. Third-party build inputs are exact-pinned and installed\nwith lifecycle scripts disabled. Run\n`rew_install_discover` to locate REW through a user override, the\n`AUDIO_REW_EXECUTABLE` environment variable, `PATH`, and conventional Windows,\nmacOS, or Linux locations. If discovery fails, pass the absolute executable path\n(or `REW.app` on macOS) to that tool or `rew_launch_plan`. Starting REW requires\nthe matching `rew_launch_execute` confirmation. Startup is verified against the\nAPI on `http://127.0.0.1:4735`; override `AUDIO_REW_URL` only for a trusted local\nnetwork endpoint. REW's API still must be enabled in REW itself.\n\n## Guided workflow\n\n1. Run `audio_doctor`. If REW is offline, use `rew_install_discover`, then the\n   confirmed `rew_launch_plan`/`rew_launch_execute` pair. Continue with\n   `rew_capability_negotiate` and `audio_guided_session_plan`.\n2. Inventory the host, REW, microphone calibration, output route, and DSP state.\n3. Create a protected repeated-session plan. Audible execution requires fresh\n   microphone-placement, area-clear, and route/safety confirmation.\n4. Save separate raw traces, then run quality, dual-resolution, direct/late,\n   crossover, distortion/compression, and human-listening analyses.\n5. Prefer placement, polarity, timing, crossover, and stable cut-first EQ.\n6. Apply only a hash-bound confirmed plan with backup and rollback.\n7. Re-measure at matched level. Start `audio_post_eq_verification`, then poll\n   `audio_job_status`; the verifier derives level difference from the traces.\n   Predicted response and caller-claimed level matching are never acceptance evidence.\n8. Use randomized, level-matched A/B or ABX for preference/discrimination.\n   On JamesDSP, `jamesdsp_ab_plan` plus its presentation and restore executors\n   switch presets and host volume transactionally without revealing assignments.\n\n## Analysis views\n\nReports preserve the source trace and display native unsmoothed data, derived\nengineering resolution, 1/48-octave structure, adaptive modal-to-perceptual\nsmoothing, and ERB/perceptual views. Filters are eligible only when features are\nstable across repetitions and held-out data. Narrow/spatial nulls are not boosted.\n\n`audio_report_plan` can also accept two to four repeated comparison groups. It\naverages each state, preserves ±1 SD, calculates the measured level difference,\nand exports Markdown, HTML, JSON, and a standalone labeled SVG suitable for a\nREADME. Missing SNR rejects the quality gate by default; exploratory callers must\nexplicitly opt out with `requireSnr: false`.\n\n## Privacy\n\nThere is no telemetry. Local sessions may contain usernames, absolute paths,\ndevice names, room coordinates, microphone hashes, and preset fingerprints.\nNever publish `measurements/`, `sessions/`, `backups/`, `profiles/`, `reports/`,\nor `filters/` directly. Use the redacted support-artifact tools and review the\nresult before sharing it.\n\n## Development and validation\n\n`npm test` is hardware-independent. `npm run coverage` exercises deterministic\nDSP and safety fixtures. `npm run validate:release` checks manifests, metadata,\nthe bundled server, and package contents. Real-system smoke tests are opt-in and\nmust never run in ordinary CI.\n\nREW requests are bounded to four concurrent calls by default. Set\n`AUDIO_REW_MAX_CONCURRENCY` from 1–8 only when the local REW instance has been\nvalidated at that concurrency.\n\nSee [SECURITY.md](SECURITY.md), [CONTRIBUTING.md](CONTRIBUTING.md), and\n[CHANGELOG.md](CHANGELOG.md). Licensed under the MIT License.\n\n## Measurement-science laboratory modules\n\nBounded tools cover GUM-style uncertainty budgets and Monte Carlo propagation,\nbootstrap repeatability, complex-transfer coherence and phase confidence,\nISO-3382-aligned room screening, exploratory polar/directivity scans, clean-output\nladders, held-out-seat complex multi-source optimization, regularized FIR proposals,\ncontrolled listening trials, immersive/SOFA metadata preflight, and reference-corpus\nauditing.\n\n`Screening`, `inspired`, and `standards-aligned` never mean certified conformity.\nISO, IEC, ANSI/CTA, AES, and ITU conformity requires the complete current normative\ndocument, prescribed setup and processing, calibrated instrumentation, and traceable\nevidence. Optimization and FIR outputs remain proposals until protected, level-matched\nhardware remeasurement accepts them.\n\n## Curated external datasets\n\n`audio_dataset_catalog` exposes reviewed metadata for selected SADIE II, FLAIR,\nMeshRIR, and RAVes artifacts without downloading them. Dataset acquisition uses a\nhash-bound plan/execute pair, requires license acknowledgement, enforces an exact\nbyte ceiling, accepts only pinned Zenodo HTTPS URLs, refuses overwrites, checks the\nupstream checksum, calculates SHA-256, and writes a provenance receipt under the\nworkspace `datasets/` directory.\n\nRemote entries and checksum-verified downloads are not automatically scientific\nvalidation. Readiness is calculated per domain and requires parsed, method-compatible\nreferences from at least two independent institutions with justified tolerances.\n\n## Laptop calibration\n\nLaptop speakers remain fully supported, but this is the least general workflow and\nis intentionally documented last. Laptop mode starts at 120 Hz and -30 dBFS by\ndefault. Stop immediately on an unexpected route, silence, clipping, limiter\nactivity, rattling, or distress.\n\n## Support the project\n\nAudio Calibration MCP is free and open source. If it saves you time or improves\nyour system, you can [buy daredoole a coffee](https://buymeacoffee.com/daredoole).\n",
+  "status": "curated"
+}

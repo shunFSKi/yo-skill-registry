@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.oxyplay/wyd",
+  "type": "mcp",
+  "name": "wyd",
+  "description": "Local runtime provenance for coding agents. Inspect sessions and explain which one owns a process.",
+  "author": "io.github.oxyplay",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/oxyplay/wyd",
+    "repo": "oxyplay/wyd"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "wyd"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-27T21:45:53.950705Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# wyd\n\n**wyd?** — *what you doing?*\n\nSee what your coding agents left running.\n\nCoding agents spawn MCP servers, headless browsers, dev servers, workers, and databases.\n\n`ps` tells you what is running. `wyd` tells you **why** — which session started it, in which project, and whether it's leftover.\n\n```text\nOpenCode\n└─ chrome-devtools-mcp\n   └─ Chromium ×8       1.2 GB\n\nAgent exited 47m ago\n⚠ leftover\n```\n\nLocal, macOS and Linux. No account, no network, no telemetry.\n\n**https://wyd.sh**\n\n```bash\ncurl -fsSL https://wyd.sh/install.sh | sh\n# or\nbrew install oxyplay/tap/wyd\n# or\ncargo install wyd\nwyd\nwyd upgrade   # brew or cargo, matching the install\n```\n\nEach tagged release publishes the crate to crates.io and bumps\n`Formula/wyd.rb` in [oxyplay/homebrew-tap](https://github.com/oxyplay/homebrew-tap)\nautomatically, so `wyd upgrade` stays current with no manual step. `wyd upgrade`\nstill prints a hint if a formula bump is ever lagging.\n\nBinaries: [GitHub Releases](https://github.com/oxyplay/wyd/releases). From a clone: `cargo install --path .`\n\n\n![wyd TUI — agents, MCP, Vite, and project folders](docs/screenshot.webp)\n\nOS daemons stay hidden. Desktop Chrome stays hidden. Agent-spawned Chromium does not.\n\n## Why wyd\n\n| | `ps` / Activity Monitor | Docker Desktop | wyd |\n|---|---|---|---|\n| Every process | yes | containers only | only dev runtime |\n| Who started it | no | compose labels | agent → MCP → browser |\n| Which project | no | sometimes | cwd / git root |\n| Leftover? | no | you guess | scored, with a reason |\n| Safe kill | you hope | stop/rm | PID + start time, `y` to confirm |\n| Volumes | — | easy to nuke | unused ≠ garbage; `D` required |\n\nBuilt for people who run coding agents all day and then ask *what did that session leave behind?*\n\n## Runtime ownership\n\nBeyond the live view, wyd tracks **coding-agent runtime sessions** — which\nresources a session spawned, keyed by `boot_id + pid + start_time`, so the\nprovenance survives process re-parenting and Wyd restarts. A deterministic\nresolver attributes resources to a session with an explainable score when\nexact ancestry is gone.\n\n- **Sessions** view in the TUI (top-level): agent · project · state · age · id, with a details panel.\n- **`wyd why <pid>`** — which session owns a process, and the evidence.\n- **`wyd --json sessions`** — recorded sessions as JSON.\n- **`wyd serve`** — a local daemon over a Unix socket (`wyd.sock`, mode 0600, single-instance). Keeps provenance fresh and answers read-only queries; vendors can register sessions with `session_start` / `session_end` (their id maps to a Wyd session as an alias).\n- **`wyd mcp`** — a Model Context Protocol server over stdio, so a coding agent can ask wyd for its sessions and who owns a PID.\n\n## MCP\n\n`wyd` also speaks the Model Context Protocol over stdio, so a coding agent\ncan ask the machine what it — or other agents — left running.\n\n```bash\nwyd mcp\n```\n\nStarts the local MCP server (read-only). It exposes two tools:\n`list_sessions` (recorded agent sessions) and `explain` (which session owns a\nprocess, by pid). No network, no account — the answers come from the local\nprovenance store.\n\nRegistered in the MCP Registry:\n\n- MCP Registry name: `mcp-name: io.github.oxyplay/wyd`\n\n## WebMCP (browser)\n\n`wyd web` is a loopback HTTP dashboard plus a WebMCP tool surface, so a\n**browser** agent can investigate runtime provenance in the same UI the\nhuman sees — not just a coding agent over stdio.\n\n```bash\nwyd web              # real local runtime (loopback only)\nwyd web --demo       # deterministic synthetic dataset, no host data\n```\n\n- **Overview** sidebar: categories with counts and memory, leftovers highlighted.\n- **Runtime** tree: agent → MCP → browser/dev-server hierarchy with RAM/CPU/status/age.\n- **Details** drawer: verdict, why-it's-flagged reasons, provenance evidence, `Terminate` (PID + start-time revalidated, human-confirmed) and *Copy investigation prompt*.\n- **Light + dark** themes, responsive columns.\n- Loopback-only by default; `--allow-lan` is explicit and discouraged.\n\n`wyd mcp` (stdio) and `wyd web` (browser WebMCP) read the same store and\nexpose the same session/ownership primitives — they're entry points for\ndifferent clients. See [docs/webmcp.md](docs/webmcp.md).\n\n## Keys\n\n| Key | Action |\n|---|---|\n| `←` `→` / `h` `l` | overview / list |\n| `↑` `↓` / `j` `k` | move |\n| `Tab` | focus overview / list |\n| `backspace` | go back (clear filter / project / section, never quits) |\n| `enter` | details popup; on a project, pin that project |\n| `space` | mark several |\n| `x` / `K` | terminate / force kill (`y` confirms) |\n| `s` | stop running Docker container (running ones sort first) |\n| `c` | Docker clean (`y`; volumes need `D`) |\n| `P` | prune unused anonymous volumes (confirm; named data kept) |\n| `o` | open server URL from details (`http://…` shown only for a live socket) |\n| `p` | projects |\n| `/` | filter |\n| `r` | refresh |\n| `?` | help |\n| `esc` | close popup, then clear filter / project, then quit |\n| `q` | quit |\n\nKill only signals the item’s own PIDs (re-checked by PID + start time). A named volume is never treated as garbage — only anonymous, unattached ones (`P`) are offered for pruning, with confirmation. The bottom hint line is context-aware: it shows the actions that apply to the currently selected row.\n\n## Scripts\n\nSame snapshot as the TUI — useful after an agent finishes a task:\n\n```bash\nwyd --json leftovers\nwyd --plain mcp\nwyd --json project myapp\nwyd --json sessions      # recorded agent sessions\nwyd why <pid>            # which session owns a process, and the evidence\nwyd serve                # local daemon: Unix-socket API + keeps provenance fresh\nwyd mcp                  # MCP server over stdio (for coding agents)\nwyd prune --dry-run      # list anonymous volumes that would be deleted\nwyd prune                # confirm, then delete them\n```\n\nFilters: `leftovers`, `mcp`, `agents`, `docker`, `project`, `sessions` (JSON only).\n\n```json\n{\n  \"runtime\": [{ \"type\": \"mcp\", \"name\": \"chrome-devtools-mcp\", \"pid\": 94148, \"status\": \"leftover\", \"reasons\": [\"owning agent missing\"] }],\n  \"docker\": [{ \"type\": \"dangling-image\", \"name\": \"abcdef012345\", \"status\": \"dangling\", \"size_bytes\": 1400000000 }]\n}\n```\n\nField names stay stable until a major version bump. Empty `ports` / `reasons` / `children` / `project` are omitted.\n\n## Config\n\n`~/.config/wyd/config.toml` — missing file is fine.\n\n```toml\n[leftovers]\nserver_age_hours = 8\n\n[persistent]\ncommands = [\"postgres\", \"redis-server\"]\n\n[projects]\nroots = [\"~/Work\"]\n\n[keys]\nquit = \"q\"\nkill = \"x\"\nforce_kill = \"K\"\nclean = \"c\"\nstop = \"s\"\nprune = \"P\"\nhelp = \"?\"\nrefresh = \"r\"\n\n[[signature]]\ncategory = \"agent\"\nnames = [\"myagent\"]\ncontains = [\"my-company-agent\"]\ndisplay = \"myagent\"\n```\n\n## License\n\nApache-2.0. Copyright 2026 Maksym Nevinchanyy.\n",
+  "status": "curated"
+}

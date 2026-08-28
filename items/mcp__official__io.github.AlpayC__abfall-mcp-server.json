@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.AlpayC/abfall-mcp-server",
+  "type": "mcp",
+  "name": "Abfallkalender Deutschland",
+  "description": "Waste collection dates for German addresses from municipal authority calendars.",
+  "author": "io.github.AlpayC",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/AlpayC/abfall-mcp-server",
+    "repo": "AlpayC/abfall-mcp-server"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://abfall-mcp.alpaycelik.dev/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-27T19:50:49.206153Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "办公",
+    "featured": false
+  },
+  "readme": "# abfall-mcp-server\n\n*English · [Deutsch](README.de.md)*\n\n[![CI](https://github.com/AlpayC/abfall-mcp-server/actions/workflows/ci.yml/badge.svg)](https://github.com/AlpayC/abfall-mcp-server/actions/workflows/ci.yml)\n[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)\n[![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-blue.svg)](https://www.python.org/)\n[![Providers: 995](https://img.shields.io/badge/waste%20authorities-995-green.svg)](data/providers.json)\n<!-- mcp-readiness-badge:start -->\n[![MCP 2026-07-28 readiness](https://img.shields.io/badge/MCP%202026--07--28-A%20(100%2F100)-37d399)](https://github.com/AlpayC/abfall-mcp-server/actions/workflows/mcp-check.yml)\n<!-- mcp-readiness-badge:end -->\n\nMCP server for the waste collection calendars of German cities and districts.\nLooks up collection dates — residual waste, organic waste, paper, packaging,\nbulky waste, hazardous waste collection points — for a given address.\n\nWebsite and interactive setup guide:\n[`abfall-mcp.alpaycelik.dev`](https://abfall-mcp.alpaycelik.dev/).\n\n```\naddress ──▶ Nominatim ──▶ municipality + district ──▶ provider search (995)\n                                                              │\n                       collection dates ◀── portal ◀── resolve arguments\n```\n\n## Why this is not trivial\n\nWaste management in Germany is organised municipally. There is **no nationwide\nAPI** — roughly 400 public waste authorities each run their own portal, backed\nby a handful of software platforms (Abfall.IO/AbfallPlus, AbfallNavi, Jumomind,\nAWIDO, C-Trace, Müllmax, plus many plain ICS exports).\n\nThis server uses\n[`mampfes/hacs_waste_collection_schedule`](https://github.com/mampfes/hacs_waste_collection_schedule)\n(MIT) as its data source — an actively maintained project with over 950 source\nmodules. Its inner package is independent of Home Assistant and is wired in\nhere as a Git submodule.\n\nThe actual work of this project is turning an *address* into the responsible\nwaste authority **and its internal parameters**. In Home Assistant a human\nclicks that together once; an MCP server has to do it on its own.\n\n## Installation\n\nThe server runs **from a repository checkout**, not as an installed package: it\nneeds the data source under `vendor/` and the registry under `data/`, both\nresolved relative to the project root. That is also why it is not on PyPI — a\nwheel would install cleanly and still not work.\n\n```bash\ngit clone --recurse-submodules https://github.com/AlpayC/abfall-mcp-server.git\ncd abfall-mcp-server\nuv sync\nuv run pytest\n```\n\n`data/providers.json` is checked in, so the server starts right away. After a\nsubmodule update, rebuild it:\n\n```bash\nuv run python scripts/build_registry.py\n```\n\n## Wiring it up\n\nPublic remote via Streamable HTTP:\n\n```json\n{\n  \"mcpServers\": {\n    \"abfall\": {\n      \"url\": \"https://abfall-mcp.alpaycelik.dev/mcp\"\n    }\n  }\n}\n```\n\nThe service health endpoint is\n[`https://abfall-mcp.alpaycelik.dev/health`](https://abfall-mcp.alpaycelik.dev/health).\n\nLocally over stdio — in `claude_desktop_config.json` or `.mcp.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"abfall\": {\n      \"command\": \"uv\",\n      \"args\": [\"--directory\", \"/path/to/abfall-mcp-server\", \"run\", \"abfall-mcp-server\"]\n    }\n  }\n}\n```\n\nAs an HTTP service:\n\n```bash\nuv run abfall-mcp-server --http --host 127.0.0.1 --port 8000\n```\n\nKeep in mind that every HTTP request puts load on the authorities' portals and\non Nominatim. For anything beyond personal use, put a cache in front and your\nown Nominatim instance behind it (`ABFALL_MCP_NOMINATIM_URL`).\n\n## Tools\n\nTool names and responses are German, because the domain and the users are.\n\n| Tool | Purpose |\n|---|---|\n| `abfuhrtermine` | Address in, collection dates out. The usual entry point. |\n| `finde_traeger` | Search authorities by place or company name, no geocoding. |\n| `traeger_details` | Which arguments does an authority expect? |\n| `abfuhrtermine_fuer_traeger` | Targeted query, e.g. to answer a follow-up question. |\n| `abdeckung` | How many authorities and data sources are covered. |\n\nPlus the resource `abfall://traeger` with the full list of authorities.\n\n### Asking beats guessing\n\nWhen a value cannot be determined unambiguously, the server returns\n`status: \"rueckfrage\"` along with the concrete list of options instead of\nguessing. That is deliberate: a wrongly guessed town cheerfully returns the\nneighbouring municipality's calendar — a wrong answer that looks like a right\none.\n\n## Coverage, measured\n\n`scripts/build_registry.py` collects **995 waste authorities** from 150 source\nmodules.\n\n`scripts/smoke.py` queries real addresses against the real portals. A run over\n21 addresses across Germany (as of Aug 2026):\n\n| Outcome | Share |\n|---|---|\n| Collection dates returned directly | 48 % |\n| Follow-up question for a missing detail | 14 % |\n| No authority returned dates | 38 % |\n\nThat is the measured number, not an estimate — and the reason to state it here:\n\"covers every German city\" is true of the *authority list*, not of fully\nautomatic resolution from a bare address.\n\n### Authorities with their own ID lookup\n\nSome portals require internal identifiers that cannot be derived from an\naddress. For these, the portal's address dialog is reimplemented in\n`lookup.py`:\n\n| Authority | Identifier | Scope |\n|---|---|---|\n| Abfall.IO / AbfallPlus | `f_id_kommune`, `f_id_strasse`, … | 41 authorities |\n| Stadtreinigung Hamburg | `hnId` | Hamburg |\n| Berliner Stadtreinigungsbetriebe | `schedule_id` | Berlin |\n\nThe upstream wizard for Hamburg is stale by now — the portal moved its form to\na JavaScript component, whose address endpoint is read out of the page here.\n\n### Where the remaining cases fail\n\n* **Further ID arguments** with no lookup path: `standort` in Dresden,\n  `idHouseNumber` in Leipzig, `streetnr` in Stuttgart. One more resolver each,\n  following the same pattern as the three above.\n* **Portals using different spellings** that ship no list of suggestions\n  (Erfurt, Kiel).\n* **Outages, rate limiting and malformed responses** on the authorities' side\n  (Saarbrücken returns HTML instead of ICS).\n\n## Layout\n\n| File | Responsibility |\n|---|---|\n| `wcs.py` | Bridge to the vendored library; registers the package deliberately instead of putting it on `sys.path` (its parent directory holds a `calendar.py` that shadows the stdlib). |\n| `registry.py` | Authority list and location search with German stemming. |\n| `geo.py` | Nominatim, address variants, plausibility checks. |\n| `resolve.py` | Address → authority → resolved arguments → collection dates. |\n| `lookup.py` | Address dialogs for authorities with internal IDs (Abfall.IO, Hamburg, BSR). |\n| `server.py` | MCP tools, stdio and HTTP. |\n\nThe registry is not built at runtime: `data/providers.json` is produced by a\nscript so that starting the server does not import 150 modules. Rebuild it\nafter a submodule update.\n\n## Data sources and usage\n\nCollection dates come from the portals of the respective waste authorities,\naddress resolution from [Nominatim](https://nominatim.openstreetmap.org/)\n(OpenStreetMap). Nominatim has a usage policy — at most one request per second;\nthe server honours it and caches results in `~/.cache/abfall-mcp-server/`.\n\nFor dates something depends on (bulky waste, hazardous waste collection), it is\nworth checking the portal address that every response carries.\n\n## Contributing\n\nThe most useful contribution is a report that some authority does not work —\nthere is an [issue template](.github/ISSUE_TEMPLATE/provider.yml) with the\nright questions. How to add an authority resolver is in\n[CONTRIBUTING.md](CONTRIBUTING.md); security issues belong in a private report,\nsee [SECURITY.md](SECURITY.md). Changes are listed in the\n[CHANGELOG](CHANGELOG.md). Agents working on this repository should read\n[AGENTS.md](AGENTS.md).\n\nOne principle runs through the whole project and applies to contributions too:\n**when in doubt, ask — do not guess.** A wrongly guessed town cheerfully\nreturns the neighbouring municipality's calendar — a wrong answer that looks\nlike a right one.\n\n## License\n\nMIT, see [LICENSE](LICENSE). The submodule\n`vendor/hacs_waste_collection_schedule` is under its own MIT license,\nCopyright (c) 2020 Steffen Zimmermann — this repository only references it, it\ndoes not ship the code. Third-party attributions are collected in\n[NOTICE](NOTICE).\n",
+  "status": "curated"
+}
