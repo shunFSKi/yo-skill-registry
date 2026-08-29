@@ -10,14 +10,20 @@
     "repo": "diego81b/kairos-agents-framework",
     "path": "skills/agent-contract/SKILL.md"
   },
-  "license": null,
+  "license": "AGPL-3.0",
   "install": {
     "kind": "skill-dir"
   },
   "quality": {
-    "stars": null,
-    "pushed_at": null,
-    "score": 25
+    "stars": 1,
+    "pushed_at": "2026-08-28T16:28:58Z",
+    "score": 58,
+    "star_history": [
+      {
+        "d": "2026-08-29",
+        "s": 1
+      }
+    ]
   },
   "security": {
     "score": 100,
@@ -49,6 +55,6 @@
     "category": null,
     "featured": false
   },
-  "readme": null,
+  "readme": "# KAIROS Framework\n\n**\"The Right Moment for Development\"**\n\nIntelligent multi-agent SDLC orchestration\n\n## What's Included\n\n- **agents/** - 14 core agent definitions + 5 optional Team Mode specialists\n- **docs/** - Complete documentation site (VitePress)\n- **CHANGELOG.md** - Version history\n\n## Optional Enhancements\n\nKAIROS agents declare optional enhancements via skills and MCP tools. The framework works fully without them — enhancements are additive only.\n\nKAIROS does not depend on or recommend any third-party skill plugin — coding-discipline and security-review heuristics ship natively as part of this plugin's own `skills/` directory, installed automatically with KAIROS itself.\n\n**Recommended installs:**\n- [Chrome DevTools MCP](https://github.com/ChromeDevTools/chrome-devtools-mcp) — behavioral verification for test agents (42.8k stars)\n- [Playwright MCP](https://github.com/microsoft/playwright-mcp) — E2E automation for test agents (33.3k stars)\n\nSee [Skills & MCP Enhancements](docs/skills-mcp.md) for the full map and install commands.\n\n## Quick Start\n\n1. Install KAIROS — plugin install is recommended (one command, pulls in agents + skills + commands together):\n   ```bash\n   claude plugin marketplace add diego81b/kairos-agents-framework\n   claude plugin install kairos@kairos-agents-framework\n   ```\n   Or copy `agents/` into `.claude/agents/` manually — see [Claude Code setup](docs/setup/claude-code.md) for both paths and other tools.\n2. Start Claude Code with the orchestrator as the session's **primary** agent — not by naming it inside an already-open chat: `claude --agent kairos:orchestrator-agent` (plugin install) or `claude --agent orchestrator-agent` (manual copy)\n3. Describe the feature you want — the Orchestrator coordinates the pipeline automatically\n\n## Invocation Contract\n\nWhen starting a KAIROS run, invoke the orchestrator with the **bare feature request only**:\n\n- **Never pre-select phases or agents in the invocation prompt.** Agent selection is a human decision made at the orchestrator's Step 0e gate — a caller-supplied list is treated as an unconfirmed proposal, never as authorization.\n- **Never launch the orchestrator backgrounded or detached — and never invoke it by name inside an existing conversation.** Every phase ends at a HITL gate that needs a live human. In Claude Code, a spawned subagent has no `AskUserQuestion`, so gates degrade to the text-menu fallback — and this applies just as much to `@kairos:orchestrator-agent`/\"use the orchestrator agent\" typed mid-chat as to an explicit background launch, since both dispatch through the same `Agent` tool as a subagent. Start the session with the orchestrator as its **primary** agent instead — `claude --agent kairos:orchestrator-agent` (plugin install) or `claude --agent orchestrator-agent` (copied into `.claude/agents/`) — never as something you call from within another session. `--agent` is a startup flag only; to switch mid-session, exit (`Ctrl+D` / `/exit`) and relaunch with it.\n- **Run the standalone pre-pipeline agents yourself if you want them.** `context-extractor-agent` and `impact-assessment-agent` are invoked directly by you, before the orchestrator — the orchestrator never auto-invokes them.\n\n## Documentation Website\n\n```bash\nnpm install          # install VitePress + dependencies\nnpm run docs:dev     # local dev server with hot reload\nnpm run docs:build   # build static site → docs/.vitepress/dist/\nnpm run docs:preview # preview the production build locally\n```\n\n## Deployment\n\nThe documentation site deploys automatically:\n\n1. **Vercel** (primary) — auto-deploys on push to `main`\n2. **Netlify** — triggered via deploy hook on `v*` tags\n\nA release means: bump versions + changelog, commit, tag `vX.Y.Z`, push.\n\n## Files\n\n- `agents/` - Core agents + `team/` folder (Team Mode specialists)\n- `docs/` - VitePress documentation site\n- `CHANGELOG.md` - Version history\n- `internal/` - Internal guides (cost analysis, routing logic, provider specifics)\n\n## Workflow\n\n1. **Edit docs** → modify files in `docs/`\n2. **Preview locally** → `npm run docs:dev`\n3. **Build** → `npm run docs:build`\n4. **Deploy** → Git push (Vercel/Netlify auto-deploy)\n\n## Implementation Modes\n\n| Mode | Cost | Works on | When to use |\n| --- | --- | --- | --- |\n| Single Agent (default) | ~$0.068/feature | Everywhere | All features |\n| Team Mode (optional) | ~$0.242/feature | Claude Code only | Critical systems, explicit request |\n\nTeam Mode activates a Lead + 4 parallel specialists (Tests, Backend, Frontend, Database). The Orchestrator always shows a cost warning before enabling it.\n\n## License\n\nAGPL-3.0\n\n---\n\nBuilt with intelligence, timing, and excellence. 🚀\n",
   "status": "curated"
 }

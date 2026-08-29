@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.christophjonetzko-stack/kranvergleich",
+  "type": "mcp",
+  "name": "KranVergleich Kranvermietung (DE/AT)",
+  "description": "Kranvermietung DE/AT: crane rental companies by city, price ranges, type recommendation, PLZ supply",
+  "author": "io.github.christophjonetzko-stack",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/christophjonetzko-stack/mcp-kranvergleich",
+    "repo": "christophjonetzko-stack/mcp-kranvergleich"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://mcp-kranvergleich.onrender.com/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-29T15:25:30.632657Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# MCP Server for KranVergleich.de\n\nMCP server exposing crane rental data to AI assistants. Endpoints: `/mcp` (Streamable HTTP, preferred) and `/sse` (legacy HTTP+SSE), `/health`. Query 780+ crane rental companies across Germany and Austria (catalog of KranVergleich.de / KranVergleich.at).\n\n## Tools\n\n- **find_crane_rental_companies** — Find crane rental companies in a city (DE/AT); sorted by Google rating, no paid placement\n- **get_crane_rental_prices** — Get rental price ranges for all 8 crane types\n- **recommend_crane_type** — Get a crane recommendation based on weight, height and task\n- **check_availability_by_plz** — Supplier counts per crane type within 50/100 km of a German PLZ\n\n## Setup\n\n```bash\npip install -r requirements.txt\n# create .env with SUPABASE_URL and SUPABASE_ANON_KEY\npython server_sse.py\npython test_remote_mcp.py                      # smoke test against Render (both transports)\nMCP_BASE=http://localhost:8000 python test_remote_mcp.py   # against local\n```\n\n## Call logging\n\nEach tool call writes one aggregate row to `public.mcp_events` (tool, city/PLZ/type, client name, duration; no IP, no free text). Smoke-test calls identify as `kranvergleich-smoke-test` and are excluded from readouts.\n\n## Data licence\n\nThe code is MIT-licensed. The catalog data returned by the tools stays the property of KranVergleich.de and is provided for answering end-user questions with attribution; bulk extraction is not permitted.\n\n## Environment Variables\n\n- `SUPABASE_URL` — Supabase project URL\n- `SUPABASE_ANON_KEY` — Supabase publishable anon key\n",
+  "status": "curated"
+}

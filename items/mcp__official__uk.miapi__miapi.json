@@ -1,0 +1,64 @@
+{
+  "id": "mcp:official/uk.miapi/miapi",
+  "type": "mcp",
+  "name": "MIAPI — Grounded Web Answers",
+  "description": "Web search and AI answers with real source citations and a confidence score.",
+  "author": "uk.miapi",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/Doyukndr/miapi-python",
+    "repo": "Doyukndr/miapi-python"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "miapi-sdk"
+    ],
+    "env": [
+      {
+        "name": "MIAPI_API_KEY",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-29T11:29:26.277085Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# MIAPI — Grounded AI Answers API\n\nOfficial Python client for [MIAPI](https://miapi.uk) — get AI-powered answers grounded in real-time web search.\n\n## Install\n\n```bash\npip install miapi-sdk\n```\n\n## Quick Start\n\n```python\nfrom miapi import MIAPI\n\nclient = MIAPI(\"YOUR_API_KEY\")\n\n# Get a grounded answer with citations\nresult = client.answer(\"What is quantum computing?\", citations=True)\nprint(result.answer)     # AI-generated answer with [1][2] markers\nprint(result.sources)    # List of source URLs\nprint(result.confidence) # 0.0 - 1.0\n```\n\n## Features\n\n### Web-Grounded Answers\n```python\nresult = client.answer(\"Who won the last World Cup?\")\nprint(result.answer)\n```\n\n### Knowledge Mode — Answer From Your Data\n```python\nresult = client.answer(\n    \"What is the return policy?\",\n    mode=\"knowledge\",\n    knowledge=\"Returns accepted within 30 days with receipt...\"\n)\nprint(result.answer)\n```\n\n### Search Only — Raw Results\n```python\nsources = client.search(\"latest AI research papers\")\nfor source in sources:\n    print(source.title, source.url)\n```\n\n### News Search\n```python\nnews = client.news(\"technology\", num_results=5)\nfor article in news:\n    print(article.title, article.date)\n```\n\n### Image Search\n```python\nimages = client.images(\"golden retriever\")\nfor img in images:\n    print(img.url, img.width, img.height)\n```\n\n### Streaming\n```python\nfor event in client.stream(\"Explain quantum computing\"):\n    if event['type'] == 'answer':\n        print(event['content'], end='', flush=True)\n    elif event['type'] == 'done':\n        print(f\"\\nDone in {event.get('query_time_ms')}ms\")\n```\n\n### Check Usage\n```python\ninfo = client.usage()\nprint(f\"Used {info.queries_this_month}/{info.monthly_limit} this month\")\nprint(f\"Tier: {info.tier}\")\n```\n\n### Custom Options\n```python\nresult = client.answer(\n    \"Compare Python and Rust\",\n    response_format=\"markdown\",   # text, short, json, markdown\n    temperature=0.5,              # 0.0 (precise) to 1.0 (creative)\n    max_tokens=800,               # Max answer length\n    language=\"French\",            # Answer in any language\n    search_domains=[\"wikipedia.org\"],  # Restrict sources\n    system_prompt=\"Answer like a professor\",\n)\n```\n\n## Error Handling\n\n```python\nfrom miapi import MIAPI, MIAPIError, RateLimitError, AuthenticationError\n\nclient = MIAPI(\"YOUR_API_KEY\")\n\ntry:\n    result = client.answer(\"Hello\")\nexcept AuthenticationError:\n    print(\"Bad API key\")\nexcept RateLimitError as e:\n    print(f\"Rate limited: {e.message}\")\nexcept MIAPIError as e:\n    print(f\"Error: {e.message} (HTTP {e.status_code})\")\n```\n\n## OpenAI Drop-in Replacement\n\nMIAPI is also compatible with the OpenAI Python client:\n\n```python\nfrom openai import OpenAI\n\nclient = OpenAI(\n    api_key=\"YOUR_MIAPI_KEY\",\n    base_url=\"https://api.miapi.uk/v1\"\n)\n\nresponse = client.chat.completions.create(\n    model=\"miapi-grounded\",\n    messages=[{\"role\": \"user\", \"content\": \"What is AI?\"}]\n)\nprint(response.choices[0].message.content)\n```\n\n## Get Your API Key\n\nSign up free at [miapi.uk](https://miapi.uk) — 500 queries/month included.\n\n## Links\n\n- [Website](https://miapi.uk)\n- [API Docs](https://miapi.uk/#docs)\n- [Playground](https://miapi.uk/#playground)\n- [Pricing](https://miapi.uk/#pricing)\n\n<!-- mcp-name: uk.miapi/miapi -->\n\n## Use from Claude Desktop, Cursor or Windsurf (MCP)\n\nMIAPI ships an MCP server, so an AI assistant can search the web and get\nanswers with real citations without you writing any code.\n\n```bash\npip install \"miapi-sdk[mcp]\"\n```\n\nThen add it to your assistant's MCP config:\n\n```json\n{\n  \"mcpServers\": {\n    \"miapi\": {\n      \"command\": \"miapi-mcp\",\n      \"env\": { \"MIAPI_API_KEY\": \"your_key_here\" }\n    }\n  }\n}\n```\n\nTools it provides: `web_answer`, `web_search`, `news_search`, `image_search`,\n`check_usage`.\n\nGet a key at https://miapi.uk — free tier included.\n",
+  "status": "curated"
+}

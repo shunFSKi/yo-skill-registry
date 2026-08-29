@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/auxi-wardrobe/auxi-all-in/ck-watzup",
+  "type": "skill",
+  "name": "ck:watzup",
+  "description": "Review recent changes and wrap up the current work session. Use for session summaries, change review, progress tracking.",
+  "author": "auxi-wardrobe",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/auxi-wardrobe/auxi-all-in/blob/HEAD/.claude/skills/watzup/SKILL.md",
+    "repo": "auxi-wardrobe/auxi-all-in",
+    "path": ".claude/skills/watzup/SKILL.md"
+  },
+  "license": null,
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 1,
+    "pushed_at": "2026-08-28T14:45:34Z",
+    "score": 58,
+    "star_history": [
+      {
+        "d": "2026-08-29",
+        "s": 1
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Auxi — Personal Wardrobe + AI Outfit Recommender\n\nAuxi is an AI-powered personal wardrobe management system that helps users organize their clothing and get contextual outfit recommendations. Built with React Native (mobile), FastAPI (backend), and powered by Google Gemini for virtual try-on and image intelligence.\n\n## Architecture Overview\n\nAuxi is an **umbrella repository** bundling the mobile app and backend as git submodules, with a shared admin dashboard for operations.\n\n| Repo | Stack | Purpose | Status |\n|---|---|---|---|\n| `auxi/` (submodule) | React Native 0.83 · React 19 · TypeScript 5.8 | User-facing mobile app (iOS/Android) | Production |\n| `wardrobe-backend/` (submodule) | FastAPI · SQLAlchemy · PostgreSQL · Gemini | Recommendation engine + auth + uploads | Production |\n| `wardrobe-admin/` (in backend) | React 19 · Vite 7 · Ant Design 6 · TailwindCSS 4 | Internal ops dashboard (Cloudflare) | Production |\n| `auxi-web/` | Astro 6 · TailwindCSS 4 | Marketing site (Cloudflare Pages) | Production |\n\n## Clone & Setup\n\n```bash\n# Clone with submodules\ngit clone --recurse-submodules <repo-url> wardrobe_project\ncd wardrobe_project\n\n# If already cloned without --recurse-submodules\ngit submodule update --init --recursive\n```\n\n## Develop\n\n**Terminal 1 — Backend:**\n```bash\ncd wardrobe-backend\npip install -r requirements.txt\nuvicorn app:app --reload --port 5001\n```\n\n**Terminal 2 — Mobile (iOS simulator):**\n```bash\ncd auxi\nyarn install\nyarn ios:sim\n```\n\n## QA Boot (one-shot)\n\nFor full-stack QA sessions:\n\n```bash\n./scripts/qa-boot.sh    # Brings up backend, Metro, iOS sim\n./scripts/qa-stop.sh    # Tears it down\n```\n\nLogs: `logs/backend.log`, `logs/metro.log`. First run: ~2 minutes; subsequent: ~30–60s.\n\n## Admin Dashboard\n\nThe internal ops dashboard is **not a git submodule**—it lives at `wardrobe-backend/wardrobe-admin/`.\n\n**Stack:** React 19 · Vite 7 · TypeScript 5.9 · Tailwind 4 · Ant Design 6.\n\n**Pages:**\n- Dashboard — System overview\n- Users / UserDetail — Manage users, promote to admin\n- CommonItems — CRUD global garment catalog\n- BulkAutoTag — Bulk Gemini tagging\n- AlgorithmCockpit — ML config versioning\n- RecommendationTest — Engine sandbox\n- RecommendationEvaluation — Quality scoring\n\n**Run locally** (assumes backend on `:5001`):\n```bash\ncd wardrobe-backend/wardrobe-admin\nnpm install\nnpm run dev    # http://localhost:5173\n```\n\n**Create first admin user:**\n```bash\ncd wardrobe-backend\npython scripts/create_admin.py admin@example.com <password>\n```\n\n**Deploy to Cloudflare:**\n```bash\nnpm run build:prod\nnpm run deploy:prod\n```\n\n## Submodule Workflow\n\n```bash\n# Update both to latest tracked-branch HEAD\ngit submodule update --remote --merge\n\n# Pin new HEADs in umbrella repo\ngit add auxi wardrobe-backend\ngit commit -m \"chore: bump submodules\"\n\n# Push a submodule's work\ncd auxi\ngit push origin main\ncd ..\n```\n\n## Agent Matrix\n\nThis repo ships with **role-scoped agents** in `.claude/agents/`. Dispatch via Claude Code:\n\n| Agent | Scope | Use for |\n|---|---|---|\n| `mobile-dev` | `auxi/` only | RN screens, navigation, services, theme |\n| `backend-dev` | `wardrobe-backend/` only | FastAPI routers, services, database migrations |\n| `tech-lead` | Both (read-mostly) | Contract changes, breaking migrations, design reviews, releases |\n| `qa-mobile` | `auxi/` + test runs | Smoke, regression, Maestro execution |\n| `qa-ui` | `auxi/` (read-only) | Visual fidelity, Figma comparison, alignment/icons/typography |\n| `qa-ux` | `auxi/` (read-only) | UX heuristics, a11y review (Nielsen's 10, state coverage) |\n| `pm` | Linear board (project-wide) | Tickets, roadmap, verified close |\n\nExample dispatch:\n> \"Use the mobile-dev agent to add a wardrobe filter chip on HomeScreen.\"\n\n## Key Files\n\n**Mobile (`auxi/`):**\n- `src/services/` — API clients (apiClient, auth, wardrobe, recommendation, try-on, etc.)\n- `src/screens/` — Screen components (15 screens + onboarding variants)\n- `src/navigation/AppNavigator.tsx` — Navigation registration (MUST update when adding screens)\n- `src/theme/theme.ts` — Design tokens (no hardcoded hex)\n- `maestro/flows/` — Maestro QA test definitions\n\n**Backend (`wardrobe-backend/`):**\n- `routers/` — HTTP endpoints (auth, wardrobe, upload, try-on, recommendation, admin)\n- `services/` — Business logic (user service, wardrobe service, recommendation engines)\n- `blueprints/recommendation/engine_v05.py` — V05 deterministic recommendation pipeline\n- `API_DOCUMENTATION.md` — Full API contract (MUST update when modifying routes)\n- `test_server.py` — Automated e2e test runner\n\n**Admin (`wardrobe-admin/`):**\n- `src/pages/` — React Router pages\n- `src/services/` — API clients\n- `src/context/AuthContext.tsx` — Auth state\n\n## Verification Gates\n\nBefore claiming work done end-to-end:\n\n1. **Backend:** `cd wardrobe-backend && python test_server.py` ✓\n2. **Mobile:** `cd auxi && npx tsc --noEmit && yarn lint` ✓\n3. **Smoke:** Backend on `:5001`, real HTTP requests from mobile ✓\n\n**Never ship mobile changes against a mocked backend** — contract drift is why this umbrella exists.\n\n## Key Conventions\n\n### Mobile (`auxi/`)\n- **testID on every interactive element** — Format: `<feature>-<element>-<state>` (e.g., `home-mode-pill-safe`). Maestro depends on this.\n- **No Redux/Zustand** — TanStack React Query covers server state; AuthContext covers user state.\n- **Service-layer-only API calls** — Never import axios directly from screens.\n- **SVG icons** — `import Icon from '../assets/icons/icon_foo.svg'` then render as `<Icon width={20} height={20} />`.\n- **Theme tokens** — No hex literals; use `theme.ts` colors.\n\n### Backend (`wardrobe-backend/`)\n- **Router → Service → Repository pattern** — Keep HTTP concerns in routers, business logic in services, DB queries in repositories.\n- **Ephemeral file handling** — Use `EphemeralFileManager` for temp files; delete after processing.\n- **Bearer auth + dependency injection** — `@require_auth` decorator + `get_current_user` dependency.\n- **API_DOCUMENTATION.md is the contract** — Update immediately when modifying routes.\n\n### Admin (`wardrobe-admin/`)\n- **TanStack Query for server state** — No Redux.\n- **React Router 7 patterns** — Client-side routing with protected routes.\n- **ProtectedRoute + AuthContext** — All routes require login; admin role enforced server-side.\n\n## Current Development Focus\n\n**Branch:** `feat/v05-eval-official-rubric-au259`  \n**Milestone:** V05 recommendation engine improvements (Phase 0 ✓, Phase 1 LLM diversifier 🚧)\n\nRecent completed:\n- Sentry integration (mobile + backend)\n- Deploy automation (launch-notify skill)\n- Figma audit tooling\n- \"Try Another\" batch refresh (AU-252)\n\nUpcoming:\n- V05 phase 1 LLM diversifier\n- Modal wire-up refinement\n- Feedback model integration\n\n## Per-Repo Documentation\n\nRepo-specific conventions override anything here:\n- `auxi/CLAUDE.md` — RN conventions, navigation registration, dual-HomeScreen status\n- `wardrobe-backend/CLAUDE.md` — Service-repository pattern, ephemeral file manager, auth rules\n\nSee `docs/` for full technical documentation.\n",
+  "status": "curated"
+}

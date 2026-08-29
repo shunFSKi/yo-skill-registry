@@ -1,0 +1,115 @@
+{
+  "id": "mcp:official/io.github.ni-c/google-search-console-mcp",
+  "type": "mcp",
+  "name": "Google Search Console",
+  "description": "MCP server for Google Search Console: properties, sitemaps, search analytics and URL inspection",
+  "author": "io.github.ni-c",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/ni-c/google-search-console-mcp",
+    "repo": "ni-c/google-search-console-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@ni-c/google-search-console-mcp"
+    ],
+    "env": [
+      {
+        "name": "GSC_SERVICE_ACCOUNT_KEY",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "GSC_SERVICE_ACCOUNT_KEY_FILE",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "GSC_CLIENT_ID",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "GSC_CLIENT_SECRET",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "GSC_REFRESH_TOKEN",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "GOOGLE_APPLICATION_CREDENTIALS",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "GSC_SITE_URL",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "GSC_ALLOWED_SITES",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "GSC_READ_ONLY",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "GSC_ALLOW_TOOLS",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "GSC_DENY_TOOLS",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-29T13:45:50.042094Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "数据",
+    "featured": false
+  },
+  "readme": "# google-search-console-mcp\n\n[![CI](https://img.shields.io/github/actions/workflow/status/ni-c/google-search-console-mcp/ci.yml?branch=main&label=CI)](https://github.com/ni-c/google-search-console-mcp/actions/workflows/ci.yml)\n[![npm version](https://img.shields.io/npm/v/%40ni-c%2Fgoogle-search-console-mcp)](https://www.npmjs.com/package/@ni-c/google-search-console-mcp)\n[![npm downloads](https://img.shields.io/npm/dm/%40ni-c%2Fgoogle-search-console-mcp)](https://www.npmjs.com/package/@ni-c/google-search-console-mcp)\n[![node](https://img.shields.io/node/v/%40ni-c%2Fgoogle-search-console-mcp)](https://nodejs.org)\n[![license](https://img.shields.io/npm/l/%40ni-c%2Fgoogle-search-console-mcp)](LICENSE)\n[![container](https://img.shields.io/badge/ghcr.io-ni--c%2Fgoogle--search--console--mcp-blue)](https://github.com/ni-c/google-search-console-mcp/pkgs/container/google-search-console-mcp)\n[![docs](https://img.shields.io/badge/docs-google--search--console--mcp.ni--c.de-informational)](https://google-search-console-mcp.ni-c.de)\n[![sponsor](https://img.shields.io/badge/sponsor-ni--c-ea4aaa?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/ni-c)\n\nA [Model Context Protocol](https://modelcontextprotocol.io) (MCP) server for\n[Google Search Console](https://search.google.com/search-console/about), the\nservice that tells you how Google sees your site — this reads it and sets it up.\n\nLets MCP clients like Claude Code, Claude Desktop or Codex create a property and\nprove ownership of it, submit and refresh sitemaps, ask what any URL's index\nstatus is, and query the whole Performance report — with the irreversible\noperations behind a confirmation token and the write tools switchable off\nentirely.\n\n21 tools is the ceiling, not the floor: `GSC_ALLOW_TOOLS=essential` registers a\ncurated five instead, and a model picks the right tool far more reliably from\nfive than from 21 — see\n[choosing which tools load](#choosing-which-tools-load).\n\n<picture>\n  <source media=\"(prefers-color-scheme: dark)\" srcset=\"https://google-search-console-mcp.ni-c.de/architecture-dark.svg\">\n  <source media=\"(prefers-color-scheme: light)\" srcset=\"https://google-search-console-mcp.ni-c.de/architecture-light.svg\">\n  <img src=\"https://google-search-console-mcp.ni-c.de/architecture.svg\" alt=\"An MCP client talks to google-search-console-mcp over stdio; the server calls the Search Console, Site Verification and Indexing APIs over HTTPS.\" width=\"800\">\n</picture>\n\n## What makes it different\n\n**It can actually create a working property.** Getting one takes four steps in a\nfixed order — obtain a verification token, place it in DNS or on the page,\nverify ownership, add the property — and nothing in Google's APIs enforces that\norder. Calling `sites.add` first _succeeds_ and leaves a property that appears in\nevery listing and answers 403 for every piece of data, which looks like a\npermissions bug and is not. `setup_site` reports which step is missing and hands\nover the exact DNS record to paste. Servers that expose `sites.add` alone can\nonly add properties somebody already verified by hand.\n\n**Three APIs, not one.** Search Console v1 is ten methods and does not include\nownership. Site Verification is a separate service with its own scope, its own\nhost and an incompatible way of naming the same site —\n`sc-domain:example.com` there is `{type: INET_DOMAIN, identifier: example.com}`,\nand passing the property spelling straight through is accepted and verifies a\ndomain literally called `sc-domain:example.com`. The Indexing API is a third.\nAll three are covered, and the translation between them is in\n`src/site-identity.ts`.\n\n**The numbers are right.** Search analytics come back as a table with totals\nwhere CTR is computed from the totals rather than averaged across rows, and\naverage position is weighted by impressions. Unweighted, a thousand rare queries\nranking 80th drag a property's real average of 12 up into the nineties. The\nresult also says plainly that the rows do not sum to the property total when the\nquery dimension is used — Google withholds rare queries for anonymity, commonly a\nthird or more of all impressions, and a total printed without that caveat is a\nnumber people will quote.\n\n**It knows where these APIs are sharp.** The trailing slash on\n`https://example.com/` is mandatory and its absence is a 403; a domain property\nand a URL-prefix property for the same site are different properties with\ndifferent data, so a bare hostname is refused rather than guessed at; days are\ncounted in **Pacific Time**, so a `last7days` computed in UTC asks for a day\nGoogle has no data for; the `hour` dimension silently returns nothing without\n`dataState: HOURLY_ALL`; Google omits empty arrays entirely, so a fresh\ncredential's property list arrives as `{}`; and the Indexing API returns 200 for\nany owned URL while only acting on JobPosting and BroadcastEvent pages.\n\n## Requirements\n\n- Node.js 22 or newer (or the container image)\n- A Google credential — a service account key, an OAuth2 refresh token, or\n  application default credentials\n- The APIs you intend to use enabled in a Google Cloud project: **Search\n  Console API**, and separately **Site Verification API** and **Indexing API**\n\n## Configuration\n\nThe server starts without credentials and lists its tools; every call then fails\nwith setup instructions rather than a Google error. That is deliberate, so\nregistries and sandbox inspectors can introspect it.\n\n| Variable                         | Description                                                                                                    |\n| -------------------------------- | -------------------------------------------------------------------------------------------------------------- |\n| `GSC_SERVICE_ACCOUNT_KEY`        | Service account key as raw JSON, or base64-encoded JSON                                                        |\n| `GSC_SERVICE_ACCOUNT_KEY_FILE`   | Path to a service account key file. Alternative to the above — setting both is an error                        |\n| `GSC_CLIENT_ID`                  | OAuth2 client id                                                                                               |\n| `GSC_CLIENT_SECRET`              | OAuth2 client secret                                                                                           |\n| `GSC_REFRESH_TOKEN`              | OAuth2 refresh token. All three OAuth2 variables are required together                                         |\n| `GOOGLE_APPLICATION_CREDENTIALS` | Application default credentials, used when no `GSC_` credential is set                                         |\n| `GSC_SITE_URL`                   | Default property, e.g. `sc-domain:example.com` or `https://example.com/`. Makes `site_url` optional everywhere |\n| `GSC_ALLOWED_SITES`              | Comma-separated properties this server may touch at all; anything else is refused                              |\n| `GSC_READ_ONLY`                  | `true` registers only the twelve read tools                                                                    |\n| `GSC_ALLOW_TOOLS`                | Comma-separated tool names, a `list_*` prefix, or `essential`                                                  |\n| `GSC_DENY_TOOLS`                 | Same shape, subtracted from whatever the allow list left                                                       |\n\nCredentials are tried in that order — explicit beats ambient. A **partial** OAuth\ntriple is a startup error rather than a reason to fall through to application\ndefault credentials, because that fallback would quietly run the server as\nwhatever account the machine is logged into.\n\n### Which credential\n\nA **service account** is the recommended one: it sees only the properties you\nexplicitly add it to, and revoking it does not touch anyone's Google account.\nAdd its `client_email` under Settings → Users and permissions in Search Console,\nor give it ownership with `verify_site`. Note that the Indexing API requires\n**owner**, not full user.\n\nAn **OAuth2 refresh token** acts as the person who consented and sees everything\nthey see. Its scopes were fixed at consent time and cannot be widened later.\n\n### Choosing which tools load\n\nEvery visible tool costs context on every request, and a model picks the right\none far more reliably from five than from 21. Two variables narrow the list:\n\n```sh\nGSC_ALLOW_TOOLS=essential          # the curated five\nGSC_ALLOW_TOOLS='list_*,get_site'  # exact names, or one trailing *\nGSC_DENY_TOOLS='delete_*'          # subtracted from whatever allow left\n```\n\n`essential` is `list_sites`, `get_site`, `list_sitemaps`,\n`query_search_analytics` and `inspect_url` — everything needed to look at a\nproperty, and nothing that changes it.\n\nAn entry that matches no tool **stops the server** with the list of real names.\nAn ignored typo would otherwise leave a tool missing from `tools/list` with\nnothing pointing at the cause, and nobody traces an absence back to an\nenvironment variable.\n\nNarrowing the list also narrows the credential: the OAuth scopes this server\nrequests are derived from the tools that are actually registered, so a server\ndenied the Indexing tools never asks for the Indexing scope.\n\n## Installation\n\n### Claude Code\n\n```sh\nclaude mcp add google-search-console -- npx -y @ni-c/google-search-console-mcp\n```\n\n### Claude Desktop\n\n```json\n{\n  \"mcpServers\": {\n    \"google-search-console\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@ni-c/google-search-console-mcp\"],\n      \"env\": {\n        \"GSC_SERVICE_ACCOUNT_KEY_FILE\": \"/path/to/key.json\",\n        \"GSC_SITE_URL\": \"sc-domain:example.com\"\n      }\n    }\n  }\n}\n```\n\n### Codex\n\n```toml\n[mcp_servers.google-search-console]\ncommand = \"npx\"\nargs = [\"-y\", \"@ni-c/google-search-console-mcp\"]\n\n[mcp_servers.google-search-console.env]\nGSC_SERVICE_ACCOUNT_KEY_FILE = \"/path/to/key.json\"\nGSC_SITE_URL = \"sc-domain:example.com\"\n```\n\n### Docker\n\n```sh\ndocker run --rm -i \\\n  -v /path/to/key.json:/key.json:ro \\\n  -e GSC_SERVICE_ACCOUNT_KEY_FILE=/key.json \\\n  -e GSC_SITE_URL=sc-domain:example.com \\\n  ghcr.io/ni-c/google-search-console-mcp\n```\n\n## Tools\n\n`site_url` is optional on every tool that takes it when `GSC_SITE_URL` is set.\n\n### Properties and ownership\n\n| Tool                     | What it does                                                                                                           |\n| ------------------------ | ---------------------------------------------------------------------------------------------------------------------- |\n| `setup_site`             | Reports which of the four setup steps a property is missing, with the DNS record or meta tag to place. Changes nothing |\n| `list_sites`             | Every property this credential can see, with its permission level                                                      |\n| `get_site`               | One property — the way to settle which of the two spellings exists                                                     |\n| `add_site`               | Adds a property. Does **not** verify ownership                                                                         |\n| `delete_site`            | Removes a property and its history. Two-step                                                                           |\n| `list_verified_sites`    | Sites this credential has proven ownership of, with all owners                                                         |\n| `get_verified_site`      | One of them by its opaque resource id                                                                                  |\n| `get_verification_token` | The token, and exactly where to put it. Claims nothing                                                                 |\n| `verify_site`            | Checks for the placed token and records ownership                                                                      |\n| `unverify_site`          | Gives up ownership. Two-step                                                                                           |\n| `update_site_owners`     | Replaces the owner list. `method: \"patch\"` uses PATCH, which behaves identically                                       |\n\n### Sitemaps\n\n| Tool              | What it does                                                   |\n| ----------------- | -------------------------------------------------------------- |\n| `list_sitemaps`   | Submitted sitemaps, with download times, URL counts and errors |\n| `get_sitemap`     | One sitemap — where a submission's errors actually appear      |\n| `submit_sitemap`  | Submits or refreshes one. There is no separate update call     |\n| `submit_sitemaps` | Up to 50 in one call, with per-entry results                   |\n| `delete_sitemap`  | Removes one. Two-step                                          |\n\n### Search analytics and indexing\n\n| Tool                     | What it does                                                                                                       |\n| ------------------------ | ------------------------------------------------------------------------------------------------------------------ |\n| `query_search_analytics` | The Performance report: clicks, impressions, CTR and position by any dimensions, with filters and relative periods |\n| `inspect_url`            | What Google knows about one URL — index status, canonicals, crawl time, rich results                               |\n| `inspect_urls`           | Up to 20 URLs, condensed to verdicts                                                                               |\n| `get_indexing_status`    | Indexing API notification history for a URL                                                                        |\n| `request_indexing`       | Notifies Google a URL changed. Only acts on JobPosting and BroadcastEvent pages                                    |\n\n## Not exposed, on purpose\n\n`urlTestingTools.mobileFriendlyTest` is still in Google's discovery document and\nthe service behind it was switched off in December 2023. A tool for it could only\never return an error, so there is not one.\n\n## Safety\n\n**Four operations are two-step.** `delete_site`, `delete_sitemap`,\n`unverify_site` and `update_site_owners` refuse the first call and return a\nshort-lived token bound to those exact arguments; the second call performs the\noperation. A confirmation issued for one property cannot be replayed against\nanother, and the token only ever appears in a previous tool result, so a model\ncannot invent it. `update_site_owners` is in that list because the list it takes\nis the complete owner list afterwards — one well-formed call removes everyone\nelse, and nothing here can put them back.\n\n**Everything from the APIs is marked untrusted.** Search queries are strings the\npublic typed into Google; page titles and crawl diagnostics come from whoever\nruns the crawled site. Someone who wants a model to act on their instructions can\nput them in a page title and wait to be crawled. The two sentences of a\nconfirmation prompt are built only from values the server derived; a sitemap URL\nor an owner list is quoted below them as data.\n\n**The allowlist has no exemptions.** `GSC_ALLOWED_SITES` is enforced wherever a\ntool names a property, and separately on the two shapes that do not name one: the\nIndexing API tools match the page URL against the list the way Search Console\nscopes a property, and the verification tools resolve their opaque resource id to\na property before acting on it. Both listings filter to the allowlist and say how\nmany entries they withheld.\n\n**Read-only goes below the tool layer.** `GSC_READ_ONLY=true` does not register\nthe write tools _and_ requests `webmasters.readonly` instead of `webmasters`, so\na write is impossible even if a tool tried.\n\n**Credentials never leak into output.** They are deleted from the environment\nafter start-up, never sent to a redirect target, and a rejected value is\ndescribed rather than echoed — including when it is a key pasted into\n`GSC_ALLOW_TOOLS` by mistake.\n\n## Development\n\n```sh\nnpm install\nnpm test            # no network — every test runs against a stubbed fetch\nnpm run lint\nnpm run build\n```\n\nSee [CONTRIBUTING.md](CONTRIBUTING.md).\n\n## Releasing\n\nUpdate `CHANGELOG.md`, bump the version in `package.json` and `server.json`, then\npush a signed tag:\n\n```sh\ngit tag -s v0.1.0 -m 'v0.1.0' && git push origin main v0.1.0\n```\n\n`release.yml` runs the suite, publishes to npm with provenance through a trusted\npublisher, pushes the multi-arch image to GHCR and updates the MCP registry entry.\n",
+  "status": "curated"
+}

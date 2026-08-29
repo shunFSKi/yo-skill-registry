@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/Mumme-IT/opencode-caveman/caveman-ultra",
+  "type": "skill",
+  "name": "caveman-ultra",
+  "description": "Switch to caveman ultra mode. Maximum compression — abbreviate prose, arrows for causality, one word when enough. Code/API names never abbreviated.",
+  "author": "Mumme-IT",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/Mumme-IT/opencode-caveman/blob/HEAD/skills/caveman-ultra/SKILL.md",
+    "repo": "Mumme-IT/opencode-caveman",
+    "path": "skills/caveman-ultra/SKILL.md"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 1,
+    "pushed_at": "2026-05-12T17:16:10Z",
+    "score": 48,
+    "star_history": [
+      {
+        "d": "2026-08-29",
+        "s": 1
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# opencode-caveman\n\nOpenCode plugin that injects [caveman](https://github.com/JuliusBrussee/caveman) compression rules into every session — automatically, without manual activation.\n\n> **Full credit**: This plugin is a direct adaptation of [caveman](https://github.com/JuliusBrussee/caveman) by [Julius Brussee](https://github.com/JuliusBrussee) (52k+ stars). All compression rules, intensity levels, and the core philosophy — \"why use many token when few token do trick\" — originate from that project. This repo only packages those rules for the OpenCode plugin system.\n\n---\n\n## How it works\n\nThree layers, each strengthening the last:\n\n| Layer | File | Mechanism |\n|-------|------|-----------|\n| Always-on rules | `AGENTS.md` | Loaded into system prompt at session init. Survives `/clear`. |\n| Per-turn enforcement | `index.ts` → `experimental.chat.system.transform` | Rules injected into every LLM call. Model sees them every turn — no drift. |\n| Compaction survival | `index.ts` → `experimental.session.compacting` | Rules injected into compaction prompt context. Model's summary includes caveman state — survives `/compact`. |\n| Live mode switching | `index.ts` → `command.execute.before` + `caveman_set_level` tool | `/caveman` commands intercepted before reaching model. Mode written to `~/.config/opencode/.caveman-active` — persists across sessions. |\n| On-demand skill | `skills/caveman/SKILL.md` | Loadable via skill picker for intensity switching docs. |\n\n## Install\n\nAdd to `~/.config/opencode/opencode.json`:\n\n```json\n{\n  \"plugin\": [\"@mumme-it/opencode-caveman\"]\n}\n```\n\n## Modes\n\nSwitch intensity via `ctrl+p → Skills → caveman-lite / caveman-full / caveman-ultra`.\n\n| Command | Effect |\n|---------|--------|\n| `/caveman` | Activate full mode |\n| `/caveman lite` | No filler. Articles kept. Professional but tight. |\n| `/caveman full` | Drop articles, fragments OK. Classic caveman. (default) |\n| `/caveman ultra` | Max compression. Prose abbreviations, arrows for causality. |\n| `stop caveman` | Return to normal mode. |\n\nMode persists across sessions via `~/.config/opencode/.caveman-active`.\n\n## Credit\n\n| | |\n|---|---|\n| **Original** | [caveman](https://github.com/JuliusBrussee/caveman) |\n| **Author** | [Julius Brussee](https://github.com/JuliusBrussee) |\n| **Stars** | 52k+ |\n| **Philosophy** | _why use many token when few token do trick_ |\n| **Benchmarked savings** | ~65% output token reduction (range 22–87%) |\n| **Accuracy** | 100% — technical substance preserved |\n",
+  "status": "curated"
+}

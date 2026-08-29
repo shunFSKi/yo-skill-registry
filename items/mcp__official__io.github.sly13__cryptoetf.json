@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.sly13/cryptoetf",
+  "type": "mcp",
+  "name": "cryptoetf",
+  "description": "Live spot crypto ETF flows for 13 assets, CEFI sentiment index and prices.",
+  "author": "io.github.sly13",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/zerosix-studio/cryptoetf-mcp",
+    "repo": "zerosix-studio/cryptoetf-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@zerosix-studio/cryptoetf-mcp"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-29T14:03:42.827355Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "金融",
+    "featured": false
+  },
+  "readme": "# CryptoETF MCP — spot crypto ETF flows for AI agents\n\n[![npm](https://img.shields.io/npm/v/@zerosix-studio/cryptoetf-mcp?color=cb3837&logo=npm)](https://www.npmjs.com/package/@zerosix-studio/cryptoetf-mcp)\n[![npm downloads](https://img.shields.io/npm/dm/@zerosix-studio/cryptoetf-mcp?color=cb3837)](https://www.npmjs.com/package/@zerosix-studio/cryptoetf-mcp)\n[![MCP Registry](https://img.shields.io/badge/MCP%20Registry-io.github.sly13%2Fcryptoetf-5b6cff)](https://registry.modelcontextprotocol.io)\n\nThe [Model Context Protocol](https://modelcontextprotocol.io) surface of\n[cryptoetf.today](https://cryptoetf.today): daily net flows for every US-listed\nspot crypto ETF complex, the CEFI sentiment index and live coin prices — for\nClaude, Cursor, Codex, Gemini CLI and any other MCP-capable agent.\n\nThirteen assets: **BTC, ETH, SOL, XRP, HYPE, DOGE, LINK, AVAX, HBAR, LTC, BNB,\nDOT, SUI**. Flow figures are net USD millions, sourced from the issuers' own\ndaily reports; for the eight smaller complexes there is no market-wide\naggregator, so the numbers are computed from each issuer's fund pages.\n\n**You probably don't need to install anything.** The server is hosted, and every\nclient that speaks remote MCP can reach it directly:\n\n```\nhttps://mcp.cryptoetf.today/api/mcp     Streamable HTTP · JSON-RPC 2.0\n```\n\nNo API key, no account — the endpoint is open.\n\n## Setup per client\n\n**Claude Code** — one command, no restart:\n\n```bash\nclaude mcp add --transport http cryptoetf https://mcp.cryptoetf.today/api/mcp\n```\n\n**Cursor** — `.cursor/mcp.json` (project) or `~/.cursor/mcp.json` (global):\n\n```json\n{\n  \"mcpServers\": {\n    \"cryptoetf\": { \"url\": \"https://mcp.cryptoetf.today/api/mcp\" }\n  }\n}\n```\n\n**Claude Desktop and other stdio-only clients** — this package is the bridge.\n`claude_desktop_config.json`, then restart the app fully:\n\n```json\n{\n  \"mcpServers\": {\n    \"cryptoetf\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@zerosix-studio/cryptoetf-mcp\"]\n    }\n  }\n}\n```\n\nNothing to install by hand: `npx` fetches the package on first run. It has zero\ndependencies and simply forwards JSON-RPC between stdin/stdout and the hosted\nendpoint.\n\n## Tools\n\n| Tool | What it returns |\n|---|---|\n| `get_flows_summary` | Latest-day net flow for all 13 assets, with the date each figure belongs to |\n| `get_asset_flows` | Daily net flow history for one asset over the last 30 days |\n| `get_weekly_analytics` | 7-day totals per asset: net flow, average day, positive/negative day counts |\n| `get_cefi_index` | Composite CEFI sentiment score (baseline 100; above = bullish) |\n| `get_prices` | Spot price and 24h change for every tracked asset |\n\nHistory reaches back 30 days. Deeper history and per-fund breakdowns live in the\n[REST API](https://cryptoetf.today/en/api).\n\n## Ask it things like\n\n- \"What are today's crypto ETF flows?\"\n- \"Compare BTC and ETH ETF flows over the past month\"\n- \"Which asset had the strongest week of inflows?\"\n- \"Is the CEFI index bullish right now?\"\n\n## Configuration\n\n| Variable | Default | Purpose |\n|---|---|---|\n| `CRYPTOETF_MCP_URL` | `https://mcp.cryptoetf.today/api/mcp` | Point the bridge at another endpoint |\n| `CRYPTOETF_API_KEY` | — | Sent as `Authorization: Bearer …` when set; the public endpoint does not need it |\n\nRequires Node.js 18 or newer.\n\n## Data and limits\n\nFlow data is updated every business day as issuers publish. Figures are\ninformational — this is market data, not investment advice.\n\n- Website: [cryptoetf.today](https://cryptoetf.today)\n- REST API and MCP docs: [cryptoetf.today/en/api](https://cryptoetf.today/en/api)\n\n## Releasing\n\nBump the version in `package.json`, then tag the commit:\n\n```bash\ngit tag v1.0.4 && git push --tags\n```\n\nThe `Publish to npm` workflow runs the bridge against the live server, skips\nthe publish if that version is already in the registry, and otherwise pushes it\nwith provenance — the npm page then links back to the exact workflow run and\ncommit the tarball was built from.\n\nMIT licensed.\n",
+  "status": "curated"
+}

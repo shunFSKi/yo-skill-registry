@@ -10,14 +10,20 @@
     "repo": "autonomy-cloud/kairos-interface",
     "path": "assistant/src/config/bundled-skills/settings/SKILL.md"
   },
-  "license": null,
+  "license": "MIT",
   "install": {
     "kind": "skill-dir"
   },
   "quality": {
-    "stars": null,
-    "pushed_at": null,
-    "score": 22
+    "stars": 2,
+    "pushed_at": "2026-05-13T20:38:39Z",
+    "score": 46,
+    "star_history": [
+      {
+        "d": "2026-08-29",
+        "s": 2
+      }
+    ]
   },
   "security": {
     "score": 100,
@@ -49,6 +55,6 @@
     "category": null,
     "featured": false
   },
-  "readme": null,
+  "readme": "<p align=\"center\">\n  <a href=\"https://visca.ai\">\n    <picture>\n      <img alt=\"Visca\" src=\"assets/visca-wordmark.svg\" height=\"56\">\n    </picture>\n  </a>\n</p>\n\n<p align=\"center\">\n  <a href=\"https://visca.ai\"><img src=\"https://img.shields.io/badge/Visca-The%20Autonomy%20Cloud-7E1D1D?style=for-the-badge&labelColor=0A0A0A\" alt=\"Visca · The Autonomy Cloud\"></a>\n  <a href=\"../visca-docs/WHITEPAPER.md\"><img src=\"https://img.shields.io/badge/Whitepaper-Read-A16207?style=for-the-badge&labelColor=0A0A0A\" alt=\"Whitepaper\"></a>\n  <a href=\"LICENSE\"><img src=\"https://img.shields.io/badge/License-MIT-F4F1EA?style=for-the-badge&labelColor=0A0A0A&color=44403C\" alt=\"License: MIT\"></a>\n</p>\n\n<p align=\"center\">\n  <b>Visca Agent — a personal autonomous agent.</b><br>\n  Memory you own. Credentials you trust. Audit you can read.<br>\n  <sub>One of the eight Visca products. Runs on the open Lattice Runtime.</sub>\n</p>\n\n---\n\n## What it does\n\n| Area | Summary |\n|------|---------|\n| **Memory** | **Holds what matters. Forgets what doesn't.** Structured memory — identity, preferences, projects, events — extracted with source attribution and deduplication. Hybrid retrieval (dense + sparse) ranks results semantically and lexically, with staleness windows per memory type. Per-user and per-channel isolation. Embeddings run locally by default. |\n| **Identity** | **Becomes its own.** Behavior lives in `SOUL.md`; during onboarding the agent observes how you communicate and writes its own persona files. A per-user journal captures its reflections on past interactions. `NOW.md` is the ephemeral scratchpad for current focus. |\n| **Proactivity** | **Reaches out when something matters, without being asked.** Every hour it re-reads its notes, notices what's unfinished or due soon, and sends a message if needed. Notifications route to the right channel and yield if you're already in conversation. |\n| **Trust** | **Fail-closed by construction.** Actor identity is resolved once (guardian, trusted, or unknown) and enforced everywhere. Untrusted actors cannot read memory, write memory, trigger tools, or escalate. Credentials live in an isolated process and never reach the model. Every tool runs in a sandbox. |\n\n---\n\n## Get started\n\n**1. Install**\n\n```bash\n# from source (recommended during the rebrand)\ngit clone <repo-url>\ncd visca-agent\n./setup.sh\n```\n\n**2. Hatch**\n\n```bash\nvellum hatch\n```\n\n> The CLI binary is still named `vellum` for the moment — renaming it is a tracked follow-up so install scripts and shortcuts keep working through the rebrand. The product is **Visca Agent**.\n\n**3. Pick a mode**\n\n- **Local** — everything runs on your machine.\n- **Cast-backed** *(rolling out)* — credentials, audit, and config sync to a [Visca Cast workspace](../cast-modules/visca-agent/). Replaces the legacy hosted control plane.\n\n---\n\n## CLI\n\n<details open>\n<summary>Common commands</summary>\n\n<br>\n\n```bash\nvellum wake        # start services\nvellum sleep       # stop services, keep data\nvellum client      # interact through the terminal\nvellum ps          # view running assistants\nvellum terminal    # open a shell into a managed agent container\nvellum upgrade     # upgrade to latest version\n```\n\nAll commands target the default agent. If you have multiple, pass the agent ID as the second argument.\n\n</details>\n\n---\n\n## How it composes with the rest of Visca\n\n| Visca surface | What it gives this agent |\n|------|---------|\n| **Cast** — fleet as code | The agent's canonical record, credential handles, config blob, and event/audit stream live as typed records in a Cast workspace. See [`cast-modules/visca-agent/`](../cast-modules/visca-agent/). |\n| **Sigil** — cryptographic identity | The agent presents a Sigil identity to other services. Long-term: bundle + harness + model are bound under one identity. |\n| **Warrant** — zero-trust access | Tool calls run under short-lived, capability-scoped credentials. Replaces long-lived API keys in env vars. |\n| **Chronicle** — knowledge graph + audit | Every memory write, tool call, and credential materialization hash-chains into Chronicle. Operators can answer *what did the agent do, why, and on whose authority.* |\n\nThe runtime is unchanged where it shouldn't change. What changes is the **control plane** behind it: telemetry, credential materialization, and config no longer call a hosted cloud — they call a Cast workspace your organization owns.\n\nSee [`../visca-docs/BIBLE.md`](../visca-docs/BIBLE.md) for the canonical product reference and [`../visca-docs/WHITEPAPER.md`](../visca-docs/WHITEPAPER.md) for the executive distillation.\n\n---\n\n## Telemetry\n\nTelemetry is **off by default**. To enable it, set both:\n\n```bash\nVISCA_TELEMETRY_ENABLED=1\nSENTRY_DSN_ASSISTANT=<your-org-dsn>\n```\n\nEither one missing → no events ship. See [`assistant/src/config/env.ts`](assistant/src/config/env.ts) for the kill switch.\n\n---\n\n## Contributing\n\nWe welcome contributions — bug fixes, new features, documentation improvements.\n\n- **Development**: See [`CONTRIBUTING.md`](CONTRIBUTING.md).\n- **Code of Conduct**: See [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md).\n- **Security**: See [`SECURITY.md`](SECURITY.md).\n\n## License\n\nMIT — see [`LICENSE`](LICENSE). Integration logos from [Simple Icons](https://github.com/simple-icons/simple-icons), licensed [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/).\n\nThis repository is a Visca-branded fork of the open-source Vellum Assistant project, MIT-licensed; provenance is preserved in the git history.\n\n---\n\n<p align=\"center\">\n  <sub>Visca · <i>The Autonomy Cloud</i> · <a href=\"https://visca.ai\">visca.ai</a></sub>\n</p>\n",
   "status": "curated"
 }

@@ -1,0 +1,65 @@
+{
+  "id": "mcp:official/io.github.bramontiventures/justtranscribe-mcp",
+  "type": "mcp",
+  "name": "justtranscribe-mcp",
+  "description": "Transcribe public videos & audio (YouTube, TikTok, IG) into accurate, timestamped text via API.",
+  "author": "io.github.bramontiventures",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/bramontiventures/justtranscribe-mcp",
+    "repo": "bramontiventures/justtranscribe-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "justtranscribe-mcp"
+    ],
+    "env": [
+      {
+        "name": "JUSTTRANSCRIBE_API_KEY",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-29T18:30:29.517919Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# justtranscribe-mcp\n\nMCP server for [JustTranscribe](https://justtranscribe.ai) — transcribe public\nvideos and audio into accurate, timestamped text without leaving your AI\nassistant. Paste a YouTube, TikTok or Instagram link in the chat; get the\ntranscript back, export SRT/TXT/Markdown, or pull the AI breakdown of a\nsocial video. Spanish, English and dozens of languages are auto-detected.\n\nTwo ways to connect — both use the same API key and the same account limits:\n\n| | Transport | For |\n|---|---|---|\n| **Hosted** `https://justtranscribe.ai/api/mcp` | Streamable HTTP | Claude Code, Cursor, any client that supports remote servers with headers |\n| **This package** `npx justtranscribe-mcp` | stdio | Claude Desktop and other stdio-only clients |\n\n## Setup\n\n1. Create a free API key at **https://justtranscribe.ai/api-keys** (free\n   during the beta, no card).\n2. Add the server to your client.\n\n**Claude Desktop** (`claude_desktop_config.json`):\n\n```json\n{\n  \"mcpServers\": {\n    \"justtranscribe\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"justtranscribe-mcp\"],\n      \"env\": { \"JUSTTRANSCRIBE_API_KEY\": \"jt_live_...\" }\n    }\n  }\n}\n```\n\n**Claude Code** (hosted variant — no install):\n\n```bash\nclaude mcp add --transport http justtranscribe https://justtranscribe.ai/api/mcp \\\n  --header \"Authorization: Bearer jt_live_...\"\n```\n\n## Tools\n\n- `transcribe_url` — start transcribing a public video/audio link (YouTube,\n  TikTok, Instagram, Facebook, Pinterest, Google Drive). Returns an id;\n  processing takes minutes.\n- `get_transcript` — poll by id; returns the full text once complete\n  (optionally timestamped segments and the AI analysis).\n- `list_transcripts` — the account's transcripts, newest first.\n- `export_transcript` — TXT, SRT, VTT, Markdown or CSV as text.\n- `delete_transcript` — permanently remove a transcript and its media.\n- `get_account` — identify the key's account and limits.\n\n## Limits\n\nPublic links only (no private or login-required videos, no live streams), up\nto 150 minutes per recording. The server enforces the same limits as the app\nand the [REST API](https://justtranscribe.ai/developers): 120 requests/minute\nper key, 3 new transcripts/hour, one processing at a time during the beta.\nFile upload isn't possible over MCP — use the app or the REST API.\n\n## Environment\n\n- `JUSTTRANSCRIBE_API_KEY` (required) — your `jt_live_…` key.\n- `JUSTTRANSCRIBE_API_URL` (optional) — API origin override; defaults to\n  `https://justtranscribe.ai`.\n\nMIT © Bramonti Ventures · Docs: https://justtranscribe.ai/mcp\n",
+  "status": "curated"
+}

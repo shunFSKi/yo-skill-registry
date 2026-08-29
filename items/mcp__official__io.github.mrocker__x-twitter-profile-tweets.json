@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.mrocker/x-twitter-profile-tweets",
+  "type": "mcp",
+  "name": "x-twitter-profile-tweets",
+  "description": "X (Twitter) profiles, tweets and single-tweet lookup by handle or URL. No login. Pay per result.",
+  "author": "io.github.mrocker",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/mrocker/social-data-mcp",
+    "repo": "mrocker/social-data-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://mcp.apify.com/?tools=nick.cheng/x-twitter-profile-tweets-scraper"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-29T13:30:39.591062Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# social-data-mcp\n\nThree pay-per-result social data tools — **X/Twitter profiles & tweets**, **YouTube videos &\nchannels**, **TikTok profiles & video stats** — exposed to AI agents as MCP servers and as Agent\nSkills. They run on [Apify](https://apify.com/nick.cheng); nothing here needs a login, a cookie, or a\nplatform API key, and you are charged only for rows that actually came back, at the same price on\nevery Apify plan (free included).\n\n| Tool | Apify Actor | Price |\n|---|---|---|\n| X (Twitter) profiles, tweets, single-tweet lookup, engagement filters, incremental runs | [`nick.cheng/x-twitter-profile-tweets-scraper`](https://apify.com/nick.cheng/x-twitter-profile-tweets-scraper) | $0.005/account · $0.0003/tweet · $0.005/tweet lookup |\n| YouTube video metadata & channel data, filters by views/duration/date | [`nick.cheng/youtube-video-channel-scraper`](https://apify.com/nick.cheng/youtube-video-channel-scraper) | $0.015/video · $0.005/channel |\n| TikTok profiles & per-video stats | [`nick.cheng/tiktok-profile-stats-scraper`](https://apify.com/nick.cheng/tiktok-profile-stats-scraper) | $0.02/profile · $0.01/video |\n\nNarrower single-purpose variants of the same code, for when you want exactly one thing:\n[`x-profile-data`](https://apify.com/nick.cheng/x-profile-data) ·\n[`single-tweet-scraper`](https://apify.com/nick.cheng/single-tweet-scraper) ·\n[`youtube-video-stats`](https://apify.com/nick.cheng/youtube-video-stats) ·\n[`tiktok-follower-count`](https://apify.com/nick.cheng/tiktok-follower-count) ·\n[`tiktok-video-stats`](https://apify.com/nick.cheng/tiktok-video-stats).\n\n## Use as an MCP server (hosted, no install)\n\nApify hosts an MCP endpoint for every Actor. Add one URL to any client that supports remote MCP\nservers (Claude, Cursor, VS Code, …) and authenticate with your Apify account when prompted:\n\n```\nhttps://mcp.apify.com/?tools=nick.cheng/x-twitter-profile-tweets-scraper,nick.cheng/youtube-video-channel-scraper,nick.cheng/tiktok-profile-stats-scraper\n```\n\nOr pick one: `https://mcp.apify.com/?tools=nick.cheng/tiktok-profile-stats-scraper`.\n\nThe three servers are also listed in the official MCP Registry as\n`io.github.mrocker/x-twitter-profile-tweets`, `io.github.mrocker/youtube-video-channel`,\n`io.github.mrocker/tiktok-profile-stats` (see `servers/`).\n\n## Use as a local stdio server\n\n```json\n{\n  \"mcpServers\": {\n    \"social-data\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"github:mrocker/social-data-mcp\"],\n      \"env\": { \"APIFY_TOKEN\": \"<your token>\" }\n    }\n  }\n}\n```\n\nThis is a thin wrapper that starts Apify's own `@apify/actors-mcp-server` pre-scoped to the three\nActors. Get a token at https://console.apify.com/account/integrations (free account is enough).\n\n## Use as Agent Skills\n\n```bash\nnpx skills add mrocker/social-data-mcp\n```\n\nInstalls three skills — `x-twitter-profile-tweets`, `youtube-video-channel`, `tiktok-profile-stats`\n— each a short `SKILL.md` telling the agent when to call the tool, how (one `curl`), what comes\nback, and what the tool cannot do.\n\n## What these tools will not do\n\nKeyword search on X, follower lists, reply threads, YouTube transcripts, TikTok video lists per\naccount. Each of those needs either a logged-in account or defeating a platform's proof-of-origin\ncheck, and these tools do neither. The READMEs on Apify say so up front.\n\n## License\n\nMIT for the code in this repository. The Actors themselves are used under Apify's terms.\n",
+  "status": "curated"
+}

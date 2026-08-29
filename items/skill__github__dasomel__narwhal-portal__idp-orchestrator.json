@@ -10,14 +10,20 @@
     "repo": "dasomel/narwhal-portal",
     "path": ".agents/skills/idp-orchestrator/skill.md"
   },
-  "license": null,
+  "license": "Apache-2.0",
   "install": {
     "kind": "skill-dir"
   },
   "quality": {
-    "stars": null,
-    "pushed_at": null,
-    "score": 25
+    "stars": 2,
+    "pushed_at": "2026-08-28T13:00:33Z",
+    "score": 59,
+    "star_history": [
+      {
+        "d": "2026-08-29",
+        "s": 2
+      }
+    ]
   },
   "security": {
     "score": 100,
@@ -49,6 +55,6 @@
     "category": null,
     "featured": false
   },
-  "readme": null,
+  "readme": "# Narwhal IDP Portal\n\nEnglish | [한국어](README_ko.md)\n\n[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)\n\nManagement portal (Next.js) for the **Narwhal Kubernetes Internal Developer Platform (IDP)**\ncluster. Sibling repo `../narwhal` provisions the cluster itself (GitOps, SSO, monitoring,\nstorage); this repo is the web UI operators and developers use to observe and operate it.\n\nServed in-cluster at **https://portal.local.narwhal.internal** via the cluster's APISIX gateway.\n\n## Key Features\n\n- **Dashboard** — cluster health, ArgoCD app status, alerts (`src/app/(dashboard)/page.tsx`)\n- **Onboarding** — kubeconfig issuance, getting-started guide (`onboarding/`)\n- **Catalog / My Apps** — deployed service catalog, per-user app view (`catalog/`, `my-apps/`)\n- **Nodes** — cluster node inventory and status (`nodes/`)\n- **Cost** — cost visibility (`cost/`)\n- **Compliance / Security / Governance** — policy, RBAC, and audit views (`compliance/`,\n  `security/`, `governance/`)\n- **Architecture / Templates / Tools** — service graph, scaffolding templates, platform tools\n  grid (`architecture/`, `templates/`, `tools/`)\n- **Settings** — users, routes, certificates, policies\n\nRoutes live under `src/app/(dashboard)/`; backing API routes under `src/app/api/`.\n\n## Screenshots\n\n> Placeholder gallery — drop your captures into [`docs/images/`](docs/images/) using the filenames shown ([details & tips](docs/images/README.md)); they render automatically.\n\n| Dashboard | Architecture |\n| :---: | :---: |\n| ![Dashboard](docs/images/dashboard.png) | ![Architecture](docs/images/architecture.png) |\n| _Real-time metrics, ArgoCD apps & alerts_ | _Nodes, namespaces & service graph_ |\n| **Security** | **Cost** |\n| ![Security](docs/images/security.png) | ![Cost](docs/images/cost.png) |\n| _Trivy vulnerability reports_ | _Namespace cost breakdown_ |\n| **Governance** | **Catalog** |\n| ![Governance](docs/images/governance.png) | ![Catalog](docs/images/catalog.png) |\n| _Scorecard, DORA & distribution_ | _Self-service app catalog_ |\n\n## Tech Stack\n\n| Layer | Technology |\n|-------|------------|\n| Framework | Next.js 16 (App Router) + React 19 |\n| Styling | TailwindCSS 4 + shadcn/ui |\n| Data | TanStack Query (server) + Zustand (client) |\n| Auth | NextAuth 5 (beta) + Keycloak OIDC |\n| Cache | Valkey (ioredis) |\n| Secrets | OpenBao Agent Injector |\n| Package manager | pnpm (`pnpm@10.27.0`, pinned via `packageManager`) |\n| Test | Vitest + Playwright (planned — not yet implemented) |\n\n## Quick Start\n\n```bash\npnpm install\npnpm dev\n```\n\nOpen http://localhost:3000. For a clean-install secrets bootstrap\n(`AUTH_SECRET`, `VALKEY_PASSWORD`, Keycloak/OpenBao/ArgoCD credentials), see\n[docs/security-clean-install.md](./docs/security-clean-install.md) and run\n`bash scripts/bootstrap-secrets.sh` first.\n\n## Build & Deploy\n\n### Host build\n\n```bash\npnpm build   # next build\npnpm start   # next start\n```\n\nA production Docker image can also be built locally with `make build` / `make push` / `make all`\n(requires Docker Desktop; pushes to `harbor.local.narwhal.internal`).\n\n### In-cluster Kaniko build (no local Docker required)\n\nThe cluster builds and pushes images itself via Kaniko, so a local Docker daemon is never\nrequired for a normal deploy:\n\n```bash\n./scripts/kaniko-build.sh\n```\n\nThis pushes the current source to the in-cluster Gitea, applies the Kaniko `Job` template\n(`deploy/kaniko-build-job.yaml`), and waits for the build to push\n`harbor.local.narwhal.internal/library/narwhal-portal:latest`. Pass `--skip-push` to reuse\nsource already pushed to Gitea.\n\n### Live development (Skaffold + HMR)\n\nFor iterative in-cluster development with hot reload (no local Docker/Node run needed at all),\nsee **[docs/local-dev.md](./docs/local-dev.md)** — covers `pnpm run dev:skaffold`,\ndebugging with the Node inspector, and IntelliJ/VS Code attach.\n\n## Development Commands\n\n```bash\npnpm dev              # local dev server\npnpm build            # production build\npnpm run dev:skaffold # in-cluster HMR dev loop (Skaffold + Kaniko)\npnpm run harbor:setup # one-time Kaniko/Harbor auth secret bootstrap\nnpx tsc --noEmit      # type check\nnpx shadcn@latest add {component}  # add a shadcn/ui component\n```\n\n## Related Docs\n\n- [docs/local-dev.md](./docs/local-dev.md) — full Skaffold/Kaniko dev workflow, troubleshooting\n- [docs/security-clean-install.md](./docs/security-clean-install.md) — clean-install secrets and\n  security hardening checklist\n- `CLAUDE.md` — architecture, agent harness, and conventions for AI-assisted development\n\n## License\n\nApache License 2.0 — see [LICENSE](LICENSE).\n\nThis repository vendors no dependency, but the published container image\n`ghcr.io/dasomel/narwhal-portal` redistributes its production npm packages, which carries their\nattribution obligations. Two files satisfy them and both are copied into the image:\n\n| File | What it is |\n|---|---|\n| [`NOTICE`](NOTICE) | Human-readable summary — principal components, what is redistributed where, trademarks |\n| [`THIRD-PARTY-NOTICES.md`](THIRD-PARTY-NOTICES.md) | Generated per-package record with the verbatim license text of every production dependency |\n\n`THIRD-PARTY-NOTICES.md` is generated, never hand-edited:\n\n```bash\npnpm run notices    # regenerate; CI fails if the committed file is stale\n```\n\nThe generator exists because `next build` cannot be relied on to carry license files — its file\ntracing keeps only what the server loads, so a 1.0.17 build had 631 `LICENSE` files under\n`node_modules` and 3 under `.next/standalone`. Image optimization is disabled and `sharp` is\nexcluded from tracing so the image does not redistribute LGPL-licensed libvips for an optimizer\nthe portal never calls; see [`NOTICE`](NOTICE).\n",
   "status": "curated"
 }

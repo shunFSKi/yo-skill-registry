@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.breezefeng/deepnatal",
+  "type": "mcp",
+  "name": "deepnatal",
+  "description": "Natal charts cross-verified three ways. Refuses to answer rather than guess.",
+  "author": "io.github.breezefeng",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/breezefeng/deepnatal",
+    "repo": "breezefeng/deepnatal"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "deepnatal"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-29T13:34:27.323048Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# deepnatal\n\n**A natal chart engine that cross-verifies every result three independent ways — and refuses to answer when it can't.**\n\nShips as both a TypeScript library and an [MCP](https://modelcontextprotocol.io) server for Claude, Cursor, Codex, Cline and other agents.\n\n```bash\nnpx -y deepnatal-mcp\n```\n\n[![npm](https://img.shields.io/npm/v/deepnatal)](https://www.npmjs.com/package/deepnatal) [![test](https://github.com/breezefeng/deepnatal/actions/workflows/test.yml/badge.svg)](https://github.com/breezefeng/deepnatal/actions/workflows/test.yml) [![license](https://img.shields.io/badge/license-MIT-blue)](./LICENSE)\n\n---\n\n## Why this exists\n\nAsk any astrology site for a birth chart and you get an answer. You almost never get a way to check it.\n\nThat matters more than it sounds, because the ascendant — the rising sign — moves about one degree every four minutes. Get the UTC instant wrong by an hour and it shifts by roughly half a sign. The result still looks completely plausible. Nothing about it announces that it's wrong.\n\nAnd an hour is easy to lose. Taiwan observed daylight saving in 1945–1961 and again in 1974–1979. Mainland China did from 1986 to 1991. Japan did from 1948 to 1951. Plenty of tools quietly apply *today's* UTC offset to a 1988 birth date and hand back a chart that's off by exactly one hour.\n\nThis package is built around the opposite assumption: **a result you can't check is not a result.**\n\n## How it verifies\n\nThree independent paths compute every chart. Disagreement is an error, not something to average away.\n\n| Layer | Primary | Independent check |\n|---|---|---|\n| **Timezone** | Explicit IANA zone, Node ICU historical `tzdata` | Coordinate-derived zone lookup |\n| **Planets** | `circular-natal-horoscope-js` | `astronomy-engine` |\n| **Ascendant** | Astrology-library house calculation | Pure spherical geometry — ecliptic × eastern horizon, no astrology library involved |\n\nTypical agreement in practice is under one arcminute. Past tolerance, the call throws rather than returning a chart.\n\nIt also degrades honestly where the math genuinely breaks down:\n\n- **Above 66° latitude**, Placidus houses are undefined. The engine falls back to whole-sign and tells you it did, instead of emitting silent nonsense.\n- **Without a birth time**, the ascendant, midheaven and houses are simply omitted with reasons. No substituting noon. If the Moon changed sign that day — which happens on nearly half of all dates — that's reported too.\n- **Inside a DST transition gap**, where a local time either doesn't exist or happens twice, it throws and asks you to disambiguate.\n\n## Verify it yourself\n\nA README asserting \"cross-verified\" is worth nothing on its own. The suite ships inside the published package, so you can run it against the exact bytes you installed:\n\n```bash\nnpm i deepnatal\nnode node_modules/deepnatal/dist/selftest.js\n```\n\n```\n✅ PASS — 21/21 boundary cases + 11/11 external cross-checks\n   All three paths agree, and they agree with an outside source.\n```\n\nThe 21 boundary cases are chosen to be the ones that break things, not the ones that are easy: China's 1986–1991 DST window and a same-year winter control, Taiwan 1979, Japan's 1948–1951 GHQ period, a time that never existed because a DST jump skipped it, and latitudes inside the Arctic Circle where Placidus is undefined.\n\nThe 11 external checks compare against values captured from astro-seek. Those exist because the three internal paths share assumptions — tropical zodiac, apparent geocentric positions, true ecliptic of date — and if an assumption itself were wrong, all three would agree on the same wrong answer. Only an outside source catches that.\n\nCI runs the suite on Node 20/22/24 under a deliberately non-UTC system clock, so any accidental dependence on the host timezone fails loudly.\n\n## Quick start\n\n```bash\nnpm install deepnatal\n```\n\n```ts\nimport { calculateNatalChart, verifyAscendant } from 'deepnatal';\n\nconst birth = {\n  date: '1988-07-15',\n  time: '14:30',\n  timezone: 'Asia/Shanghai',   // the BIRTHPLACE's zone, never the user's current one\n  latitude: 31.23,\n  longitude: 121.47,\n};\n\nconst chart = calculateNatalChart(birth);\nchart.ascendant;             // { sign: 'scorpio', degreeInSign: 10.37, ... }\nchart.crossCheckMaxArcmin;   // 0.467 — how far the two engines disagreed\n```\n\n### Checking somebody else's answer\n\nThe reason this package exists. Pass a result from any other tool as `claim`:\n\n```ts\nverifyAscendant(birth, 'Scorpio 23.0');\n```\n\n```jsonc\n{\n  \"computed\":  { \"sign\": \"scorpio\", \"degreeInSign\": 10.37 },\n  \"geometric\": { \"sign\": \"scorpio\", \"degreeInSign\": 10.37 },  // independent path\n  \"internalAgreementArcmin\": 0,\n  \"oneHourOffsetTest\": {\n    \"minusOneHour\": { \"sign\": \"libra\",   \"degreeInSign\": 27.66 },\n    \"plusOneHour\":  { \"sign\": \"scorpio\", \"degreeInSign\": 22.98 },\n    \"degreesPerHour\": 12.66\n  },\n  \"claim\": {\n    \"verdict\": \"off-by-one-hour\",\n    \"likelyCause\": \"Measured, not guessed: the supplied value matches this engine's\n                    ascendant for a birth instant one hour LATER than the one given...\"\n  }\n}\n```\n\nNote `degreesPerHour: 12.66`. The usual rule of thumb says an hour is 15° — that's the Earth's rotation rate, not the ascendant's rate of travel along the ecliptic, and the two only agree near the equator. This library measures it per chart instead of assuming it.\n\n## MCP server\n\n```bash\nnpx -y deepnatal-mcp\n```\n\n<details>\n<summary><b>Claude Desktop</b> — <code>claude_desktop_config.json</code></summary>\n\n```json\n{\n  \"mcpServers\": {\n    \"deepnatal\": { \"command\": \"npx\", \"args\": [\"-y\", \"deepnatal-mcp\"] }\n  }\n}\n```\n</details>\n\n<details>\n<summary><b>Cursor</b> — <code>.cursor/mcp.json</code></summary>\n\n```json\n{\n  \"mcpServers\": {\n    \"deepnatal\": { \"command\": \"npx\", \"args\": [\"-y\", \"deepnatal-mcp\"] }\n  }\n}\n```\n</details>\n\n<details>\n<summary><b>Claude Code</b></summary>\n\n```bash\nclaude mcp add deepnatal -- npx -y deepnatal-mcp\n```\n</details>\n\n### Tools\n\n| Tool | What it does |\n|---|---|\n| `calculate_natal_chart` | Ten planets with sign, degree, house, retrograde; ascendant, midheaven, twelve cusps. Fails rather than returning a chart the two engines disagree on. |\n| `calculate_chart_without_birth_time` | Only what's knowable without a time. Lists what's missing and why. Flags an ambiguous moon sign. |\n| `verify_ascendant` | Recomputes via pure geometry and adjudicates a value from another tool. Accepts `Virgo`, `處女座`, `12 Leo`, `Leo 12°34'`, or a bare longitude. |\n| `inspect_historical_timezone` | What the historical tzdata actually did on that date, and whether DST was in effect. |\n\nEverything runs locally in the agent's own process. Birth data is about as sensitive as personal data gets, and none of it leaves the machine — there is no network call anywhere in this package.\n\n**Why let an agent call this instead of reasoning it out?** Because a language model asked to work out a rising sign will produce a confident, plausible, wrong answer, and nothing downstream can detect that. This server returns computed facts and its own uncertainty. It never interprets.\n\n---\n\n## 中文說明\n\n**deepnatal** 是一套會自我驗算的本命盤計算引擎——算不出來時它會拒絕回答，而不是給你一個看起來合理的答案。\n\n上升星座每四分鐘移動約一度。時區算錯一小時，上升就偏掉大半個星座，而結果看起來完全正常，不會有任何地方提示你它是錯的。\n\n而一小時很容易丟。台灣在 1945–1961、1974–1979 實施過夏令時間，中國大陸是 1986–1991，日本是 1948–1951。不少工具會把**今天**的時區偏移直接套到 1988 年的出生日期上。\n\n三條獨立路徑同時計算，彼此不一致就報錯：\n\n1. **時區層**　明確 IANA 時區 + Node ICU 歷史 tzdata，與座標反查時區交叉核對\n2. **行星層**　`circular-natal-horoscope-js` × `astronomy-engine` 兩套獨立演算法\n3. **上升層**　純球面幾何第三條路（黃道與東方地平線交點），完全不依賴任何占星函式庫\n\n實測吻合度在 1 角分以內。超過容許值就丟出錯誤，不回傳星盤。\n\n`verifyAscendant()` 可以用來檢查**任何其他工具**算出的上升是否正確。它不猜原因——而是實際重算前後各一小時的上升點，如果對方的答案正好落在那裡，就能證明差異來自時區處理而非天文計算。\n\n完整工具與說明見 [deepnatal.com](https://deepnatal.com)。\n\n---\n\n## What this does not prove\n\nBeing straight about the boundaries is part of the point.\n\n- Cross-verification catches implementation bugs and drift. It cannot prove the shared conventions are the right ones — all three paths assume the tropical zodiac, apparent geocentric positions and the true ecliptic of date.\n- A reproducible chart says nothing about whether astrology predicts anything. This package computes positions. It makes no claim about meaning.\n- Two tools can legitimately differ over house system, zodiac (tropical vs sidereal), ephemeris, node convention or rounding. `verify_ascendant` distinguishes a one-hour offset from these, but it doesn't declare a winner in matters of convention.\n- Wrong birth data still produces a technically correct chart of the wrong moment. Nothing downstream can rescue that.\n\n## Licensing\n\nMIT. The dependency chain is deliberately kept clear for redistribution:\n\n| Package | License |\n|---|---|\n| `circular-natal-horoscope-js` | Unlicense (public domain) |\n| `astronomy-engine` | MIT |\n\nNotably **not** Swiss Ephemeris (`sweph` / `swisseph`). Its dual `AGPL-3.0-or-later OR LGPL-3.0-or-later` listing is misleading: the LGPL option requires purchasing an Astrodienst commercial license first. Without one you're on AGPL, which reaches network services and would require open-sourcing everything that touches it. That constraint is why most hosted astrology products can't ship their calculation layer as an open package — this one can.\n\n## Credits\n\nThis is the calculation layer of [deepnatal.com](https://deepnatal.com), extracted verbatim — the site runs the same code that ships here, so any chart it produces can be reproduced locally against this package.\n\nIssues and PRs: [github.com/breezefeng/deepnatal](https://github.com/breezefeng/deepnatal)\n",
+  "status": "curated"
+}

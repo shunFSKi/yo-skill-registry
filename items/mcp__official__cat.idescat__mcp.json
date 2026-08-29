@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/cat.idescat/mcp",
+  "type": "mcp",
+  "name": "Idescat MCP Server",
+  "description": "Query official statistics of Catalonia (Idescat): tables, metadata and JSON-stat data via MCP.",
+  "author": "cat.idescat",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/idescat/mcp",
+    "repo": "idescat/mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://api.idescat.cat/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-29T15:49:57.142539Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "数据",
+    "featured": false
+  },
+  "readme": "# Idescat MCP server\n\nMCP (Model Context Protocol) server that exposes tools to query the official\nstatistics of Catalonia, published by **Idescat** (Institut d'Estadística de\nCatalunya), from any MCP client (Claude, Windsurf, Cursor, VS Code, etc.).\n\n- **Public endpoint:** `https://api.idescat.cat/mcp`\n- **Transport:** Streamable HTTP (MCP spec 2025-06-18), **stateless** — each POST request is independent, with no sessions or SSE streams.\n- **Authentication:** none required (the data is public).\n- **Data:** official Idescat statistics in **JSON-stat**; labels and descriptions are in **Catalan**; territorial scope is **Catalonia** and its territorial breakdowns (counties, municipalities, provinces, etc.).\n\n## Installation\n\nThe public endpoint is `https://api.idescat.cat/mcp`. Add one of the snippets\nbelow to your MCP client's configuration. Different clients expect a different\nkey (`serverUrl`, `url`, ...) and sometimes a `type`.\n\n### Windsurf/Devin, Antigravity (`serverUrl`)\n\n```json\n{\n\t\"mcpServers\": {\n\t\t\"idescat\": {\n\t\t\t\"serverUrl\": \"https://api.idescat.cat/mcp\"\n\t\t}\n\t}\n}\n```\n\n### Cursor, Roo Code, Zoo Code (`type: streamable-http`)\n\n```json\n{\n\t\"mcpServers\": {\n\t\t\"idescat\": {\n\t\t\t\"type\": \"streamable-http\",\n\t\t\t\"url\": \"https://api.idescat.cat/mcp\"\n\t\t}\n\t}\n}\n```\n\n### Cline (`type: streamableHttp`)\n\n```json\n{\n\t\"mcpServers\": {\n\t\t\"idescat\": {\n\t\t\t\"type\": \"streamableHttp\",\n\t\t\t\"url\": \"https://api.idescat.cat/mcp\"\n\t\t}\n\t}\n}\n```\n\n### VS Code and the emerging standard form (`servers`, `type: http`)\n\n```json\n{\n\t\"servers\": {\n\t\t\"idescat\": {\n\t\t\t\"type\": \"http\",\n\t\t\t\"url\": \"https://api.idescat.cat/mcp\"\n\t\t}\n\t}\n}\n```\n\n### Claude.ai (custom connector)\n\nClaude.ai (web and desktop apps) can reach the remote server directly as a\n**custom connector**, no configuration file needed.\n\n1. Open **Customize → Connectors** \n2. Click **Add custom connector**.\n3. Fill in the fields:\n   - **Name:** `Idescat`\n   - **Remote MCP server URL:** `https://api.idescat.cat/mcp`\n4. Click **Add**. No authentication (OAuth / API key) is needed, since the data\n   is public.\n5. Back in a chat, enable the **Idescat** connector from the tools/attachments\n   menu. Its tools and resources are now available to the assistant.\n6. (Optional) In the connector's tool settings, switch each Idescat tool from\n   **Needs approval** to **Always allow** so the assistant can run them without\n   asking for confirmation every time. All the tools are read-only, so this is\n   safe.\n\n### Claude Desktop and stdio-only clients (bridge with `mcp-remote`)\n\nClients that only speak stdio can reach the remote server through the\n`mcp-remote` bridge:\n\n```json\n{\n\t\"mcpServers\": {\n\t\t\"idescat\": {\n\t\t\t\"command\": \"npx\",\n\t\t\t\"args\": [\"-y\", \"mcp-remote\", \"https://api.idescat.cat/mcp\"]\n\t\t}\n\t}\n}\n```\n\n### Not sure which key your client expects? (catch-all)\n\nMost clients ignore keys they don't recognise, so this superset works with many\nof them at once:\n\n```json\n{\n\t\"mcpServers\": {\n\t\t\"idescat\": {\n\t\t\t\"url\": \"https://api.idescat.cat/mcp\",\n\t\t\t\"serverUrl\": \"https://api.idescat.cat/mcp\",\n\t\t\t\"type\": \"streamable-http\",\n\t\t\t\"streamableHttp\": \"https://api.idescat.cat/mcp\"\n\t\t}\n\t}\n}\n```\n\n## Available tools\n\n| Tool | Description |\n| --- | --- |\n| `get_idescat_stats` | Full list of available statistics. |\n| `get_idescat_stat` | Information about a statistic (by acronym: `censph`, `pibc`, ...). |\n| `get_idescat_stat_tables` | List of tables of a statistic. |\n| `get_table_metadata` | Table metadata (dimensions, categories, units, ...). |\n| `get_table_data` | Table data in JSON-stat: full, or filtered by dimension/territory/periods with the optional `filters` and `last` parameters (max. 20,000 cells after applying filters). |\n| `get_table_geo` | Territorial divisions available for a table (`cat`, `prov`, `com`, `mun`, ...). |\n| `render_table` | Ready-pivoted Markdown table (selectable rows/columns) with an attribution link to the table on the Idescat website. |\n\n## Available resources\n\nBeyond the tools, the server exposes MCP **resources** — content a client can\nattach to the context without executing any action.\n\nStatic resources (`resources/list`):\n\n| URI | Description |\n| --- | --- |\n| `idescat://instructions` | Usage guidance. |\n| `idescat://glossary/geo` | Glossary of territorial codes (`cat`, `prov`, `com`, `mun`, ...). |\n| `idescat://catalog/stats` | Full catalogue of statistics. |\n\nResource templates (`resources/templates/list`) — parametrised URIs:\n\n| URI template | Description |\n| --- | --- |\n| `idescat://stat/{stat}` | Information about a statistic (e.g. `.../censph`). |\n| `idescat://stat/{stat}/tables` | List of tables of a statistic. |\n| `idescat://table/{stat}/{table}` | Table metadata (e.g. `.../censph/538`). |\n| `idescat://table/{stat}/{table}/data` | JSON-stat data of a table (max. 20,000 cells). |\n\n> The transport is stateless, so `subscribe` and `resources/list_changed`\n> notifications are **not** offered (there is no persistent connection).\n\n## Repository files\n\nThe following files define the server's guidance and resources and are served,\nunchanged, to MCP clients:\n\n- **[`instructions.md`](instructions.md)** — usage guidance the server sends to\n  clients during the handshake and exposes as the `idescat://instructions`\n  resource. It explains how to choose a statistic, the data-retrieval flow, how\n  to interpret JSON-stat, and the source-attribution rules.\n- **[`resources.json`](resources.json)** — declaration of the MCP **resources**\n  and **resource templates** the server exposes (the two tables in the\n  [Available resources](#available-resources) section above), including each\n  URI, title, description, MIME type, and its backing file or tool.\n- **[`resources/geo.md`](resources/geo.md)** — glossary of territorial codes\n  (`cat`, `prov`, `at`, `com`, `mun`, `dis`, `sec`) used by the `geo` parameter,\n  exposed as the `idescat://glossary/geo` resource.\n- **[`server.json`](server.json)** — the server's metadata manifest in the\n  standard\n  [server.json format](https://github.com/modelcontextprotocol/registry/blob/main/docs/reference/server-json/generic-server-json.md),\n  used to publish the server to the official\n  [MCP Registry](https://registry.modelcontextprotocol.io).\n\n## Discovery (Agentic Resource Discovery)\n\nThe server is advertised using the **Agentic Resource Discovery (ARD)**\nspecification (v0.91) so agents can find it automatically:\n\n- An ARD manifest is published at\n  `https://www.idescat.cat/.well-known/ard.json` and\n  `https://api.idescat.cat/.well-known/ard.json`. The legacy predecessor path\n  (`/.well-known/ai-catalog.json`) is redirected (301) to the new manifest.\n- A `GET` request to the endpoint `https://api.idescat.cat/mcp` returns the\n  **MCP server card** (`application/mcp-server-card+json`), generated from the\n  server's tool and resource definitions. A `GET` requesting\n  `text/event-stream` returns `405`, since this stateless server offers no SSE\n  stream.\n- The MCP server card is also served at\n  `https://www.idescat.cat/.well-known/mcp/server-card.json` (and `https://www.idescat.cat/.well-known/mcp.json`), which redirects\n  to `https://api.idescat.cat/mcp`.\n- The website pages also include a link to the manifest:\n  `<link rel=\"ard\" href=\"/.well-known/ard.json\" type=\"application/json\">`\n  (the `ard` link relation replaces the predecessor `ai-catalog` relation).\n- `robots.txt` includes an `Agentmap:` directive pointing to the manifest.\n- The MCP server is also advertised in the site's `llms.txt` file.\n\n### MCP Registry\n\nThe server is listed in the official\n[MCP Registry](https://registry.modelcontextprotocol.io) under the name\n`cat.idescat/mcp` (see [`server.json`](server.json)). MCP clients and\naggregators can retrieve its metadata from the registry API:\n\n    https://registry.modelcontextprotocol.io/v0.1/servers/cat.idescat%2Fmcp\n\n\n## Interactive testing with MCP Inspector\n\n```bash\nnpx @modelcontextprotocol/inspector@2.0.0\n```\n\nPinning a specific version (e.g. `@2.0.0`) keeps the tool reproducible and\navoids picking up unexpected changes; it requires Node.js **>= 22.19.0**. Any\n`npm warn deprecated ...` / `ERESOLVE` messages come from the Inspector's own\ndependencies and are harmless — they do not affect this MCP server.\n\nSelect the \"Streamable HTTP\" transport and enter the endpoint URL.\n\n## Links\n\n- Idescat: <https://www.idescat.cat>\n- Model Context Protocol: <https://modelcontextprotocol.io>\n- MCP specification (2025-06-18, Streamable HTTP transport): <https://modelcontextprotocol.io/specification/2025-06-18>\n- Agentic Resource Discovery (ARD): <https://agenticresourcediscovery.org>\n- ARD specification (rendered): <https://agenticresourcediscovery.org/spec/>\n- ARD specification repository (schemas, conformance tooling): <https://github.com/ards-project/ard-spec>\n",
+  "status": "curated"
+}

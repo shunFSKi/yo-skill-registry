@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/ai.immopix/mcp",
+  "type": "mcp",
+  "name": "Immopix",
+  "description": "AI photo enhancement for real estate listings.",
+  "author": "ai.immopix",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/Immopix/mcp",
+    "repo": "Immopix/mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://immopix.ai/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-29T14:45:48.844611Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "设计",
+    "featured": false
+  },
+  "readme": "# Immopix MCP connector\n\nImmopix is an AI photo service for real estate listings. It improves listing photos: it replaces a\ngrey sky, removes clutter, adds furniture to an empty room and adjusts the season of a garden shot.\nThe customers are estate agents in Germany and, in English, elsewhere in Europe.\n\nThe Immopix connector is a remote MCP server at `https://immopix.ai/mcp`. It links an Immopix\naccount to Claude, ChatGPT and other assistants that support MCP connectors, so the agent can work\nwith the properties and photos that account already holds.\n\nThis repository holds the distribution metadata and the client examples for that connector. The\nhosted server itself is closed source, and none of its code is published here.\n\n## What the connector can do\n\nThe server publishes thirteen tools. Grouped by what a user asks for, they cover:\n\n- **Properties.** List the account's properties, search them by name, read one property, create a\n  property, rename it and delete it.\n- **Photos.** List the photos of a property, read one photo with its edit history, and delete a\n  photo.\n- **Enhancement.** Start an enhancement for a photo that is already in the account, then poll the\n  job until it returns a link to the finished image.\n- **Options and cost.** Read the available presets, room types and furniture styles, the credit\n  price of the next enhancement, and the account's remaining credit balance.\n- **New photos.** Return a link to the Immopix upload page for a property. Photos are uploaded in\n  the browser, never through the connector.\n\n| Tool | Scope | Purpose |\n| --- | --- | --- |\n| `immopix_list_properties` | read | List properties, newest first, with an optional name filter |\n| `immopix_get_property` | read | Read one property |\n| `immopix_list_property_photos` | read | List the photos of a property |\n| `immopix_get_photo` | read | Read one photo, its revisions and the cost of the next enhancement |\n| `immopix_check_job` | read | Read the status of an enhancement job and its result link |\n| `immopix_list_presets` | read | List the presets, room types and furniture styles |\n| `immopix_get_account` | read | Read the remaining credit balance |\n| `immopix_get_upload_link` | write | Return the browser upload link for a property |\n| `immopix_create_property` | write | Create a property |\n| `immopix_update_property` | write | Rename a property |\n| `immopix_delete_property` | write | Delete a property and its photos |\n| `immopix_delete_photo` | write | Delete a photo and its revisions |\n| `immopix_enhance_photo` | write | Enhance a photo in the account and return a job handle |\n\nThe full catalog stays visible with the `read` scope. Calling a write tool starts a step-up\nauthorization instead of failing silently.\n\n## Connecting\n\nSetup happens inside the assistant and takes about a minute. The menu names differ between\nassistants, the steps do not.\n\n1. Open the connector settings of your assistant.\n2. Add a custom connector with the address `https://immopix.ai/mcp`.\n3. Sign in with your Immopix account in the browser window that opens.\n4. The approval screen names the application, the account and the requested permissions. Check\n   them, then approve.\n\nIn Claude Code the same connector is added on the command line:\n\n```bash\nclaude mcp add --transport http immopix https://immopix.ai/mcp\n```\n\nRun `/mcp` afterwards to complete the sign-in.\n\n`examples/README.md` walks through a first conversation and lists the client configurations.\n\n## Authentication\n\nThe server is an OAuth 2.1 protected resource. There is no API key and no client secret in this\nflow.\n\n- Clients register through Client ID Metadata Documents (CIMD) as public clients with\n  `token_endpoint_auth_method=none`. Dynamic client registration is not enabled.\n- The authorization code flow requires PKCE with `S256`.\n- The protected resource value is exactly `https://immopix.ai/mcp`, and it is bound to the issued\n  token. A token issued for another resource is rejected.\n- The first grant asks for `read`. A write tool triggers one step-up for `read write`, so an agent\n  cannot change or charge anything under a read-only grant.\n- Access tokens are valid for one hour. Refresh tokens rotate and are valid for 30 days.\n- Discovery documents live at `/.well-known/oauth-protected-resource/mcp`,\n  `/.well-known/oauth-protected-resource` and `/.well-known/oauth-authorization-server`.\n\nThe endpoint accepts `POST` with `Authorization: Bearer` only. `https://immopix.ai/mcp/` with a\ntrailing slash is not the endpoint and is not redirected.\n\n## Photos\n\nNo image data travels over the MCP connection. The connector accepts neither an image URL nor\nbase64 bytes, and every enhancement works on a photo the account already holds.\n\nTo add new photos, ask the assistant for an upload link. `immopix_get_upload_link` returns the\nImmopix page for that property, you upload the files in the browser, and the assistant lists the\nphotos again to pick up the new ones. Results come back as short-lived links, so the images stay\nout of the model context.\n\n## Credits\n\nAn enhancement started through an assistant costs the same credits as the same enhancement in the\nImmopix web interface. Reading, listing and searching cost nothing.\n\nThe tool descriptions and the server instructions require the assistant to name the price and the\nbalance and to ask for confirmation before it spends anything. `immopix_get_photo` returns the cost\nof the next enhancement per output resolution, and a free revision honestly reports zero.\n`immopix_get_account` returns the balance. Every enhancement also appears in the photo history in\nImmopix.\n\nCreate and enhance calls carry a client-supplied `operation_id`. A repeated call with the same ID\nand the same arguments replays the first result and charges nothing a second time.\n\n## Contents of this repository\n\n| File | Purpose |\n| --- | --- |\n| `server.json` | Metadata for the official MCP Registry |\n| `examples/` | A first conversation and client configurations |\n| `CHANGELOG.md` | Published server and tool metadata versions |\n| `SECURITY.md` | How to report a vulnerability |\n| `PRIVACY.md` | Links to the binding privacy policy |\n\nThe hosted server is closed source. This repository carries distribution metadata and client\nexamples only. It contains no server code, no configuration and no credentials.\n\n## Links\n\n- Help, German: https://immopix.ai/docs/mcp/\n- Help, English: https://immopix.ai/en/docs/mcp/\n- REST API documentation: https://immopix.ai/docs/api/\n- Privacy, binding German version: https://immopix.ai/datenschutz/\n- Privacy, English: https://immopix.ai/en/privacy/\n- Terms, binding German version: https://immopix.ai/agb/\n- Terms, English: https://immopix.ai/en/terms/\n- Support: contact@immopix.ai\n",
+  "status": "curated"
+}
