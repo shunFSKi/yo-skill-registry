@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/MichaelM3/dotfiles/write-a-skill",
+  "type": "skill",
+  "name": "write-a-skill",
+  "description": "Compatibility adapter for skill-authoring. Use when the user asks to write a skill, create a new skill, port a skill, or invokes Matt Pocock's write-a-skill name.",
+  "author": "MichaelM3",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/MichaelM3/dotfiles/blob/HEAD/shared/home/.agents/skills/write-a-skill/SKILL.md",
+    "repo": "MichaelM3/dotfiles",
+    "path": "shared/home/.agents/skills/write-a-skill/SKILL.md"
+  },
+  "license": null,
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 1,
+    "pushed_at": "2026-08-27T03:19:03Z",
+    "score": 58,
+    "star_history": [
+      {
+        "d": "2026-08-29",
+        "s": 1
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "写作",
+    "featured": false
+  },
+  "readme": "# Dotfiles\n\nLayered personal dotfiles for WSL2, macOS, and Omarchy.\n\n## Layout\n\n```text\nshared/home/              # managed files installed for every profile\nshared/portable/home/     # managed files shared by WSL2 and macOS\nshared/codex/             # Codex config fragments rendered at install time\nprofiles/<profile>/home/  # profile-specific managed files\nprofiles/<profile>/codex/ # profile-specific Codex config fragments\n```\n\n`home/` directories mirror `$HOME`. The installer creates real directories in\n`$HOME` and symlinks managed leaf files inside them.\n\nStateful directories stay local and real:\n\n- `$HOME/.codex`\n- `$HOME/.agents`\n- `$HOME/.cursor`\n- `$HOME/.config`\n- `$HOME/.tmux`\n\nThat keeps credentials, sessions, caches, generated files, downloaded plugins,\nand lock files out of Git.\n\n## New Machine\n\n```bash\ngit clone <repo-url> ~/dotfiles\ncd ~/dotfiles\ncp shared/home/.config/zsh/.environment.zsh.example ~/.config/zsh/.environment.zsh\n$EDITOR ~/.config/zsh/.environment.zsh\n./install.sh <profile>\n```\n\nProfiles:\n\n```bash\n./install.sh wsl2\n./install.sh mac\n./install.sh omarchy\n```\n\nPreview first:\n\n```bash\n./install.sh <profile> --dry-run\n```\n\nOverwrite instead of backing up:\n\n```bash\n./install.sh <profile> --force\n```\n\nDefault behavior moves existing files to `~/.dotfiles-backup/<timestamp>/`.\n\n## Codex\n\nCodex runtime state is local. The repo tracks:\n\n- shared harness instructions and skills under `shared/home/.agents`\n- Codex `AGENTS.md` under `shared/home/.codex/AGENTS.md`\n- Codex config fragments under `shared/codex` and `profiles/<profile>/codex`\n\n`install.sh` renders `$HOME/.codex/config.toml` from those fragments. It does\nnot symlink the whole `.codex` directory.\n\n## Generated Files\n\nDo not track:\n\n- Codex auth, logs, SQLite DBs, sessions, plugins, system skills, and caches\n- tmux plugins and resurrect state\n- Neovim lock/cache/session files\n- tool credentials under `.config`\n- `node_modules`, package locks generated inside tool config dirs\n\nLegacy top-level `wsl2/`, `mac/`, and `omarchy/` directories are ignored so\nold local symlink targets and caches can remain on disk during migration.\n\n## Verify\n\n```bash\nscripts/audit-agent-harness.sh\n```\n",
+  "status": "curated"
+}

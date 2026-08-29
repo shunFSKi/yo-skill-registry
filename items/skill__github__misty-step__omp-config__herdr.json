@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/misty-step/omp-config/herdr",
+  "type": "skill",
+  "name": "herdr",
+  "description": "Inspect or control Herdr without stealing the operator's active workspace.",
+  "author": "misty-step",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/misty-step/omp-config/blob/HEAD/skills/herdr/SKILL.md",
+    "repo": "misty-step/omp-config",
+    "path": "skills/herdr/SKILL.md"
+  },
+  "license": null,
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 1,
+    "pushed_at": "2026-08-28T17:51:05Z",
+    "score": 55,
+    "star_history": [
+      {
+        "d": "2026-08-29",
+        "s": 1
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "办公",
+    "featured": false
+  },
+  "readme": "# omp-config\n\nOmp harness configuration for Phaedrus / Misty Step. Source of truth for how\nagents run on this machine: model roles, global policy, skills, themes.\n`./install` deploys everything.\n\n## Layout\n\n| Path | Purpose |\n| --- | --- |\n| `install` | Deployment script. Validates sources, copies the allowlist into `$(omp config path)`, deploys agents and skills atomically, merges live MCP auth, and self-installs the pre-push hook |\n| `bin/omp-grievances.ts` | Manual grievance inbox CLI; reads OMP intake without mutation and stores private acknowledgements under XDG state |\n| `config.yml` | Model roles and fallback chains, theme/statusline/TUI display, providers (web search routed through exa), task/LSP settings |\n| `models.yml` | Local Ollama provider discovery; cloud models come from omp's bundled catalog |\n| `mcp.json` | Declared MCP servers; `install` merges per-server auth/oauth from the live copy |\n| `global/AGENTS.md` | Standing policy loaded into every session: design, communication, delivery, premise gate, knowledge vault |\n| `global/RULES.md` | Strict ordering rules; currently the deletion-first ladder |\n| `agents/` | Read-only specialist agents; installed globally and routed by each agent's model role |\n| `global/WATCHDOG.md`, `WATCHDOG.yml` | Continuous Steward advisor: a high-reasoning model reviews intent, design, correctness, proof, and operations; roster configured in YAML |\n| `themes/` | TUI themes (`tokyonight`, `ember`) |\n| `skills/` | Skill packages, copied wholesale on install — see below |\n| `.githooks/pre-push` | Hook source installed into this repo's git dir by `./install` |\n| `.agents/skills/writing-for-agents/` | Agent-writing guidance served via `skill://writing-for-agents`; not deployed by `install` |\n| `extensions/loc/` | Session-resident LOC status and commands; deployed by `install` |\n| `CANON.md` | Concise, implementation-independent operating philosophy. Reference only — never deployed or auto-loaded |\n\n## Install\n\n```sh\n./install   # requires jq\n```\n\nChecks every allowlisted source exists and parses, deploys config files with\nmode 600, folds live MCP credentials into declared servers, swaps `skills/`\natomically, and installs the git hook. Run after every change; sessions pick\nup deployed state on their next start.\n\n## LOC extension\n\nThe globally deployed LOC extension provides `/loc`, `/loc-trend`, and a\ncommitted-`HEAD` status row. Session and turn hooks read `.git/loc_cache` only;\na missing or stale cache hides the row rather than calculating during\ninteractive work. Explicit LOC commands may calculate on demand.\n\nDisable only LOC for a large repository with project-local configuration:\n\n```yaml\n# .omp/config.yml\ndisabledExtensions:\n  - extension-module:loc\n```\n\n## Grievance inbox\n\n`omp-grievances` treats OMP's grievance database as a read-only inbox. Its\nacknowledgement ledger defaults to\n`$XDG_STATE_HOME/omp-config/grievances.sqlite3` or\n`~/.local/state/omp-config/grievances.sqlite3`.\n\n```sh\nomp-grievances status\nomp-grievances inbox --limit 20\nomp-grievances show 294\nomp-grievances ack 294 --outcome ticketed --ref POW-123\nomp-grievances ack --through 250 --outcome historic --note \"pre-ledger backlog\"\nomp-grievances unack 294\n```\n\nOutcomes are `ticketed`, `no-action`, and `historic`. `ticketed` requires an\nopaque external reference such as a Powder or Habitat item. The ledger stores\ngrievance IDs, outcomes, references, and notes; raw reports remain owned by\n`~/.omp/autoqa.db`. A salted source fingerprint prevents acknowledgements from\nsilently attaching to a replaced or rewritten grievance history.\n\n## Skills\n\nTwo invocation classes:\n\nOperator-invoked (`disable-model-invocation: true`) — human-directed flows\nthat run only on explicit request:\n`audit-choices`, `audit-observability`, `audit-simplifications`, `backlog`,\n`brief`, `capture`, `code-review`, `deliver`,\n`diagnose`, `explore-design`, `extract-module`, `foundation`, `groom`,\n`install-anti-slop`, `polish`, `product-description`, `pulse`, `refactor`,\n`release`, `security-review`, `shape`, `tidy`, `torvalds-design-review`.\n\nModel-invocable — unambiguous triggers, bounded cost, cheap wrong-fire:\n`ast-grep`, `dispatch`, `evidence-packet`, `exocortex`, `frontend-design`,\n`herdr`, `research`.\n\n\nThe `exocortex` skill is generated from `misty-step/exocortex`\n`skills/exocortex/SKILL.md`. Do not hand-edit `skills/exocortex/SKILL.md`.\nRegenerate with that repo's `scripts/install-skill.sh` and prove with\n`skills/exocortex/check-source.sh`.\n\n## Canon relationship\n\n`CANON.md` states the implementation-independent operating philosophy.\nConfiguration, standing policy, and skills are concrete mechanisms that should\nexpress it without turning the canon into an inventory of the current harness.\nImplementation details and routing live in this README and the configuration.\nNever paste the canon wholesale into agent context; distill only the judgment a\nsurface needs.\n\n## Ecosystem\n\n- **Powder** — work ledger for all Misty Step work; skill managed in `misty-step/powder` and scoped to `~/Development/misty-step/` via workspace discovery.\n- **Iron Forest** — headless Builder/Verifier/Fixer factory. Mechanical\n  enforcement belongs there and in CI, not in prose.\n- **Landmark** — release pipeline: conventional commits become semantic\n  versions, technical changelogs, synthesized user-facing notes, and\n  machine-readable evidence.\n- **Estate** — private infrastructure map; consult before any infrastructure\n  claim.\n",
+  "status": "curated"
+}

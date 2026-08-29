@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/Devolutions/IronRDP/prose-verifier",
+  "type": "skill",
+  "name": "prose-verifier",
+  "description": "Verify edited prose is concise, human-first, and written one sentence per source line. Use whenever Markdown, AsciiDoc, plain-text documentation, release notes, or other hand-maintained prose is changed, especially when reviewing documentation style or line-oriented diffs.",
+  "author": "Devolutions",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/Devolutions/IronRDP/blob/HEAD/.agents/skills/prose-verifier/SKILL.md",
+    "repo": "Devolutions/IronRDP",
+    "path": ".agents/skills/prose-verifier/SKILL.md"
+  },
+  "license": "Apache-2.0",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 3140,
+    "pushed_at": "2026-08-29T05:49:12Z",
+    "score": 86,
+    "star_history": [
+      {
+        "d": "2026-08-29",
+        "s": 3140
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "写作",
+    "featured": false
+  },
+  "readme": "<h1 align=\"center\">IronRDP</h1>\n\n<p align=\"center\">\n  <strong>A Rust implementation of the Microsoft Remote Desktop Protocol, with a focus on security.</strong>\n</p>\n\n<p align=\"center\">\n  <a href=\"https://crates.io/crates/ironrdp\"><img src=\"https://img.shields.io/crates/v/ironrdp?logo=rust\" alt=\"crates.io\"></a>\n  <a href=\"https://docs.rs/ironrdp/\"><img src=\"https://docs.rs/ironrdp/badge.svg\" alt=\"docs.rs\"></a>\n  <a href=\"https://github.com/Devolutions/IronRDP/actions/workflows/ci.yml\"><img src=\"https://github.com/Devolutions/IronRDP/actions/workflows/ci.yml/badge.svg\" alt=\"CI\"></a>\n  <img src=\"https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue\" alt=\"License: MIT OR Apache-2.0\">\n  <a href=\"https://matrix.to/#/#IronRDP:matrix.org\"><img src=\"https://img.shields.io/badge/chat-matrix-brightgreen?logo=matrix\" alt=\"Matrix\"></a>\n</p>\n\nIronRDP is a modular Rust implementation of RDP, the protocol behind Windows Remote Desktop.\nIt is not a monolithic client: its composable crates provide PDU codecs, connection and session state machines, virtual channels, and image codecs for native, WebAssembly, and .NET clients, servers, and proxies.\nThe continuously fuzzed, `no_std`-compatible core performs no I/O, so applications supply the transport and runtime.\n\n## Highlights\n\n- **Sans-I/O core:** Drive connection and session state machines with blocking I/O, `tokio`, `futures`, or your own event loop.\n- **Security first:** Core crates are fuzzed, `unsafe` is heavily linted, and the workspace enforces strict correctness lints.\n- **Runs everywhere:** The same protocol core powers native binaries, WebAssembly modules, and C#/.NET bindings.\n- **Client and server:** Connect to Windows hosts or expose your own desktop through the acceptor and server skeleton.\n- **Modular:** Enable only the crates and features you need without pulling in unrelated subsystems.\n\n## Features\n\n**Protocol and security**\n\n- RDP connection sequence: X.224 negotiation, MCS, capability exchange, licensing, reactivation\n- Enhanced RDP Security with TLS (1.2 and 1.3)\n- Network Level Authentication (NLA) via CredSSP, with NTLM and Kerberos\n- KDC proxy and RDCleanPath support for gateway-mediated, just-in-time connections\n- Terminal Services Gateway (MS-TSGU) transport\n- `.rdp` file parsing and writing, plus a typed configuration property store\n\n**Graphics**\n\n- Client-side decoding: uncompressed raw bitmaps, Interleaved RLE, RDP 6.0 bitmap compression, and RemoteFX (RFX)\n- Server-side encoding: RDP 6.0 bitmap compression, RemoteFX, optional NSCodec, and optional QOI / QOI+zstd\n- Additional codec primitives available as libraries: ClearCodec, RemoteFX Progressive, ZGFX, and the graphics pipeline (EGFX) PDUs\n- Bulk compression: MPPC, NCRUSH, and XCRUSH\n\n**Virtual channels**\n\n- Static (SVC) and dynamic (DVC / DRDYNVC) channel infrastructure\n- Clipboard redirection (CLIPRDR), audio output (RDPSND), device and smart card redirection (RDPDR)\n- Display control for dynamic resizing, echo (RTT probes), alternative input, and USB redirection\n- Windows DVC COM plugin loader and a DVC named-pipe proxy for bridging external processes\n\n**Targets and bindings**\n\n- Native clients on Windows, macOS, and Linux\n- WebAssembly bindings plus a protocol-agnostic web component (`@devolutions/iron-remote-desktop`)\n- C#/.NET bindings generated with [Diplomat] (`Devolutions.IronRdp`)\n\n## Getting started\n\n### Prebuilt binaries\n\nChecksummed `.tar.gz` archives are attached to each GitHub release, one per supported platform:\n\n- [`ironrdp-viewer`][ironrdp-viewer] - a windowed RDP client (tags `ironrdp-viewer-v*`)\n- [`ironrdp-agent`][ironrdp-agent] - a daemon-backed CLI for automation (tags `ironrdp-agent-v*`)\n\nEach [release][releases] includes download, checksum, and extraction instructions.\n\n### Install with Cargo\n\n```shell\ncargo install ironrdp-viewer\ncargo install ironrdp-agent\n```\n\nBoth binaries link native audio, so Linux builds need the ALSA development headers (`libasound2-dev` on Debian/Ubuntu) and Windows builds need NASM.\n\n### `ironrdp-viewer`\n\n`ironrdp-viewer` is a portable, windowed RDP client with asynchronous I/O and software rendering.\n\n```shell\nironrdp-viewer <HOSTNAME> --username <USERNAME> --password <PASSWORD>\n```\n\nOmitted credentials are prompted for interactively.\nYou can also load a `.rdp` file:\n\n```shell\nironrdp-viewer --rdp-file ./my-server.rdp\n```\n\nSet `IRONRDP_LOG` to adjust logging, for example `IRONRDP_LOG=\"info,ironrdp_connector=trace\"`.\nSee the [viewer README] for supported `.rdp` properties, TLS key logging, and the full option list.\n\n### `ironrdp-agent`\n\n`ironrdp-agent` combines a long-lived RDP daemon with short-lived CLI invocations for scripts and LLM-driven automation:\n\n```shell\nironrdp-agent daemon-start --overlay ./credentials.rdp        # in one terminal\nironrdp-agent connect --server <HOSTNAME> --username <USER>   # in another\nironrdp-agent screenshot ./desktop.png\n```\n\n`connect` fails with `missing required fields` unless credentials are available.\nPreload credentials with `daemon-start --overlay <FILE>` to keep secrets away from the IPC caller, or pass `--password` to `connect`.\nRun `ironrdp-agent --help-agent` for a machine-readable description of every operation.\nSee the [agent README] for the IPC format, secret handling, and remote execution support.\n\n## Using IronRDP as a library\n\nAdd the meta crate and enable only the pieces you need:\n\n```toml\n[dependencies]\nironrdp = { version = \"0.17\", features = [\"connector\", \"session\", \"graphics\"] }\n```\n\nEach feature maps to a standalone crate, so you can depend on `ironrdp-pdu`, `ironrdp-connector`, `ironrdp-session`, and related crates directly.\nAPI documentation is available on [docs.rs].\n\nTwo runnable examples ship with the meta crate:\n\n```shell\n# Connect, decode the desktop, and write a PNG. Blocking, synchronous I/O.\ncargo run --example=screenshot -- --host <HOSTNAME> -u <USERNAME> -p <PASSWORD> -o out.png\n\n# A minimal RDP server built on ironrdp-server.\ncargo run --example=server -- --bind-addr 127.0.0.1:3389\n```\n\n## Tips\n\n<details>\n<summary>Enabling RemoteFX on a Windows server</summary>\n\nRun the following PowerShell commands, then reboot:\n\n```pwsh\nSet-ItemProperty -Path 'HKLM:\\Software\\Policies\\Microsoft\\Windows NT\\Terminal Services' -Name 'ColorDepth' -Type DWORD -Value 5\nSet-ItemProperty -Path 'HKLM:\\Software\\Policies\\Microsoft\\Windows NT\\Terminal Services' -Name 'fEnableVirtualizedGraphics' -Type DWORD -Value 1\n```\n\nAlternatively, enable these group policies with `gpedit.msc` and reboot.\nThey are under _Computer Configuration → Administrative Templates → Windows Components → Remote Desktop Services → Remote Desktop Session Host → Remote Session Environment_:\n\n1. _RemoteFX for Windows Server 2008 R2 → Configure RemoteFX_\n2. _Enable RemoteFX encoding for RemoteFX clients designed for Windows Server 2008 R2 SP1_\n3. _Limit maximum color depth_\n\n</details>\n\n## Who uses IronRDP\n\n- [Devolutions Gateway] for browser-based and native RDP client access\n- [Cloudflare Access] for browser-based RDP\n- [Teleport] for remote desktop web access\n- [Lamco RDP Server], a Wayland-native RDP server for Linux desktop sharing\n- [MacRDP], a native RDP server for macOS\n- [`qemu-rdp`][qemu-rdp], an RDP server for QEMU displays\n- A growing set of community projects building RDP servers and clients on the crate suite\n\n## Rust version (MSRV)\n\nIronRDP's MSRV is the oldest of three versions: the latest stable Rust release at least six months old, the version packaged by [Fedora stable], and the version available in [Debian stable-backports].\n`rust-toolchain.toml` pins both the project toolchain and the MSRV validated by CI.\nSee the [architecture policy] for details.\n\n## Contributing\n\nContributions are welcome; start with [ARCHITECTURE] and [STYLE], and keep changes scoped.\nProject automation uses [`xtask`][xtask] following the [`cargo xtask`][cargo xtask] convention.\nRun `cargo xtask --help` for the command list and `cargo xtask bootstrap` to install development requirements.\nRun `cargo xtask ci` before opening a pull request; it covers everything CI runs except FFI and .NET checks, which have separate `cargo xtask ffi` commands.\n\nWorkspace builds use the native prerequisites listed under [Install with Cargo].\nThe web client also needs Node.js >= 24 LTS, and the FFI bindings need the .NET SDK.\n\n## AI-assisted development\n\nAI-assisted development is welcome, but contributors remain responsible for understanding, reviewing, and validating every change.\nFor RDP protocol work, install the Windows Protocols skill from [awakecoding/openspecs] so agents can navigate the Microsoft Open Specifications corpus.\n\n## Getting help\n\n- Report bugs in the [issue tracker]\n- Discuss the project in the [Matrix room]\n\n## License\n\nLicensed under either [MIT] or [Apache-2.0] at your option.\n\n[ironrdp-viewer]: ./crates/ironrdp-viewer\n[ironrdp-agent]: ./crates/ironrdp-agent\n[releases]: https://github.com/Devolutions/IronRDP/releases\n[viewer README]: ./crates/ironrdp-viewer/README.md\n[agent README]: ./crates/ironrdp-agent/README.md\n[docs.rs]: https://docs.rs/ironrdp/\n[Diplomat]: https://github.com/rust-diplomat/diplomat\n[Devolutions Gateway]: https://github.com/Devolutions/devolutions-gateway\n[Cloudflare Access]: https://blog.cloudflare.com/browser-based-rdp/\n[Teleport]: https://goteleport.com/\n[Lamco RDP Server]: https://lamco.ai/products/lamco-rdp-server/\n[MacRDP]: https://github.com/clintcan/macrdp\n[qemu-rdp]: https://gitlab.com/marcandre.lureau/qemu-display\n[Debian stable-backports]: https://packages.debian.org/search?suite=all&arch=any&searchon=names&keywords=rust\n[Fedora stable]: https://packages.fedoraproject.org/pkgs/rust/rust/\n[architecture policy]: ./ARCHITECTURE.md#msrv-policy\n[ARCHITECTURE]: ./ARCHITECTURE.md\n[STYLE]: ./STYLE.md\n[xtask]: ./xtask\n[cargo xtask]: https://github.com/matklad/cargo-xtask\n[Install with Cargo]: #install-with-cargo\n[awakecoding/openspecs]: https://github.com/awakecoding/openspecs\n[issue tracker]: https://github.com/Devolutions/IronRDP/issues\n[Matrix room]: https://matrix.to/#/#IronRDP:matrix.org\n[MIT]: ./LICENSE-MIT\n[Apache-2.0]: ./LICENSE-APACHE\n",
+  "status": "curated"
+}

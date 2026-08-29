@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/eu.iprate/ip-analytics",
+  "type": "mcp",
+  "name": "European IP Data & Analytics — IPRATE",
+  "description": "Free anonymous selections from released European IP profiles, rankings, and market statistics.",
+  "author": "eu.iprate",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/mkiskis/iprate-free-mcp",
+    "repo": "mkiskis/iprate-free-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://mcp.iprate.eu/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-28T21:31:48.949386Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "数据",
+    "featured": false
+  },
+  "readme": "# IPRATE Free Public MCP\n\nOpen-source adapter for IPRATE's four-tool, anonymous, read-only MCP endpoint:\n\n```text\nhttps://mcp.iprate.eu/mcp\n```\n\nThe adapter exposes bounded selections from one completed IPRATE static release:\n\n- `find_ip_representatives`\n- `get_ip_representative_profile`\n- `get_ip_market_snapshot`\n- `get_iprate_coverage`\n\nIt has no database, ORM, SQL, database credential, application-API fallback, or private\nIPRATE package dependency. Ratings and statistics are copied from released JSON assets;\nthey are never recomputed by the MCP service. Anonymous calls are rate limited in memory\n(HTTP 429 with `Retry-After`; results are never silently truncated), and `GET /healthz`\nreports whether one internally consistent release is servable.\n\n## Static input\n\nSet `IPRATE_MCP_ASSET_ROOT` to a completed `/data/v1`-shaped release directory containing\n`manifest.json`, the released cohort and global assets, and `mcp/v0.1/catalog.json`. Set\n`IPRATE_MCP_ASSET_BASE_URL` to the public URL used in source citations.\n\nThe catalogue is derived only from static profile assets:\n\n```bash\niprate-free-mcp-build-catalog /path/to/data/v1\n```\n\nThe builder fails if required indexes are missing, checksums differ, profile counts do\nnot match the release manifest, or a profile asset is unreadable. It never imports or\nconnects to IPRATE's database, API, models, or pipeline.\n\n## Release snapshots\n\nIn production the adapter never reads the live, mutating export tree. A refresher\n(`iprate-free-mcp-refresh-release`) watches the live `manifest.json` and, when a new\n`release_id` appears, copies every manifest-declared asset into an immutable per-release\nsnapshot (checksum-verified against the manifest), builds the catalogue inside that\nsnapshot, and atomically repoints a `current` symlink. The server keeps serving the\nprevious complete release until the next one is activated; a release that changes while\nit is being snapshotted is abandoned and retried on the next pass. Snapshots contain no\nentity profile files — profile data enters only through the derived catalogue — and the\ncatalogue is never written into the publicly served tree.\n\n## Development\n\n```bash\npython -m venv .venv\n.venv/bin/pip install -e \".[dev]\"\n.venv/bin/pytest\n.venv/bin/ruff check .\n```\n\nRun the adapter against a compatible static release:\n\n```bash\nexport IPRATE_MCP_ASSET_ROOT=/path/to/data/v1\nexport IPRATE_MCP_ASSET_BASE_URL=https://iprate.eu/data/v1\niprate-free-mcp\n```\n\nThe local endpoint is `http://127.0.0.1:8000/mcp`; liveness is `GET /healthz`.\n\n## Production containers\n\n`compose.yaml` runs two hardened services built from the same image:\n\n- `mcp` — the server, unprivileged and read-only, mounting only the snapshot directory\n  (read-only) and serving `IPRATE_MCP_ASSET_ROOT=/data/current`. It joins the existing\n  `runtime_default` network for Cloudflare Tunnel routing and publishes no host port.\n- `refresher` — the snapshot builder, with `network_mode: none`, mounting the live\n  export tree read-only and the snapshot directory read-write.\n\n```bash\ndocker compose up -d --build\n```\n\nEnvironment overrides: `IPRATE_STATIC_ROOT` (live export tree),\n`IPRATE_MCP_RELEASES_ROOT` (snapshot directory), `IPRATE_MCP_REFRESH_UID`/`GID`\n(owner of the snapshot directory), `IPRATE_MCP_RATE_LIMIT_PER_MINUTE` (default 120),\n`IPRATE_MCP_STALE_AFTER_DAYS` (default 21). Neither service receives a database or\napplication secret.\n\nDocumentation: <https://iprate.eu/developers/mcp/>\n\n## Licence\n\nAdapter code is Apache-2.0. IPRATE data and website content have separate terms and\nlicences; this code licence does not grant rights to them or to IPRATE trademarks.\n",
+  "status": "curated"
+}

@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/gabrielmoreira/agent-skills-mirror/hyperframes-registry",
+  "type": "skill",
+  "name": "hyperframes-registry",
+  "description": "Reuse approved HyperFrames blocks and components inside the active iPollo Video project.",
+  "author": "gabrielmoreira",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/gabrielmoreira/agent-skills-mirror/blob/HEAD/mirrors/repos/Devin-AXIS@iPolloWork/.agents/skills/hyperframes-registry/SKILL.md",
+    "repo": "gabrielmoreira/agent-skills-mirror",
+    "path": "mirrors/repos/Devin-AXIS@iPolloWork/.agents/skills/hyperframes-registry/SKILL.md"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 17,
+    "pushed_at": "2026-08-29T03:35:33Z",
+    "score": 63,
+    "star_history": [
+      {
+        "d": "2026-08-29",
+        "s": 17
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "设计",
+    "featured": false
+  },
+  "readme": "# agent-skills-mirror\n\nA Deno script that automatically discovers and mirrors AI agent skill repositories from GitHub.\n\n## What it does\n\n`agent-skills-mirror` runs GitHub search queries to find repositories that contain AI agent skills, coding assistant instructions, Claude skills, Copilot instructions, MCP tool integrations, and related configuration files. For each discovered repository it performs a **sparse checkout** — pulling only the specific files relevant to skill/prompt/instruction consumption — and writes the results to a local `mirrors/` directory.\n\n## Why it exists\n\nThe AI coding assistant ecosystem (Claude Code, GitHub Copilot, Cursor, Continue, Windsurf, MCP tools, etc.) has produced hundreds of high-signal skill and instruction repositories scattered across GitHub. This project aggregates them into one place so that:\n\n- Tooling can consume skill files without cloning hundreds of repos.\n- Humans can browse relevant instructions and prompts in one directory tree.\n- Coverage can be measured and improved over time.\n\n## What kinds of repositories it discovers\n\nThe search queries target repositories that contain:\n\n- **Agent skills** — `SKILL.md`, `skills/**`, `skill/**` files for Claude Code, GitHub Copilot agent mode, or custom coding agents.\n- **Copilot instructions** — `.github/instructions/**`, `.github/prompts/**`, `copilot-instructions.md`.\n- **Claude/LLM config** — `CLAUDE.md`, `AGENTS.md`, `GEMINI.md`, `LLMs.txt`.\n- **Cursor / Windsurf / Continue rules** — `.cursorrules`, `.cursor/rules/**`, `.windsurfrules`, `.continue/**`.\n- **MCP integrations** — `.mcp/**`, `mcp/**` directories.\n- **Prompt collections** — `prompts/**`, `prompt/**`.\n\nNon-GitHub sources (e.g. docs.stripe.com, open.feishu.cn, smithery.ai) are **not** indexed by this tool and should be consulted separately.\n\n## How to run\n\n### Prerequisites\n\n- [Deno](https://deno.land/) ≥ 2.x\n- Git (for sparse checkout)\n- A GitHub personal access token (recommended to avoid rate-limits)\n\n### Basic run\n\n```sh\ndeno run -A src/main.ts\n```\n\n### With a GitHub token\n\n```sh\n# Using gh CLI\nGH_TOKEN=$(gh auth token) deno run -A src/main.ts\n\n# Or exporting directly\nexport GH_TOKEN=ghp_...\ndeno run -A src/main.ts\n\n# GITHUB_TOKEN is also accepted\nexport GITHUB_TOKEN=ghp_...\ndeno run -A src/main.ts\n```\n\nWithout a token, GitHub search is unauthenticated and heavily rate-limited (10 requests/min). With a token the limit is 30 requests/min for search.\n\n### Using the Deno task\n\n```sh\ndeno task mirror\n```\n\n### Running tests\n\n```sh\ndeno task test\n```\n\n### Controlling concurrency\n\n```sh\nMIRROR_CONCURRENCY=4 deno run -A src/main.ts\n```\n\nDefault concurrency is 8 parallel repo checkouts.\n\n## What is mirrored and where\n\nMirrored files are written under `mirrors/repos/<owner>@<name>/` — for example:\n\n```\nmirrors/repos/vercel-labs@agent-skills/\n  skills/\n    vercel-v0/SKILL.md\n  .github/prompts/\n    ...\n  manifest.json\n```\n\nEach directory contains:\n- The sparse-checked-out files matching the configured patterns.\n- A `manifest.json` describing the repo, ref, patterns used, and file index.\n\nThe `cache/` directory holds bare git clones and per-repo state files used to avoid redundant fetches between runs.\n\n## Sparse checkout patterns\n\nInstead of cloning full repositories, the tool uses `git sparse-checkout` to pull only the files that match the configured include patterns. The global patterns are:\n\n| Pattern | Purpose |\n|---|---|\n| `**/AGENTS.md`, `**/CLAUDE.md`, `**/GEMINI.md` | Top-level agent/LLM config |\n| `**/SKILL.md`, `**/skills.md` | Skill definition files |\n| `**/LLMs.txt`, `**/llms.txt` | LLM compatibility hints |\n| `**/copilot-instructions.md` | Copilot instruction files |\n| `**/.cursorrules`, `**/.cursor/rules/**` | Cursor editor rules |\n| `**/.windsurfrules` | Windsurf editor rules |\n| `**/.continue/**` | Continue extension config |\n| `.github/instructions/**`, `.github/prompts/**` | GitHub Copilot agent instructions |\n| `.agents/**`, `agents/**` | Agent-level instruction dirs |\n| `skills/**`, `skill/**` | Skill directories |\n| `prompts/**`, `prompt/**` | Prompt directories |\n| `.cursor/**`, `.continue/**`, `.mcp/**`, `mcp/**` | Tool-specific config |\n\nAdditionally, the **markdown-follow** feature (`follow.linkedFromMarkdown: true`) discovers additional files linked from Markdown documents and adds them to the checkout.\n\n## Cache / materialization\n\nThe tool keeps a persistent bare-clone cache at `cache/repos/` and per-repo state files at `cache/state/`. On each run:\n\n1. The GitHub API is queried to resolve the current HEAD SHA.\n2. If the repo's HEAD SHA and config hash match the stored state, the repo is **skipped** (`reuse-if-current` mode).\n3. Otherwise, the bare clone is updated (or created) and a new sparse export is written to `mirrors/`.\n\nThis means reruns are fast — only changed or newly-discovered repos are re-exported. To force a full refresh, set `materialization.mode` to `\"always-refresh\"` in the config, or delete `cache/`.\n\n## How to tune search queries\n\nSearch queries are defined in `REAL_SEARCH_QUERIES` in `src/main.ts`. Each query is a standard [GitHub repository search](https://docs.github.com/en/search-github/searching-on-github/searching-for-repositories) query string.\n\nGuidelines:\n- Keep queries focused on a single intent (agent skills, copilot instructions, MCP, etc.).\n- GitHub allows **max 5 boolean operators** (`OR`, `AND`, `NOT`) per query.\n- Use `stars:>N` to filter noise. Tune N based on the target population.\n- Use `pushed:>YYYY-MM-DD` to exclude stale repositories.\n- Use `fork:false archived:false` to exclude forks and archived repos.\n- Use `in:name` to target repos where the keyword appears in the repo name.\n- Use `topic:X` to target repos with a specific GitHub topic label.\n\nExample of adding a new query:\n\n```ts\n// Find repos with \"my-skill\" in the name\n\"my-skill in:name stars:>1 pushed:>2024-01-01 fork:false archived:false\",\n```\n\n## Known limitations of GitHub search\n\n- **Max 5 boolean operators** per query — complex multi-term queries must be split.\n- **Search index lag** — newly created repos may not appear immediately.\n- **Description/README indexing** — some repos are discovered via name matching only if the README is not yet indexed.\n- **Rate limits** — unauthenticated: 10 req/min; authenticated: 30 req/min for search.\n- **Private repos** — only public repos are visible.\n- **Fork and archive exclusion** — `fork:false archived:false` is recommended but means forked skill collections are skipped.\n- **Star threshold** — repos below the star threshold will not appear even if highly relevant. Tune per query.\n- **Non-GitHub sources** — docs.stripe.com, open.feishu.cn, smithery.ai and other non-GitHub skill sources are outside the scope of this tool.\n\n## How to evaluate discovery coverage\n\nA coverage test is included in `src/eval-coverage.test.ts`. It compares a reference target list of known high-signal repositories against the set of currently mirrored repositories.\n\n```sh\ndeno task test\n```\n\nThe test reports:\n- Total GitHub target repos in the reference list\n- Repos found in the mirror\n- Repos missed\n- Coverage percentage\n\nThe coverage report is informational — it does not assert a specific threshold because coverage depends on running the mirror with a live GitHub token first.\n\nTo run coverage evaluation without running all tests:\n\n```sh\ndeno test src/eval-coverage.test.ts\n```\n\nYou can also check coverage manually:\n\n```sh\n# List all currently mirrored repos\nls mirrors/repos/ | sed 's/@/\\//'\n\n# Compare against a reference list\ncomm -23 <(sort reference.txt) <(ls mirrors/repos/ | sed 's/@/\\//;s/.*/\\L&/' | sort)\n```\n\n## Short example workflow\n\n```sh\n# 1. Clone the repo\ngit clone https://github.com/gabrielmoreira/agent-skills-mirror\ncd agent-skills-mirror\n\n# 2. Run the mirror with your GitHub token\nGH_TOKEN=$(gh auth token) deno run -A src/main.ts\n\n# 3. Browse the mirrored files\nls mirrors/repos/\n\n# 4. Check a specific skill repo\ncat mirrors/repos/vercel-labs@agent-skills/skills/vercel-v0/SKILL.md\n\n# 5. Run coverage evaluation\ndeno task test\n```\n\nThe workflow runs nightly via GitHub Actions (`.github/workflows/mirror.yml`) and commits updated mirrors to the `main` branch automatically.\n",
+  "status": "curated"
+}

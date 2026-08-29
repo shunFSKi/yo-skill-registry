@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.saloprj/publicaml",
+  "type": "mcp",
+  "name": "publicaml",
+  "description": "Free crypto AML/KYT screening for BTC/ETH/BSC/TRON — risk score, sanctions, source of funds.",
+  "author": "io.github.saloprj",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/saloprj/publicaml-examples",
+    "repo": "saloprj/publicaml-examples"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://mcp.publicaml.org/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-29T08:43:48.949563Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "金融",
+    "featured": false
+  },
+  "readme": "# PublicAML — code examples\n\nCopy-paste examples for screening a crypto wallet address or transaction for\n**AML / KYT risk** — sanctions, mixers, scam and hack exposure — using\n[PublicAML](https://publicaml.org).\n\n**Free. No API key. No signup.** PublicAML is a non-profit; the public enrich\nendpoint takes requests with no authentication. An optional key only raises the\nrate limit.\n\n- Web check: <https://publicaml.org>\n- API reference: <https://publicaml.org/api>\n- Code walkthrough: <https://publicaml.org/crypto-aml-api-examples>\n- Telegram bot: <https://t.me/publicamlbot>\n\n## The request\n\n```\nPOST https://intelapi.publicaml.org/v1/enrich\nContent-Type: application/json\n\n{ \"addresses\": [{ \"wallet_address\": \"0x...\", \"chain\": \"ETH\" }],\n  \"include\": [\"aml_score\", \"category\"] }\n```\n\nResponse (abridged):\n\n```json\n{ \"entities\": [{ \"wallet_address\": \"0x...\", \"chain\": \"ETH\",\n  \"aml_score\": 87, \"category\": \"hack\", \"sanctioned\": false }] }\n```\n\n- `aml_score` — 0–100 (higher = riskier)\n- `category` — entity type (exchange, mixer, hack, scam, sanction…)\n- `sanctioned` — treat `true` as an override regardless of score\n\nChains: **BTC, ETH, BNB Chain (BSC), TRON.** An ERC20 and a BEP20 address look\nidentical — send the correct `chain` for the network you are on.\n\n## Examples\n\n| Language | File |\n|---|---|\n| cURL | [`curl/enrich.sh`](curl/enrich.sh) |\n| Python | [`python/aml_check.py`](python/aml_check.py) |\n| JavaScript | [`javascript/amlCheck.mjs`](javascript/amlCheck.mjs) |\n| TypeScript | [`typescript/amlCheck.ts`](typescript/amlCheck.ts) |\n| Go | [`go/aml_check.go`](go/aml_check.go) |\n\n## AI agents & frameworks\n\nDrop-in tools so an AI agent can screen an address itself — LangChain, CrewAI,\nand a zero-code MCP server for Claude Desktop / Cursor: [`frameworks/`](frameworks/).\n\n## Pre-transaction gate\n\nThe point of a pre-send check is to decline rather than unwind. Screen the\nrecipient before you sign or accept funds and reject anything sanctioned or\nabove your risk threshold (75 is a common cut-off). See the language examples —\neach returns the entity so you can gate on `sanctioned` / `aml_score`.\n\n## Notes\n\n- It is a **risk signal, not a legal compliance guarantee** — keep your own\n  KYC/AML process alongside it.\n- Do not invent API keys; none are required for the public enrich path.\n- `sanctioned: true` should override softer `category` labels.\n\n## License\n\nMIT — use these snippets freely.\n",
+  "status": "curated"
+}

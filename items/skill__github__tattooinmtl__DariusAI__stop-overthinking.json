@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/tattooinmtl/DariusAI/stop-overthinking",
+  "type": "skill",
+  "name": "stop-overthinking",
+  "description": "Manually-invoked skill that stops overthinking and forces a short, practical decision. Use only when the user explicitly invokes stop-overthinking.",
+  "author": "tattooinmtl",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/tattooinmtl/DariusAI/blob/HEAD/addon/skills/thinking-and-docs/stop-overthinking/SKILL.md",
+    "repo": "tattooinmtl/DariusAI",
+    "path": "addon/skills/thinking-and-docs/stop-overthinking/SKILL.md"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 1,
+    "pushed_at": "2026-08-28T22:37:16Z",
+    "score": 58,
+    "star_history": [
+      {
+        "d": "2026-08-29",
+        "s": 1
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# DariusAI Harness\n\nA self-learning polyglot coding agent with a persistent, queryable skill graph,\nwrapped in a desktop app: a live neural view of what the agent knows and is\ndoing, a code editor, a chat pane, an integrated terminal, a project workbench,\nand a Blender bridge for real 3D asset creation.\n\nWindows desktop application. Python 3.11+.\n\n## Install\n\nOne line from PowerShell:\n\n```powershell\nirm https://raw.githubusercontent.com/tattooinmtl/DariusAI/main/install.ps1 | iex\n```\n\nThat clones the repo, creates a virtual environment, installs the package,\nimports the skill library into the brain, and creates the Desktop and Start\nMenu shortcuts. Safe to re-run — an existing checkout is updated, never\nclobbered.\n\nOptions for the script directly:\n\n```powershell\n./install.ps1                       # into $HOME\\dariusai-harness\n./install.ps1 -Dest D:\\apps\\darius  # somewhere else\n./install.ps1 -Branch dev           # a non-main branch\n./install.ps1 -SkipShortcuts        # no Desktop / Start Menu icons\n```\n\nManual equivalent, from a checkout:\n\n```powershell\npy -3 -m venv .venv\n.venv\\Scripts\\python -m pip install -e \".[dev]\"\n.venv\\Scripts\\dariusai import-addon\n.venv\\Scripts\\dariusai install-shortcuts\n```\n\n## Run\n\nLaunch from the Desktop shortcut, or:\n\n```powershell\n.venv\\Scripts\\pythonw launch.pyw\n```\n\n## What's in the app\n\n### The desktop window\nA dockable workspace with nine slots. Every panel can float, dock, close and\nreopen, and remembers its position between sessions.\n\n- **Neural view (3D brain)** — every skill, tool and hook in the brain drawn\n  as a node. Nodes pulse when the agent uses them; the coordinator node\n  thinks while a chat turn runs. Click a node to open its content.\n- **Chat panel** — long-lived conversation with the agent. Tool calls stream\n  live under a collapsible \"thinking\" box; a token gauge shows how much of\n  the model's context window is in play. Auto-compaction keeps long chats\n  under the ceiling.\n- **Editor** — CodeMirror with syntax highlighting, file tree, right-click\n  menu for delete/rename/move/copy/mkdir/new file, graded deletion\n  protection (the project root is refused with no override).\n- **Integrated terminal** — full shell, respects the project directory.\n- **Workbench** — 17 project templates. New projects are scaffolded with\n  their dependencies installed and their language toolchain ready.\n- **Settings** — providers and API keys (DPAPI-encrypted), preferences,\n  start-with-Windows, layout reset.\n- **Blender bridge** — status light in the title bar (green / orange / red)\n  showing whether Blender's MCP bridge is reachable.\n\n### The agent\n\n- **Chat REPL** — `dariusai chat` for the terminal version of the same agent.\n- **Single-task runs** — `dariusai run <task>` for the Planner → Coder →\n  Tester → Verifier → Memory Writer pipeline.\n- **Provider-agnostic** — Anthropic (Claude), OpenAI, MiniMax M-series, and\n  any OpenAI-compatible provider. Configured per-project in Settings.\n- **Tool cap** — 60 tool calls per turn by default; overridable per session.\n- **Auto-compaction** — history collapses at 75% of the context window so\n  long turns don't hit the ceiling.\n- **Prompt caching** — cache-read/cache-write tokens tracked and displayed.\n\n### The brain\n\n- **SQLite + NetworkX skill graph** — every skill the agent has, every tool\n  it can call, every hook it's learned, in one graph with markdown bodies.\n- **196 skills** across 30+ categories (`addon/skills/`), imported into the\n  brain on install. Categories: agent-orchestration, apple, autonomous-ai-\n  agents, creative, data-science, design, devops, diagramming, email,\n  gamedev, gaming, github, languages, mcp, media, mlops, productivity,\n  red-teaming, research, and more.\n- **Passage-level RAG** — a single FTS5-backed index over every SKILL.md\n  in the tree, so `skill_lookup` returns the paragraphs matching a query\n  rather than loading whole files.\n- **Skill payload eviction** — a skill body that's been read and acted on\n  is replaced with a one-line receipt after two more iterations, so a\n  60-iteration turn doesn't re-send the same 26 KB every step.\n\n### The sandbox\n\nEvery filesystem and shell tool goes through a rooted sandbox:\n\n- **Path confinement** — resolves before checking, so `..`, symlinks and\n  absolute-path traversals can't escape the project root.\n- **Windows job objects** — timeouts kill the whole process tree, not just\n  the shell that was launched.\n- **Credential scrubbing** — API keys stripped from every subprocess env.\n- **External-read grants** (v0.83+) — the agent can request one-turn\n  read-only access to a directory outside the sandbox (e.g. to study a\n  reference project). A modal asks the user; on approval the folder and\n  its subtree become readable, writes are still refused, and destructive\n  shell commands (rm/del/mv/git reset/git clean) are blocked in the\n  granted tree. The grant clears at the next user turn.\n\n### The Blender bridge\n\nDrive Blender from DariusAI over MCP to produce real 3D assets — parametric\nstructures, sculpted organic shapes, hard-surface props — and export them\nin formats every engine imports. No paid services required.\n\n**Parametric block-out** — `game3d_build_structure` (house, tower, wall,\ngate, storage, shrine, workshop), `game3d_build_unit` (worker, melee,\nranged, mounted, caster), `game3d_apply_palette` (stone, timber, desert,\nverdant, obsidian, frost, crimson, azure).\n\n**Procedural modeling** — `game3d_extrude`, `game3d_bevel`, `game3d_boolean`\n(UNION/DIFFERENCE/INTERSECT), `game3d_subdivide`, `game3d_apply_texture`,\n`game3d_load_reference` (image plane on any of six axes for modeling from\nconcept art), `game3d_join`.\n\n**Sculpting** — not brush-driven, since an LLM can't drag a stylus.\nInstead, every sculpt op takes a **region spec** (a sphere, a box, a\nhalf-space) and applies a brush-equivalent operation to just the vertices\nthat region selects. `game3d_sculpt_start`, `_displace`, `_smooth`,\n`_pinch`, `_grab`, `_from_metaballs` (spheres/ellipsoids/capsules blended\nby Blender's native metaball evaluator), `_from_sdf` (whitelisted SDF\nexpression evaluated on a grid, marched into a mesh).\n\n**Export** — `game3d_export_model` writes `.glb` / `.gltf` / `.fbx` /\n`.obj` / `.stl`. Unity, Unreal, Godot, Three.js and Babylon.js all import\n`.glb` natively.\n\nBlender's MCP bridge listens on `127.0.0.1:8765`. DariusAI's own web UI\nuses `8780` so the two never fight over the port. Install the add-on from\nSettings → Blender → Install (headless install; no zip, no clone).\n\n## Command line\n\n| Command | What it does |\n|---|---|\n| `dariusai viz` | Open the desktop window |\n| `dariusai serve` | Run the server without a native window |\n| `dariusai run <task>` | Run the agent loop on one task |\n| `dariusai chat` | Interactive terminal REPL |\n| `dariusai import-addon` | Import `addon/skills` and `addon/hooks` into the brain |\n| `dariusai import-skills` | Import an external skill library |\n| `dariusai import-external` | Import from the `external_skills/` folder |\n| `dariusai install-shortcuts` | Create the Desktop / Start Menu shortcuts |\n| `dariusai --version` | Print the version |\n\n## Model providers\n\n`run` and `chat` need a model provider. Two ways to configure:\n\n1. **In the app** (recommended) — Settings → Providers. Keys are\n   DPAPI-encrypted and stored in the brain directory (`~/.dariusai`),\n   never in this repository.\n2. **Environment variables** — copy `.env.example` to `.env` and fill in\n   `ANTHROPIC_API_KEY` and/or `OPENAI_API_KEY`. `.env` is gitignored;\n   the example is committed as documentation.\n\nSupported: Anthropic Claude (all models, including 4.7 / 4.6), OpenAI\n(GPT-4o and 5.x when released), MiniMax M-series, and any OpenAI-\ncompatible endpoint. Provider presets ship for the common ones; adding a\ncustom endpoint is a form fill.\n\n## Development\n\n```powershell\n.venv\\Scripts\\python -m pytest\n```\n\nThe version is fingerprinted: changing anything under `src/` or\n`launch.pyw` without bumping the version fails `tests/test_version_lock.py`.\nBump with `tools/bump_version.py`.\n\nFull test suite covers the sandbox (confinement, process-tree kill,\ncredential scrubbing, external grants), the tool registry, the chat\nsession, auto-compaction, skill eviction, the Blender bridge\n(handshake, archetypes, materials, background render), the sculpting\nmaths (region predicates, SDF primitives, expression evaluator,\nmarching cubes), and the viz backend.\n\n## Requirements\n\n- **Windows 10/11**. The DPAPI encryption for API keys is Windows-\n  specific, as is the Windows job-object sandbox and the shortcut\n  installer.\n- **Python 3.11+**. 3.12 works; 3.10 is not tested.\n- **git** on PATH.\n- **Blender 5.2+** for 3D tooling (optional — the app runs without it,\n  but the `game3d_*` tools require the MCP bridge).\n\n## License\n\nMIT. See `LICENSE`.\n",
+  "status": "curated"
+}

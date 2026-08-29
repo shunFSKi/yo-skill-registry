@@ -1,0 +1,75 @@
+{
+  "id": "mcp:official/io.github.canopy-labs/featureflip",
+  "type": "mcp",
+  "name": "Featureflip",
+  "description": "Manage Featureflip feature flags, targeting and rollouts from AI agents and editors.",
+  "author": "io.github.canopy-labs",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/canopy-labs/featureflip-mcp",
+    "repo": "canopy-labs/featureflip-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@featureflip/mcp"
+    ],
+    "env": [
+      {
+        "name": "FEATUREFLIP_TOKEN",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "FEATUREFLIP_API_URL",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "FEATUREFLIP_ORG",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-28T23:43:33.468087Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# @featureflip/mcp\n\nMCP (Model Context Protocol) server for [Featureflip](https://featureflip.io) — manage feature flags\nfrom AI coding assistants (Claude Code, Cursor, Copilot, Cline) and autonomous agents.\n\n## Setup\n\n1. Create an API token in the Featureflip dashboard:\n   - **Personal token** (`ffp_...`): Settings → API Tokens — acts as you, for interactive editor use.\n   - **Service token** (`ffs_...`): Organization Settings → Service Tokens — scoped machine identity for CI/agents.\n2. Add the server to your MCP client:\n\n### Claude Code\n\n```bash\nclaude mcp add featureflip -e FEATUREFLIP_TOKEN=ffp_your_token -- npx -y @featureflip/mcp\n```\n\n### Cursor / Cline / generic JSON config\n\n```json\n{\n  \"mcpServers\": {\n    \"featureflip\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@featureflip/mcp\"],\n      \"env\": { \"FEATUREFLIP_TOKEN\": \"ffp_your_token\" }\n    }\n  }\n}\n```\n\n## Configuration\n\n| Env var | Required | Default | Purpose |\n|---|---|---|---|\n| `FEATUREFLIP_TOKEN` | yes | — | `ffp_`/`ffs_` API token |\n| `FEATUREFLIP_API_URL` | no | `https://api.featureflip.io` | API base URL |\n| `FEATUREFLIP_ORG` | no | auto | Org slug (needed only for multi-org personal tokens) |\n\n## Tools\n\nCRUD: `list_projects`, `list_environments`, `list_flags`, `get_flag`, `create_flag`, `update_flag`,\n`delete_flag`, `archive_flag`, `restore_flag`, `toggle_flag`, `update_flag_environment_config`,\n`get_targeting`, `update_targeting`, `manage_variation`, `list_segments`, `get_segment`\n\nWorkflows: `flag_status` (cross-environment view), `find_stale_flags` (cleanup candidates),\n`wrap_feature` (create flag + get the SDK snippet for your language)\n\nFull reference: https://featureflip.io/docs/integrations/mcp/\n\n## Notes\n\n- Flag **evaluation** is not exposed over MCP — use the [language SDKs](https://featureflip.io/docs) in application code.\n- Every mutation is audit-logged and attributed to the token.\n\n## License\n\nApache-2.0\n",
+  "status": "curated"
+}

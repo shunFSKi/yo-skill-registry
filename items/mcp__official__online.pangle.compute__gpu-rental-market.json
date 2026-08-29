@@ -17,7 +17,7 @@
   "quality": {
     "stars": null,
     "pushed_at": "2026-08-28T10:06:22.391321Z",
-    "score": 55
+    "score": 45
   },
   "security": {
     "score": 100,
@@ -49,6 +49,6 @@
     "category": null,
     "featured": false
   },
-  "readme": "# compute.pangle.online — GPU compute meta-aggregator\n\n![live H100 spot](https://compute.pangle.online/badge.svg?gpu=H100) ![live RTX 4090 idle](https://compute.pangle.online/badge.svg?gpu=4090&offer_class=interruptible)\n\nOne process: provider pollers + SQLite store + ranked REST API + MCP server + the site.\nLive at https://compute.pangle.online · API `/api/offers`, `/api/history`, `/api/idle-history`, `/api/watches` · MCP `/mcp/` (streamable HTTP).\n\n## Run anywhere (the VPS lift)\n```\ndocker compose up          # or:\npython3 -m venv venv && venv/bin/pip install -r requirements.txt\nvenv/bin/uvicorn app:app --port 8956\n```\nNo external services, no keys required (keys in `.env` deepen Vast/RunPod results; DataCrunch and Akash need none).\n\n## The fee levers — there are two, and confusing them corrupts the data\n\n`FEE_BPS` (`core/economics.py`) marks up **displayed** prices, and it is **0, permanently**.\nThe book, the tape, the index and the per-chip prices are published as THE MARKET's numbers —\ncheck any of them against the provider's own page. A markup here would quietly make every\npublished price ours instead of theirs, so this lever stays off.\n\n`EXEC_FEE_BPS` is the **platform fee**, charged on what we settle, never on what the provider\ncharges: **2.5%, one cent minimum, capped at $5 per lease per UTC day** (`core/meter.py`).\nRenters place on their own provider key and pay the provider directly; this is the only thing\nwe take, and it is disclosed in the quote and the receipt before anything is placed.\n\n`REF_VAST` / `REF_RUNPOD` referral slots ride the same seam.\n\n## Layout\n`providers/` one drop-in module per marketplace · `core/` schema, rank, economics,\nstats · `db.py` SQLite (WAL) with `provider_health` honesty table · `app.py` FastAPI +\nscheduler + MCP mount · `web/` the hand-written site (see DESIGN-DIRECTION.md).\n\nTests: `venv/bin/python -m tests.test_pipeline`\n\n## Generated pages\n`web/gpu/`, `web/vs/` and `web/sitemap.xml` are built artifacts — regenerate with\n`venv/bin/python gen_gpu_pages.py` (the deployment runs it hourly).\n\n## Fonts\nMartian Mono ships in `web/fonts/` (SIL OFL). The display serif (Erode, by\nIndian Type Foundry via Fontshare) is **not** redistributed here — its license\ndoesn't allow it; fetch it from https://www.fontshare.com/fonts/erode into\n`web/fonts/` as `erode-400.woff2` / `erode-600.woff2`, or let the stack fall\nback to Georgia.\n\n## License\nAGPL-3.0 — see `LICENSE`. Run it, fork it, learn from it; if you serve a\nmodified version, share your changes the same way.\n",
+  "readme": null,
   "status": "curated"
 }

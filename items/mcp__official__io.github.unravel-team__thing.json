@@ -1,0 +1,70 @@
+{
+  "id": "mcp:official/io.github.unravel-team/thing",
+  "type": "mcp",
+  "name": "thing",
+  "description": "Artifacts for any coding agent: a durable link with versions, diffs, and comments on the page.",
+  "author": "io.github.unravel-team",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/unravel-team/thing-cli",
+    "repo": "unravel-team/thing-cli"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@unravel-tech/thing"
+    ],
+    "env": [
+      {
+        "name": "THING_TOKEN",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "THING_SERVER",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-29T08:17:01.10111Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "设计",
+    "featured": false
+  },
+  "readme": "# @unravel-tech/thing\n\nCLI for [thing](https://usething.ai): push, version, and share artifacts (HTML pages, Markdown docs, standalone images and PDFs) from coding agents.\n\n```sh\nnpm i -g @unravel-tech/thing\nthing login                          # defaults to https://usething.ai\nthing push report.html --json\nthing push notes.md --json           # Markdown gets a styled reader view\nthing push chart.png --json          # images and PDFs too\n```\n\n## Commands\n\n| Command | What it does |\n| --- | --- |\n| `thing login [--server url]` | Device-code login; stores a token (does not pin a team) |\n| `thing logout` / `thing whoami` | Clear / show the current identity and where pushes land |\n| `thing default [team] [--clear]` | Show or set your server-side default push target (used when no `--team` is given, from any machine) |\n| `thing use <team> [project]` | Set a local active team/project override for this machine |\n| `thing push <file.html\\|.md\\|.pdf\\|.png\\|.jpg\\|.gif\\|.webp> [--name x] [--team t] [--project p] [--visibility v]` | Push a new immutable version (HTML, Markdown, or image/PDF), print the served URL |\n| `thing list` | List artifacts you can see |\n| `thing versions <name>` | Version history for an artifact |\n| `thing rollback <name> <n>` | Point latest back to version n |\n| `thing open <name>` | Open the artifact in a browser |\n| `thing mcp` | Run a Model Context Protocol server over stdio (tools: `push_artifact`, `list_artifacts`, `whoami`) |\n\nEvery command accepts `--json` for machine-readable output.\n\nVisibility values: `private`, `team`, `anyone-with-link` (prints a tokened share URL), `public`.\n\n## Context resolution\n\nWhich team a push lands in is decided in order: `--team` flag → `.thing.json` in the\nworking directory → a local `thing use` override → your **server-side default**\n(`thing default`) → your personal space. Login no longer pins a team, so with none of\nthe overrides set the server picks your default (e.g. the Unravel org for Unravel members).\n\n## MCP\n\nClaude Code, Cursor, Codex, and anything else that speaks Model Context\nProtocol can publish through thing. No terminal login needed: create a token at\n[usething.ai](https://usething.ai) under Settings, then Tokens, and paste this\ninto your client's MCP config.\n\n```json\n{\n  \"mcpServers\": {\n    \"thing\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@unravel-tech/thing\", \"mcp\"],\n      \"env\": { \"THING_TOKEN\": \"paste-your-token-here\" }\n    }\n  }\n}\n```\n\nThe server exposes three tools: `push_artifact` to publish a file or inline\ncontent and get back a link, `list_artifacts` to see what you have, and\n`whoami` to check which account and team you are pushing to.\n\nIf you already ran `thing login`, the stored credential is used and\n`THING_TOKEN` can be left out.\n\nRequires Node >= 18 or Bun. No runtime dependencies.\n",
+  "status": "curated"
+}

@@ -28,7 +28,7 @@
   "quality": {
     "stars": null,
     "pushed_at": "2026-08-28T15:06:03.723521Z",
-    "score": 52
+    "score": 42
   },
   "security": {
     "score": 100,
@@ -60,6 +60,6 @@
     "category": null,
     "featured": false
   },
-  "readme": "# pedagio-mcp — servidor MCP\n\n> **Distribuição pública:** este servidor é publicado em **[github.com/brazilayer/mcp](https://github.com/brazilayer/mcp)**\n> (instalação para usuários finais lá). Esta pasta é a fonte interna; alterações aqui\n> devem ser espelhadas no repo público.\n\nCliente fino da API pública do pedagio (SPEC §8): expõe os dados de CNPJ como\nferramentas MCP pagáveis via x402. Sem acesso direto ao banco — cada ferramenta chama a\nAPI HTTP e paga com USDC (rede Base) usando a carteira configurada.\n\n## Ferramentas\n\n| Ferramenta | Endpoint | Preço |\n|------------|----------|-------|\n| `cnpj_consultar_empresa` | `GET /v1/cnpj/empresa/{cnpj}` | US$ 0.005 |\n| `cnpj_listar_socios` | `GET /v1/cnpj/empresa/{cnpj}/socios` | US$ 0.005 |\n| `cnpj_consultar_empresa_completo` | `GET /v1/cnpj/empresa/{cnpj}/completo` | US$ 0.01 |\n| `cnpj_buscar_empresas` | `GET /v1/cnpj/busca` | US$ 0.01 |\n| `cnpj_buscar_por_socio` | `GET /v1/cnpj/socio/busca` | US$ 0.02 |\n| `cnpj_obter_amostra` | `GET /v1/cnpj/amostra` | grátis |\n| `trust_check` | Trust rating of any x402 service before paying it (Agent Economy Report, free) | free |\n| `skill_check` | Trust rating of any agent skill before installing it (Agent Economy Report, free) | free |\n\n## Instalação (Claude Code)\n\n```bash\ngit clone https://github.com/aladaf/pedagio && cd pedagio/mcp && npm install\nclaude mcp add pedagio -e BRAZILAYER_PRIVATE_KEY=0xSUACHAVE -- npx tsx /caminho/para/pedagio/mcp/servidor.ts\n```\n\n## Instalação (Claude Desktop / Cursor)\n\n```json\n{\n  \"mcpServers\": {\n    \"pedagio\": {\n      \"command\": \"npx\",\n      \"args\": [\"tsx\", \"/caminho/para/pedagio/mcp/servidor.ts\"],\n      \"env\": {\n        \"BRAZILAYER_PRIVATE_KEY\": \"0xCHAVE_DA_CARTEIRA_QUE_PAGA\"\n      }\n    }\n  }\n}\n```\n\n## Variáveis\n\n- `BRAZILAYER_API_URL` — default `https://api.brazilayer.com`\n- `BRAZILAYER_PRIVATE_KEY` — chave privada (0x…) da carteira que **paga** as chamadas\n  (precisa de USDC na rede Base; na testnet, USDC de faucet na Base Sepolia). Sem ela,\n  apenas `cnpj_obter_amostra` funciona; as demais explicam o 402.\n\n⚠️ A chave configurada aqui assina pagamentos reais. Use uma carteira dedicada com\nsaldo pequeno.\n\n## Escolha da integração x402↔MCP (SPEC §8)\n\nAvaliado em 2026-07-20: adotados os pacotes oficiais `@x402/fetch` + `@x402/evm`\n(v2.19), que envelopam o `fetch` com o fluxo 402→assinatura→retry — o servidor MCP usa\nesse fetch pagante em cada ferramenta. Alternativas de bridge MCP de terceiros foram\ndescartadas por serem menos mantidas que o SDK oficial.\n\n---\n\nBuilding on the agent economy? We publish the\n**[Agent Economy Report](https://agenteconomy.report)** — a free weekly, data-generated\nindex of the machine-to-machine economy (x402 services, on-chain settlement, MCP and\npaid-web adoption). One e-mail a week.\n",
+  "readme": null,
   "status": "curated"
 }

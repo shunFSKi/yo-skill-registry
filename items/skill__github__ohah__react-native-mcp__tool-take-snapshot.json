@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/ohah/react-native-mcp/tool-take-snapshot",
+  "type": "skill",
+  "name": "tool-take-snapshot",
+  "description": "Use when calling MCP take_snapshot or exploring RN component tree (Fiber) by type/uid.",
+  "author": "ohah",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/ohah/react-native-mcp/blob/HEAD/.cursor/skills/tool-take-snapshot/SKILL.md",
+    "repo": "ohah/react-native-mcp",
+    "path": ".cursor/skills/tool-take-snapshot/SKILL.md"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 7,
+    "pushed_at": "2026-03-21T13:39:18Z",
+    "score": 50,
+    "star_history": [
+      {
+        "d": "2026-08-29",
+        "s": 7
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "设计",
+    "featured": false
+  },
+  "readme": "# React Native MCP Server\n\n[![npm](https://img.shields.io/npm/v/@ohah/react-native-mcp-server)](https://www.npmjs.com/package/@ohah/react-native-mcp-server)\n[![license](https://img.shields.io/npm/l/@ohah/react-native-mcp-server)](./LICENSE)\n\n> [한국어 문서](./README_KO.md) | [Documentation Site](https://ohah.github.io/react-native-mcp/)\n\nMCP(Model Context Protocol) server for React Native app automation and monitoring. Works with Cursor, Claude Desktop, Claude Code, GitHub Copilot, Windsurf, and any MCP-compatible client.\n\n## What makes this different\n\n- **React Fiber tree access** — Query and inspect components via the actual Fiber tree, not screenshots or accessibility labels\n- **State inspection** — Read React hooks (useState, Zustand, etc.) of any component in real time\n- **Render profiling** — Track mounts, re-renders, and unnecessary renders without React DevTools\n- **Network mocking** — Intercept XHR/fetch and inject mock responses at runtime\n- **49 MCP tools** — Tap, swipe, screenshot, assert, eval, clear(target), and more across 12 categories\n- **Zero native module** — Pure JS runtime + host CLI tools (adb/idb). No linking, no native code\n- **YAML E2E testing** — Write scenarios in YAML and run in CI without AI\n\n## Documentation\n\n| Guide                                                                             | Description                                            |\n| --------------------------------------------------------------------------------- | ------------------------------------------------------ |\n| [Quick Start](https://ohah.github.io/react-native-mcp/mcp/getting-started)        | 5-minute setup guide                                   |\n| [Expo Guide](https://ohah.github.io/react-native-mcp/mcp/expo-guide)              | Expo-specific setup (Dev Client, Expo Go, Expo Router) |\n| [Tool Reference](https://ohah.github.io/react-native-mcp/mcp/tools/overview)      | All 49 tools with parameters and examples              |\n| [Cookbook](https://ohah.github.io/react-native-mcp/mcp/cookbook/)                 | Real-world usage scenarios                             |\n| [Architecture](https://ohah.github.io/react-native-mcp/mcp/architecture)          | How it works under the hood                            |\n| [Troubleshooting](https://ohah.github.io/react-native-mcp/mcp/troubleshooting)    | Connection issues and fixes                            |\n| [VS Code Extension](https://ohah.github.io/react-native-mcp/mcp/vscode-extension) | DevTools + Component Tree in the sidebar               |\n| [E2E Testing](https://ohah.github.io/react-native-mcp/test/)                      | YAML scenario testing                                  |\n\n## Quick Start (CLI init)\n\nThe fastest way to set up React Native MCP in your project:\n\n```bash\nnpx -y @ohah/react-native-mcp-server init\n```\n\n### What it does\n\nThe init command runs through these steps:\n\n**Step 1 — Project Detection** (automatic)\n\nReads `package.json`, lock files, and config files to detect:\n\n- React Native version (`dependencies.react-native`)\n- Expo (`dependencies.expo`, `app.json`, `app.config.ts`)\n- Babel config location (`babel.config.js`, `.babelrc`, etc.)\n- Package manager (`bun.lock` → bun, `yarn.lock` → yarn, `pnpm-lock.yaml` → pnpm, otherwise npm)\n\n```\n Detecting project...\n  ✓ React Native 0.83.1\n  ✓ Expo detected (expo@~52.0.0)\n  ✓ Package manager: bun\n```\n\n**Step 2 — MCP Client Selection** (interactive prompt)\n\nAsks which MCP client you use. This determines where the server config file is created.\n\n```\n? Which MCP client do you use?\n  1. Cursor\n  2. Claude Code (CLI)\n  3. Claude Desktop\n  4. Windsurf\n  5. Antigravity\n> 1\n```\n\n| Client         | Config location                                                           |\n| -------------- | ------------------------------------------------------------------------- |\n| Cursor         | `{project}/.cursor/mcp.json`                                              |\n| Claude Code    | `claude mcp add` CLI command                                              |\n| Claude Desktop | `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) |\n| Windsurf       | `~/.codeium/windsurf/mcp_config.json`                                     |\n| Antigravity    | `~/.gemini/antigravity/mcp_config.json`                                   |\n\n**Step 3 — Apply Changes** (automatic)\n\n1. **babel.config.js** — Appends `@ohah/react-native-mcp-server/babel-preset` to the `presets` array. Skipped if already present.\n2. **MCP config** — Creates or merges the server entry into the client config file. Existing settings are preserved.\n3. **.gitignore** — Appends `/results/` if not already present.\n\n**Step 4 — Run your app and start using MCP tools**\n\n```bash\n# Bare RN\nnpx react-native start\n\n# Expo\nnpx expo start\n```\n\n### Options\n\n```bash\n# Non-interactive mode — skip prompts, use Cursor as default client\nnpx -y @ohah/react-native-mcp-server init -y\n\n# Specify client explicitly\nnpx -y @ohah/react-native-mcp-server init --client cursor\nnpx -y @ohah/react-native-mcp-server init --client claude-code\n\n# Help\nnpx -y @ohah/react-native-mcp-server init --help\n```\n\nRunning `init` multiple times is safe — each step checks if the change is already applied.\n\n**Monorepo:** Run `init` from the repo root. It adds `@ohah/react-native-mcp-server` to the detected app package’s `devDependencies` and runs install from the root. See [CLI Init](https://ohah.github.io/react-native-mcp/mcp/cli-init) for options like `--no-install`.\n\n## Usage\n\n### Cursor\n\nAdd to `.cursor/mcp.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"react-native-mcp\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@ohah/react-native-mcp-server\"]\n    }\n  }\n}\n```\n\n### Claude Desktop / Claude Code\n\n```bash\n# Claude Code CLI (recommended)\nclaude mcp add --transport stdio react-native-mcp -- npx -y @ohah/react-native-mcp-server\n```\n\nOr edit `~/Library/Application Support/Claude/claude_desktop_config.json` with the same JSON structure.\n\n### GitHub Copilot CLI\n\nRun `/mcp add react-native-mcp` in Copilot CLI, or edit `~/.copilot/mcp-config.json`.\n\n### VS Code Extension (DevTools)\n\nInstall [**React Native MCP DevTools**](https://marketplace.visualstudio.com/items?itemName=ohah.react-native-mcp-devtools) from the Marketplace, or in VS Code: `Ctrl+Shift+X` (Extensions) → search **React Native MCP DevTools** → Install. Gives you Console, Network, State, Renders, and Component Tree in the sidebar. See [VS Code Extension](https://ohah.github.io/react-native-mcp/mcp/vscode-extension) for local .vsix install.\n\n> For detailed client setup, see [Cursor / Claude / Copilot](https://ohah.github.io/react-native-mcp/mcp/mcp-usage).\n\n## Required: Native Tools (idb / adb)\n\nThe MCP server uses **idb** (iOS) and **adb** (Android) for native touch injection and screenshots.\n\n```bash\n# Android\nbrew install --cask android-platform-tools  # or install Android Studio\nadb devices  # verify\n\n# iOS Simulator\nbrew tap facebook/fb && brew install idb-companion\npip3 install fb-idb\nidb list-targets  # verify\n```\n\n> idb is macOS-only, simulators only. See [idb Setup Guide](./docs/references/idb-setup.md) for details.\n\n## Architecture\n\n```\nReact Native App (iOS/Android)\n  ↓ (WebSocket)\n  └─ Runtime (auto-injected via Babel preset)\n       ↓\n     MCP Server (developer's machine, port 12300)\n       ↓ (stdio/MCP protocol)\n     Cursor / Claude Desktop / Copilot CLI\n```\n\nSee [Architecture](https://ohah.github.io/react-native-mcp/mcp/architecture) for the full design.\n\n## Development\n\n- **Tools**: [mise](https://mise.jdx.dev/) (see `.mise.toml`), oxlint/oxfmt for linting/formatting\n- **Scripts**:\n  - `bun run build` - Build the server\n  - `bun run mcp` - Run MCP server\n  - `bun run dev` - Watch mode\n  - `bun run test` - Run tests\n  - `bun run test:mcp` - Spawn server, call `evaluate_script` via stdio\n\n## License\n\nMIT © [ohah](https://github.com/ohah)\n",
+  "status": "curated"
+}

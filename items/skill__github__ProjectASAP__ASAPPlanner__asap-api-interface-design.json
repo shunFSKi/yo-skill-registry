@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/ProjectASAP/ASAPPlanner/asap-api-interface-design",
+  "type": "skill",
+  "name": "asap-api-interface-design",
+  "description": "Design or review ProjectASAP public APIs and interfaces. Use when adding or changing externally consumed functions, data structures, protocols, schemas, or service boundaries.",
+  "author": "ProjectASAP",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/ProjectASAP/ASAPPlanner/blob/HEAD/.agents/skills/asap-api-interface-design/SKILL.md",
+    "repo": "ProjectASAP/ASAPPlanner",
+    "path": ".agents/skills/asap-api-interface-design/SKILL.md"
+  },
+  "license": null,
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 4,
+    "pushed_at": "2026-08-29T02:31:20Z",
+    "score": 61,
+    "star_history": [
+      {
+        "d": "2026-08-29",
+        "s": 4
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# ASAPPlanner — design\n\nASAPPlanner is a system to map a query workload to an ASAP plan. A query workload is a batch of queries or a set of repeating queries, in any query language like PromQL or SQL. An ASAP plan is a query plan (like in databases) that uses ASAP primitives like sketches, exact summaries, wavelets, etc.\n\nASAPPlanner does this mapping in 2 steps:\n(1) normalizing query workloads from different query languages into a common intermediate representation (IR)\n(2) mapping the IR to an ASAP plan\n\nSeparating these 2 steps is helpful to decouple concerns and for extensibility.\nStep 1 **interprets** the query workload semantics and **normalizes** them into our own IR. Adding a new query language or dialect can be done by extending step 1 and not touching step 2.\nStep 2 **maps** query workload semantics to ASAP primitives. Adding a new ASAP primitive can be done by extending step 2 and not touching step 1.\n\n1. **Interpretation** — understand a language-specific query and construct semantic intent.\n2. **Intent canonicalization** — normalize equivalent queries from different languages into a common IR\n3. **Mapping intents to ASAP primitives** — decide whether and how each intent can be answered by a summary,\n   and select/size the corresponding summary family.\n\n## Building\n\n```sh\ncargo build\ncargo test --workspace\n```\n\nNo external setup required. See [`docs/user-guide/user-guide.md`](docs/user-guide/user-guide.md) for how to run a\nquery through the pipeline.\n\n## Glossary\n\nLet us define a few terms.\n\n### Query language\n\nE.g. PromQL, Clickhouse dialect of SQL, Datafusion dialect of SQL, etc.\n\n### Query intent\n\nThe semantics of what the query wants to do. Multiple different query strings (in the same language or different) can have the same query intent.\n\nSee examples below. All queries in the same example share the same query intent.\nIn each example, the `orders` table has columns `time`, `price`, `city`, and `category`.\n\n#### Example 1\n\n```SQL\nSELECT SUM(price)\nFROM orders\nWHERE time BETWEEN NOW() and NOW() - 1m\nGROUP BY city\n```\n\nand\n\n```SQL\nWITH intermediate_table AS (\n    SELECT SUM(price)\n    FROM orders\n    WHERE time BETWEEN NOW() and NOW() - 1m\n    GROUP BY city, category\n)\nSELECT SUM(price)\nFROM intermediate_table\nGROUP BY city\n```\n\n#### Example 2\n\n```SQL\nSELECT SUM(price)\nFROM orders\nWHERE time BETWEEN NOW() and NOW() - 1m\nGROUP BY city\n```\n\nand\n\n```promql\nsum by (cpu) (sum_over_time(orders[1m]))\n```\n\n### Query workload\n\nA set of queries that are to be executed. For now, this is either a batch of queries executed on data at rest, or a set of repeating queries executed on recently ingested data.\n\n### Pre-ASAP IR\n\nA common IR that different query workloads in different languages are normalized to. has **no notion** of ASAP primitives or summaries. The purpose of this IR is to simply have a common representation for diverse query workloads and languages.\n\n### Post-ASAP IR\n\nAn IR that includes of ASAP primitives, apart from the usual relational and time-series operators.\n\n### Plan\n\nA DAG constructed in either the pre-ASAP IR or post-ASAP IR. Pre-ASAP plan represents the original exact intent of the input query workload. Post-ASAP plan represents the same intent using ASAP primitives.\n\n## Scope\n\nAs of Aug 13, 2026, ASAPPlanner will be scoped to:\n- generating a set of candidate ASAP plans, not choosing the optimal one between them\n- not caring about CTSA stages i.e. whether a part of a plan is executed at the collector or at the analytics stage\n- not caring about assignment of physical resources, like CPU threads and memory, to nodes in the ASAP plan i.e. ASAPPlanner is NOT doing any phyiscal query planning (ref: database term)\n- // TODO: add scope on what \"IR to ASAP plan logic\" we support right now\n\n---\n\n## High-level workflow\n\n```text\nquery workload\n    │\n    │ parse\n    ▼\npre-ASAP plan\n    │\n    │ canonicalize\n    ▼\ncanonical pre-ASAP plan\n    │\n    │ ASAP-aware mapping\n    ▼\npost-ASAP plan\n```\n\n# Example: Equivalent SQL and PromQL have the same pre-ASAP plan\n\n## SQL\n\n```sql\nSELECT service, COUNT(*)\nFROM metrics\nWHERE region = 'us-east'\nGROUP BY service\nORDER BY COUNT(*) DESC\nLIMIT 10;\n```\n\n## PromQL\n\n```promql\ntopk(\n  10,\n  count by (service) (\n    {region=\"us-east\"}\n  )\n)\n```\n\n## Unified intent\n\n```text\nAggregate(\n    reduction = Reduce(by = [service]),\n    measures = [TopK { k = 10 }],\n    child = Filter(\n        pred = region = \"us-east\",\n        child = Scan(\"metrics\")\n    )\n)\n```\n\nThe two languages may use very different syntax and data models, but the summary-relevant\nsemantic intent is the same.\n\n# End-to-end example\n\nConsider:\n\n```sql\nSELECT service, COUNT(*)\nFROM metrics\nWHERE region = 'us-east'\nGROUP BY service\nORDER BY COUNT(*) DESC\nLIMIT 5;\n```\n\n## parse + canonicalize\n\n```text\nAggregate(\n    reduction = Reduce(by = [service]),\n    measures = [TopK { k = 5 }],\n    child = Filter(\n        pred = region = \"us-east\",\n        child = Scan(\"metrics\")\n    )\n)\n```\n\nEquivalent PromQL converges to the same structure.\n\n## ASAP-aware mapping\n\n```text\nAggregate(reduction = Reduce(by = [service]), measures = [TopK { k = 5 }], ...)\n        ↓\nSpaceSaving(k=5)\n```\n\n# Design principles\n\n## 1. Normalize semantics, not syntax\n\nThe canonical algebra should represent query intent rather than reproduce the source\nlanguage's syntax tree. Canonicalization should make semantically equivalent computations structurally identical so\nthat reusable sub-computations can be recognized and shared.\n\n## 2. Make summary-relevant intents explicit\n\nOperations such as `Quantile`, `DistinctCount`, and `TopK` deserve semantic representation\nbecause they have distinct summary mappings.\n\n## 3. Avoid adding nodes prematurely\n\nDo not add a node merely because SQL has an operator with that name. Add a node when it carries\nsemantic information that matters downstream.\n\n# Immediate TODOs\n\n- Change input from a single query string to `QueryWorkload` (tracked in [#194](https://github.com/ProjectASAP/ASAPPlanner/issues/194)\n- Remove legacy data structures and types (tracked in [#179](https://github.com/ProjectASAP/ASAPPlanner/issues/179), [#205](https://github.com/ProjectASAP/ASAPPlanner/issues/205)\n- Implement the ASAP-aware mapping [logic and interfaces](docs/design_docs/asap-aware-mapping/README.md)\n- Connect output of ASAPPlanner to asap-fusion\n- Connect output of ASAPPlanner to ASAPCollector and ASAPQuery (see open question #1 below)\n\n# Next steps\n\n- [Description of pre-ASAP IR](docs/design_docs/pre-asap-ir.md)\n- [Description of post-ASAP IR](docs/design_docs/post-asap-ir.md)\n- [Converting a QueryWorkload to a pre-ASAP plan](docs/design_docs/parse_and_canonicalize.md)\n- [Converting a pre-ASAP plan to a post-ASAP plan](docs/design_docs/asap-aware-mapping/README.md)\n- [Guide on how to use ASAPPlanner](docs/user-guide/user-guide.md)\n\n# Open questions\n\n1. **Integration with downstream artifacts:** How to connect the output of ASAPPlanner to ASAPQuery? ASAPPlanner produces a post-ASAP plan that has semantics of batch query execution over data at rest. Somehow this needs to be converted into two plans (1) streaming dataflow graph that computes summaries on raw data, and (2) batch query execution plan that uses summaries to answer queries.\n2. **Grouping semantics:** Should grouping remain embedded in `Aggregate`, or should grouping\n   become a reusable relational dimension node?\n3. **Expression semantics:** Which arithmetic or derived expressions need dedicated semantic\n   nodes because they materially affect summary selection?\n4. **Approximation contracts:** Should accuracy/error requirements be fields on the intent,\n   the workload, or the measure itself?\n5. **Summary composability:** How should nested intents describe summaries that can be merged,\n   transformed, or reused across queries?\n",
+  "status": "curated"
+}

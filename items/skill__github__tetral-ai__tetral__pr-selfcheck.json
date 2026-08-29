@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/tetral-ai/tetral/pr-selfcheck",
+  "type": "skill",
+  "name": "pr-selfcheck",
+  "description": "Run before opening a PR. Walks your diff through the contribution self-check and produces the structured answer sheet the PR description must carry.",
+  "author": "tetral-ai",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/tetral-ai/tetral/blob/HEAD/.agents/skills/pr-selfcheck/SKILL.md",
+    "repo": "tetral-ai/tetral",
+    "path": ".agents/skills/pr-selfcheck/SKILL.md"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 2,
+    "pushed_at": "2026-08-29T09:16:59Z",
+    "score": 59,
+    "star_history": [
+      {
+        "d": "2026-08-29",
+        "s": 2
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "办公",
+    "featured": false
+  },
+  "readme": "<p align=\"center\">\n  <img src=\".github/logo.svg\" alt=\"Tetral\" width=\"140\" />\n</p>\n\n<h3 align=\"center\">\nScaling agents for everyone\n</h3>\n\n<p align=\"center\">\n| <a href=\"https://tetral.ai\"><b>Website</b></a> | <a href=\"https://github.com/tetral-ai/tetral-sdk-typescript\"><b>TypeScript SDK</b></a> | <a href=\"#getting-started\"><b>Getting Started</b></a> | <a href=\"AGENTS.md\"><b>Contributing</b></a> | <a href=\"LICENSE\"><b>License</b></a> |\n</p>\n\n---\n\n## About\n\nTetral is an open-source platform for scaling AI agents. The agent loop runs\nas a first-class cloud runtime on your own Kubernetes — sessions are durable\nresources that sleep when idle, wake on input, and keep going through sandbox\nand pod restarts — behind an Anthropic-compatible API. Cost follows active\ncompute.\n\nTetral scales agents with:\n\n- **A cloud-native runtime**: the agent loop is scheduled by Kubernetes;\n  sessions sleep and wake; settlement is durable and replay-safe; sandbox\n  loss and runtime-pod loss are recovered conditions, handled by design.\n- **Disposable sandboxes**: every session gets its own sandbox as an\n  execution surface — created on demand, stopped when idle, archived and\n  cleaned up on schedule.\n- **One database**: sessions, full event history, queues, memory,\n  credentials — everything durable lives in PostgreSQL. One system to\n  operate and back up, and the complete audit trail is a SQL query.\n- **Single-version releases**: one git tag, four images, and one Helm chart\n  carry the same platform version.\n\nTetral is compatible and complete:\n\n- **Anthropic-compatible API**: sessions, files, skills, memory stores, and\n  models served under `/v1` in the upstream shape; the\n  [TypeScript SDK](https://github.com/tetral-ai/tetral-sdk-typescript) is a\n  maintained fork of the official Anthropic SDK, and every deviation is a\n  registered compatibility case with a test.\n- **Bring your own model**: request lowering, stream raising, and the model\n  catalog live in one gateway package — adding a model or provider is a\n  catalog-and-lowering change.\n- **A full agent toolbelt**: per-session sandboxes, file resources, skills,\n  memory, MCP connectors, web search and fetch, and credential-injecting\n  Git — sandboxes never hold repository credentials.\n- **Storage you choose**: one S3-compatible configuration surface across\n  Cloudflare R2, AWS S3, MinIO, and B2.\n- **Sandboxes you choose**: sandbox providers sit behind a narrow driver\n  seam (Daytona today).\n\n## Getting Started\n\nTetral is self-hosted infrastructure for teams that operate their own\nKubernetes. It deploys on any conformant cluster — from a single-node K3s\nmachine to a full multi-node cluster, the same manifests and the same\nversion. Prerequisites: a Kubernetes cluster, PostgreSQL 18, an\nS3-compatible bucket, and a credential for a Daytona Tier 3 or higher account\nfor the current Sandbox provider implementation.\n\nTwo install paths, one platform version:\n\n- **Helm** — reproducible, versioned installs: one `values.yaml` carries the\n  whole configuration contract; use plain `helm upgrade`, and roll back only\n  between releases with no schema migration.\n- **kubectl** — the raw manifests in\n  [`deploy/kubernetes/`](deploy/kubernetes/), for operators who want every\n  object auditable and editable.\n\nThe first tagged release (`0.1.0-alpha`) publishes the images and the chart.\nUntil then, build from source:\n\n```bash\nmake build && make test          # Go services\nbun install && bun run build     # services/agent-runtime, services/gateway\n```\n\nBefore the first install, follow the\n[from-zero bootstrap sequence](docs/bootstrap.md) to generate the required\nSecrets, let API migrate the schema, and seed the initial workspace.\n\nEach service's contract — responsibilities, lifecycle, seams, testing —\nlives in `services/<name>/README.md`.\n\n## Contributing\n\nContributions are welcome from any authorship — human, AI, or both — as\nlong as you can explain them. Start with [AGENTS.md](AGENTS.md) for the\nrepository map and build commands, then [CONTRIBUTING.md](CONTRIBUTING.md)\nfor the pre-PR self-check every contribution runs.\n\n## Contact\n\nQuestions, bug reports, and proposals go to\n[GitHub Issues](https://github.com/tetral-ai/tetral/issues). If you are\nbuilding on Tetral or want to collaborate more deeply, we would like to\nhear from you.\n\n## Acknowledgment\n\nTetral learned from and builds with:\n[OpenCode](https://github.com/sst/opencode),\n[Codex](https://github.com/openai/codex),\n[Effect](https://effect.website),\n[Daytona](https://www.daytona.io),\n[Cloudflare](https://www.cloudflare.com), and\n[Anthropic](https://www.anthropic.com).\n\n## License\n\n[MIT](LICENSE). Commercial use is welcome; if Tetral or its design shows up\nin your work, a credit is appreciated.\n",
+  "status": "curated"
+}

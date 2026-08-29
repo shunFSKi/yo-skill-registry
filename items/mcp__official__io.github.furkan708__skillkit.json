@@ -1,0 +1,57 @@
+{
+  "id": "mcp:official/io.github.furkan708/skillkit",
+  "type": "mcp",
+  "name": "skillkit",
+  "description": "Toolbox for AI agent skills: scaffold, lint, pack, install, and serve SKILL.md skills",
+  "author": "io.github.furkan708",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/furkan708/skillkit",
+    "repo": "furkan708/skillkit"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "skillkit-cli"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-28T20:46:10.493582Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "<!-- mcp-name: io.github.furkan708/skillkit -->\n\n# 🧰 skillkit\n\n[![Python](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/)\n![License](https://img.shields.io/badge/license-MIT-green)\n![Tests](https://img.shields.io/badge/tests-76%20passed-brightgreen)\n[![CI](https://github.com/furkan708/skillkit/actions/workflows/ci.yml/badge.svg)](https://github.com/furkan708/skillkit/actions/workflows/ci.yml) ![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-261230.svg) ![Types: mypy](https://img.shields.io/badge/types-mypy-blue)\n![Dependencies](https://img.shields.io/badge/dependencies-zero-success)\n\n**The toolbox for AI agent skills.** Scaffold, lint, pack, and install\n[SKILL.md](https://agentskills.io) skills — and serve your whole skill library\nto Claude Code, Cursor, and any MCP client with a built-in **Model Context\nProtocol server**.\n\n![skillkit terminal demo](docs/screenshot.png)\n\n> Community audits found that the overwhelming majority of published\n> SKILL.md files carry at least one \"skill smell\" — and a large share leak\n> secrets. skillkit catches those before you ship.\n\n📖 **Deep docs:** [Usage guide](docs/USAGE.md) — lint rules reference, MCP patterns, CI usage · [Architecture](docs/ARCHITECTURE.md) · [Contributing](CONTRIBUTING.md) · [Changelog](CHANGELOG.md) · [Security](SECURITY.md)\n\n## ✨ Features\n\n- 🆕 **`new`** — scaffold a spec-compliant skill folder in one command\n- 🔍 **`lint`** — validate against the Agent Skills spec *plus* security smells:\n  leaked API keys, vague descriptions, oversized bodies, folder typos, and more\n  (scored 0–100 with a grade)\n- 📦 **`pack`** — zip a skill for upload to skill-capable platforms\n- 📥 **`install`** — install from a folder or any git URL into\n  `~/.claude/skills` (or your own directory)\n- 🗂️ **`list` / `remove`** — manage your installed skill library\n- 🔌 **`mcp`** — a **zero-dependency MCP server** (stdio, JSON-RPC 2.0) that\n  exposes `list_skills`, `read_skill`, and `lint_skill` tools to any client\n- 🪶 **Zero dependencies** — pure Python standard library\n- 🧪 **76 tests**, CI on Python 3.10 → 3.12\n\n## 🚀 Quick start\n\n```bash\n# run without installing (uvx — pulls from PyPI on demand)\nuvx --from skillkit-cli skillkit lint ./skills\n\n# or install (installs the `skillkit` command)\npipx install skillkit-cli\n\n# ...or from source\ngit clone https://github.com/furkan708/skillkit.git\ncd skillkit && pip install .\n\n# 1. create a skill\nskillkit new commit-writer -d \"Writes conventional commit messages from staged diffs. Use when the user asks to commit changes.\"\n\n# 2. lint it (spec + security + quality)\nskillkit lint commit-writer\n#   ✓ no issues found\n#   score: 100/100 (grade A) · 0 errors · 0 warnings · 0 notes\n\n# 3. pack it for upload\nskillkit pack commit-writer        # → commit-writer.zip\n\n# 4. install it for Claude Code\nskillkit install ./commit-writer   # → ~/.claude/skills/commit-writer\n```\n\n## 🔌 Serve your skills over MCP\n\nAdd skillkit to any MCP client config — Claude Code, Cursor, Windsurf, and\nevery other MCP-compatible agent:\n\n```json\n{\n  \"mcpServers\": {\n    \"skillkit\": { \"command\": \"skillkit\", \"args\": [\"mcp\"] }\n  }\n}\n```\n\nYour agent can now discover and read every installed skill on demand:\n\n| Tool          | What it does                                        |\n| ------------- | --------------------------------------------------- |\n| `list_skills` | Discover installed skills with names + descriptions |\n| `read_skill`  | Load the full SKILL.md instructions of one skill    |\n| `lint_skill`  | Validate a skill and get its quality score          |\n\n## 🔍 What lint catches\n\n| Rule | Severity | Check |\n| ---- | -------- | ----- |\n| SEC001 | ✗ error | Leaked secrets: GitHub/AWS/OpenAI/Slack tokens, private keys, hardcoded credentials |\n| SKILL001 | ✗ error | Invalid `name`: charset, length ≤ 64, reserved words (`anthropic`, `claude`) |\n| SKILL002 | ✗ error | `name` does not match the folder name |\n| SKILL003 | ✗ error | `description` longer than 1,024 characters |\n| SKILL009 | ✗ error | `metadata` is not a string→string map |\n| SKILL004 | ⚠ warn | Vague description (won't trigger — describe *what* and *when*) |\n| SKILL005 | ⚠ warn | Body over ~500 lines (move detail into `references/`) |\n| SKILL007 | ⚠ warn | Folder typos: `script/`, `reference/`, `docs/`… |\n| SKILL006 | · info | Very thin body — add steps and examples |\n| SKILL008 | · info | Unknown frontmatter fields |\n\nEvery run ends with a **0–100 score and a letter grade**, so you know when a\nskill is ready to publish.\n\n## 📖 CLI reference\n\n```\nskillkit new <name> -d <description> [--dir DIR]   scaffold a skill\nskillkit lint <path> [--json] [--strict]           validate a skill\nskillkit pack <path> [-o FILE.zip]                 zip for upload\nskillkit install <path|git-url> [--agent claude|project] [--dir DIR]\nskillkit list [--agent ...] [--dir DIR] [--json]   show installed skills\nskillkit remove <name> [--dir DIR]                 uninstall a skill\nskillkit mcp [--dir DIR]                           serve skills over MCP\n```\n\nBuilt on the open [Agent Skills specification](https://agentskills.io) —\nthe same format supported by 40+ platforms including Claude, OpenAI Codex,\nand GitHub Copilot.\n\n## 🧪 Tests\n\n```bash\npip install pytest\npytest -v\n```\n\n## 🗂️ Project Structure\n\n```\nskillkit/\n├── skillkit/\n│   ├── frontmatter.py   # minimal YAML frontmatter parser\n│   ├── model.py         # skill loading (Agent Skills spec)\n│   ├── linter.py        # rules, security smells, 0-100 score\n│   ├── scaffold.py      # new + pack\n│   ├── installer.py     # install / list / remove (folder or git)\n│   ├── mcp_server.py    # zero-dependency MCP stdio server\n│   └── cli.py           # command-line interface\n└── tests/\n```\n\n## 🗺️ Roadmap\n\n- [ ] `skillkit search` — search community skill registries\n- [ ] More install targets (Codex, Copilot CLI paths as they standardize)\n- [ ] `skillkit doctor` — prompt-injection heuristics *(planned, not implemented yet)*\n\n## 📄 License\n\nMIT — see the [LICENSE](LICENSE) file for details.\n",
+  "status": "curated"
+}

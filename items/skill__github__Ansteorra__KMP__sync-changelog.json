@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/Ansteorra/KMP/sync-changelog",
+  "type": "skill",
+  "name": "sync-changelog",
+  "description": "Builds or refreshes the canonical KMP release section in app/CHANGELOG.md from source-checked git history.",
+  "author": "Ansteorra",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/Ansteorra/KMP/blob/HEAD/.cursor/skills/sync-changelog/SKILL.md",
+    "repo": "Ansteorra/KMP",
+    "path": ".cursor/skills/sync-changelog/SKILL.md"
+  },
+  "license": "NOASSERTION",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 6,
+    "pushed_at": "2026-08-29T06:00:40Z",
+    "score": 63,
+    "star_history": [
+      {
+        "d": "2026-08-29",
+        "s": 6
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# Kingdom Management Portal (KMP)\n\nKMP is a CakePHP 5 membership and operations platform for SCA kingdoms. The\nhosted architecture is database-per-tenant: a platform PostgreSQL database owns\ntenant routing and operations metadata, while each kingdom has an isolated\napplication database.\n\n## Developer quick start\n\nDocker Compose is the supported local workflow. It runs PHP 8.4/Apache,\nPostgreSQL 16, Mailpit, pgAdmin, Vite dependencies, and the bounded platform\nscheduler/queue worker.\n\n```bash\n./dev-up.sh --build\n```\n\nOn first use, the script copies `app/config/.env.example` to\n`app/config/.env`. Unless `KMP_RESET_DB_ON_UP=false`, every start resets and\nseeds the local platform database plus two tenant databases.\n\n| Service | Default URL |\n| --- | --- |\n| Primary tenant | <http://kmp.localhost:8080> |\n| Second tenant | <http://kmp2.localhost:8080> |\n| Mailpit | <http://localhost:8025> |\n| pgAdmin | <http://localhost:5050> |\n\nThe reserved platform-admin host is\n<http://platform.kmp.localhost:8080/platform-admin>. The portal is disabled by\ndefault; enable it only when working on platform operations.\n\nRun application tooling inside the app container:\n\n```bash\ndocker compose exec app bash bin/verify.sh\ndocker compose exec app vendor/bin/phpunit --testsuite core-unit\ndocker compose exec app npm run test:js\ndocker compose exec app npm run dev\ndocker compose exec app bin/cake tenant migrate --all --include-suspended --status\n```\n\nSeeded developer accounts use `TestPassword`. See\n[`app/tests/TestDataReference.md`](app/tests/TestDataReference.md) for stable\nfixtures and personas. Never reuse development credentials outside the local\nstack.\n\nUseful lifecycle commands:\n\n```bash\n./dev-up.sh                 # start; reset and seed by default\n./dev-reset-db.sh --seed    # rebuild platform and tenant databases\n./dev-down.sh               # stop the stack\ndocker compose logs -f app scheduler\n```\n\n## Documentation\n\n- [Developer documentation](docs/index.md)\n- [Multi-tenant architecture](docs/3.1-multi-tenant-architecture.md)\n- [Docker development](docs/docker-development.md)\n- [Testing contract](app/docs/testing-suite.md)\n- [Managed deployment and operations](docs/8-deployment.md)\n- [Generated API reference portal](docs/api/index.md)\n\nThe legacy standalone installer and self-hosted deployment material remain only\nas maintenance references. New hosted environments use the managed\nmulti-tenant deployment workflow.\n\n## Repository map\n\n| Path | Responsibility |\n| --- | --- |\n| `app/` | CakePHP application, first-party plugins, frontend, and tests |\n| `docs/` | Published developer and operator documentation |\n| `deploy/azure/` | Managed Azure platform templates and deployment scripts |\n| `docker/` | Local and production container images and entrypoints |\n| `installer/` | Retired standalone installer implementation |\n\nContributors should read [`AGENTS.md`](AGENTS.md) and the nearest child\n`AGENTS.md` before changing a subtree.\n",
+  "status": "curated"
+}

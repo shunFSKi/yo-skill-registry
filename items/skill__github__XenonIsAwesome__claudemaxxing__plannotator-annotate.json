@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/XenonIsAwesome/claudemaxxing/plannotator-annotate",
+  "type": "skill",
+  "name": "plannotator-annotate",
+  "description": "Open Plannotator's annotation UI for a markdown file, HTML file, URL, or folder and then respond to the returned annotations.",
+  "author": "XenonIsAwesome",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/XenonIsAwesome/claudemaxxing/blob/HEAD/skills/plannotator-annotate/SKILL.md",
+    "repo": "XenonIsAwesome/claudemaxxing",
+    "path": "skills/plannotator-annotate/SKILL.md"
+  },
+  "license": null,
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 1,
+    "pushed_at": "2026-08-07T13:40:38Z",
+    "score": 58,
+    "star_history": [
+      {
+        "d": "2026-08-29",
+        "s": 1
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "写作",
+    "featured": false
+  },
+  "readme": "# claudemaxxing\n\nPersonal Claude Code configuration: custom skills, slash commands, plugin list, and settings, installed into `~/.claude/` via symlinks.\n\n## What's here\n\n- `install.sh` — bootstrap script. Installs `uv`/`graphify`/`plannotator` CLIs if missing, adds the `plannotator` plugin marketplace, installs every plugin listed in `claude_plugins`, and symlinks every file/directory listed in `claude_links` into place under `~`.\n- `claude_links` — `<source> <destination>` pairs; the single source of truth for what this repo installs and where.\n- `claude_plugins` — list of `<plugin>@<marketplace>` entries installed via `claude plugin install`.\n- `commands/` — custom slash commands (`/claudify-project`, `/update-claudification`, `/claude-tainer`).\n- `skills/` — custom skills (`graphify`, `find-skills`, the `plannotator-*` family).\n- `misc/` — files linked directly to `~/.claude/`: global `CLAUDE.md`, `settings.json`, the statusline script, and the contained-session handoff hook.\n- `claude-tainer/` — git submodule ([`claude-tainer`](https://github.com/XenonIsAwesome/claude-tainer)) that runs Claude Code in an isolated Docker container. See below.\n\n## Install\n```bash\nbash <(curl -fsSL xenonisawesome.github.io/claudemaxxing/install.sh)\n```\n> [!NOTE]\n> The script currently only works in bash.\n>\n> Requires `curl` and `git`, and the `claude` CLI to already be installed.\n>\n> The script is idempotent — safe to re-run after pulling changes to relink, pick up newly added plugins, or refresh the `CLAUDE_SANDBOX_SCRIPT` path (see below) after moving this checkout.\n\n## Contained sessions\n\n`claude-tainer` runs Claude Code inside an isolated Docker sandbox (own network/filesystem, `--dangerously-skip-permissions`), while still sharing your real `~/.claude` config and mounting the current project at its real path — so session history lines up between native and sandboxed runs.\n\nFrom a normal (native) Claude Code session, run `/claude-tainer` to hand off: it saves the current session id, ends the session, and — thanks to a hook `install.sh` wires into `~/.bashrc` — the very next shell prompt in that same terminal automatically launches `claude-tainer/sandbox.sh -r <session-id>`, resuming that exact conversation inside the container. This only works in a bash shell with `~/.bashrc` sourced (not zsh/fish); see `CLAUDE.md` for the full mechanism, including the staleness/race-condition guards.\n\nYou can also run the sandbox directly without going through `/claude-tainer`.\n`install.sh` adds a `claude-tainer` alias to `~/.bashrc` (pointing at this\ncheckout's `sandbox.sh`), so once a shell has picked that up:\n\n```bash\ncd <your-project>\nclaude-tainer          # start a fresh sandboxed session\nclaude-tainer -r <id>  # resume a specific session\n```\n\n## Adding a new skill or command\n\n1. Add the files under `skills/<name>/` or `commands/<name>.md`.\n2. Add the corresponding `<source> <destination>` line to `claude_links` so `install.sh` actually links it into `~/.claude/`.\n3. Re-run `./install.sh` (or symlink it manually) to pick it up immediately.\n\nSee `CLAUDE.md` for more detail on the repo's architecture.\n",
+  "status": "curated"
+}

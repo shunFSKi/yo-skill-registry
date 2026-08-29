@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/Almantask/rpg-audio-mixer-web/planning-refinement-orchestrator",
+  "type": "skill",
+  "name": "planning-refinement-orchestrator",
+  "description": "Strategy orchestrator for planning and refinement workflows on the web app.",
+  "author": "Almantask",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/Almantask/rpg-audio-mixer-web/blob/HEAD/ai/skills/planning-refinement-orchestrator/SKILL.md",
+    "repo": "Almantask/rpg-audio-mixer-web",
+    "path": "ai/skills/planning-refinement-orchestrator/SKILL.md"
+  },
+  "license": "Apache-2.0",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 1,
+    "pushed_at": "2026-08-28T13:38:00Z",
+    "score": 55,
+    "star_history": [
+      {
+        "d": "2026-08-29",
+        "s": 1
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Arcanum Audio\r\n\r\n[![CI](https://github.com/Almantask/rpg-audio-mixer-web/actions/workflows/ci.yml/badge.svg)](https://github.com/Almantask/rpg-audio-mixer-web/actions/workflows/ci.yml)\r\n[![Acceptance Tests](https://github.com/Almantask/rpg-audio-mixer-web/actions/workflows/acceptance-tests.yml/badge.svg)](https://github.com/Almantask/rpg-audio-mixer-web/actions/workflows/acceptance-tests.yml)\r\n\r\n**Arcanum Audio** is a web RPG ambience and sound-mixing app for Dungeon Masters and tabletop storytellers. Layer loopable soundscapes with a low-latency soundboard, organize work into campaigns and sessions, and mix live from the Active Scene desk.\r\n\r\n## Core Features\r\n\r\n- **Campaigns & sessions** — Organize prep into campaigns, sessions, and scenes; soft-delete and recover items from Trash.\r\n- **Home dashboard** — Resume the active campaign, preview top soundscapes and FX, and jump into recent work.\r\n- **Scenes** — Build reusable scenes, attach them to sessions, and open them in the Active Scene mixer.\r\n- **Library** — Browse and manage soundscape categories (with intensity levels I–III) and FX tracks; compose categories and import audio.\r\n- **Active Scene mixer** — Mix layered soundscapes with per-category volume, intensity crossfades, master controls, and an overlapping soundboard.\r\n- **Web Audio engine** — Browser playback via the Web Audio API with cubic volume curves and ~2s soundscape crossfades.\r\n\r\n## Stack\r\n\r\n| Area | Choice |\r\n|---|---|\r\n| App | Vite 7, React 19, TypeScript, React Router |\r\n| UI | Tailwind CSS 4, Radix Slot, Lucide |\r\n| Unit tests | Vitest, Testing Library |\r\n| Acceptance tests | Cucumber Gherkin (`features/`), Playwright + playwright-bdd (`e2e/`) |\r\n| Runtime | Node.js 20+ (see `.nvmrc`) |\r\n\r\n## Project structure\r\n\r\n```\r\n├── src/                 # React app (pages, components, hooks, lib, context)\r\n├── features/            # Gherkin acceptance specs by domain\r\n├── e2e/steps/           # Playwright BDD step definitions\r\n├── docs/designs/        # Scene design docs and HTML prototypes\r\n├── assets/audio/        # Bundled soundscapes and soundboard FX\r\n├── public/              # Static web assets\r\n├── plans/               # Iteration / implementation plans\r\n├── ai/                  # Shared agent and skill definitions\r\n├── .agents/             # Agent/skill copies used by IDE assistants\r\n└── .github/workflows/   # CI, acceptance tests, Pages deploy\r\n```\r\n\r\nKey `src/` areas: `pages/` (routes), `components/` (UI by domain), `lib/audio/` (mixer), `context/` (campaign + scene audio), `hooks/`.\r\n\r\n## Developer guide\r\n\r\n### Prerequisites\r\n\r\n- Node.js 20+\r\n- npm (CI uses `npm ci` against `package-lock.json`)\r\n\r\n### Setup and scripts\r\n\r\n```bash\r\nnpm ci\r\n\r\n# Dev server (Vite, default http://127.0.0.1:5173)\r\nnpm run dev\r\n\r\n# Production build + local preview\r\nnpm run build\r\nnpm run preview\r\n\r\n# Quality\r\nnpm run typecheck\r\nnpm run lint\r\nnpm test              # Vitest (once)\r\nnpm run test:coverage # Vitest + lcov for SonarCloud\r\nnpm run test:watch    # Vitest (watch)\r\n\r\n# Acceptance (Playwright BDD)\r\nnpm run bddgen\r\nnpm run test:e2e      # bddgen + playwright test\r\n# alias:\r\nnpm run test:acceptance\r\n```\r\n\r\n### SonarCloud Quality Gate (CI)\r\n\r\nCI runs Vitest coverage, then a [SonarCloud](https://sonarcloud.io) scan with the Quality Gate enforced (`sonar.qualitygate.wait=true`).\r\n\r\n1. Create (or import) the project in SonarCloud and confirm **organization** / **project key** match `sonar-project.properties` (`almantask` / `Almantask_rpg-audio-mixer-web` by default — change the file or CI `args` if your UI keys differ).\r\n2. Add a GitHub Actions repository secret named `SONAR_TOKEN` (SonarCloud analysis token). Do not commit the token.\r\n\r\n### CI acceptance tests (manual trigger)\r\n\r\nTo run acceptance tests only from GitHub Actions:\r\n\r\n1. **Actions → Acceptance Tests (Manual) → Run workflow**\r\n2. Optionally set `cucumber_tags` (default `@iter0 or @iter1`) or `cucumber_features` (e.g. `features/platform/can_launch.feature`)\r\n3. Run the workflow — Chromium Playwright suite with generated BDD tests\r\n\r\nCLI alternative (requires `gh`):\r\n\r\n```bash\r\ngh workflow run acceptance-tests.yml --ref <branch> \\\r\n  -f cucumber_tags=\"@iter0 or @iter1\" \\\r\n  -f cucumber_features=\"features/platform/can_launch.feature\"\r\n```\r\n\r\n### Contributing\r\n\r\nSee the [implementation plan](plans/plan.md) — the next non-completed iteration is a good place to start.\r\n\r\n### Agentic development workflow\r\n\r\nArcanum uses specialized AI agents and skills for product, design, implementation, QA, and review. Definitions live under:\r\n\r\n- `.cursor/agents/` / `.agents/agents/` — specialist agents\r\n- `.agents/skills/` / `ai/skills/` — orchestration and domain skills\r\n\r\n#### Specialist roles\r\n\r\n| Role | Focus |\r\n|---|---|\r\n| `product-owner` | Acceptance criteria and feature boundaries |\r\n| `product-designer` | UX flows, layouts, prototypes |\r\n| `fe-developer` | Production React/TS via Red → Green → Refactor TDD |\r\n| `qa-tester` | Gherkin features and Playwright step definitions |\r\n| `fe-reviewer` | Production architecture, performance, frontend quality |\r\n| `qa-reviewer` | Test architecture, BDD semantics, coverage gaps |\r\n| `audio-specialist` | Web Audio playback, mixing, latency |\r\n| `devops-engineer` | Vite/npm tooling, CI/CD, deploy |\r\n| `principal-po` / `principal-qa` / `principal-engineer` | Strategic peer review gates |\r\n\r\n#### Orchestration skills\r\n\r\n| Skill | Command | Purpose |\r\n|---|---|---|\r\n| `plan-feature` | `/plan-feature` | Requirements → design → Gherkin → iteration plans |\r\n| `refine-feature` | `/refine-feature` | Update existing specs, designs, and plans |\r\n| `new-feature` | `/new-feature` | Implementation → validation → review → fixes |\r\n\r\nExamples:\r\n\r\n```text\r\n/plan-feature Plan a new feature: Master Volume mute toggle\r\n/refine-feature Refine the Active Scene soundboard picker filters\r\n/new-feature Implement the Master Volume mute toggle from the plan\r\n```\r\n\r\nConsult `ai/skills/<skill>/SKILL.md` (or `.agents/skills/`) for phase details and subagent delegation.\r\n\r\n---\r\n\r\n## Assets & branding (not open source)\r\n\r\nThe Apache License 2.0 applies **only** to the source code in this repository.\r\n\r\nThe following are **not** licensed under Apache 2.0 and are **not open source**:\r\n\r\n- Audio files and sound packs\r\n- Preset mixes and curated content\r\n- Icons, logos, artwork, and UI graphics\r\n- Application name and branding\r\n\r\nThese materials are proprietary and may not be redistributed, resold, or included in derivative works without explicit permission. Forks and derivative works must supply their own audio assets and branding.\r\n",
+  "status": "curated"
+}

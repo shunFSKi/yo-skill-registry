@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/dupless54/discourse-crimson-community/project-review",
+  "type": "skill",
+  "name": "project-review",
+  "description": "Optional independent defect review for high-risk, ambiguous, or explicitly requested changes.",
+  "author": "dupless54",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/dupless54/discourse-crimson-community/blob/HEAD/.agents/skills/project-review/SKILL.md",
+    "repo": "dupless54/discourse-crimson-community",
+    "path": ".agents/skills/project-review/SKILL.md"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 1,
+    "pushed_at": "2026-08-28T21:11:27Z",
+    "score": 55,
+    "star_history": [
+      {
+        "d": "2026-08-29",
+        "s": 1
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# discourse-crimson-community\n\nCompanion plugin for the **senin.me Crimson Channels** Discourse theme.\n\nIt adds authenticated community services and a native Discourse community page:\n\n- `/community` — first-party-style, responsive online-member view using Discourse's normal header/sidebar, theme variables, core user UI, and Community sidebar integration;\n- live members, based on Discourse's `user_seen` event and PresenceChannel;\n- recent visitors for the profile currently being viewed;\n- a stable profile-cover serializer field used by the Crimson Channels user card.\n\nThe `/community` page intentionally reuses the existing authorized presence endpoint instead of creating a second privacy or presence model. Hidden-presence rules remain server-authoritative, and the page links to Discourse's built-in member directory for full member discovery.\n\nProfile visits use Discourse's own `UserProfileView` records instead of a plugin-specific database table. The profile owner's own visits are retained as well. The endpoint groups repeated views by member, returns the latest visit, and applies the configured retention period while reading the list.\n\n## 1.1.0\n\n- Added the native `/community` page and Community sidebar entry.\n- Reused core `DUserInfo`, `wrap`, theme variables, and current plugin route/sidebar APIs instead of standalone page chrome.\n- Added English and Turkish client locales and responsive light/dark-compatible styling.\n- Integrated Minimum Token Context v3 handoff/frontend scope and CI-first reviewer policy.\n- Added the official reusable Discourse Plugin CI workflow and Discourse RuboCop scaffold.\n\n## Installation\n\nInstall the plugin in the normal Discourse `plugins` directory, rebuild the app, then install or update the matching Crimson Channels theme. Settings are available under Admin → Settings → Plugins by searching for `crimson_community`.\n\nThe theme does not label page-local guesses as live data. Cross-user online and profile-visitor lists therefore require this plugin.\n\n## Endpoints\n\n- `GET /crimson-community/online.json`\n- `GET /crimson-community/profile-visits/:username.json`\n- `POST /crimson-community/profile-visits/:username.json`\n\nAll JSON service endpoints require a signed-in Discourse user. The `/community` client route prompts anonymous visitors to sign in before loading presence data.\n",
+  "status": "curated"
+}

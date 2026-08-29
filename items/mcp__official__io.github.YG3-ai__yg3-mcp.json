@@ -1,0 +1,61 @@
+{
+  "id": "mcp:official/io.github.YG3-ai/yg3-mcp",
+  "type": "mcp",
+  "name": "YG3 Marketing MCP",
+  "description": "Marketing MCP: content, SEO, outbound, LinkedIn, ads. Agents provision a sandbox with one POST.",
+  "author": "io.github.YG3-ai",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/YG3-ai/yg3-mcp",
+    "repo": "YG3-ai/yg3-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://mcp.yg3.ai/mcp",
+    "env": [
+      {
+        "name": "Authorization",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-28T22:36:03.664648Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "营销",
+    "featured": false
+  },
+  "readme": "# YG3 MCP — agent integration\n\nConnect autonomous agents to YG3 marketing operations: content and SEO, outbound email, LinkedIn, and paid ads.\n\n**No signup required for agent builds.** One HTTP call provisions a sandbox workspace and returns a Bearer token for MCP.\n\n| Path | Use when |\n|---|---|\n| [Human OAuth](#human-path-oauth) | Owner has a YG3 account |\n| [Agent provisioning](#agent-path-no-login) | Autonomous agent mid-build, CI, or SDK runtime |\n\n## Quick start (agent path)\n\n```bash\n# 1. Provision — no auth\ncurl -s -X POST https://agency.yg3.ai/api/v1/workspaces \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"domain\":\"acme.com\",\"industry\":\"Plumbing\",\"location\":\"Tampa, FL\"}'\n\n# Response includes: token, mcp_endpoint, workspace.url, claim_endpoint\n\n# 2. List MCP tools\ncurl -s -X POST https://mcp.yg3.ai/mcp \\\n  -H \"Authorization: Bearer YOUR_TOKEN\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"tools/list\"}'\n\n# 3. Call a tool\ncurl -s -X POST https://mcp.yg3.ai/mcp \\\n  -H \"Authorization: Bearer YOUR_TOKEN\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"jsonrpc\":\"2.0\",\"id\":2,\"method\":\"tools/call\",\"params\":{\"name\":\"get_client_snapshot\",\"arguments\":{}}}'\n```\n\nPython example: [`examples/provision-and-call.py`](examples/provision-and-call.py)\n\n## Tools\n\n197+ MCP tools (live count: https://mcp.yg3.ai/api/health). Common entry points:\n\n| Tool | Purpose |\n|---|---|\n| `whoami` | Confirm token scope |\n| `get_client_snapshot` | Full workspace state |\n| `get_setup_health` | Integration status |\n| `set_business_profile` | Industry, location, audience |\n| `set_brand` | Brand voice and positioning |\n| `create_post` / `publish_post` | Blog content on free subdomain |\n| `read_platform_doc` | In-MCP docs (`getting-started`, `agent-integration`, `tools-reference`) |\n\nFull catalog after connecting: `tools/list` or `GET https://mcp.yg3.ai/api/health`.\n\n## Human path (OAuth)\n\nIf the human already has a YG3 account:\n\n1. Add **`https://mcp.yg3.ai/mcp`** as a custom MCP connector\n2. Sign in when prompted\n3. Setup guide: **https://www.yg3.ai/connect**\n\nClaude Code:\n\n```bash\nclaude mcp add --transport http yg3 https://mcp.yg3.ai/mcp\n```\n\nCursor / VS Code MCP config: see [`examples/cursor-mcp.json`](examples/cursor-mcp.json)\n\n## Agent path (no login)\n\n### Provision\n\n```\nPOST https://agency.yg3.ai/api/v1/workspaces\nContent-Type: application/json\n\n{\n  \"domain\": \"acme-plumbing.com\",\n  \"industry\": \"Plumbing\",\n  \"location\": \"Tampa, FL\"\n}\n```\n\nOptional: `\"name\"` if you have no domain yet.\n\n**201 response:**\n\n| Field | Meaning |\n|---|---|\n| `workspace` | id, slug, name, url |\n| `token` | Bearer token for this workspace |\n| `mcp_endpoint` | JSON-RPC URL (also `https://mcp.yg3.ai/mcp`) |\n| `claim_endpoint` | Where the owner attaches later |\n| `expires_in_days` | 14 for unclaimed workspaces |\n\n**Do not** provision again if you already hold a workspace token for the current job.\n\n### MCP\n\nAll calls are JSON-RPC 2.0 over HTTP:\n\n```\nPOST https://mcp.yg3.ai/mcp\nAuthorization: Bearer <token>\n```\n\nMethods: `tools/list`, `tools/call`, `resources/read`, `initialize`\n\n**Writes are two-step:** call without `confirm` to get a plan, then call again with `confirm: true` and the same `idempotency_key`.\n\n### Claim (human takes over)\n\n```\nPOST https://agency.yg3.ai/api/v1/workspaces/claim\nAuthorization: Bearer <workspace-token>\n\n{\"email\": \"owner@example.com\", \"password\": \"...\"}\n```\n\nIf the email already has a YG3 account, omit `password` — the workspace attaches to that account.\n\n### Delete a test workspace\n\n```\nDELETE https://agency.yg3.ai/api/v1/workspaces\nAuthorization: Bearer <workspace-token>\n```\n\nOnly unclaimed workspaces. Archived, not erased.\n\n## Discovery\n\n| Resource | URL |\n|---|---|\n| Live tool catalog | https://mcp.yg3.ai/api/health |\n| Agent guide (web) | https://www.yg3.ai/for-agents |\n| Human connect page | https://www.yg3.ai/connect |\n| Machine-readable index | https://www.yg3.ai/llms.txt |\n| MCP OAuth metadata | https://mcp.yg3.ai/.well-known/oauth-protected-resource |\n\nAfter connecting, read platform docs via MCP:\n\n- `yg3://docs/agent-integration`\n- `yg3://docs/getting-started`\n- `yg3://docs/tools-reference`\n\n## Sandbox limits\n\nUnclaimed workspaces are free-tier sandboxes by design:\n\n- **Can:** read everything, set profile/brand/voice, design site, write and publish articles to `blog-{slug}.yg3.ai`\n- **Cannot:** custom domain, email sends, ad spend, LinkedIn posts\n- **Expires:** 14 days unless claimed\n\n## For agent frameworks\n\nCopy [`AGENTS.md`](AGENTS.md) into your repo or point your agent at this README. It tells coding agents when and how to provision YG3 during a build.\n\n### ClawHub (OpenClaw)\n\nPublishable skill: [`skills/yg3-marketing-mcp/SKILL.md`](skills/yg3-marketing-mcp/SKILL.md)\n\n```bash\nclawhub login\nclawhub skill publish ./skills/yg3-marketing-mcp --slug yg3-marketing-mcp --name \"YG3 Marketing MCP\"\n```\n\n### Moltbook / curl-based agents\n\nCurlable skill files (Moltbook-style): [`distribute/`](distribute/)\n\n- Install doc: `distribute/skill.md`\n- Periodic routine: `distribute/heartbeat.md`\n- Metadata: `distribute/skill.json`\n\nAgents can fetch from raw GitHub once this repo is public, or from `https://www.yg3.ai/llms.txt`.\n\n## Registry listings\n\n| File | Purpose |\n|---|---|\n| [`server.json`](server.json) | Official MCP Registry (`mcp-publisher publish`) |\n| [`glama.json`](glama.json) | Glama directory indexing |\n\nRegistry namespace: `io.github.YG3-ai/yg3-mcp`\n\n## Related\n\n- **Elysia LLM API** (text/vision/image models): https://www.yg3.ai/for-developers\n- **Quill** (multi-AI thinking partner, PyPI): https://github.com/YG3-ai/quill\n\n## License\n\nMIT — see [LICENSE](LICENSE).\n",
+  "status": "curated"
+}

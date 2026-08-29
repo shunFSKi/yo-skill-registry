@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/leandrowcs/series-vault/firebase",
+  "type": "skill",
+  "name": "firebase",
+  "description": "Use when working with Firebase — Firestore, Authentication, Cloud Functions, Storage, or Firebase config. Covers modular SDK v9+, security rules, and real-time data.",
+  "author": "leandrowcs",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/leandrowcs/series-vault/blob/HEAD/.github/skills/firebase/SKILL.md",
+    "repo": "leandrowcs/series-vault",
+    "path": ".github/skills/firebase/SKILL.md"
+  },
+  "license": null,
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 1,
+    "pushed_at": "2026-08-27T18:49:19Z",
+    "score": 58,
+    "star_history": [
+      {
+        "d": "2026-08-29",
+        "s": 1
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# Series Vault\n\nSeries Vault is a personal TV tracking app inspired by Letterboxd and TV Time. It lets users search TV shows, track watched episodes, view calendar/stats data, and keep user-owned state with Firebase/Google integrations.\n\nPortuguese documentation: [README-pt-BR.md](README-pt-BR.md)\n\n## Stack\n\n- Frontend: React 18, Vite, TypeScript\n- PWA: web manifest, service worker, installable app assets\n- Authentication: Google OAuth and Firebase Authentication\n- User data: Firebase Firestore\n- Backend: FastAPI\n- Local database: SQLite\n- Serverless API: Vercel Functions\n- External API: TMDb\n- Optional integrations: Firebase Cloud Messaging and Google Drive `appDataFolder` backup\n\n## Repository Structure\n\n```txt\napi/       Vercel serverless API routes\nbackend/   FastAPI app, SQLite models, sync services, tests\ndocs/      deployment and integration notes\nfrontend/  React + Vite PWA\n```\n\n## Prerequisites\n\n- Git\n- Node.js 18 or newer\n- npm\n- Python 3.10 or newer\n- A TMDb API key\n- A Google Cloud OAuth client for local backend OAuth\n- A Firebase project if you want sign-in, Firestore sync, push notifications, or Google Drive backup\n- Vercel CLI or a Vercel account if you want to deploy\n\n## External Service Setup\n\n### TMDb\n\nCreate an API key in your TMDb account and use it as `TMDB_API_KEY`.\n\n### Google OAuth for the FastAPI backend\n\nCreate an OAuth 2.0 client in Google Cloud and configure this local redirect URI:\n\n```txt\nhttp://localhost:8000/auth/google/callback\n```\n\nUse the generated client ID and client secret in `backend/.env`.\n\n### Firebase\n\nCreate a Firebase project and enable the products you need:\n\n- Authentication: enable the Google provider.\n- Firestore Database: stores user-owned app data.\n- Cloud Messaging: needed only for web push notifications.\n- Google Drive API in the same Google Cloud project: needed only for the optional `drive.appdata` backup.\n\nAdd your local and deployed domains to the authorized domains list in Firebase Authentication.\n\nThe frontend reads Firebase config from `frontend/.env`. The app can start without Firebase values, but sign-in, Firestore, messaging, and backup features require them.\n\n## Environment Variables\n\nNever commit real `.env` files.\n\n### Backend\n\nCreate `backend/.env` from the example:\n\n```powershell\nCopy-Item backend\\.env.example backend\\.env\n```\n\nOr on macOS/Linux:\n\n```bash\ncp backend/.env.example backend/.env\n```\n\nFill in:\n\n```env\nDATABASE_URL=sqlite:///./series_vault.db\nTMDB_API_KEY=your_tmdb_api_key\nGOOGLE_CLIENT_ID=your_google_client_id\nGOOGLE_CLIENT_SECRET=your_google_client_secret\nOAUTH_REDIRECT_URI=http://localhost:8000/auth/google/callback\nSECRET_KEY=replace_with_secure_random_value\n```\n\nOptional:\n\n```env\nFRONTEND_ORIGINS=[\"http://localhost:3000\",\"http://127.0.0.1:3000\"]\n```\n\n### Frontend\n\nCreate `frontend/.env` from the example:\n\n```powershell\nCopy-Item frontend\\.env.example frontend\\.env\n```\n\nOr on macOS/Linux:\n\n```bash\ncp frontend/.env.example frontend/.env\n```\n\nFor local FastAPI development, keep:\n\n```env\nVITE_API_BASE_URL=/api\n```\n\nVite proxies `/api` to `http://127.0.0.1:8000` in development.\n\nFill Firebase values when using Firebase-backed features:\n\n```env\nVITE_FIREBASE_API_KEY=\nVITE_FIREBASE_AUTH_DOMAIN=\nVITE_FIREBASE_PROJECT_ID=\nVITE_FIREBASE_STORAGE_BUCKET=\nVITE_FIREBASE_MESSAGING_SENDER_ID=\nVITE_FIREBASE_APP_ID=\nVITE_FIREBASE_VAPID_KEY=\n```\n\n## Local Development\n\n### 1. Clone the repository\n\n```bash\ngit clone <repository-url>\ncd series-vault\n```\n\n### 2. Start the backend\n\nFrom the repository root:\n\n```powershell\npython -m venv .venv\n.\\.venv\\Scripts\\Activate.ps1\npython -m pip install --upgrade pip\npip install -r backend/requirements.txt\nuvicorn --app-dir backend app.main:app --reload --host 0.0.0.0 --port 8000\n```\n\nOn macOS/Linux:\n\n```bash\npython -m venv .venv\nsource .venv/bin/activate\npython -m pip install --upgrade pip\npip install -r backend/requirements.txt\nuvicorn --app-dir backend app.main:app --reload --host 0.0.0.0 --port 8000\n```\n\nThe API should respond at:\n\n```txt\nhttp://localhost:8000/\n```\n\nInteractive API docs are available at:\n\n```txt\nhttp://localhost:8000/docs\n```\n\n### 3. Start the frontend\n\nIn a second terminal:\n\n```bash\ncd frontend\nnpm install\nnpm run dev\n```\n\nOpen:\n\n```txt\nhttp://localhost:3000\n```\n\n## Build\n\n```bash\ncd frontend\nnpm run build\n```\n\nPreview the production build locally:\n\n```bash\ncd frontend\nnpm run preview\n```\n\n## Tests\n\nBackend tests live in `backend/tests`.\n\nInstall test tooling if it is not already available in your environment:\n\n```bash\npip install pytest\n```\n\nRun:\n\n```bash\npython -m pytest backend/tests\n```\n\nThere is no frontend test script configured in `frontend/package.json` yet. Use the production build as the current frontend validation step:\n\n```bash\ncd frontend\nnpm run build\n```\n\n## Vercel Deployment\n\nThe root `vercel.json` is configured for deployment from the repository root:\n\n```json\n{\n  \"installCommand\": \"cd frontend && npm ci\",\n  \"buildCommand\": \"cd frontend && npm run build\",\n  \"outputDirectory\": \"frontend/dist\"\n}\n```\n\nSet these environment variables in Vercel:\n\n```env\nTMDB_API_KEY=\nVITE_FIREBASE_API_KEY=\nVITE_FIREBASE_AUTH_DOMAIN=\nVITE_FIREBASE_PROJECT_ID=\nVITE_FIREBASE_STORAGE_BUCKET=\nVITE_FIREBASE_MESSAGING_SENDER_ID=\nVITE_FIREBASE_APP_ID=\nVITE_FIREBASE_VAPID_KEY=\n```\n\n`VITE_API_BASE_URL` is optional when the frontend and Vercel Functions are deployed in the same Vercel project because the app defaults to `/api`.\n\nFor push notifications, also set:\n\n```env\nFIREBASE_PROJECT_ID=\nFIREBASE_CLIENT_EMAIL=\nFIREBASE_PRIVATE_KEY=\"-----BEGIN PRIVATE KEY-----\\n...\\n-----END PRIVATE KEY-----\\n\"\nCRON_SECRET=\n```\n\n`CRON_SECRET` is optional but recommended. The daily notification cron is configured in `vercel.json` at `/api/notifications/daily`.\n\nMore deployment notes are available in [docs/vercel-firebase.md](docs/vercel-firebase.md).\n\n## Data and Storage Notes\n\n- TMDb provides TV metadata. Keep visible TMDb attribution in the frontend.\n- The FastAPI backend creates the local SQLite database on startup.\n- Firestore stores user-owned state under `seriesVaultUsers/{uid}`.\n- Google Drive backup writes `seriesvault_data.json` to the hidden `appDataFolder`.\n- Firebase Cloud Messaging stores browser subscriptions in Firestore.\n\n## Troubleshooting\n\n- If frontend API calls fail locally, confirm the backend is running on `http://127.0.0.1:8000` and `VITE_API_BASE_URL=/api`.\n- If Google login fails locally, confirm the OAuth redirect URI is exactly `http://localhost:8000/auth/google/callback`.\n- If Firebase sign-in fails, confirm the Firebase web app config is present and `localhost` is an authorized Firebase Authentication domain.\n- If Vercel functions return `TMDB_API_KEY is not configured`, add `TMDB_API_KEY` to the Vercel project environment variables.\n- If push notifications do not work, confirm HTTPS, the Firebase VAPID key, browser notification permission, and the Firebase service account variables.\n",
+  "status": "curated"
+}

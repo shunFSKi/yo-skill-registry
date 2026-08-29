@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/aptos-labs/governance/list-proposals",
+  "type": "skill",
+  "name": "list-proposals",
+  "description": "List on-chain Aptos Improvement Proposals (AIPs) with status, tallies, and pagination.",
+  "author": "aptos-labs",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/aptos-labs/governance/blob/HEAD/public/.well-known/agent-skills/list-proposals/SKILL.md",
+    "repo": "aptos-labs/governance",
+    "path": "public/.well-known/agent-skills/list-proposals/SKILL.md"
+  },
+  "license": null,
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 11,
+    "pushed_at": "2026-08-26T18:25:34Z",
+    "score": 62,
+    "star_history": [
+      {
+        "d": "2026-08-29",
+        "s": 11
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "金融",
+    "featured": false
+  },
+  "readme": "# Aptos Governance\n\nFrontend app for Aptos governance workflows.\n\n## Tech Stack\n\n- React 19 + TypeScript\n- TanStack Start (SSR) + TanStack Router + TanStack Query\n- Vite 8 with Nitro as the server build\n- Tailwind CSS 4\n- Aptos TS SDK + wallet adapter\n- pnpm\n\n## Requirements\n\n- Node.js 22+\n- pnpm 10+\n\n## Quick Start\n\n```bash\npnpm install\ncp .env.example .env.local\npnpm dev\n```\n\nOpen `http://localhost:3000`.\n\n## Scripts\n\n- `pnpm dev`: start local dev server\n- `pnpm build`: production build to `.output/` (or `.vercel/output/` on Vercel)\n- `pnpm preview`: preview production build locally\n- `pnpm start`: run the built server\n- `pnpm test`: run unit tests once (Vitest)\n- `pnpm test:watch`: run tests in watch mode\n- `pnpm test:e2e`: run Playwright end-to-end tests\n- `pnpm typecheck`: run TypeScript type checking\n- `pnpm lint`: run Biome\n- `pnpm lint:fix`: apply Biome fixes\n\n## Environment Variables\n\nThis app uses **two** Geomi / Aptos Labs API keys. Mixing them is what 401s\nSSR: a browser client key (`AG-…`) sent from Node has no `Origin` header.\n\n- `APTOS_BUILD_API_KEY` (backend, recommended in production): Geomi **server**\n  key (`aptoslabs_…`). Read with `process.env` in server functions and never\n  inlined into the client bundle. Create one at https://geomi.dev. This is the\n  key that avoids public-endpoint rate limits on Vercel SSR.\n  Also accepted: `GEOMI_API_KEY`, `APTOS_API_KEY`.\n  `VITE_APTOS_BUILD_API_KEY` is **not** read — a `VITE_` name would inline the\n  server secret. Copy that value to `APTOS_BUILD_API_KEY` and delete the\n  `VITE_` variable.\n- `VITE_APTOS_API_KEY` (frontend): Geomi **client** key (`AG-…`), inlined into\n  the browser bundle. Allowlist this site's origin on the key. Used by the\n  wallet adapter and client-side Aptos SDK calls (`waitForTransaction`).\n  Also accepted: `VITE_APTOS_API_KEY_MAINNET`, `VITE_GEOMI_API_KEY`.\n- `APTOS_FULLNODE_URL` (optional): fullnode override; defaults to hosted mainnet\n- `APTOS_INDEXER_URL` (optional): indexer override; defaults to\n  `https://api.mainnet.aptoslabs.com/v1/graphql`\n- `SITE_ORIGIN` (optional): canonical origin used in `/sitemap.xml`,\n  `/robots.txt`, and `/.well-known/*` discovery documents. Defaults to\n  the request's forwarded host. Production:\n  `https://governance.aptosfoundation.org`\n\nGeomi keys authenticate against those Aptos Labs hosts. Do not point\n`APTOS_FULLNODE_URL` / `APTOS_INDEXER_URL` at `api.geomi.dev`.\n\n**Is the Vercel key the right type?** After a deploy, open the serverless\nfunction logs. You should see one of:\n\n- `[aptos] Using backend server API key from APTOS_BUILD_API_KEY` — correct.\n- `[aptos] No backend API key found` — add `APTOS_BUILD_API_KEY` (server key).\n- `[aptos] Ignoring client API key from APTOS_BUILD_API_KEY` — that value is an\n  `AG-…` key. Put the client key in `VITE_APTOS_API_KEY` and a server key in\n  `APTOS_BUILD_API_KEY`.\n\nList and proposal HTML is cached at the Vercel edge for 15 seconds\n(`s-maxage=15`, `stale-while-revalidate=45`), matching the in-process TTL\ncache used by the fullnode/indexer loaders.\n\n## Governance notifications\n\nThe poller posts alerts to Aptos Labs Slack **`#governance`** when a proposal\nis created, when voting closes (pass or fail), when a proposal is executed,\nand when voting is about to end (3d / 2d / 1d / 6h countdown reminders).\nThere is no public subscribe page.\n\nRun it as a **persistent process** on any machine with disk (a VM, a home\nserver, systemd). The proposal snapshot is a local JSON file, so Upstash\nis not required.\n\n```bash\n# long-running (polls every 5 minutes)\npnpm notifications:worker\n\n# one shot (cron / systemd timer)\npnpm notifications:worker --once\n\n# preview without posting or writing the snapshot\npnpm notifications:worker --once --dry-run\n```\n\nCopy `.env.example` to `.env.notifications` (or `.env.local`) on that\nmachine and set:\n\n- `APTOS_BUILD_API_KEY` — Geomi server key\n- `NOTIFICATIONS_PUBLIC_APP_URL` — origin used in Slack links\n- `NOTIFICATIONS_SLACK_WEBHOOK_URL` or `NOTIFICATIONS_SLACK_BOT_TOKEN`\n- `NOTIFICATIONS_STORE_PATH` — defaults to `.data/notifications.json`\n\nA sample systemd unit is in `deploy/governance-notifications.service`.\nPoint `WorkingDirectory` and `--env-file` at that machine's checkout.\n\nThe first successful poll records the current on-chain state and does **not**\nfan out historical proposals. Do not also hit `/api/cron/notifications` on\nthe same snapshot or you can double-post.\n\n## Deployment\n\nProduction hosting is Vercel. The app is server-rendered and uses TanStack\nStart server functions, so it cannot be deployed to a static host.\n\n`pnpm build` runs Nitro, which detects the platform automatically:\n\n- Locally it writes a standalone Node server to `.output/`, runnable with `pnpm start`.\n- On Vercel (`VERCEL=1` is set during the build) it writes `.vercel/output/`,\n  which follows Vercel's Build Output API. Static assets are served from the\n  CDN and all other requests go to a single server function.\n\n`vercel.json` pins the framework preset to `tanstack-start` and the pnpm\ninstall/build commands so the settings do not depend on dashboard state. Set\nthe variables above in the Vercel project's environment variable settings.\n\nVercel Web Analytics and Speed Insights are wired in the document shell via\n`@vercel/analytics` and `@vercel/speed-insights`. Enable **Web Analytics**\nand **Speed Insights** on the project in the Vercel dashboard so\n`/_vercel/insights/*` and `/_vercel/speed-insights/*` are served after the\nnext deploy.\n\n## Agent discovery\n\nThe app publishes machine-readable discovery for AI agents:\n\n- `/sitemap.xml` and `/robots.txt` (Content-Signal + Sitemap)\n- `Link` headers on `/` (`api-catalog`, `service-desc`, `service-doc`)\n- `/.well-known/api-catalog`, `/.well-known/ai-catalog.json`\n- `/.well-known/mcp/server-card.json` and Streamable HTTP `/mcp`\n- `/.well-known/agent-skills/index.json`\n- `/auth.md`, `/.well-known/oauth-protected-resource`,\n  `/.well-known/oauth-authorization-server`\n- `Accept: text/markdown` on HTML pages\n- WebMCP tools registered in the browser on page load\n\nDNS-AID `SVCB` records cannot be served by the app. Operators must publish\nthe zone file in `dns/agents.zone` — see `docs/dns-aid.md`.\n\n## Quality Gates\n\nRun before creating a PR:\n\n```bash\npnpm lint\npnpm typecheck\npnpm test\npnpm build\n```\n\n## Project Structure\n\n- `src/routes/`: file-based routes, including the `__root.tsx` document shell\n- `src/components/`: shared UI components\n- `src/lib/`: Aptos client, governance data fetching, and wallet setup\n- `public/`: static assets served as-is\n- `tests/unit/`, `tests/e2e/`: Vitest and Playwright suites\n- `.output/`: production build (generated)\n",
+  "status": "curated"
+}

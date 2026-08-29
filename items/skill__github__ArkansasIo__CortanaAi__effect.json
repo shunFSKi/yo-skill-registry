@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/ArkansasIo/CortanaAi/effect",
+  "type": "skill",
+  "name": "effect",
+  "description": "Answer questions about the Effect framework",
+  "author": "ArkansasIo",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/ArkansasIo/CortanaAi/blob/HEAD/.mimocode/skills/effect/SKILL.md",
+    "repo": "ArkansasIo/CortanaAi",
+    "path": ".mimocode/skills/effect/SKILL.md"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 1,
+    "pushed_at": "2026-07-08T19:06:31Z",
+    "score": 50,
+    "star_history": [
+      {
+        "d": "2026-08-29",
+        "s": 1
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "<h1 align=\"center\">MiMoCode</h1>\n\n<p align=\"center\">\n  <img src=\"assets/readme/mimocode-banner.png\" alt=\"MiMoCode\" width=\"700\">\n</p>\n\n<p align=\"center\"><strong>MiMo Code: Where Models and Agents Co-Evolve</strong></p>\n\n<p align=\"center\">\n  <a href=\"README.zh.md\">中文</a> | English\n</p>\n\n<p align=\"center\">\n  <a href=\"https://mimo.xiaomi.com/coder\">Website</a> | <a href=\"https://mimo.xiaomi.com/en/blog/mimo-code-long-horizon\">Blog</a>\n</p>\n\n---\n\nMiMoCode is a terminal-native AI coding assistant. It can read and write code, run commands, manage Git, and use a persistent memory system to keep a deep understanding of your project across sessions while continuously improving itself.\n\nMiMo Auto is built in as a free-for-limited-time channel, so you can start with zero configuration. MiMoCode also supports connecting to any mainstream LLM provider API.\n\n---\n\n## Quick Start\n\n```bash\n# One-line install\ncurl -fsSL https://mimo.xiaomi.com/install | bash\n\n# Or install via npm\nnpm install -g @mimo-ai/cli\n\n# Run\nmimo\n```\n\nThe first launch guides you through configuration automatically. Supported options:\n- **MiMo Auto (free for a limited time)** — anonymous channel, zero configuration\n- **Xiaomi MiMo Platform** — OAuth login\n- **Import from Claude Code** — migrate existing authentication in one step\n- **Custom Provider** — add any OpenAI-compatible API in the TUI\n\n<details>\n<summary><strong>WSL: clipboard issues</strong></summary>\n\nIf you encounter garbled text when copying on WSL, install `xsel`:\n```bash\nsudo apt install xsel\n```\n</details>\n\n---\n\n## Core Features\n\n### Multiple Agents\n\n| Agent | Description |\n|--------|------|\n| **build** | Default. Full tool permissions for development |\n| **plan** | Read-only analysis mode for code exploration and solution design |\n| **compose** | Orchestration mode for specs-driven development and skill-driven workflows |\n\nPress `Tab` to switch between primary agents. Subagents are created by the system as needed.\n\n### Persistent Memory\n\nCross-session memory powered by SQLite FTS5 full-text search:\n\n- **Project memory** (`MEMORY.md`) — persistent project knowledge, rules, and architecture decisions\n- **Session checkpoint** (`checkpoint.md`) — structured state snapshots maintained automatically by the checkpoint-writer subagent\n- **Scratch notes** (`notes.md`) — temporary note area for agents\n- **Task progress** (`tasks/<id>/progress.md`) — per-task logs\n\nMemory is injected automatically when a session resumes, so the agent does not need to relearn project context.\n\n### Intelligent Context Management\n\n- **Automatic checkpoints** — decides when to save session state based on the model context window\n- **Context reconstruction** — when context approaches the limit, rebuilds it from the latest checkpoint, project memory, task progress, and retained recent messages so the agent can continue the current task\n- **Budgeted injection** — uses a token budget to control how much checkpoint, memory, and notes content enters context, with importance ranking\n\n### Task Tracking\n\nA tree-shaped task system (`T1`, `T1.1`, `T1.2`, …) that integrates automatically with the checkpoint system, so task progress is preserved when sessions resume.\n\n### Subagent System\n\nThe primary agent can create subagents on demand. Subagents share the current session context and can work in parallel, with lifecycle tracking, cancellation, and background execution.\n\n### Goal / Stop Condition\n\nThe `/goal` command sets a stopping condition for a session. When the agent tries to stop, an independent judge model evaluates the conversation to decide whether the condition is truly satisfied — preventing premature \"optimistic stops\" during autonomous work.\n\n### Compose Mode\n\nCompose mode provides a structured workflow for specs-driven development. It includes built-in skills for planning, execution, code review, TDD, debugging, verification, and merging — orchestrating the full lifecycle from spec to shipped code.\n\n### Voice Input\n\nReal-time streaming voice input powered by TenVAD and MiMo ASR. Activate with `/voice`, then speak — audio is segmented by pauses and transcribed incrementally into the input. Available for MiMo logged-in users. Requires `sox` (`brew install sox` on macOS, other platforms similar).\n\n<details>\n<summary><strong>WSLg audio setup</strong></summary>\n\n```bash\nsudo apt install -y sox pulseaudio libasound2-plugins\nexport PULSE_SERVER=unix:/mnt/wslg/PulseServer\n```\n</details>\n\n<details>\n<summary><strong>SSH remote audio (Mac → remote host)</strong></summary>\n\n```bash\n# Mac (local)\nbrew install pulseaudio\npulseaudio --load=\"module-native-protocol-tcp auth-ip-acl=127.0.0.1\" --exit-idle-time=-1 --daemonize\n# Add to ~/.ssh/config: RemoteForward 4713 127.0.0.1:4713\n\n# Remote host\napt install -y pulseaudio pulseaudio-utils sox\nexport PULSE_SERVER=tcp:127.0.0.1:4713\n# Verify: pactl info\n```\n</details>\n\n<details>\n<summary><strong>Non-MiMo voice providers (OpenRouter, internal API, etc.)</strong></summary>\n\nVoice input can route through other OpenAI-compatible providers via the `voice` config field. The ASR model (`mimo-v2.5-asr`) is only available on MiMo's platform; voice control mode (`mimo-v2.5`) is available on OpenRouter and compatible relay platforms.\n\n**OpenRouter (voice control only):**\n\nUse `/connect` to sign in to OpenRouter, then add to your config:\n```jsonc\n{\n  \"voice\": {\n    \"control_model\": \"openrouter/xiaomi/mimo-v2.5\"\n  }\n}\n```\n\n**Internal / self-hosted relay (both ASR and voice control):**\n```jsonc\n{\n  \"provider\": {\n    \"internal\": {\n      \"options\": {\n        \"baseURL\": \"https://your-api-gateway.example.com/v1\",\n        \"apiKey\": \"sk-...\"\n      },\n      \"models\": {\n        \"xiaomi/mimo-v2.5-asr\": { \"name\": \"MiMo-V2.5-ASR\" },\n        \"xiaomi/mimo-v2.5\": { \"name\": \"MiMo-V2.5\" }\n      }\n    }\n  },\n  \"voice\": {\n    \"asr_model\": \"internal/xiaomi/mimo-v2.5-asr\",\n    \"control_model\": \"internal/xiaomi/mimo-v2.5\"\n  }\n}\n```\n\nCustom providers must register at least one model in their `models` field to be recognized. The model names in `voice.*_model` are sent directly to the API — they don't need to match the registered model keys exactly.\n\n> **Note:** Models registered under a custom provider will appear in the model selection list. Don't use ASR-only models (e.g. `mimo-v2.5-asr`) as your primary coding model.\n\n</details>\n\n### Dream & Distill\n\n- **`/dream`** — scans recent session traces, extracts persistent knowledge into project memory, and removes outdated entries\n- **`/distill`** — discovers repeated manual workflows in recent work and packages high-confidence candidates into reusable skills, subagents, or commands\n\n---\n\n## Configuration\n\nMiMoCode is configured via `.mimocode/mimocode.json` in the project directory (or `~/.config/mimocode/mimocode.json` globally). Key options include:\n\n- Provider and model selection\n- Agent permissions and custom agents\n- Checkpoint and memory behavior\n- MCP server connections\n- Keybindings and theme\n\nMax Mode (parallel best-of-N reasoning with judge selection) can be enabled via `experimental.maxMode` in the config.\n\n---\n\n## Development\n\n```bash\nbun install              # Install dependencies\nbun run dev              # Run in development mode\nbun turbo typecheck      # Type check\n```\n\n---\n\n## Relationship to OpenCode\n\nMiMoCode is built as a fork of [OpenCode](https://github.com/XiaomiMiMo/MiMo-Code). It keeps all core OpenCode capabilities (multiple providers, TUI, LSP, MCP, plugins) and adds persistent memory, intelligent context management, subagent orchestration, goal-driven autonomous loops, compose workflows, and self-improvement via dream/distill.\n\n---\n\n## Community\n\nScan the QR code to join the community group chat:\n\n<p align=\"center\">\n  <img src=\"assets/readme/community-qrcode.jpg\" alt=\"Community group chat QR code\" width=\"240\">\n</p>\n\n---\n\n## License\n\nSource code is licensed under the [MIT License](./LICENSE).\n\nUse of MiMoCode is also subject to the [Use Restrictions](./USE_RESTRICTIONS.md).\nUse of Xiaomi MiMo-hosted services is subject to the [MiMo Terms of Service](https://platform.xiaomimimo.com/docs/terms/user-agreement).\nUse of the MiMo name, logo, and trademarks is subject to the MiMo Trademark Policy.\n",
+  "status": "curated"
+}

@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/SiddheshKGupta/Escapement/skill-governance",
+  "type": "skill",
+  "name": "skill-governance",
+  "description": "Use only when auditing skill selection, overlap, effectiveness, installation, evaluation, promotion, retirement, or harness behaviour. Do not auto-load this skill for ordinary development work; the runtime records basic evidence internally.",
+  "author": "SiddheshKGupta",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/SiddheshKGupta/Escapement/blob/HEAD/.agents/skills/skill-governance/SKILL.md",
+    "repo": "SiddheshKGupta/Escapement",
+    "path": ".agents/skills/skill-governance/SKILL.md"
+  },
+  "license": "Apache-2.0",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 4,
+    "pushed_at": "2026-08-10T12:30:41Z",
+    "score": 61,
+    "star_history": [
+      {
+        "d": "2026-08-29",
+        "s": 4
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# Escapement\n\nA repository-native governance harness for AI coding agents. The model reasons; Escapement controls how that capability is applied and what evidence a change must produce before it can be called done.\n\n```text\nVersion              6.3.0\nPython               3.10 | 3.12 | 3.13\nDependencies         none (standard library only)\nLicence              Apache-2.0\n```\n\n## Install\n\n```bash\ngit clone https://github.com/SiddheshKGupta/Escapement.git\ncd Escapement\npython scripts/escapement.py init /path/to/your-project\npython scripts/escapement.py doctor --root /path/to/your-project\n```\n\nInstalls into an existing repository. Managed files are tracked by hash; project-owned state is never overwritten. `update` reports conflicts instead of clobbering.\n\n## Operating model\n\n```text\nSpecify -> Route -> Execute -> Verify -> Persist\n```\n\nExpanded by the runtime into ten phases:\n\n```text\nORIENT -> DISCOVER -> RESEARCH -> BRAINSTORM -> SPECIFY\n-> PLAN -> IMPLEMENT -> VERIFY -> POLISH -> RELEASE\n```\n\nPhases are adaptive. Completed phases with evidence cannot be erased.\n\n## Task tiers\n\nControl scales with consequence, so small work stays small.\n\n| Tier | Use | Treatment |\n|---|---|---|\n| `INFO` | explanation, navigation, status | no material runtime turn |\n| `MICRO` | small bounded change | minimal context and capability loading |\n| `MATERIAL` | feature or meaningful change | decision review, routing, evidence, durable closure |\n| `PROGRAM` | product, module or transformation | full lifecycle, multi-turn governance, dependencies |\n\n## Context budgets\n\nBounded, phase-specific context instead of one growing prompt.\n\n```text\nKernel:                     <= 1,000 words\nAutomatic phase context:    <= 1,800 words\nInvoked skill context:      <= 1,000 words\nDoctrine packs:             <= 3 per phase\nNative skills, MICRO:       <= 1\nNative skills, MATERIAL:    <= 5\nNative skills, PROGRAM:     <= 6\n```\n\n## Verification\n\n```bash\npython scripts/run_check.py   --name \"unit-tests\" --scope tests --   python -m unittest discover -s tests -p \"test_*.py\"\n```\n\nWrites a content-addressed record: command, scope, timing, exit code, result, output hashes.\n\n`MATERIAL` and `PROGRAM` closure requires structured evidence. **A critical failed check cannot become `PASS`, and a model asserting success is not evidence.** Incomplete work stays `PARTIAL`.\n\n## Commands\n\n```bash\npython scripts/escapement.py doctor --root .        # drift and integrity\npython scripts/escapement.py explain \"<task>\"       # why this route\npython scripts/escapement.py capability-audit \"<task>\" --markdown\npython scripts/escapement.py catalog list --catalog skills\npython scripts/escapement.py eval                   # routing evaluations\npython scripts/escapement.py security --fail-on high\npython scripts/escapement.py ablate <component>     # does it change behaviour?\npython scripts/escapement.py observability --root . # closure, tiers, rejections\npython scripts/escapement.py update <project> --apply\n```\n\n## Capability routing\n\nCapabilities are catalogued with source, publisher, licence, licence status, activation mode, adoption requirement, overlap group, triggers and fallbacks. Catalogue status does not mean installed, active or approved.\n\nOverlap is explicit — `SUBSTITUTE` capabilities are not stacked. Where a preferred external resource cannot be adopted, the router keeps an ordered fallback.\n\n**Nothing in the registry is vendored into this repository.** Listing a resource is a routing decision, not incorporation.\n\n## Current baseline\n\n```text\nRepository files:             289\nKernel:                       795 / 1000 words\nNative skills:                35\nCapability strengths:         58\nGoverned external resources:  67\nUnit tests:                   196\nRouting evaluations:          122\n```\n\nRecorded in [`manifest.json`](manifest.json). `doctor` recomputes these from the actual files and fails on drift; a measure the README stops stating produces a warning rather than passing silently.\n\n## Hosts\n\n| Host | State |\n|---|---|\n| Claude Code | deepest real-use evidence; runtime hooks and native skill packaging |\n| Codex | hook packaging, bounded MICRO, escalation, App Server resource reads |\n| Google Antigravity / Gemini | exercised; reads `AGENTS.md` natively |\n| Gemini CLI | [`GEMINI.md`](GEMINI.md) bootstrap, tested |\n| GitHub Copilot, others | bootstrap guidance only |\n\nEquivalent behaviour is not assumed just because a host can read the instruction files. Host recommendations are checked against the repository before acting on them.\n\n## Evidence position\n\nSupported by current evidence:\n\n- deterministic routing, capability selection, context-budget enforcement\n- overlap and fallback behaviour, licence-aware adoption controls\n- explicit lifecycle and PROGRAM state, structured evidence for closure\n- install and drift validation\n- real use on Claude Code, Antigravity/Gemini and Codex\n\n**Not** established:\n\n- statistical superiority over vanilla execution with the same model\n- equivalent behaviour across every host\n- universal token or cost reduction\n- broad production adoption\n\n`escapement-bench-v1` is 100 authored cases; the full routing corpus records 122/122. These test routing, not end-to-end task quality. See [`docs/decisions/ESCAPEMENT_BENCH_V1.md`](docs/decisions/ESCAPEMENT_BENCH_V1.md).\n\n## Related repositories\n\n```text\nEscapement        this repository -- the stable line\nEscapement Core   governed execution runtime; design phase, no implementation\nContinuum         research programme; frozen, negative result\n```\n\n[Core](https://github.com/SiddheshKGupta/Escapement-Core) and [Continuum](https://github.com/SiddheshKGupta/Escapement-Continuum) are separate lines under different terms. Neither is a reason to defer adopting v1.\n\n## Documentation\n\n[`AGENTS.md`](AGENTS.md) · [`AGENT_RUNTIME.md`](AGENT_RUNTIME.md) · [`SECURITY.md`](SECURITY.md) · [`CONTRIBUTING.md`](CONTRIBUTING.md) · [`docs/REFERENCE_CATALOG.md`](docs/REFERENCE_CATALOG.md) · [`docs/OVERLAP_ANALYSIS.md`](docs/OVERLAP_ANALYSIS.md) · [`reports/VALIDATION_v6.3.md`](reports/VALIDATION_v6.3.md)\n\n## Licence\n\nApache-2.0 — see [`LICENSE`](LICENSE) and [`NOTICE`](NOTICE). Chosen over MIT for the explicit patent grant in section 3.\n\nThird-party resources retain their own licences and adoption conditions; see [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).\n\n## Authorship\n\nThe idea, architecture, research direction and every material decision are **Siddhesh Gupta's**. AI agents were used as instruments inside that direction — implementing against a specification, running benchmarks, adversarial testing, triaging failures. They did not originate the concept or decide what the framework should become.\n\n> Host feedback is evidence, not authority.\n",
+  "status": "curated"
+}

@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/Afnanksalal/genmotion/genmotion",
+  "type": "skill",
+  "name": "genmotion",
+  "description": "Create, edit, preview, validate, and render designed motion graphics with the Genmotion native renderer. Use for launch films, title cards, explainers, diagrams, data motion, brand choreography, product framing, and reusable video compositions. Do not use it for recording real browser interactions.",
+  "author": "Afnanksalal",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/Afnanksalal/genmotion/blob/HEAD/.claude/skills/genmotion/SKILL.md",
+    "repo": "Afnanksalal/genmotion",
+    "path": ".claude/skills/genmotion/SKILL.md"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 2,
+    "pushed_at": "2026-08-28T14:01:31Z",
+    "score": 59,
+    "star_history": [
+      {
+        "d": "2026-08-29",
+        "s": 2
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "设计",
+    "featured": false
+  },
+  "readme": "<p align=\"center\">\n  <img src=\"assets/genmotion-symbol.svg\" width=\"104\" height=\"104\" alt=\"Genmotion symbol\">\n</p>\n\n<h1 align=\"center\">Genmotion</h1>\n\n<p align=\"center\"><strong>Native motion design for agents.</strong></p>\n\nGenmotion is an agent-native motion design engine and visual editor. Codex or Claude authors the actual scene graph, timing, vector geometry, keyframes, custom easing, media, and sound through structured local tools; humans can then direct every layer and phase in Studio. Native Skia frame workers stream the accepted composition directly into FFmpeg.\n\nHigh-quality export means actual delivery resolution, not a low-resolution canvas with a better codec setting. `high` renders vector, type, and procedural layers at a minimum 1920-pixel long edge and encodes H.264 at CRF 14. `standard` targets at least 1280 pixels, while `draft` preserves the project's native working size. Every master is probed after encode for dimensions, frame rate, and duration.\n\nIt does not render React, HTML, CSS, a browser page, Remotion, or HyperFrames.\n\n## Why it exists\n\nGeneral agents can write animation code, but code generation alone gives them a poor iteration surface. Genmotion gives the model a visual authoring loop while keeping the output inspectable:\n\n- arbitrary agent-authored numeric property tracks with named, cubic-bezier, or spring timing;\n- SVG path geometry and native text, shape, image, and video layers;\n- optional motion recipes that act as reusable references rather than a closed animation vocabulary;\n- reference studies decomposed into composition, hierarchy, pacing, typography, surface, and motion decisions;\n- contrastive retrieval that states what to borrow, avoid, and transform;\n- transactional Creative IR patches with revision checks, visual frame responses, and evaluated timeline inspection;\n- a typed Creative IR that agents and Studio edit together instead of hiding decisions in generated renderer code;\n- validation that blocks invalid assets, timelines, transitions, opacity, geometry, and unsafe render contracts.\n\n## Renderer\n\n- Native Skia rasterization through `@napi-rs/canvas`\n- No browser, DOM, React reconciliation, or screenshot capture\n- Reproducible frame evaluation from project data, timestamp, and seed\n- Parallel worker-thread frame generation\n- Ordered raw RGBA streaming into FFmpeg while frames continue rendering\n- H.264, H.265, VP9, and ProRes outputs\n- Image and video layers with local media freezing\n- Multiple audio tracks, fades, looping, voice-aware music ducking, limiting, and AAC delivery\n- Reusable native preview server with frame scrubbing\n- Local Studio with a real project switcher and creation flow, node workflows, project-local JSON motion libraries, a reference board, direct canvas transforms, magnetic frame-snapped layer, audio, and motion timelines, source-aware trimming, revision history, agent conversations, and native export jobs with persistent output history and file-manager reveal\n- Output probing and contract verification after every render\n\n## Requirements\n\n- Node.js 22 or newer\n- FFmpeg and ffprobe on `PATH`\n\n## Install\n\nFrom GitHub:\n\n```bash\nnpm install -g git+https://github.com/Afnanksalal/genmotion.git\ngenmotion doctor\n```\n\nOr work from a checkout:\n\n```bash\nnpm install\nnpm run build\nnode dist/cli.js doctor\n```\n\n## Callable tools for Codex and Claude\n\nGenmotion ships a local MCP server with the same production engine used by the CLI and Studio:\n\n```bash\ngenmotion-mcp\n```\n\nRegister it with Codex:\n\n```bash\ncodex mcp add genmotion -- genmotion-mcp\n```\n\nRegister it with Claude Code:\n\n```bash\nclaude mcp add genmotion --scope user -- genmotion-mcp\n```\n\nThe server exposes the complete schema, revision-safe reads, transactional RFC 6902 patches, full-document saves, evaluated timeline inspection, visual PNG responses, validation, high-resolution rendering, probing, contact sheets, Studio, preview, and durable Studio requests. It uses local stdio, needs no model API key, and rejects paths outside the current workspace unless additional roots are explicitly provided through `GENMOTION_ALLOWED_ROOTS`.\n\n## Create a project\n\n```bash\ngenmotion init launch-film \\\n  --title \"Acme\" \\\n  --promise \"Ship verified releases without release-day chaos\" \\\n  --proof \"Every release includes a signed deployment record\" \\\n  --action \"Review the release workflow\" \\\n  --audience \"platform engineering teams\" \\\n  --mode launch \\\n  --duration 30\n\ngenmotion validate launch-film --strict\ngenmotion studio launch-film\ngenmotion preview launch-film\ngenmotion render launch-film --output launch-film/renders/acme.mp4 --quality high\ngenmotion render launch-film --output launch-film/renders/acme-4k.mp4 --quality high --resolution 3840x2160\ngenmotion probe launch-film/renders/acme.mp4\ngenmotion contact-sheet launch-film/renders/acme.mp4 --output launch-film/renders/contact-sheet.jpg\n```\n\nStudio lists and creates projects in `~/Genmotion Projects` by default. Use `--workspace <directory>` to select another local project workspace.\n\n`init` creates a truthful `brief.json` and a neutral renderable artboard. It does not pretend that a fixed template is an AI-generated design. Open Studio and choose **Create with agent**, or let the calling Codex or Claude workflow inspect `genmotion_schema`, patch the project, render representative frames, and iterate visually.\n\n## Local agent direction\n\nStudio connects directly to Codex or Claude Code installed on the same machine. A new project can immediately enter **Create with agent**, which sends its real brief to the selected local host. Later prompts include the focused scene, layer, and frame. Claude receives a project-scoped Genmotion MCP configuration automatically, while Codex uses the registered Genmotion tools. The agent can patch precise properties and inspect actual native frames before finishing.\n\nThis workflow uses the existing ChatGPT or Claude sign-in managed by the local agent. Genmotion does not request, store, or configure model API keys.\n\n## Commands\n\n| Command | Purpose |\n| --- | --- |\n| `init` | Create a neutral artboard and real brief for agent or Studio authoring |\n| `validate` / `check` | Validate schema, assets, timing, reference decisions, readability, and render safety |\n| `frame` | Render a native PNG at an exact timeline time |\n| `preview` | Open the interactive native-rendered timeline preview |\n| `studio` | Open the local node workflow, reference, inspector, timeline, and export workspace |\n| `requests` | List durable Studio agent conversations and externally queued feedback |\n| `request-resolve` | Close externally handled feedback after its change is saved and verified |\n| `render` | Render and encode a delivery video |\n| `probe` | Inspect codecs, dimensions, duration, frame rate, audio, and size |\n| `contact-sheet` | Generate representative visual review frames |\n| `catalog` | Search motions, blueprints, and taste references by creative intent |\n| `catalog-audit` | Verify catalog identifiers, cross-references, licenses, and accessibility constraints |\n| `doctor` | Verify Node.js, FFmpeg, ffprobe, and native Skia |\n| `benchmark` | Measure real native render and encode throughput |\n\nEvery command supports top-level `--json` output for agent and CI use.\n\n## Project contract\n\nA project is `genmotion.json`, `genmotion.yaml`, or `genmotion.yml`. It declares:\n\n- delivery dimensions, frame rate, seed, and brand tokens;\n- ordered scenes with explicit durations and transitions;\n- text, vector shape, image, and video layers;\n- arbitrary property tracks, custom cubic-bezier or spring easing, SVG paths, direct keyframes, and optional named motion directives;\n- locally frozen assets and licensed fonts;\n- positioned audio tracks and mixing behavior;\n- reference decisions that preserve the creative rationale.\n\nSee [docs/IR.md](docs/IR.md) for the complete authoring model, [docs/STUDIO.md](docs/STUDIO.md) for the human and agent collaboration contract, and [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for renderer and throughput design.\n\n## Skills\n\nThe repository ships an Agent Skill at [`skills/genmotion`](skills/genmotion) and a Claude Code discovery entry at [`.claude/skills/genmotion`](.claude/skills/genmotion). The same workflow can be installed for Codex or Claude Code. The separate [Product Demo Video Skill](https://github.com/Afnanksalal/product-demo-video-skill) uses Genmotion for every constructed motion scene while retaining Playwright for real product capture and FFmpeg for raw-footage cleanup.\n\n## Development\n\n```bash\nnpm ci\nnpm run check\nnpm run benchmark\n```\n\nThe test suite covers agent-authored tracks, custom easing, transactional patches, schema discovery, visual MCP responses, timeline evaluation, native frame reproducibility, real video decoding, Studio persistence and security, local agent orchestration, preview delivery, H.264 encoding, and AAC audio muxing.\n\n## Security\n\nRemote render assets are rejected. Freeze every asset inside the project so renders remain reproducible and cannot perform render-time network access. Paths may not escape the project directory. Studio binds to loopback by default, protects mutations with a session token, and runs local agents with project-scoped write access and network access disabled. See [SECURITY.md](SECURITY.md).\n\n## License\n\nMIT. The abstract taste references are original CC0 reference studies and include provenance in the catalog. No third-party source artwork is distributed.\n",
+  "status": "curated"
+}

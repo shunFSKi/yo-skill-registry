@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/itsadrianxv/quant-strategy-builder-skill/grilling",
+  "type": "skill",
+  "name": "grilling",
+  "description": "Grill the user relentlessly about a plan, decision, or idea. Use when the user wants to stress-test their thinking, or uses any 'grill' trigger phrases.",
+  "author": "itsadrianxv",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/itsadrianxv/quant-strategy-builder-skill/blob/HEAD/.codex/skills/grilling/SKILL.md",
+    "repo": "itsadrianxv/quant-strategy-builder-skill",
+    "path": ".codex/skills/grilling/SKILL.md"
+  },
+  "license": null,
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 20,
+    "pushed_at": "2026-08-08T08:49:18Z",
+    "score": 67,
+    "star_history": [
+      {
+        "d": "2026-08-29",
+        "s": 20
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# Quant Strategy Builder\n\n\n\n面向真实量化工作的中国市场 skill 组合：先把收益假设说清楚，再把交易制度落到代码，最后用证据检查它是否真的成立。\n\n`quant-strategy-builder` 不是一个替你猜行情的提示词。它是一个可组合的 Codex / Claude Code 插件：用户手动调用一个入口，入口按任务选择最小的策略风格、标的实现和验证 skill。\n\n## 30 秒安装\n\n选择一个平台即可。不要同时用两套安装方式，否则同一组 skills 会重复出现。\n\n<details>\n<summary><strong>Codex</strong></summary>\n\n```powershell\ncodex plugin marketplace add itsadrianxv/quant-strategy-builder-skill\ncodex plugin add quant-strategy-builder@quant-strategy-builder\n```\n\n安装后显式调用：\n\n```text\n$quant-strategy-builder\n```\n\n</details>\n\n<details>\n<summary><strong>Claude Code</strong></summary>\n\n```powershell\nclaude plugin marketplace add itsadrianxv/quant-strategy-builder-skill\nclaude plugin install quant-strategy-builder@quant-strategy-builder\n```\n\n安装后显式调用：\n\n```text\n/quant-strategy-builder:quant-strategy-builder\n```\n\n</details>\n\n所有 skills 都是手动调用。记住入口即可；高级用户也可以直接调用专项 skill。\n\n## 为什么要有这一组 skills\n\n量化策略最常见的失败，不是少写了一个指标，而是决策链条断了：\n\n### 1. 想法没有变成可证伪的策略\n\n“做趋势”“做轮动”“卖波动率”不是规格。策略必须说明数据时点、状态转换、入场、退出、失效条件和反证方式。\n\n对应：趋势动量、均值回归、因子轮动、相对价值、波动率/期权结构五类设计 skill。\n\n### 2. 市场制度被默认值吞掉\n\nT+1、整手、涨跌停、日夜盘、主力换月、保证金、行权和指派都会改变结果。它们不是实现末端的补丁，而是策略规格的一部分。\n\n对应：A 股/ETF、国内期货、场内期权三个标的实现 skill。\n\n### 3. 框架边界找错\n\n同一个信号，在 vn.py、RQAlpha、TqSdk、qteasy、LEAN、Freqtrade、Backtrader 或 OptionForge 中的生命周期和可编辑面不同。框架差异放在按需 adapter references 中，由标的实现 skill 选择性加载。\n\n### 4. “回测跑了”被误当成“策略成立”\n\n验证 skill 会把改动匹配到最低成本的可信证据，并单独报告前视偏差、幸存者偏差、费用滑点、成交可行性、市场约束和未运行检查。验证失败不会阻塞交付，但绝不会被写成通过。\n\n## 组合怎么工作\n\n```text\n用户手动调用 $quant-strategy-builder\n                |\n                v\n       建立共享策略规格合同\n                |\n        +-------+--------+\n        |                |\n   选择策略风格      选择标的实现\n        |                |\n        +-------+--------+\n                |\n         框架 adapter 路由\n                |\n        verify-quant-strategy\n                |\n          证据化交付\n```\n\n### 策略风格\n\n- `design-trend-momentum-strategy`：趋势、突破、时间序列动量\n- `design-mean-reversion-strategy`：反转、区间回归、网格\n- `design-factor-rotation-strategy`：横截面因子、排序、行业或 ETF 轮动\n- `design-relative-value-strategy`：配对、价差、基差、统计套利\n- `design-volatility-options-strategy`：波动率、Greeks、期权收益结构和动态对冲\n\n### 标的实现\n\n- `implement-cn-equity-etf-strategy`：A 股、ETF、交易日历、T+1、整手、涨跌停\n- `implement-cn-futures-strategy`：国内期货、日夜盘、乘数、保证金、手续费、换月\n- `implement-listed-options-strategy`：场内期权、合约链、行权价、Greeks、保证金、行权/指派、多腿执行\n\n### 始终存在的验证\n\n`verify-quant-strategy` 读取共享策略规格和验证矩阵，选择单测、组件测试、框架 smoke、聚焦回测、参数敏感性或 dry-run，并输出“通过 / 失败 / 未运行 / 证据不足”状态。\n\n## 典型用法\n\n- `使用 $quant-strategy-builder，把沪深300成分股均值回归想法整理成可测试策略，补齐历史 universe、半衰期、T+1、整手和样本外证据。`\n- `使用 $quant-strategy-builder，在 vn.py 中实现国内商品期货趋势策略，处理日夜盘、主力换月、乘数、保证金、手续费和聚焦回测。`\n- `使用 $quant-strategy-builder，为 50ETF 期权设计波动率收入策略，明确合约筛选、Greeks、移仓、保证金、行权指派和尾部压力。`\n- `使用 $quant-strategy-builder，把 ETF 与股指期货相对价值策略映射到当前仓库的最小改动面，并验证多腿风险。`\n\n更多可复制提示词见 [examples/prompt-gallery.md](examples/prompt-gallery.md)。\n\n## 目录与贡献入口\n\n```text\n.\n|-- .codex-plugin/plugin.json\n|-- .claude-plugin/                 # Claude manifest + marketplace\n|-- .agents/plugins/marketplace.json\n|-- skills/                         # canonical 行为来源\n|   |-- quant-strategy-builder/     # 手动 router\n|   |-- design-*/                   # 五个风格 skill\n|   |-- implement-*/                # 三个标的实现 skill\n|   `-- verify-quant-strategy/\n|-- claude-skills/                  # Claude 手动调用薄包装\n|-- references/                     # 策略规格、框架路由和 adapters\n|-- docs/research/                  # 带来源的调研记录\n`-- scripts/validate_skill.py\n```\n\ncanonical 行为只在 `skills/` 中维护；`claude-skills/` 只负责 Claude 的显式调用元数据。新增一级 skill 前，先确认它拥有独立的调用价值、阶段完成条件或稳定的领域契约；不要按“策略风格 × 标的 × 框架”创建交叉目录。\n\n## 校验\n\n```powershell\npython .\\scripts\\validate_skill.py\npython C:\\Users\\hungyuk\\.codex\\skills\\.system\\plugin-creator\\scripts\\validate_plugin.py .\nclaude plugin validate .claude-plugin\\plugin.json\nclaude plugin validate .claude-plugin\\marketplace.json\n```\n\n组合 taxonomy 的一手来源和取舍记录见 [docs/research/skill-composition-taxonomy.md](docs/research/skill-composition-taxonomy.md)；本次 README 参考的上游信息架构见 [docs/research/mattpocock-skills-readme.md](docs/research/mattpocock-skills-readme.md)。\n",
+  "status": "curated"
+}

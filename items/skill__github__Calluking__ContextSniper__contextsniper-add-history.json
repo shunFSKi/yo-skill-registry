@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/Calluking/ContextSniper/contextsniper-add-history",
+  "type": "skill",
+  "name": "contextsniper-add-history",
+  "description": "Use the terminal command contextsniper-add-history to import Claude Code transcript history into ContextSniper.",
+  "author": "Calluking",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/Calluking/ContextSniper/blob/HEAD/claude-plugin/skills/contextsniper-add-history/SKILL.md",
+    "repo": "Calluking/ContextSniper",
+    "path": "claude-plugin/skills/contextsniper-add-history/SKILL.md"
+  },
+  "license": "MulanPSL-2.0",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 3,
+    "pushed_at": "2026-06-18T06:13:18Z",
+    "score": 55,
+    "star_history": [
+      {
+        "d": "2026-08-29",
+        "s": 3
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "<p align=\"center\">\n  <img src=\"docs/assets/readme/ContextSniper/LOGO_BACKGROUND.png\" alt=\"ContextSniper\" width=\"760\">\n</p>\n\n# ContextSniper\n\n<p align=\"center\">\n  <a href=\"LICENSE\"><img alt=\"License\" src=\"https://img.shields.io/badge/license-MulanPSL--2.0-blue.svg\"></a>\n  <a href=\"pyproject.toml\"><img alt=\"Python\" src=\"https://img.shields.io/badge/python-3.11%2B-blue.svg\"></a>\n  <a href=\"pyproject.toml\"><img alt=\"Version\" src=\"https://img.shields.io/badge/version-0.1.0-blue.svg\"></a>\n  <a href=\"claude-plugin/\"><img alt=\"Claude Code\" src=\"https://img.shields.io/badge/Claude%20Code-plugin-purple.svg\"></a>\n  <a href=\"openclaw-plugin/\"><img alt=\"OpenClaw\" src=\"https://img.shields.io/badge/OpenClaw-plugin-blue.svg\"></a>\n  <a href=\"filter/\"><img alt=\"ContextSniper Filter\" src=\"https://img.shields.io/badge/filter-read%20%2B%20bash-orange.svg\"></a>\n  <a href=\"agfs/\"><img alt=\"AGFS\" src=\"https://img.shields.io/badge/AGFS-local%20memory-teal.svg\"></a>\n</p>\n\nMake a local codebase searchable from Claude Code or OpenClaw with semantic code\nsearch, filtered long outputs, and exact-replacement file edits.\n\n[中文文档](README_CN.md)\n\n## Usage Cost Reduction\n\nThe SWE Lite verification reports include token and turn breakdowns for Claude\nCode and OpenClaw runs. We chose `text-embedding-3-large` as the embedding\nmodel.\n\n| Claude Code | OpenClaw |\n| --- | --- |\n| ![Average usage cost, Claude Code](docs/assets/readme/average_usage_cost_barchart.png) | ![Average usage cost, OpenClaw](docs/assets/readme/average_usage_cost_barchart_openclaw.png) |\n\n### Claude Average Per Task\n\n| Metric | Legacy&nbsp;&nbsp;&nbsp;&nbsp; | ContextSniper&nbsp;&nbsp;&nbsp;&nbsp; | ContextSniper Filter&nbsp;&nbsp;&nbsp;&nbsp; | ContextSniper Reduction | ContextSniper Filter Reduction |\n| --- | ---: | ---: | ---: | ---: | ---: |\n| Input tokens | 1,534,963 | 941,761 | 810,396 | -39% | <strong><font color=\"#26C889\">-47%</font></strong> |\n| Output tokens | 16,969 | 11,656 | 11,946 | <strong><font color=\"#26C889\">-31%</font></strong> | -30% |\n| Total tokens | 1,551,933 | 953,417 | 822,342 | -39% | <strong><font color=\"#26C889\">-47%</font></strong> |\n\n### OpenClaw Average Per Task\n\n| Metric | Legacy&nbsp;&nbsp;&nbsp;&nbsp; | ContextSniper&nbsp;&nbsp;&nbsp;&nbsp; | ContextSniper Filter&nbsp;&nbsp;&nbsp;&nbsp; | ContextSniper Reduction | ContextSniper Filter Reduction |\n| --- | ---: | ---: | ---: | ---: | ---: |\n| Input tokens | 1,309,937 | 769,590 | 622,321 | -41% | <strong><font color=\"#26C889\">-52%</font></strong> |\n| Output tokens | 17,439 | 10,399 | 12,982 | <strong><font color=\"#26C889\">-40%</font></strong> | -26% |\n| Total tokens | 1,327,377 | 779,989 | 635,303 | -41% | <strong><font color=\"#26C889\">-52%</font></strong> |\n\n## Overview\n\nContextSniper ships two local plugins:\n\n| Host | Plugin | What it adds |\n| --- | --- | --- |\n| Claude Code | [claude-plugin/](claude-plugin/) | MCP tools for code search/edit plus prompt policy injection |\n| OpenClaw | [openclaw-plugin/](openclaw-plugin/) | Native tools, prompt policy injection, and read/exec filtering |\n\nBoth plugins can start the local ContextSniper backend and AGFS service\nfor you, then stop the services they started when the host exits.\n\n![Runtime architecture](<docs/assets/readme/ContextSniper/EN_Runtime Architecture.png>)\n\n## Quickstart\n\nPrepare a fresh checkout once:\n\n```bash\ngit clone https://github.com/Calluking/ContextSniper.git\ncd ContextSniper\n./bootstrap.sh\n```\n\n`bootstrap.sh` is interactive for setup steps: if Ubuntu packages or Python\n`.venv` are missing, it asks before installing anything. It also checks whether\nOpenClaw and Claude Code are installed, then asks which integration to set up.\nIt does not ask you to type API keys into the installer.\n\nExport your model and embedding settings:\n(Use deepseek and text-embedding-3-small as example)\n```bash\nexport DEEPSEEK_API_KEY=\"<your-deepseek-key>\"\nexport DEEPSEEK_BASE_URL=\"https://api.deepseek.com\"\nexport OPENCLAW_MODEL=\"deepseek/deepseek-v4-flash\"\nexport CONTEXTSNIPER_EMBEDDING_API_KEY=\"<your-embedding-key>\"\nexport CONTEXTSNIPER_EMBEDDING_BASE_URL=\"https://api.openai-proxy.org\"\nexport CONTEXTSNIPER_EMBEDDING_MODEL=\"text-embedding-3-small\"\nexport ANTHROPIC_MODEL=\"haiku\"\n```\n\nThen load the settings:\n\n```bash\nsource setup_env.sh\n```\n\n`./bootstrap.sh` creates `.venv`, installs the runtime dependencies in\n`requirements.txt`, and builds `agfs/build/agfs-server`. Full SWE-bench\nvalidation is optional; install that heavier stack only when needed with\n`./bootstrap.sh --install-swe-deps`.\n\n![Fresh clone quickstart](<docs/assets/readme/ContextSniper/EN_Fresh Clone Start.png>)\n\n## Start Claude\n\nFrom the project you want Claude to edit:\n\n```bash\ncd /path/to/project\nclaude --plugin-dir \"$CONTEXTSNIPER_DIR/claude-plugin\"\n```\n\nDo not pass `--mcp-config`; the Claude plugin owns its `.mcp.json`.\n\n## Start OpenClaw\n\nFrom the project you want OpenClaw to edit:\n\n```bash\ncd /path/to/project\nopenclaw chat --local\n```\n\n## Requirements\n\n- Python 3.11+\n- Go 1.22+\n- Claude Code CLI, OpenClaw CLI, or both\n- An OpenAI-compatible embedding endpoint and API key\n- Conda, only if you use the SWE runner's default local validation environment\n\n## Verify\n\nClaude:\n\n```text\n/plugin\n```\n\nExpected status:\n\n```text\ncontextsniper Plugin · inline · ✔ enabled\n└ contextsniper MCP · ✔ connected\n```\n\nOpenClaw:\n\n```bash\nopenclaw plugins inspect contextsniper --runtime --json\n```\n\nThe runtime output should include:\n\n```text\ncontextsniper_health\ncontextsniper_index_codebase\ncontextsniper_search_code\ncontextsniper_edit_file\n```\n\nTo confirm a run used ContextSniper search/filtering:\n\n```bash\nlatest=$(ls -t ~/.openclaw/agents/*/sessions/*.jsonl | grep -v trajectory | head -1)\nrg -n \"ContextSniper|FILTER IS TRIGGERED|contextsniper_search_code|contextsniper_edit_file\" \"$latest\"\n```\n\nFor Claude, inspect the current Claude debug log or the `/plugin` panel. A\nhealthy code run should show MCP tool names containing `search_code` and\n`edit_file`.\n\n![Code task flow](<docs/assets/readme/ContextSniper/EN_Code Task Flow.png>)\n\n## Configuration\n\nLocal settings should come from your shell environment or shell profile, which\n`setup_env.sh` imports before applying repo defaults. Do not commit real API\nkeys.\n\nCommon settings:\n\n| Variable | Purpose |\n| --- | --- |\n| `CONTEXTSNIPER_EMBEDDING_API_KEY` | API key for real semantic code search |\n| `CONTEXTSNIPER_EMBEDDING_BASE_URL` | OpenAI-compatible embedding endpoint |\n| `CONTEXTSNIPER_EMBEDDING_MODEL` | Embedding model name |\n| `PY_BIN` | Optional Python override for plugin/backend runtime |\n| `CONTEXTSNIPER_FILTER_ENABLED` | Toggle read/exec filtering, default `1` |\n| `CONTEXTSNIPER_INJECT_FILTERING_PROMPT` | Toggle the filtering-strategy prompt section |\n\n`requirements.txt` includes `httpx[socks]`, and `setup_env.sh` sets\n`NO_PROXY`/`no_proxy` for `127.0.0.1`, `localhost`, and `::1` so local ContextSniper/AGFS\ntraffic bypasses HTTP(S)/SOCKS proxies.\n\n## Useful Files\n\n- [bootstrap.sh](bootstrap.sh): one-command local setup.\n- [setup_env.sh](setup_env.sh): shared environment loader.\n- [claude-plugin/prompts/code_policy_injection.txt](claude-plugin/prompts/code_policy_injection.txt): Claude policy prompt.\n- [openclaw-plugin/prompts/code_policy_injection.txt](openclaw-plugin/prompts/code_policy_injection.txt): OpenClaw policy prompt.\n- [docs/assets/readme/](docs/assets/readme/): generated README diagrams. Refresh with `python3 docs/assets/readme/generate_readme_diagrams.py`.\n- [scripts/SWE/](scripts/SWE/): SWE Lite runners and reports.\n- [LICENSE](LICENSE): Mulan Permissive Software License v2 (`MulanPSL-2.0`).\n\n## SWE Lite Runner\n\nThe SWE runners build a task prompt and start Claude or OpenClaw\nnon-interactively. See [scripts/SWE/README.md](scripts/SWE/README.md) for the\nsix runner modes, run commands, output locations, and log checks.\n\n## License\n\nThis project is licensed under the Mulan Permissive Software License v2\n(`MulanPSL-2.0`). See [LICENSE](LICENSE).\n\n## References\n\n- [AGFS](https://github.com/c4pt0r/agfs): ContextSniper bundles and builds the local AGFS\n  server under [agfs/](agfs/) and uses `pyagfs` for local memory/file-service\n  operations.\n",
+  "status": "curated"
+}

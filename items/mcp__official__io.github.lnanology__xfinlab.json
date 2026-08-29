@@ -1,0 +1,61 @@
+{
+  "id": "mcp:official/io.github.lnanology/xfinlab",
+  "type": "mcp",
+  "name": "xfinlab",
+  "description": "Real-time market events, sentiment, and technical analysis as MCP tools, backed by real data.",
+  "author": "io.github.lnanology",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/lnanology/Xfinlab",
+    "repo": "lnanology/Xfinlab"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://api.xfinlab.com/api/mcp",
+    "env": [
+      {
+        "name": "X-API-Key",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-29T02:11:00.761836Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# XFINLAB\n\n**Financial Intelligence Infrastructure — APIs, SDKs, and an MCP server for developers and AI agents, plus a consumer research platform built on the same backend.**\n\nReal market events, FinBERT sentiment, technical/market-structure analysis, SEC/CFTC/FDIC/USDA/CBOE official data, and Monte Carlo stress testing. Every field is traceable to a real computation or an official data source — nothing fabricated or interpolated.\n\n[Get a free API key](https://www.xfinlab.com/intelligence-api.html) · [API docs](https://www.xfinlab.com/intelligence-api.html) · [llms.txt](https://www.xfinlab.com/llms.txt) · [Consumer product](https://www.xfinlab.com)\n\n## Quick start (API)\n\n```bash\npip install \"git+https://github.com/lnanology/Xfinlab.git#subdirectory=sdk/python\"\n```\n\n```python\nfrom xfinlab_intelligence import XfinlabClient\n\nclient = XfinlabClient(api_key=\"xfl_...\")  # free tier, issued instantly\nsentiment = client.sentiment(\"AAPL\")\ntechnical = client.technical(\"AAPL\", period=\"6mo\")\nfundamentals = client.fundamentals(\"AAPL\")\n```\n\nOr JavaScript/Node:\n\n```bash\nnpm install \"github:lnanology/Xfinlab#path:sdk/js\"\n```\n\n```js\nconst { XfinlabClient } = require('xfinlab-intelligence');\nconst client = new XfinlabClient('xfl_...');\nconst sentiment = await client.sentiment('AAPL');\n```\n\n19 endpoints total — market events, sentiment, AI debate, technical/market-structure, Monte Carlo stress testing, insider trading, institutional ownership, short interest, SEC XBRL fundamentals, CBOE VIX term structure, FDIC bank health, USDA agriculture, EIA energy, crypto, cross-region market map, and Pro-tier webhooks. Full reference: [intelligence-api.html](https://www.xfinlab.com/intelligence-api.html).\n\n## MCP server (for Claude and other AI agents)\n\nAlready live in production — no setup needed, just point an MCP-compatible client at it:\n\n```json\n{\n  \"mcpServers\": {\n    \"xfinlab\": {\n      \"url\": \"https://api.xfinlab.com/api/mcp\",\n      \"headers\": { \"X-API-Key\": \"xfl_...\" }\n    }\n  }\n}\n```\n\nServer source: [`api/mcp_server.py`](./api/mcp_server.py). Tools: `get_market_events`, `get_sentiment`, `get_technical_analysis`, `get_intelligence_feed`, `get_global_market_map`. Same auth and free tier as the REST API. Docs: [intelligence-api.html#mcp](https://www.xfinlab.com/intelligence-api.html#mcp).\n\n## SDKs & examples\n\n| | |\n|---|---|\n| Python SDK | [`sdk/python`](./sdk/python) — [README](./sdk/python/README.md) |\n| JavaScript/Node SDK | [`sdk/js`](./sdk/js) — [README](./sdk/js/README.md) |\n| Quickstart scripts | [`sdk/examples/python_quickstart.py`](./sdk/examples/python_quickstart.py), [`sdk/examples/js_quickstart.js`](./sdk/examples/js_quickstart.js) |\n| OpenAPI spec | https://api.xfinlab.com/api/intelligence/openapi.json |\n| Postman collection | https://api.xfinlab.com/api/intelligence/postman.json |\n\nBoth SDKs are MIT-licensed ([`sdk/LICENSE`](./sdk/LICENSE)) and have zero required dependencies beyond the standard library / native `fetch`.\n\n## Consumer product\n\nThe same backend also powers [xfinlab.com](https://www.xfinlab.com), a retail investment-research platform:\n\n| Module | Path |\n|---|---|\n| Homepage | `index.html` |\n| AI Market Research™ | `ai-analysis.html` |\n| Chart Research™ | `chart-analysis.html` |\n| Company Compare™ | `company-compare.html` |\n| Event Intelligence™ | `news-denoise.html` |\n| Risk Engine™ | `stress-lab.html` |\n\n## Local development\n\n```bash\npython3 mock-server.py\n```\n\nThen open [http://localhost:8080](http://localhost:8080). The production backend is a separate FastAPI app (`backend/main.py`, deployed on Railway as `api.xfinlab.com`); the static site above deploys separately on Vercel as `xfinlab.com`.\n\n## More docs\n\n- [XFINLAB_ARCHITECTURE.md](./XFINLAB_ARCHITECTURE.md) — full system architecture\n- [PROJECT_ROADMAP.md](./PROJECT_ROADMAP.md) — roadmap\n- [PROJECT_STYLE_GUIDE.md](./PROJECT_STYLE_GUIDE.md) — UI style guide\n- [DATA-LICENSE-MATRIX.md](./DATA-LICENSE-MATRIX.md) — upstream data source licensing for every paid endpoint\n- [MCP_MARKETPLACE_SUBMISSION.md](./MCP_MARKETPLACE_SUBMISSION.md) — MCP server directory submission copy\n",
+  "status": "curated"
+}

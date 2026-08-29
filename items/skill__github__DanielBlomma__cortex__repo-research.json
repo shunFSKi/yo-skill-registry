@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/DanielBlomma/cortex/repo-research",
+  "type": "skill",
+  "name": "repo-research",
+  "description": "Use when exploring how something works in this repository, locating an implementation, or answering \"how/where does X\" questions - retrieves cited Cortex context instead of grepping blindly or answering from memory",
+  "author": "DanielBlomma",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/DanielBlomma/cortex/blob/HEAD/plugins/dsh-cortex/skills/repo-research/SKILL.md",
+    "repo": "DanielBlomma/cortex",
+    "path": "plugins/dsh-cortex/skills/repo-research/SKILL.md"
+  },
+  "license": null,
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 18,
+    "pushed_at": "2026-08-27T12:51:33Z",
+    "score": 67,
+    "star_history": [
+      {
+        "d": "2026-08-29",
+        "s": 18
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "AI",
+    "featured": false
+  },
+  "readme": "<p align=\"center\">\n  <img src=\"docs/logo.png\" alt=\"Cortex\" width=\"600\" />\n</p>\n\n# Cortex\n\n**Give AI coding agents the right context from your repository.**\n\n[![npm version](https://img.shields.io/npm/v/%40danielblomma%2Fcortex-mcp)](https://www.npmjs.com/package/@danielblomma/cortex-mcp)\n[![license](https://img.shields.io/npm/l/%40danielblomma%2Fcortex-mcp)](./LICENSE)\n\nCortex builds a local map of your code, symbols, relationships, and project\nrules. Coding agents query that map through the CLI instead of guessing or\nreading the whole repository.\n\nYour code stays on your machine. MCP is not required.\n\n## Start\n\nRequires Node.js 20.9+ and Git.\n\n```bash\nnpm install --global @danielblomma/cortex-mcp\ncd your-project\ncortex init --bootstrap\n```\n\nThis indexes the repository, adds Cortex instructions to `AGENTS.md`, installs\nGit hooks, and starts the background watcher.\n\nCheck the setup:\n\n```bash\ncortex doctor\n```\n\n## Use\n\n```bash\n# Find relevant code.\ncortex search \"where is authentication handled?\" --json\n\n# Follow relationships from a search result.\ncortex related <entity-id> --json\n\n# See what a change may affect.\ncortex impact \"authentication\" --json\n\n# Read repository rules.\ncortex rules --json\n\n# Compare a changed file with nearby patterns.\ncortex pattern-evidence src/auth.ts --json\n```\n\nAgents can run these commands directly. `cortex init` adds instructions that\ntell them to search before answering and check impact before refactoring.\n\n## Keep the index fresh\n\nGit hooks and the watcher normally update Cortex automatically.\n\n```bash\ncortex status\ncortex watch status\ncortex update\n```\n\nRun `cortex update` manually after a large change or when results look stale.\n\n## Large repositories\n\nMake lexical and graph search available first while semantic indexing continues\nin the background:\n\n```bash\ncortex bootstrap --background --profile interactive\ncortex indexing status --json\n```\n\nThis mode supports macOS, Linux, and WSL. Native Windows should use normal\nforeground bootstrap.\n\n## Upgrade\n\n```bash\nnpm install --global @danielblomma/cortex-mcp@latest\ncortex init --force\ncortex bootstrap\ncortex update\n```\n\nProject configuration and rules are preserved. See\n[CHANGELOG.md](CHANGELOG.md) for version-specific notes.\n\n## Optional MCP compatibility\n\nThe normal Cortex workflow uses the CLI. If a client explicitly requires MCP,\nrun `cortex connect`.\n\n## DeepSeek Harness integration (planned)\n\nAn installable Cortex integration for DeepSeek Harness is planned, but is not\navailable yet. Stage 0 verified the upstream APIs and found that the official\nMCP bridge cannot safely isolate concurrent Web workspaces. The selected V1\ncandidate instead binds a native Cortex provider and its tools to each Harness\nagent workspace. Local implementation and validation are complete; independent\nfinal acceptance and explicit release authorization are still pending. See the\n[V1-to-V2 integration plan](docs/superpowers/plans/2026-08-25-deepseek-harness-integration.md).\n\n## Links\n\n- [Website](https://danielblomma.github.io/cortex/)\n- [Changelog](CHANGELOG.md)\n- [Issues](https://github.com/DanielBlomma/cortex/issues)\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/en-dash-consulting/html-in-canvas-dot-dev/ndx-zone",
+  "type": "skill",
+  "name": "ndx-zone",
+  "description": "Deep-dive into an architectural zone's structure and health",
+  "author": "en-dash-consulting",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/en-dash-consulting/html-in-canvas-dot-dev/blob/HEAD/.claude/skills/ndx-zone/SKILL.md",
+    "repo": "en-dash-consulting/html-in-canvas-dot-dev",
+    "path": ".claude/skills/ndx-zone/SKILL.md"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 42,
+    "pushed_at": "2026-08-28T13:53:29Z",
+    "score": 67,
+    "star_history": [
+      {
+        "d": "2026-08-29",
+        "s": 42
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "生活",
+    "featured": false
+  },
+  "readme": "# html-in-canvas.dev\n\n> Interactive demos and documentation for the WICG **HTML-in-Canvas**\n> specification — render real, styled, accessible DOM elements\n> directly into a `<canvas>` via `drawElementImage()`.\n\n[**html-in-canvas.dev →**](https://html-in-canvas.dev) ·\n[Demo gallery](https://html-in-canvas.dev/demos/) ·\n[Spec docs](https://html-in-canvas.dev/docs/) ·\n[Contributing](https://html-in-canvas.dev/contributing/)\n\nA community resource maintained by [En Dash Consulting](https://endash.us)\nthat shows what becomes possible when the browser can paint live HTML\ninto a canvas: real text editing, native i18n, accessible chart labels,\nvideo recording from HTML scenes, GPU shader effects on DOM content, and\n3D scenes that use HTML elements as textures.\n\nThe relevant Chromium feature ships behind\n`chrome://flags/#canvas-draw-element` in **Chrome Canary**, and is also\navailable in recent **Brave Stable** builds (≥ 1.89.132 / Chromium 147)\nat `brave://flags/#canvas-draw-element`. Firefox and Safari have not\nannounced implementations yet.\n\n---\n\n## Why HTML-in-Canvas\n\nCanvas is great for pixels. The DOM is great for everything else —\ntext shaping, accessibility, internationalization, form controls,\ncontenteditable, focus management, hit testing, screen readers. Until\nnow, putting the two together meant either:\n\n- Hand-rolling text layout into `ctx.fillText()` (no bidi, no shaping,\n  no writing modes, no ruby, broken emoji)\n- Shipping a 130 KB `html2canvas` clone that approximates CSS rendering\n  in JavaScript (slow, incomplete, never quite right)\n\nThe WICG HTML-in-Canvas proposal lets the browser do what it's already\ngreat at — render HTML and CSS — and gives canvas authors zero-cost\naccess to those pixels. Three primitives:\n\n```html\n<canvas layoutsubtree>\n  <div id=\"content\">Real, accessible HTML content</div>\n</canvas>\n```\n\n```js\nconst ctx = canvas.getContext('2d');\ncanvas.onpaint = () => {\n  const transform = ctx.drawElementImage(content, 0, 0);\n  if (transform) content.style.transform = transform.toString();\n};\n```\n\nThat's the whole API surface. Every demo on the site is built from those\nprimitives plus the existing canvas (2D / WebGL / WebGPU) APIs.\n\n---\n\n## Quick start\n\n```bash\ngit clone https://github.com/en-dash-consulting/html-in-canvas-dot-dev.git\ncd html-in-canvas-dot-dev\nnpm install\nnpm run dev\n```\n\nVisit `http://localhost:4321` in **Chrome Canary** or **Brave Stable**\n(Chromium 147+) with the `canvas-draw-element` flag enabled. Setup\ninstructions:\n[/docs/browser-support/](https://html-in-canvas.dev/docs/browser-support/).\n\n### Available scripts\n\n| script             | what it does                                                |\n| ------------------ | ----------------------------------------------------------- |\n| `npm run dev`      | Run the Astro dev server with hot reload                    |\n| `npm run build`    | Build the static site to `dist/`                            |\n| `npm run preview`  | Preview the built site                                      |\n| `npm run check`    | Run `astro check` (type-check Astro + TS)                   |\n| `npm test`         | Run the Playwright suite against Chrome Canary              |\n| `npm run test:ui`  | Run Playwright with the interactive UI                      |\n\n### Tech stack\n\n- [Astro 6](https://astro.build/) — static site generation, content\n  collections, file-based routing\n- TypeScript for the site infrastructure (vanilla JS in the demos\n  themselves so they're easy to fork)\n- [Playwright](https://playwright.dev/) for end-to-end tests against\n  Chrome Canary\n- Zero runtime framework — every demo is plain HTML/CSS/JS in a single\n  file, mounted into the wrapped page via shadow DOM\n\n---\n\n## How the site works\n\n### Demos\n\nEach demo lives in its own folder under `src/content/demos/{slug}/`:\n\n```\nsrc/content/demos/hello-world/\n├── meta.json    # title, description, tags, browser support\n└── demo.html    # the demo itself (single self-contained file)\n```\n\nDrop a new folder in there with the same shape and it appears in the\ngallery automatically. The contributing page has a step-by-step guide\nand there's a scaffold script:\n\n```bash\n./scripts/new-demo.sh my-cool-demo\n```\n\nEach `demo.html` is authored to work in **two contexts**:\n\n1. As a **standalone HTML page** at `/demos/{slug}/demo.html`. Anyone\n   can visit it directly, fork it from the GitHub repo, or open it in\n   their own editor. This is what makes the site useful as a learning\n   resource — you can grab any demo and run it locally with zero build\n   tooling.\n2. **Mounted via shadow DOM** on the wrapped `/demos/{slug}/` page,\n   alongside metadata, the source viewer, and page chrome.\n\nThe dual-context authoring is glued together by two small conventions:\n\n- Use `body, :host { ... }` instead of just `body { ... }` for root\n  styling. The `:host` selector matches the shadow host in mounted\n  context; `body` matches in standalone.\n- Use `const root = window.__demoRoot ?? document` at the top of every\n  script, then `root.getElementById(...)` for queries. The wrapped\n  page hands the script its shadow root via a transient global.\n\nThese conventions are documented in the `_template/demo.html`\ncontributor template — just copy it.\n\n### Pages\n\n- `/` — landing page\n- `/demos/` — filterable gallery\n- `/demos/{slug}/` — wrapped demo page with metadata + source viewer\n- `/demos/{slug}/demo.html` — standalone demo (open in new tab,\n  fork on GitHub, etc.)\n- `/docs/` — spec docs synced from the WICG proposal\n- `/contributing/` — how to add a demo\n\n### Tests\n\nEvery demo has a Playwright smoke test:\n\n```ts\nimport { runDemoSmokeTests } from './helpers/demo-smoke';\nrunDemoSmokeTests({ slug: 'hello-world' });\n```\n\nThe shared helper tests both contexts:\n\n1. **Standalone** (`/demos/{slug}/demo.html`) — page loads, canvas\n   paints non-blank pixels, no console errors.\n2. **Wrapped** (`/demos/{slug}/`) — `#demo-stage` has an open shadow\n   root, the canvas inside it paints, no console errors.\n\nThe full suite runs in a few seconds against Chrome Canary. See\n`tests/helpers/demo-smoke.ts` for the runner and `playwright.config.ts`\nfor the Chrome Canary launch config (the bundled Chromium that ships\nwith Playwright doesn't expose the spec, so we point at Canary\ndirectly).\n\n---\n\n## Contributing\n\nWe welcome PRs that add demos, fix bugs, improve the docs, or refine the\nsite itself. The full contributor guide is at\n**[/contributing/](https://html-in-canvas.dev/contributing/)**, but the\nshort version is:\n\n1. Fork the repo\n2. Run `./scripts/new-demo.sh my-demo-name` (or copy\n   `src/content/demos/_template/`)\n3. Edit `meta.json` and `demo.html`\n4. Run `npm test` to make sure your demo paints in both standalone and\n   wrapped contexts\n5. Open a PR\n\nSome good first contributions:\n\n- A demo of a spec primitive that isn't currently shown\n- A real-world use case for HTML-in-Canvas you've hit at work\n- A bug fix or visual polish on an existing demo\n- Tests for an existing demo's interactive behavior beyond the smoke\n  test (the smoke helper has `setup` / `interact` hooks)\n\n## License\n\nMIT — see [`LICENSE`](./LICENSE).\n\nThe WICG HTML-in-Canvas spec itself is licensed separately by the\n[Web Incubator Community Group](https://github.com/WICG/html-in-canvas).\nThis project is an unaffiliated community resource and is not endorsed\nby the spec authors or by Chromium.\n\n---\n\n## Acknowledgements\n\n- The [WICG HTML-in-Canvas](https://github.com/WICG/html-in-canvas)\n  authors and contributors who proposed and shipped the spec —\n  especially Philip Rogers, Stephen Chenney (Igalia), Chris Harrelson,\n  Philip Jagenstedt, Khushal Sagar, Vladimir Levin, and Fernando\n  Serboncini\n- The Chromium team for the dev-trial implementation behind\n  `canvas-draw-element`\n- Built with care by [En Dash Consulting](https://endash.us). We build\n  tools that make work better and feel better.\n",
+  "status": "curated"
+}

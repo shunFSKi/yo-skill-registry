@@ -1,0 +1,57 @@
+{
+  "id": "mcp:official/io.github.furkan708/mcpify",
+  "type": "mcp",
+  "name": "mcpify",
+  "description": "Turn any OpenAPI REST API into an MCP server so AI agents can call it — zero dependencies",
+  "author": "io.github.furkan708",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/furkan708/mcpify",
+    "repo": "furkan708/mcpify"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "mcpify-openapi"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-29T06:49:15.933435Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "<!-- mcp-name: io.github.furkan708/mcpify -->\n\n# 🔌 mcpify\n\n[![Python](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/)\n![License](https://img.shields.io/badge/license-MIT-green)\n\n🌐 English | [Türkçe](README.tr.md)\n\n<p align=\"center\">\n  <img src=\"docs/demo.gif\" alt=\"mcpify in action — listing and serving OpenAPI endpoints as MCP tools\" width=\"720\">\n</p>\n\n[![Tests](https://img.shields.io/badge/tests-115%20passed-brightgreen)](https://github.com/furkan708/mcpify/actions/workflows/ci.yml)\n[![CodeQL](https://github.com/furkan708/mcpify/actions/workflows/codeql.yml/badge.svg)](https://github.com/furkan708/mcpify/actions/workflows/codeql.yml)\n[![Platforms](https://img.shields.io/badge/platform-Linux%20%7C%20Windows-lightgrey)](.github/workflows/ci.yml)\n[![MCP Registry](https://img.shields.io/badge/MCP_Registry-listed-4A90D9)](server.json)\n[![CI](https://github.com/furkan708/mcpify/actions/workflows/ci.yml/badge.svg)](https://github.com/furkan708/mcpify/actions/workflows/ci.yml)\n[![Python](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/)\n[![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-261230.svg)](https://github.com/astral-sh/ruff)\n[![Types: mypy](https://img.shields.io/badge/types-mypy-blue)](https://mypy-lang.org/)\n[![PyPI](https://img.shields.io/pypi/v/mcpify-openapi)](https://pypi.org/project/mcpify-openapi/)\n[![PyPI Downloads](https://img.shields.io/pypi/dm/mcpify-openapi)](https://pypi.org/project/mcpify-openapi/)\n[![Run with uvx](https://img.shields.io/badge/run%20with-uvx-DE5FE9)](https://docs.astral.sh/uv/)\n![Dependencies](https://img.shields.io/badge/dependencies-zero-success)\n\n**Turn any OpenAPI REST API into an [MCP](https://modelcontextprotocol.io) server** — so Claude Code, Cursor, and every other MCP client can call your API directly. One command. Zero dependencies.\n\n\nYour company has a REST API. Your AI agent needs to call it. Until now that\nmeant hand-writing a custom MCP server for every API. With mcpify:\n\n```bash\nmcpify serve https://your-company.com/openapi.json\n```\n\nThat's it — every endpoint just became a tool your AI agent can discover, understand, and call.\n\n📖 **Deep docs:** [Usage guide](docs/USAGE.md) — auth patterns, scoping, Docker, troubleshooting · [Architecture](docs/ARCHITECTURE.md) · [Contributing](CONTRIBUTING.md) · [Changelog](CHANGELOG.md) · [Security](SECURITY.md)\n\n📰 **The launch story:** [How a live weather API broke this tool — and made it better](https://dev.to/furkan708/i-connected-a-real-weather-api-to-claude-in-3-commands-and-the-community-broke-my-tool-in-the-3jid)\n\n## ✨ Why you'll like it\n\n- ⚡ **60 seconds to working** — point it at any OpenAPI 3.x spec (file or URL)\n- 🔐 **Credentials never touch the spec or the model** — pulled from your\n  environment at call time (`--auth-env`), sent as `Authorization: Bearer`,\n  a custom header, or a query parameter\n- 🧰 **Every operation becomes a first-class MCP tool** — input schemas are\n  generated from `parameters` + `requestBody`, internal `$ref`s are resolved\n- 🎚️ **Scope it down** — `--read-only` (GET only), `--tag payments`,\n  `--include /v1/orders`, `--exclude /admin`, plus a policy layer for real-world\n  APIs: `--deny REGEX` hides mutating GETs, `--allow REGEX` re-includes\n  read-style POST endpoints. Deny always wins.\n- 🩺 **`mcpify doctor`** — tells you if your spec is agent-friendly before you ship\n- 🪶 **Zero dependencies** — one pure-Python file tree; YAML specs need an\n  optional `pip install 'mcpify[yaml]'`\n- 🎯 **Agent-grade surface.** Tool annotations derived from HTTP semantics\n  (clients auto-approve read-only tools), structured output via MCP\n  `outputSchema`/`structuredContent`, remediation-grade errors that teach the\n  next call, dry-run request previews, and a `--lazy` search-then-call mode\n  that cut api.weather.gov's listing by **95.5%** (38,882 → 1,741 chars)\n- 🧪 **115 tests** — unit, hostile-spec corpus, and full MCP protocol\n  end-to-end over stdio against a real local HTTP API, including the\n  **live api.weather.gov document** (69 tools, 16 enum'd parameters)\n\n## 🚀 Quick start\n\n```bash\n# run without installing (uvx — pulls from PyPI on demand)\nuvx --from mcpify-openapi mcpify list ./openapi.json --read-only\n\n# or install (installs the `mcpify` command)\npipx install mcpify-openapi\n\n# ...as a container (GHCR, published on every release)\ndocker run -i ghcr.io/furkan708/mcpify:latest serve ./openapi.json --read-only\n\n# ...or from source\ngit clone https://github.com/furkan708/mcpify.git\ncd mcpify && pip install .\n\n# 1. preview the tools that will be generated\nmcpify list examples/petstore.json\n\n# 2. validate the spec is agent-friendly\nmcpify doctor examples/petstore.json\n\n# 3. serve it over MCP\nmcpify serve examples/petstore.json --base-url https://petstore.example.com/v1\n```\n\n### With authentication\n\n```bash\n# Bearer token read from the environment (never hardcoded)\nexport PETSTORE_KEY=\"sk-...\"\nmcpify serve petstore.json \\\n  --base-url https://petstore.example.com/v1 \\\n  --auth-env PETSTORE_KEY \\\n  --auth-style bearer \\\n  --read-only\n```\n\n| Flag | Meaning |\n| ---- | ------- |\n| `--auth-env VAR` | environment variable holding the credential |\n| `--auth-style bearer\\|header\\|query` | how it is sent |\n| `--auth-name NAME` | header / query name for non-bearer styles (e.g. `X-API-Key`) |\n\n## 🤖 Plug it into your agent\n\n**Claude Code:**\n\n```bash\nclaude mcp add my-api -- mcpify serve openapi.json --read-only\n```\n\n**Claude Desktop / Cursor / any MCP client** (`claude_desktop_config.json`):\n\n```json\n{\n  \"mcpServers\": {\n    \"petstore\": {\n      \"command\": \"mcpify\",\n      \"args\": [\"serve\", \"~/specs/petstore.json\", \"--auth-env\", \"PETSTORE_KEY\"]\n    }\n  }\n}\n```\n\nNow ask your agent: *\"list the pets, then create one named Milo\"* — it discovers `list_pets` and `create_pet`, fills the arguments, and performs real HTTP calls.\n\n## 🔍 How operations become tools\n\n| OpenAPI | mcpify |\n| ------- | ------ |\n| `operationId` | tool name (sanitized; falls back to `method_path`) |\n| `summary` / `description` | tool description the agent reads |\n| `deprecated: true` | shown by `mcpify list` before you expose old endpoints |\n| `parameters` (path/query/header) | individual typed arguments with enums |\n| `requestBody` (JSON) | a `body` object argument |\n| `$ref` pointers | resolved inline (components → real schemas) |\n| `servers[0].url` | default base URL (override: `--base-url`) |\n\nThe agent only ever sees the tool list and your API's JSON responses —\nmcpify adds no middleware, caches nothing, and sends credentials nowhere\nexcept your API.\n\n## 🩺 Doctor\n\n```bash\n$ mcpify doctor my-api.json\nopenapi: 3.0.3\ntitle:   Acme API\npaths:   23\ntools:   41 operations\nservers: https://api.acme.com\nwarning: 12/41 operations have no operationId (names fall back to method_path)\nwarning: 30/41 operations have no summary (agents see no description)\n```\n\n## 📖 CLI reference\n\n```\nmcpify list <spec> [--tag T] [--include P] [--exclude P] [--read-only] [--json]\nmcpify serve <spec> [--base-url URL] [--name N] [--auth-env VAR]\n                    [--auth-style bearer|header|query] [--auth-name NAME]\n                    [--timeout S] [--read-only] [--tag T] [--include P] [--exclude P]\nmcpify doctor <spec>\n```\n\n### Notes & limitations\n\n- JSON specs work out of the box; YAML specs need `pip install 'mcpify[yaml]'`\n- Only local `$ref` pointers are resolved (bundle external docs first — most tools do anyway)\n- Request bodies are exposed as a single `body` object argument — predictable over clever\n- Spec versions: OpenAPI 3.x and Swagger 2.x roots are accepted; 3.x is the happy path\n\n## 🛡️ Hardened against the real world\n\nmcpify is audited on every release against a 10-category checklist of MCP\nbest practices and published production failure modes — not just our own\nexamples:\n\n- **Hostile-spec corpus (12/12):** circular `$ref`s, multipart uploads,\n  `allOf` schemas, server URL variables, relative base URLs, oversized\n  responses — every scenario derived from a documented real-world failure,\n  fixed, and locked in by a regression test. Sources include the arXiv\n  study of REST→MCP generation across 18 real APIs.\n- **Live integration:** the real api.weather.gov spec loads in CI — the\n  case that found (and fixed) our last crash-class bug.\n- **MCP lifecycle enforced:** tools are unreachable until the client\n  completes the `initialize` handshake.\n- **Blast-radius controls:** read-only mode, deny/allow policy layer,\n  40k-char response truncation, `--timeout`, credentials never logged.\n\nFull checklist with per-item status: **[docs/AUDIT-CHECKLIST.md](docs/AUDIT-CHECKLIST.md)**\n\n## 🧪 Tests\n\n```bash\npip install pytest pyyaml\npytest -v\n```\n\nThe e2e suite boots a real local HTTP API and drives the full MCP protocol\nover stdio — initialize → tools/list → tools/call — and asserts on the HTTP\nrequests that hit the wire.\n\n## 🗂️ Project Structure\n\n```\nmcpify/\n├── mcpify/\n│   ├── spec.py        # OpenAPI loading, $ref resolution, operation walking\n│   ├── tools.py       # operation -> MCP tool, argument -> HTTP request\n│   ├── http_client.py # execution (urllib, HTTP errors become tool results)\n│   ├── api_server.py  # MCP stdio server (JSON-RPC 2.0)\n│   └── cli.py         # list / serve / doctor\n├── examples/petstore.json\n└── tests/\n```\n\n## 🗺️ Roadmap\n\n- [ ] `--output-server FILE` — generate a standalone, shareable server script\n- [ ] Per-operation rate limiting\n- [ ] OAuth2 client-credentials flow\n\n## 📄 License\n\nMIT — see the [LICENSE](LICENSE) file for details.\n",
+  "status": "curated"
+}

@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/errorlord-404/sih-mvp/test-tui",
+  "type": "skill",
+  "name": "test-tui",
+  "description": "Guide for testing Codex TUI interactively",
+  "author": "errorlord-404",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/errorlord-404/sih-mvp/blob/HEAD/codex/.codex/skills/test-tui/SKILL.md",
+    "repo": "errorlord-404/sih-mvp",
+    "path": "codex/.codex/skills/test-tui/SKILL.md"
+  },
+  "license": null,
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 1,
+    "pushed_at": "2026-08-19T19:48:25Z",
+    "score": 55,
+    "star_history": [
+      {
+        "d": "2026-08-29",
+        "s": 1
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# SIH Harness\n\nThis document explains where and how teammates should add new tools to the Sage fork of Codex CLI.\n\n## Tool Location\n\nThe main Codex CLI Rust code is located inside:\n\n```text\ncodex-rs/\n```\n\nThe tool system is located at:\n\n```text\ncodex-rs/core/src/tools/\n```\n\nExisting Codex tool handlers are located inside:\n\n```text\ncodex-rs/core/src/tools/handlers/\n```\n\nFor our SIH Harness, all custom farming-related tools should be kept inside:\n\n```text\ncodex-rs/core/src/tools/handlers/kisansathi\n/\n```\n\nExpected structure:\n\n```text\ncodex-rs/\n└── core/\n    └── src/\n        └── tools/\n            ├── handlers/\n            │   ├── kisansathi\n            /\n            │   │   ├── mod.rs\n            │   │   ├── soil_moisture.rs\n            │   │   ├── soil_ph.rs\n            │   │   ├── temperature.rs\n            │   │   ├── weather.rs\n            │   │   ├── irrigation.rs\n            │   │   ├── crop_recommendation.rs\n            │   │   └── ...\n            │   │\n            │   └── existing Codex handlers...\n            │\n            ├── registry.rs\n            └── ...\n```\n\n## Adding a New Tool\n\nEach independent capability should normally have its own Rust file.\n\nFor example:\n\n```text\nsoil_moisture.rs\nsoil_ph.rs\nweather.rs\nirrigation.rs\ncrop_recommendation.rs\n```\n\nThe basic structure is:\n\n```text\nOne major capability\n        ↓\nOne Rust file\n        ↓\ncodex-rs/core/src/tools/handlers/kisansathi\n/\n```\n\n## What Teammates Need to Build\n\nYou do not need to understand or modify the entire Codex CLI.\n\nFocus on implementing the functionality assigned to you.\n\nFor example:\n\n```text\nINPUT\nsensor_id\n\n   ↓\n\nYOUR IMPLEMENTATION\n\n   ↓\n\nOUTPUT\nsoil moisture value\n```\n\nExample input:\n\n```json\n{\n  \"sensor_id\": \"soil_sensor_01\"\n}\n```\n\nExample output:\n\n```json\n{\n  \"sensor_id\": \"soil_sensor_01\",\n  \"moisture_percent\": 28.5\n}\n```\n\nKeep inputs and outputs clear and predictable.\n\n## Initial Implementations\n\nIf complete Rust integration is difficult initially, first create a simple standalone implementation.\n\nThis may include:\n\n* sensor-reading logic\n* API calls\n* ML models\n* database queries\n* hardware communication\n* calculations\n\nOnce the functionality works, it can be converted or wrapped into the required Rust tool format.\n\nFocus first on:\n\n```text\nCorrect Input\n    ↓\nCorrect Functionality\n    ↓\nCorrect Output\n```\n\n## Integration\n\nAfter implementation, the tool will be placed inside:\n\n```text\ncodex-rs/core/src/tools/handlers/kisansathi\n/\n```\n\nand connected to the Codex tool system.\n\nOverall flow:\n\n```text\nYour Tool\n    ↓\nSage Handler\n    ↓\nCodex Tool Registry\n    ↓\nSIH Harness Agent\n```\n\nThe tool registry and agent integration will be handled centrally.\n\n## Important Rule\n\nAll custom SIH Harness farming tools should remain inside:\n\n```text\ncodex-rs/core/src/tools/handlers/kisansathi\n/\n```\n\nDo not place farming functions randomly throughout the Codex codebase.\n\nThis keeps the project modular and makes it easier to merge, debug, update, and maintain.\n\n## Summary\n\nThe most important path is:\n\n```text\ncodex-rs/core/src/tools/handlers/kisansathi\n/\n```\n\nEach teammate should develop their assigned capability as an independent module inside this directory, with clearly defined inputs and outputs.\n",
+  "status": "curated"
+}

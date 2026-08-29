@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/2017YANR02/cuberoot.me/date-input",
+  "type": "skill",
+  "name": "date-input",
+  "description": "Use when adding or editing date-only inputs or date ranges in CubeRoot UI. Reuse the canonical controls and local-calendar ISO helpers; datetime-local and time fields stay separate.",
+  "author": "2017YANR02",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/2017YANR02/cuberoot.me/blob/HEAD/.agents/skills/date-input/SKILL.md",
+    "repo": "2017YANR02/cuberoot.me",
+    "path": ".agents/skills/date-input/SKILL.md"
+  },
+  "license": "GPL-3.0",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 15,
+    "pushed_at": "2026-08-29T08:05:06Z",
+    "score": 66,
+    "star_history": [
+      {
+        "d": "2026-08-29",
+        "s": 15
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "设计",
+    "featured": false
+  },
+  "readme": "<div align=\"center\">\n\n# CubeRoot\n\n### Solve · Train · Analyze\n\nSolvers, trainers, analytics, and statistics for the Rubik's Cube — all in the browser.\n\n[cuberoot.me](https://cuberoot.me/)\n\n</div>\n\n---\n\n## Architecture\n\n```\ncuberoot.me/\n├── core/                  pnpm + Turbo monorepo — active apps, shared packages, and offline jobs\n│   ├── apps/\n│   │   ├── api/           Hono + PostgreSQL 13 — WCA OAuth, reconstructions, algorithm library\n│   │   ├── mobile/        React + Capacitor — Android now, reusable for a future iOS target\n│   │   ├── miniprogram/   WeChat Mini Program — independent native runtime\n│   │   └── fmc-solver/    Rust FMC solver service — independent Cargo workspace and deployment\n│   ├── packages/\n│   │   ├── client/        React 19 + Next.js 16 (App Router) — awaiting its final apps/web move\n│   │   ├── platform/      Retired read-only archive; its product surfaces now live under client /platform\n│   │   └── ...            Reusable libraries with public package boundaries\n│   └── jobs/\n│       ├── alg-build/     Offline algorithm data and SQL generators\n│       ├── scramble-stats-build/ Offline scramble analysis generators\n│       ├── stats-build/   Offline WCA statistics and database-load pipeline\n│       └── wb-build/      Offline unofficial world-best dataset generator\n├── solver/                Rust solving engines — native analyzers and WebAssembly builds\n├── research/              Independent research projects\n│   └── reconer/           Automated reconstruction from speedsolving video\n├── tools/                 Upstream forks, served from static.cuberoot.me\n├── stats/                 Generated statistics JSON (committed)\n├── ops/                   nginx vhosts, systemd units, deployment scripts\n└── docs/                  Design notes and runbooks\n```\n\n**Frontend** React 19, Next.js 16 with Turbopack, TypeScript.\n**Backend** Hono on PostgreSQL 13, behind nginx.\n**Pipelines** TypeScript jobs over the WCA MySQL export, run by GitHub Actions.\n**Solving** Rust engines, compiled natively for services and statistics pipelines or to WebAssembly for the browser.\n**Hosting** A self-hosted server and Vercel, split by DNS.\n\n---\n\n## Local development\n\nRequires pnpm 11 and Node 20 or newer.\n\n```bash\ncd core\npnpm install\n\npnpm --filter @cuberoot/client dev         # http://127.0.0.1:3000/\npnpm --filter @cuberoot/client typecheck   # tsgo, the fast daily check\npnpm --filter @cuberoot/client test\npnpm --filter @cuberoot/client build\n```\n\nAPI calls are proxied to production through Next.js rewrites, so the full site\nruns without a local backend. Platform is part of that same frontend at\n`/platform`; the archived `packages/platform` app is excluded from the workspace\nand is not built or deployed.\n\nArchitecture decisions, document status, and generated-artifact ownership are\nindexed in [`docs/README.md`](./docs/README.md).\n\n---\n\n## Credits\n\nThis project builds on a great deal of open-source work. The full list is at\n[cuberoot.me/support](https://cuberoot.me/support).\n\n## License\n\nSee [LICENSE](./LICENSE). Vendored upstream modules keep their original licenses.\n",
+  "status": "curated"
+}

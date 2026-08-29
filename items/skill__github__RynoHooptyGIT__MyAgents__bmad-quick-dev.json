@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/RynoHooptyGIT/MyAgents/bmad-quick-dev",
+  "type": "skill",
+  "name": "bmad-quick-dev",
+  "description": "Implements any user intent, requirement, story, bug fix or change request by producing clean working code artifacts that follow the project's existing architecture, patterns and conventions. Use when the user wants to build, fix, tweak, refactor, add or modify any code, component or feature.",
+  "author": "RynoHooptyGIT",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/RynoHooptyGIT/MyAgents/blob/HEAD/team/workflows/implementation/quick-dev/skill.md",
+    "repo": "RynoHooptyGIT/MyAgents",
+    "path": "team/workflows/implementation/quick-dev/skill.md"
+  },
+  "license": null,
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 1,
+    "pushed_at": "2026-08-24T04:41:57Z",
+    "score": 58,
+    "star_history": [
+      {
+        "d": "2026-08-29",
+        "s": 1
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# My Dev Team\n\n**27 specialist AI agents**, **70+ workflows**, and an **Oracle orchestrator** that together guide your project from initial concept through production deployment. Works with Claude Code, Cursor, or GitHub Copilot to enforce lifecycle discipline, maintain sprint state, and ensure consistent quality.\n\n## What It Does\n\nInstead of relying on ad-hoc AI prompting, this methodology provides a structured system where:\n\n- An **Oracle agent (Athena)** activates at the start of every session, reads your sprint state, and enforces the full implementation lifecycle\n- **Specialist agents** (architect, security auditor, test architect, UX designer, etc.) provide domain expertise on demand\n- **Structured workflows** guide every activity from product brief creation through code review and shipping\n- A **sprint-status.yaml** file serves as the single source of truth for all project state\n- **Context generation** keeps AI agents informed about your codebase structure, API surface, and database schema\n\n## The Oracle Lifecycle\n\nThe Oracle enforces a strict implementation lifecycle with gates at every transition:\n\n```\nCreate Story (CS)  -->  Dev Story (DS)  -->  Code Review (CR)  -->  Ship (SH)\n     |                       |                      |                    |\n  Story file            Story status           Story status         Story status\n  must exist            set to                 must be              must be\n  before dev            in-progress            in-progress          done before\n  can begin             before review          before shipping      PR creation\n```\n\nEvery session begins with the Oracle reading `sprint-status.yaml`, presenting a project brief with current state and recommendations, and displaying a command menu.\n\n### Ambient Intelligence\n\nOnce activated, the Oracle enters **ambient monitoring mode** — continuously watching session output for errors, test failures, security signals, and completion events. Instead of waiting for you to diagnose problems, Athena detects them and either suggests or auto-executes the right fix.\n\n| Mode | Behavior | Toggle |\n|------|----------|--------|\n| **suggest** (default) | One-line nudge when problems detected | `oracle suggest` |\n| **auto** | Dispatches fixes immediately | `oracle auto` |\n| **off** | Silent — menu commands only | `oracle off` |\n\nThe Oracle bridges two systems: **Claude Code skills** (systematic-debugging, parallel agents, TDD) for immediate fixes, and **team agents** (security auditor, architect, test architect, etc.) for domain expertise. Say `fix it` for a triaged plan, or `just fix it` for hands-free execution.\n\nSee the [dispatch map](team/agents/oracle-dispatch-map.md) for the full routing table.\n\n## Quick Start\n\n```bash\n# 1. Clone the template into your project\ngit clone https://github.com/your-org/my-dev-team.git\ncd my-dev-team\n\n# 2. Run the interactive setup script\nbash scripts/setup.sh\n\n# 3. Configure context generation for your tech stack\n#    Edit scripts/context/context-config.yaml\n\n# 4. Start a session -- the Oracle activates automatically\n#    In Claude Code: /team:oracle\n#    In Cursor: Oracle loads via alwaysApply .mdc rule\n#    In Copilot: Ask the AI to load team/agents/oracle.md\n```\n\n## Supported AI Tools\n\n| Tool | Support Level | Key Integration |\n|------|--------------|-----------------|\n| **Claude Code** | Full | 76 slash commands, PostToolUse hooks, agent teams, settings.local.json |\n| **Cursor** | Good | .cursor/rules/ with .mdc files, alwaysApply Oracle activation |\n| **GitHub Copilot** | Partial | copilot-instructions.md, manual agent invocation |\n\nSee [docs/TOOL-COMPATIBILITY.md](docs/TOOL-COMPATIBILITY.md) for a detailed feature matrix.\n\n## Key Concepts\n\n**Agents** are persona-driven specialists. Each has a name, communication style, domain expertise, and an activation protocol. The Oracle orchestrates them. See [docs/AGENT-CATALOG.md](docs/AGENT-CATALOG.md).\n\n**Workflows** are structured step-by-step processes. They load configuration from YAML files, resolve variables, execute instructions in order, and produce output artifacts. See [docs/WORKFLOW-CATALOG.md](docs/WORKFLOW-CATALOG.md).\n\n**Sprint Status** (`sprint-status.yaml`) tracks every epic and story through the lifecycle. The Oracle reads it before every decision and updates it after every status change.\n\n**Context Files** (`output/context/`) are auto-generated summaries of your codebase -- module index, API endpoints, database schema, code patterns, and sprint digest. A post-commit hook keeps them fresh.\n\n**Engineering Disciplines** (`team/data/discipline/`) are hard enforcement protocols that prevent AI agents from cutting corners. Five disciplines (TDD, verification, debugging, receiving review, anti-rationalization) are enforced via engine-level gates at every critical checkpoint. No completion claims without fresh evidence. No production code without a failing test. No fixes without root cause investigation. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#engineering-discipline-system).\n\n## Documentation\n\n| Document | Description |\n|----------|-------------|\n| [Quick Start Guide](docs/QUICKSTART.md) | Step-by-step new project setup |\n| [Architecture](docs/ARCHITECTURE.md) | How the system works internally |\n| [Agent Catalog](docs/AGENT-CATALOG.md) | All 27 agents with descriptions |\n| [Workflow Catalog](docs/WORKFLOW-CATALOG.md) | All 70+ workflows by phase |\n| [Tool Compatibility](docs/TOOL-COMPATIBILITY.md) | Feature matrix for Claude Code, Cursor, Copilot |\n| [Customization](docs/CUSTOMIZATION.md) | Adding agents, workflows, and project rules |\n| [Claude Code Guide](ide-guides/claude-code.md) | Full Claude Code integration setup |\n| [Cursor Guide](ide-guides/cursor.md) | Cursor IDE adaptation |\n| [Copilot Guide](ide-guides/copilot.md) | GitHub Copilot adaptation |\n\n## Repository Structure\n\n```\nmy-dev-team/\n  team/                     # Agent team system\n    config.yaml             # Unified configuration\n    manifest.yaml           # Team definitions\n    agent-manifest.csv      # Agent registry\n    agents/                 # All 27 agents (flat)\n    workflows/              # All workflows by category\n    engine/                 # Workflow execution engine + discipline gates\n    resources/              # Shared resources (excalidraw helpers)\n    data/                   # Project data, knowledge bases, discipline protocols\n    teams/                  # Team composition files\n  claude-commands/team/     # 76 slash commands for Claude Code\n  output/                   # Generated artifacts and context\n  hooks/                    # Post-commit context regeneration hook\n  templates/                # Configuration templates\n  scripts/                  # Setup and context generation scripts\n  docs/                     # Documentation\n  ide-guides/               # IDE-specific setup guides\n```\n",
+  "status": "curated"
+}
