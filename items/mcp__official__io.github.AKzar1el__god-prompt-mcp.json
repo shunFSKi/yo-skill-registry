@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.AKzar1el/god-prompt-mcp",
+  "type": "mcp",
+  "name": "GodPrompt MCP Server",
+  "description": "GodPrompt workflows for TDD, debugging, verification, task routing, and progressive disclosure.",
+  "author": "io.github.AKzar1el",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/AKzar1el/god-prompt-mcp",
+    "repo": "AKzar1el/god-prompt-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "https://github.com/AKzar1el/god-prompt-mcp/releases/download/v1.0.2/god-prompt-mcp-1.0.2.mcpb"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-30T17:55:36.503154Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "AI",
+    "featured": false
+  },
+  "readme": "# GodPrompt MCP Server\n\nA [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) server for [GodPrompt](https://github.com/AKzar1el/god-prompt) — AI software-development workflow guidance with task routing, TDD, debugging protocols, verification gates, and progressive disclosure.\n\n## Tools\n\n| Tool | Description |\n|------|-------------|\n| `get_god_prompt` | Full GodPrompt.md single-file payload (~40KB) |\n| `get_core_skill` | `SKILL.md` — always-on protocol (~10KB) |\n| `get_protocols` | `references/01-PROTOCOLS.md` — deep execution guides (~13KB) |\n| `get_gates` | `references/02-GATES.md` — verification checklists (~9KB) |\n| `get_anti_patterns` | `references/03-ANTI-PATTERNS.md` — red flags & recovery (~9KB) |\n| `classify_task` | Classify a task into one of 9 GodPrompt task types |\n| `get_version` | Version info and server metadata |\n\n## Progressive Disclosure\n\nFor minimum context usage, start with `get_core_skill`, then load `get_protocols`, `get_gates`, or `get_anti_patterns` only when the task requires deeper guidance. Use `get_god_prompt` when you want everything in one shot.\n\n## Example queries\n\n- \"Classify this refactor and tell me which GodPrompt workflow applies.\"\n- \"Show me the verification gates I should satisfy before I claim this bug fix is complete.\"\n- \"Load the debugging protocol for a failing integration test without loading the full GodPrompt.\"\n\n## Evaluation\n\nGodPrompt's benchmark methodology, deterministic task corpus, evaluator logic, and published run artifacts live in the source project: [GodPrompt Bench](https://github.com/AKzar1el/god-prompt/tree/main/bench).\n\nThe MCP server does not run the benchmark or claim model-level superiority itself; it distributes the GodPrompt content evaluated by that suite.\n\n## Connect\n\n### Glama\n\nGodPrompt MCP is published on [Glama](https://glama.ai/mcp/servers/AKzar1el/god-prompt-mcp). Use the server page to inspect the tools and connect it to a supported MCP client.\n\n### Kiro\n\n[![Add to Kiro](https://kiro.dev/images/add-to-kiro.svg)](https://kiro.dev/launch/mcp/add?name=god-prompt-mcp&config=%7B%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22github%3AAKzar1el%2Fgod-prompt-mcp%22%5D%2C%22disabled%22%3Afalse%2C%22autoApprove%22%3A%5B%5D%7D)\n\nKiro installs and builds the stdio server directly from this GitHub repository. The package remains unpublished on npm; Node.js 20+ and Git are required.\n\n### Claude Desktop extension\n\nGitHub releases include a `.mcpb` bundle for one-click local installation in MCPB-compatible clients such as Claude Desktop. The bundle runs the same local stdio server and does not require an API key or account.\n\n### Local stdio\n\n```bash\nnpm install\nnpm run build\nnode dist/stdio.js\n```\n\nExample client configuration:\n\n```json\n{\n  \"mcpServers\": {\n    \"god-prompt\": {\n      \"command\": \"node\",\n      \"args\": [\"/absolute/path/to/god-prompt-mcp/dist/stdio.js\"]\n    }\n  }\n}\n```\n\n## Privacy Policy\n\nGodPrompt MCP is a local stdio server. Its content tools return static GodPrompt material bundled with the installed extension, and `classify_task` evaluates the supplied task description in the local Node.js process.\n\n- **Data collection and use:** the server has no telemetry or analytics and does not collect account data. Tool input is used only to produce the requested local response.\n- **Storage and retention:** the server has no server-side persistence and does not retain tool inputs after a request completes.\n- **Third-party sharing:** the server does not transmit tool inputs or bundled GodPrompt content to an external API or third party. The MCP host or AI client may process conversation and tool data under its own policies independently of this server.\n- **Contact and policy:** see [tomiseregi.si/privacy](https://tomiseregi.si/privacy) for the current privacy policy and contact information. For support or bug reports, use [GitHub Issues](https://github.com/AKzar1el/god-prompt-mcp/issues).\n\n## Development\n\n```bash\nnpm install\nnpm run build\nnpm test\n```\n\n`npm test` builds the stdio server, performs the MCP initialization handshake, and verifies the expected tool list.\n\nRepository discovery metadata is kept in `server.json` for MCP Registry-compatible consumers and `glama.json` for Glama.\n\n## Updating Content\n\nTo update the embedded GodPrompt content:\n\n1. Pull the latest content from the [GodPrompt repository](https://github.com/AKzar1el/god-prompt).\n2. Run `npm run generate-content`.\n3. Run `npm test` before publishing a new server release.\n\nThe generator reads the current source layout: `GodPrompt.md`, `SKILL.md`, and the three files under `references/`.\n\n## License\n\n[MIT](LICENSE)\n\n## Project & related MCP servers\n\nProject page: [GodPrompt — AI software-development system prompt](https://tomiseregi.si/projects/god-prompt) · [GodPrompt source](https://github.com/AKzar1el/god-prompt)\n\nRelated MCP servers: [Google Search Console](https://github.com/AKzar1el/mcp-gsc) · [GEO Tracker](https://github.com/AKzar1el/mcp-geo) · [Web Validator](https://github.com/AKzar1el/mcp-web-validator) · [Google News & Trends](https://github.com/AKzar1el/mcp-trendpulse)",
+  "status": "curated"
+}

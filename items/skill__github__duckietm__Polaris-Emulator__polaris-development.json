@@ -10,14 +10,20 @@
     "repo": "duckietm/Polaris-Emulator",
     "path": ".claude/skills/polaris-development/SKILL.md"
   },
-  "license": null,
+  "license": "GPL-3.0",
   "install": {
     "kind": "skill-dir"
   },
   "quality": {
-    "stars": null,
-    "pushed_at": null,
-    "score": 25
+    "stars": 50,
+    "pushed_at": "2026-08-30T18:57:19Z",
+    "score": 70,
+    "star_history": [
+      {
+        "d": "2026-08-30",
+        "s": 50
+      }
+    ]
   },
   "security": {
     "score": 100,
@@ -49,6 +55,6 @@
     "category": "编程",
     "featured": false
   },
-  "readme": null,
+  "readme": "# Polaris\n\nPolaris is a fork of [Arcturus Community](https://git.krews.org/morningstar/Arcturus-Community) and is completely independently developed and has no ties to Krews / Team Morningstar\n\n**Polaris** is a complete, self-contained hotel package: a modern Java game\nserver (formerly known as *Arcturus Morningstar Extended*), the Octane browser\nclient, a ready-to-import database and all the assets needed to bring a hotel\nonline.\n\n> ### 📢 Disclaimer\n> This repository is provided as an educational resource for learning purposes\n> only. The creators and contributors are not responsible for any misuse or\n> unintended consequences arising from its use. By using these files you agree\n> to take full responsibility for your actions and to comply with all\n> applicable laws and regulations.\n\n## Requirements\n\n- **Emulator:** Java 21 (JDK) and Maven\n- **Database:** MariaDB\n\n## Quick start\n\n### 1. Database\n\nCreate an empty MariaDB database and put its name and credentials in\n`config.ini`. Polaris creates the schema automatically on first startup; you do\nnot need to import a database dump.\n\nAlready running an Arcturus Morningstar 3.5.5 or older Polaris hotel? **Make a\nfull database backup first**, point Polaris at that database, and start the\nemulator. A recognized hotel is adopted and upgraded automatically while its\nusers, rooms, items, currencies, settings, and custom tables are preserved.\nPolaris refuses to modify a non-empty database that does not look like an\nArcturus/Polaris hotel.\n\nAutomatic migrations are enabled by default. Advanced deployments can set\n`db.migrate.on_startup=false` (or `DB_MIGRATE_ON_STARTUP=false`) after applying\nmigrations separately.\n\nDeployment and troubleshooting commands:\n\n```bash\n# Apply migrations and exit without starting the hotel\njava -jar Polaris-<version>-jar-with-dependencies.jar --migrations-only\n\n# Read-only compatibility, checksum and pending-migration report\njava -jar Polaris-<version>-jar-with-dependencies.jar --migrations=validate\n```\n\n`--migrations=apply` explicitly applies migrations before normal startup. There\nis no interactive startup prompt, because that would hang Docker, systemd and\nhosting-panel restarts.\n\n### 2. Game server\n\n```\ncd emulator\nmvn package\n```\n\nThe build produces `target/Polaris-<version>-jar-with-dependencies.jar`.\nPlace a `config.ini` with your database credentials next to the jar (or set\nthe `DB_HOSTNAME`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME` and `DB_PASSWORD`\nenvironment variables) and start it with:\n\n```\njava -jar Polaris-<version>-jar-with-dependencies.jar\n```\n\n## Plugins & backwards compatibility\n\nPolaris keeps its promise to existing plugin authors:\n\n- Plugin jars built for Arcturus/Morningstar **load unchanged** — the Java API\n  still lives in the `com.eu.habbo.*` packages.\n- Raw SQL written against pre-Polaris table names is translated on the fly by\n  the **legacy bridge**. The best-known example: the old `permissions` table\n  is now split into `permission_ranks` and `permission_definitions`, and the\n  bridge rewrites old-style statements (such as\n  `ALTER TABLE permissions ADD cmd_x ...`) into their new-schema equivalents\n  automatically.\n\nHow it works, what it covers and how to configure it is documented in\n[`POLARIS.md`](POLARIS.md).\n\n## Credits\n\n- **TheGeneral** — the original Arcturus emulator\n- **The Arcturus Morningstar team** ([krews.org](https://krews.org)) — the community fork Polaris grew from\n- **DuckieTM**, **simoleo89**, **Medievalshell**, **Lorenzo (the wired master)**, **Remco**, **Dennis (DennisObject)**\n- **Dippy** — Improved wired architecture base\n- **Seth / iSetht** — Opacity & Gravity wireds\n- **Puffin** — the MyBoBBa catalogue assets, **xlRaiko** — the clothing pack\n- **bop** — Easter egg exploit & Nitro Memory Leaks\n\n## Community\n\n[![Discord](https://img.shields.io/badge/Discord-Join%20our%20community-5865F2?logo=discord&logoColor=white)](https://discord.gg/jqZfVrhbf)\n\nNeed help, want to contribute, or just want to chat?\n",
   "status": "curated"
 }

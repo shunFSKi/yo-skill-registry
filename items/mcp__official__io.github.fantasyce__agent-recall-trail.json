@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.fantasyce/agent-recall-trail",
+  "type": "mcp",
+  "name": "Agent Recall Trail",
+  "description": "Private Agent memory and human-reviewed shared knowledge.",
+  "author": "io.github.fantasyce",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/fantasyce/agent-recall-trail",
+    "repo": "fantasyce/agent-recall-trail"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "https://github.com/fantasyce/agent-recall-trail/releases/download/v0.2.0/agent-recall-trail_0.2.0.mcpb"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-30T16:33:25.379489Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "AI",
+    "featured": false
+  },
+  "readme": "# ART — Agent Recall Trail\n\nART is a local-first memory and reviewed-knowledge product for coding agents. Every Agent gets a physically separate private Recall Trail. Stable conclusions become human-reviewed, immutable Knowledge Editions that other Agents can retrieve without seeing private source identities or source bodies.\n\nART `0.2.0` supports Codex and DeepSeek Harness (DSH) over stdio MCP. It is standalone: no AAA adapter, HTTP service, daemon, cloud sync, vector service, or autonomous publication is required.\n\n## Product boundary\n\n- Private memory belongs to one process-bound Agent identity.\n- Shared knowledge contains only committed, reviewed Editions.\n- Agents may capture, recall, read, provide feedback, and create proposals.\n- Only a local human may approve, publish, revoke, supersede, archive, or make assurance decisions.\n- Stored content is evidence, never executable instruction or authorization.\n\n## Quick start\n\n```bash\ncargo build --release --locked\n./target/release/art --home /an/explicit/art-home init --confirm\n./target/release/art --home /an/explicit/art-home agent create --id codex-primary --host codex\n./target/release/art --home /an/explicit/art-home doctor --agent codex-primary --json\n```\n\nUse [Codex integration](integrations/codex/README.md) or [DSH integration](integrations/dsh/README.md) to start one bound stdio child. Run `art --help` for the operator CLI.\n\n## Install\n\nDownload the native archive and `SHA256SUMS` from the\n[latest release](https://github.com/fantasyce/agent-recall-trail/releases/latest),\nverify the archive, then run the included installer with the extracted binary:\n\n```bash\nbash scripts/install.sh --binary /absolute/path/to/art --confirm\nart --version\nart doctor --agent codex-primary --json\n```\n\nThe installer keeps executable bytes under `~/.across/bin/art`, creates a\ndiscovery link at `~/.local/bin/art`, and initializes owner-only ART data. It\ndoes not edit Codex or DSH configuration. The thin Codex plugin lives under\n`plugin/agent-recall-trail`; its MCP child is permanently bound to\n`codex-primary`. See [operations](docs/operations.md) before migrating or\npublishing knowledge.\n\nART 0.2.0 adds BM25-first fusion, bounded result depth, and reproducible BEIR\nretrieval gates while preserving deterministic Knowledge Vault backup,\nencrypted recovery of local review authority, and verified empty-home\nrestoration. See\n[operations](docs/operations.md#backup-and-disaster-recovery) before creating\nthe dedicated private Git repository.\n\nConfiguration precedence is `--home`, then `--config <file>`, then the owner-only user config at `~/.across/config/art/config.json`, then the built-in `~/.across` root. ART config accepts only `schema` and `home`; credentials are deliberately unsupported.\n\n## Documentation\n\n- [Architecture](docs/architecture.md)\n- [Memory and knowledge model](docs/memory-and-knowledge.md)\n- [Operations](docs/operations.md)\n- [Security model](docs/security-model.md)\n- [Testing and acceptance](docs/testing.md)\n- [Architecture decisions](docs/decisions/README.md)\n- [Independent design review](docs/research/design-independence.md)\n\nAll automated or manual tests must use an explicit task-owned ART home. ART never modifies Codex or DSH configuration automatically.\n\nApache-2.0 licensed. See [Security](SECURITY.md),\n[Contributing](CONTRIBUTING.md), and [Support](SUPPORT.md).\n",
+  "status": "curated"
+}

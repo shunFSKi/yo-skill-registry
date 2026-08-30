@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.legacyinmotion/sharegrokbots",
+  "type": "mcp",
+  "name": "ShareGrokBots",
+  "description": "Search shared Grok Bots by what they do. Credit the creator. No prompt text.",
+  "author": "io.github.legacyinmotion",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/legacyinmotion/sharegrokbots-examples",
+    "repo": "legacyinmotion/sharegrokbots-examples"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://mcp.sharegrokbots.com/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-30T17:56:05.573707Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "AI",
+    "featured": false
+  },
+  "readme": "# ShareGrokBots examples\n\nShareGrokBots is a public directory of Grok Bot builds, each credited to the X creator who shared it. Listings are run on a standard task and marked verified or not yet verified; the site does not store or show prompt text.\n\nThis repo is working code against the public surfaces: JSON API, feeds, and the MCP host. Nothing here talks to a private product repo.\n\n## Public API (v1, additive-only)\n\nv1 is additive-only. New fields and endpoints may appear; existing fields are never removed, renamed, or repurposed within v1. Ignore fields you do not recognize. Follow a `next` cursor when a response includes one. Breaking changes ship at `/api/v2` and are announced on status with at least 90 days of deprecation notice.\n\n| Surface | URL |\n| --- | --- |\n| Status | https://sharegrokbots.com/api/v1/status.json |\n| Templates (paginated) | https://sharegrokbots.com/api/v1/templates.json |\n| JSON Feed 1.1 | https://sharegrokbots.com/api/v1/feed.json |\n| RSS | https://sharegrokbots.com/feed.xml |\n| MCP host (Streamable HTTP, no auth) | https://mcp.sharegrokbots.com/mcp |\n\n`GET` on the MCP host returns 405. `POST` with JSON-RPC is the protocol. `/llms.txt` is coming.\n\nCaptured responses: [`examples/curl.md`](examples/curl.md). Cursor pagination of verified rows: [`examples/node/list-verified.mjs`](examples/node/list-verified.mjs).\n\n## MCP one-liner\n\n```bash\ngrok mcp add --transport http sharegrokbots https://mcp.sharegrokbots.com/mcp\n```\n\nThe host exposes `search_bots`, `get_bot`, `list_categories`, `latest`, and `verified_recent`. A Node client is in [`examples/node/mcp-client.mjs`](examples/node/mcp-client.mjs). Wiring the same host into a Grok Bot is in [`examples/grok-bot/`](examples/grok-bot/). Browser WebMCP is noted in [`examples/webmcp/`](examples/webmcp/).\n\n## Cursor / Grok Bot plugin\n\nThis repo is the Cursor Marketplace / Grok Bot Settings plugin for the same host. Manifest: [`.cursor-plugin/plugin.json`](.cursor-plugin/plugin.json). MCP config: [`mcp.json`](mcp.json).\n\n```bash\ngrok mcp add --transport http sharegrokbots https://mcp.sharegrokbots.com/mcp\n```\n\nFive read-only tools:\n\n- `search_bots`: Search public ShareGrokBots listings by text and optional category. Returns name, credit, live bot link, our verdict, and verified. `verified` is authoritative; `verdict` is a display object and may say Not yet verified. Never returns prompt text.\n- `get_bot`: Fetch one public listing by slug. Credits the creator X post. `verified` is authoritative; `verdict` is a display object and may say Not yet verified. Never returns prompt text.\n- `list_categories`: List the categories used to file listings, grouped as market or trades. Old slugs appear under aliases.\n- `latest`: Newest public listings, verified first then pending, newest first within each group. `verified` is authoritative; `verdict` is a display object and may say Not yet verified.\n- `verified_recent`: Listings verified within the last N days, newest verdict first.\n\nConnect: https://sharegrokbots.com/connect\n\nNot affiliated with xAI. Grok is a trademark of xAI.\n\n## Credit law\n\nIf you reuse listing data, credit the creator's `@handle` and source post, link the live `x.ai/bot` URL, and never republish prompts. Verdicts are ShareGrokBots'. Unverified listings are third-party links, not an endorsement.\n\n## Run\n\n```bash\nnpm install\nnpm run smoke\n```\n\n`npm run smoke` hits only public endpoints.\n\n## License\n\nMIT. Copyright 2026 LegacyForgeAI LLC.\n\nNot affiliated with xAI. Grok is a trademark of xAI.\n",
+  "status": "curated"
+}

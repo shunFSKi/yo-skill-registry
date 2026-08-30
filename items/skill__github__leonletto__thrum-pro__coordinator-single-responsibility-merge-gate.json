@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/leonletto/thrum-pro/coordinator-single-responsibility-merge-gate",
+  "type": "skill",
+  "name": "coordinator-single-responsibility-merge-gate",
+  "description": "DEPRECATED — superseded by `coordinator-philosophy-merge-gate`. Invoke that skill instead. (This stub is retained for backward discoverability; it redirects immediately.)",
+  "author": "leonletto",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/leonletto/thrum-pro/blob/HEAD/claude-plugin/skills/coordinator-single-responsibility-merge-gate/SKILL.md",
+    "repo": "leonletto/thrum-pro",
+    "path": "claude-plugin/skills/coordinator-single-responsibility-merge-gate/SKILL.md"
+  },
+  "license": "Apache-2.0",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 2,
+    "pushed_at": "2026-08-30T02:19:16Z",
+    "score": 59,
+    "star_history": [
+      {
+        "d": "2026-08-30",
+        "s": 2
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Thrum Pro\n\n**The distribution point for the Thrum Pro plugin.**\n\nThrum Pro is a multi-agent coordination system for AI coding assistants. It lets a\nfleet of agents — coordinators, implementers, researchers, orchestrators — message\neach other, share memory, track work, and merge code through review gates, all from\ninside your existing runtime (Claude Code, Codex, Cursor, OpenCode, or GitHub\nCopilot CLI).\n\nThis repository is where the **Thrum Pro plugin** lives, so anyone with access can\ninstall it straight from git. The plugin is the client side: skills, commands, agents,\nand hooks that run inside your assistant and drive the Thrum daemon.\n\n> **The Thrum binary is distributed separately.** This repo does **not** contain the\n> `thrum` binary itself — binary access is provisioned directly by the Thrum Pro team.\n> See [Getting the binary](#getting-the-thrum-binary) below.\n\n---\n\n## What's in this repo\n\nEach supported runtime has its own plugin tree at the top level:\n\n| Directory | Runtime |\n|-----------|---------|\n| `claude-plugin/` | Claude Code |\n| `codex-plugin/` | Codex |\n| `cursor-plugin/` | Cursor |\n| `opencode-plugin/` | OpenCode |\n| `claude-plugin/` | GitHub Copilot CLI (shared marketplace payload) |\n\nEvery tree is plain text — skills (`SKILL.md`), slash commands, agent definitions,\nand hooks. No binaries. Pick the directory that matches your assistant and follow the\nmatching section below.\n\n---\n\n## Installing the plugin\n\nEvery plugin talks to the `thrum` CLI on your `PATH`. This repo ships plugin text\nonly — no `thrum` binary. Install `thrum` first (see\n[Getting the Thrum binary](#getting-the-thrum-binary)).\n\nEach runtime installs differently. Full per-runtime detail, including\nverification steps, lives in\n[`INSTALL.md`](./INSTALL.md).\n\n### Claude Code — install straight from GitHub (no clone)\n\nClaude Code can add this repo as a plugin marketplace directly by URL:\n\n```bash\nclaude plugin marketplace add leonletto/thrum-pro\nclaude plugin install thrum@thrum\n```\n\n**Updating is one command** — Claude Code re-pulls the repo's latest commit:\n\n```bash\nclaude plugin marketplace update thrum\n```\n\n### Codex — install straight from GitHub\n\n```bash\ncodex plugin marketplace add leonletto/thrum-pro\ncodex plugin add thrum@thrum-marketplace\n```\n\nUpdate with `codex plugin marketplace upgrade thrum-marketplace`, then repeat\nthe `codex plugin add` command.\n\n### GitHub Copilot CLI — install straight from GitHub\n\n```bash\ncopilot plugin marketplace add leonletto/thrum-pro\ncopilot plugin install thrum@thrum\n```\n\nUpdate with `copilot plugin update thrum`.\n\n### Cursor — install straight from GitHub\n\n```bash\ncurl https://cursor.com/install -fsS | bash\nagent login\nagent plugin marketplace add --git-ref main https://github.com/leonletto/thrum-pro.git\nagent\n```\n\nIn Cursor Agent, open `/plugin list`, switch to **Marketplace**, search for\n`thrum`, and install it at user or project scope. Update the marketplace with\n`agent plugin marketplace update thrum`.\n\nFrom an existing clone, install into a project directly:\n\n```bash\n./cursor-plugin/local-install.sh --target /path/to/your/project\n```\n\nThis copies the plugin into `<project>/.cursor/` and writes `.cursor/hooks.json`\nwith an absolute path back into this repo's `cursor-plugin/` directory — keep the\ncheckout in place after installing, or re-run the script if you move it.\n\n### OpenCode — install from npm\n\nInstall the published [`opencode-thrum-pro`](https://www.npmjs.com/package/opencode-thrum-pro)\npackage and update the current project's configuration:\n\n```bash\nopencode plugin opencode-thrum-pro\n```\n\nUse `opencode plugin opencode-thrum-pro --global` for the global configuration.\nTo configure it manually, add the package to `opencode.json`:\n\n```json\n{\n  \"$schema\": \"https://opencode.ai/config.json\",\n  \"plugin\": [\"opencode-thrum-pro\"]\n}\n```\n\nLocal-repo fallback:\n\nOpenCode loads the plugin as a Node package, so build it once:\n\n```bash\ncd opencode-plugin\nnpm install\nnpm run build\n```\n\nThen reference it as a local `file:` plugin in your project's `opencode.json`\n(or global `~/.config/opencode/opencode.json`):\n\n```json\n{\n  \"$schema\": \"https://opencode.ai/config.json\",\n  \"plugin\": [\"file:/path/to/thrum-pro/opencode-plugin\"]\n}\n```\n\n---\n\n## Getting the Thrum binary\n\nThe plugin drives the `thrum` daemon/CLI. That binary is a Thrum Pro product and is\n**not** distributed from this public repo — access is provisioned directly by the\nThrum Pro team. Contact **leon@thrum.team** for access.\n\nOnce you have the binary installed and on your `PATH`, verify it:\n\n```bash\nthrum --version\nthrum daemon status\n```\n\nThen register your first agent and load context — see the plugin's own quickstart\n(`thrum quickstart` / the `quickstart` skill) after install.\n\n---\n\n## Usage\n\nOnce the plugin and binary are installed, Thrum lets your agents:\n\n- Register + start a session\n- Send and receive messages between agents\n- Track work with tasks\n- Coordinate merges through review gates\n\nFull command and configuration reference ships inside the plugin.\n\n---\n\n## Referenced plugins\n\nThe Thrum Pro plugin *references* several third-party plugins for interoperability\n— it names them and expects them to be installed, but does **not** bundle or\nredistribute their code. Install each from its own source; each remains under its\nown license:\n\n| Plugin | Author | License | Source |\n|--------|--------|---------|--------|\n| superpowers (brainstorming, writing-plans, TDD, …) | obra / Jesse Vincent | MIT | https://github.com/obra/superpowers |\n| episodic-memory | obra / Jesse Vincent | MIT | https://github.com/obra/episodic-memory |\n| ralph-loop | Anthropic | Apache-2.0 | https://github.com/anthropics/claude-plugins-official |\n| frontend-design | Anthropic | Apache-2.0 | https://github.com/anthropics/claude-plugins-official |\n| claude-code-setup | Anthropic | Apache-2.0 | https://github.com/anthropics/claude-plugins-official |\n\n---\n\n## License\n\nThe Thrum Pro plugin in this repository is licensed under the\n[Apache License 2.0](./LICENSE). See [`NOTICE`](./NOTICE) for attribution.\n\nThe **Thrum Pro binary** is a separate commercial product and is **not** covered\nby this license — see [Getting the Thrum binary](#getting-the-thrum-binary).\n\n---\n\n## Support\n\nThrum Pro is a commercial product. For binary access, licensing, or support, contact\nthe Thrum Pro team at **leon@thrum.team**.\n",
+  "status": "curated"
+}

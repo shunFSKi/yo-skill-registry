@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/patriotnewsactivism/Casebuddy-AI-Law-Partner/create-artifact",
+  "type": "skill",
+  "name": "create-artifact",
+  "description": "This project only supports mockup sandbox. Call createArtifact() with artifactType 'mockup-sandbox' only.",
+  "author": "patriotnewsactivism",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/patriotnewsactivism/Casebuddy-AI-Law-Partner/blob/HEAD/.local/skills/create-artifact/SKILL.md",
+    "repo": "patriotnewsactivism/Casebuddy-AI-Law-Partner",
+    "path": ".local/skills/create-artifact/SKILL.md"
+  },
+  "license": null,
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 2,
+    "pushed_at": "2026-08-30T18:17:14Z",
+    "score": 59,
+    "star_history": [
+      {
+        "d": "2026-08-30",
+        "s": 2
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "设计",
+    "featured": false
+  },
+  "readme": "# CaseBuddy\n\n**Legal work, unified.**\n\nCaseBuddy is an all-in-one agentic legal-work platform for self-represented litigants and defendants, solo practitioners, and multi-attorney law firms. It brings case management, evidence and discovery, legal research, drafting, deadlines, client workflows, trial preparation, and firm operations into one matter-centered system.\n\nProduction: `https://casebuddy.live`\n\n## Product direction\n\nCaseBuddy is one product — not a collection of separate “AI law partner,” “case companion,” discovery, OCR, and trial-prep applications.\n\nThe canonical commercial codebase is this repository. Strong capabilities from older CaseBuddy repositories are being migrated here behind a common authentication, tenancy, matter, document, and audit model.\n\nSee:\n\n- [`docs/PLATFORM_ARCHITECTURE.md`](./docs/PLATFORM_ARCHITECTURE.md)\n- [`docs/MODULE_MIGRATION_MATRIX.md`](./docs/MODULE_MIGRATION_MATRIX.md)\n- [`docs/CONSOLIDATION_PLAN.md`](./docs/CONSOLIDATION_PLAN.md)\n- [`SECURITY.md`](./SECURITY.md)\n\n## Core experience\n\n### Ask CaseBuddy\n\nUsers should be able to start with the legal problem or task rather than guessing which module to open.\n\nAsk CaseBuddy routes a plain-English request to the appropriate legal-work department or practice-area specialist while keeping the active matter context attached. Dedicated workspaces remain available when the user needs a deeper workflow.\n\n### Matter-centered workspaces\n\nCurrent platform areas include:\n\n- case files and intake;\n- evidence vault and discovery;\n- OCR and transcription;\n- legal research and strategy;\n- drafting and work product;\n- deadlines and case pipeline;\n- witness and deposition preparation;\n- trial and jury simulation;\n- client portal and communications;\n- billing, CRM/growth, analytics, and firm command;\n- connected-app and media workflows.\n\n## Architecture\n\n### Web\n\n- React 19 + TypeScript\n- Vite\n- Tailwind CSS\n- Vercel production hosting and short-lived API routes\n\n### Backend\n\n- Supabase PostgreSQL\n- Supabase Auth\n- Row Level Security\n- Supabase Storage for private matter files\n- Realtime where useful for collaboration\n\n### AI / voice\n\nPermanent third-party provider credentials stay server-side. Browser code uses CaseBuddy server endpoints or short-lived provider grants where supported.\n\nThe model/provider layer is intentionally replaceable. Domain logic should not depend on one model vendor.\n\n### Background processing\n\nSupabase Edge Functions and authenticated workers handle asynchronous work. Long-running discovery/media/OCR/export workloads may be moved to dedicated worker infrastructure when request-lifetime limits make that appropriate.\n\n## Security principles\n\nCaseBuddy handles information that can be confidential, privileged, or highly sensitive.\n\n- No permanent AI/provider secrets in browser bundles.\n- Tenant, firm, user, and matter boundaries are enforced at the data layer.\n- Sensitive object storage is private; temporary access uses authenticated or signed URLs.\n- Service-role and internal worker credentials are server-only.\n- Consequential external actions should remain reviewable and require explicit authorization.\n- Agent/research output must distinguish record facts, allegations, inference, legal analysis, and items requiring verification.\n\nThe normal production build includes a client-secret sentinel:\n\n```bash\nnpm run build\n```\n\nThis runs the security-focused TypeScript gate, Vite production build, and emitted-bundle credential scan.\n\n## Development\n\nPrerequisite: Node.js 18+.\n\n```bash\nnpm install\nnpm run dev\n```\n\nProduction verification:\n\n```bash\nnpm run build\n```\n\nAdditional scripts:\n\n```bash\nnpm run typecheck\nnpm run typecheck:security\nnpm run check:client-secrets\nnpm run verify:security\n```\n\nEnvironment configuration belongs in local/deployment secrets. Use `.env.example` for variable names and never commit real credentials.\n\n## Consolidation policy\n\nNew shared CaseBuddy product work lands here by default.\n\nLegacy CaseBuddy repositories are donor sources. Useful capabilities, prompts, tests, migrations, and workflow logic are ported into the canonical platform. Redundant frontends and services are archived only after parity, data migration, redirects, credentials, and rollback boundaries are verified.\n\nThe first major consolidation workstream is **Discovery**, combining the strongest parts of DiscoveryLens, case-companion, the Discovery Scraper, and the existing canonical document/OCR/transcription pipeline.\n\n## Legal-use boundary\n\nCaseBuddy assists with organization, research, analysis, drafting, preparation, and legal workflows. It does not guarantee outcomes and must not represent fictional AI personas as real licensed attorneys. Users should obtain licensed legal counsel where appropriate.\n",
+  "status": "curated"
+}

@@ -1,0 +1,75 @@
+{
+  "id": "mcp:official/com.tugra-ai/tugra",
+  "type": "mcp",
+  "name": "Tugra",
+  "description": "Provenance-aware memory format for AI agents: every claim carries its source, age and boundary.",
+  "author": "com.tugra-ai",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/dogrucanemek-alt/tugra",
+    "repo": "dogrucanemek-alt/tugra"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "tugra"
+    ],
+    "env": [
+      {
+        "name": "TUGRA_KASA",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "TUGRA_AKIS",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "TUGRA_YETKI",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-30T18:35:13.148963Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "AI",
+    "featured": false
+  },
+  "readme": "# tugra\n\n```bash\nnpx tugra init\n```\n\nThat creates a vault, writes a sample fact, and prints a config block. Paste the block into your MCP client. On a TTY, `npx tugra` prints help and exits. Piped (Claude Desktop, Cursor, Claude Code) it is the MCP server.\n\nProvenance-aware memory for AI agents. Every claim carries its **source**, its **age**, and its **boundary**. There is no cloud.\n\n## What it is\n\nA fact that cannot name where it came from is not a fact. Tugra stores each claim as a file whose frontmatter holds source, last verification date, shelf life, and — when the topic is off-limits — a boundary that forbids invention. Search ranks by token score, then freshness, then confidence. Retired and rotten facts stay out of the default set.\n\n## Tools\n\n| Tool | What it does |\n| --- | --- |\n| `fact_search` | Search the vault. Retired/rotten omitted unless `archive: true`. |\n| `fact_read` | Read one fact by `uid`. Body is escaped before the model sees it. |\n| `fact_propose` | Write a draft. Secret patterns are rejected before any write. `type: \"boundary\"` is always quarantined. |\n| `event_report` | Append a local telemetry line. No network. |\n\nStored field names stay in the vault's native shape (`kaynak`, `guven`, `raf_omru`, `sinir`). The tool names and parameter names above are the public contract.\n\n## Install — env paths (optional)\n\n`tugra init` is enough to start. Override the two paths only if you already have a vault elsewhere. Without them, the server looks next to the installed package — that is wrong for a bare `npx` with no init.\n\n- `TUGRA_KASA` — vault (markdown facts)\n- `TUGRA_AKIS` — telemetry directory\n\nAuthorization: if no authorization store is configured, **single-user mode** is on — search and propose work without a profile. If an authorization store *is* configured (a `yetki/` directory, or `TUGRA_YETKI`), each agent needs a JSON profile or search returns unauthorized.\n\n### Claude Desktop\n\n`claude_desktop_config.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"tugra\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"tugra\"],\n      \"env\": {\n        \"TUGRA_KASA\": \"/absolute/path/to/vault\",\n        \"TUGRA_AKIS\": \"/absolute/path/to/events\"\n      }\n    }\n  }\n}\n```\n\n### Claude Code\n\n`.mcp.json` at the project root, or `claude mcp add`:\n\n```json\n{\n  \"mcpServers\": {\n    \"tugra\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"tugra\"],\n      \"env\": {\n        \"TUGRA_KASA\": \"/absolute/path/to/vault\",\n        \"TUGRA_AKIS\": \"/absolute/path/to/events\"\n      }\n    }\n  }\n}\n```\n\n### Cursor\n\n`.cursor/mcp.json` or Cursor Settings → MCP:\n\n```json\n{\n  \"mcpServers\": {\n    \"tugra\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"tugra\"],\n      \"env\": {\n        \"TUGRA_KASA\": \"/absolute/path/to/vault\",\n        \"TUGRA_AKIS\": \"/absolute/path/to/events\"\n      }\n    }\n  }\n}\n```\n\n### Windsurf\n\n`mcp_config.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"tugra\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"tugra\"],\n      \"env\": {\n        \"TUGRA_KASA\": \"/absolute/path/to/vault\",\n        \"TUGRA_AKIS\": \"/absolute/path/to/events\"\n      }\n    }\n  }\n}\n```\n\n### Codex\n\n`~/.codex/config.toml`:\n\n```toml\n[mcp_servers.tugra]\ncommand = \"npx\"\nargs = [\"-y\", \"tugra\"]\n\n[mcp_servers.tugra.env]\nTUGRA_KASA = \"/absolute/path/to/vault\"\nTUGRA_AKIS = \"/absolute/path/to/events\"\n```\n\nWindows: use a full path (`C:\\\\Users\\\\…\\\\vault`). Node 20 or newer.\n\nMore client notes: [docs/install.md](https://github.com/dogrucanemek-alt/tugra/blob/main/docs/install.md).\n\n## Shared-vault authorization (optional)\n\nSingle-user setups do **not** need this. Add `TUGRA_YETKI` only when several agents share one vault and each needs its own profile (`mcp-readonly@tugra` and others as JSON files in that directory). A missing profile then returns unauthorized. An empty `TUGRA_YETKI` is treated as unset — single-user mode stays on.\n\n## Host library surface (not the MCP wire)\n\nThe MCP tools (`fact_search`, `fact_read`, `fact_propose`, `event_report`) enforce authorization on every call. The published package also ships `dist-paket/akis.js` and `dist-paket/yetki.js` so a **host application** (cron, mirror, cockpit) can write telemetry without going through JSON-RPC.\n\nThose modules are public on purpose. `akisBildir({ atlaYetki: true })`, `eylem: \"yetki_talebi\"`, and `dosyaYoksaIzin` (default true) skip or relax the check. `harcamaEkle` mutates a profile. The host that imports them owns authorization. The MCP wire cannot set these flags — the tool schema does not accept them.\n\n### Scale vault vs target vault\n\nA0–A5 levels are facts (`yonetisim.yetki.a0` … `a5`) in a vault. The stdio server reads them from `TUGRA_KASA`, or from the cockpit `kasa/` when that variable is unset.\n\n`tugraArac` / `createTugraMcp` take an optional `kasaKok` (the write/search **target**). Scale does **not** follow that target. It defaults to `varsayilanKasa()` — the same central vault the stdio server uses. A host that points `kasaKok` at a data-only tree keeps using the cockpit / `TUGRA_KASA` scale. To read scale from a different tree, pass `skalaKasa` explicitly.\n\nAll four tools share one resolver. This is the contract: separate target + central governance stays reachable. YAYIN/12 briefly defaulted scale to `kasaKok`; that broke the split-root host. YAYIN/13 restores the central default.\n\n## What we do not guarantee\n\n- **No cloud sync.** The vault is the files you pointed at. Nothing is uploaded.\n- **No automatic merge.** Two writers, two files. You reconcile.\n- **No delete in this release.** Retirement exists; erasure is later.\n- **No automatic conflict detection.** Contradictory facts can sit side by side until a human says otherwise.\n- **No hosted service.** `npx tugra` is a local stdio process.\n\nThis package is not published as a SaaS. There is no price table here.\n\n## Requirements\n\n- Node.js 20 or newer. This is a support decision, not a technical floor: the\n  package is tested on 20 and 22 in CI, and it also runs on 18 — but 18 is past\n  its end of life, so we do not support it.\n- A vault directory you own\n\n## Topic map (optional)\n\n`<vault>/_konu-haritasi.json` — `{ \"desen\", \"bayrak\", \"konu\" }` rules in\n`harita`, `alt_kirilim`, and `stem`. If the file is missing the map is empty:\nunknown text falls back to `kurum.genel` or `dunya.<world>.genel`. Broken or\nover-long patterns are skipped and logged. This package does not ship a\ncompany taxonomy.\n\n## License\n\nApache-2.0. See `LICENSE` and `NOTICE`.\n\nThe marketing page lives in `../site/` (`npm run preview` there). It is not deployed from this package.\n\nCompatibility: `TALAMUS_*` and `MULTI_*` names still work as fallback if `TUGRA_*` is unset.\n",
+  "status": "curated"
+}

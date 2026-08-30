@@ -21,7 +21,7 @@
   "quality": {
     "stars": null,
     "pushed_at": "2026-08-29T13:53:15.183886Z",
-    "score": 52
+    "score": 42
   },
   "security": {
     "score": 100,
@@ -53,6 +53,6 @@
     "category": null,
     "featured": false
   },
-  "readme": "# booli-mcp\n\nAn MCP server for [Booli](https://www.booli.se), the Swedish property\nportal — search active for-sale listings, sold prices (slutpriser),\nresolve areas, and compute market statistics, all from Claude.\n\n> Developed and maintained by AI (Claude Code). Use at your own discretion\n> and within booli.se's terms of use.\n\n## How it works\n\nBooli fronts www.booli.se — including its GraphQL API — with a Cloudflare\nbot wall that blocks server-side clients. booli-mcp therefore reads Booli's\nconsumer GraphQL API by routing each query through **your own signed-in\nwww.booli.se browser tab** via the fetchproxy bridge (the Transporter\nextension), reusing your Cloudflare-cleared session. No\nBooli login is required — just a normal page view. All tools are read-only.\n\n`BOOLI_TRANSPORT` selects the path: `auto` (default — direct fetch first,\nbrowser-bridge fallback when walled), `fetchproxy` (always the bridge), or\n`direct`. The fetchproxy fleet shares WS port `37149` (`BOOLI_WS_PORT`).\n\n## Setup\n\n1. Install the Transporter (fetchproxy) browser extension and keep a\n   **www.booli.se** tab open.\n2. On the first request, approve the one-time pairing prompt in Transporter.\n3. Run `booli_healthcheck` to confirm the path is working.\n\n## Install\n\n```jsonc\n// mcp config\n{\n  \"mcpServers\": {\n    \"booli\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@chrischall/booli-mcp\"]\n    }\n  }\n}\n```\n\n## Tools\n\n| Tool | What it does |\n| --- | --- |\n| `booli_search_areas` | Resolve a place name to Booli area ids |\n| `booli_search_listings` | Search active for-sale listings by area + filters |\n| `booli_get_listing` | Full detail for one property (active or sold) by residence id |\n| `booli_search_sold` | Search sold listings (slutpriser) with final prices |\n| `booli_market_stats` | Median/average sold-price statistics for an area |\n| `booli_healthcheck` | Verify the data path (direct or via the browser bridge) |\n\nSearches scope by `area_id` (from `booli_search_areas`) or a free-text\n`location`. Money is SEK, areas m². See\n[`docs/BOOLI-API.md`](docs/BOOLI-API.md) for the underlying GraphQL API.\n\n## Development\n\n```\nnpm install\nnpm test          # vitest, no network\nnpm run build     # tsc + esbuild bundle\n```\n\n## License\n\nMIT\n",
+  "readme": null,
   "status": "curated"
 }

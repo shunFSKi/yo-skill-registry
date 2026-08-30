@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/Weizhena/Deep-Research-skills/research-add-items",
+  "type": "skill",
+  "name": "research-add-items",
+  "description": "Add items (research objects) to existing research outline.",
+  "author": "Weizhena",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/Weizhena/Deep-Research-skills/blob/HEAD/skills/research-codex-en/research-add-items/SKILL.md",
+    "repo": "Weizhena/Deep-Research-skills",
+    "path": "skills/research-codex-en/research-add-items/SKILL.md"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 2059,
+    "pushed_at": "2026-08-23T03:25:28Z",
+    "score": 82,
+    "star_history": [
+      {
+        "d": "2026-08-30",
+        "s": 2059
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Deep Research Skill for Claude Code / OpenCode / Codex\n\n[English](README.md) | [中文](README.zh.md)\n\n> If you find this project helpful, please give it a star! :star:\n\n> Inspired by [RhinoInsight: Improving Deep Research through Control Mechanisms for Model Behavior and Context](https://arxiv.org/abs/2511.18743)\n\nA structured research workflow skill for Claude Code, OpenCode, and Codex, supporting two-phase research: outline generation (extensible) and deep investigation. Human-in-the-loop design ensures precise control at every stage.\n\n![Deep Research Skills Workflow](workflow.png)\n\n## Use Cases\n\n- **Academic Research**: Paper surveys, benchmark reviews, literature analysis\n- **Technical Research**: Technology comparison, framework evaluation, tool selection\n- **Market Research**: Competitor analysis, industry trends, product comparison\n- **Due Diligence**: Company research, investment analysis, risk assessment\n\n## Installation\n\n```bash\ngit clone https://github.com/Weizhena/deep-research-skills.git\ncd deep-research-skills\n```\n\n### Claude Code\n```bash\n# English version\ncp -r skills/research-en/* ~/.claude/skills/\n\n# Chinese version\ncp -r skills/research-zh/* ~/.claude/skills/\n\n# Required: Install agent and modules\ncp agents/web-search-agent.md ~/.claude/agents/\ncp -r agents/web-search-modules ~/.claude/agents/\n\n# Required: Install Python dependency\npip install pyyaml\n```\n\n### OpenCode (default: gpt-5.4)\n```bash\n# Skills (same as Claude Code)\ncp -r skills/research-en/* ~/.claude/skills/   # or research-zh for Chinese\n\n# Required: Enable web search for current shell\nexport OPENCODE_ENABLE_EXA=1\n\n# Optional: make it permanent\necho 'export OPENCODE_ENABLE_EXA=1' >> ~/.bashrc\nsource ~/.bashrc\n\n# Required: Install agent and modules\ncp agents/web-search-opencode.md ~/.config/opencode/agents/web-search.md\ncp -r agents/web-search-modules ~/.config/opencode/agents/\n\n# Required: Install Python dependency\npip install pyyaml\n```\n\n> **Important**: In OpenCode, ANY model's websearch requires `OPENCODE_ENABLE_EXA=1`. A plain `export` only affects the current shell; writing it to `~/.bashrc` makes it persistent. Without it, you only get `web fetch`, which is weaker for the deep research phase.\n\n### Codex\n```bash\n# English version\nmkdir -p ~/.codex/skills ~/.codex/agents\ncp -r skills/research-codex-en/* ~/.codex/skills/\n\n# Chinese version\nmkdir -p ~/.codex/skills ~/.codex/agents\ncp -r skills/research-codex-zh/* ~/.codex/skills/\n\n# Required: Install web researcher agent and modules\ncp agents-codex/web-researcher.toml ~/.codex/agents/\ncp -r agents-codex/web-search-modules ~/.codex/agents/\n\n# Required: Install Python dependency\npip install pyyaml\n```\n\nAdd or update `~/.codex/config.toml` using either method below:\n\n**Option A: Automatic script**\n\n```bash\ncd deep-research-skills\nbash scripts/install-codex.sh\n```\n\n**Option B: Manual edit**\n\n```toml\nsuppress_unstable_features_warning = true\n\n[features]\nmulti_agent = true\ndefault_mode_request_user_input = true\n\n[agents.web_researcher]\ndescription = \"Use this agent when you need to research information on the internet, particularly for debugging issues, finding solutions to technical problems, or gathering comprehensive information from multiple sources. This agent excels at finding relevant discussions. Use when you need creative search strategies, thorough investigation, or compilation of findings from multiple sources.\"\nconfig_file = \"agents/web-researcher.toml\"\n```\n\n## Commands\n\n> **Claude Code 2.1.0+**: Direct `/skill-name` trigger is now supported!\n>\n> **Older versions**: Use `run /skill-name` format instead.\n>\n> **Codex**: You can trigger these skills from `/skills` -> `List Skills`, or ask naturally, for example `Use the research skill to build an outline for AI Agent Demo 2025`.\n\n| Command (2.1.0+) | Description |\n|------------------|-------------|\n| `/research` | Generate research outline with items and fields |\n| `/research-add-items` | Add more research items to existing outline |\n| `/research-add-fields` | Add more field definitions to existing outline |\n| `/research-deep` | Deep research each item with parallel agents |\n| `/research-report` | Generate markdown report from JSON results |\n\n## Workflow & Example\n\n> **Example**: Researching \"AI Agent Demo 2025\"\n\n### Phase 1: Generate Outline\n```\n/research AI Agent Demo 2025\n```\n💡 **What will happen**: Tell it your topic → It creates a research list for you\n\n**You get**: A list of 17 AI Agents to research (ChatGPT Agent, Claude Computer Use, Cursor, etc.) + what info to collect for each\n\n### (Optional) Not satisfied? Add more\n```\n/research-add-items\n/research-add-fields\n```\n💡 **What will happen**: Add more research items or field definitions\n\n### Phase 2: Deep Research\n```\n/research-deep\n```\n💡 **What will happen**: AI automatically searches the web for each item, one by one\n\n**You get**: Detailed info for each Agent (company, release date, pricing, tech specs, reviews...)\n\n### Phase 3: Generate Report\n```\n/research-report\n```\n💡 **What will happen**: All data → One organized report\n\n**You get**: `report.md` - A complete markdown report with table of contents, ready to read or share\n\n## Need Help?\n\nIf you have questions, ask Claude Code, OpenCode, or Codex to explain this project:\n```\nHelp me understand this project: https://github.com/Weizhena/deep-research-skills\n```\n\n## References\n\n- RhinoInsight: Improving Deep Research through Control Mechanisms for Model Behavior and Context\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/alleneubank/agent-profile/platform-tooling",
+  "type": "skill",
+  "name": "platform-tooling",
+  "description": "Use when working with Electrobun desktop apps, physical iOS devices through pymobiledevice3, or AXe automation of iOS Simulator.",
+  "author": "alleneubank",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/alleneubank/agent-profile/blob/HEAD/plugins/engineering-practices/skills/platform-tooling/SKILL.md",
+    "repo": "alleneubank/agent-profile",
+    "path": "plugins/engineering-practices/skills/platform-tooling/SKILL.md"
+  },
+  "license": null,
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 2,
+    "pushed_at": "2026-08-30T17:42:28Z",
+    "score": 59,
+    "star_history": [
+      {
+        "d": "2026-08-30",
+        "s": 2
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# agent-profile\n\nPortable agent runtime profile for Codex CLI and Claude Code.\n\nThis repo owns one public, shareable instruction file and a small marketplace of\ninstallable plugins. It replaces ad hoc dotfile sync for agent instructions and\nskills without taking ownership of private local overrides.\n\n## What This Owns\n\n- `AGENTS.md` is the canonical shared user-level instruction file.\n- `~/.codex/AGENTS.md` should be a symlink to `AGENTS.md`.\n- `~/.claude/CLAUDE.md` should be a symlink to `AGENTS.md`.\n- `plugins/engineering-practices` contains language, tooling, and quality skills.\n- `plugins/agent-workflows` contains reusable workflow skills.\n\nPrivate notes do not belong in this repo. Use `~/.codex/AGENTS.override.md`,\n`~/.claude/CLAUDE.local.md`, or another local-only file outside this repository.\n\n## Install\n\nClone the profile repo from GitHub:\n\n```bash\ngit clone https://github.com/alleneubank/agent-profile.git ~/.agent-profile\ncd ~/.agent-profile\n```\n\nCheck current runtime state:\n\n```bash\n./install.sh --check\n```\n\nApply safe fixes:\n\n```bash\n./install.sh --fix\n```\n\nIf an instruction target is a real file instead of a symlink, the installer\nrefuses to replace it. To back it up and replace it with the repo symlink:\n\n```bash\n./install.sh --fix --replace-existing\n```\n\n## direnv in agent tool calls\n\nAgents run each tool call in a fresh, non-interactive shell. direnv's normal\nhook is prompt-driven, so it never fires there and an allowed `.envrc` silently\ndoes not reach the agent — the symptom is a token or a `PATH` entry that is\npresent in your terminal and absent in the agent's.\n\nThis is a shell-configuration problem, not something a plugin should solve. A\nhook that rewrites the command to load direnv works, but the rewritten command\nthen contains `$(...)`, which Claude Code and Codex cannot statically analyse,\nso every `Bash(...)` allow rule stops matching and each call needs approval.\nFix the shell instead; the environment then arrives before the tool call is\neven matched, and nothing about permissions changes.\n\nThree shells need covering, because each reads a different startup file:\n\n| how the agent spawns its shell | file that runs | harnesses |\n|---|---|---|\n| non-interactive `zsh` | `~/.zshenv` | Claude Code, Codex |\n| `bash -lc` (login) | `~/.bash_profile` | Codex and others |\n| `bash -c` (neither login nor interactive) | **`$BASH_ENV` only** | pi |\n\nThe third is the one that is easy to miss: plain `bash -c` reads no startup\nfile at all, so `BASH_ENV` is the only hook that reaches it.\n\nIn each file, when the shell is non-interactive, run a one-time\n`eval \"$(direnv export <shell>)\"` instead of installing the prompt hook, and\noverride `cd`/`pushd`/`popd` to re-export so a mid-command directory change is\npicked up. For the `bash -c` case, point `BASH_ENV` at a small loader that does\nthe same. This repo's companion dotfiles carry a worked implementation in\n`shell/.zshenv`, `shell/.bash_profile` and `shell/.direnv-bash-env.sh`.\n\nTwo traps worth inheriting from that implementation:\n\n- **Guard against recursion.** `direnv export bash` evaluates the `.envrc` with\n  bash, and that bash inherits `BASH_ENV` and sources the loader again. Clear\n  it for the call — `eval \"$(BASH_ENV= direnv export bash)\"` — or the first\n  agent tool call in an `.envrc` directory hangs forever.\n- **Gate the loader** on an agent marker (`CLAUDECODE`, `CODEX_THREAD_ID`,\n  `PI_CODING_AGENT`) and on an `.envrc` actually being in scope, found with a\n  pure-builtin walk up the tree. `BASH_ENV` is read by *every* non-interactive\n  bash on the machine, so without both gates every shell script on the system\n  pays for a direnv fork.\n\n## Marketplace Commands\n\nThe installer registers local marketplaces during `--fix` only when doing so will\nnot mutate a config file owned by another git worktree. Manual marketplace\ncommands are useful when installing directly from GitHub or when you want plugin\ninstallation separate from instruction-file setup.\n\nInstall plugins from GitHub:\n\n```bash\ncodex plugin marketplace add alleneubank/agent-profile\ncodex plugin add engineering-practices@agent-profile\ncodex plugin add agent-workflows@agent-profile\n\nclaude plugin marketplace add alleneubank/agent-profile\nclaude plugin install engineering-practices@agent-profile\nclaude plugin install agent-workflows@agent-profile\n```\n\n## Pi package\n\nThis repo is also an installable [pi](https://pi.dev) package. It provides both\nplugins' skills (Agent Skills standard — pi's skill loader accepts Claude Code\nskill frontmatter) plus pi-native equivalents of the plugins' Claude/Codex\nhooks:\n\n- **Instruction fingerprint** — on `session_start`, pi emits the\n  `instruction-fingerprint` custom message so sessions stay bucketable by\n  instruction version (eval A/B input).\n- **Verifier-bypass guard** — on `tool_call` (bash), commands matching the\nguard policy (`git --no-verify`, `core.hooksPath=/dev/null`) are blocked\nwith the policy's reason; `HOOK_BYPASS_APPROVED=1` remains the escape hatch.\n\n```bash\npi install git:git@github.com:alleneubank/agent-profile.git\n```\n\nHook policy has a single source of truth: the pi extension execs the canonical\nscripts in `plugins/agent-workflows/hooks/` with the same stdin/JSON contract\nClaude and Codex use — no inline duplicate, and `scripts/validate.sh` fails the\nbuild if the extension stops referencing them. `SubagentStart` has no pi\nanalogue (pi has no native subagents) and is a documented skip. Hooks fail\nopen: script errors and timeouts never block a tool call or session start.\n\nDevelop and verify:\n\n```bash\nnpm install\nnpm run check          # tsc --noEmit + vitest\n./scripts/validate.sh  # parity + skill + pi package gates\npi -e extensions/pi-hooks.ts   # load the extension without installing\n```\n\nThe root `package.json` version is independent of the per-plugin manifest\nversions managed under Releasing below.\n\n## Validation\n\n```bash\n./scripts/validate.sh\n```\n\n## Typed mission command\n\nThe `loop-brief` and `mission-command` skills consume the separately\nversioned `missionctl` executable from `PATH` (one compact `LOOP.md` per\ncampaign, optional `.mission/mission.yaml`); agent-profile does not vendor or\nrelease that tool or register its `SessionStart` loop-context hook. Fleet\ninstallations manage the executable through mise and install the hooks-only\nplugin from `github:alleneubank/missionctl`.\n\nThe old `codex-reviewer` and `ralph-reviewed` Claude hook plugins are retired.\nUse modern `rl` skills and commands for review gates and autonomous loops.\n\n## Releasing\n\nEach plugin is versioned independently; the `version` field in its manifest is the\nsingle source of truth. `scripts/validate.sh` enforces 3-way parity across\n`plugins/<name>/.claude-plugin/plugin.json`, `plugins/<name>/.codex-plugin/plugin.json`,\nand the plugin's entry in `.claude-plugin/marketplace.json` — `name`/`version`/`description`\nmust match. The root `marketplace.json` (Codex-style) carries no versions.\n\nSemver, per plugin:\n\n- `MAJOR` — breaking change to a skill's contract (a skill removed/renamed, or its\n  invocation/behavior changed in a way callers depend on).\n- `MINOR` — a new skill, or a new backward-compatible capability/section.\n- `PATCH` — clarifications, fixes, or wording changes to existing guidance.\n\nRelease steps:\n\n1. Bump `version` in all three manifests for the plugin (keep them identical).\n2. Commit: `chore(release): <plugin> vX.Y.Z`.\n3. Tag the release commit, namespaced per plugin:\n   `git tag -a <plugin>-vX.Y.Z -m \"<plugin> vX.Y.Z — <summary>\"`.\n4. Push commits and the tag, then bump the submodule pin in the consuming superproject.\n\nTags mirror the manifest version and are human-facing markers only — plugins install by\nname from the marketplace (`claude plugin install <plugin>@agent-profile`), which reads the\nmanifest, not git tags. The legacy unscoped `v1.1.0` tag predates this scheme.\n",
+  "status": "curated"
+}

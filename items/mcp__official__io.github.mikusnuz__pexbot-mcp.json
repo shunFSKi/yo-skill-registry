@@ -2,7 +2,7 @@
   "id": "mcp:official/io.github.mikusnuz/pexbot-mcp",
   "type": "mcp",
   "name": "pexbot-mcp",
-  "description": "AI simulated crypto trading with real-time Upbit prices — 11 tools, 5 resources, 5 prompts",
+  "description": "PexBot simulated spot/futures trading, competitions, portfolios, and AI analytics.",
   "author": "io.github.mikusnuz",
   "source": {
     "registry": "mcp-official",
@@ -24,6 +24,16 @@
         "secret": true
       },
       {
+        "name": "PEXBOT_TOKEN",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "PEXBOT_TRADING_ACCOUNT",
+        "required": false,
+        "secret": false
+      },
+      {
         "name": "PEXBOT_API_URL",
         "required": false,
         "secret": false
@@ -32,8 +42,8 @@
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-03-24T02:53:07.421011Z",
-    "score": 32
+    "pushed_at": "2026-08-30T11:07:00.693802Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -65,6 +75,6 @@
     "category": "金融",
     "featured": false
   },
-  "readme": null,
+  "readme": "**English** | [한국어](README.ko.md)\n\n# pexbot-mcp\n\n[![npm version](https://img.shields.io/npm/v/@pexbot/mcp)](https://www.npmjs.com/package/@pexbot/mcp)\n[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)\n\nThe official-style MCP integration for [pex.bot](https://pex.bot): simulated spot and futures trading, investment competitions, public portfolios, and AI performance analytics.\n\nVersion 3 follows PexBot client contract v2. It sends client identity headers on every request and supplies idempotency identifiers for spot orders, futures orders, and wallet transfers.\n\n## Quick start\n\n```json\n{\n  \"mcpServers\": {\n    \"pexbot\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@pexbot/mcp\"],\n      \"env\": {\n        \"PEXBOT_API_KEY\": \"pxb_your_api_key\"\n      }\n    }\n  }\n}\n```\n\nAn API key is intentionally limited to trading and wallet routes. To use profile, competition, social, notification, or credential-management tools, also configure a user JWT with `PEXBOT_TOKEN` or call `login` during the MCP session.\n\n```json\n\"env\": {\n  \"PEXBOT_API_KEY\": \"pxb_your_api_key\",\n  \"PEXBOT_TOKEN\": \"your_user_jwt\"\n}\n```\n\n## Environment variables\n\n| Variable | Description |\n|---|---|\n| `PEXBOT_API_KEY` | Scoped trading API key (`pxb_` prefix) |\n| `PEXBOT_TOKEN` | User JWT for account and product features |\n| `PEXBOT_TRADING_ACCOUNT` | Optional investment-competition sub-account ID |\n| `PEXBOT_API_URL` | Spot/API base; defaults to `https://pex.bot/api/v1` |\n| `PEXBOT_FUTURES_API_URL` | Optional futures base override |\n| `PEXBOT_TIMEOUT_MS` | Request timeout; defaults to 10,000 ms |\n\n`register` supports the current Proof-of-Work and 12-character password policy. Production bot registration can additionally require a server-issued registration authorization, so obtaining an API key from the PexBot account UI is the normal setup path.\n\n## Capabilities\n\nThe server exposes 75 tools, 5 resources, and 4 prompts.\n\n### Market data and spot trading\n\n- Bulk `get_tickers` and `get_sparklines` avoid one HTTP request per market.\n- `get_candles`, `get_daily_ohlcv`, `get_trade_history`, order books, and live trades support analysis.\n- `place_order`, `cancel_order`, and `list_orders` support the normal and competition trading accounts.\n- `place_order` generates an idempotency key automatically. Pass the same `idempotency_key` when retrying an uncertain request.\n\n### Futures\n\n- Wallet, transfer history, open and historical orders, positions, leverage, margin mode, and isolated-margin adjustment.\n- Bulk futures markets/tickers plus per-symbol order book and trades.\n- Funding history, user liquidations, and the simulated insurance fund.\n- Futures orders and transfers implement the current strict retry contract.\n\n### Competitions and portfolios\n\n- List/current/joined competitions, join, and public leaderboards.\n- Overall rankings, public portfolios, portfolio comparison, and realized-PnL calendar.\n- Set `PEXBOT_TRADING_ACCOUNT` or pass `trading_account` to trade a competition sub-account.\n\n### AI analytics and community\n\n- Autonomous participants, bot replay, spectator feed, strategy leaderboard, bot health, model benchmark, and regime matrix.\n- Notices, feed, follows, portfolio comments, notifications, feedback, and simulated-account recovery status/history.\n\n## Authentication model\n\n| Operation | Credential |\n|---|---|\n| Public market data, rankings, AI analytics | None |\n| Spot/futures orders and wallets | API key preferred; JWT fallback |\n| Profile, competitions, social, notifications | JWT user session |\n| API-key creation/list/revocation | Interactive JWT session; MFA rules still apply |\n\nThe MCP never logs credentials. API keys are not sent to session-only routes, and JWTs are not preferred over a scoped API key for trading.\n\n## Manual development\n\n```bash\ngit clone https://github.com/mikusnuz/pexbot-mcp.git\ncd pexbot-mcp\nnpm install\nnpm run check\nnode dist/index.js\n```\n\n## Upgrade notes from v2\n\n- Removed tools/resources that returned 404 in the current production API: `join_autonomous`, `get_my_runs`, `pexbot://decisions/latest`, and `pexbot://regimes/current`.\n- Replaced them with current Autonomous participants, spectator feed, replay, health, and model-regime endpoints.\n- Password minimum for registration is now 12 characters.\n- `activate` only registers a legacy device; it no longer promises a balance grant.\n- Client contract headers, request timeouts, URL encoding, structured errors, trading-account selection, and strict idempotency are applied centrally.\n\n## License\n\nMIT\n",
   "status": "curated"
 }

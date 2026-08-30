@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/app.manilo/manilo",
+  "type": "mcp",
+  "name": "Manilo",
+  "description": "Log, query, and edit expenses, budgets, and accounts in Manilo from any MCP-compatible AI assistant.",
+  "author": "app.manilo",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/harholinsky/manilo-mcp",
+    "repo": "harholinsky/manilo-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://api.manilo.app/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-30T16:30:20.120569Z",
+    "score": 55
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Manilo MCP Server\n\nOfficial Model Context Protocol (MCP) server for [Manilo](https://manilo.app) (formerly Ledgy) — a multi-currency expense tracker where you talk to your money. Connect Claude, ChatGPT, Cursor, or any MCP-compatible client and log, query, and edit your expenses, budgets, and accounts in plain English.\n\n> [!NOTE]\n> Manilo MCP is a hosted service — there is nothing to install or self-host. This repository is its public documentation. Full setup guide: [manilo.app/integrations](https://manilo.app/integrations).\n\n## Endpoint\n\n| | |\n|---|---|\n| Server URL | `https://api.manilo.app/mcp` |\n| Legacy URL | `https://api.ledgy.app/mcp` — still served; existing connections keep working, no need to reconnect |\n| Transport | HTTP SSE, stateless mode |\n| Auth | OAuth 2.1 + PKCE (S256, mandatory) |\n| Client registration | Dynamic (RFC 7591) — no manual `client_id` |\n| Discovery | RFC 8414 ([authorization server metadata](https://api.manilo.app/.well-known/oauth-authorization-server)), RFC 9728 ([protected resource metadata](https://api.manilo.app/.well-known/oauth-protected-resource)) |\n| Sign-in | Apple, Google, or email |\n| Access | Manilo Cloud subscription — 7-day free trial |\n\n## Quick start\n\n### Claude (claude.ai and Claude Desktop)\n\nSettings → Connectors → Add custom connector → Name: `Manilo` → Server URL: `https://api.manilo.app/mcp` → Add → sign in with Apple, Google, or email.\n\n### ChatGPT (Plus / Pro / Business)\n\nManilo is listed in the ChatGPT Apps directory. To add it manually instead:\n\nSettings → Apps → Advanced settings → Developer mode (on) → Create → Name: `Manilo` → MCP Server URL: `https://api.manilo.app/mcp` → Authentication: OAuth → Create → sign in.\n\n### Cursor / Windsurf / other MCP clients\n\n```json\n{\n  \"mcpServers\": {\n    \"manilo\": {\n      \"url\": \"https://api.manilo.app/mcp\"\n    }\n  }\n}\n```\n\nDynamic Client Registration is supported — the client registers itself on first connect.\n\n## What you can do\n\n- \"Log $12.50 coffee at Blue Bottle yesterday\"\n- \"How much did I spend on groceries this month?\"\n- \"Here's my bank statement — import it\" (PDF, CSV, or a screenshot)\n- \"Move 200 EUR from Cash to Savings\"\n- \"Set a 400 EUR monthly budget for eating out\"\n\n## Tools (35)\n\n| Group | Tools |\n|---|---|\n| Transactions | `get_transactions`, `get_transaction`, `upsert_transactions`, `delete_transactions`, `aggregate_transactions` |\n| Accounts | `list_accounts`, `upsert_accounts`, `delete_accounts`, `get_account_balance`, `adjust_account_balance`, `reconcile_account`, `transfer_between_accounts` |\n| Categories | `list_categories`, `upsert_categories`, `delete_categories`, `upsert_category_groups`, `delete_category_groups` |\n| Budgets | `list_budgets`, `upsert_budgets`, `delete_budgets` |\n| Groups (shared ledgers) | `list_groups`, `upsert_groups`, `delete_groups` |\n| Tags | `list_tags`, `upsert_tags`, `delete_tags` |\n| Recurring | `list_recurring_transactions`, `upsert_recurring_transactions`, `delete_recurring_transactions` |\n| Receipts | `upload_receipt`, `download_receipt` |\n| Currency | `convert_currency` — live ECB FX rates |\n| User & misc | `get_user_profile`, `update_user_settings`, `list_supported_icons` |\n\nSharing in Manilo decides visibility, not ownership: members of a shared group (household, trip, flat) see the same transactions while ownership stays personal.\n\n## Privacy & security\n\n- OAuth 2.1 with PKCE; on 401 the server returns `WWW-Authenticate` with `resource_metadata` for automatic discovery\n- Data is stored on Google Cloud (United States) — Firestore and Cloud Storage\n- Security contact: [security.txt](https://api.manilo.app/.well-known/security.txt) (RFC 9116) · security@manilo.app\n- [Privacy Policy](https://manilo.app/privacy) · [Terms of Service](https://manilo.app/terms)\n\n## Links\n\n- [Manilo website](https://manilo.app) · [Integrations guide](https://manilo.app/integrations)\n- [iOS app on the App Store](https://apps.apple.com/app/id6761738170)\n- [Web dashboard](https://dashboard.manilo.app)\n- [REST API reference](https://manilo.app/api-v1) · [llms.txt](https://api.manilo.app/llms.txt)\n- Support: support@manilo.app\n",
+  "status": "curated"
+}

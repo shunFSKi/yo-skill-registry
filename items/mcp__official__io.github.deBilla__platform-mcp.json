@@ -1,0 +1,79 @@
+{
+  "id": "mcp:official/io.github.deBilla/platform-mcp",
+  "type": "mcp",
+  "name": "GCP Platform Engineer",
+  "description": "Read-only GCP tools for debugging incidents and finding cost savings",
+  "author": "io.github.deBilla",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/deBilla/platform-mcp",
+    "repo": "deBilla/platform-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "platform-mcp"
+    ],
+    "env": [
+      {
+        "name": "PLATFORM_MCP_ENVIRONMENTS",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "PLATFORM_MCP_DEFAULT_ENVIRONMENT",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "PLATFORM_MCP_CONFIG",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "PLATFORM_MCP_AUDIT_LOG",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-30T13:57:04.059557Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# platform-mcp\n\n<!-- Identifier for the official MCP registry; must match server.json. -->\nmcp-name: io.github.deBilla/platform-mcp\n\nA **read-only** [Model Context Protocol](https://modelcontextprotocol.io) server that turns an AI agent (Claude Code, Claude Desktop, or any MCP client) into a GCP platform engineer. Point it at your Google Cloud projects and ask it to investigate incidents, take inventory, and surface cost-optimization opportunities — all without any ability to change your infrastructure.\n\n> **Observation only.** No tool in this server mutates state. Combined with a viewer-only identity (below), that gives you a hard, defense-in-depth guarantee that an agent can look but never touch.\n\n## What it can do\n\n| Area | Tools |\n| --- | --- |\n| **Environments** | `list_environments` |\n| **Logs & errors** | `query_logs`, `get_recent_errors`, `list_error_groups` |\n| **Metrics & alerting** | `query_metric`, `list_alert_policies`, `list_uptime_checks` |\n| **Cost & recommendations** | `get_cost_breakdown`, `get_billing_info`, `list_cost_recommendations`, `list_recommendations` |\n| **Resource inventory** | `search_assets`, `list_compute_instances`, `list_cloud_run_services`, `list_gke_clusters`, `list_sql_instances` |\n\nTypical prompts once it's connected:\n\n- *\"What are the top error groups in the last 24 hours, and which one is newest?\"*\n- *\"Which GKE node pools are over-provisioned? Show mean CPU against machine type.\"*\n- *\"Where can I reduce spend in this project?\"*\n\n## Multiple environments\n\nOne server can reach several projects. Define them under\n`PLATFORM_MCP_ENVIRONMENTS` (see [Configuration](#configuration)) and the agent\npicks one from the wording of your prompt:\n\n- *\"Any errors in **staging** in the last hour?\"*\n- *\"Compare Cloud Run services between **staging** and **prod**.\"*\n\nEvery tool takes an optional `environment` argument. Omit it and the default\nenvironment is used; pass `environment=\"production\"` to target another. Names,\nany aliases you define, common shorthands (`prod`, `stg`, `qa`, …) and bare\nproject ids all resolve. An unrecognized name is an error listing the valid\noptions — a typo can never silently retarget the wrong project.\n\nEach environment carries its own service account, so staging and production are\nreached through separate identities from the same process, and every result\nechoes back the `environment` and `project` it came from.\n\n## Requirements\n\n- Python 3.11+\n- A Google Cloud project and credentials (your own login, or a service account)\n- The [`gcloud` CLI](https://cloud.google.com/sdk/docs/install) for the one-time setup\n\n## Install\n\n```bash\nuvx platform-mcp          # no install step; uv fetches it on demand\npipx install platform-mcp # or keep it on PATH\n```\n\nFrom a checkout, for development:\n\n```bash\ngit clone https://github.com/deBilla/platform-mcp.git\ncd platform-mcp\npython3 -m venv .venv\n./.venv/bin/pip install -e \".[dev]\"\n```\n\n### Check your setup\n\n```bash\nplatform-mcp doctor\n```\n\nThis checks, for every configured environment, that Application Default\nCredentials exist, that the read-only service account can be impersonated, that\na real API read succeeds, and that the billing export is readable — printing the\nexact command to fix whatever fails. Run it before reporting a problem.\n\n## One-time GCP setup\n\nRun these once **per project** you want to reach — staging and production each\nneed their own APIs enabled and their own read-only service account.\n\n**1. Enable the APIs the tools depend on:**\n\n```bash\ngcloud services enable \\\n  logging.googleapis.com monitoring.googleapis.com clouderrorreporting.googleapis.com \\\n  recommender.googleapis.com cloudasset.googleapis.com cloudbilling.googleapis.com \\\n  bigquery.googleapis.com \\\n  --project YOUR_PROJECT_ID\n```\n\n**2. Grant read-only access to the identity the server runs as.**\n\nFor local development with your own login (Application Default Credentials):\n\n```bash\ngcloud auth application-default login\n```\n\nThe identity needs these viewer roles on the project, plus `roles/billing.viewer`\non the billing account:\n\n```\nroles/viewer                # broad read (compute, run, gke, sql via Asset Inventory)\nroles/logging.viewer\nroles/monitoring.viewer\nroles/errorreporting.viewer\nroles/recommender.viewer\nroles/cloudasset.viewer\nroles/bigquery.dataViewer    # only for get_cost_breakdown\nroles/bigquery.jobUser       # only for get_cost_breakdown\n```\n\n**3. (Recommended) Use a dedicated read-only service account** instead of your\nlogin. The script does every step below, is safe to re-run, and prints the\nconfig stanza at the end:\n\n```bash\n./scripts/setup-service-account.sh \\\n  --project YOUR_PROJECT_ID \\\n  --user you@example.com \\\n  --billing-dataset YOUR_BILLING_PROJECT:billing   # optional\n```\n\nOr by hand:\n\n```bash\nPROJECT=YOUR_PROJECT_ID\ngcloud iam service-accounts create platform-mcp-ro \\\n  --display-name \"platform-mcp read-only\" --project $PROJECT\n\nSA=platform-mcp-ro@$PROJECT.iam.gserviceaccount.com\nfor ROLE in roles/viewer roles/logging.viewer roles/monitoring.viewer \\\n  roles/errorreporting.viewer roles/recommender.viewer roles/cloudasset.viewer \\\n  roles/bigquery.jobUser; do\n  gcloud projects add-iam-policy-binding $PROJECT \\\n    --member=\"serviceAccount:$SA\" --role=\"$ROLE\" --condition=None\ndone\n\n# Let your own login impersonate it (no key file to manage):\ngcloud iam service-accounts add-iam-policy-binding $SA \\\n  --member=\"user:you@example.com\" \\\n  --role=\"roles/iam.serviceAccountTokenCreator\" --project $PROJECT\n```\n\n**The grant everyone forgets.** `roles/bigquery.jobUser` above only lets the\naccount *start* a query; it grants no access to any data. A billing export\nalmost always lives in a **different project**, so the account also needs read\non that dataset. Without it `get_cost_breakdown` returns 403 while every other\ntool works, which reads like a bug in the tool rather than a missing grant:\n\n```bash\nbq add-iam-policy-binding \\\n  --member=\"serviceAccount:$SA\" --role=roles/bigquery.dataViewer \\\n  YOUR_BILLING_PROJECT:billing\n```\n\nIf you lack admin on the billing project, that one line is what to send to\nsomeone who has it. `platform-mcp doctor` checks it and says which side is\nmissing.\n\nThen reference it as that environment's `impersonate` value in\n`PLATFORM_MCP_ENVIRONMENTS` (preferred — no key file), or point at a downloaded\nkey via `GOOGLE_APPLICATION_CREDENTIALS`.\n\n> Impersonation is performed by whatever identity your ADC resolves to. If your\n> ADC is itself an impersonated service account, that SA — not your user — needs\n> `roles/iam.serviceAccountTokenCreator` on each `platform-mcp-ro`.\n\n## Security model\n\nRead-only is enforced by **IAM, not by OAuth scope.** The server requests the\nbroad `cloud-platform` scope and stays read-only purely because it never calls a\nmutating API. **Do not rely on the code alone** — run it under a viewer-only\nidentity (step 3 above) so the credential itself is incapable of writing,\nregardless of what code executes. This gives you two independent layers: the\nserver doesn't try to write, and the identity couldn't if it did.\n\nWith multiple environments this stays per-project: each environment\nauthenticates as its own service account, so a staging identity is never used\nto reach production. Grant each one viewer-only access to its project alone.\n\n## Configuration\n\nThe friendliest option is a config file, which keeps project ids and service\naccount emails out of every client config you own:\n\n```bash\nmkdir -p ~/.config/platform-mcp\ncp config.toml.example ~/.config/platform-mcp/config.toml\n$EDITOR ~/.config/platform-mcp/config.toml\n```\n\nWith that in place, registering the server takes no environment variables at\nall. Point `PLATFORM_MCP_CONFIG` elsewhere to use a different file — a copy\ncommitted to your infrastructure repo, for instance.\n\nEnvironment variables still work and always win over the file, so an existing\nsetup keeps running unchanged and a one-off override needs no edit:\n\n| Variable | Purpose |\n| --- | --- |\n| `PLATFORM_MCP_ENVIRONMENTS` | JSON map of environment name → settings. The recommended way to configure the server. |\n| `PLATFORM_MCP_DEFAULT_ENVIRONMENT` | Environment used when a tool call omits `environment`. Defaults to `staging` if configured, else the first entry. |\n| `GOOGLE_APPLICATION_CREDENTIALS` | Path to a read-only SA key file (alternative to impersonation). |\n| `PLATFORM_MCP_DEFAULT_LIMIT` | Default max rows for list-style tools (default 50). |\n\n`PLATFORM_MCP_ENVIRONMENTS` holds a JSON object; each entry accepts:\n\n| Key | Purpose |\n| --- | --- |\n| `project` | **Required.** GCP project id. |\n| `impersonate` | Read-only SA to impersonate for this environment (no key file needed). |\n| `billing_export_table` | Fully-qualified BigQuery billing export table, required only for `get_cost_breakdown` (e.g. `YOUR_PROJECT_ID.billing.gcp_billing_export_v1_XXXXXX`). |\n| `aliases` | Extra names the agent may use for this environment. |\n\nA bare string value is shorthand for `{\"project\": \"...\"}`. As JSON inside\n`.mcp.json` the quotes must be escaped; unescaped it reads:\n\n```json\n{\n  \"staging\": {\n    \"project\": \"my-app-staging\",\n    \"impersonate\": \"platform-mcp-ro@my-app-staging.iam.gserviceaccount.com\"\n  },\n  \"production\": {\n    \"project\": \"my-app\",\n    \"impersonate\": \"platform-mcp-ro@my-app.iam.gserviceaccount.com\",\n    \"billing_export_table\": \"my-app.billing.gcp_billing_export_v1_XXXXXX\"\n  }\n}\n```\n\n**Single-environment mode.** If `PLATFORM_MCP_ENVIRONMENTS` is unset the server\nbehaves as before, exposing one environment named `default`:\n\n| Variable | Purpose |\n| --- | --- |\n| `GCP_PROJECT` | Target project. Falls back to your ADC default project if unset. |\n| `IMPERSONATE_SERVICE_ACCOUNT` | Read-only SA to impersonate. Also the fallback for registry entries with no `impersonate`. |\n| `BILLING_EXPORT_TABLE` | Billing export table. Also the fallback for registry entries with no `billing_export_table`. |\n\n## Register with a client\n\n**Claude Code** — with a config file in place, this is the whole thing:\n\n```bash\nclaude mcp add platform-mcp --scope user -- uvx platform-mcp\n```\n\n**Claude Desktop** — the same command and args in `claude_desktop_config.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"platform-mcp\": {\n      \"command\": \"uvx\",\n      \"args\": [\"platform-mcp\"]\n    }\n  }\n}\n```\n\nWithout a config file, add the environment variables from\n`.mcp.json.example` to either form.\n\n### Skip the approval prompt\n\nEvery tool here is read-only, so approving each call individually adds nothing.\nAllow the whole server once, in Claude Code settings:\n\n```json\n{ \"permissions\": { \"allow\": [\"mcp__platform-mcp__*\"] } }\n```\n\nThe glob must sit after a literal `mcp__<server>__` prefix — an unanchored\npattern like `mcp__*` is ignored with a warning and approves nothing.\n\n**MCP Inspector** — for interactive testing:\n\n```bash\nuvx --with 'mcp[cli]' mcp dev src/platform_mcp/server.py\n```\n\n## Observability\n\nEvery tool call appends one JSON line to `~/.local/state/platform-mcp/audit.jsonl`:\n\n```json\n{\"ts\":\"2026-08-30T18:20:11+0800\",\"tool\":\"query_logs\",\"environment\":\"production\",\n \"project\":\"my-app\",\"duration_ms\":412,\"count\":50,\"bytes\":18422,\"error\":null}\n```\n\nFree-text arguments are recorded by name only — a Cloud Logging filter can carry\nuser ids from the logs being searched, and the audit file must not become a\nsecond copy of that. Set `PLATFORM_MCP_AUDIT_LOG` to another path, or to `off`.\n\nDiagnostic logs go to **stderr** (`PLATFORM_MCP_LOG_LEVEL` to adjust); in stdio\ntransport stdout carries the protocol, so nothing else may be written there. In\nClaude Code, read them with `claude --debug=mcp`.\n\nFor a record that does not depend on this server at all, enable **Data Access\naudit logs** in GCP for the read-only service accounts. Token minting already\nappears in Admin Activity logs without any configuration.\n\n## Development\n\n```bash\n./.venv/bin/python -m pytest\n```\n\nThe suite runs entirely in-process against an in-memory MCP client — no\nsubprocess, no network, no GCP credentials — and covers environment resolution,\nthe tool contract, annotations, error translation and the audit log.\n\n## Notes\n\n- All tools cap result counts and truncate long payloads to stay token-friendly.\n- GCP clients are built lazily and cached per environment, so switching between\n  staging and production mid-conversation costs one client construction each.\n- Cost recommenders are zonal/regional; `list_cost_recommendations` auto-discovers\n  the locations where you have resources (via Asset Inventory) and fans out,\n  skipping locations and recommenders that are empty or unavailable. It reports\n  `skipped_calls` and fails loudly if it cannot discover any location, because\n  \"I could not look\" and \"there is nothing to save\" must not look alike.\n- `get_cost_breakdown` uses parameterized BigQuery queries with a whitelisted set\n  of group-by columns, and filters to the selected environment's project. A\n  billing export covers the whole billing account, so pass `all_projects=true`\n  when you want account-wide totals.\n\n## License\n\n[MIT](LICENSE) © 2026 Dimuthu Wickramanayake\n",
+  "status": "curated"
+}

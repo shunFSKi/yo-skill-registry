@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/domengabrovsek/claude/wait-what",
+  "type": "skill",
+  "name": "wait-what",
+  "description": "Stop. That last message did not land: re-pitch it.",
+  "author": "domengabrovsek",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/domengabrovsek/claude/blob/HEAD/skills/wait-what/SKILL.md",
+    "repo": "domengabrovsek/claude",
+    "path": "skills/wait-what/SKILL.md"
+  },
+  "license": null,
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 15,
+    "pushed_at": "2026-08-29T20:49:06Z",
+    "score": 63,
+    "star_history": [
+      {
+        "d": "2026-08-30",
+        "s": 15
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Claude Code Configuration\n\nCustom configuration for [Claude Code](https://docs.anthropic.com/en/docs/claude-code) that turns it into a disciplined engineering partner with structured workflows, strict guardrails, and domain-specific expertise.\n\nOut of the box, Claude Code is capable but generic. This repo adds opinionated defaults: a research -> grill -> build -> ship workflow, security boundaries, code standards, and 16 expert subagents that spawn based on task context. The result is more consistent, reviewable, and safe output.\n\nThe whole config is symlinked into `~/.claude/`, so edits to this repo apply to every Claude Code session. It contains global rules (`CLAUDE.md`, `rules/`), automation hooks, slash commands, subagent personas, and reusable workflow skills.\n\n## Quick start\n\n```bash\n# Clone the repo - the setup script auto-detects its own location\ngit clone git@github.com:domengabrovsek/claude.git\ncd claude\n\n# Dry-run first to see what would change, then apply\nbash scripts/setup-symlinks.sh --check\nbash scripts/setup-symlinks.sh\n\n# Strip ephemeral state Claude Code writes to settings.json at runtime\ngit config filter.strip-ephemeral-state.clean 'jq \"del(.feedbackSurveyState)\" 2>/dev/null || cat'\ngit config filter.strip-ephemeral-state.smudge cat\n```\n\nRe-runs are safe: existing files are backed up to `<path>.bak.<timestamp>` before being replaced. A `SessionStart` hook warns if a symlink drifts later.\n\n## What's inside\n\n- **`CLAUDE.md`** - core rules loaded every session (workflow, security, code standards). See [ADR 0001](docs/adr/0001-grill-driven-workflow.md).\n- **`rules/`** - modular instruction files `@`-imported into `CLAUDE.md`.\n- **`agents/`** - expert subagent personas spawned via the Agent tool. Routing in [`rules/agent-routing.md`](rules/agent-routing.md); full list in [`docs/agents.md`](docs/agents.md). See [ADR 0003](docs/adr/0003-agents-via-subagent-spawn.md).\n- **`skills/`** - reusable `/<skill>` workflows (`/grill-with-docs`, `/build`, `/ship`, `/debug`, `/research`, `/verify-done`, `/worktree`, …). Skills carrying a `> Source:` line are vendored from [mattpocock/skills](https://github.com/mattpocock/skills) and adapted to this repo's conventions (see ADR 0006).\n- **`hooks/`** - shell scripts wired into `settings.json` for `PreToolUse`, `PostToolUse`, `SessionStart`, `SessionEnd` events.\n- **`scripts/`** - utilities used by hooks and skills (`setup-symlinks.sh`, `statusline.sh`, `notify.sh`, `worktree-prune.sh`).\n- **`docs/adr/`** - Architecture Decision Records.\n- **`references/`** - long-form checklists (security, testing) loaded by skills on demand.\n- **`templates/`** - boilerplate for new ADRs and docs.\n\n## More\n\n- **Security boundaries** - deny list, Bash restrictions, and lock-file protection live in [`settings.json`](settings.json).\n- **CI** - markdown linting on push/PR (`.github/workflows/`).\n",
+  "status": "curated"
+}

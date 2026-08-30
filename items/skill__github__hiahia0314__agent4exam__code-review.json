@@ -16,11 +16,11 @@
   },
   "quality": {
     "stars": 1,
-    "pushed_at": "2026-08-29T12:07:38Z",
-    "score": 52,
+    "pushed_at": "2026-08-30T10:19:57Z",
+    "score": 42,
     "star_history": [
       {
-        "d": "2026-08-29",
+        "d": "2026-08-30",
         "s": 1
       }
     ]
@@ -55,6 +55,6 @@
     "category": "编程",
     "featured": false
   },
-  "readme": "# examAgent\n\n一个从零实现的编程智能体 (coding agent), 通过 OpenAI 兼容 API 的 tool calling\n自主读写文件、执行命令完成编程任务。\n\nAgent 使用可见的 ReAct 风格循环：模型在工具调用前给出简短、可验证的判断与下一步\n说明，工具在本地执行，结果加入上下文后再由模型决定后续行动。这里展示的是进展摘要，\n不要求模型输出私密思维链。\n\n复杂任务在完成初步搜索和文件读取后会调用本地 `update_plan` 工具。终端以任务清单显示\n`pending`（○）、`in_progress`（●）和 `completed`（✓）状态。未完成的计划必须恰好有\n一项正在进行；如果模型在计划完成前尝试结束，Agent 会把未完成项目反馈给模型并继续循环。\n\n已有文件默认通过 `search_text` 定位，并用 `apply_patch` 的 `edits` 数组一次提交一项或\n多项 `old_text` → `new_text` 精确替换。编辑按数组顺序在内存中执行，全部成功后才写入；\n任一项失败则文件保持不变。默认要求每项 `old_text` 唯一匹配，只有显式设置\n`replace_all: true` 才会替换全部匹配，从而减少误改、内容丢失和无关 diff。\n`write_file` 主要用于新建文件或确实需要整体重写的场景。\n\n工具调用在本地执行前会经过 `pre_tool_use` Hook。演示规则会拒绝包含\n`forbidden-demo` 的命令，以及对 `.env`/`.env.local` 等凭据文件的\n`write_file`/`apply_patch` 操作（`.env.example` 可修改）；拒绝\n原因仍作为工具结果回传给模型。`post_tool_use` Hook 只在工具失败或被拒绝时显示\n`failed` 提示，正常完成时保持安静。规则定义在 `agent/hooks.py`。\n\n## 安装\n\n```bash\npip install -r requirements.txt\n```\n\n## 配置\n\n```bash\ncp .env.example .env\n# 编辑 .env，至少填写 OPENAI_API_KEY\n```\n\n启动时会自动读取项目根目录的 `.env`。已由 shell/运行环境设置的同名变量\n优先于 `.env`，`--model` 参数又优先于 `AGENT_MODEL`。真实 `.env` 已被 Git 忽略，\n只提交 `.env.example`。\n\n## 运行 (CLI)\n\n```bash\npython -m agent.main            # 交互式 REPL\npython -m agent.main --auto     # 全自动 (不确认命令/写文件)\npython -m agent.main -p \"任务\"  # 无头执行单个任务后退出\n```\n\nREPL 内命令: `/exit`、`/quit`、`/clear`、`/verbose`、`/skills`、`/mcp`、`/rewind`。\n\n## Subagent 并行调查\n\n复杂任务建立 Plan 后，主 Agent 可通过 `delegate_tasks` 将 2–8 个互相独立的\n调查方向一次性委派给 Subagent。同批最多 4 个 Subagent 并行运行，每个使用\n独立模型客户端和对话上下文。\n\nSubagent 只会获得以下工具：\n\n- `search_text`\n- `read_file`\n- `list_dir`\n\n工具 Schema 和执行器都会校验这个白名单，因此 Subagent 不能写文件、运行命令、\n调用 MCP/Skill，也不能再创建 Subagent。`delegate_tasks` 必须是当前模型回复中\n唯一的工具调用；主 Agent 收齐所有报告并综合结论后，才能在下一轮统一修改和验证。\n\n## Rewind\n\n每个 Agent 任务是一个会话级代码检查点。`write_file` 或 `apply_patch` 第一次修改某个\n文件前会保存原始内容，任务结束后记录最终状态。输入 `/rewind` 会按最新到最旧列出任务\n说明和涉及文件；选择编号后回到该任务执行前，并撤销所选项及其后的检查点。新建文件会\n被删除。输入 `0` 或 `q` 可以取消。回退前会检查文件是否又被用户或其他程序修改，存在\n冲突时拒绝整个回退，避免覆盖新内容。最多保留最近 20 个检查点。\n\n`run_command`、MCP 工具或外部程序在未知位置产生的文件变化无法可靠追踪，不包含在\n当前 `/rewind` 范围内。\n\n## MCP\n\nexamAgent 自行实现了 MCP stdio JSON-RPC 客户端，不依赖 MCP SDK。启动时读取项目根目录\n的 `mcp.json`，完成 initialize 握手和工具发现，并把工具以\n`mcp__<server>__<tool>` 的名称提供给模型。输入 `/mcp` 可以查看当前连接状态和工具。\n\n项目默认配置了 Weather MCP Server：\n\n```text\nweather (connected)\n  get_weather — 查询指定城市的当前天气\n```\n\n可直接向 Agent 输入“查询上海现在的天气”。天气数据来自 Open-Meteo，无需 API Key，\n但查询时需要网络连接。\n\n## Skills\n\nexamAgent 只会发现当前项目中的 Skills：\n\n- 项目级：`skills/<skill-name>/SKILL.md`\n\n用户目录、项目内的 `.claude/skills/` 以及其他外部目录都不会被扫描。启动后输入\n`/skills` 可重新扫描并显示当前已加载的 Skill；`○` 表示可用，`●` 表示最近一次任务\n使用过。模型决定使用某项 Skill 时会先加载完整内容，终端会显示\n`Using skill: <name>`。\n\n`SKILL.md` 建议使用以下格式：\n\n```markdown\n---\nname: python-testing\ndescription: 编写和运行 Python 测试时使用\n---\n\n# Python Testing\n\n在修改代码前先运行相关测试……\n```\n",
+  "readme": null,
   "status": "curated"
 }

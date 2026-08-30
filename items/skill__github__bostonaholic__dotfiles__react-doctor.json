@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/bostonaholic/dotfiles/react-doctor",
+  "type": "skill",
+  "name": "react-doctor",
+  "description": "Run after making React changes to catch issues early. Use when reviewing code, finishing a feature, or fixing bugs in a React project.",
+  "author": "bostonaholic",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/bostonaholic/dotfiles/blob/HEAD/agents/skills/react-doctor/SKILL.md",
+    "repo": "bostonaholic/dotfiles",
+    "path": "agents/skills/react-doctor/SKILL.md"
+  },
+  "license": null,
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 12,
+    "pushed_at": "2026-08-28T19:50:25Z",
+    "score": 65,
+    "star_history": [
+      {
+        "d": "2026-08-30",
+        "s": 12
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "写作",
+    "featured": false
+  },
+  "readme": "# There's no place like ~\n\n## Setup\n\n### Clone the repository\n\n```bash\ngit clone git@github.com:bostonaholic/dotfiles.git ~/dotfiles\n```\n\n### Copy sample environment files\n\n```bash\ncp $PWD/env/secret.sample.el $HOME/.secret.el\n```\n\n```bash\ncp $PWD/env/env.sample $HOME/.env\n```\n\n### Configure a work computer\n\nConfigure git to use a work email and signing key\n\n```bash\nvi ~/.config/git/config.work\n```\n\n```plaintext\n[user]\n    name = Matthew Boston\n    email = matthew.boston@example.com\n    signingkey = <>\n```\n\nFill in the `TODO` sections in each of the above environment files.\n\n### Install with install.sh\n\n```bash\n# Full installation (interactive)\n./install.sh\n\n# Preview changes without making them\n./install.sh --dry-run\n\n# Install without prompts\n./install.sh -y\n\n# Install specific components only\n./install.sh --only symlinks        # Only create symlinks\n./install.sh --only homebrew        # Only install Homebrew packages\n./install.sh --only npm             # Only install npm packages\n./install.sh --only symlinks,homebrew  # Multiple components\n\n# Other options\n./install.sh -v                     # Verbose output\n./install.sh -f                     # Force overwrite files\n./install.sh --no-backup            # Skip backing up existing files\n./install.sh --help                 # Show all options\n```\n\nThe installation is now managed by a single `install.sh` script with a declarative `dotfiles.yaml` configuration file.\n\n### Configuration with dotfiles.yaml\n\nThe `dotfiles.yaml` file controls what gets installed and where. It has three main sections:\n\n#### Directories\n\nLists directories that will be created in your home folder:\n\n```yaml\ndirectories:\n  - ~/.config/git\n  - ~/.gnupg\n```\n\n#### Symlinks\n\nMaps source files (in the dotfiles repo) to their destination (in your home directory):\n\n```yaml\nsymlinks:\n  zsh/zshrc: ~/.zshrc              # Links zsh/zshrc to ~/.zshrc\n  git/config: ~/.config/git/config # Links git/config to ~/.config/git/config\n```\n\n#### Adding New Dotfiles\n\nTo add a new dotfile to the installation:\n\n1. Add your file to the appropriate directory in the repo\n2. Edit `dotfiles.yaml` and add an entry to the `symlinks` section\n3. Run `./install.sh --only symlinks` to create just the new symlink\n\n## Post-install\n\n### Terminal Fonts\n\nThe primary font is **TX-02** ([Berkeley Mono](https://berkeleygraphics.com/typefaces/berkeley-mono/)),\ninstalled manually by copying `.otf` files to `~/Library/Fonts/`. `brew bundle`\ninstalls **Symbols Nerd Font** for icon glyphs used by the Starship prompt.\n\n**Ghostty** handles Nerd Font symbols automatically — no extra configuration\nneeded.\n\n**iTerm2** requires manual font setup:\n\n1. Settings > Profiles > Text > Font > **\"TX-02\"**\n2. Check **\"Use a different font for non-ASCII text\"**\n3. Set non-ASCII font to **\"Symbols Nerd Font Mono\"**\n\n### Copilot.vim\n\n```vimscript\nvim -c \"Copilot setup\"\n```\n\n## Tips\n\n### ssh-agent\n\nErrors with `ssh-agent`:\n\n> Error connecting to agent: No such file or directory\n\nAdd `zstyle :omz:plugins:ssh-agent agent-forwarding on`\n\n### 1Password SSH Agent\n\n```plaintext\nsign_and_send_pubkey: signing failed for ED25519 \"key name\" from agent: communication with agent failed\ngit@github.com: Permission denied (publickey).\n```\n\nThis happens when 1Password is locked. Unlock 1Password and verify the agent is working:\n\n```bash\nssh-add -l\n```\n\n---\n\nErrors with `/usr/local/bin/gpg` not in the `$PATH`\n\n```plaintext\nfatal: cannot run /usr/local/bin/gpg: No such file or directory\nerror: gpg failed to sign the data\nfatal: failed to write commit object\n```\n\nIt might be that Homebrew's version of `gpg` needs the symlink overwritten.\n\n```bash\nbrew link --overwrite gnupg\n```\n\nOr\n\n```plaintext\nerror: gpg failed to sign the data\nfatal: failed to write commit object\n```\n\nTry:\n\n```bash\ngpgconf --kil gpg-agent\n```\n\n### vimrc\n\n```plaintext\n  File \"/Users/<user>/.vim_runtime/update_plugins.py\", line 13, in <module>\n    import requests\nModuleNotFoundError: No module named 'requests'\n```\n\nTry:\n\n```bash\npip3 install requests\n```\n\n### compaudit\n\n```plaintext\nzsh compinit: insecure directories, run compaudit for list.\nIgnore insecure directories and continue [y] or abort compinit [n]?\n```\n\nTry:\n\nCheck which directory has the wrong permissions\n\n```bash\ncompaudit\n```\n\nThen run the following to fix the permissions:\n\n```bash\nsudo chmod -R g-w <directory>\n```\n",
+  "status": "curated"
+}

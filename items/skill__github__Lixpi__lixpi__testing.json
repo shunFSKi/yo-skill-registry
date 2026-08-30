@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/Lixpi/lixpi/testing",
+  "type": "skill",
+  "name": "testing",
+  "description": "Follow Lixpi testing and verification rules when adding or updating tests, test utilities, mocks, fixtures, or verifying any work. Browser-based verification is prohibited.",
+  "author": "Lixpi",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/Lixpi/lixpi/blob/HEAD/.claude/skills/testing/SKILL.md",
+    "repo": "Lixpi/lixpi",
+    "path": ".claude/skills/testing/SKILL.md"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 15,
+    "pushed_at": "2026-08-29T23:04:43Z",
+    "score": 66,
+    "star_history": [
+      {
+        "d": "2026-08-30",
+        "s": 15
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# Lixpi\n\n**A visual, node-based AI workspace for image and video generation pipelines.**\n\n[Watch the demo →](https://youtu.be/Eee2Ku-Tl_8)\n\n![UI screenshot](./documentation/assets/ui-screenshot.jpeg)\n\nLixpi looks like an AI concept board where an artist runs their entire creative workflow on an infinite canvas. Technically, it's a visual, node-based workflow engine for AI image and video pipelines — the spatial arrangement of nodes *is* the workflow.\n\nA few things make it unusual:\n\n- **Topology is the workflow.** Images, documents, and AI chat threads are nodes; directional edges between them define what feeds into what. Rearranging the canvas rearranges the pipeline.\n- **Style extraction.** A \"feature\" is any reusable abstraction pulled from one or more reference inputs — a texture, drawing style, stroke pattern, lighting setup, time period, genre, or something abstract like mood or atmosphere. Each feature is stored as a small set of graphic artifacts together with a written skill that tells the model what they encode and how to apply them. Reference them in plain language (`/use loose-watercolor`) inside any prompt and mix freely. Stacking features is what gives character-consistent generation across many scenes — the hard problem text prompts alone cannot solve.\n- **Prompt enhancement.** Image and video generation isn't a one-shot call. The prompt first runs through a reasoning model that expands your input into a detailed brief; that brief is what the media model actually receives.\n\n---\n\n## Quick Start\n\n### 1. Clone with submodules\n\nThird-party sources under `packages-vendor/` are Git submodules ([xyflow](https://github.com/xyflow/xyflow)):\n\n```bash\ngit clone --recurse-submodules <repository-url>\n```\n\nIf you already cloned without submodules, initialize them once from the repo root:\n\n```bash\ngit submodule update --init --recursive\n```\n\n### 2. Environment setup\n\n```bash\n# macOS / Linux\n./init-config.sh\n\n# Windows\ninit-config.bat\n```\n\nFor CI/automation, see [`infrastructure/init-script/README.md`](infrastructure/init-script/README.md).\n\n### 3. Point Docker Compose at your environment file\n\n`./init-config.sh` writes a `.env.<stage-name>` file (e.g. `.env.shelby-local`), not a plain `.env` — but Docker Compose only *auto-loads* a file literally named `.env`. Without one, every `docker compose`/`docker-compose` command in this repo (and there are many: `start.sh`, `rebuild-containers.sh`, the test runner, Pulumi, individual service commands in the docs) either needs `--env-file .env.<stage-name>` typed out explicitly every time, or every variable in `docker-compose.yml` comes back unset with a wall of `variable is not set` warnings.\n\n`./set-env.sh` fixes this once: it lists your `.env.*` files, and symlinks `.env` to whichever one you pick. After that, every command in this repo works with no extra flags — Compose finds `.env` on its own. Safe to re-run any time you want to switch which environment file is active; it only ever replaces a symlink it created itself, never a real file.\n\n```bash\n# macOS / Linux\n./set-env.sh\n\n# Windows\nset-env.bat\n```\n\n### 4. Initialize infrastructure\n\nFirst-time setup for TLS certificates and DynamoDB tables:\n\n```bash\n# macOS / Linux\n./init-infrastructure.sh\n\n# Windows (run as Administrator)\ninit-infrastructure.bat\n```\n\n### 5. Start\n\n```bash\n# macOS / Linux\n./start.sh\n\n# Windows\nstart.bat\n```\n\n---\n\n## Key Features\n\n### Style Extraction & Library\n\nFeatures are first-class library entries that capture the essence of any visual abstraction — painting style, color palette, mood, lighting setup, stroke pattern, character design — extracted from one or more reference inputs (images, documents, threads, or mixes of all three).\n\nExtraction runs as a multi-stage pipeline: scene assessment and routing → parallel per-axis extractors (palette, lighting, character design, line quality, medium signature, composition, mood, texture, etc.) → deterministic source-pixel crops → dominance-weighted synthesis → sample generation → persistence. The result is a reusable entry with structured parameters, a written instruction body, and content-free sample artifacts that preserve the medium without leaking the source subject. Features apply via `/use <name>` in any prompt; the server resolves the reference at send time and injects the instructions and samples as system context — the original reference content is never forwarded to the downstream model.\n\nSee [Style Extraction & Library](documentation/library/STYLE-EXTRACTION-OVERVIEW.md).\n\n### Media Library\n\nA canvas-owned panel for media a user has explicitly chosen to keep. Saved images are independent copies — not bookmarks to a canvas node — so users can reorganize or delete the original canvas image without losing what they saved for reuse. Items are scoped per-workspace, per-user, per-organization, or public; the same panel hosts the extracted Features library.\n\nSee [Media Library](documentation/library/MEDIA-LIBRARY.md).\n\n### Image Branch Lineage\n\nEvery AI-generated image is a first-class canvas artifact with explicit parentage, branch identity, visual summaries, and resolver audit metadata. When you say \"draw a goat in the style of that landscape painting,\" a structured VLM resolver inspects the labeled candidate images on the canvas and decides which are the subject reference, which are style references, and which are unrelated — without parsing strings or guessing from recency. Pixels make the decision, not regex.\n\nSee [Image Branch Lineage](documentation/media-generation/BRANCH-LINEAGE.md).\n\n### Artifact Piping & Character Consistency\n\nEvery AI-generated image becomes a concrete canvas node. Draw an edge from that node into other AI threads and downstream models receive the exact same reference — mechanically. No copy-pasting prompts, no hoping the model \"remembers.\" This is what makes strict character and object consistency reliable across many scenes.\n\n### Multi-Model with Prompt Enhancement\n\nEach thread carries independent text-model and image-model selectors. The two can be from **different providers** — Claude writing prompts for gpt-image-1, GPT-5 driving Nano Banana — because the chain runs through an in-process `ImageRouter` that normalizes everything to a standard multimodal format before invoking the image model. Each pairing produces a distinct visual signature: the text model's prompt style, the image model's text encoder, architecture, and training data all compound, which makes model pairing a creative decision rather than a technical one.\n\nSee [Model chaining and why different combinations produce different styles](documentation/knowledge/WHY-DIFFERENT-MODEL-COMBINATIONS-PRODUCE-DIFFERENT-STYLES.md).\n\n### Progressive Streaming & Multi-Turn Editing\n\nAn animated placeholder appears immediately when generation starts; up to three progressively sharper previews update the canvas node in real time before the final image replaces them. \"Edit in New Thread\" creates a fresh AI thread pre-linked to the image, carrying provider continuity IDs so the model can make targeted modifications without regenerating from scratch — and the same image can be branched in multiple edit directions simultaneously.\n\n---\n\n## Tech Stack\n\n- **LangGraph** — AI workflow orchestration\n- **NATS / NATS JetStream** — messaging backbone for the entire system (end-to-end communication and object storage)\n- **PIXI.js, @xyflow/system, D3** — infinite canvas UI\n- **ProseMirror, CodeMirror** — rich-text editors for AI chat and prompt input\n- **DynamoDB** — persistence\n- **Pulumi, AWS** — cloud deployment (largely cloud-agnostic today; the plan is to go fully cloud-agnostic by swapping DynamoDB for Cassandra)\n- **LLM / media APIs** — OpenAI, Anthropic, Google, Stable Diffusion, Seedance\n- **TypeScript** — main language across the project\n\n---\n\n## Architecture: How It Works\n\n![High-Level System Overview](./documentation/assets/services-architecture-diagram.jpeg)\n\n- **Everything talks through NATS** — browser clients and backend services share the same message bus.\n- **Web UI connects directly to NATS** via WebSocket, enabling real-time streaming without HTTP polling.\n- **Main API** handles authentication, CRUD, DynamoDB persistence, and **all LLM orchestration in-process** as a TypeScript LangGraph module — validation, token streaming, image generation, style extraction, branch resolution, and usage tracking. (Earlier releases ran a separate Python `llm-api` service; that has been absorbed into the main API.)\n- **AI tokens stream directly** through per-thread NATS subjects to the browser, so token delivery is not gated by any extra service hop.\n\nFor the full architecture deep-dive — including AI chat request/response flow, streaming, scalability via NATS queue groups, and authentication — see [Architecture](documentation/platform/SYSTEM-ARCHITECTURE.md). For image generation specifics, see [Image Generation](documentation/media-generation/IMAGE-GENERATION.md).\n\n---\n\n## Documentation\n\n- [Documentation index](documentation/README.md) — the full map of all docs\n- [Product Overview](documentation/PRODUCT-OVERVIEW.md) — capabilities, canvas primitives, artifact piping, image generation\n- [System Architecture](documentation/platform/SYSTEM-ARCHITECTURE.md) — services, NATS backbone, design decisions, scalability\n- [AI Generation Pipeline](documentation/platform/AI-GENERATION-PIPELINE.md) — the shared LangGraph workflow, routing, streaming, usage\n- [Development Guide](documentation/platform/DEVELOPMENT.md) — building services, local auth, Pulumi\n- [Style Extraction & Library](documentation/library/STYLE-EXTRACTION-OVERVIEW.md)\n- [Media Library](documentation/library/MEDIA-LIBRARY.md)\n- [Branch Lineage & Provenance](documentation/media-generation/BRANCH-LINEAGE.md)\n- [Canvas Rendering Engine](documentation/canvas/RENDERING-ENGINE.md) — DOM/PIXI rendering, pan/zoom, node interactions\n- [Image Generation](documentation/media-generation/IMAGE-GENERATION.md) — streaming, placement, multi-turn editing\n- [Video Generation](documentation/media-generation/VIDEO-GENERATION.md) — Google VEO, async submit/poll, inline playback\n- [Why Different Model Combinations Produce Different Styles](documentation/knowledge/WHY-DIFFERENT-MODEL-COMBINATIONS-PRODUCE-DIFFERENT-STYLES.md)\n",
+  "status": "curated"
+}

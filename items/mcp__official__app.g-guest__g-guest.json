@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/app.g-guest/g-guest",
+  "type": "mcp",
+  "name": "g-guest",
+  "description": "Book a table, appointment or class at a real local business. Live times, instant confirmation.",
+  "author": "app.g-guest",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/BlondeDevRules/g-guest-mcp",
+    "repo": "BlondeDevRules/g-guest-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://g-guest.app/api/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-30T09:57:28.996227Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# G-Guest MCP server\n\nBook a table, an appointment or a place in a class at a real local business —\nfrom an AI assistant, with no API key and no account.\n\nG-Guest is the booking system those businesses run on. This server exposes it to\nassistants over MCP: find a venue, read its real availability, and create a\nbooking that is confirmed instantly and appears in the venue's own panel.\n\n**Endpoint** — `https://g-guest.app/api/mcp`\n**Transport** — streamable HTTP (JSON-RPC 2.0 over POST)\n**Auth** — none. Reading and booking are open; a booking must carry the guest's\nname, phone and email.\n\n## Tools\n\n| Tool | What it does |\n|---|---|\n| `search` | Find bookable businesses by name or slug |\n| `fetch` | Full details for one business: services, hours, how to book |\n| `get_business` | The same card, by slug |\n| `check_availability` | Real bookable slots for a date and party size |\n| `create_booking` | A real, confirmed reservation |\n\nExact schemas: [`tools.json`](./tools.json) — generated from the live endpoint,\nnot written by hand.\n\n## Try it without installing anything\n\n```bash\ncurl -s -X POST https://g-guest.app/api/mcp \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"tools/list\"}'\n```\n\nA live demo venue is `demo-studio` (a pilates studio) and `demo` (a restaurant).\nBooking against those is real but harmless — they are ours.\n\n## Adding it to an assistant\n\n- **Claude, Codex, and custom agents** — point them at the endpoint. Nothing to\n  install.\n- **ChatGPT** — add it as a connector (developer mode). Step-by-step, with what\n  we have actually tested and what we have not:\n  https://g-guest.app/ai\n\n## Honesty about what this is\n\nEvery venue reachable here is a paying or trialling customer of G-Guest, and a\nbooking made through this server is a real reservation that a real business will\nhonour. There is no marketplace in the middle and no commission on the booking.\n\nWe list only what we have tested ourselves. `https://g-guest.app/ai` says which\nassistants have actually created a confirmed booking here, and on what date.\n\n## Where the code lives\n\n⚠️ **This repository contains no server code, and never should.** The MCP server\nis implemented inside the G-Guest application itself (private), and this repo is\nits public description: the endpoint, the tool schemas and the docs, so registries\nand assistants can find it. `tools.json` is regenerated from the live endpoint —\nif the two ever disagree, the live endpoint is right.\n\n## Links\n\n- Service manifest — https://g-guest.app/.well-known/g-guest.json\n- OpenAPI (plain HTTP, for agents without MCP) — https://g-guest.app/openapi.json\n- What works today, per assistant — https://g-guest.app/ai\n- G-Guest — https://g-guest.app\n\nMade by [G-Lab Studio](https://g-lab.studio).\n",
+  "status": "curated"
+}

@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/eduardocerqueira/ai-alpha-squad/review-and-refactor",
+  "type": "skill",
+  "name": "review-and-refactor",
+  "description": "Review and refactor code in your project according to defined instructions",
+  "author": "eduardocerqueira",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/eduardocerqueira/ai-alpha-squad/blob/HEAD/.agents/skills/review-and-refactor/SKILL.md",
+    "repo": "eduardocerqueira/ai-alpha-squad",
+    "path": ".agents/skills/review-and-refactor/SKILL.md"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 3,
+    "pushed_at": "2026-08-30T18:46:42Z",
+    "score": 57,
+    "star_history": [
+      {
+        "d": "2026-08-30",
+        "s": 3
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "<div align=\"center\">\n\n# 🛰️ AI Alpha Squad\n\n### Business requests in, working software out.\n\n**An autonomous multi-agent software delivery squad.** Open a GitHub Issue describing what you want built — a team of specialized AI agents analyzes it, designs it, writes the code, tests it, security-reviews it, documents it, and opens a pull request on the target repo. A human Director approves the milestones that matter. Everything else runs itself.\n\n[**🌐 aialphasquad.com**](https://aialphasquad.com) · [**📋 Open a request**](https://github.com/eduardocerqueira/ai-alpha-squad/issues/new/choose) · [**🖥️ Director Dashboard**](https://aialphasquad.com/director/) · [**📚 Docs**](.agents/README.md)\n\n[![Live](https://img.shields.io/badge/live-aialphasquad.com-22c55e)](https://aialphasquad.com)\n[![Status](https://img.shields.io/badge/status-experimental%20lab-fbbf24)](https://aialphasquad.com)\n[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)\n[![Runs on](https://img.shields.io/badge/runs%20on-GitHub%20Actions%20%2B%20Hugging%20Face-111)](#whats-under-the-hood)\n\n<br/>\n\n[![Director Dashboard — a completed job](./assets/screenshot/director-dashboard-done.png)](https://aialphasquad.com/director/)\n\n<sup>**Director Dashboard** — the live control room: lifecycle timeline with timestamps, the squad working in real time, and each agent's AI-model history. [See it live →](https://aialphasquad.com/director/)</sup>\n\n[![Director Dashboard — a blocked job](./assets/screenshot/director-dashboard-blocked.png)](https://aialphasquad.com/director/)\n\n<sup>A blocked job — Stop execution, model escalation history, and one-click Retry.</sup>\n\n</div>\n\n---\n\n## What is this?\n\nAI Alpha Squad is a working experiment in **autonomous software delivery**: a full engineering org reimagined as cooperating AI agents that operate entirely through GitHub. There's no chat window to babysit and no prompt-engineering ritual — you file an issue like you would with any team, and the squad takes it from idea to pull request.\n\nIt's deliberately **GitHub-native** (issues are the single source of truth), **human-governed** (one Director holds final approval), and **fully traceable** (every analysis, decision, test, and review is a comment or artifact on the issue). Built on open models via Hugging Face inference — no proprietary agent platform required.\n\n> **Honest status:** this is an experimental research lab, not a finished product. It already ships real pull requests to real repos — and it has rough edges. That's the fun part. ⭐ Star it to follow along.\n\n## See it in action\n\n| | |\n| --- | --- |\n| 🌐 **Landing site** | [aialphasquad.com](https://aialphasquad.com) — what the squad is and how to reach it |\n| 🖥️ **Director Dashboard** | [aialphasquad.com/director](https://aialphasquad.com/director/) — live view of every job: lifecycle timeline with timestamps, the squad working in real time, and which AI model each agent used (with escalation history) |\n| 📋 **Submit a request** | [Open a GitHub Issue](https://github.com/eduardocerqueira/ai-alpha-squad/issues/new/choose) — the squad picks it up automatically |\n| 🔌 **Automate it** | Drive the whole pipeline from your own systems via the [GitHub Issues REST API](https://docs.github.com/en/rest/issues) |\n\n## How it works\n\nA business request flows through eight specialized agents, with the Director gating only the decisions that need a human. Code ships from the **target repository**; work is tracked on **GitHub Issues**.\n\n```mermaid\nsequenceDiagram\n    autonumber\n    actor Director\n    participant GH as GitHub Issues<br/>(work queue)\n    participant WF as Squad orchestrator<br/>(GitHub Actions)\n    participant BO as Business Owner\n    participant ARC as Architect\n    participant DEV as Developer\n    participant VAL as QA · Security · DevOps · Tech Writer\n    participant RM as Release Manager\n    participant TR as Target repo\n\n    Director->>GH: Create business request (new)\n    GH->>WF: Label new\n    WF->>BO: HF inference (planning)\n    BO->>GH: Business Analysis + awaiting-approval\n    BO->>Director: Approval request (issue / WhatsApp)\n    Director->>GH: director-approved\n    GH->>WF: Dispatch architect\n    WF->>ARC: HF tech spec + sub-issues\n    ARC->>GH: designed\n    GH->>WF: Label designed\n    WF->>DEV: Actions agent + HF (code loop)\n    DEV->>TR: Branch, commits, pull request\n    DEV->>GH: implemented\n    par Validation\n        VAL->>GH: QA report\n        VAL->>GH: Security report\n        VAL->>TR: CI/CD, deploy prep\n        VAL->>GH: Documentation\n    end\n    VAL->>GH: validation\n    GH->>RM: Release readiness check\n    RM->>GH: release-candidate\n    RM->>Director: Release approval request\n    Director->>GH: Release approved\n    RM->>TR: Tag, publish release, changelog\n    RM->>GH: released — close issue\n```\n\nLifecycle: `new` → `awaiting-approval` → `director-approved` → `designed` → `implemented` → `validation` → `release-candidate` → `released`. The Director only ever steps in at the two approval gates — see the [director gate](docs/director-gate.md).\n\n## Meet the squad\n\nEight roles, each constrained to its domain and accountable for specific artifacts:\n\n| Agent | What it does |\n| ----- | ------------ |\n| 🧭 **Business Owner** | Turns a raw request into a clear Business Analysis — scope, user stories, acceptance criteria, risks |\n| 🏗️ **Architect** | Designs the technical solution and breaks the work into linked sub-issues |\n| 💻 **Developer** | Writes the code and opens a pull request on the target repo |\n| 🧪 **QA** | Reviews and tests against the acceptance criteria — pass/fail with evidence |\n| 🔒 **Security** | Audits for OWASP risks, dependency vulnerabilities, and leaked secrets |\n| ⚙️ **DevOps** | Sets up CI/CD, builds, and deployment automation |\n| 📝 **Tech Writer** | Produces the docs that ship with the feature |\n| 🚀 **Release Manager** | Runs the release checklist, changelog, and version, then asks the Director to ship |\n| 👤 **Director** *(you)* | The only human — creates requests, approves analysis and releases, unblocks |\n\nFull role definitions live in [`.agents/`](.agents/README.md).\n\n## Why it's interesting\n\n- **Autonomous end-to-end.** Analysis → architecture → code → QA → security → docs → release, with no human in the loop except at approval gates.\n- **GitHub-native.** Issues are the work queue and the audit log. No new tool to learn — if you can file an issue, you can brief the squad.\n- **Self-escalating models.** Agents start on a fast open model and escalate to stronger ones when QA pushes back — the [dashboard](https://aialphasquad.com/director/) shows the full model-and-retry history per agent.\n- **Human-governed.** One Director, two approval gates, full veto. The squad is autonomous, not unsupervised.\n- **Approve from anywhere.** Optional [WhatsApp channel](docs/whatsapp-setup.md) for fast approvals — every message mirrored back to the issue.\n- **Open and self-hostable.** Runs on GitHub Actions + Hugging Face inference + Cloudflare Workers. MIT licensed.\n\n## What's under the hood\n\n| | |\n| --- | --- |\n| **Work queue & audit log** | GitHub Issues |\n| **Orchestration** | GitHub Actions (`squad-*` workflows) |\n| **Agent inference** | Hugging Face models (e.g. DeepSeek, Qwen) with automatic escalation |\n| **Code execution** | GitHub Actions agent + Copilot |\n| **Landing site & Director Dashboard** | Cloudflare Workers + React/Vite/[shadcn/ui](https://ui.shadcn.com) |\n\n## Quickstart\n\nWant to run your own squad? You'll need a GitHub repo, a Hugging Face token, and (for the site) a Cloudflare account.\n\n```bash\n# 1. Configure\ncp .env.example .env            # fill in tokens (GitHub, Hugging Face, Cloudflare)\n./scripts/verify-prerequisites.sh\n\n# 2. Protect main so only the squad's reviewed PRs merge\n./scripts/setup-branch-protection.sh   # see docs/branch-protection.md\n\n# 3. Run the tests\npython3 -m venv .venv && .venv/bin/pip install pytest && .venv/bin/pytest tests/ -q\n\n# 4. Brief the squad — open a business request\n#    → https://github.com/eduardocerqueira/ai-alpha-squad/issues/new/choose\n```\n\n**Director workflow:** `./scripts/squad-director-now.sh` lists what needs your approval and which jobs are stuck — or watch it all live on the [Director Dashboard](https://aialphasquad.com/director/). **WhatsApp approvals:** [docs/whatsapp-setup.md](docs/whatsapp-setup.md). **Landing site:** [site/README.md](site/README.md) · `./scripts/deploy-landing.sh`.\n\n## Documentation\n\n| Resource | Path |\n| -------- | ---- |\n| Documentation index | [.agents/README.md](.agents/README.md) |\n| Project specification | [.agents/project-specification.md](.agents/project-specification.md) |\n| Orchestrator (collaboration rules) | [.agents/squad-orchestrator.md](.agents/squad-orchestrator.md) |\n| Issue lifecycle | [.agents/issue-lifecycle.md](.agents/issue-lifecycle.md) |\n| Definition of done | [.agents/definition-of-done.md](.agents/definition-of-done.md) |\n| Artifact templates | [.agents/templates/README.md](.agents/templates/README.md) |\n| Director gate & dashboard | [docs/director-gate.md](docs/director-gate.md) · [docs/director-dashboard.md](docs/director-dashboard.md) |\n| Cursor / agent entry | [AGENTS.md](AGENTS.md) |\n| Infrastructure setup | [.agents/infrastructure-prerequisites.md](.agents/infrastructure-prerequisites.md) |\n| Cloud agent runtime | [.agents/agent-runtime-strategy.md](.agents/agent-runtime-strategy.md) |\n| GAP vs squad (research) | [docs/gap-comparison.md](docs/gap-comparison.md) |\n| Job 1 retrospective | [docs/retrospectives/job-1-2026-06-01.md](docs/retrospectives/job-1-2026-06-01.md) |\n\n---\n\n<div align=\"center\">\n\n**Brief the squad → [open a request](https://github.com/eduardocerqueira/ai-alpha-squad/issues/new/choose)** · Watch it work → [Director Dashboard](https://aialphasquad.com/director/) · Like the idea? **★ star the repo.**\n\n[aialphasquad.com](https://aialphasquad.com) · MIT licensed · An experimental autonomous-delivery lab\n\n</div>\n",
+  "status": "curated"
+}

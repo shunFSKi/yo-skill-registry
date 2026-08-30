@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/bodnarbalazs/dydo/bro",
+  "type": "skill",
+  "name": "bro",
+  "description": "Explicitly invoked by the human when the immediately previous response did not land and needs a clearer re-pitch.",
+  "author": "bodnarbalazs",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/bodnarbalazs/dydo/blob/HEAD/.agents/skills/bro/SKILL.md",
+    "repo": "bodnarbalazs/dydo",
+    "path": ".agents/skills/bro/SKILL.md"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 6,
+    "pushed_at": "2026-08-30T11:15:20Z",
+    "score": 63,
+    "star_history": [
+      {
+        "d": "2026-08-30",
+        "s": 6
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# DynaDocs (dydo)\n\nOwn your project's durable knowledge, use Linear for live work, and let native coding agents execute.\n\nDynaDocs is a documentation, skill-authoring, and guardrail framework for AI coding systems. It keeps\nproject knowledge explicit and versioned in Git, compiles shared role methods for Claude Code and\nCodex, and enforces project rules through hooks. Linear owns the live Initiative/Project/Issue graph;\nthe coding platform owns sessions, worktrees, delegation, and scheduling.\n\nThis project is an opinionated personal harness, not a compatibility-first product. It evolves with the\nprojects using it and deliberately removes machinery that native runtimes or dedicated work-management\ntools now do better.\n\n## The Project That Remembers\n\nDecisions, architecture, guides, reviewed Project plans, audits, assimilation briefs, and changelog live\nas Markdown in Git. They are human-readable, reviewable, linkable at an exact commit, and written for AI\nconsumption as much as for people.\n\nLinear holds volatile work state: Initiatives, Projects, Issues, optional Milestones and Cycles, status,\npriority, assignment, dependencies, current updates, and review state. dydo does not copy that graph into\nMarkdown. Linear links to durable repository artifacts; knowledge discovered during execution flows back\ninto the appropriate Decision, guide, plan, audit, or assimilation brief.\n\nFutureFeatures are the deliberate exception. An unscheduled idea remains repo-native until the human\npromotes it to exactly one Linear Initiative, Project, or Issue. The idea records the stable Linear URL\nonce and never mirrors subsequent delivery state.\n\n## What dydo Provides\n\n### Durable, AI-friendly knowledge\n\nA structured tree (`understand/`, `guides/`, `reference/`, and durable `project/` knowledge) with\nvalidation, auto-fixing, indexes, and graph tooling. Agents onboard through progressive disclosure,\nreading only the durable context relevant to the current Issue.\n\n### One source for native roles and skills\n\n`dydo sync` compiles role templates and resources into Claude Code and Codex artifacts. Edit the source\nonce; both runtimes receive the same method. The host runtime owns agent identity and orchestration.\n\n### Enforced project rules\n\n`dydo guard` checks every tool call, including subagents and workflows. Off-limits paths and dangerous\ncommands hard-block; project nudges add configurable notices, warnings, and blocks.\n\n### An opinionated scaffold\n\nEvery `dydo init` mode creates the knowledge tree, source role templates, and `CLAUDE.md`. The `claude`,\n`codex`, and `all` modes wire guard hooks only for the selected runtimes; Codex selections also add\n`AGENTS.md`. The `none` mode installs no guard hooks and no `AGENTS.md`. A new project contains durable\nDecisions, changelog, pitfalls, and FutureFeature idea documentation. It creates no repository-backed\nlive-work hierarchy: use Linear for work management.\n\n## How Work Runs\n\n1. **Shape intent** — record durable decisions and create the appropriately sized Linear Issue or Project.\n2. **Review the contract** — an atomic Issue may be its own contract; coordinated, cross-cutting, or\n   architecture-sensitive work links to one reviewed repository Project plan.\n3. **Execute Issues** — native agents work in isolated branches or worktrees and attach governing commits,\n   tests, reviews, and delivery evidence to the Issue.\n4. **Audit Projects** — verify the combined result against the linked plan, then publish durable audit and\n   assimilation evidence.\n\nEach implementation Issue receives a fresh independent review before completion. Branches, worktrees,\nsessions, subagents, commits, pull requests, and reviewer attempts are evidence linked to an Issue; they\nare not additional work types.\n\nNo dydo command reads, writes, caches, polls, provisions, or mirrors Linear. Agents use Linear's official\nMCP, UI, API, and integrations outside the dydo runtime.\n\n## Installation\n\n```bash\n# npm (recommended)\nnpm install -g dydo\n\n# .NET global tool\ndotnet tool install -g dydo\n```\n\n## Quick Start\n\nRun from the project root:\n\n```bash\ndydo init codex       # or: dydo init claude / dydo init all / dydo init none\ndydo sync             # compile shared roles and skills\ndydo check            # validate the documentation tree\ndydo fix              # repair supported documentation issues\n```\n\nFill in `dydo/understand/about.md` and `dydo/understand/architecture.md`, then adapt\n`dydo/guides/coding-standards.md` and `dydo.json` to the project. Use `--join` when wiring another\nruntime or machine into an existing project.\n\nKeep current work in Linear. Put information in Git only when it should remain useful and reviewable\nafter current workflow state changes.\n\n## Customize\n\n- **Nudges** — project regex rules and messages in `dydo.json`.\n- **Roles** — shipped source templates or project overrides in `dydo/_system/templates/`.\n- **Template additions** — Markdown in `dydo/_system/template-additions/`, included through durable hooks.\n- **Models** — abstract role tiers and vendor bindings in `dydo.json`.\n\nDo not hand-edit compiled skills, agents, or workflows. Change their source templates and run\n`dydo sync`.\n\n## Folder Structure\n\n```text\nproject/\n|-- dydo.json                    # Paths, model tiers, integrations, nudges\n|-- CLAUDE.md                    # Claude Code entry point\n|-- AGENTS.md                    # Codex entry point\n|-- .claude/                     # Compiled Claude agents, skills, and workflows\n|-- .codex/agents/               # Compiled Codex agents\n|-- .agents/skills/              # Compiled Codex skills\n`-- dydo/\n    |-- index.md                 # Knowledge map\n    |-- understand/              # Domain concepts and architecture\n    |-- guides/                  # How-to guidance\n    |-- reference/               # Exact commands and specifications\n    |-- project/                 # Durable knowledge and delivery proof\n    |   |-- decisions/           # Accepted choices\n    |   |-- plans/               # Reviewed coordinated-work contracts\n    |   |-- future-features/     # Unscheduled repo-native ideas\n    |   |-- changelog/           # Completed change and release history\n    |   `-- pitfalls/            # Recurring gotchas and constraints\n    |-- _system/templates/       # Project template overrides\n    |-- _system/template-additions/\n    `-- _assets/\n```\n\n## For Teams\n\nShare the repository and the Linear workspace. Each member wires up their machine's local integration\nfor the already-initialized project:\n\n```bash\ndydo init codex --join\n# or\ndydo init claude --join\n```\n\nGit carries durable knowledge; Linear carries current work and attention state. Do not create a second\nwork graph in repository files.\n\n## Command Reference\n\n### Setup and compilation\n\n| Command | Description |\n|---|---|\n| `dydo init <integration>` | Initialize for `claude`, `codex`, `all`, or `none` |\n| `dydo init <integration> --join` | Wire another runtime or machine into an existing project |\n| `dydo sync` | Compile shared roles, skills, resources, and workflows |\n\n### Documentation and validation\n\n| Command | Description |\n|---|---|\n| `dydo check [path]` | Validate documentation |\n| `dydo fix [path]` | Apply supported documentation repairs |\n| `dydo index [path]` | Regenerate documentation indexes |\n| `dydo graph <file>` | Show document graph connections |\n| `dydo graph stats [--top N]` | Summarize graph connectivity |\n| `dydo validate` | Validate local configuration and nudges |\n\n### Guard, templates, and models\n\n| Command | Description |\n|---|---|\n| `dydo guard` | Evaluate universal hook rules |\n| `dydo template update [--diff]` | Update or preview framework-owned templates and docs |\n| `dydo model cap <model> --until <time>` | Temporarily rebind a model tier |\n| `dydo model status` | Show active model caps |\n| `dydo model uncap <model>` | Restore original model bindings |\n\nSee the [complete CLI reference](dydo/reference/dydo-commands.md) for options, examples, transition-only\ncommands, and exit codes.\n\n## Self-Documentation\n\ndydo documents itself using its own system. Browse the `dydo/` tree in this repository to see durable\nknowledge, reviewed plans, migration evidence, and product guidance in practice.\n\n## License\n\nMIT — see LICENSE.\n",
+  "status": "curated"
+}
