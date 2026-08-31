@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/dev.gridcarbon/gridcarbon-mcp",
+  "type": "mcp",
+  "name": "gridcarbon-mcp",
+  "description": "Hourly electricity carbon intensity for 45 zones, from ENTSO-E, EIA and NESO. No API key needed.",
+  "author": "dev.gridcarbon",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/gridcarbon/clients",
+    "repo": "gridcarbon/clients"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "gridcarbon-mcp"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-31T01:03:34.684242Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# gridcarbon clients\n\nOfficial client libraries for the [gridcarbon](https://gridcarbon.dev) API — hourly\nelectricity grid carbon intensity in gCO<sub>2</sub>eq/kWh for 45 zones across Europe,\nthe United States and Great Britain.\n\nNo API key. No signup. Open CORS.\n\n```bash\ncurl -s \"https://api.gridcarbon.dev/v1/intensity/latest?zone=FR\"\n```\n```json\n{\"unit\":\"gCO2eq/kWh\",\"data\":[{\"zone\":\"FR\",\"ts\":\"2026-08-26T01:00:00Z\",\"gco2eq_kwh\":49,\"method\":\"computed:v1\"}]}\n```\n\n| Package | Registry | Install |\n| :-- | :-- | :-- |\n| [`python/`](python/) | PyPI `gridcarbon` | `pip install gridcarbon` |\n| [`typescript/`](typescript/) | npm `gridcarbon` | `npm install gridcarbon` |\n| [`mcp/`](mcp/) | npm `gridcarbon-mcp` | `npx gridcarbon-mcp` |\n\nBoth SDKs have **zero runtime dependencies** — the Python one uses `urllib`, the\nTypeScript one uses global `fetch`. The MCP server depends on the official\nMCP SDK; that cost is documented in [its README](mcp/README.md).\n\n## Two things to know before you use the numbers\n\n**Great Britain is measured on a different basis.** GB figures come from NESO and use\n*operational* (combustion-only) emission factors — wind, solar, nuclear and hydro count\nas zero. Every other zone uses IPCC AR5 *lifecycle* factors, where those sources are not\nzero. GB is therefore structurally lower than a lifecycle number for the same physical\ngrid. **Do not rank GB against the other 44 zones.** Both SDKs expose this as\n`is_lifecycle` / `isLifecycle` on every reading, and the MCP server excludes GB from\nrankings with an explanation rather than silently mixing bases.\n\n**\"Latest\" means newest published, not now.** European zones typically run 2–4 hours\nbehind and US zones 11–28 hours behind, because that is when the upstream operators\npublish. Every reading carries its interval start; use it rather than assuming the\nvalue is current.\n\nThe full method, the complete emission factor table, and a candid list of known biases\nare at [gridcarbon.dev/methodology](https://gridcarbon.dev/methodology).\n\n## Status\n\nPre-alpha. The archive starts 2026-08-21 and grows hourly. No rate limits are enforced\nyet — please do not poll faster than every five minutes, which is the edge-cache TTL on\n`/v1/intensity/latest`. Breaking changes are possible before 1.0; they will be noted in\neach package's changelog.\n\n## Attribution\n\nThe data these clients retrieve is derived from:\n\n- **ENTSO-E Transparency Platform** — European generation by production type\n- **U.S. Energy Information Administration (EIA)** — EIA-930 hourly generation by fuel type\n- **NESO Carbon Intensity API** — Great Britain\n\ngridcarbon is not endorsed by, sponsored by, or affiliated with any of these\norganisations. If you redistribute or display these values, carry the same attribution.\n\n## Licence\n\nClient code in this repository: [MIT](LICENSE).\nThe derived intensity values served by the API: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).\n\nThe data terms, the required attribution notice, the upstream sources and their\nnon-endorsement statements are all in [DATA-LICENSE.md](DATA-LICENSE.md).\n\n## Contributing\n\nCorrections to the method are genuinely welcome — especially from people who work with\ngrid data professionally. The emission factors and their known biases are documented\nopenly precisely so they can be argued with.\n\nIssues and pull requests are the best channel. This repository holds the client\nlibraries; the API backend is not open source.\n",
+  "status": "curated"
+}

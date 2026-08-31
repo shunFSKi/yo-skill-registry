@@ -1,0 +1,57 @@
+{
+  "id": "mcp:official/io.github.sammyboi81/sentarion",
+  "type": "mcp",
+  "name": "sentarion",
+  "description": "Governed multi-agent orchestration: fan-out dispatch, safety gates, tamper-evident memory.",
+  "author": "io.github.sammyboi81",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/sammyboi81/sentarion",
+    "repo": "sammyboi81/sentarion"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "sentarion-mcp"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-31T06:07:52.424332Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "AI",
+    "featured": false
+  },
+  "readme": "# sentarion-mcp (v0.1.0)\n\n<!-- mcp-name: io.github.sammyboi81/sentarion -->\n\nComposite MCP server wrapping [Algernon](https://pypi.org/project/algernon-mcp/)\n(fan-out orchestration) and [ArkHive](https://github.com/sammyboi81/arkhive)\n(governed audit/memory). Connects to both as an MCP client — does not\nreimplement either.\n\n## What's real right now\n- `cost_estimate` — pre-dispatch cost prediction, grounded in Algernon's own published benchmark numbers.\n- `dispatch_with_dependencies` — fan-out/fan-in wave ordering on top of Algernon's independent-task `algernon_dispatch`.\n- `orchestrate_and_record` — plan+dispatch, auto-logged to ArkHive's `remember`.\n- `recall_and_replan` — pulls ArkHive `recall` history into a new Algernon plan.\n\n## Governance — real, wired, fail-closed\n`govern_stub.py` now carries the REAL ArkHive `govern` client (verified against\nthe live GovernanceBlock engine, 2026-08-18):\n\n- wire in: `{action, flags: [...], rules: [{trigger, action}]}`\n- wire out: `{vetoed: bool, reason, engine: \"zero-LLM rule gate\", auditable: true}`\n- verdicts are **binary** (no \"pending\" state exists in the engine)\n- **fail-closed**: if ArkHive is unreachable, dispatch is blocked — an absent\n  governor never silently approves\n- a blocked `orchestrate_and_record` returns the decision and skips dispatch\n\n## Not yet built (deferred, per the earlier feature list)\n- Durable/crash-resistant execution via `mcp-agent` (Temporal-backed) — listed as a dependency in pyproject.toml but not yet wired into server.py.\n- Phase-gate state machine (queue→work→review→terminal) inside ArkHive's `govern` — depends on #1 above.\n\n## Install (once ready)\n```\npip install -e .\n```\n\n## Run\n```\nsentarion\n```\n\n\n## Support this project 💛\nSentarion, Algernon, and ArkHive are free, open source, and built on our own\nhardware. If they save you tokens or time:\n- **Donate**: https://dondatabrain.com (Stripe link on the page)\n- **Go Pro**: hosted endpoints, priority support, and the InboxAxe business\n  suite → https://inboxaxe.com\n\n## Hosted endpoint\nSkip the local install — connect any MCP client to:\n`https://arkhive.dondatabrain.com/sentarion/mcp`\n",
+  "status": "curated"
+}

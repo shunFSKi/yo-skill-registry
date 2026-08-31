@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.slshults/gpra-chord-charts",
+  "type": "mcp",
+  "name": "Guitar Practice Routine App — Chord Charts",
+  "description": "Look up a guitar chord by name and get a text chord diagram. 12,708 standard-tuning names.",
+  "author": "io.github.slshults",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/slshults/gpra-chord-charts-mcp",
+    "repo": "slshults/gpra-chord-charts-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "gpra-chord-charts-mcp"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-30T20:02:26.441549Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Guitar chord charts — MCP server\r\n\r\nA small, read-only [Model Context Protocol](https://modelcontextprotocol.io)\r\nserver that lets MCP-capable AI clients look up guitar chord charts from\r\n[Guitar Practice Routine App (GPRA)](https://guitarpracticeroutine.com) and show\r\nthem to people as text chord diagrams.\r\n\r\nIt serves exactly what\r\n[guitarpracticeroutine.com/find-a-chord-chart](https://guitarpracticeroutine.com/find-a-chord-chart)\r\nserves: one chord name in, one chart out, from a bundled snapshot of the same\r\nchord library. No database, no authentication, no secrets.\r\n\r\n```\r\nAm\r\n\r\n    E  A  D  G  B  E\r\n    x  o           o\r\n   ==================\r\n 1  |  |  |  |  1  |\r\n   -+--+--+--+--+--+-\r\n 2  |  |  3  2  |  |\r\n   -+--+--+--+--+--+-\r\n 3  |  |  |  |  |  |\r\n   -+--+--+--+--+--+-\r\n 4  |  |  |  |  |  |\r\n   -+--+--+--+--+--+-\r\n 5  |  |  |  |  |  |\r\n   -+--+--+--+--+--+-\r\n\r\nx = muted   o = open   digits in grid = fingers (1 index, 2 middle, 3 ring, 4 pinky)\r\nEADGBE\r\n```\r\n\r\nFrets run top to bottom from the nut, and string 1 — the highest-pitched\r\nstring — is the rightmost column, matching standard chord-box convention and\r\nthe charts on the site.\r\n\r\n## Tools\r\n\r\n| Tool | What it does |\r\n| --- | --- |\r\n| `get_chord_chart_by_name` | One chord name (`G`, `Am7`, `D/F#`) → the one chart the website shows for it. |\r\n| `get_chord_chart_by_id` | The same chart by its numeric id, for re-rendering something already returned. |\r\n| `get_chord_of_the_day` | Today's Chord of the Day — the same chord GPRA posts to Bluesky and Facebook. |\r\n\r\nEach result **leads with a direct PNG URL** for the chart, then the same chart as\r\na fenced text grid. The URL is the picture in the form that survives every\r\nsurface: it renders where markdown images work, stays clickable where they\r\ndon't, and can be dropped into an artifact, an HTML page, or a saved file. The\r\ntext grid is the fallback for anywhere neither is true.\r\n\r\nInline PNG bytes are **opt-in** via `format: \"image\"` or `format: \"both\"`. They\r\ncost image tokens and several clients bury them in a collapsed tool drawer, so\r\nthey're not worth sending by default now that a URL does the job. `format`\r\ndefaults to `\"text\"`, which still includes the image URL. Attribution is kept in\r\nevery mode.\r\n\r\nEvery tool also takes a `context` argument describing why it's being called.\r\nThat's injected by PostHog's MCP SDK and populates agent intent in analytics;\r\nnothing in the response depends on it.\r\n\r\n### How a chart reaches a person\r\n\r\nThere is no capability negotiation for \"can you show an image\", so the result\r\ncarries several layers and lets the host use whichever it understands:\r\n\r\n| Layer | Where it lands |\r\n| --- | --- |\r\n| Text grid + `Chart image:` URL | Everywhere. This is the floor. |\r\n| MCP Apps widget (`_meta.ui.resourceUri`) | Hosts that render MCP Apps — Claude Code, Cowork, ChatGPT, PostHog Desktop. |\r\n| Inline PNG bytes (`format: \"image\"`) | Hosts that surface image content blocks, on request. |\r\n\r\nThe widget is a `ui://gpra-chord-charts/chart/{id}` resource resolving to a\r\nself-contained HTML page with the chord already baked in — no JavaScript, no\r\npostMessage bridge, no client bundle. A host that ignores it simply shows no\r\nwidget, and the text answer is untouched.\r\n\r\nMeasured on claude.ai, for anyone tempted to try these again: bare markdown\r\nimages render as a click-through placeholder that opens a browser tab rather\r\nthan loading inline; images wrapped in links collapse to the link; raw HTML is\r\nescaped to literal text; and the MCP Apps iframe is fetched but never mounted\r\n([ext-apps#671](https://github.com/modelcontextprotocol/ext-apps/issues/671)).\r\nOn that surface the URL is the whole story, which is why it leads the text.\r\n\r\nResults deliberately carry **no `structuredContent`**. A client that understands\r\nit may render it *instead of* the content blocks — one measurably did, reducing\r\nthe answer to three JSON fields and dropping the chart, the attribution and the\r\ncall to action. Nothing goes in a result that can displace the text.\r\n\r\n## What's in the library\r\n\r\n12,708 standard-tuning (EADGBE) voicings, **exactly one per chord name**. This\r\nserver does no fuzzy matching and no query cleanup — it passes the name through\r\nthe same way the website does, so the tool description asks the calling\r\nassistant to send a plain chord name (\"G\", not \"how do I play G major\").\r\n\r\nCharts are drawn on a five-fret grid starting at the nut, matching the site —\r\nwhich means a voicing with notes above the fifth fret has them fall outside the\r\ngrid. The **image** drops them, exactly as the website does; the **text** names\r\nthem underneath (\"Also fretted, past this five-fret grid: string 5 (A) fret 6\").\r\nSo the pair is honest even where the picture alone isn't.\r\n\r\nImages use black ink on white rather than the site's white-on-transparent: the\r\nsite can assume its own dark UI, and a chat client's background is unknown.\r\n\r\n## Connecting a client\r\n\r\nRemote MCP means users add a **URL**, no install:\r\n\r\n```\r\nhttps://mcp.guitarpracticeroutine.com/mcp\r\n```\r\n\r\nFor clients configured with a JSON config file, use the streamable-HTTP\r\ntransport:\r\n\r\n```json\r\n{\r\n  \"mcpServers\": {\r\n    \"gpra-chord-charts\": {\r\n      \"type\": \"streamable-http\",\r\n      \"url\": \"https://mcp.guitarpracticeroutine.com/mcp\"\r\n    }\r\n  }\r\n}\r\n```\r\n\r\nFor a client that only speaks stdio, bridge with\r\n[`mcp-remote`](https://www.npmjs.com/package/mcp-remote):\r\n\r\n```json\r\n{\r\n  \"mcpServers\": {\r\n    \"gpra-chord-charts\": {\r\n      \"command\": \"npx\",\r\n      \"args\": [\"-y\", \"mcp-remote\", \"https://mcp.guitarpracticeroutine.com/mcp\"]\r\n    }\r\n  }\r\n}\r\n```\r\n\r\n## Run locally\r\n\r\n```bash\r\nnpm install\r\nnpm run build\r\nnpm test\r\n\r\nnpm start          # stdio transport\r\nnpm run start:http # HTTP, listens on 127.0.0.1:2112, POST /mcp (set PORT / HOST)\r\n```\r\n\r\nHealth check: `GET /health` → status, version, chord count.\r\n\r\nPreview charts from the terminal without a client:\r\n\r\n```bash\r\nnpx tsx scripts/preview.ts G Am C F Bm D/F#\r\n```\r\n\r\nNo CORS headers are set. Claude and connector directories fetch server-side, so\r\nthey don't need them — a browser-based MCP client would.\r\n\r\n### Rebuilding the chord snapshot\r\n\r\nRequires access to a GPRA database. The source table changes rarely, so this is\r\na manual step:\r\n\r\n```bash\r\npsql \"$DATABASE_URL\" -Atf scripts/dump-chords.sql > data/common-chords.raw.json\r\nnpm run build:index\r\nnpm run build && npm test\r\n```\r\n\r\n`build:index` prints the library's fret range to the terminal and reports data\r\nanomalies (voicings with no fretted notes, missing finger numbers, notes dropped\r\nas unplayable) rather than quietly normalizing them away.\r\n\r\n## Privacy\r\n\r\nThe hosted server records anonymous usage analytics through\r\n[`@posthog/mcp`](https://www.npmjs.com/package/@posthog/mcp): which tool was\r\ncalled, how long it took, whether it errored, the calling client's identity\r\n(name and version on connect, user-agent on each call), and the `context` string\r\nthe agent supplied describing why it called. No personal identifier is stored and\r\nno person profile is created.\r\n\r\nAnalytics are off entirely unless `POSTHOG_API_KEY` is set, so running this\r\nyourself — including over stdio — sends nothing anywhere.\r\n\r\n## Deployment\r\n\r\n`deploy/` contains a systemd unit and an nginx reverse-proxy config, if you want\r\nto host your own instance.\r\n\r\n## Credits\r\n\r\nThe chord library exists because of other people's work:\r\n\r\n- **[SVGuitar-ChordCollection](https://github.com/TormodKv/SVGuitar-ChordCollection)**\r\n  by [@TormodKv](https://github.com/TormodKv) — the chord database this is built\r\n  from, itself based on\r\n  [chord-collection](https://github.com/T-vK/chord-collection) by\r\n  [@T-vK](https://github.com/T-vK).\r\n- **[SVGuitar](https://github.com/omnibrain/svguitar)** by\r\n  [@omnibrain](https://github.com/omnibrain) — the chord-diagram renderer whose\r\n  data format this uses, and which draws the charts on\r\n  [guitarpracticeroutine.com](https://guitarpracticeroutine.com). (This server\r\n  renders text, not SVG.)\r\n\r\n## A note on `npm audit`\r\n\r\n`npm audit` reports three high-severity advisories against `image-size`, pulled\r\nin transitively by `svguitar` → `svgdom`. They are denial-of-service infinite\r\nloops in the ICNS, JXL and HEIF **file** parsers, reached only through\r\n`svgdom`'s `HTMLImageElement`, which calls `imageSizeFromFile` when an `<img>`\r\nis given a source.\r\n\r\nNothing here constructs one. Chart rendering draws vector primitives from a\r\nchord name and an integer id; the only inputs that cross the boundary are a\r\nstring of at most 64 characters and a positive integer, and no code path\r\naccepts, fetches or decodes an image file. There is no upstream fix, so the\r\nadvisories will keep showing until `svgdom` moves off `image-size`.\r\n\r\n## License\r\n\r\n- **Code:** MIT — see `LICENSE`.\r\n- **Provenance of the chord data:** see `NOTICE`.\r\n- **Chord data:** the voicings originate from SVGuitar-ChordCollection, which\r\n  carries no stated licence, so no licence is asserted over them here. The\r\n  fingerings themselves are factual descriptions of where fingers go on a\r\n  fretboard. Please credit the projects above if you reuse the data.\r\n\r\n---\r\n\r\n[![gpra-chord-charts-mcp MCP server](https://glama.ai/mcp/servers/slshults/gpra-chord-charts-mcp/badges/score.svg)](https://glama.ai/mcp/servers/slshults/gpra-chord-charts-mcp)\r\n",
+  "status": "curated"
+}

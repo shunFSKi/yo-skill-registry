@@ -17,10 +17,10 @@
   "quality": {
     "stars": 1,
     "pushed_at": "2026-08-30T08:07:39Z",
-    "score": 45,
+    "score": 55,
     "star_history": [
       {
-        "d": "2026-08-30",
+        "d": "2026-08-31",
         "s": 1
       }
     ]
@@ -55,6 +55,6 @@
     "category": "写作",
     "featured": false
   },
-  "readme": null,
+  "readme": "# tatr\n\nSmall offline task tracker. One C file. Markdown storage. No task lifecycle\nbeyond status.\n\n## Build and test\n\n```bash\nnix develop -c make\nnix develop -c ./checker.sh\n```\n\nThe binary is `dist/tatr`.\n\n## Task format\n\nEach task is `tasks/YYYYMMDD-HHMMSS/TASK.md`:\n\n```markdown\n# Fix parser\n\n- STATUS: OPEN\n- PRIORITY: 100\n- TAGS: bug, parser\n\nOptional Markdown body.\n```\n\nValid statuses: `OPEN`, `CLOSED`.\n\nNo other task records or metadata exist. Invalid task files make `tatr ls` and\n`tatr edit` fail.\n\n## Commands\n\n```bash\ntatr new \"Fix parser\" --priority 100 --tags bug --tags parser --body details.md\nprintf 'Body from stdin.\\n' | tatr new \"Fix parser\" --body -\ntatr ls\ntatr ls --sort priority\ntatr ls --filter ':status eq OPEN'\ntatr edit 20260808-113322 --status CLOSED --priority 80\ntatr help\ntatr version\n```\n\nGlobal option: `-r DIR` or `--root DIR` selects a project directory.\n\n### new\n\nCreates a task. Options:\n\n- `-s, --status`: default `OPEN`\n- `-p, --priority`: default `0`; higher values sort first\n- `-t, --tags`: repeat for multiple tags\n- `-b, --body`: read the Markdown body from a file, or from stdin with `-`\n\nThe body is stored after the generated metadata without modification. Input\nmust be readable before tatr creates the task directory.\n\n```bash\ntatr new \"Fix parser\" -b details.md\ntatr new \"Fix parser\" -b - < details.md\n```\n\n### ls\n\nLoads and validates each selected `TASK.md`. Options:\n\n- `-s, --sort`: `created`, `priority`, or `title`\n- `-f, --filter`: query expression\n- `-R, --recursive`: find nested projects\n\nQuery fields: `:status`, `:priority`, `:tags`, `:title`. Operators: `eq`, `in`,\n`contains`, `and`, `or`, `not`. Bare literals start with a letter, digit, or\n`_`. Later characters can also be `.` or `-`, so tags such as `v0.1.0` and\n`release-candidate` work. Bare literals cannot start with `.` or `-`. Examples:\n\n```bash\ntatr ls -f ':tags contains bug'\ntatr ls -f '(:status eq OPEN) and (:priority eq 100)'\ntatr ls -f ':status in [OPEN, CLOSED]'\n```\n\n### edit\n\nUpdates one task by ID. Supports `--title`, `--status`, `--priority`, and\n`--tags`. Unspecified fields and the body stay unchanged.\n\n## Storage lookup\n\nWithout `--root`, tatr searches from the current directory toward `/` for a\n`tasks/` directory. Data stays in plain Markdown suitable for Git and grep.\n",
   "status": "curated"
 }

@@ -1,0 +1,65 @@
+{
+  "id": "mcp:official/io.github.t-crew/memory-pulse",
+  "type": "mcp",
+  "name": "memory-pulse",
+  "description": "Causal project memory for agents - corrections surface first; the ledger is a local file you own.",
+  "author": "io.github.t-crew",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/t-crew/memory-pulse",
+    "repo": "t-crew/memory-pulse"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "memory-pulse"
+    ],
+    "env": [
+      {
+        "name": "MEMORY_PULSE_KEY",
+        "required": false,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-31T06:54:54.212603Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "AI",
+    "featured": false
+  },
+  "readme": "# memory-pulse\n\n[![npm](https://img.shields.io/npm/v/memory-pulse)](https://www.npmjs.com/package/memory-pulse)\n[![license](https://img.shields.io/badge/license-MIT-6366f1)](LICENSE)\n[![MCP](https://img.shields.io/badge/MCP-server-a855f7)](https://github.com/t-crew/memory-pulse)\n\n**Error correction for agents.** Agent memory is probabilistic; memory-pulse\ndetects the error without reading the state, corrects toward the recorded\ntruth, and keeps an exact layer for what must never drift. Causal project\nmemory for coding agents — built for the thing MCP memory servers usually\nget wrong: **the cost of having it installed.**\n\nAll four tools together cost **~2.5 KB (≈670 tokens) of definitions**\n(cert_c71bba29493a). A test in this repo fails if they ever exceed 4 KB. Compare that to what a typical\nMCP setup already burns before you type your first prompt — independent\nmeasurements put 5–10 installed servers at [50–67k tokens of tool definitions](https://getunblocked.com/blog/mcp-token-budget-autopsy/),\na third of a 200k context window.\n\n## What it does\n\nYour agent's session ends and everything it learned dies with it. memory-pulse\ngives it a ledger of **cause → effect** events in a local file, and four tools:\n\n| tool | what it does | runs |\n|---|---|---|\n| `remember` | record a finding (or a **correction**) | locally, offline |\n| `pulse` | re-enter the project: a ranked brief instead of re-reading history | hosted engine |\n| `recall` | what caused X? what did X cause? when was the link strongest? | hosted engine |\n| `execute` | run JS against memory in a sandbox; only the return value enters context | hosted engine |\n\nTwo design decisions do the heavy lifting:\n\n**Corrections come first, always.** An event recorded with\n`kind: \"correction\"` outranks everything at every brief size and never decays.\nThe failure this prevents: your agent confidently quotes the benchmark number\nyou withdrew three sessions ago.\n\n**Silence beats a wrong answer.** When recall isn't confident enough, it returns nothing rather than guessing.\nWhen the answer isn't there, you get nothing — not a plausible guess.\n\n## Install\n\n**Any MCP client, one line** (Claude Code shown):\n\n```\nclaude mcp add memory-pulse -- npx -y memory-pulse\n```\n\n**Make re-entry automatic** — a Claude Code SessionStart hook that runs the\nbrief before your first prompt (idempotent; merges into your settings, never\nclobbers them; silent in projects that have no ledger):\n\n```\nnpx memory-pulse install-hook\n```\n\n**Claude Code plugin** (installs straight from this repo, hook included):\n\n```\n/plugin marketplace add t-crew/memory-pulse\n/plugin install memory-pulse@memory-pulse\n```\n\n**Codex CLI / Cursor / other clients** — stdio server, command\n`npx -y memory-pulse` (or clone this repo and run `node /path/to/server.mjs`).\n\nThen tell your agent to remember things. Record a withdrawn number with\n`kind: \"correction\"` and it will outrank the history that contained it — at\nevery brief size, in every session.\n\n**Enforce corrections, don't just surface them.** Showing an agent a\ncorrection is measurably not enough — agents re-violate corrections they were\njust shown. `install-hook` also installs a PreToolUse guard: an Edit or Write\nthat writes back a withdrawn value is **blocked**, and the agent is told which\nledger line retired it and when. A comparison that names the replacement\n(\"was $49, now $29\") passes; only a bare reintroduction is blocked. Record\ncorrections with the exact terms:\n\n```\nremember({ cause: \"pricing-shipped\", effect: \"price-corrected\", kind: \"correction\",\n           note: \"measured willingness to pay is $29\", withdrawn: [\"$49\"], replacement: [\"$29\"] })\n```\n\n### Commands\n\n```\nnpx memory-pulse brief          # the re-entry brief (what the SessionStart hook prints)\nnpx memory-pulse guard          # PreToolUse hook: blocks edits that reintroduce withdrawn terms\nnpx memory-pulse report         # correction re-violation scoreboard, computed locally\nnpx memory-pulse bench          # instant measured metrics on YOUR ledger\nnpx memory-pulse stats          # your telemetry capsule, signature verified by the engine\nnpx memory-pulse badge          # README badge markdown from your own signed numbers\nnpx memory-pulse install-hook   # installs both hooks (idempotent); --project commits them to the repo\n```\n\nThe plugin also ships a **skill** (`skills/memory-pulse/SKILL.md`) that teaches\nthe agent when to pulse, how to record corrections with withdrawn terms, and\nto respect the guard.\n\n## What runs where (the privacy contract)\n\n- Your ledger is a **local file**: `.memory-pulse/events.jsonl` in your\n  project. Commit it, grep it, delete it — it's yours.\n- `remember` writes to it directly and **works offline**.\n- Read operations send the ledger's events to the hosted engine over TLS,\n  which computes the answer and forgets the request. **The service keeps no\n  database of your memory** — state arrives in the request and leaves in the\n  response.\n- Telemetry is a **signed capsule beside your ledger**\n  (`.memory-pulse/telemetry.rain`): the engine advances it on each read call\n  and hands it back — it never stores it. `stats` verifies the signature;\n  `badge` turns it into a README badge. Delete the file and it restarts.\n- **State persistence, no database.** After a read the engine hands back a\n  signed **memory key** (`.memory-pulse/memory.rain`, git-ignored). The next\n  read presents it and the engine resumes from it, ingesting only the events\n  recorded since — the answer is byte-identical to a full rebuild, and any\n  mismatch (edited history, a stepped ledger size, a bad signature) falls back\n  to a rebuild and says why. Lose the file and you lose nothing but one\n  rebuild. `MEMORY_PULSE_MEMORY_KEY=off` disables it.\n- **Memory integrity.** A note that reads like an instruction (\"ignore previous\n  instructions\", \"run this command\", a fake system tag) is refused by\n  `remember` and, if one is already in a ledger, quarantined at read time and\n  reported — memory is never rendered into your agent's context as an\n  instruction. The signed capsule also raises a **drift alert** when a ledger\n  loses corrections, shrinks, or its usage shape jumps; the brief footer\n  shows it. Both checks are deterministic lists you can read, not a model.\n- This client is the entire client: one file, zero dependencies, readable in one sitting.\n\n## Pricing\n\n- **Free** — ledgers up to 500 events, 200 reads/day. No account, no key.\n- **Pro ($19/mo)** — ledgers to 20,000 events, unlimited reads. One env var:\n  `MEMORY_PULSE_KEY`.\n\nLocal writes are free forever either way.\n\n## Measured, on our own ledger\n\nWe run memory-pulse on the 767-event, 1.08 MB ledger of the project that\nbuilds it. On that corpus (pinned run cert_c71bba29493a):\n\n- A cross-referencing question answered through `execute` returned **124\n  chars** against the 1,080,983-char full dump — the intermediates never\n  entered context.\n- Re-entry briefs at the smallest tier run **~99% smaller** than reading the\n  ledger in.\n- On our recall benchmark (351 distinct causes), the noise-floor gate returned\n  **zero wrong top answers** — when it couldn't clear the floor, it returned\n  nothing instead.\n\nYour ratios scale with ledger size — a ledger ten events old has nothing to\ncompress. The methodology lives in the engine's benchmark suite and the\nnumbers above are from pinned run cert_c71bba29493a, not a projection.\n\n## FAQ\n\n**Why is the engine hosted?** The ranking engine is the part that took the\nresearch. The tradeoff we chose: local ledger + thin auditable client +\nhosted engine, over shipping a weaker local ranker. If the engine being remote\nis a dealbreaker, `MEMORY_PULSE_API` points the client anywhere.\n\n**What about team memory?** Commit `.memory-pulse/` to the repo. Your\nteammates' agents pulse the same ledger. (Shared hosted ledgers are on the\nroadmap.)\n\n**License?** Client: MIT. Engine: proprietary, hosted.\n\nMIT © Travis Crew\n\n## Releasing\n\n```bash\nnpm version patch && git push --follow-tags\n```\n\nThe tag triggers `.github/workflows/release.yml`, which runs the tests and\npublishes to npm and the MCP registry using GitHub's OIDC identity — no\ntokens in the repo, no one-time passwords. npm attaches provenance\nautomatically, so anyone can verify the package was built from this repo.\n",
+  "status": "curated"
+}

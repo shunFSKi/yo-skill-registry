@@ -1,0 +1,70 @@
+{
+  "id": "mcp:official/io.github.stylabs/hostaway-kit",
+  "type": "mcp",
+  "name": "hostaway-kit",
+  "description": "Read-only Hostaway MCP: listings, calendar, inbox, reports. Fixtures, no key. By STYLABS.",
+  "author": "io.github.stylabs",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/stylabs/hostaway-kit-mcp-skills",
+    "repo": "stylabs/hostaway-kit-mcp-skills"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "hostaway-kit"
+    ],
+    "env": [
+      {
+        "name": "HOSTAWAY_ACCOUNT_ID",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "HOSTAWAY_CLIENT_SECRET",
+        "required": false,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-31T07:31:42.814042Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "办公",
+    "featured": false
+  },
+  "readme": "# hostaway-kit\n\nRead-only [MCP](https://modelcontextprotocol.io) server plus Cursor / Claude Code / Codex skills for operators who already run [Hostaway](https://www.hostaway.com) as their PMS.\n\nAsk an assistant about listings, calendar, inbox, and simple reports. Hostaway stays the system of record. This kit never writes — no messages, no calendar blocks, no reservations.\n\nShipped by **[STYLABS](https://www.stylabs.com/work/hostaway)**, an AI-native venture studio that builds custom Hostaway booking sites and operator dashboards. STYLABS is not an official Hostaway partner.\n\n## What you get\n\n1. **Read-only MCP (stdio)** — `list_listings`, `get_listing`, `get_calendar`, `list_reservations`, `list_conversations`, `list_messages`, plus inbox triage, draft reply, and reports.\n2. **Denylist** on every listing / reservation / message payload: `wifiPassword`, `wifiUsername`, `doorSecurityCode`, `doorCode`, `doorCodeVendor`, `doorCodeInstruction`, and all `invoicing*` contact fields.\n3. **Inbox intelligence Hostaway does not compute** — unanswered / SLA triage and a suggested reply grounded in *that* listing's fields, house rules, and calendar. Rates come from the calendar or are reported as unknown. Nothing is sent.\n4. **Reports Hostaway does not ship as owner statements** — occupancy and blocked holes from the calendar, unanswered thread counts, listing completeness (photos / house rules / amenities). No financials.\n5. **Skills in this repo** (not on npm) that tell the model to use the MCP tools and never invent numbers.\n\nMapped to the [Hostaway Public API](https://api.hostaway.com/documentation):\n\n| Kit behaviour | Hostaway |\n| --- | --- |\n| Active listings | `GET /v1/listings?specialStatus[]=active` |\n| One listing | `GET /v1/listings/{id}?includeResources=1` |\n| Calendar | `GET /v1/listings/{id}/calendar?includeResources=1` |\n| Stay search on the list | `availabilityDateStart`, `availabilityDateEnd`, `availabilityGuestNumber` |\n| Check-in / check-out | integers **0–23** (`checkInTimeStart`, `checkInTimeEnd`, `checkOutTime`) |\n| Amenities | `amenityId` integers, not free-text names (`GET /v1/amenities` resolves names) |\n| Inbox | `GET /v1/conversations`, `GET /v1/conversations/{id}/messages` |\n| Create reservation / send message | **out** |\n\nIf `HOSTAWAY_ACCOUNT_ID` or `HOSTAWAY_CLIENT_SECRET` is unset, the server serves bundled fixtures so `npx` still demos.\n\n## Install / run\n\n```bash\nnpx -y hostaway-kit\n```\n\nOr from this repo:\n\n```bash\nnpm install\nnpm run build\nnode dist/index.js\n```\n\nstdio only. Logs go to stderr. Credentials are optional.\n\n### Environment\n\n| Variable | Required | Purpose |\n| --- | --- | --- |\n| `HOSTAWAY_ACCOUNT_ID` | for live reads | Hostaway account id (`client_id` on `POST /v1/accessTokens`) |\n| `HOSTAWAY_CLIENT_SECRET` | for live reads | Client secret from the Hostaway dashboard |\n| `HOSTAWAY_KIT_NOW` | no | ISO timestamp that pins \"now\" for SLA math (used by tests) |\n\nGet an API client secret from the Hostaway dashboard. This kit does not ship or use a Hostaway account.\n\n## Cursor\n\nAdd to `~/.cursor/mcp.json` (or project `.cursor/mcp.json`):\n\n```json\n{\n  \"mcpServers\": {\n    \"hostaway\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"hostaway-kit\"],\n      \"env\": {\n        \"HOSTAWAY_ACCOUNT_ID\": \"your-account-id\",\n        \"HOSTAWAY_CLIENT_SECRET\": \"your-client-secret\"\n      }\n    }\n  }\n}\n```\n\nLeave both env values empty, or omit `env`, to run the fixture demo.\n\nCopy the skills from this repo into Cursor:\n\n```bash\ncp -R skills/* ~/.cursor/skills/\n```\n\n## Claude Code\n\nAdd to `~/.claude.json` (or project `.mcp.json`):\n\n```json\n{\n  \"mcpServers\": {\n    \"hostaway\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"hostaway-kit\"],\n      \"env\": {\n        \"HOSTAWAY_ACCOUNT_ID\": \"your-account-id\",\n        \"HOSTAWAY_CLIENT_SECRET\": \"your-client-secret\"\n      }\n    }\n  }\n}\n```\n\nSkills:\n\n```bash\nmkdir -p .claude/skills\ncp -R skills/* .claude/skills/\n```\n\n## Codex\n\n`~/.codex/config.toml`:\n\n```toml\n[mcp_servers.hostaway]\ncommand = \"npx\"\nargs = [\"-y\", \"hostaway-kit\"]\n\n[mcp_servers.hostaway.env]\nHOSTAWAY_ACCOUNT_ID = \"your-account-id\"\nHOSTAWAY_CLIENT_SECRET = \"your-client-secret\"\n```\n\nSkills live in this repository under `skills/`. Point Codex at that folder or copy the `SKILL.md` files into your Codex skills path.\n\n## Skills (repo only)\n\n| Skill | When to use |\n| --- | --- |\n| `skills/hostaway-pms` | Hostaway stays the PMS. Do not push their website builder. |\n| `skills/hostaway-guest-answers` | Answer guests from that listing's fields only. |\n| `skills/hostaway-availability` | Date-range availability from list filters + calendar. |\n| `skills/hostaway-inbox` | SLA triage and draft. Never send. |\n| `skills/hostaway-reporting` | Occupancy, holes, unanswered counts, completeness. |\n\nThe npm package is the MCP server only. Skills stay in git.\n\n## Tools\n\n| Tool | What it does |\n| --- | --- |\n| `list_listings` | Active listings; optional city / name / availability filters |\n| `get_listing` | One listing, resources included, secrets stripped |\n| `get_calendar` | Day rows with status, `isAvailable`, `price` (null = unknown) |\n| `list_reservations` | Reservations; door codes stripped |\n| `list_conversations` | Inbox threads |\n| `list_messages` | Messages in a thread |\n| `inbox_triage` | Unanswered + SLA (`breached` / `waiting` / `answered`) |\n| `draft_reply` | Grounded draft. `send` is always `false`. |\n| `report_occupancy` | Reserved / available / blocked + blocked holes |\n| `report_inbox` | Unanswered thread counts |\n| `report_completeness` | Missing photos, house rules, amenities |\n\nOccupancy rate = reserved nights ÷ (reserved + available). Blocked nights are listed as holes, not folded into occupancy.\n\n## Fixtures\n\nDemo inventory (not a real Hostaway account):\n\n- **101 Harbor View Studio** — complete listing. Raw fixture includes `wifiPassword` / invoicing contacts; the denylist strips them.\n- **102 Riverside Loft** — no photos.\n- **103 Pine Cabin** — no house rules, no amenities.\n- **199** — archived; omitted unless `includeArchived` is true.\n- August 2026 calendar on 101 with reserved nights, a two-night blocked hole (6–7 Aug), and 11 Aug with `price: null`.\n- Unread threads 501 (SLA breach), 502 (within SLA), 504 (pets question on the incomplete listing). 503 is answered.\n\n## Tests\n\n```bash\nnpm test\n```\n\nCovers denylist, fixture filters, occupancy math, SLA counts, draft refusal of secrets and invented rates, and the absence of a send path.\n\n## Out of scope\n\nWrites of any kind. Guest Payments, Stripe, WordPress plugins, a hosted Claude connector, a Cursor marketplace plugin, Hostaway's website builder, Flagship guest websites, owner statements, or live client data.\n\n## License\n\nMIT. See [LICENSE](LICENSE).\n\nHostaway is a trademark of its owner. This project is not affiliated with or endorsed by Hostaway.\n",
+  "status": "curated"
+}

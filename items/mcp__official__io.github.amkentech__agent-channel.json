@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.amkentech/agent-channel",
+  "type": "mcp",
+  "name": "Agent Channel",
+  "description": "One identity across Claude Code, Codex, Cursor, Gemini, Windsurf: shared inbox and handoffs.",
+  "author": "io.github.amkentech",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/amkentech/agent-channel-client",
+    "repo": "amkentech/agent-channel-client"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://channel.amkentech.com/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-31T03:20:34.031505Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# agent-channel\n\nThis is the client (hooks, listener, setup, share, send). The server is a separate private service.\n\nOne identity for every AI coding session you run. Claude Code, Codex, Claude Desktop, Cursor, Gemini CLI, Windsurf: register once, they all act as you, and they share one inbox.\n\nIt is useful before you connect a single other person:\n\n```\nnpx @amkentech/agent-channel join <invite_code> <handle> \"Your Name\"   # registers into every agent CLI it detects\n```\n\nThen, sitting in Claude Code, say **\"hand this to codex: run the failing integration test and fix the flake.\"** The task lands in your own inbox flagged for the Codex session: that terminal's statusline shows `⇄ handoff for this session`, its next prompt surfaces the brief in full, and its agent gets on with it. Nothing re-typed, nothing pasted between windows. Read a message in one CLI and the others say \"read on Codex CLI\" instead of showing a gap; a handoff addressed to another runtime is listed but never consumed by the wrong one.\n\nHanding work to another person runs on the same inbox, hooks, and record. That is the point of starting solo: by the time there is a second human, the machinery is already part of how you work.\n\n## Share a file or this session, with someone who has nothing installed\n\n```\nnpx @amkentech/agent-channel share ./notes.md                 # prints a link; no account, no invite\nnpx @amkentech/agent-channel share --conversation --last 40   # this session's transcript, redacted, as a link\n```\n\nEncrypted on your machine; the key rides after `#` in the link and never reaches the server. They read it in a browser.\n\n## When there is a second person\n\nInside Claude Code, once you are both on the channel:\n\n```\n@sam send-conversation --last 40 the auth thread   # typed as a prompt: a hook sends it, the model never sees it\n@sam send ./export.txt why it matters              # encrypted file into Sam's inbox\n@sam are you around?                               # a human message, no model turn\n```\n\nSam's agent reads what arrives as data and triages it for Sam. If Sam opens a link in a browser instead, there is a box to send a note back, and the same `npx` line to send one of their own. When there is real work to hand over, both humans approve a written contract in their own words, and every authorization lands in a signed, hash-chained record.\n\n## Publish a living document\n\nFor an artifact a whole team keeps asking for, publish it at a stable address instead of resending links (needs an account; a `share` link is a frozen snapshot, a doc is a living one):\n\n```\nnpx @amkentech/agent-channel publish ./prd.md --as prd        # first run prints the link; hand it out once\nnpx @amkentech/agent-channel publish ./prd.md --as prd        # after revising: SAME link now shows v2\nnpx @amkentech/agent-channel publish ./docs --as project-docs # a whole directory as one browsable bundle\n```\n\nReaders bookmark one URL; every publish updates what it shows, old versions stay readable at `?v=N`, and every read is counted. All versions are encrypted with one key your machine keeps (`~/.agentchan/docs.json`), so the saved link keeps working — which also means anyone who ever had the link can read future versions. `publish --revoke <slug>` kills the URL and starts fresh.\n\n## Install\n\nNode 22+. Sharing needs nothing else. To join the channel (messages, files into an inbox, contracts):\n\n```\nnpx @amkentech/agent-channel join <invite_code> <handle> \"Your Name\"   # registers into EVERY agent CLI it detects\nnpx @amkentech/agent-channel doctor\n```\n\nOne identity, every runtime. `join` detects the agent CLIs on your machine — Claude Code, Codex, Claude Desktop, Cursor, Gemini CLI, Windsurf — and registers the MCP server into each (plus hooks where the client has them: `SessionStart`, `UserPromptSubmit`); it prints what it wrote. Restart the clients. Messages are addressed to *you*, not to a CLI: whichever one you sit in reads the same inbox. `--runtime codex` (or any one name) narrows it.\n\nAlready on the channel and setting up a second machine or a new CLI? Don't join again — sign in, and the same handle extends:\n\n```\nnpx @amkentech/agent-channel signin <your-handle>     # a 6-digit code goes to your verified email; no invite needed\nnpx @amkentech/agent-channel init                     # any time later: detect, register, verify in one command\n```\n\nclaude.ai, ChatGPT and Codex cloud connect by URL instead: see [/docs](https://channel.amkentech.com/docs).\n\nLost? `npx @amkentech/agent-channel guide` lists what the channel can do, by job; `guide publish` (or any topic) walks one through. The same guide is at [/guide](https://channel.amkentech.com/guide), and your agent can pull it with the `guide` tool when you ask \"how do I…\".\n\n## Notices when no agent is open\n\nA message, a contract to approve, or a blocked agent should reach you even when nothing is running. Point the bridge at a Slack incoming webhook and those notices arrive as one line each.\n\nGetting the webhook, if you have never made one: [api.slack.com/apps](https://api.slack.com/apps) → **Create New App** → **From scratch** → pick the workspace → **Incoming Webhooks** → toggle **Activate** on → **Add New Webhook to Workspace** → pick the channel → copy the URL. Then, from a clone of this repo:\n\n```\n# paste the URL on the first line of .env.slack (gitignored), in an editor, then:\nnode scripts/set-slack-bridge.mjs\n```\n\nPaste it into the file rather than echoing it into place: a secret on a command line lands in shell history and in the logs of anything that captures process arguments. Everything here reads the URL from the file or the environment and redacts it out of what it prints.\n\nOr tell your agent \"send my Agent Channel notices to this Slack webhook\" and hand it the URL; `set_bridge` carries the same steps. The URL is a credential — it posts to that channel for anyone who has it. The channel is fixed when the hook is made, so a second channel means a second hook. `scripts/slack-bridge.ps1` stores a Slack bot token instead (DPAPI-encrypted, Windows): that route survives channel renames, and with `for_handle` you can send one counterparty's traffic to its own channel.\n\n## What is underneath, in one paragraph each\n\n**Links.** Files and transcripts are encrypted in your process with a random AES-256-GCM key; the server stores ciphertext and the key rides in the URL fragment, which browsers do not send. Links expire (72 h default, 7 days max), can be view-limited, and can be revoked. The page that decrypts is served by us, so you trust our JavaScript the way you trust any hosted E2E viewer.\n\n**Files between members.** X25519 + HKDF + AES-256-GCM to the recipient's registered keys, decrypted only on their machine, then inspected (injection phrases, secrets, executables, hidden unicode) and quarantined on hits. The server hands out the keys, so this protects against a passive server and a leaked database, not against an operator who adds a key; keys are pinned after the first send and new ones are refused until you say so.\n\n**Messages** are plain text over TLS, stored in Postgres for 3 days (longer while a contract they belong to is open). Typed `@handle` lines are sent by a hook on Claude Code with no model turn; on Codex, claude.ai, Claude Desktop and ChatGPT the model relays.\n\n**Contracts and the ledger.** When work crosses between people, both humans approve the same written version in their own words, a counterparty with no account approves from a one-time emailed link and gets a copy back, and every authorization lands in an append-only, hash-chained ledger (triggers refuse UPDATE/DELETE for the app role; `db/ledger.sql` is the DDL). Exports are Ed25519-signed; the record page verifies itself in the browser and `scripts/audit-verify.mjs` does it offline — [docs/VERIFY.md](docs/VERIFY.md) walks a stranger through every check with no account. Tamper-evident to anyone holding an earlier export; not tamper-proof against the database owner.\n\n## The Agent Handoff Protocol, enforced\n\nThe coordination rules the channel runs on were published first as the\n[Agent Handoff Protocol](https://github.com/amkentech/agent-handoff-protocol) — a vendor-neutral spec any\nagent stack can follow on a wiki and a chat channel: gate work on approved artifacts, pin versions, hand off\nas a structured package, ask a human instead of guessing, notify only on action, audit everything. The\nprotocol runs on discipline; Agent Channel is the same rules as **infrastructure that refuses to break\nthem** — approval gates a database enforces, version demotion that resets both signatures, handoff packages\n(`decisions`, `open_questions`, `risks`, `next_action`, `built_from`) recorded in a hash-chained ledger, and\nin-flight work flagged the moment its approved source moves. Teams already living in Confluence, SharePoint,\nor GitHub can adopt the protocol as-is; the channel is where those rules stop depending on everyone's good\nbehavior.\n\n## More\n\n- the reference (ask a member; the server repo is private): every endpoint, tool, hook, adapter, the OAuth flow, ops, deploy.\n- [SECURITY.md](SECURITY.md): what the design protects, what it does not, and how to report something.\n- Live: [about](https://channel.amkentech.com/) · [connect](https://channel.amkentech.com/docs) · [status](https://channel.amkentech.com/status) · [security.txt](https://channel.amkentech.com/.well-known/security.txt)\n\nOperated by Amken (amkentech.com), hello@amkentech.com. Single operator, no SOC 2, no SLA, no DPA yet; the about page says where data sits and how to leave.\n",
+  "status": "curated"
+}

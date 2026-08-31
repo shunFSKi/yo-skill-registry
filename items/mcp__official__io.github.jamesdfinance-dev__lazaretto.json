@@ -2,7 +2,7 @@
   "id": "mcp:official/io.github.jamesdfinance-dev/lazaretto",
   "type": "mcp",
   "name": "lazaretto",
-  "description": "Free lockfile malware check plus paid pre-install scan of any skill, tool, or package.",
+  "description": "Free lockfile malware check plus paid behavioral scan of packages, agent skills and MCP tools.",
   "author": "io.github.jamesdfinance-dev",
   "source": {
     "registry": "mcp-official",
@@ -20,8 +20,8 @@
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-08-11T15:55:06.263693Z",
-    "score": 42
+    "pushed_at": "2026-08-31T00:08:49.264042Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -53,6 +53,6 @@
     "category": null,
     "featured": false
   },
-  "readme": null,
+  "readme": "# lazaretto-mcp\n\n[![Lazaretto on the x402 List](https://x402-list.com/badge/lazaretto.svg?data=uptime)](https://x402-list.com/services/lazaretto)\n\nKnow what a package does before you install it.\n\nAn [MCP](https://modelcontextprotocol.io) server for Lazaretto: deterministic\npre-install verification for npm packages, AI agent skills and MCP tools. The\nfree lockfile check matches every exactly pinned dependency against OSV and\nOpenSSF malicious-package advisories with no account. A paid scan adds\nbehavioral analysis with file-and-line evidence.\n\nThis package is a thin front end for the [Lazaretto](https://lazaretto.dev)\nAPI. It ships no detection logic and does nothing but make HTTPS requests, so\nit is easy to audit.\n\n## Try it in one line, nothing installed\n\nCheck every exactly pinned dependency in your project against published\nmalicious-package advisories. No account, no key, no install:\n\n```bash\ncurl -s https://lazaretto.dev/check --data-binary @package-lock.json\n```\n\nWorks with `package-lock.json`, `npm-shrinkwrap.json`, `yarn.lock` or\n`pnpm-lock.yaml`. We keep no copy of your lockfile.\n\n## Tools\n\n### `check_lockfile` (free, no API key)\n\nChecks every exactly-pinned dependency in your lockfile against published\nmalicious-package advisories. Reads `package-lock.json`, `yarn.lock`, or\n`pnpm-lock.yaml` from the working directory, so the agent never has to paste a\nlockfile through its context. One call covers the whole tree.\n\nAn empty `malicious` list is an all-clear only when `unverified` is also empty.\n\n\n- **`known_bad_lookup`**: free, no key. Is a sha256 content hash a known-bad\n  artifact? Exact-hash match against an indicator store refreshed daily.\n- **`verify_attestation`**: free, no key. A scan verdict ships with a signed\n  attestation (compact JWS). Hand this tool one that another agent, a README, or\n  a lockfile gave you: it confirms the signature is Lazaretto's, returns the\n  attested claims, and flags `contradicted` if a once-`clear` subject is now\n  known-bad, so a verdict can be trusted without re-scanning or re-paying. Still\n  confirm the artifact you will run matches `claims.sub`.\n- **`scan_artifact`**: fetches a target (npm or PyPI package, GitHub repo,\n  ClawHub skill, raw URL, or inline text) without running it and returns a\n  deterministic verdict (`malicious`, `flagged`, `clear`, `error`) with\n  evidence. A full scan needs prepaid credits (set an `X-API-Key` header). Buy\n  them at https://lazaretto.dev/#pricing.\n- **`scan_mcp_server`**: paid. Point it at an MCP endpoint before you connect to\n  it. It asks the server to introduce itself and list its tools, then analyzes\n  the text that server hands an agent: tool names, descriptions, parameter\n  schemas, and its instructions. That text is documentation a model obeys, so it\n  is an instruction channel the server controls. Catches tool poisoning (hidden\n  directives to read `~/.ssh/id_rsa` or an agent config file), parameters whose\n  purpose is to carry secrets or your conversation out, and standing orders\n  about another server's tools. Evidence names the exact tool. It calls only\n  `initialize` and `tools/list`, never the server's own tools.\n\nReports are signals with evidence, not a warranty. `clear` means no known-bad\nmatch and no rule fired. It is not a statement about risk.\n\n## Use it (hosted, zero install)\n\nThe server is hosted at `https://lazaretto.dev/mcp`. Add it to any MCP client\nthat supports remote (Streamable HTTP) servers. Nothing to install, no local\nprocess.\n\n```json\n{\n  \"mcpServers\": {\n    \"lazaretto\": {\n      \"url\": \"https://lazaretto.dev/mcp\",\n      \"headers\": {\n        \"X-API-Key\": \"your-prepaid-key (optional; known_bad_lookup is free)\"\n      }\n    }\n  }\n}\n```\n\n`check_lockfile`, `known_bad_lookup`, and `verify_attestation` work with no key.\n`scan_artifact` and `scan_mcp_server` need credits: buy a bundle at https://lazaretto.dev/#pricing (an\nagent can also do this itself over x402 at\n`POST https://lazaretto.dev/v1/credits/topup`).\n\n## Self-host the stdio server (optional)\n\nIf you would rather run it locally over stdio instead of the hosted URL:\n\n```bash\ngit clone https://github.com/jamesdfinance-dev/lazaretto-mcp\ncd lazaretto-mcp && npm install\nLAZARETTO_API_KEY=your-key node index.mjs\n```\n\n`LAZARETTO_BASE_URL` overrides the API host (default `https://lazaretto.dev`).\n\n## License\n\nMIT. The Lazaretto service and its detection engine are separate and proprietary.\n",
   "status": "curated"
 }

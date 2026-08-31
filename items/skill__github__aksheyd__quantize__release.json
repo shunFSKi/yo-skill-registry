@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/aksheyd/quantize/release",
+  "type": "skill",
+  "name": "release",
+  "description": "Helps with releasing new versions of this Rust crate",
+  "author": "aksheyd",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/aksheyd/quantize/blob/HEAD/.grok/skills/release/SKILL.md",
+    "repo": "aksheyd/quantize",
+    "path": ".grok/skills/release/SKILL.md"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 1,
+    "pushed_at": "2026-08-31T07:53:23Z",
+    "score": 55,
+    "star_history": [
+      {
+        "d": "2026-08-31",
+        "s": 1
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# quantize\n\na simple, fast quantization library usable as a [rust crate](https://crates.io/crates/quantize) or [python package](https://pypi.org/project/quantize-py/).\n\nto learn more, feel free to peruse the [chapters](https://github.com/aksheyd/quantize/tree/main/chapters), which show how the repo's algorithms progressed over time.\n\n## use as a library\n\n```rust\nuse quantize::{adaptive, asymmetric, quantize, Scheme};\n\nlet weights = [0.42_f32, -0.10, 0.70, -0.50];\n\nlet q = quantize::<f32, 8, 32>(&weights).unwrap();\nlet _ = asymmetric::quantize::<f32, 8, 32>(&weights).unwrap();\nlet _ = adaptive::quantize::<f32, 32>(&weights, 0.001).unwrap();\nlet _ = Scheme::Q4_32.quantize::<f32>(&weights).unwrap();\n\nlet back = q.dequantize();\nlet _ = q.dot(&weights);\n```\n\n---\n\n## comparison\n\n1024x1024 matrix, 50 iterations.\n\n### quality\n\n```\ncargo run --release --example compare\n```\n\nreconstruct, then matmul.\n\n<!-- comparison:start -->\n\n| bits/value | quantize mse | candle mse |\n| ---: | ---: | ---: |\n| 4.5 | 0.066669 | 0.060276 |\n| 5.5 | 0.014429 | 0.013859 |\n| 8.5 | 0.000201 | 0.000201 |\n\n<!-- comparison:end -->\n\n### speed\n\n```\ncargo run --release --example throughput\n```\n\npack and unpack. apple M4.\n\n| kernel | quantize ns/value | candle ns/value |\n| --- | ---: | ---: |\n| 4-bit quant | 0.29 | 0.46 |\n| 8-bit quant | 0.24 | 0.30 |\n| 4-bit dequant | 0.09 | 0.29 |\n| 8-bit dequant | 0.07 | 0.26 |\n\n_ns = nanosecond, a billionth of a second. smaller is faster._\n",
+  "status": "curated"
+}

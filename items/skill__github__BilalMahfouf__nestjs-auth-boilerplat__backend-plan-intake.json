@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/BilalMahfouf/nestjs-auth-boilerplat/backend-plan-intake",
+  "type": "skill",
+  "name": "backend-plan-intake",
+  "description": "PLAN MODE NestJS backend architecture intake for this repo; ask 4 gating questions before planning.",
+  "author": "BilalMahfouf",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/BilalMahfouf/nestjs-auth-boilerplat/blob/HEAD/backend/.github/skills/backend-plan-intake/SKILL.md",
+    "repo": "BilalMahfouf/nestjs-auth-boilerplat",
+    "path": "backend/.github/skills/backend-plan-intake/SKILL.md"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 2,
+    "pushed_at": "2026-08-14T13:10:41Z",
+    "score": 56,
+    "star_history": [
+      {
+        "d": "2026-08-31",
+        "s": 2
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# NestJS Auth Boilerplate\n\n![NestJS](https://img.shields.io/badge/NestJS-11-E0234E?logo=nestjs&logoColor=white)\n![TypeORM](https://img.shields.io/badge/TypeORM-0.3-262627?logo=typeorm&logoColor=white)\n![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791?logo=postgresql&logoColor=white)\n![PNPM](https://img.shields.io/badge/PNPM-10-F69220?logo=pnpm&logoColor=white)\n\nA production-friendly NestJS template for teams who want to **skip setup work** and start building features immediately.\n\nThis project gives you a clean starter with:\n- JWT authentication (access token + refresh cookie)\n- User account flows (register, login, profile, password, email)\n- Payment checkout workflow with idempotency and provider abstraction\n- PostgreSQL + TypeORM migrations\n- Swagger docs, unit tests, and integration tests\n\n## Table of Contents\n\n- [Why This Template](#why-this-template)\n- [What Is Included](#what-is-included)\n- [High-Level System Design](#high-level-system-design)\n- [Request Flows](#request-flows)\n- [Folder Structure](#folder-structure)\n- [Quick Start](#quick-start)\n- [Environment Variables](#environment-variables)\n- [Database and Migrations](#database-and-migrations)\n- [Run and Test Commands](#run-and-test-commands)\n- [API Surface](#api-surface)\n- [Production Notes](#production-notes)\n- [Customization Guide](#customization-guide)\n\n## Why This Template\n\nMost projects waste time rebuilding the same backend foundation.\n\nThis boilerplate is for developers who do **not** want to:\n- rewire auth from scratch\n- reconfigure TypeORM and migrations every time\n- rewrite request validation and API docs plumbing\n- start testing setup from zero\n\nUse it as a baseline and focus on product logic.\n\n## What Is Included\n\n- NestJS 11 modular architecture\n- PostgreSQL persistence layer with migration-first schema changes\n- Auth system:\n  - Register / Login / Refresh token / Logout\n  - Forget password / Reset password\n  - Me endpoint and protected user updates\n- Payments module:\n  - Checkout endpoint\n  - Idempotency key support\n  - Payment service abstraction (`PAYMENT_SERVICE`) with in-memory provider implementation\n- Swagger UI at `/api/docs`\n- Global validation pipeline (`class-validator`, `class-transformer`)\n- Testing:\n  - Unit tests\n  - Integration tests using ephemeral Postgres Docker container\n\n## High-Level System Design\n\n```mermaid\nflowchart LR\n    A[Client App] --> B[/api/v1 Controllers/]\n    B --> C[Feature Handlers]\n    C --> D[Domain Entities]\n    C --> E[TypeORM Repositories]\n    E --> F[(PostgreSQL)]\n\n    C --> G[Payment Service Port]\n    G --> H[InMemoryPaymentService]\n\n    B --> I[JwtAuthGuard + JwtStrategy]\n    I --> J[JWT Access Token]\n    C --> K[User Sessions Table]\n    K --> L[Refresh Token Cookie]\n```\n\n### Design Highlights\n\n- API prefix is `/api/v1`.\n- Swagger docs are exposed at `/api/docs`.\n- Migrations auto-apply on app startup only when `NODE_ENV=development`.\n- Auth uses:\n  - Access token in `Authorization: Bearer <token>`\n  - Refresh token stored in DB and sent via secure HTTP-only cookie\n- Payments follow an idempotent create-checkout pattern (`idempotency-key` header).\n\n## Request Flows\n\n### 1) Register/Login + Session Creation\n\n```mermaid\nsequenceDiagram\n    participant C as Client\n    participant A as Auth Endpoint\n    participant U as Users Table\n    participant S as User Sessions Table\n\n    C->>A: POST /auth/register or /auth/login\n    A->>U: Validate user / credentials\n    A->>S: Store refresh session token\n    A-->>C: 201 + access token (body)\n    A-->>C: Set-Cookie refresh token (HttpOnly, Secure)\n```\n\n### 2) Refresh Token Rotation\n\n```mermaid\nsequenceDiagram\n    participant C as Client\n    participant A as Refresh Endpoint\n    participant S as User Sessions Table\n\n    C->>A: POST /auth/refresh-token (cookie attached)\n    A->>S: Validate refresh token + expiry\n    A->>S: Rotate refresh token\n    A-->>C: 201 + new access token\n    A-->>C: Set-Cookie rotated refresh token\n```\n\n### 3) Checkout Flow (Idempotent)\n\n```mermaid\nsequenceDiagram\n    participant C as Client\n    participant P as Payments Endpoint\n    participant DB as Payments Table\n    participant PS as PaymentService\n\n    C->>P: POST /payments/checkout + idempotency-key\n    P->>DB: Check existing idempotency key\n    alt existing record\n        DB-->>P: Existing payment\n        P-->>C: Return existing checkout response\n    else new request\n        P->>PS: process(amount, currency)\n        PS-->>P: providerPaymentId + checkoutUri\n        P->>DB: Save pending payment\n        P-->>C: 201 payment details + checkoutUri\n    end\n```\n\n## Folder Structure\n\n```text\nnestjs-auth-boilerplat/\n├─ backend/\n│  ├─ src/\n│  │  ├─ common/\n│  │  │  ├─ auth/                # JWT strategy, guard, current-user decorator\n│  │  │  ├─ domain/              # Base entity / domain-event primitives\n│  │  │  └─ swagger/             # Swagger setup + reusable API response decorators\n│  │  ├─ database/\n│  │  │  ├─ migrations/          # TypeORM SQL schema migrations\n│  │  │  ├─ create-database.ts   # Creates DB if missing\n│  │  │  └─ typeorm.config.ts    # Runtime + data source config\n│  │  ├─ modules/\n│  │  │  ├─ users/\n│  │  │  │  ├─ entities/\n│  │  │  │  └─ features/         # Auth and user profile use-cases\n│  │  │  └─ payments/\n│  │  │     ├─ entities/\n│  │  │     ├─ features/         # Checkout endpoint + handler\n│  │  │     └─ services/         # Payment service port + provider\n│  │  ├─ app.module.ts           # Root module wiring\n│  │  └─ main.ts                 # App bootstrap\n│  ├─ tests/\n│  │  ├─ unit-tests/\n│  │  └─ integration/            # Docker-backed Postgres integration tests\n│  └─ package.json\n└─ LICENSE\n```\n\n## Quick Start\n\n### Prerequisites\n\n- Node.js LTS (20+ recommended)\n- pnpm 10+\n- PostgreSQL\n- Docker (optional, required for integration tests)\n\n### 1) Install dependencies\n\n```bash\ncd backend\npnpm install\n```\n\n### 2) Configure environment\n\n```bash\ncp .env.example .env\n```\n\nUpdate `.env` values if needed.\n\n### 3) Create DB and run migrations\n\n```bash\npnpm run db:init\n```\n\n### 4) Start development server\n\n```bash\npnpm run start:dev\n```\n\nApp URLs:\n- API base: `http://localhost:3000/api/v1`\n- Swagger: `http://localhost:3000/api/docs`\n\n## Environment Variables\n\n| Variable | Required | Default | Description |\n|---|---|---|---|\n| `PORT` | No | `3000` | HTTP port |\n| `NODE_ENV` | Yes | `development` | Environment mode |\n| `DATABASE_HOST` | Yes | `localhost` | PostgreSQL host |\n| `DATABASE_PORT` | Yes | `5432` | PostgreSQL port |\n| `DATABASE_USERNAME` | Yes | `postgres` | PostgreSQL username |\n| `DATABASE_PASSWORD` | Yes | `postgres` | PostgreSQL password |\n| `DATABASE_NAME` | Yes | `auth` | Target database name |\n| `JWT_SECRET_KEY` | Yes | - | JWT signing secret |\n| `JWT_ISSUER` | Yes | - | JWT issuer claim |\n| `JWT_AUDIENCE` | Yes | - | JWT audience claim |\n| `JWT_ACCESS_TOKEN_LIFETIME_MINUTES` | No | `50` | Access token lifetime |\n| `REFRESH_TOKEN_COOKIE_NAME` | No | `refreshToken` | Cookie name for refresh token |\n| `REFRESH_TOKEN_DAYS` | No | `7` | Refresh token expiration in days |\n\n## Database and Migrations\n\nThis template is migration-first (`synchronize: false`).\n\nAvailable commands:\n\n```bash\npnpm run db:create\npnpm run db:migration:run\npnpm run db:migration:revert\npnpm run db:migration:generate\npnpm run db:init\n```\n\nNotes:\n- `db:create` creates `DATABASE_NAME` if it does not exist.\n- The DB user must have permission to create databases.\n- On startup, pending migrations are auto-applied only in development mode.\n\n## Run and Test Commands\n\n```bash\npnpm run start:dev          # Dev server with watch mode\npnpm run build              # Build production artifacts\npnpm run start:prod         # Run compiled app\npnpm run lint               # ESLint\npnpm run test               # Default Jest tests\npnpm run test:unit          # Unit tests only\npnpm run test:integration   # Integration tests only (requires Docker)\npnpm run test:cov           # Coverage\n```\n\n## API Surface\n\nBase prefix: `/api/v1`\n\n### App\n- `GET /` - Health/welcome message\n\n### Auth\n- `POST /auth/register`\n- `POST /auth/login`\n- `POST /auth/refresh-token`\n- `POST /auth/logout`\n- `POST /auth/forget-password`\n- `PUT /auth/reset-password`\n- `GET /auth/me`\n\n### Users\n- `POST /users/change-password`\n- `PATCH /users/change-email`\n- `PUT /users/update-profile`\n\n### Payments\n- `POST /payments/checkout`\n\nPayment checkout requires:\n- Bearer access token\n- `idempotency-key` header\n- Body: `amount`, `currency`\n\n## Production Notes\n\n- Refresh cookies are set with:\n  - `httpOnly: true`\n  - `secure: true`\n  - `sameSite: none`\n- For browser-based clients, run behind HTTPS in production (and typically in staging).\n- Rotate and secure `JWT_SECRET_KEY` using your secret manager.\n- Replace `InMemoryPaymentService` with a real provider implementation.\n- Add rate limiting, audit logging, and email delivery for reset-password flow before go-live.\n\n## Customization Guide\n\nTypical next steps for teams:\n\n1. Replace payment provider implementation behind `PAYMENT_SERVICE`.\n2. Add your email adapter to send real reset-password links.\n3. Extend `UserEntity` and user profile endpoints for your domain.\n4. Add business modules (appointments, billing, notifications, etc.) using the same feature-handler pattern.\n\n---\n\nIf you want a starter that already handles auth + DB + testing structure, this template is built to save that setup time and let you ship features faster.\n",
+  "status": "curated"
+}

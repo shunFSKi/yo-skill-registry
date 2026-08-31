@@ -1,0 +1,125 @@
+{
+  "id": "mcp:official/io.github.jordanburke/joplin-mcp-server",
+  "type": "mcp",
+  "name": "joplin-mcp-server",
+  "description": "Search, read, create, edit and sync Joplin notes and notebooks via a headless Joplin sidecar.",
+  "author": "io.github.jordanburke",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/jordanburke/joplin-mcp-server",
+    "repo": "jordanburke/joplin-mcp-server"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "joplin-mcp-server"
+    ],
+    "env": [
+      {
+        "name": "JOPLIN_TOKEN",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "JOPLIN_HOST",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "JOPLIN_PORT",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "JOPLIN_PROFILE",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "JOPLIN_CLI",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "JOPLIN_SYNC_TARGET",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "JOPLIN_SYNC_PATH",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "JOPLIN_SYNC_USERNAME",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "JOPLIN_SYNC_PASSWORD",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "JOPLIN_SYNC_REGION",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "JOPLIN_SYNC_ENDPOINT",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "JOPLIN_SYNC_FORCE_PATH_STYLE",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "LOG_LEVEL",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-31T00:09:09.470659Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "写作",
+    "featured": false
+  },
+  "readme": "# Joplin MCP Server\n\n[![npm version](https://img.shields.io/npm/v/joplin-mcp-server)](https://www.npmjs.com/package/joplin-mcp-server)\n[![CI](https://github.com/jordanburke/joplin-mcp-server/actions/workflows/ci.yml/badge.svg)](https://github.com/jordanburke/joplin-mcp-server/actions/workflows/ci.yml)\n[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)\n\nA self-contained MCP (Model Context Protocol) server for [Joplin](https://joplinapp.org/). Bundles the Joplin Terminal CLI as a dependency — no desktop app, no global installs, no external processes to manage. Coexists with Joplin Desktop via automatic port negotiation.\n\n## Quick Start\n\n```bash\nnpx joplin-mcp-server --token your_joplin_token\n```\n\nThat's it. The server spawns its own Joplin Terminal instance (sidecar mode), syncs to your configured backend, and exposes your notes via MCP.\n\n## Architecture\n\n### Sidecar Mode (Default)\n\nThe server bundles `joplin` as an npm dependency and manages its own Joplin Terminal process. No Joplin desktop app needed — the sidecar handles everything: data storage, sync, and the REST API.\n\nIf Joplin Desktop is already running, the sidecar automatically finds a free port (scanning 41184-41193) and runs alongside it. Both instances stay in sync if configured with the same sync target.\n\n```bash\n# Basic usage — sidecar starts automatically\nnpx joplin-mcp-server --token your_token\n\n# With cloud sync\nnpx joplin-mcp-server --token your_token \\\n  --sync-target joplin-cloud \\\n  --sync-username user@example.com --sync-password pass\n\n# With filesystem sync (e.g. OneDrive folder)\nnpx joplin-mcp-server --token your_token \\\n  --sync-target filesystem \\\n  --sync-path /mnt/c/Users/you/OneDrive/Joplin\n```\n\nThe Joplin CLI is resolved in this order: `JOPLIN_CLI` env var > `node_modules/.bin/joplin` (bundled) > global install > `npx` fallback.\n\nData is stored in `~/.config/joplin-mcp` by default (separate from any desktop Joplin install).\n\n### External Mode\n\nConnects to an existing Joplin instance instead of spawning a sidecar. Activated by setting `JOPLIN_HOST` or `JOPLIN_PORT`.\n\n```bash\n# Connect to Joplin desktop on another machine or Windows host\nJOPLIN_HOST=192.168.0.40 JOPLIN_PORT=41184 npx joplin-mcp-server --token your_token\n```\n\n## Configuration\n\n### Environment Variables\n\n| Variable                       | Description                                             | Default                |\n| ------------------------------ | ------------------------------------------------------- | ---------------------- |\n| `JOPLIN_TOKEN`                 | API token (required)                                    | --                     |\n| `JOPLIN_HOST`                  | Connect to existing Joplin at this host (skips sidecar) | --                     |\n| `JOPLIN_PORT`                  | Connect to existing Joplin on this port (skips sidecar) | --                     |\n| `JOPLIN_CLI`                   | Path to joplin CLI binary (overrides auto-detection)    | --                     |\n| `JOPLIN_PROFILE`               | Joplin data directory for sidecar mode                  | `~/.config/joplin-mcp` |\n| `JOPLIN_SYNC_TARGET`           | Sync target type                                        | `none`                 |\n| `JOPLIN_SYNC_PATH`             | Sync target URL/path                                    | --                     |\n| `JOPLIN_SYNC_USERNAME`         | Sync username/email                                     | --                     |\n| `JOPLIN_SYNC_PASSWORD`         | Sync password                                           | --                     |\n| `JOPLIN_SYNC_REGION`           | S3 region                                               | `us-east-1`            |\n| `JOPLIN_SYNC_ENDPOINT`         | S3 endpoint URL (for non-AWS providers)                 | AWS S3                 |\n| `JOPLIN_SYNC_FORCE_PATH_STYLE` | Use path-style S3 URLs (`true`/`false`)                 | `false`                |\n| `LOG_LEVEL`                    | Log level: debug, info, warn, error                     | `info`                 |\n\n### Command Line Options\n\n```\nOPTIONS:\n  --env-file <file>          Load environment variables from file\n  --token <token>            Joplin API token\n  --transport <type>         Transport type: stdio (default) or http\n  --http-port <port>         HTTP server port (default: 3000, only with --transport http)\n  --profile <dir>            Joplin data directory (default: ~/.config/joplin-mcp)\n  --sync-target <type>       Sync target: none, filesystem, webdav, nextcloud,\n                             joplin-cloud, joplin-server, s3, dropbox, onedrive\n  --sync-path <url>          URL or path for sync target\n  --sync-username <user>     Username/email for sync\n  --sync-password <pass>     Password for sync\n  --help, -h                 Show help message\n```\n\n### Path Expansion\n\nThe `--profile` option and the `--sync-path` of a `filesystem` sync target support `~` and environment variable expansion for cross-platform compatibility. Other targets take a URL or bucket name in `--sync-path`, so it is passed through untouched:\n\n```bash\n# Tilde expands to home directory (Linux, macOS, Windows)\n--sync-path ~/OneDrive/Apps/Joplin\n\n# Environment variables (both forms supported)\n--sync-path ${HOME}/OneDrive/Apps/Joplin\n--sync-path $HOME/OneDrive/Apps/Joplin\n\n# Windows example using USERPROFILE\n--sync-path ${USERPROFILE}/OneDrive/Apps/Joplin\n```\n\nThis works in MCP client configs (`.mcp.json`, Claude Desktop) where shell expansion isn't available.\n\n**WSL auto-detection:** On WSL, if a `~/` path is empty or missing, the server automatically checks the corresponding Windows path at `/mnt/c/Users/<user>/...`. This means `--sync-path ~/OneDrive/Apps/Joplin` just works on WSL without needing the full `/mnt/c/...` path.\n\n### Sync Targets\n\n| Target          | Required Options                                                                     |\n| --------------- | ------------------------------------------------------------------------------------ |\n| `none`          | (default, no sync)                                                                   |\n| `filesystem`    | `--sync-path /path/to/dir`                                                           |\n| `webdav`        | `--sync-path <url>` `--sync-username` `--sync-password`                              |\n| `nextcloud`     | `--sync-path <url>` `--sync-username` `--sync-password`                              |\n| `joplin-cloud`  | `--sync-username` `--sync-password`                                                  |\n| `joplin-server` | `--sync-path <url>` `--sync-username` `--sync-password`                              |\n| `s3`            | `--sync-path <bucket>` `--sync-username <access-key>` `--sync-password <secret-key>` |\n| `dropbox`       | (OAuth flow)                                                                         |\n| `onedrive`      | (OAuth flow)                                                                         |\n\n#### S3-compatible providers\n\nThe `s3` target defaults to AWS (`https://s3.amazonaws.com/`, region `us-east-1`). Point it at any\nS3-compatible provider with `--sync-region` and `--sync-endpoint`:\n\n```bash\n# Backblaze B2\njoplin-mcp-server --token my_token \\\n  --sync-target s3 --sync-path my-bucket \\\n  --sync-region us-west-004 \\\n  --sync-endpoint https://s3.us-west-004.backblazeb2.com \\\n  --sync-username <access-key> --sync-password <secret-key>\n\n# MinIO / self-hosted: path-style URLs are usually required\njoplin-mcp-server --token my_token \\\n  --sync-target s3 --sync-path my-bucket \\\n  --sync-endpoint https://minio.example.com \\\n  --sync-force-path-style true \\\n  --sync-username <access-key> --sync-password <secret-key>\n```\n\nCloudflare R2 and Wasabi work the same way — set `--sync-endpoint` to the provider's S3 endpoint.\n\n## MCP Client Configuration\n\n### Claude Code\n\nThe repository includes a `.mcp.json` that works with Claude Code's env var expansion:\n\n```json\n{\n  \"mcpServers\": {\n    \"joplin\": {\n      \"command\": \"node\",\n      \"args\": [\"dist/bin.js\"],\n      \"env\": {\n        \"JOPLIN_TOKEN\": \"${JOPLIN_TOKEN}\"\n      }\n    }\n  }\n}\n```\n\nSet `JOPLIN_TOKEN` in your shell (add to `~/.bashrc` or `~/.zshrc`):\n\n```bash\nexport JOPLIN_TOKEN=\"your_actual_token_here\"\n```\n\n### Claude Desktop\n\nClaude Desktop does **not** support `${VAR}` expansion. Provide values directly:\n\n```json\n{\n  \"mcpServers\": {\n    \"joplin\": {\n      \"command\": \"npx\",\n      \"args\": [\"joplin-mcp-server\", \"--token\", \"your_actual_token_here\"]\n    }\n  }\n}\n```\n\n### With Sync (Claude Desktop)\n\n```json\n{\n  \"mcpServers\": {\n    \"joplin\": {\n      \"command\": \"npx\",\n      \"args\": [\n        \"joplin-mcp-server\",\n        \"--token\",\n        \"your_token\",\n        \"--sync-target\",\n        \"filesystem\",\n        \"--sync-path\",\n        \"/path/to/sync/dir\"\n      ]\n    }\n  }\n}\n```\n\n### External Mode\n\n```json\n{\n  \"mcpServers\": {\n    \"joplin\": {\n      \"command\": \"npx\",\n      \"args\": [\"joplin-mcp-server\"],\n      \"env\": {\n        \"JOPLIN_TOKEN\": \"your_actual_token_here\",\n        \"JOPLIN_HOST\": \"192.168.0.40\",\n        \"JOPLIN_PORT\": \"41184\"\n      }\n    }\n  }\n}\n```\n\n### Docker\n\n```bash\ndocker build -t joplin-mcp .\ndocker run -e JOPLIN_TOKEN=your_token -p 3000:3000 joplin-mcp\n```\n\n## WSL Setup\n\nRunning in WSL? The sidecar architecture makes this straightforward — no Windows port forwarding needed. The server auto-detects WSL and handles path resolution between Linux and Windows filesystems.\n\n### Filesystem Sync via OneDrive (Recommended)\n\nBoth your Windows Joplin desktop and the WSL sidecar sync to the same OneDrive folder. They see the same notes without needing to talk to each other directly.\n\n```bash\n# Uses ~/OneDrive — automatically resolves to /mnt/c/Users/YourName/OneDrive on WSL\nnpx joplin-mcp-server --token your_token \\\n  --sync-target filesystem \\\n  --sync-path ~/OneDrive/Apps/Joplin\n\n# Or specify the Windows path explicitly\nnpx joplin-mcp-server --token your_token \\\n  --sync-target filesystem \\\n  --sync-path /mnt/c/Users/YourName/OneDrive/Apps/Joplin\n```\n\nIn your Joplin desktop app, configure sync to the same OneDrive folder: **Tools > Options > Synchronisation > File system > /Users/YourName/OneDrive/Apps/Joplin**\n\n> **Joplin Desktop coexistence:** If Desktop is running on port 41184, the sidecar automatically uses the next available port. A warning is logged at startup reminding you that both instances use separate databases and need the same sync target to stay in sync.\n\n### Cloud Sync\n\nAlternatively, both instances can sync to Joplin Cloud or any other cloud backend:\n\n```bash\nnpx joplin-mcp-server --token your_token \\\n  --sync-target joplin-cloud \\\n  --sync-username user@example.com --sync-password pass\n```\n\n### External Mode (Port Forwarding)\n\nIf you prefer to connect directly to Windows Joplin instead of running a sidecar:\n\n**On Windows (PowerShell as Administrator):**\n\n```powershell\nnetsh interface portproxy add v4tov4 listenport=41184 listenaddress=0.0.0.0 connectport=41184 connectaddress=127.0.0.1\n```\n\n**In WSL:**\n\n```bash\nJOPLIN_HOST=192.168.0.40 JOPLIN_PORT=41184 npx joplin-mcp-server --token your_token\n```\n\nFind your Windows IP with `ipconfig` on Windows or `cat /etc/resolv.conf | grep nameserver` from WSL.\n\n## Available Tools\n\n| Tool             | Description                                      |\n| ---------------- | ------------------------------------------------ |\n| `list_notebooks` | Retrieve the complete notebook hierarchy         |\n| `search_notes`   | Search for notes by query string                 |\n| `read_notebook`  | Read contents of a specific notebook             |\n| `read_note`      | Read full content of a specific note             |\n| `read_multinote` | Read multiple notes at once                      |\n| `create_note`    | Create a new note                                |\n| `create_folder`  | Create a new notebook                            |\n| `edit_note`      | Edit an existing note                            |\n| `edit_folder`    | Edit an existing notebook                        |\n| `delete_note`    | Delete a note (requires confirmation)            |\n| `delete_folder`  | Delete a notebook (requires confirmation)        |\n| `sync`           | Trigger sync (auto-syncs every 5 min by default) |\n\n## Development\n\n```bash\npnpm install          # Install dependencies\npnpm build            # Build to dist/\npnpm test             # Run tests\npnpm validate         # Format + lint + typecheck + test + build\npnpm serve:dev        # Dev mode with hot reload (stdio)\npnpm serve:dev:http   # Dev mode with hot reload (HTTP)\npnpm inspect          # Build and open MCP Inspector\n```\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

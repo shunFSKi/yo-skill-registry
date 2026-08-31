@@ -1,0 +1,65 @@
+{
+  "id": "mcp:official/io.github.bartokulus/openfoot-mcp",
+  "type": "mcp",
+  "name": "openfoot-mcp",
+  "description": "Football fixtures, standings, lineups, live events and shot-level xG across 75 competitions.",
+  "author": "io.github.bartokulus",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/bartokulus/openfoot-mcp",
+    "repo": "bartokulus/openfoot-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "openfoot-mcp"
+    ],
+    "env": [
+      {
+        "name": "OPENFOOT_API_KEY",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-31T09:40:49.308174Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# openfoot-mcp\n\nMCP server for the [OpenFootAPI](https://openfootapi.com/) football intelligence API. Gives an LLM client real football data — fixtures, standings, lineups, live events, **shot-level xG with pitch coordinates**, and model-derived fair odds — instead of a hallucinated scoreline.\n\n12 tools, 1 prompt. Node ≥ 20, no build step.\n\n## Install\n\n```bash\nnpx openfoot-mcp\n```\n\nSet your API key in the environment. Free tier: 5,000 requests/month. Get a key at [openfootapi.com/pricing](https://openfootapi.com/pricing).\n\n### Claude Desktop / Claude Code\n\n```json\n{\n  \"mcpServers\": {\n    \"openfoot\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"openfoot-mcp\"],\n      \"env\": { \"OPENFOOT_API_KEY\": \"of_live_...\" }\n    }\n  }\n}\n```\n\n### Cursor / Windsurf / any stdio MCP client\n\nSame block, in that client's MCP config file.\n\n## Tools\n\n| Tool | What it returns |\n|---|---|\n| `openfoot_competitions` | Supported competitions, season metadata, data source and licence per competition |\n| `openfoot_search` | Free-text team/competition name → stable IDs |\n| `openfoot_matches` | Fixtures and results, filtered by date / competition / team / status / season / round, cursor-paginated |\n| `openfoot_standings` | Standings table for a competition and season |\n| `openfoot_match_lineups` | Starting XI, bench, formation |\n| `openfoot_match_events` | Goals, cards, substitutions, commentary timeline |\n| `openfoot_match_xg` | One entry per shot: pitch coordinates + xG value |\n| `openfoot_match_context` | Derived context — form, head-to-head, pre-computed signals |\n| `openfoot_league_xg` | League xG table: xG for, xG against, over/under-performance vs actual goals |\n| `openfoot_odds` | Bookmaker benchmark + implied fair probabilities. Informational, not betting advice |\n| `openfoot_quota` | Remaining monthly quota — this call does not consume quota |\n| `openfoot_health` | Reachability check. Works without an API key |\n\nPrompt: `scout_team_form` — resolve a team, pull its last 5 matches, read the xG behind the results.\n\n**Start with `openfoot_search`** to resolve IDs. Guessing IDs wastes quota: 404s and empty results are metered like any other request.\n\n## Coverage, stated honestly\n\nThe catalogue lists 75 competitions. **Depth is not uniform, and the catalogue is wider than the deep coverage.**\n\n- **Deepest:** Bundesliga, 2. Bundesliga, DFB Pokal, Superliga României\n- **Expanded European:** Eredivisie, Primeira Liga, Süper Lig, Pro League, Scottish Premiership\n- **Historical / analytics only:** Premier League, La Liga, Serie A, Ligue 1 (xG is Understat-derived)\n\nCall `openfoot_competitions` and check your league before you build on it.\n\n## Quota behaviour\n\n- Free: 5,000 requests/month, 15 req/min. Developer $14/month: 250,000 requests/month, 100 req/min, includes xG, shot maps, lineups, live events and fair odds. Pro $39/month: 2,000,000/month, 250 req/min.\n- **No overage billing.** When the quota is spent the API returns 429; this server surfaces that as a `quota_or_rate_limit` error rather than an empty result.\n- Quota resets on the 1st of the month, UTC.\n- Every request is metered, including 404s and empty results.\n\n## When this is the wrong tool\n\n- **High-frequency live polling across many competitions.** A monthly quota is the wrong shape for it — a per-day or per-second plan elsewhere will cost you less.\n- **Leagues outside the deep-coverage list above.**\n- **You need a contractual SLA, uptime credits or a named support contact.** Not offered at these prices.\n\n## Development\n\n```bash\nnpm install\nnpm run smoke   # boots the server over stdio, lists tools, calls health\n```\n\n`npm run smoke` works without an API key: `openfoot_health` returns live status, and a key-gated tool returns a readable `missing_api_key` error so you can tell \"not configured\" from \"broken\".\n\nMIT.\n",
+  "status": "curated"
+}
