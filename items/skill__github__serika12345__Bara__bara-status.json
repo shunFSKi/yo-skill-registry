@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/serika12345/Bara/bara-status",
+  "type": "skill",
+  "name": "bara-status",
+  "description": "Use when the user explicitly selects the Bara /status agent action to report repository status without modifying files.",
+  "author": "serika12345",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/serika12345/Bara/blob/HEAD/.agents/skills/bara-status/SKILL.md",
+    "repo": "serika12345/Bara",
+    "path": ".agents/skills/bara-status/SKILL.md"
+  },
+  "license": null,
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 4,
+    "pushed_at": "2026-08-13T09:16:12Z",
+    "score": 61,
+    "star_history": [
+      {
+        "d": "2026-08-31",
+        "s": 4
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Bara\n\n<p align=\"center\">\n  <img src=\"logo.png\" alt=\"Bara logo\" width=\"160\">\n</p>\n\nBara は、x86_64 などの既存バイナリを ARM64 などへ変換する binary-to-binary compiler の研究プロジェクトです。\n\nRosetta の再実装ではなく、変換コア、runtime、検証系、OS/ABI/ローダー固有部分を分離し、Wine のような互換レイヤーへ接続しやすい構成を探ることを目的とします。\n\n## 方針\n\n- 初期実装はパフォーマンスより検証しやすさを優先する。\n- 最初は raw x86_64 function bytes を関数単位で扱う。\n- 最初の成功条件は `mov eax, 42; ret` 相当が 42 を返すこと。\n- Rust を主実装にする。\n- Haskell は仕様モデル、property test、検証器として使う。\n- Rosetta はブラックボックス oracle としてのみ使い、内部実装を参考にしない。\n- Linux user-space の既存変換レイヤーとして FEX-Emu、Box64、QEMU user-mode を研究対象にする。ただし、実装根拠は公開仕様と外部挙動に限定する。\n\n## 初期スコープ\n\n最初に扱うもの:\n\n- x86_64 の小さな関数片\n- 引数なし\n- `rax` 戻り値\n- 最小限の decode / IR / ARM64 emit / runner\n- `expected.json` と `actual.json` の比較\n\n最初に扱わないもの:\n\n- PE/Wine 統合\n- syscall\n- libc import\n- SSE / AVX / x87\n- exception / unwind\n- self-modifying code\n- JIT/fallback\n- 最適化\n\n## 検証方針\n\narm64 macOS 上で x86_64 Mach-O を Rosetta 実行し、期待結果を JSON として取得します。\n\n自前 BTB で同じ入力を ARM64 に変換し、native runner で実行した結果と比較します。\n\n```text\ntestcase\n  |\n  +-- x86_64 Mach-O -> Rosetta -> expected.json\n  |\n  +-- BTB compile -> ARM64 native runner -> actual.json\n                                  |\n                                  v\n                               compare\n```\n\nRosetta から使う情報は、テスト harness が出力する外部挙動だけです。Rosetta の逆アセンブルや内部 symbol は実装根拠にしません。\n\n## ドキュメント\n\n- [TODO](TODO.md): 線形実装ロードマップ。実装順はこの文書を上から読む\n- [初期スコープ](docs/scope.md): 初期 raw function 対象、初期 ABI、扱わないもの\n- [クリーンルーム運用](docs/clean-room.md): Rosetta をブラックボックス oracle として扱うルール\n- [コーディングルール](docs/coding-rules.md): シグネチャで仕様を表す方針と `unsafe` 境界\n- [初期 IR 設計](docs/ir.md): 初期 IR、型境界、invariant\n- [Rosetta Oracle 検証ワークフロー](docs/test-oracle.md): expected/actual 比較の流れ\n- [進行履歴](docs/progress.md): タイムスタンプ付きの現在地、進行中作業、完了履歴\n- [Public ABI / import boundary](docs/public-abi-import-boundary.md): public ABI、imports、host helpers、syscall 相当境界の clean-room 設計\n- [Runtime architecture roadmap](docs/runtime-architecture-roadmap.md): B8-HWGUI 後の runtime、translation artifact、OS personality、Wine 接続の設計方向\n- [将来構想メモ](docs/future-research-concepts.md): 本流 TODO から外した未確立な派生研究の置き場\n\n## 現在の実装順\n\n実装順は [TODO.md](TODO.md) の `線形実装ロードマップ` に一本化しています。\nREADME には独立したマイルストーン一覧を置きません。\n\n現在の本流は、B8-HWGUI Self-Authored Hello World GUI Completion 後の\nruntime architecture 整理に移っています。B8-ARCH 系で responsibility split、\nguest image model、translation artifact / debug export、runtime dispatcher、\nhelper / ABI bridge、OS personality boundary を整えたうえで、B8-OSS0 の\nsource-built OSS GUI app automation や B8-WINE0 の Wine bridge planning へ進みます。\n\n初期成功ケースは以下でした。\n\n```text\nx86_64 bytes:\n  b8 2a 00 00 00 c3\n\nmeaning:\n  mov eax, 42\n  ret\n\nresult:\n  return_value == 42\n```\n\nこの raw function 成功ケースは完了済みロードマップとして\n[docs/hello-world-roadmap.md](docs/hello-world-roadmap.md) に保存しています。\n\n## Rust workspace\n\n初期 workspace は raw function translation の関心ごとに分けています。\n\n```text\ncrates/\n  bara-isa-x86/   x86_64 raw bytes の decode / lift\n  bara-ir/        typed IR と invariant validation\n  bara-arm64/     ARM64 emit と PC map\n  bara-runtime/   executable memory と generated function runner\n  btbc-cli/       開発用の実行チェック入口\n```\n\n現在の最小テストは `b8 2a 00 00 00 c3` を decode、IR 化、ARM64 machine code 化し、対応 host では no-args `u64` 関数として実行します。\n\n最小 raw function smoke check だけを行う場合:\n\n```sh\n./scripts/check-m1\n```\n\n成功すると `actual.json` 相当の最小 JSON を標準出力へ出します。\n\n## 開発メモ\n\n必要なツールは Nix 経由で使い、グローバルインストールを前提にしません。\n\n開発環境は Nix Flake で再現可能に定義します。Rust toolchain、formatter、linter、test runner、LLVM 系ツールは dev shell から使います。\n\n```sh\nnix develop\n```\n\n単発でコマンドを実行する場合:\n\n```sh\nnix develop -c cargo --version\nnix develop -c ./scripts/verify\nnix develop -c cargo fmt --all -- --check\nnix develop -c ./scripts/check-no-invisible-chars\nnix develop -c ./scripts/check-domain-types\nnix develop -c ./scripts/verify-security\nnix develop -c ./scripts/verify-supply-chain\nnix develop -c ./scripts/verify-nix-package\nnix develop -c cargo check --workspace --all-targets\nnix develop -c cargo test --workspace\nnix develop -c cargo run -p btbc-cli -- check-m1\n```\n\n通常のコード、script、設定、repository policy の変更では\n`nix develop -c ./scripts/verify` を完了前に通します。\n\n依存関係、`Cargo.lock`、`deny.toml`、`flake.nix` を変更した場合は\n`./scripts/verify-supply-chain` を必ず実行します。詳細は\n[Supply Chain Policy](docs/supply-chain.md) を参照してください。\nセキュリティ関連の変更では `./scripts/verify-security` も実行します。\n\n任意で pre-commit hook を入れる場合:\n\n```sh\nnix develop -c ./scripts/install-pre-commit-hook\n```\n\ndirenv を使う場合は `.envrc` の `use flake` を有効にします。\n\nエディタ間の基本整形は `.editorconfig` で揃えます。文字コード、改行、末尾改行、空白、インデントの最低限のルールは repository 側で管理し、言語固有の整形は `rustfmt` などに委譲します。\n\n初期の実装では、`unsafe` は executable memory と function pointer 呼び出し境界に閉じ込めます。命令変換や IR 操作は、できるだけ型で仕様が読める構成にします。\n\n## エージェント操作メモ\n\n長い指示を毎回入力しなくて済むように、エージェントには短い操作コマンドを渡せます。\n詳細な運用規律は [AGENTS.md](AGENTS.md) にあります。\n\nよく使うコマンド:\n\n- `/advance-large`: 大マイルストーン完了まで進める。作業ブランチを切り、小ステップごとに commit / push し、大マイルストーン到達時にレビュー待ちで停止する。\n- `/advance-small`: 次の小マイルストーンまで進める。作業ブランチ上で検証済みの小ステップを commit / push して停止する。\n- `/advance-pr`: `TODO.md` の次の未完了 `PR Gate` まで進める。専用ブランチで検証済みステップを commit / push し、draft PR を開いて停止する。\n- `/continue-branch`: 現在の作業ブランチで続きを進める。\n- `/review-gate`: 追加実装せず、現在のブランチの成果物レビュー用サマリを出す。\n- `/merge-reviewed`: レビュー済みの作業ブランチを `main` に取り込み、必要に応じてブランチを掃除する。\n- `/docs-only`: ドキュメント更新のみを行う。原則 `main` のまま、commit / push はしない。\n- `/status`: 現在の branch、worktree、TODO、次に進むべき候補を確認する。\n\nVSCode の Codex 拡張で UI から選びたい場合は、repo-scoped skill として\n同じ操作を `.agents/skills/bara-*` に置いています。チャット入力で `$` を\n入力し、`Bara /advance-pr`、`Bara /advance-small`、`Bara /status` などを\n選んでください。Codex IDE には組み込みの `/status` もあるため、Bara 用の\n状態確認は `$bara-status` から呼び出すのが確実です。\n\n基本方針:\n\n- マイルストーン進行は作業ブランチで行う。\n- 作業ブランチではエージェントが commit / push まで自律的に行ってよい。\n- `main` ではエージェントは自律的に commit / push しない。\n- 大マイルストーン完了時はレビュー待ちで停止し、レビュー後に問題なければ `main` へ merge する。\n- B8 以降のアプリ起動フェーズでは、`TODO.md` の `PR Gate` を提出地点として扱い、1 つの PR で一般アプリ対応全体を完了条件にしない。\n",
+  "status": "curated"
+}

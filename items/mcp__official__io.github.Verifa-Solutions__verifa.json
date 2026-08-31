@@ -1,0 +1,70 @@
+{
+  "id": "mcp:official/io.github.Verifa-Solutions/verifa",
+  "type": "mcp",
+  "name": "Verifa",
+  "description": "Identity verification, document checks, sanctions/PEP screening and case review as agent tools.",
+  "author": "io.github.Verifa-Solutions",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/Verifa-Solutions/verifa-mcp-server",
+    "repo": "Verifa-Solutions/verifa-mcp-server"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@verifasolutionsinc/mcp-server"
+    ],
+    "env": [
+      {
+        "name": "VERIFA_API_KEY",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "VERIFA_ENV",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-31T15:01:20.881769Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "写作",
+    "featured": false
+  },
+  "readme": "# Verifa MCP Server\n\nRun identity verification from any MCP client — Claude Desktop, Cursor, Claude Code, or your own agent.\nCreate verification sessions, hand the person a capture link, screen against sanctions and PEP lists,\nread results, and work the review queue, all as tools an agent can call.\n\n```json\n{\n  \"mcpServers\": {\n    \"verifa\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@verifasolutionsinc/mcp-server\"],\n      \"env\": { \"VERIFA_API_KEY\": \"vk_sandbox_...\", \"VERIFA_ENV\": \"sandbox\" }\n    }\n  }\n}\n```\n\nThat is the whole install. Get a sandbox key at [app.withverifa.com](https://app.withverifa.com) → Developers → API keys\n(free, no card, no sales call). Sandbox keys never touch real data and can simulate every verification outcome,\nso you can see the full lifecycle in a few minutes — [`examples/id-check`](examples/id-check) does exactly that.\n\n## How it works\n\nThis package is deliberately small. It opens one authenticated connection to Verifa's hosted MCP endpoint\n(`https://api.withverifa.com/mcp`, streamable HTTP) and forwards `tools/list`, `tools/call`, `prompts/list`\nand `prompts/get` over stdio. Nothing is reimplemented here: tool schemas, PII scrubbing, rate limits and\nthe audit trail all live server-side, so this wrapper never drifts from the product.\n\nIf your client already speaks streamable HTTP with OAuth 2.1, you can skip this package and connect to the\nhosted endpoint directly — same tools, sign-in instead of an API key.\n\n## Tools\n\nThe server exposes 45 tools, grouped into toolsets. By default you get everything except `destructive`.\n\n| Toolset | What an agent can do |\n|---|---|\n| `sessions` | `create_session`, `get_session`, `list_sessions`, `list_session_events`, `simulate_session` (sandbox), `reprocess_session` |\n| `checks` | `list_checks`, `get_check`, `list_check_hits`, `rerun_check` — sanctions, PEP, adverse media, watchlists |\n| `identities` | `search_identities`, `list_identities`, `get_identity`, tag / untag |\n| `cases` | `list_cases`, `get_case`, `claim_case`, `assign_case`, `add_case_comment`, `approve_case`, `reject_case`, `escalate_case` … |\n| `findings` | `list_findings`, `get_finding`, `acknowledge_finding`, `dismiss_finding` |\n| `lists` | blocklist and custom list reads and writes |\n| `workflows` | `list_workflows`, `get_workflow`, `trigger_workflow`, `list_verification_policies` |\n| `org` | `whoami`, `get_usage_stats`, `list_org_users`, `list_api_keys` |\n| `search` | `search` / `fetch` for ChatGPT-style connectors |\n| `destructive` | `redact_session`, `redact_identity`, `bulk_redact_sessions`, … — **off unless you opt in** |\n\nEvery tool is scoped: the API key's scopes cap what the connection can do, whatever toolsets are enabled.\nEvery call — read or write — writes an audit row that records it was made by an agent and by which key or\nOAuth client, so an agent's decision is never mistaken for a human's.\n\n### Narrowing the surface\n\nFewer tools means less context spent per request and better tool selection. Pick what the job needs:\n\n```json\n\"env\": {\n  \"VERIFA_API_KEY\": \"vk_sandbox_...\",\n  \"VERIFA_MCP_TOOLSETS\": \"sessions,checks\",\n  \"VERIFA_MCP_READ_ONLY\": \"1\"\n}\n```\n\n| Variable | Effect |\n|---|---|\n| `VERIFA_API_KEY` | Required. `vk_sandbox_…` or `vk_live_…`. Publishable keys (`vk_pub_…`) are rejected. |\n| `VERIFA_ENV` | `sandbox` or `live`. Inferred from the key if omitted; must match it if set. |\n| `VERIFA_MCP_TOOLSETS` | Comma-separated toolsets to expose. Default: all except `destructive`. |\n| `VERIFA_MCP_READ_ONLY` | `1` hides every tool that writes. |\n| `VERIFA_MCP_ALLOW_DESTRUCTIVE` | `1` adds the redaction tools. Each call also needs the `redact:write` scope, a written `reason`, and is capped at 5 per hour per key. Redaction is irreversible by design. |\n| `VERIFA_API_URL` | Override the API host (e.g. a staging environment). |\n\nCheck what a given configuration exposes without opening a client:\n\n```sh\nVERIFA_API_KEY=vk_sandbox_... npx -y @verifasolutionsinc/mcp-server --check\n```\n\n## Try it in five minutes\n\n```sh\ngit clone https://github.com/Verifa-Solutions/verifa-mcp-server\ncd verifa-mcp-server/examples/id-check\nnpm install\ncp .env.example .env        # paste your sandbox key\nnpm start                   # approve\nnpm run review              # the outcome that matters: a human has to decide\n```\n\nThe demo creates a session, generates the one-time capture link and QR code an integrator would show,\nsimulates an outcome (no passport needed — sandbox only), and reads the result. It prints the REST calls\nin one column and the identical flow driven through this MCP server in the other. Add `--webhooks` with a\npublic URL (`cloudflared tunnel --url http://localhost:8787` works) to receive the signed webhook deliveries\nand see signature verification — the part most integrations get wrong.\n\n## Development\n\n```sh\nnpm install\nnpm run build\nnpm test                                     # unit tests\nVERIFA_API_KEY=vk_sandbox_... node dist/index.js --check   # live smoke test\n```\n\nNode 20+. Logs go to stderr; stdout is the MCP transport.\n\n## Security\n\n- Use sandbox keys while evaluating. Live keys should be scoped to the toolsets the agent needs.\n- The server never stores or logs the API key; it is sent only as a Bearer token to `VERIFA_API_URL`.\n- Responses are PII-free by default — the hosted server strips applicant identifiers from tool results\n  unless the key holds the relevant scope and the session's sensitive-data window is open.\n- Report vulnerabilities via [withverifa.com/security/disclosure](https://withverifa.com/security/disclosure/).\n\n## License\n\nMIT — see [LICENSE](LICENSE).\n",
+  "status": "curated"
+}

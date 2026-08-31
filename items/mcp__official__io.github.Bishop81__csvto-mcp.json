@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.Bishop81/csvto-mcp",
+  "type": "mcp",
+  "name": "csvto-mcp",
+  "description": "Local CSV, JSON and Excel conversion. Files are never uploaded and never enter the context.",
+  "author": "io.github.Bishop81",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/Bishop81/csvto",
+    "repo": "Bishop81/csvto"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "csvto-mcp"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-31T12:36:04.362472Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "办公",
+    "featured": false
+  },
+  "readme": "# csvto\n\nCSV, JSON and Excel conversion that runs where your data already is.\n\n- **[`csvto-mcp`](packages/mcp)** — an MCP server. Point your AI assistant at a file\n  path; it converts locally and writes the result beside it. Nothing is uploaded, and\n  file contents never pass through the model's context.\n- **[`@csvto/core`](packages/core)** — the conversion engine. No DOM, no `fs`, no\n  network, so the same tested code runs in a browser, in a local MCP process, or on a\n  server.\n\nThe same engine powers the browser tools at **[csvtosite.com](https://csvtosite.com)**,\nwhere conversion happens client-side and files are likewise never uploaded.\n\n## Install the MCP server\n\n```\nclaude mcp add csvto -- npx -y csvto-mcp\n```\n\nOr in any MCP client's config:\n\n```json\n{\n  \"mcpServers\": {\n    \"csvto\": { \"command\": \"npx\", \"args\": [\"-y\", \"csvto-mcp\"] }\n  }\n}\n```\n\nRequires Node 18+. Full tool list and behaviour: [packages/mcp/README.md](packages/mcp/README.md).\n\n## Types are inferred per column, not per cell\n\nThis is the part that matters, and where most converters quietly corrupt data. A column\nconverts to numbers **only if every value in it survives the round trip exactly**. If one\nvalue would change, the whole column stays text:\n\n- `01234` keeps its leading zero instead of becoming `1234`\n- A 16-digit account number stays itself instead of becoming `1.23457E+14`\n- `1250.50` keeps its trailing zero instead of becoming `1250.5`\n- A column never ends up as a mix of numbers and strings\n\nVerified in tests: `01234` survives a CSV → xlsx → CSV round trip intact.\n\n## Develop\n\n```\nnpm install\nnpm test          # 49 tests\nnpm run build\n```\n\n`packages/core` must stay environment-free — no `window`, no `fs`, no `fetch`. That\nconstraint is what lets one tested engine serve every surface.\n\n## Licence\n\nMIT\n",
+  "status": "curated"
+}

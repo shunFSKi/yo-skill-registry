@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/Chinteyley/Pocket-No/verify",
+  "type": "skill",
+  "name": "verify",
+  "description": "Run full project lint and tests to verify code quality before committing or marking work done",
+  "author": "Chinteyley",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/Chinteyley/Pocket-No/blob/HEAD/.claude/skills/verify/SKILL.md",
+    "repo": "Chinteyley/Pocket-No",
+    "path": ".claude/skills/verify/SKILL.md"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 3,
+    "pushed_at": "2026-08-24T05:29:55Z",
+    "score": 57,
+    "star_history": [
+      {
+        "d": "2026-08-31",
+        "s": 3
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# Pocket-No\n\n[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)\n\nPocket-No is a small Expo app for one job: generate a sharp, funny, low-friction way to say no and copy it immediately.\n\nThe app ships the core screen, a quick-copy route, an API-backed reason feed, and native shortcuts so the same \"give me a no now\" action can work from more than one surface.\n\n## What It Does\n\n- Shows a fresh \"no\" line on the home screen.\n- Copies the current line to the clipboard.\n- Generates another line without leaving the screen.\n- Supports a dedicated quick-copy flow at `/copy`.\n- Exposes an API route at `/api/no`.\n- Registers native quick actions and an App Intent-based shortcut flow on iOS.\n\n## Stack\n\n- Expo 55\n- Expo Router\n- React 19\n- React Native 0.83\n- TypeScript\n- `expo-quick-actions`\n- `@bacons/apple-targets`\n- Uniwind (Tailwind CSS v4 for React Native)\n- Reanimated + Skia for visual treatment\n\n## Project Shape\n\n```text\n.\n├── app.json\n├── app.config.ts\n├── reason.json\n├── plugins/\n│   └── with-screenless-quick-copy.js\n├── targets/\n│   └── pocket-no-shortcuts/\n└── src/\n    ├── app/\n    │   ├── _layout.tsx\n    │   ├── api/no+api.ts\n    │   └── (app)/\n    │       ├── _layout.tsx\n    │       ├── copy.tsx\n    │       └── index.tsx\n    ├── components/no/\n    ├── features/no/\n    └── hooks/\n```\n\n## How It Works\n\n`reason.json` is the source catalog for the larger pool of lines. The API route in `src/app/api/no+api.ts` returns a normalized random entry from that file via `src/features/no/json-catalog.ts`.\n\nUI flows call `fetchFreshNoReason()` from `src/features/no/no-reason-service.ts`. If the API fails, the client falls back to a smaller in-app catalog from `src/features/no/catalog.ts`.\n\nDeep links and native entry points route into the quick-copy screen with an `entry` param so the app can explain whether the copy came from the main app or the action button shortcut.\n\n## Getting Started\n\n### Prerequisites\n\n- Bun\n- Xcode for iOS native surfaces\n- Android Studio if you want to run Android locally\n\n### Install\n\n```bash\nbun install\n```\n\n### Run\n\n```bash\nbun run start\n```\n\nCommon targets:\n\n```bash\nbun run ios\nbun run android\nbun run web\n```\n\nLint:\n\n```bash\nbun run lint\n```\n\nTest:\n\n```bash\nbun run test\n```\n\n## Environment\n\n`app.config.ts` reads `EXPO_PUBLIC_SITE_ORIGIN` and passes it into the Expo Router plugin when present. Set it for web/server output and for native builds that need to call the Expo API route from the client.\n\nExample:\n\n```bash\nEXPO_PUBLIC_SITE_ORIGIN=https://pocketno.example.com bun run web\n```\n\n## Native Surfaces\n\nThis repo includes iOS-specific shortcut work:\n\n- Home screen quick action via `expo-quick-actions`\n- App Intent target in `targets/pocket-no-shortcuts`\n- Custom config plugin in `plugins/with-screenless-quick-copy.js`\n\nNotes:\n\n- The App Intent shortcut target is configured for iOS 18+.\n- If you change shortcut target wiring, regenerate native iOS artifacts before validating in Xcode.\n\n## Editing The Reason Catalog\n\nMost content changes start in `reason.json`.\n\nGuidelines:\n\n- Keep entries as plain strings.\n- Avoid empty lines.\n- Duplicates are removed during normalization.\n- The client and native shortcut helpers rely on this catalog shape.\n\n## Useful Files\n\n- `src/app/(app)/index.tsx`: main Pocket-No screen\n- `src/app/(app)/copy.tsx`: quick-copy route\n- `src/app/api/no+api.ts`: random reason API\n- `src/features/no/no-reason-service.ts`: clipboard orchestration\n- `src/features/no/json-catalog.ts`: normalized `reason.json` loader\n- `src/features/no/deep-links.ts`: route/scheme helpers\n- `plugins/with-screenless-quick-copy.js`: iOS target/resource wiring\n- `targets/pocket-no-shortcuts/copy-no-action.swift`: App Intent copy implementation\n\n## License\n\n[MIT](LICENSE)\n",
+  "status": "curated"
+}

@@ -1,0 +1,70 @@
+{
+  "id": "mcp:official/io.github.Subcue/edititall-mcp",
+  "type": "mcp",
+  "name": "edititall-mcp",
+  "description": "Drive EditItAll's local in-browser editors: PDF, sheet, photo, vector, Word, slides.",
+  "author": "io.github.Subcue",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/Subcue/edititall-mcp",
+    "repo": "Subcue/edititall-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@edititall/mcp"
+    ],
+    "env": [
+      {
+        "name": "EDITITALL_URL",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "CHROME_PATH",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-31T18:37:54.856716Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "办公",
+    "featured": false
+  },
+  "readme": "# EditItAll MCP Server\n\nmcp-name: io.github.Subcue/edititall-mcp\n\n**[EditItAll](https://edititall.com)** is a free, local-first suite of in-browser editors (photo, vector, PDF, spreadsheet, Word, slides, image convert/compress) built by [Subcue AI LLC](https://subcueai.com). This repository is the **[Model Context Protocol](https://modelcontextprotocol.io) server** that lets Claude Code, Claude Desktop, Cursor, and any MCP client **operate those editors on your machine**.\n\nYour files never leave the device. The server launches a local headless Chrome, loads the editors from [edititall.com](https://edititall.com) (or a local `wrangler dev` URL), and drives their official automation hooks. The AI client only sees tool results (cell values, file sizes, screenshots you request).\n\nPublic docs: **[https://edititall.com/ai](https://edititall.com/ai)**\n\n[![npm](https://img.shields.io/npm/v/@edititall/mcp.svg)](https://www.npmjs.com/package/@edititall/mcp)\n[![crates.io](https://img.shields.io/crates/v/edititall-mcp.svg)](https://crates.io/crates/edititall-mcp)\n[![docs.rs](https://docs.rs/edititall-mcp/badge.svg)](https://docs.rs/edititall-mcp)\n\n## Requirements\n\n- **Node.js 22+** (built-in `WebSocket`)\n- **Chrome, Edge, Chromium, or Brave** installed locally\n\n## Install\n\n**From npm:**\n\n```sh\nnpx -y @edititall/mcp\n# or\nnpm i -g @edititall/mcp\nclaude mcp add edititall -- edititall-mcp\n```\n\n**From crates.io (Rust wrapper):**\n\n```sh\ncargo install edititall-mcp\nclaude mcp add edititall -- edititall-mcp\n```\n\nThe Rust binary embeds `edititall-mcp.mjs` and execs `node`. Set `NODE` if `node` is not on `PATH`.\n\n**Claude Desktop (one click).** Download [`edititall-mcp.mcpb`](https://edititall.com/edititall-mcp.mcpb) and drag it into Claude Desktop → Settings → Extensions. Claude Desktop ships its own Node runtime.\n\n**Claude Code (Node, no Rust):**\n\n```sh\ncurl -fsSL https://edititall.com/edititall-mcp.mjs -o ~/edititall-mcp.mjs\nclaude mcp add edititall -- node ~/edititall-mcp.mjs\n```\n\nOr clone this repo:\n\n```sh\ngit clone https://github.com/Subcue/edititall-mcp.git\nclaude mcp add edititall -- node /path/to/edititall-mcp/edititall-mcp.mjs\n```\n\n**Cursor / other stdio clients** (`mcp.json`):\n\n```json\n{\n  \"mcpServers\": {\n    \"edititall\": {\n      \"command\": \"edititall-mcp\"\n    }\n  }\n}\n```\n\nNode-only equivalent: `\"command\": \"node\", \"args\": [\"/path/to/edititall-mcp.mjs\"]`.\n\nEnv:\n\n| Variable | Default | Meaning |\n|---|---|---|\n| `EDITITALL_URL` | `https://edititall.com` | Editor origin (point at `wrangler dev` while developing) |\n| `CHROME_PATH` | auto-detect Chrome/Edge/Chromium/Brave | Browser binary |\n\n## Tools\n\n| Tool | What it does |\n|---|---|\n| `sheet_set_cells` / `sheet_load_csv` / `sheet_export_csv` | Write cells/formulas, bulk-load CSV, export computed values |\n| `sheet_read_range` | Read computed values of `\"A1:D10\"` as a 2D array |\n| `pdf_open` / `pdf_page_text` / `pdf_rotate_page` / `pdf_delete_page` / `pdf_merge` / `pdf_export` | Open, read, reorganize and export PDFs locally |\n| `word_write` / `word_get_text` | Draft and read documents |\n| `slides_from_outline` | Build a deck from a title + bullet outline |\n| `vector_import_svg` | Import SVG markup as a new vector document |\n| `photo_open_image` / `photo_export` | Open a local image in the photo editor and export flattened |\n| `images_process` | Compress/convert local images through the real codec pipeline; reports before/after sizes |\n| `editor_screenshot` | Screenshot `sheet` \\| `vector` \\| `photo` \\| `tools` \\| `pdf` \\| `word` \\| `slides` |\n\nExample prompts: *compress every PNG on the desktop to WebP at quality 80* · *build a Q3 budget sheet and total the column* · *draw a rocket in SVG and import it into the vector editor*.\n\n## Privacy\n\nThe same promise as the website: **processing is on-device**. Headless Chrome talks to the editors in a local profile under `$TMPDIR`. Nothing is uploaded to Subcue AI LLC or to a third-party API by this server.\n\n## Other machine-readable entry points\n\n| Endpoint | What it is |\n|---|---|\n| [`https://edititall.com/ai`](https://edititall.com/ai) | Human + agent install docs |\n| [`https://edititall.com/llms.txt`](https://edititall.com/llms.txt) | Plain-text product summary |\n| [`https://edititall.com/edititall-mcp.mjs`](https://edititall.com/edititall-mcp.mjs) | Same server file, served from the product origin |\n| [`https://edititall.com/edititall-mcp.mcpb`](https://edititall.com/edititall-mcp.mcpb) | Claude Desktop extension bundle |\n\nThe product suite itself is closed-source. This repository is the MCP client/server that talks to it.\n\n## License\n\n[MIT](LICENSE) © 2026 [Subcue AI LLC](https://subcueai.com). EditItAll is a brand of Subcue AI LLC.\n",
+  "status": "curated"
+}

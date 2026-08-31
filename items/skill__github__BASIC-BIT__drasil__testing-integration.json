@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/BASIC-BIT/drasil/testing-integration",
+  "type": "skill",
+  "name": "testing-integration",
+  "description": "Run and debug Drasil integration tests against real Postgres via Prisma.",
+  "author": "BASIC-BIT",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/BASIC-BIT/drasil/blob/HEAD/.codex/skills/testing-integration/SKILL.md",
+    "repo": "BASIC-BIT/drasil",
+    "path": ".codex/skills/testing-integration/SKILL.md"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 1,
+    "pushed_at": "2026-08-31T17:23:11Z",
+    "score": 55,
+    "star_history": [
+      {
+        "d": "2026-08-31",
+        "s": 1
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# 🌳 Drasil - Automatic Discord Scammer Protection Bot 🛡️\n\nA Discord bot that leverages GPT-based analysis and heuristic checks to proactively detect and mitigate spammers and scammers in Discord servers.\n\n## Overview\n\nThis bot uses:\n\n- **Discord.js** for Discord integration\n- **OpenAI GPT** for advanced spam detection\n- **Heuristic checks** for quick identification of obvious spam\n- **Supabase Postgres via Prisma** for data persistence (local Supabase recommended for dev)\n\n## Features\n\n- **Proactive Detection**: Flags suspicious users quickly\n- **Configurable Heuristics**: Tune message frequency limits or spam keywords\n- **GPT Integration**: Intelligent classification for borderline cases\n- **Case Role**: Apply a configured role to users with active cases\n- **Verification Threads**: Quickly confirm or deny suspicious accounts\n\n## Development\n\n### Getting Started\n\n1. Clone the repo\n2. Install npm dependencies `npm ci`\n3. `cp .env.example .env` and fill out required fields (including `DATABASE_URL`)\n4. Start Postgres (Supabase recommended): `npx supabase start`\n5. `npm run db:reset:local` (local Supabase only)\n6. `npm run dev`\n\n## Workflow\n\nThe bot now uses direct orchestration (no internal EventBus). See `docs/workflow.md`\nfor the full detection and moderation flow.\n\n### Heuristic Spam Detection\n\nThe bot currently implements the following heuristic checks:\n\n- **Message Frequency**: Flags users who send more than 5 messages within 10 seconds\n- **Suspicious Keywords**: Detects common scam phrases like \"free discord nitro\", \"claim your prize\", etc.\n\n## Available Scripts\n\nThis project uses npm scripts for common development tasks:\n\n- `npm start`: Runs the bot using `ts-node` (for development).\n- `npm run dev`: Runs the bot with Node's watch mode and automatically restarts on file changes.\n- `npm test`: Runs the Jest test suite.\n- `npm run test:watch`: Runs Jest in watch mode.\n- `npm run build`: Compiles TypeScript code to JavaScript in the `dist/` directory.\n- `npm run build:watch`: Compiles TypeScript in watch mode.\n- `npm run clean`: Removes the `dist/` directory.\n- `npm run lint`: Lints the codebase using ESLint and attempts to fix issues.\n- `npm run format`: Formats the codebase using Prettier.\n- `npm run format:check`: Checks formatting without making changes.\n- `npm run check`: Runs both `format:check` and `lint`.\n- `npm run prisma:generate`: Generates the Prisma Client based on the schema.\n- `npm run prisma:migrate:dev`: Creates and applies database migrations based on schema changes (for development).\n- `npm run prisma:db:pull`: Introspects the database and updates the Prisma schema.\n- `npm run prisma:studio`: Opens the Prisma Studio GUI to view and edit database data.\n- `npm run prisma:format`: Formats the `prisma/schema.prisma` file.\n- `npm run db:seed`: Executes the seed script (`prisma/seed.ts`) to populate the database.\n\n## Testing\n\nHigh-signal manual and automated test ideas live in `docs/test-cases.md`.\n\n## Usage\n\n- Invite the bot to your server, then follow the private guided-setup link or open the server from\n  the web dashboard. See [Server onboarding](docs/onboarding.md).\n- Alternatively, run `/config setup` to configure the case role and channels.\n- Run `/config validate` after permission or channel changes.\n- Update other config as needed (spam thresholds, OpenAI prompts).\n- Let the bot automatically classify new users, or use admin case buttons and commands for manual\n  moderation overrides.\n\n## Setup\n\n### Server Configuration\n\nThe guided web wizard is the recommended first-run path. Until its live diagnostics report\n**Ready**, automatic detections are safely limited to record-only behavior.\n\n1. **Run Unified Setup**:\n   - Use `/config setup admin-channel:<channel>`.\n   - Optionally pass `case-role:<role>` to use an existing case role.\n   - Omit `case-role` to let Drasil reuse a configured/default `Drasil Case` role or create it if missing.\n   - Optionally pass `verification-channel:<channel>` to reuse an existing verification channel.\n   - Omit `verification-channel` to let Drasil create or reuse a `verification` text channel.\n   - If multiple `#verification` channels exist, pass `verification-channel:<channel>` explicitly.\n   - Optionally pass `report-channel:<channel>` to create or update the report instructions message.\n\n2. **Validate Setup**:\n   - Use `/config validate` after setup, permission changes, or channel changes.\n   - Hard errors block `/config setup` from saving.\n   - Warnings are shown but do not block saving.\n\n3. **Legacy Direct Setup**:\n   - `/setupverification` and `/setupreportbutton` still exist for now.\n   - Prefer `/config setup` for new servers.\n\n### Slash Commands\n\nThe bot automatically registers the following slash commands during startup:\n\n- `/config setup` - Configure required Drasil channels and case role\n- `/config validate` - Check setup, permissions, channels, and role hierarchy\n- `/config set key:<key> value:<value>` - Configure low-level server settings\n- `/config lockdown`, `/config role-quarantine`, `/config role-gate`, `/config detection`,\n  `/config case-staff`, `/config reports`, `/config analytics`, and `/config verification` - Manage\n  advanced moderation and setup policy\n- `/ban` - Ban a user with an optional reason\n- `/report` - Submit a user report for moderation intake\n- `/flaguser` - Manually flag a user for review\n- `/case` - Refresh, repair, and inspect active case notifications\n- `/audit` - Run moderation integrity audits\n- `/setupverification` - Legacy direct verification setup\n- `/setupreportbutton` - Legacy direct report-button setup\n\nSlash commands are automatically registered when the bot starts up. There's no need for manual registration.\n\nReport intake threads are closed with the **Close Report** button on the intake thread's opening\nmessage (usable by the reporter or report-intake staff), or through **Admin Actions -> Close Report**\nfor moderators. The retired `/close-report` command did the same thing.\n\n### Admin Channel Notifications\n\nWhen a user is flagged as suspicious, the bot will:\n\n1. Assign the configured case role for active-case access control\n2. Send a notification to the admin channel with:\n   - User details (username, ID, join date, etc.)\n   - Detection confidence level (Low, Medium, or High)\n   - Trigger reason (message content or join event)\n   - Bullet-pointed list of detection reasons\n   - Interactive buttons:\n     - **Verify User** button to remove the case role\n     - **Ban User** button to ban the user from the server\n     - **Create Thread** button (shown only if the auto-created thread is missing)\n3. Log all admin actions (button presses) directly in the notification message\n4. Create verification threads in a dedicated verification channel that's visible only to:\n   - Server administrators and moderators\n   - The user with the active case (only their own thread)\n\n## Spam Detection Heuristics\n\n- [Discord won't let bots access bios... for some reason](https://github.com/discord/discord-api-docs/issues/3095#issue-comment-box)\n- We use the things we do have access to - their most recent message (if a chat message triggered the detection), account age, how long the account has been in the server, name, nickname\n\n### Potential future heuristics\n\n- Scrape for various past messages in the server\n- Look at the user's roles, and see if those roles are privileged. That could also tie into onboarding, to see which roles are available for anybody to grab. This would absolutely require some amount of example or description to GPT for it to be useful, because less or more roles doesn't really mean much on its own\n- Get banner and avatar url, run through image detection\n- training data!!! We're just sending info to GPT right now, it'd be _really_ cool to instead gather evidence from known scammers to train a model. The best part is, we can use data from usage of the bot to eventually train a model. We can also implement \"few-shot\" learning by adding a few well-curated examples to the GPT user classification prompt.\n- Tie in data from other servers - if many servers have listed that user as trusted, then it's probably good. We have to prevent gaming the system on this though. I was floating the idea of \"trusted servers\", where you can specify other servers you're networked with.. but that's crazy and overkill.\n- Adding onto the few-shot idea, we could even potentially automate this process by allowing admins to \"add case to training data\", which would add it to the prompt specifically for their server. This could potentially be automated on a large scale by automating the human reinforced learning on by adding examples that resulted in false negatives or false positives to the prompt\n\n## Future Feature Ideas\n\n- Report command - allow users to report another user, which will run the bot detection on them (and, hilariously enough, also run the bot detection on the user that submitted the report)\n- Automatic CAPTCHA on suspected members?\n- Generally improve button interactions - add a confirmation prompt to the ban button, prevent creation of multiple threads, and add change how interactions are handled once it's already been handled (if we press Verify, then Ban, what happens?)\n\n## Contributing 🤝\n\nFeel free to open pull requests or fork the project. All contributions are welcome—bug fixes, new features, documentation improvements, or suggestions.\n\n## License 📜\n\nLicensed under the [MIT License](LICENSE.md).\n\n## Questions or Feedback?\n\nOpen an issue or reach out in the discussions tab. We love hearing from the community!\nThanks for helping keep Discord communities safe and spam-free.\n",
+  "status": "curated"
+}

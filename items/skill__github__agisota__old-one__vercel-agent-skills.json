@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/agisota/old-one/vercel-agent-skills",
+  "type": "skill",
+  "name": "vercel-agent-skills",
+  "description": "Official Vercel Labs agent skills for AI coding assistants.",
+  "author": "agisota",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/agisota/old-one/blob/HEAD/skills/vercel-agent-skills/SKILL.md",
+    "repo": "agisota/old-one",
+    "path": "skills/vercel-agent-skills/SKILL.md"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 3,
+    "pushed_at": "2026-07-04T14:32:06Z",
+    "score": 52,
+    "star_history": [
+      {
+        "d": "2026-08-31",
+        "s": 3
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Rox\n\nThe last developer tool you'll ever need — spawn agents, create git-worktree\nworkspaces, manage tasks, and schedule automations from one place. Rox ships as\na desktop app, a web app, a mobile app, and a CLI, all backed by a shared core.\n\n- **Web:** [app.rox.one](https://app.rox.one) · **Marketing:** [rox.one](https://rox.one) · **Docs:** [docs.rox.one](https://docs.rox.one)\n- **Contributing:** [CONTRIBUTING.md](./CONTRIBUTING.md) · **Local setup:** [DEVELOPMENT.md](./DEVELOPMENT.md) · **Agent guide:** [AGENTS.md](./AGENTS.md)\n\n## Tech Stack\n\n- **Package manager:** [Bun](https://bun.sh) `1.3.14` (no npm/yarn/pnpm) — pinned in `.bun-version`\n- **Build system:** [Turborepo](https://turbo.build)\n- **Database:** [Drizzle ORM](https://orm.drizzle.team) + Neon PostgreSQL (cloud) / SQLite (desktop local)\n- **Live sync:** [Electric](https://electric-sql.com) + TanStack DB live queries\n- **UI:** React + TailwindCSS v4 + [shadcn/ui](https://ui.shadcn.com)\n- **Desktop:** Electron · **Mobile:** React Native (Expo) · **Web:** Next.js 16\n- **Code quality:** [Biome](https://biomejs.dev) (format + lint at repo root) and [Sherif](https://github.com/QuiiBz/sherif) (monorepo lint)\n- **Agent runtime:** mastracode / `@mastra/*`\n\n> Next.js 16 renamed `middleware.ts` to `proxy.ts`. Never create `middleware.ts`;\n> use `proxy.ts` for request interception.\n\n## Repository Structure\n\nBun + Turbo monorepo. Workspaces are `apps/*`, `packages/*`, and `tooling/*`\n(see root `package.json`). `workers/*` are standalone deploy targets and are not\npart of the Turbo workspace.\n\n### Apps (`apps/`)\n\n| App | Description |\n| --- | --- |\n| `web` | Main web application (app.rox.one) |\n| `marketing` | Marketing site (rox.one) |\n| `docs` | Documentation site |\n| `admin` | Admin dashboard |\n| `api` | API backend (auth + tRPC) |\n| `desktop` | Electron desktop application |\n| `mobile` | React Native mobile app (Expo) |\n| `electric-proxy` | Electric live-sync proxy |\n| `relay` | Relay service |\n| `streams` | Stream processing |\n\n### Packages (`packages/`)\n\nShared libraries consumed across apps:\n\n- `ui` — shared UI components (shadcn/ui + TailwindCSS v4; add with `bunx shadcn@latest add <component>` in `packages/ui/`)\n- `db` — Drizzle ORM schema (Neon/PostgreSQL)\n- `local-db` — local SQLite database (desktop)\n- `auth` — authentication\n- `trpc` — shared tRPC definitions\n- `shared` — shared utilities\n- `chat` — chat + slash commands\n- `mcp`, `mcp-v2` — MCP integration\n- `sdk` — TypeScript SDK for the Rox API\n- `cli`, `cli-framework` — CLI and its framework\n- `agent-bridge`, `agent-state` — agent bridge and state\n- `host-provisioner`, `host-service` — host provisioning + git/worktree host service\n- `workspace-client`, `workspace-fs` — workspace client + filesystem\n- `workflow-core`, `workflow-runtime`, `workflow-sim-adapter` — agent pipeline workflow engine\n- `runtime-clients` — runtime clients\n- `panes`, `rtc`, `collab` — panes, real-time, collaboration\n- `comms-core` — comms core\n- `pty-daemon`, `port-scanner`, `macos-process-metrics` — terminal/process tooling\n- `storage`, `email`, `analytics`, `scripts` — storage, email, analytics, CLI tooling\n\n### Tooling (`tooling/`)\n\n- `typescript` — shared TypeScript configs\n\n### Workers (`workers/`, standalone)\n\n- `email-inbound` — inbound email worker\n- `transcribe-worker` — transcription worker\n- `mesh-relay-watcher` — Nostr mesh relay-watcher (standalone deploy; not in the Turbo workspace)\n\n## Getting Started\n\nPrerequisites: Bun `1.3.14` (`curl -fsSL https://bun.sh/install | bash`). No Neon\nor third-party credentials are required for local development — the local setup\nscript runs the full data stack in Docker. See [DEVELOPMENT.md](./DEVELOPMENT.md)\nfor the complete guide.\n\n```bash\nbun install            # install all workspace dependencies\n./.rox/setup.local.sh  # .env, Docker Postgres + neon-proxy + Electric, migrate, seed\nbun run dev            # API + Web + Desktop + electric-proxy + Caddy\n```\n\nDev sign-in: **Sign in as Local Admin (dev)**, or `admin@local.test` / `roxdev12`.\n\n## Common Commands\n\n```bash\n# Development\nbun dev                    # Start the default dev servers (API + Web + Desktop + electric-proxy + Caddy)\nbun run dev:all            # Start every dev server\nbun run dev:docs           # Docs only\nbun run dev:marketing      # Marketing + docs\n\n# Build\nbun run build              # Build the desktop app (turbo --filter=@rox/desktop)\n\n# Tests\nbun test                   # Run all workspace tests (turbo)\n\n# Code quality\nbun run lint               # Lint (Biome, treated strictly — warnings fail)\nbun run lint:fix           # Auto-fix lint + format issues\nbun run format             # Format only\nbun run format:check       # Check formatting only (CI)\nbun run typecheck          # Type-check all packages\n\n# Database (Drizzle)\nbun run db:generate:desktop  # Generate local-db (SQLite) migrations — offline\nbun run db:push              # Push schema (non-production only)\nbun run db:migrate           # Apply migrations (deploy step)\nbun run db:seed-dev          # Seed the local dev user\n\n# Maintenance\nbun run clean              # Clean root node_modules\nbun run clean:workspaces   # Clean all workspace node_modules\n```\n\nPer-app and per-package commands are exposed through their own `package.json`\n`scripts` and run via Turbo filters, e.g. `bunx turbo run test --filter=@rox/sdk`.\n\n## Database\n\n- Schema lives in `packages/db/src/` (cloud) and `packages/local-db/` (desktop SQLite).\n- Use Drizzle ORM for all database access.\n- Agents may edit the schema and run `bunx drizzle-kit generate` — `generate` is\n  offline (schema-vs-snapshot diff) and touches no database.\n- Never run `drizzle-kit migrate`/`push` against production without explicit\n  confirmation. Never hand-edit files in `packages/db/drizzle/`.\n\n## Code Quality & Verification\n\nBiome runs at the repo root (not per package) for speed:\n\n- `biome check --write` — format + lint + organize imports + fix auto-fixable issues\n- `biome check` — check only (no changes)\n- `biome format` — format only\n\nCI fails on **any** Biome diagnostic (warnings are treated as errors). Run\n`bun run lint:fix`, then confirm `bun run lint` exits 0 before pushing. In\nnon-interactive shells, redirect stdin so the git-check helpers don't block:\n`bun run lint < /dev/null`.\n\nThe CI pipeline (`.github/workflows/ci.yml`) runs: **Sherif**, **Dependency\nAudit**, **Lint**, **Test**, **Typecheck**, **Build (desktop)**, and **Build\nCLI** (Linux x64, macOS arm64, Linux arm64).\n\n## License\n\nMIT.\n",
+  "status": "curated"
+}

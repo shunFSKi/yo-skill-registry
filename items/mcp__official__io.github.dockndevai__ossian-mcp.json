@@ -1,0 +1,80 @@
+{
+  "id": "mcp:official/io.github.dockndevai/ossian-mcp",
+  "type": "mcp",
+  "name": "ossian-mcp",
+  "description": "Ask your own documents with citations, plus durable memory for agents. Safe by default.",
+  "author": "io.github.dockndevai",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/dockndevai/ossian-mcp",
+    "repo": "dockndevai/ossian-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "ossian-mcp"
+    ],
+    "env": [
+      {
+        "name": "OSSIAN_URL",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "OSSIAN_API_KEY",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "OSSIAN_AGENT_ID",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "OSSIAN_MODE",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-31T16:40:26.279341Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "写作",
+    "featured": false
+  },
+  "readme": "# ossian-mcp\n\n[![npm](https://img.shields.io/npm/v/ossian-mcp)](https://www.npmjs.com/package/ossian-mcp)\n[![licence](https://img.shields.io/badge/licence-Apache--2.0-blue)](LICENSE)\n\nMCP server for [Ossian](https://github.com/dockndevai/ossian) — ask your organisation's own\ndocuments and get the passages the answer came from, plus a memory for your agent that outlives\nthe conversation.\n\nOssian is the server; this is the adapter that puts it in front of an agent. You need a running\nOssian to point it at — see [its README](https://github.com/dockndevai/ossian) for a\n`docker compose up`.\n\n## What it gives an agent\n\nTools are gated by access mode (see [Safe by default](#safe-by-default)) — the server starts\nread-only, exposing only the four read tools until you raise the mode.\n\n| Tool | For | Needs mode |\n|---|---|---|\n| `ask_documents` | answer from the corpus, with citations — and say so when it cannot | read-only |\n| `list_namespaces` | which slices exist, and how much is in each | read-only |\n| `list_documents` | what is available to answer from, and what is still ingesting | read-only |\n| `recall` | retrieve what is relevant now, ranked by relevance, importance and recency | read-only |\n| `add_document_from_url` | pull a public page into the corpus | read-write |\n| `remember` | record a preference, fact or decision worth keeping | read-write |\n| `forget_session` | erase one conversation's memory (irreversible) | admin + `OSSIAN_ALLOW_FORGET` |\n\n## Install\n\n```bash\nnpm install -g ossian-mcp\n```\n\nYou need a running Ossian and an API key. Issue one from the console (**Console → API keys**) or:\n\n```bash\ncurl -X POST \"$OSSIAN_URL/api/admin/api-keys\" \\\n  -H \"Authorization: Bearer $TOKEN\" -H 'Content-Type: application/json' \\\n  -d '{\"name\":\"mcp\",\"roles\":[\"ossian-user\"],\"namespace\":\"handbooks\"}'\n```\n\nGive the key the narrowest scope that works. `namespace` confines it to one slice, so a key that\nleaks reads only what that agent was for.\n\n## Configure\n\n```json\n{\n  \"mcpServers\": {\n    \"ossian\": {\n      \"command\": \"ossian-mcp\",\n      \"env\": {\n        \"OSSIAN_URL\": \"http://localhost:8081\",\n        \"OSSIAN_API_KEY\": \"osk_...\",\n        \"OSSIAN_AGENT_ID\": \"support-bot\",\n        \"OSSIAN_MODE\": \"read-only\"\n      }\n    }\n  }\n}\n```\n\n`OSSIAN_AGENT_ID` separates one agent's memories from another's; two agents sharing an id share\ntheir recollections, which is occasionally what you want and usually not.\n\nSee [docs/CLIENTS.md](docs/CLIENTS.md) for Claude Code / Cursor / Codex / VS Code / Windsurf\nsnippets, and [.env.example](.env.example) for every supported variable.\n\n## Safe by default\n\nThe server enforces an access model on top of the Ossian API key — defence in depth over the\nkey's own roles and namespace confinement. It reads its policy from the environment\n([.env.example](.env.example)) and enforces it in [`src/security.ts`](src/security.ts):\n\n- **`OSSIAN_MODE`** — `read-only` (default) → `read-write` → `admin`. A tool is registered only if\n  the mode allows its capability. Read-only exposes four tools; ingest and remember need\n  `read-write`; forget needs `admin`.\n- **`OSSIAN_ALLOW_FORGET`** — `forget_session` erases memory irreversibly, so on top of `admin`\n  mode it also requires this flag.\n- **`OSSIAN_NAMESPACE_ALLOWLIST` / `OSSIAN_PROTECTED_NAMESPACES`** — confine which slices can be\n  touched, and mark slices that may be read but never ingested into.\n- **`OSSIAN_DRY_RUN`** — validate and log writes (ingest / remember / forget) without executing.\n- **`OSSIAN_AUDIT_LOG`** — a JSON audit line per guarded operation, on stderr (default on).\n\nThe primary control remains the API key: issue the narrowest one that works. See\n[SECURITY.md](SECURITY.md).\n\n## Two things worth knowing\n\n**A \"not found\" is an answer.** `ask_documents` returns a refusal when nothing in the corpus\nsupports a response, and the tool description tells the model to report that rather than falling\nback on general knowledge. An invented answer presented as company policy is the failure this\nwhole system exists to prevent — do not paper over it in your own prompt.\n\n**Memory is not the corpus.** `recall` searches what the agent was told; `ask_documents` searches\nwhat the organisation wrote down. They are separate stores on purpose: memories surfacing as\ncitations in a policy answer would be indistinguishable from the policy itself.\n\n## Developing\n\n```bash\nnpm install\nnpm run build\nOSSIAN_URL=http://localhost:8081 OSSIAN_API_KEY=osk_… node dist/index.js\n```\n\nIt speaks JSON-RPC over stdio, so it will sit there waiting for a frame. To drive it by hand:\n\n```bash\necho '{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"tools/list\",\"params\":{}}' | node dist/index.js\n```\n\nDiagnostics go to stderr on purpose — anything written to stdout that is not a protocol frame\ncorrupts the stream, and the failure looks like a client that cannot parse rather than a server\nthat printed a log line.\n\n## Licence\n\nApache-2.0\n",
+  "status": "curated"
+}

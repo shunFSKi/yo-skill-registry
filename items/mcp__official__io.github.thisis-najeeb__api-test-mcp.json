@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.thisis-najeeb/api-test-mcp",
+  "type": "mcp",
+  "name": "api-test-mcp",
+  "description": "Call the real API and check the response against your OpenAPI spec.",
+  "author": "io.github.thisis-najeeb",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/thisis-najeeb/api-test-mcp",
+    "repo": "thisis-najeeb/api-test-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "api-test-mcp"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-31T19:50:03.245501Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# api-test-mcp\n\n<img src=\"assets/banner.svg\" alt=\"api-test-mcp — call the real API, check it against what the spec promises\" width=\"100%\">\n\n[![CI](https://github.com/thisis-najeeb/api-test-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/thisis-najeeb/api-test-mcp/actions/workflows/ci.yml)\n[![npm version](https://img.shields.io/npm/v/api-test-mcp.svg)](https://www.npmjs.com/package/api-test-mcp)\n[![npm downloads](https://img.shields.io/npm/dm/api-test-mcp.svg)](https://www.npmjs.com/package/api-test-mcp)\n[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)\n\nAn MCP server that gives Claude Code, Cursor, Windsurf, or any MCP-compatible AI agent the ability to **actually call your API and check the response against what your OpenAPI spec promises** — not just read the docs and guess.\n\nNo API keys, no config, no cost. Works with any OpenAPI/Swagger 3.x spec (URL or local file).\n\n## Why this exists\n\nAI agents are great at reading an OpenAPI spec and writing code against it — but they're guessing about whether the real API actually behaves the way the spec says. This gives an agent (or you, in a normal chat) a way to find out for real: call the live endpoint, and check whether the response actually matches the documented schema.\n\n## Install\n\n```bash\ngit clone <this repo>\ncd api-test-mcp\nnpm install\n```\n\nAdd it to your MCP client config, e.g. for Claude Code:\n\n```bash\nclaude mcp add api-test -- node /absolute/path/to/api-test-mcp/src/index.js\n```\n\nOr in `claude_desktop_config.json` / Cursor's MCP settings:\n\n```json\n{\n  \"mcpServers\": {\n    \"api-test\": {\n      \"command\": \"node\",\n      \"args\": [\"/absolute/path/to/api-test-mcp/src/index.js\"]\n    }\n  }\n}\n```\n\n## Tools\n\n| Tool | What it does |\n|---|---|\n| `load_api_spec` | Load and dereference an OpenAPI/Swagger spec from a URL or local path. Returns the API title, servers, and every documented endpoint. Call this first. |\n| `list_endpoints` | List every endpoint currently loaded. |\n| `call_endpoint` | Make a real HTTP call to a documented endpoint. Returns the real status, headers, and body. |\n| `validate_response` | Check a response body against the JSON schema documented for a given method + path + status. |\n| `test_endpoint` | `call_endpoint` + `validate_response` in one step. The main tool — \"does this endpoint actually work as documented?\" |\n| `run_all_tests` | Best-effort contract-test pass across every GET endpoint that needs no required parameters. Pass `includeMutating: true` to also auto-generate example params/bodies from the schema and attempt POST/PUT/PATCH (off by default — it can write real data). Endpoints still needing manual input are listed as skipped, with the reason. |\n| `check_health` | One-shot ping across a set of endpoints (or every parameter-free GET in the loaded spec): reports reachability and latency. Handy before a demo or as a CI step. |\n| `diff_api_specs` | Compare two versions of a spec (e.g. an old tag vs. `main`) and flag likely-breaking changes — removed endpoints, newly-required fields, type changes, removed enum values — versus safe additive changes. |\n\nAll of the above accept an optional `auth` preset (`bearer`, `apiKey` in a header or query param, or `basic`) so authenticated APIs aren't limited to hand-building raw headers, and an optional `timeoutMs`.\n\n## Example (what an agent conversation looks like)\n\n> **You:** Load my API spec at `https://api.example.com/openapi.json` and check whether `/users/{id}` actually returns what it documents.\n>\n> **Agent:** *(calls `load_api_spec`, then `test_endpoint` with a real user id)* → \"Called it — got a 200, but the response is missing the `created_at` field your spec marks as required, and `role` is documented as an enum of 3 values but the API returned `\"superadmin\"`, which isn't one of them.\"\n\nFor an authenticated API:\n\n> **You:** Run a full contract-test pass against my staging API using this bearer token, and include the write endpoints.\n>\n> **Agent:** *(calls `run_all_tests` with `{ auth: { type: \"bearer\", token: \"...\" }, includeMutating: true }`)* → \"12 passed, 2 failed, 3 skipped. `POST /orders` failed schema validation — `total_cents` came back as a string, not the integer your spec documents.\"\n\n## Tested against real live traffic\n\n`npm test` runs three real, unmocked checks, no canned fixtures pretending to be a server:\n\n- `test/smoke-test.js` — loads a spec, makes real HTTPS calls to a live public API, validates the real response, and deliberately feeds in a broken response to confirm validation actually catches mismatches (not just a happy-path check).\n- `test/new-features-test.js` — auth presets applied to a real outgoing request URL, a real network timeout/abort, a real health-check call, and deterministic offline tests for the spec-diff logic.\n- `test/mcp-protocol-test.js` — spawns the actual MCP server as a subprocess and talks to it over the real MCP protocol, the same way Claude Code or Cursor would.\n\nCI runs the full suite on every push/PR against Node 18, 20, and 22.\n\n## Roadmap\n\nv1.0 shipped contract testing, auth presets, auto-generated example data for mutating endpoints, spec diffing, and health checks. Ideas for what's next:\n\n- YAML output mode / a small CLI wrapper for non-MCP use\n- Configurable retry/backoff for flaky endpoints in `run_all_tests` and `check_health`\n- Pattern-aware example generation (respect JSON Schema `pattern` instead of a placeholder string)\n- Persisted health-check history (currently one-shot only)\n\nContributions welcome — see [CONTRIBUTING.md](CONTRIBUTING.md). See an endpoint type or spec quirk this doesn't handle well? Open an issue.\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

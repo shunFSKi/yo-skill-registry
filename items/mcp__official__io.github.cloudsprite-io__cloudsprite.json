@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.cloudsprite-io/cloudsprite",
+  "type": "mcp",
+  "name": "CloudSprite",
+  "description": "Signed-in CloudSprite: search datasets and docs, set org/team/project scope, file feedback.",
+  "author": "io.github.cloudsprite-io",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/cloudsprite-io/cloudsprite-plugin",
+    "repo": "cloudsprite-io/cloudsprite-plugin"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://api.cloudsprite.io/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-31T14:18:54.772173Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "写作",
+    "featured": false
+  },
+  "readme": "# CloudSprite plugin\n\nPublic plugin for [CloudSprite](https://cloudsprite.io). One repo, one plugin slug (`cloudsprite`), for Claude Code, Grok Build, and [Agent Plugins](https://agent-plugins.org/specification) clients (Cursor, GitHub Copilot, VS Code, Codex, and others).\n\nThe plugin talks to **production** CloudSprite over remote MCP. There are no API keys, GitLab tokens, Linear tokens, or other secrets in this repository. OAuth tokens stay in the **client**.\n\nPlugin `name` is `cloudsprite` and is immutable once a marketplace lists it. The GitHub org is `cloudsprite-io` because `cloudsprite` was already taken on GitHub.\n\n## Connect your AI to CloudSprite\n\nFull per-client steps: [Connect your AI to CloudSprite](https://docs.cloudsprite.io/platform/connect-your-ai/).\n\nThere is no API key in this repo and none in chat. Sign in with the same CloudSprite account you use in the browser.\n\n| What | Value |\n|-|-|\n| MCP URL | `https://api.cloudsprite.io/mcp` |\n| Transport | Streamable HTTP |\n| OAuth discovery | `https://api.cloudsprite.io/.well-known/oauth-authorization-server` |\n| Plugin slug | `cloudsprite` (fixed) |\n\n### How do I connect Claude Code to CloudSprite?\n\n```text\n/plugin marketplace add cloudsprite-io/cloudsprite-plugin\n/plugin install cloudsprite@cloudsprite\n```\n\nEnable the `cloudsprite` plugin if it is not already on. On first tool use, complete the browser sign-in.\n\n### How do I connect Cursor, GitHub Copilot, VS Code, or Codex to CloudSprite?\n\nThis repo is an [Agent Plugins 1.0](https://agent-plugins.org/specification) package: root `plugin.json`, `mcp.json`, and `skills/`.\n\n1. Clone this repository (or add `cloudsprite-io/cloudsprite-plugin` as the plugin source if your client accepts a git URL).\n2. Load it as an Agent Plugin. In Cursor, a local checkout under `~/.cursor/plugins/local/cloudsprite` is enough.\n3. Enable the plugin and complete OAuth when the client prompts.\n\nIf the client cannot load Agent Plugins, add a remote MCP server instead (same URL and OAuth as [any MCP client](#how-do-i-connect-any-mcp-client-to-cloudsprite)).\n\n### How do I connect Grok to CloudSprite?\n\n```text\ngrok plugin marketplace add cloudsprite-io/cloudsprite-plugin\ngrok plugin install cloudsprite --trust\n```\n\nOfficial listing on xAI’s marketplace is separate and not required for this install. Maintainer catalog notes: [DIRECTORY.md](DIRECTORY.md).\n\n### How do I connect any MCP client to CloudSprite?\n\n| Setting | Value |\n|-|-|\n| Server URL | `https://api.cloudsprite.io/mcp` |\n| Transport | Streamable HTTP |\n| OAuth discovery | `https://api.cloudsprite.io/.well-known/oauth-authorization-server` |\n\nThe client must discover authorization, token, and JWKS URLs from that metadata. Do not hard-code those hosts, and do not put a client secret or API key in the config.\n\n```json\n{\n  \"mcpServers\": {\n    \"cloudsprite\": {\n      \"type\": \"streamable-http\",\n      \"url\": \"https://api.cloudsprite.io/mcp\"\n    }\n  }\n}\n```\n\nSome clients use `\"type\": \"http\"` or a bare `\"url\"` field for the same remote server.\n\n### How do I connect ChatGPT to CloudSprite?\n\nChatGPT connectors are **coming soon**. Do not add CloudSprite as a ChatGPT custom connector yet — that OAuth redirect is not registered. Use Claude Code, Cursor, Copilot, Codex, Grok, or a generic MCP client today.\n\n## What it does\n\nAfter you sign in and set scope, the model can:\n\n- Read org / team / project context (`whoami` / `get_scope`, `list_orgs`, `list_teams`, `list_projects`, `set_scope`)\n- Search datasets, traces (summaries only), notebooks, and scripts\n- Search CloudSprite product docs and the SDK catalog (`search_knowledge`, `search_sdk`)\n- File a bug or feature request (`/feedback` → MCP `submit_feedback`)\n\nThis release is **read-only** plus feedback. It does not mutate datasets, tags, notebooks, or scripts.\n\n## MCP URL\n\nProduction (the only URL customers use):\n\n```text\nhttps://api.cloudsprite.io/mcp\n```\n\nTransport: MCP Streamable HTTP. No `Authorization` header is stored in the plugin. The client discovers OAuth from the MCP origin and holds the tokens. There is no environment picker in the plugin UI.\n\nA 401 from `/mcp` before OAuth is live is expected. The plugin should fail with a clear auth error, not hang.\n\nClaude Code honors `CLOUDSPRITE_MCP_URL` if the client process has it set (`${CLOUDSPRITE_MCP_URL:-https://api.cloudsprite.io/mcp}` in `.mcp.json`). The GUI app reads `~/.claude/settings.json` `\"env\"`, not your shell profile. Portable `mcp.json` is a literal production URL (no interpolation). Do not commit a `.env` here.\n\n## Skills\n\n| Skill | Slash | Purpose |\n|-|-|\n| `feedback` | `/feedback` | Confirm text, then call MCP `submit_feedback` |\n| `platform-howtos` | `/platform-howtos` | Sign-in, scope, and how to use CloudSprite from the assistant |\n| `datasets` | `/datasets` | Find datasets, parameters, tags, and notebooks (read) |\n| `mixed-mode-analysis` | `/mixed-mode-analysis` | Differential / common-mode S-parameters from 2-port pairs |\n| `waveform-correlation` | `/waveform-correlation` | Pairwise Pearson QC across repeated traces |\n\n## Network endpoints\n\nThe plugin package does not open sockets itself. **Clients** that load it will contact:\n\n| URL | Why |\n|-|-|\n| `https://api.cloudsprite.io/mcp` | MCP Streamable HTTP (tools) |\n| `https://api.cloudsprite.io/.well-known/oauth-authorization-server` | OAuth 2.1 authorization-server metadata |\n| `https://api.cloudsprite.io/.well-known/oauth-protected-resource` | OAuth protected-resource metadata (if advertised) |\n| Authorization, token, revocation, and JWKS URLs from that metadata | Cognito Hosted UI PKCE. Hosts are **not** hardcoded here; they come from discovery. |\n\nInstalling the plugin also clones this GitHub repository (`https://github.com/cloudsprite-io/cloudsprite-plugin`). Tagged releases are `vMAJOR.MINOR.PATCH` matching `plugin.json` `version`.\n\nThe plugin does **not** call GitLab, Linear, HubSpot, or any issue tracker. Feedback is filed by the CloudSprite API after `submit_feedback`.\n\nIf `CLOUDSPRITE_MCP_URL` is set, discovery and token endpoints follow that host instead of `api.cloudsprite.io`.\n\n## Support\n\n- Product: [https://cloudsprite.io](https://cloudsprite.io)\n- Docs: [https://docs.cloudsprite.io](https://docs.cloudsprite.io)\n- Email: [support@cloudsprite.io](mailto:support@cloudsprite.io)\n- Privacy: [privacy@cloudsprite.io](mailto:privacy@cloudsprite.io)\n\n## Releases\n\nGit tags are `v` + the `version` in `plugin.json` (currently `0.1.3`). Maintainers publish with `scripts/publish.sh` after `scripts/audit.sh` passes. Republishing the same tag is a no-op if `HEAD` still matches; a different tree at the same version fails.\n\n## License\n\n[MIT](LICENSE). Copyright © 2026 Brushfield Ventures LLC d/b/a CloudSprite.\n\nProduct use of CloudSprite remains under the [CloudSprite Terms of Service](https://cloudsprite.io/terms) and [Privacy Policy](https://cloudsprite.io/privacy).\n",
+  "status": "curated"
+}

@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/dynatrace-oss/ai-config-manager/deep-skill",
+  "type": "skill",
+  "name": "deep-skill",
+  "description": "Skill nested several directories deep",
+  "author": "dynatrace-oss",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/dynatrace-oss/ai-config-manager/blob/HEAD/testdata/repos/subpath-test/level1/level2/skills/deep-skill/SKILL.md",
+    "repo": "dynatrace-oss/ai-config-manager",
+    "path": "testdata/repos/subpath-test/level1/level2/skills/deep-skill/SKILL.md"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 14,
+    "pushed_at": "2026-08-26T08:39:49Z",
+    "score": 60,
+    "star_history": [
+      {
+        "d": "2026-08-31",
+        "s": 14
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# aimgr - AI Resources Manager\n\n[![Build Status](https://github.com/dynatrace-oss/ai-config-manager/actions/workflows/build.yml/badge.svg)](https://github.com/dynatrace-oss/ai-config-manager/actions/workflows/build.yml)\n[![Go Report Card](https://goreportcard.com/badge/github.com/dynatrace-oss/ai-config-manager/v3)](https://goreportcard.com/report/github.com/dynatrace-oss/ai-config-manager/v3)\n[![Release](https://img.shields.io/github/v/release/dynatrace-oss/ai-config-manager)](https://github.com/dynatrace-oss/ai-config-manager/releases)\n[![License](https://img.shields.io/github/license/dynatrace-oss/ai-config-manager)](https://github.com/dynatrace-oss/ai-config-manager/blob/main/LICENSE)\n[![Go Version](https://img.shields.io/github/go-mod/go-version/dynatrace-oss/ai-config-manager)](https://github.com/dynatrace-oss/ai-config-manager/blob/main/go.mod)\n\nA command-line tool for discovering, installing, and managing AI resources (commands, skills, agents, packages) across multiple AI coding tools including Claude Code, OpenCode, GitHub Copilot, and Windsurf.\n\n## Features\n\n- 📦 **Centralized Repository**: Manage all AI resources in one place\n- 🔗 **Symlink Installation**: Install resources without duplication\n- 🤖 **Multi-Tool Support**: Works with Claude Code, OpenCode, GitHub Copilot, and Windsurf\n- 🌐 **GitHub Integration**: Import resources directly from GitHub repositories\n- 🎯 **Pattern Matching**: Install multiple resources using glob patterns\n- ⚡ **Workspace Caching**: Git repositories cached for 10-50x faster operations\n- ✅ **Format Validation**: Automatic validation of resource formats\n- 🗂️ **Package Support**: Group related resources together\n\n## Supported AI Tools\n\n`aimgr` supports four major AI coding tools:\n\n| Tool | Commands | Skills | Agents | Directory |\n|------|----------|--------|--------|-----------|\n| **[Claude Code](https://code.claude.com/)** | ✅ | ✅ | ✅ | `.claude/` |\n| **[OpenCode](https://opencode.ai/)** | ✅ | ✅ | ✅ | `.opencode/` |\n| **[VSCode / GitHub Copilot](https://github.com/features/copilot)** | ❌* | ✅ | ✅* | `.github/skills/`, `.github/agents/` |\n| **[Windsurf](https://codeium.com/windsurf)** | ❌ | ✅ | ❌ | `.windsurf/skills/` |\n\n**Notes:** \n- The support matrix reflects current aimgr direct-install support, not every upstream customization surface a tool may expose\n- VSCode / GitHub Copilot and Windsurf support direct skill installation via aimgr\n- Skills for Copilot and Windsurf use the same `SKILL.md` format as other tools\n- Use `--target copilot` or `--target vscode` for GitHub Copilot installs (both names work)\n- Use `--target windsurf` for Windsurf installs\n- GitHub Copilot / VS Code agent installs use `.github/agents/*.agent.md` (installed artifact naming)\n- Repository source agents remain logical aimgr resources in `agents/*.md`\n- GitHub Copilot / VS Code prompt files use `.github/prompts/*.prompt.md`, but aimgr intentionally does not map/install `command` resources there\n- GitHub Copilot CLI has its own plugin/customization model for commands and slash commands, which is not the same as project-level `commands/*.md` installs\n\n## Installation\n\n### One-line installer\n\nInstall the latest release with a bootstrap script:\n\n```bash\ncurl -fsSL https://raw.githubusercontent.com/dynatrace-oss/ai-config-manager/main/scripts/install.sh | sh\n```\n\n```powershell\n# Run from a PowerShell prompt (PowerShell 5.1+ or pwsh 7+)\nirm https://raw.githubusercontent.com/dynatrace-oss/ai-config-manager/main/scripts/install.ps1 | iex\n```\n\nUse `AIMGR_VERSION` to pin a release (`3.7.0` and `v3.7.0` both work) or `AIMGR_INSTALL_DIR` to override the install location.\n\n### Using Go\n\nIf you already have Go installed, you can also install `aimgr` with:\n\n```bash\ngo install github.com/dynatrace-oss/ai-config-manager/v3/cmd/aimgr@latest\n```\n\n### From Source\n\n```bash\n# Clone the repository\ngit clone https://github.com/dynatrace-oss/ai-config-manager.git\ncd ai-config-manager\n\n# Build and install to the OS-specific path from `make os-info`\nmake install\n\n# Or just build (outputs to ./aimgr)\nmake build\n```\n\nPrecompiled binaries are published on the [GitHub Releases](https://github.com/dynatrace-oss/ai-config-manager/releases) page.\n\n## Quick Start\n\n```bash\n# 1. Configure default tools\naimgr config set install.targets claude\n\n# 2. Add resources from GitHub\naimgr repo add gh:owner/repo\n\n# 3. Add resources from local directory\naimgr repo add local:./my-resources\n\n# 4. List available resources\naimgr repo list\n\n# 5. Install resources in a project\ncd your-project/\naimgr install skill/pdf-processing\naimgr install command/test agent/code-reviewer\n\n# 6. Install multiple resources with patterns\naimgr install \"skill/pdf*\"\n```\n\n## Documentation\n\nComplete documentation is available in the `docs/` directory:\n\n### User Guide\n\n- **[Getting Started](docs/user-guide/getting-started.md)** - Installation, setup, and common workflows\n- **[Configuration](docs/user-guide/configuration.md)** - Config file, environment variables, field mappings\n- **[Sources](docs/user-guide/sources.md)** - Managing local and GitHub sources (`ai.repo.yaml`)\n- **[Repairing Resources](docs/user-guide/repair.md)** - Fix broken installations, clean up projects\n\n### Reference\n\n- **[Pattern Matching](docs/reference/pattern-matching.md)** - Glob patterns for batch operations\n- **[Output Formats](docs/reference/output-formats.md)** - JSON, YAML, table output for scripting\n- **[Resource Validation](docs/reference/resource-validation.md)** - Validate skills, agents, commands, and packages before sync/install\n- **[Supported Tools](docs/reference/supported-tools.md)** - Tool compatibility and external documentation links\n- **[Troubleshooting](docs/reference/troubleshooting.md)** - Common issues and solutions\n\n### Internals\n\n- **[Repository Layout](docs/internals/repository-layout.md)** - Internal folder structure\n- **[Workspace Caching](docs/internals/workspace-caching.md)** - Git repository caching for performance\n- **[Git Tracking](docs/internals/git-tracking.md)** - Git-backed repository with change history\n\n### For Contributors\n\n- **[Contributing Guide](CONTRIBUTING.md)** - How to contribute to aimgr\n- **[Repository Overview](docs/OVERVIEW.md)** - High-level architecture and repo map\n- **[Change Workflow](docs/CHANGE-WORKFLOW.md)** - Commit, push, branch, PR, and merge expectations\n- **[Architecture](docs/contributor-guide/architecture.md)** - System design and components\n- **[Code Style](docs/contributor-guide/code-style.md)** - Coding standards and conventions\n- **[Testing](docs/contributor-guide/testing.md)** - Test guidelines and patterns\n- **[Development Environment](docs/contributor-guide/development-environment.md)** - Setup for development\n- **[Release Process](docs/contributor-guide/release-process.md)** - Creating releases\n- **[AGENTS.md](AGENTS.md)** - Quick reference for AI coding agents\n\n## Contributing\n\nContributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, code style, and how to submit changes.\n\n## License\n\nThis project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.\n",
+  "status": "curated"
+}

@@ -1,0 +1,80 @@
+{
+  "id": "mcp:official/io.github.hxckya/pkgtruth",
+  "type": "mcp",
+  "name": "pkgtruth",
+  "description": "Catches hallucinated and slopsquatted npm packages before an agent installs them.",
+  "author": "io.github.hxckya",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/hxckya/pkgtruth",
+    "repo": "hxckya/pkgtruth"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "pkgtruth"
+    ],
+    "env": [
+      {
+        "name": "PKGTRUTH_REGISTRY",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "PKGTRUTH_DOWNLOADS_API",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "PKGTRUTH_CACHE_DIR",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "PKGTRUTH_TIMEOUT_MS",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-31T14:32:02.809596Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# pkgtruth\n\n[![npm](https://img.shields.io/npm/v/pkgtruth)](https://www.npmjs.com/package/pkgtruth)\n[![CI](https://github.com/hxckya/pkgtruth/actions/workflows/ci.yml/badge.svg)](https://github.com/hxckya/pkgtruth/actions/workflows/ci.yml)\n[![node](https://img.shields.io/node/v/pkgtruth)](https://nodejs.org)\n[![license](https://img.shields.io/npm/l/pkgtruth)](LICENSE)\n\n**Ground truth about npm packages, for AI coding agents and CI.**\n\n![pkgtruth catching a hallucinated package and a slopsquat](https://raw.githubusercontent.com/hxckya/pkgtruth/main/assets/demo.gif)\n\nYour agent just wrote `npm install unused-imports`. That package is not the\nlinter plugin it meant. It is a name an attacker registered because models\nkept inventing it — and npm has since replaced it with a security placeholder.\n\n`pkgtruth` catches that before it reaches your lockfile.\n\n\n## Why this exists\n\nLarge language models invent package names. Measured across models,\n**19.7% of generated package names were hallucinated**, and when researchers\nre-ran the prompts, **43% of those names came back every single time.**\n\nThat reproducibility is the whole attack. An attacker does not need to\ncompromise a maintainer, poison a build server, or find a vulnerability. They\nwatch what models invent, register the name, and wait. The technique is called\n**slopsquatting**, and it is already happening in the wild.\n\nThe standing security advice is that agents with package-management\ncapabilities should not install anything without a review gate. `pkgtruth` is\nthat gate, in a form an agent can call on its own.\n\n## Install\n\n### As an MCP server (for coding agents)\n\n```json\n{\n  \"mcpServers\": {\n    \"pkgtruth\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"pkgtruth\"]\n    }\n  }\n}\n```\n\nTwo tools become available:\n\n| Tool | Use it when |\n| --- | --- |\n| `check_package` | About to add, import, or recommend one dependency |\n| `check_dependencies` | About to write a `package.json` or run an install command |\n\n### As a CLI (for humans and CI)\n\n```bash\nnpx pkgtruth check express unused-imports\nnpx pkgtruth scan .\n```\n\n`scan` reads every dependency in a `package.json` and exits non-zero when\nsomething is blocking, so it drops straight into CI:\n\n```yaml\n- name: Block hallucinated and slopsquatted dependencies\n  run: npx pkgtruth scan . --fail-on danger\n```\n\n## What it checks\n\n| Signal | Meaning |\n| --- | --- |\n| **Not in registry** | The name is fabricated. Nothing to install. |\n| **npm security placeholder** | npm removed malicious code published under this name. |\n| **Impersonates a popular package** | A near-identical name with a fraction of the adoption. |\n| **Install-time scripts** | `preinstall`/`install`/`postinstall` run code on `npm install`. |\n| **Deprecated** | Upstream says stop using it. |\n| **Very new / almost no adoption** | Days old with single-digit installs. |\n| **No repository** | No source to audit. |\n| **Unmaintained** | No release in years. |\n\nVerdicts are `SAFE`, `CAUTION`, `DANGER`, `HALLUCINATED`, or `UNKNOWN`. Every\none arrives with the evidence behind it — an agent should never have to take\n\"DANGER\" on faith, and neither should you.\n\n## Design notes\n\n**Network failures never open the gate.** If the registry is unreachable, the\nverdict is `UNKNOWN`, never `SAFE`. A degraded network must not silently turn\na security check into a no-op.\n\n**Popular packages are not flagged.** Checked against a real 18-dependency\nproject, zero false positives. A gate that cries wolf gets switched off.\n\n**No build step.** Two direct dependencies — the MCP SDK and `zod`, both only\nneeded for the server. `npx pkgtruth` starts immediately.\n\n## Limitations\n\nRead these before trusting it:\n\n- **npm only.** PyPI, crates.io, and Go modules are not covered yet.\n- **Registry metadata only.** It does not analyze package source code, so a\n  legitimate-looking package with a malicious payload can still pass.\n- **Not a replacement for `npm audit` or Snyk.** Those find known CVEs in code\n  you already trust. `pkgtruth` asks the earlier question: should this package\n  be here at all?\n- **New legitimate packages will get `CAUTION`.** That is deliberate. Newness\n  genuinely is a risk signal; use `--fail-on danger` so it does not block.\n\n## Options\n\n```\n--json              Machine-readable output\n--fail-on <level>   danger (default) | caution\n```\n\n`--fail-on caution` also blocks packages that could not be verified at all,\nsince \"we could not check\" is not a pass.\n\nExit codes: `0` clean, `1` blocking packages found, `2` usage or runtime error.\n\n## Configuration\n\n| Variable | Default | Purpose |\n| --- | --- | --- |\n| `PKGTRUTH_TIMEOUT_MS` | `8000` | Per-request timeout |\n| `PKGTRUTH_RETRIES` | `3` | Retries for 429/5xx/network errors |\n| `PKGTRUTH_MAX_CONCURRENCY` | per-host | Override request pacing |\n| `PKGTRUTH_REGISTRY` | npm | Alternate registry |\n| `PKGTRUTH_DOWNLOADS_API` | npm | Alternate downloads API |\n| `PKGTRUTH_CACHE_DIR` | `~/.cache/pkgtruth` | Where adoption figures are cached |\n| `PKGTRUTH_DISK_TTL_MS` | 6 hours | How long a cached figure stays usable |\n| `PKGTRUTH_NO_DISK_CACHE` | unset | Set to `1` to disable the cache |\n\n### On speed and rate limits\n\nAdoption figures come from npm's downloads API, which throttles bursts and\ncannot batch scoped names — a project with several `@scope/pkg` dependencies\nwould spend its whole budget on every scan.\n\nThree things keep that in check: the bulk endpoint resolves all unscoped names\nin one request, requests to that host are paced serially, and figures are\ncached on disk for six hours. Weekly download counts move slowly, so a\nsix-hour-old number is no less true.\n\nA warm scan of ~18 dependencies takes about 1.4 seconds. A cold one after\nheavy use may return `UNKNOWN` for some packages — that is the intended\nfailure mode. A throttled lookup never becomes `SAFE`; re-run, and the cache\nwill answer.\n\nCached figures are keyed by the API they came from, so pointing\n`PKGTRUTH_DOWNLOADS_API` at a private registry never reuses npm's numbers.\n\n## Contributing\n\nIssues and pull requests are welcome at\n[github.com/hxckya/pkgtruth](https://github.com/hxckya/pkgtruth).\n\nTwo things make a report especially useful: a legitimate package that gets\nflagged, and a malicious one that slips through. Both are regression tests\nwaiting to be written.\n\n```bash\nnpm test                 # offline\nnpm run test:online      # includes live registry checks\n```\n\n## License\n\nMIT © hxckya\n",
+  "status": "curated"
+}

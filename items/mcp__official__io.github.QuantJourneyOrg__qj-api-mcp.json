@@ -17,7 +17,7 @@
   "quality": {
     "stars": null,
     "pushed_at": "2026-08-31T05:48:16.553105Z",
-    "score": 52
+    "score": 42
   },
   "security": {
     "score": 100,
@@ -49,6 +49,6 @@
     "category": "编程",
     "featured": false
   },
-  "readme": "# QuantJourney Agent Integrations\n\nPublic discovery contracts and minimal client examples for the QuantJourney\nAgent Fabric. The production service is available at\n[`agents.quantjourney.cloud`](https://agents.quantjourney.cloud/).\n\nThis repository is intentionally **not** the Agent Fabric server source. It\ncontains only material required to discover and integrate with the public\nmachine interfaces. Backend implementation, deployment configuration,\ncredentials, operational data, and private architecture remain in private\nrepositories.\n\n## Public machine contracts\n\n- [Agent Card](https://agents.quantjourney.cloud/.well-known/agent-card.json)\n- [Bounded-query OpenAPI](https://agents.quantjourney.cloud/openapi.json)\n- [Agent instructions](https://agents.quantjourney.cloud/llms.txt)\n- [Query catalogue](https://agents.quantjourney.cloud/v1/catalog)\n- [Pricing and payment modes](https://agents.quantjourney.cloud/v1/pricing)\n- [Current release](https://agents.quantjourney.cloud/v1/releases/current)\n\nGeneric A2A task delegation is currently disabled. Use the bounded query\noperations published in OpenAPI. Each operation declares whether it is free or\nx402-paid; discovery and OAuth registration are free.\n\n## Minimal OAuth query\n\nThe examples create one short-lived OAuth client with only `agents:query`,\nobtain a 15-minute bearer token, call the free bounded company snapshot, and\ndeactivate the client in a `finally`/`trap` cleanup.\n\n```bash\n./examples/curl/oauth-query.sh AAPL\npython3 examples/python/query.py AAPL\n```\n\nThe shell example requires `curl` and `jq`. Neither example writes the client\nsecret or access token to disk. Production integrations should register one\ndurable client per workload, store its secret in a secret manager, rotate it,\nand avoid registering a new client for every query.\n\n## Remote MCP server\n\nQuantJourney publishes the OAuth-protected QJ API MCP as a remote Streamable\nHTTP server:\n\n| Server | Remote endpoint | Purpose |\n| --- | --- | --- |\n| QuantJourney API MCP | `https://api.quantjourney.cloud/mcp` | Provider and financial-domain API tools for research agents. |\n\nThe registry manifest is in [`registry/`](registry/). OAuth metadata is\ndiscovered from the protected resource; no QuantJourney service credential is\nembedded in this repository.\n\n## Security\n\nDo not commit client secrets, bearer tokens, payment signatures, prompts, or\nquery results. See [SECURITY.md](SECURITY.md) for private vulnerability\nreporting guidance.\n\n## License\n\nThe public integration examples and registry metadata in this repository are\nlicensed under Apache License 2.0. This license does not grant access to, or\nrights in, QuantJourney data, commercial services, private source code, or\nthird-party datasets.\n",
+  "readme": null,
   "status": "curated"
 }

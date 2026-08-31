@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/Advance-Technologies-Foundation/clio/investigate-clio-issue",
+  "type": "skill",
+  "name": "investigate-clio-issue",
+  "description": "Investigate a claimed Clio GitHub issue and determine whether the defect belongs to clio, clio-knowledge, or a repository referenced by clio-knowledge. Use after the claim-clio-issue skill and before implementation, including when downstream issues and GitHub blocking relationships must communicate ownership.",
+  "author": "Advance-Technologies-Foundation",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/Advance-Technologies-Foundation/clio/blob/HEAD/.claude/skills/investigate-clio-issue/SKILL.md",
+    "repo": "Advance-Technologies-Foundation/clio",
+    "path": ".claude/skills/investigate-clio-issue/SKILL.md"
+  },
+  "license": null,
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 56,
+    "pushed_at": "2026-08-31T20:38:34Z",
+    "score": 71,
+    "star_history": [
+      {
+        "d": "2026-08-31",
+        "s": 56
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "[![Build](https://github.com/Advance-Technologies-Foundation/clio/actions/workflows/build.yml/badge.svg)](https://github.com/Advance-Technologies-Foundation/clio/actions/workflows/build.yml)\n\n# Introduction\n\nCommand Line Interface clio is the utility for integration Creatio platform with development and CI/CD tools.\n\nPlease give **[clio-explorer](https://marketplace.visualstudio.com/items?itemName=AdvanceTechnologiesFoundation.clio-explorer)**, a Visual Studio code extension for **clio** a try! This extension provides user interface over clio commands.\n\n# Installation and features\n\n> **Prerequisite:** clio requires the **.NET SDK** (or, at minimum, both the .NET runtime\n> **and** the ASP.NET Core shared runtime — `Microsoft.AspNetCore.App`). The SDK bundles the\n> ASP.NET Core shared framework, so SDK-based installs need nothing extra. Runtime-only\n> installs that ship only the base .NET runtime (`Microsoft.NETCore.App`) without ASP.NET Core\n> — e.g. minimal CI agents — are **not supported**: clio references the ASP.NET Core shared\n> framework (used by `clio mcp-http`) for all commands, so it will fail to start with a\n> \"framework not found\" error when ASP.NET Core is absent.\n\n## Windows\n\nTo register clio as the global tool, run the command:\n\n```\ndotnet tool install clio\n```\n\nyou can register clio for all users:\n\n```\ndotnet tool install clio -g\n```\n\nTo unregister clio as the global tool, run the command:\n\n```\ndotnet tool uninstall clio\n```\n\nor for all users:\n\n```\ndotnet tool uninstall clio -g\n```\n\nMore information you can see in [.NET Core Global Tools overview](https://docs.microsoft.com/en-US/dotnet/core/tools/global-tools).\n\n## Context menu\n\n```\nclio register\n```\nhttps://user-images.githubusercontent.com/26967647/169416137-351674ca-0bd2-44f1-83af-df4557bd02fd.mp4\n\n```\nclio unregister\n```\n\n## MacOS / Linux\n\n1. Download [.net 8](https://dotnet.microsoft.com/en-us/download/dotnet/8.0) for Mac/Linux\n\n2. Register clio as the global tool, with the command:\n\n```\ndotnet tool install clio\n```\n\nMore information you can see in [.NET Core Global Tools overview](https://docs.microsoft.com/en-US/dotnet/core/tools/global-tools).\n\nExecute command in terminal for success check\n\n```\nclio help\n```\n\n## Help and examples\n\nTo display available commands use:\n\n```\nclio help\n```\n\nFor display command help use:\n\n```\nclio <COMMAND_NAME> --help\n```\n\n## Run with docker\n\n### Build\n\n```\ndocker build -f ./install/Dockerfile -t clio .\n```\n\n### Run\n\n```\ndocker run -it --rm clio help\ndocker run -it --rm clio reg-web-app -help\n```\n\n## Commands Reference\n[Explore clio commands](clio/Commands.md)\n\n## Contributing\nSee [CONTRIBUTING.md](CONTRIBUTING.md) for build setup, test targets, code style, and PR workflow.\n\n## MCP Server\n\nClio supports Model Context Protocol (MCP) for integration with AI code agents.\n\n### Prerequisites\n\nInstall clio as a global .NET tool (see [Installation](#installation-and-features) above), then verify:\n\n```bash\nclio mcp-server --help\n```\n\n### Registering in AI Code Agents\n\nAll agents use **stdio transport** with the same command: `clio mcp-server`.\n\n#### Claude Code\n\n```bash\nclaude mcp add clio -- clio mcp-server\n```\n\nOr add to `.claude/settings.json` in your project (or `~/.claude/settings.json` globally):\n\n```json\n{\n  \"mcpServers\": {\n    \"clio\": {\n      \"command\": \"clio\",\n      \"args\": [\"mcp-server\"],\n      \"type\": \"stdio\"\n    }\n  }\n}\n```\n\n#### GitHub Copilot (VS Code)\n\nOpen the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`) and run **MCP: Add Server**, then follow the guided flow.\n\nAlternatively, add to `.vscode/mcp.json` manually:\n\n```json\n{\n  \"servers\": {\n    \"clio\": {\n      \"type\": \"stdio\",\n      \"command\": \"clio\",\n      \"args\": [\"mcp-server\"]\n    }\n  }\n}\n```\n\n#### GitHub Copilot CLI\n\nInside a Copilot CLI session, run the interactive command:\n\n```\n/mcp add\n```\n\nThen follow the guided flow to register a stdio server with command `clio` and argument `mcp-server`.\n\nAlternatively, add to `~/.copilot/mcp-config.json` (global) or `.mcp.json` (project root) manually:\n\n```json\n{\n  \"servers\": {\n    \"clio\": {\n      \"type\": \"stdio\",\n      \"command\": \"clio\",\n      \"args\": [\"mcp-server\"]\n    }\n  }\n}\n```\n\n#### Codex CLI\n\n```bash\ncodex mcp add clio -- clio mcp-server\n```\n\nAlternatively, add to `~/.codex/config.toml` manually:\n\n```toml\n[mcp_servers.clio]\ncommand = \"clio\"\nargs = [\"mcp-server\"]\n```\n\n### Testing with MCP Inspector\n\n```bash\nnpx @modelcontextprotocol/inspector dotnet run --project ~/Projects/clio/clio mcp-server\n```\n\nOr configure manually:\n- **Command:** `dotnet`\n- **Arguments:** `run --project /path/to/clio/clio mcp-server`\n- **Transport Type:** STDIO\n\nThis opens a browser interface to test MCP tools.\n\n### Available MCP Tools\n\n**list-pages** - List Freedom UI pages\n- `packageName` (optional) - Filter by package\n- `searchPattern` (optional) - Filter by name pattern\n- `limit` (optional) - Max results (default: 50)\n- `environmentName` / `uri+login+password` - Connection\n\n**get-page** - Get page schema body\n- `schemaName` (required) - Page schema name\n- `environmentName` / `uri+login+password` - Connection\n\n**update-page** - Update page body (Destructive)\n- `schemaName` (required) - Page schema name\n- `body` (required) - New JSON body\n- `dryRun` (optional) - Validate only\n- `environmentName` / `uri+login+password` - Connection\n\n**install-application** - Install application package\n\n## Workspace Solution Generation (.slnx)\n\nStarting from September 2025, the `createw` command generates a solution file in `.slnx` format. All projects are added in a sorted order by their relative path, ensuring a stable and repeatable solution structure.\n\n- Solution file: `.solution/CreatioPackages.slnx`\n- Projects: always sorted by path\n- Command: `clio createw`\n\nThis change improves consistency for CI/CD and version control.\n",
+  "status": "curated"
+}

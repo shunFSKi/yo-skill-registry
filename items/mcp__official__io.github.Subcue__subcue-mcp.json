@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.Subcue/subcue-mcp",
+  "type": "mcp",
+  "name": "SubcueAI",
+  "description": "Public read-only MCP for SubcueAI: live pricing, latest desktop version, overview and FAQ.",
+  "author": "io.github.Subcue",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/Subcue/subcue-mcp",
+    "repo": "Subcue/subcue-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://subcue.ai/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-31T19:06:28.74542Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# SubcueAI Public MCP Server\n\nmcp-name: io.github.Subcue/subcue-mcp\n\n**[SubcueAI](https://subcue.ai)** (the real-time AI interview assistant for macOS & Windows) ships a **public, unauthenticated, read-only [Model Context Protocol](https://modelcontextprotocol.io) server**. Any AI agent can query live product data — pricing, latest desktop version, product overview, FAQ — instead of scraping HTML.\n\n- **Endpoint**: `POST https://subcue.ai/mcp`\n- **Transport**: streamable-http (single JSON response), JSON-RPC 2.0, MCP protocol `2025-06-18`\n- **Auth**: none. **Writes**: none — the server is strictly read-only.\n- **Server card**: [`https://subcue.ai/.well-known/mcp/server-card.json`](https://subcue.ai/.well-known/mcp/server-card.json)\n\nThis repository documents the server and provides ready-to-run client examples. The server itself runs on Cloudflare Workers as part of the SubcueAI website.\n\n## Quick start\n\n```sh\n# List tools\ncurl -s https://subcue.ai/mcp -X POST -H 'Content-Type: application/json' \\\n  -d '{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"tools/list\"}'\n\n# Live pricing\ncurl -s https://subcue.ai/mcp -X POST -H 'Content-Type: application/json' \\\n  -d '{\"jsonrpc\":\"2.0\",\"id\":2,\"method\":\"tools/call\",\"params\":{\"name\":\"get_pricing\"}}'\n```\n\nSample `get_pricing` output (live data, abridged):\n\n```markdown\n# SubcueAI Pricing\n\n## Starter — free\n- Standard AI model\n- Mock interview practice\n\n## Pro — $20/mo; $16/mo when billed yearly ($192/yr)\n...\n```\n\n## Tools\n\n| Tool | Arguments | Returns |\n|---|---|---|\n| `get_pricing` | — | Current subscription plans and pricing (Markdown) |\n| `get_latest_version` | `platform` (optional, e.g. `macos-arm64`, `windows-x64`) | Latest desktop app version, release date, download URL |\n\n## Resources\n\n| URI | Content |\n|---|---|\n| `subcue://overview` | What SubcueAI is, key features, links (Markdown) |\n| `subcue://faq` | Frequently asked questions (Markdown) |\n\nUse `resources/list` / `resources/read` per the MCP spec.\n\n## Connect from popular clients\n\n**Claude Code**\n\n```sh\nclaude mcp add --transport http subcue https://subcue.ai/mcp\n```\n\n**Cursor / any client using `mcp.json`**\n\n```json\n{\n  \"mcpServers\": {\n    \"subcue\": { \"url\": \"https://subcue.ai/mcp\" }\n  }\n}\n```\n\n**claude.ai** — Settings → Connectors → Add custom connector → `https://subcue.ai/mcp`.\n\n**Stdio-only clients** — this repo ships a zero-dependency stdio ⇄ HTTP bridge ([`bridge/server.mjs`](bridge/server.mjs), Node 18+):\n\n```sh\nclaude mcp add subcue -- node /path/to/subcue-mcp/bridge/server.mjs\n# or containerised:\ndocker build -t subcue-mcp . && docker run -i subcue-mcp\n```\n\n## Examples in this repo\n\n- [`examples/list-tools.sh`](examples/list-tools.sh) — curl walkthrough of every method\n- [`examples/client.mjs`](examples/client.mjs) — zero-dependency Node.js client\n- [`examples/client.py`](examples/client.py) — zero-dependency Python client\n\n## Other machine-readable entry points\n\nSubcueAI publishes a full agent-facing surface beyond MCP:\n\n| Endpoint | What it is |\n|---|---|\n| [`/llms.txt`](https://subcue.ai/llms.txt) | Plain-text site & product summary for language models |\n| [`/.well-known/api-catalog`](https://subcue.ai/.well-known/api-catalog) | RFC 9727 linkset of public JSON APIs |\n| [`/.well-known/agent-skills/index.json`](https://subcue.ai/.well-known/agent-skills/index.json) | Agent Skills discovery index |\n| [`/.well-known/agent-skills/subcue-public-info/SKILL.md`](https://subcue.ai/.well-known/agent-skills/subcue-public-info/SKILL.md) | Agent skill: how to fetch SubcueAI public data |\n| `Accept: text/markdown` | Any public marketing/legal page returns Markdown instead of HTML |\n\n## Notes for agent developers\n\n- Responses are deterministic JSON-RPC; notifications (`notifications/*`) are accepted and return `202` with no body.\n- Data is live (pricing and versions come from the same source of truth as the website) — prefer these endpoints over scraping rendered HTML.\n- Rate limiting applies at the edge; be a good citizen.\n- Send a **descriptive `User-Agent`** — default library UAs (e.g. `Python-urllib/3.x`) are rejected by edge bot protection with a `403`.\n\n## License\n\nDocumentation and examples: [MIT](LICENSE) © 2026 [Subcue AI LLC](https://subcueai.com).\n",
+  "status": "curated"
+}

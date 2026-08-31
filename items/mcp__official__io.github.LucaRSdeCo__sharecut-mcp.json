@@ -28,7 +28,7 @@
   "quality": {
     "stars": null,
     "pushed_at": "2026-08-31T09:02:49.623808Z",
-    "score": 52
+    "score": 42
   },
   "security": {
     "score": 100,
@@ -60,6 +60,6 @@
     "category": "数据",
     "featured": false
   },
-  "readme": "# sharecut-mcp\n\nMCP server for [ShareCut](https://sharecut.site) — generate QR codes and create\ntrackable short links from Claude, Cursor, or any MCP client.\n\n**QR code generation is free and needs no account.**\n\n## Install\n\nRemote server, nothing to install:\n\n```bash\nclaude mcp add --transport http sharecut https://sharecut.site/mcp\n```\n\nOr run this package over stdio:\n\n```bash\nnpx sharecut-mcp\n```\n\n<details>\n<summary>Config file (Claude Desktop, Cursor, …)</summary>\n\n```json\n{\n  \"mcpServers\": {\n    \"sharecut\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"sharecut-mcp\"],\n      \"env\": { \"SHARECUT_API_KEY\": \"sc_live_...\" }\n    }\n  }\n}\n```\n\n`SHARECUT_API_KEY` is optional — leave it out and `create_qr` still works.\n\n</details>\n\n## Tools\n\n### `create_qr` — free, no API key\n\nRenders any URL or text as a QR code. Returns SVG, and a PNG data URL if you ask\nfor `format: \"png\"`. Optional `color` as a hex value.\n\nThe code is **static**: the destination is encoded in the pattern itself, so once\nit is printed it points there forever.\n\n### `shorten_url` — requires an API key\n\nCreates a ShareCut short link and a QR code that points at it. Because the QR\nencodes the short link rather than the destination, you can **change where it goes\nafter it has been printed**, and every scan is counted — country, device, referrer.\n\nThat difference is the whole point. A poster, a menu, a business card or a product\nlabel outlives the URL printed on it; a static QR does not survive a site migration\nor a campaign change, and this one does.\n\nTakes `url` and an optional `customCode`. Destinations are screened against Google\nSafe Browsing before a link is created.\n\n## API key\n\nOnly `shorten_url` needs one. Create it at\n[sharecut.site/p/profile](https://sharecut.site/p/profile) — API access is part of\nthe Business plan — then pass it as `SHARECUT_API_KEY`.\n\nThere is no programmatic sign-up: a person creates the key. See\n[auth.md](https://sharecut.site/auth.md) for the full authentication contract.\n\n## How it works\n\nThis package is a thin stdio bridge to `https://sharecut.site/mcp`. It moves\nnewline-delimited JSON-RPC to that endpoint and back, which means **zero\ndependencies** (fast `npx` start) and no upgrades to chase: the tools live on the\nserver, so changes reach you without touching your config.\n\nPoint `SHARECUT_MCP_URL` elsewhere to target a different deployment.\n\n## Links\n\n- Documentation — <https://sharecut.site/p/api/>\n- OpenAPI — <https://sharecut.site/openapi.json>\n- Server card — <https://sharecut.site/.well-known/mcp/server-card.json>\n\nMIT\n",
+  "readme": null,
   "status": "curated"
 }

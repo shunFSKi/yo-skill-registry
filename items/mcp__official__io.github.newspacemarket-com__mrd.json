@@ -11,13 +11,24 @@
   },
   "license": null,
   "install": {
-    "kind": "remote",
-    "remote_url": "https://newspacemarket.com/mrd-connect/mcp"
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@newspacemarket/mrd-mcp"
+    ],
+    "env": [
+      {
+        "name": "MRD_API_KEY",
+        "required": false,
+        "secret": true
+      }
+    ]
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-08-30T18:54:05.431629Z",
-    "score": 42
+    "pushed_at": "2026-08-31T19:16:52.251062Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -49,6 +60,6 @@
     "category": "办公",
     "featured": false
   },
-  "readme": null,
+  "readme": "# MRD — machine-readable datasheets for spacecraft components\n\n[![MCP Registry](https://img.shields.io/badge/MCP%20Registry-io.github.newspacemarket--com%2Fmrd-2f5fa8)](https://registry.modelcontextprotocol.io/v0.1/servers?search=newspacemarket)\n[![Smithery](https://img.shields.io/badge/Smithery-newspace--mrd-orange)](https://smithery.ai/servers/info-zrja/newspace-mrd)\n[![Data licence](https://img.shields.io/badge/data-CC%20BY%204.0-2b6f56)](data/LICENSE-DATA)\n[![Code licence](https://img.shields.io/badge/code-MIT-555)](LICENSE)\n\nTyped, datasheet-sourced specifications for **2,486 flight hardware products\nacross 24 categories** — reaction wheels, star trackers, propulsion, radios,\nantennas, structures, ground stations and more — with **19,011 values that each\ncite the datasheet page they came from**.\n\nBuilt for software and AI assistants, not only for reading. Ask in plain\nlanguage, filter by engineering requirements, or download the whole thing.\n\n```\n\"Find a reaction wheel over 0.2 N·m·s that runs on a 12 V bus, under 2 kg\"\n\nA  meets every requirement          VRW-B-02 · Vectronic · 0.2 N·m·s · 9–36 V · 1000 g\nB  fails a named requirement        RW-0.06 · momentum 0.06 N·m·s — need ≥ 0.2\nC  could fit, data not published    NanoTorque GSW-600 · missing: supply voltage\n```\n\nThree rules make the data usable by a machine:\n\n* **Nothing is guessed.** A missing property means the vendor does not publish\n  it, and the item is reported as \"data missing\" rather than silently dropped\n  or filled with a typical value.\n* **Conditions are kept apart.** Idle, steady-state and peak power are separate\n  records with their measurement condition attached — never averaged into one\n  number.\n* **Every value is traceable.** Source file and page, plus a confidence level:\n  `L0` machine-extracted, `L1` verified by a human against the vendor datasheet.\n\n---\n\n## Use it from an AI assistant (MCP)\n\n**Hosted — no install.** Add this as a custom connector in Claude, ChatGPT\n(developer mode) or any MCP client:\n\n```\nhttps://newspacemarket.com/mrd-connect/mcp\n```\n\n**Local — for editors that speak stdio** (Cursor, Windsurf, VS Code, Claude\nDesktop). Add to your MCP config:\n\n```json\n{\n  \"mcpServers\": {\n    \"mrd\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@newspacemarket/mrd-mcp\"]\n    }\n  }\n}\n```\n\nThe package is a thin bridge: it speaks stdio to your editor and forwards to the\nhosted endpoint, so new tools appear without upgrading anything.\n\nThree tools arrive in the assistant:\n\n| tool | what it does |\n|------|--------------|\n| `match_components` | reverse search — requirements in, candidates grouped A / B / C with per-parameter verdicts |\n| `get_component_specs` | the full typed layer of one category, for your own comparison or trade study |\n| `build_budget` | mass and steady-state power of a stack, with bus-voltage checks and an honest list of what could not be counted |\n\n## Where it is listed\n\n* **Official MCP Registry** — `io.github.newspacemarket-com/mrd`\n* **Smithery** — [`info-zrja/newspace-mrd`](https://smithery.ai/servers/info-zrja/newspace-mrd),\n  one-click install into Claude, Cursor, VS Code and other clients\n* **Dataset mirror** — [Hugging Face](https://huggingface.co/datasets/NewSpaceMarket/mrd)\n\n## Use it from code\n\nNo authentication for reading. An optional free key raises rate limits\nfive-fold — request one at [/mrd-connect/](https://newspacemarket.com/mrd-connect/).\n\n```bash\ncurl \"https://newspacemarket.com/mrd-connect/match?category=star-trackers&accuracy_max=10&bus_v=12\"\n```\n\n* [`examples/python/select_wheels.py`](examples/python/select_wheels.py) — reverse search, printing why each candidate passed or failed\n* [`examples/python/budget.py`](examples/python/budget.py) — assemble a stack and budget it through the MCP tools\n* [`examples/js/match.mjs`](examples/js/match.mjs) — same search from Node, no dependencies\n* [`examples/curl.md`](examples/curl.md) — every endpoint as a one-liner\n\n**OpenAPI 3.1**: [`openapi.json`](openapi.json), served live at\n`https://newspacemarket.com/mrd-connect/openapi.json`. Import it as a ChatGPT\nCustom GPT Action, a LangChain / CrewAI / n8n toolkit, or convert it to Gemini\nfunction declarations.\n\n## Download the data\n\n[`data/`](data/) holds a dated snapshot, regenerated as the layer grows:\n\n| file | contents |\n|------|----------|\n| `mrd-full.json` | everything — products, values, property dictionary |\n| `mrd-values.csv` | one row per value: product, property, number, unit, bound, condition, source, confidence |\n| `mrd-products.csv` | one row per product: name, manufacturer, category, URL |\n| `mrd-properties.csv` | the property dictionary — what each key means and its canonical unit |\n\nLive data is always newer than the snapshot; use `get_component_specs` or\n`/mrd-connect/specs?category=…` when freshness matters.\n\n## How the data is built\n\nValues are extracted from vendor datasheets (text and, for scanned documents,\npage images), from vendor product pages, and from product descriptions — the\nsource of every record says which. Units are converted **by code**, not by a\nmodel: kg to g, dBm to W, psi to bar, tf to mN. A validation pass rejects a\nfigure whose unit does not match the property, and an outlier scan flags values\nthat sit far from the category median for human review.\n\nCoverage is not exhaustive. Where a vendor publishes nothing machine-readable,\nthe product simply is not here — and where a required field is missing, the\nAPI says so by name instead of guessing.\n\n## Licence\n\n* **Code** (the MCP bridge and examples): MIT — see [`LICENSE`](LICENSE).\n* **Data** in `data/`: CC BY 4.0, attribution \"NewSpace Market\" — see\n  [`data/LICENSE-DATA`](data/LICENSE-DATA).\n\nSpecifications are extracted from publicly published vendor materials and are\nprovided as-is. Verify against the vendor datasheet before committing to a\ndesign.\n\n## Links\n\n* Connection hub: <https://newspacemarket.com/mrd-connect/>\n* AI component designer: <https://newspacemarket.com/mrd-pilot/>\n* Catalogue: <https://newspacemarket.com>\n\nAre you a vendor whose products are listed? Completing the missing fields takes\nminutes and is free — write to us from your company domain and we will send a\ndirect link.\n",
   "status": "curated"
 }
