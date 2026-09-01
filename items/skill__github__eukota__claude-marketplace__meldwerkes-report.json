@@ -10,14 +10,20 @@
     "repo": "eukota/claude-marketplace",
     "path": "plugins/meldwerkes/skills/meldwerkes-report/SKILL.md"
   },
-  "license": null,
+  "license": "MIT",
   "install": {
     "kind": "skill-dir"
   },
   "quality": {
-    "stars": null,
-    "pushed_at": null,
-    "score": 25
+    "stars": 3,
+    "pushed_at": "2026-08-14T00:47:31Z",
+    "score": 60,
+    "star_history": [
+      {
+        "d": "2026-09-01",
+        "s": 3
+      }
+    ]
   },
   "security": {
     "score": 100,
@@ -49,6 +55,6 @@
     "category": "AI",
     "featured": false
   },
-  "readme": null,
+  "readme": "# Claude Marketplace\n\nPersonal marketplace of Claude primitives, bundled into installable plugins.\n\n## What's Here\n\nPlugins live in `plugins/<plugin-name>/`. Each plugin bundles one or more Claude primitives:\n\n- **Skills** — reusable instructions Claude follows on demand\n- **Commands** — slash commands for Claude Code\n- **Rules** — always-on behavioral rules\n- **Hooks** — shell commands triggered by Claude Code events\n- **Agents** — specialized subagent definitions\n- **MCP Servers** — Model Context Protocol servers\n\n## Plugins\n\n| Plugin | What it's for |\n|---|---|\n| [`plugin-builder`](plugins/plugin-builder/) | Choosing a primitive, scaffolding a plugin, and following the conventions in this repo. |\n| [`context-setup`](plugins/context-setup/) | Personal project context management — structured Markdown + YAML giving Claude persistent memory across sessions and machines. |\n| [`meldwerkes`](plugins/meldwerkes/) | Multi-agent cognitive architecture that builds a personalized decision model through PAHF loops, distillation, and multi-brain orchestration. |\n| [`plan-usage`](plugins/plan-usage/) | Tracks account rate-limit usage (5-hour and 7-day windows) from the status line and reports whether your plan is the constraint on your work. |\n\nInstall any of them with:\n\n```\n/plugin install <plugin-name>@eukota-claude-marketplace\n```\n\n## Plugin Structure\n\n```\nplugins/<plugin-name>/\n├── .claude-plugin/\n│   └── plugin.json           # metadata: name, version, description, author, primitives\n├── README.md                 # usage docs\n├── skills/<skill-name>/\n│   ├── SKILL.md              # frontmatter with name + description drives selection\n│   └── references/           # material the skill consults (not itself a skill)\n├── commands/                 # (if applicable)\n├── rules/                    # (if applicable)\n├── hooks/                    # (if applicable)\n├── agents/                   # (if applicable)\n├── scripts/                  # supporting executables (if applicable)\n└── mcp-servers/              # (if applicable)\n```\n\nTwo of these are load-bearing rather than stylistic: a skill is only discovered\nat `skills/<skill-name>/SKILL.md`, and it is only selected on the strength of\nits frontmatter `description`. A flat `skills/<skill-name>.md`, or a `SKILL.md`\nwithout frontmatter, is invisible.\n\nAnything a plugin ships is referenced through `${CLAUDE_PLUGIN_ROOT}` — never an\nabsolute path, and never a hardcoded install location. See [CLAUDE.md](CLAUDE.md)\nfor the full conventions.\n\n## Not Sure What to Build?\n\nSee the [primitive decision guide](plugins/plugin-builder/README.md#what-should-i-build) in the `plugin-builder` plugin.\n\n## Registry\n\n`.claude-plugin/marketplace.json` lists all available plugins with their versions and paths.\n\n## License\n\nMIT — see [LICENSE](LICENSE).\n",
   "status": "curated"
 }

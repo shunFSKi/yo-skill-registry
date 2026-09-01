@@ -1,0 +1,84 @@
+{
+  "id": "mcp:official/io.github.flujo-app/mcp-virtual-computer",
+  "type": "mcp",
+  "name": "MCP Virtual Computer",
+  "description": "A persistent Docker computer rendered as a Three.js laptop, with an optional live Xfce desktop.",
+  "author": "io.github.flujo-app",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/flujo-app/mcp-virtual-computer",
+    "repo": "flujo-app/mcp-virtual-computer"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "mcp-virtual-computer"
+    ],
+    "env": [
+      {
+        "name": "COMPUTER_ID",
+        "required": true,
+        "secret": false
+      },
+      {
+        "name": "DESKTOP_ENVIRONMENT",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "NETWORK_ACCESS",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "AUTO_INSTALL_DOCKER",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "EXPOSE_LIFECYCLE_TOOLS",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-01T08:06:38.662781Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "写作",
+    "featured": false
+  },
+  "readme": "# MCP Virtual Computer\n\n<!-- mcp-name: io.github.flujo-app/mcp-virtual-computer -->\n\n<img width=\"1183\" height=\"827\" alt=\"image\" src=\"https://github.com/user-attachments/assets/beb3c5ed-4b27-4217-abb4-8607a2cc626e\" />\n\nA VM for your agent. And for you.\n- click the mug to switch between a virtual desktop or a real one\n- unplug the network cable and cut network access\n- use the computer screen like a normal screen\n- model can use terminal, create/read/edit files, see the screen, click, type\n- little fun thing: if either you or the llm types text, you see that on the keyboard; if one uses the cursor, you see the mouse move on the table.\n- auto installs docker and all prerequresits (hopefully)\n\n## MCP client example\n\n```json\n{\n  \"mcpServers\": {\n    \"virtual-computer\": {\n      \"command\": \"uvx\",\n      \"args\": [\"mcp-virtual-computer\"],\n      \"env\": {\n        \"COMPUTER_ID\": \"agent-workstation\",\n        \"DESKTOP_ENVIRONMENT\": \"false\",\n        \"NETWORK_ACCESS\": \"true\",\n        \"AUTO_INSTALL_DOCKER\": \"true\",\n        \"EXPOSE_LIFECYCLE_TOOLS\": \"false\"\n      }\n    }\n  }\n}\n```\n\n## What it exposes\n\n- `terminal_execute` — run a command in the configured Docker computer.\n- `read_file` — read a UTF-8 text file relative to `/workspace` or by absolute path.\n- `write_file` — atomically write a UTF-8 text file.\n- `edit_file` — replace one exact text match, or all matches when requested.\n- `computer_ui` — open or attach the Three.js computer view.\n\nWith `DESKTOP_ENVIRONMENT=true`, it additionally exposes:\n\n- `look_at_screen` — return the current PNG framebuffer, AT-SPI snapshot, or both.\n- `click`, `type`, and `scroll` — interact by AT-SPI element reference or coordinates.\n- `list_windows` and `switch_window` — enumerate and activate real Xfce windows.\n- `move_window`, `maximize_window`, `restore_window`, `minimize_window`, and `close_window` — control a selected window by ID, title, or class.\n- `computer://screen/current.png` — current live framebuffer resource.\n- `computer://screen/accessibility.json` — Playwright-like AT-SPI tree with element refs, roles, names, actions, focus state, and screen bounds.\n\nSet `EXPOSE_LIFECYCLE_TOOLS=true` to additionally expose `runtime_status`, `set_network_access`, and `set_desktop_environment`; these lifecycle tools are absent by default.\n  \n## License and origin\n\nMIT licensed. This project is a Docker-only fork of [Kilntainers](https://github.com/Kiln-AI/Kilntainers).\n",
+  "status": "curated"
+}

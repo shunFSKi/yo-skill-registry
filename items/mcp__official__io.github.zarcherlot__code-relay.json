@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.zarcherlot/code-relay",
+  "type": "mcp",
+  "name": "Code Relay",
+  "description": "Branch-scoped runbooks, remote checkpoints, and auditable verification receipts.",
+  "author": "io.github.zarcherlot",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/zarcherlot/code-relay",
+    "repo": "zarcherlot/code-relay"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "code-relay-mcp"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-01T03:03:00.054501Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "<h1 align=\"center\">\n  <img src=\"assets/icon.png\" alt=\"\" width=\"36\" height=\"36\" style=\"vertical-align: middle;\">\n  Code Relay\n</h1>\n\n<p align=\"center\">\n  <a href=\"README.md\">English</a> · <a href=\"README.zh-CN.md\">Chinese</a>\n</p>\n\n<h2 align=\"center\">\n  Build. Prove. Relay.\n</h2>\n\n> **Code Relay lets your coding agent develop on one machine and prove the result on another.**\n\nRelay is an MCP-based coding-agent integration for cross-machine development and\nverification. AI on the Dev Host implements the request; the Target Host runs\nthe real validation; a structured receipt comes back to guide the next repair\niteration. It works with Codex, Claude Code, Cursor, VS Code, and other\nMCP-capable coding agents.\n\n## When Relay is useful\n\n- **Different environments** — develop on Windows or macOS, verify on Linux, a private network, or a production-like host.\n- **Special hardware** — send model code to a CUDA/GPU machine, or verify a camera, serial device, or sensor where it is connected.\n- **Real integrations** — exercise payment callbacks, queues, databases, browsers, or internal services that cannot be reproduced locally.\n- **AI-driven iteration** — return concrete expected/actual results so the coding agent can repair, republish, and retry.\n\n## What Relay provides\n\n- Branch-scoped project binding and short-lived join links.\n- Exact source-commit verification in an isolated worktree.\n- Checkpoint execution through a `code-relay-checkpoint` GitHub Actions self-hosted runner.\n- Safe, allowlisted validation commands with bounded output and timeouts.\n- Structured `receipt.json` and human-readable receipts for passed, failed, and blocked runs.\n\n## Quick start\n\n### AI client installation\n\nLet your coding agent read and follow the instructions:\n\n```text\nhttps://raw.githubusercontent.com/zarcherlot/code-relay/main/install.md\n```\n\n### npm fallback\n\n```sh\nnpx -y code-relay-mcp@latest install --client codex\n```\n\nReplace `codex` with `claude-code`, `cursor`, `vscode`, or `generic` as needed.\n\n## MCP server details\n\nCode Relay is a local MCP server that communicates over **stdio**. The npm\npackage starts the server with:\n\n```sh\nnpx -y code-relay-mcp@3.1.0\n```\n\nThe server implements the MCP JSON-RPC surface directly in Go (without a\nthird-party MCP SDK). It supports `initialize`, `ping`, `tools/list`, and\n`tools/call`, and exposes these tools:\n\n| Tool | Purpose |\n| --- | --- |\n| `bind_project` | Bind a repository and branch to a relay role. |\n| `create_checkpoint_invite` | Create a short-lived checkpoint join link. |\n| `join_checkpoint` | Join a branch-scoped checkpoint subscription. |\n| `watcher_status` | Read local watcher state. |\n| `stop_watcher` | Stop the local watcher. |\n| `doctor` | Run non-mutating local health checks. |\n| `publish_runbook` | Validate and publish a runbook. |\n| `status` | Read runbook and receipt status. |\n| `fetch_receipt` | Load and validate a runbook receipt. |\n| `analyze` | Analyze a receipt and determine the next state. |\n\nThe implementation and transport loop are in [`internal/relay/mcp.go`](internal/relay/mcp.go).\n\n## How it works\n\n<p align=\"center\">\n  <img src=\"assets/overview.png\" alt=\"Dev Host sends a runbook through Code Relay to a Target Host; the Target Host runs a checkpoint and returns a receipt with evidence\" width=\"836\">\n</p>\n\nthe Dev Host sends a repository- and branch-bound runbook\nthrough Relay; the Target Host checks the exact source commit in its real\nenvironment and returns a Receipt recording the Checkpoint result.\n\nEvery runbook is bound to a repository, branch, and source commit. The Target\nHost acts as the Checkpoint, and the resulting receipt records passed, failed,\nor blocked verification for the next iteration.\n\n## Documentation\n\n- [Chinese README](README.zh-CN.md)\n- [User guide](USER_GUIDE.md)\n- [AI-client installation guide](install.md)\n- [Local desktop install runbook](deploy/LOCAL-INSTALL-RUNBOOK.md)\n- [Deployment and runbook](deploy/RUNBOOK.md)\n- [Security](SECURITY.md)\n- [Contributing](CONTRIBUTING.md)\n\n## License\n\nCode Relay is released under the [MIT License](LICENSE).\n",
+  "status": "curated"
+}

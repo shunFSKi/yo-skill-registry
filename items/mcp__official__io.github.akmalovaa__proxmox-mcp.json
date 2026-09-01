@@ -1,0 +1,99 @@
+{
+  "id": "mcp:official/io.github.akmalovaa/proxmox-mcp",
+  "type": "mcp",
+  "name": "Proxmox VE",
+  "description": "Manage Proxmox VE nodes, VMs, containers, storage and snapshots. Read-only by default.",
+  "author": "io.github.akmalovaa",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/akmalovaa/proxmox-mcp",
+    "repo": "akmalovaa/proxmox-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "proxmox-ve-mcp"
+    ],
+    "env": [
+      {
+        "name": "PROXMOX_HOST",
+        "required": true,
+        "secret": false
+      },
+      {
+        "name": "PROXMOX_USER",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "PROXMOX_TOKEN_NAME",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "PROXMOX_TOKEN_VALUE",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "PROXMOX_PASSWORD",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "PROXMOX_PORT",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "PROXMOX_VERIFY_SSL",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "PROXMOX_RISK_LEVEL",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-01T01:07:59.590948Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "<!-- mcp-name: io.github.akmalovaa/proxmox-mcp -->\n\n# Proxmox MCP server\n\n<p align=\"center\">\n  <img src=\"docs/banner.png\" alt=\"proxmox-mcp — MCP server for Proxmox VE\" width=\"720\"/>\n</p>\n\n[![CI](https://github.com/akmalovaa/proxmox-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/akmalovaa/proxmox-mcp/actions/workflows/ci.yml)\n[![Release](https://img.shields.io/github/v/release/akmalovaa/proxmox-mcp)](https://github.com/akmalovaa/proxmox-mcp/releases)\n[![License: MIT](https://img.shields.io/github/license/akmalovaa/proxmox-mcp)](LICENSE)\n[![Python 3.14](https://img.shields.io/badge/python-3.14-3776AB?logo=python&logoColor=white)](https://www.python.org/)\n[![GHCR](https://img.shields.io/badge/ghcr-proxmox--mcp-2496ED?logo=docker&logoColor=white)](https://github.com/akmalovaa/proxmox-mcp/pkgs/container/proxmox-mcp)\n[![MCP](https://img.shields.io/badge/MCP-compatible-7C3AED)](https://modelcontextprotocol.io)\n\n## Simple Proxmox MCP\n\n<p align=\"center\">\n  <img src=\"docs/logo.png\" alt=\"proxmox-mcp logo\" width=\"140\"/>\n</p>\n\nMCP server for managing Proxmox VE\n\n**49 tools** — nodes, QEMU VMs, LXC containers, storage, cluster, snapshots.\n\n### Why this one?\n\n- **One image**, multi-arch — `docker run ghcr.io/akmalovaa/proxmox-mcp:latest` and you're done\n- **Just env vars** — no config files, no database, no state\n- **Read-only by default** — destructive ops are gated behind an explicit `PROXMOX_RISK_LEVEL`\n- **Tiny codebase** — pure stdio MCP over Proxmoxer, no HTTP server, no auth layer, no extras\n- **Raw JSON out** — no formatting, no emoji; LLM gets clean data\n- **Readable failures** — a 403, a dead host or a blocked tier come back as a sentence, not a stack trace\n\n[![proxmox-mcp MCP server](https://glama.ai/mcp/servers/akmalovaa/proxmox-mcp/badges/card.svg)](https://glama.ai/mcp/servers/akmalovaa/proxmox-mcp)\n\n\n## Quick start\n\n**Image:** `ghcr.io/akmalovaa/proxmox-mcp:latest` (multi-arch: `amd64` + `arm64`).\n\n**1. Export credentials in your shell profile** (`~/.zprofile`, `~/.zshrc` or `~/.bashrc`):\n\n```bash\n# base environment:\nexport PROXMOX_HOST=192.168.1.100\nexport PROXMOX_USER=root@pam\nexport PROXMOX_PASSWORD=your-password\n\n# or use token auth (recommended):\nexport PROXMOX_TOKEN_NAME=mcp\nexport PROXMOX_TOKEN_VALUE=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx\n\n# optional:\nexport PROXMOX_RISK_LEVEL=read\n```\n\nReload: `source ~/.zprofile` (or restart the shell).\n\n**2. Add to `~/.claude/settings.json` (Claude Code) or `claude_desktop_config.json` (Claude Desktop)**:\n\n```json\n{\n  \"mcpServers\": {\n    \"proxmox\": {\n      \"command\": \"docker\",\n      \"args\": [\"run\", \"-i\", \"--rm\",\n        \"-e\", \"PROXMOX_HOST\",\n        \"-e\", \"PROXMOX_USER\",\n        \"-e\", \"PROXMOX_PASSWORD\",\n        \"ghcr.io/akmalovaa/proxmox-mcp:latest\"]\n    }\n  }\n}\n```\n\nor token auth:\n\n```json\n{\n  \"mcpServers\": {\n    \"proxmox\": {\n      \"command\": \"docker\",\n      \"args\": [\"run\", \"-i\", \"--rm\",\n        \"-e\", \"PROXMOX_HOST\",\n        \"-e\", \"PROXMOX_USER\",\n        \"-e\", \"PROXMOX_TOKEN_NAME\",\n        \"-e\", \"PROXMOX_TOKEN_VALUE\",\n        \"ghcr.io/akmalovaa/proxmox-mcp:latest\"]\n    }\n  }\n}\n```\n\n`docker run -e VAR` without a value passes the host variable through — no secrets in the config file. Restart the client — 31 read-only Proxmox tools become available (more if you raise `PROXMOX_RISK_LEVEL`).\n\nFor password auth, swap the token vars for `PROXMOX_PASSWORD`.\n\n> **Note:** Claude Desktop on macOS is launched via launchd and does **not** inherit `~/.zprofile`/`~/.zshrc`. Either put the exports in `~/.zshenv`, or fall back to an inline `\"env\": { ... }` block in the config.\n\n## Configuration\n\nAll settings are environment variables — set them in your shell profile, pass them inline to `docker run -e`, or declare them in your MCP client's `env` block.\n\n| Variable | Default | Description |\n|----------|---------|-------------|\n| `PROXMOX_HOST` | — | Proxmox host (IP or hostname) |\n| `PROXMOX_USER` | `root@pam` | API user |\n| **Auth** | — | **token *or* password — see below** |\n| `PROXMOX_PORT` | `8006` | API port |\n| `PROXMOX_VERIFY_SSL` | `false` | Verify TLS certificate |\n| `PROXMOX_RISK_LEVEL` | `read` | `read` / `lifecycle` / `all` |\n\n### Authentication: token *or* password\n\nPick **one**. If both are set, the token wins.\n\n**Token (recommended)** — create in Proxmox UI: *Datacenter → Permissions → API Tokens → Add* (uncheck *Privilege Separation*). Then:\n\n```bash\nexport PROXMOX_TOKEN_NAME=mcp\nexport PROXMOX_TOKEN_VALUE=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx\n```\n\n**Password (fallback)**:\n\n```bash\nexport PROXMOX_PASSWORD=your-password\n```\n\n### Risk levels\n\n`PROXMOX_RISK_LEVEL` controls which tools exist. Tools above the active level are **not registered**, so they never appear in the MCP client's tool list:\n\n| Level | Tools | Adds |\n|-------|-------|------|\n| `read` *(default)* | 31 | read-only tools |\n| `lifecycle` | 45 | + start / stop / reboot / suspend / clone / migrate / create-snapshot |\n| `all` | 49 | + delete-snapshot / rollback-snapshot |\n\nEach elevated call is also re-checked at call time and logged to stderr (`ALLOW` / `DENY` + tool + tier).\n\n## Tools\n\n### Nodes (10)\n\n| Tool | Description |\n|------|-------------|\n| `list_nodes` | List all cluster nodes with status, CPU, memory, uptime |\n| `get_node_status` | Detailed node metrics (CPU, memory, disk, load, kernel) |\n| `get_node_networks` | Network interfaces on a node |\n| `get_node_disks` | Physical disks on a node |\n| `get_node_services` | Proxmox system services and their state |\n| `get_node_updates` | Pending APT package updates |\n| `get_node_rrd_data` | Historical CPU/memory/disk/network metrics (RRD) |\n| `get_node_tasks` | Recent tasks on a node, optionally errors only |\n| `get_task_status` | Status of a specific task by UPID |\n| `get_task_log` | Log output from a task |\n\n### QEMU VMs (17)\n\n| Tool | Tier | Description |\n|------|------|-------------|\n| `list_vms` | read | List all VMs, optionally filter by node |\n| `get_vm_status` | read | Current VM status (running/stopped, CPU, memory) |\n| `get_vm_config` | read | VM configuration (hardware, disks, network) |\n| `get_vm_network_interfaces` | read | **IP addresses** of a running VM (via QEMU guest agent) |\n| `get_vm_rrd_data` | read | Historical CPU/memory/disk/network metrics (RRD) |\n| `list_vm_snapshots` | read | List all snapshots of a VM |\n| `start_vm` | lifecycle | Start a VM |\n| `stop_vm` | lifecycle | Force-stop a VM |\n| `shutdown_vm` | lifecycle | Graceful ACPI shutdown with timeout |\n| `reboot_vm` | lifecycle | Reboot via ACPI |\n| `suspend_vm` | lifecycle | Suspend a VM |\n| `resume_vm` | lifecycle | Resume a suspended VM |\n| `clone_vm` | lifecycle | Full or linked clone |\n| `migrate_vm` | lifecycle | Move a VM to another node, online or offline |\n| `create_vm_snapshot` | lifecycle | Create a snapshot |\n| `delete_vm_snapshot` | all | Delete a snapshot |\n| `rollback_vm_snapshot` | all | Rollback to a snapshot |\n\n### LXC Containers (13)\n\n| Tool | Tier | Description |\n|------|------|-------------|\n| `list_containers` | read | List all LXC containers, optionally filter by node |\n| `get_container_status` | read | Current container status |\n| `get_container_config` | read | Container configuration |\n| `get_container_interfaces` | read | **IP addresses** of a running container |\n| `get_container_rrd_data` | read | Historical CPU/memory/disk/network metrics (RRD) |\n| `list_container_snapshots` | read | List all snapshots |\n| `start_container` | lifecycle | Start a container |\n| `stop_container` | lifecycle | Force-stop a container |\n| `shutdown_container` | lifecycle | Graceful shutdown with timeout |\n| `reboot_container` | lifecycle | Reboot a container |\n| `create_container_snapshot` | lifecycle | Create a snapshot |\n| `delete_container_snapshot` | all | Delete a snapshot |\n| `rollback_container_snapshot` | all | Rollback to a snapshot |\n\n### Storage (2)\n\n| Tool | Description |\n|------|-------------|\n| `list_storage` | Storage pools with usage, optionally filter by node |\n| `get_storage_content` | Contents of a storage pool (ISOs, backups, images, templates) |\n\n### Cluster (7)\n\n| Tool | Description |\n|------|-------------|\n| `get_cluster_status` | Cluster health, quorum, node membership |\n| `get_cluster_resources` | All resources (VMs, containers, storage, nodes) |\n| `get_cluster_backups` | Configured backup jobs |\n| `get_ha_status` | High-availability resources and their state |\n| `list_pools` | Resource pools |\n| `get_cluster_log` | Cluster-wide event log, newest first |\n| `get_next_vmid` | Next available VM/container ID |\n\n## Architecture\n\n```\nsrc/proxmox_mcp/\n├── server.py    # MCPServer instance + entry point\n├── config.py    # Pydantic Settings (PROXMOX_ prefix)\n├── client.py    # Proxmoxer connection via lifespan\n└── tools/       # nodes, vms, containers, storage, cluster\n```\n\n- **Read-only by default** — elevated tools gated by `PROXMOX_RISK_LEVEL`\n- **Lazy connection** — the Proxmoxer client is built on first use, once, and shared;\n  the server therefore starts cleanly even when Proxmox is unreachable\n- **Raw JSON output** — compact, no formatting; LLM consumes data directly\n- **Normalized errors** — Proxmox and network failures are translated into one\n  actionable sentence instead of a `requests` traceback\n\n## Development\n\n### Run standalone (testing)\n\n```bash\nexport PROXMOX_HOST=192.168.1.100\nexport PROXMOX_USER=root@pam\nexport PROXMOX_TOKEN_NAME=mcp\nexport PROXMOX_TOKEN_VALUE=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx\n\ndocker run -i --rm \\\n  -e PROXMOX_HOST -e PROXMOX_USER \\\n  -e PROXMOX_TOKEN_NAME -e PROXMOX_TOKEN_VALUE \\\n  ghcr.io/akmalovaa/proxmox-mcp:latest\n```\n\n### Without Docker (UV)\n\n```bash\ngit clone https://github.com/akmalovaa/proxmox-mcp.git && cd proxmox-mcp && uv sync\n```\n\nMCP client config:\n\n```json\n{\n  \"mcpServers\": {\n    \"proxmox\": {\n      \"command\": \"uv\",\n      \"args\": [\"run\", \"--directory\", \"/path/to/proxmox-mcp\", \"python\", \"-m\", \"proxmox_mcp\"],\n      \"env\": {\n        \"PROXMOX_HOST\": \"192.168.1.100\",\n        \"PROXMOX_TOKEN_NAME\": \"mcp\",\n        \"PROXMOX_TOKEN_VALUE\": \"xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx\"\n      }\n    }\n  }\n}\n```\n\n### Build from source\n\n```bash\ngit clone https://github.com/akmalovaa/proxmox-mcp.git\ncd proxmox-mcp\ndocker build -t proxmox-mcp .\n```\n\nThe image is multi-stage: `uv` builds the virtualenv in a throwaway layer, and the\nruntime stage carries only Python plus the venv and runs as the unprivileged `mcp`\nuser (uid 10001).\n\n### Lint, type-check, test\n\n```bash\nuv sync --locked --group dev\nuv run ruff check .\nuv run mypy src/\nuv run pytest -v\n```\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

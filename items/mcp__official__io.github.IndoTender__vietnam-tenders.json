@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.IndoTender/vietnam-tenders",
+  "type": "mcp",
+  "name": "Vietnam Government Tenders",
+  "description": "Search Vietnam National E-Procurement System records, packages, participants, and awards.",
+  "author": "io.github.IndoTender",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/IndoTender/vietnam-tenders-mcp",
+    "repo": "IndoTender/vietnam-tenders-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://thecompanyatlas.com/mcp/vietnam"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-01T07:03:08.094525Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Vietnam Government Tenders MCP\n\nConnect your AI assistant to Vietnam National E-Procurement System data through [The Company Atlas](https://thecompanyatlas.com) and the Model Context Protocol.\n\nData is sourced from [muasamcong.mpi.gov.vn](https://muasamcong.mpi.gov.vn).\n\nSearch:\n\n- Procurement notices, plans, projects, contracts, quote requests, and results\n- Procuring entities and investors\n- Tender packages and budgets\n- Participants, organization codes, and award names\n\nThe MCP connection is provided by The Company Atlas. This repository does not run a separate server.\n\n## Connect\n\n```text\nhttps://thecompanyatlas.com/mcp/vietnam\n```\n\nAdd this URL as a custom MCP connector in Claude, Cursor, or another MCP-compatible client. Sign in with Google when prompted.\n\n- Transport: Streamable HTTP\n- Auth: Google OAuth\n- Docs: [thecompanyatlas.com/mcp/connect](https://thecompanyatlas.com/mcp/connect)\n\n## Tiếng Việt\n\nVietnam Government Tenders MCP cho phép trợ lý AI tra cứu dữ liệu từ Hệ thống mạng đấu thầu quốc gia Việt Nam.\n\nBạn có thể:\n\n- Tra cứu thông báo mời thầu, kế hoạch lựa chọn nhà thầu, dự án, hợp đồng, yêu cầu báo giá và kết quả lựa chọn nhà thầu\n- Tìm kiếm theo tên hoặc mã thông báo, mã gói thầu, mã dự án và mã hợp đồng\n- Lọc theo bên mời thầu, nhà đầu tư, lĩnh vực, tỉnh thành, trạng thái và ngày công khai\n- Xem danh sách gói thầu, giá trị dự toán, nhà thầu tham dự và đơn vị trúng thầu\n- Tìm lịch sử tham gia hoặc trúng thầu theo tên và mã doanh nghiệp\n\nĐể kết nối, hãy thêm URL sau vào Claude, Cursor hoặc ứng dụng hỗ trợ MCP:\n\n```text\nhttps://thecompanyatlas.com/mcp/vietnam\n```\n\nĐăng nhập bằng Google khi được yêu cầu. Sau khi kết nối, bạn có thể thử:\n\n- *\"Tìm các thông báo mời thầu thiết bị y tế được công khai trong năm 2025.\"*\n- *\"Liệt kê các gói thầu của bên mời thầu này và tổng hợp giá trị.\"*\n- *\"Tìm các gói thầu có sự tham gia của Viettel và xác định đơn vị trúng thầu.\"*\n- *\"Hiển thị các nhà thầu và giá trị dự toán của hồ sơ đấu thầu này.\"*\n\n## Tools\n\n### `Vietnam_list_tenders`\n\nSearch Vietnam procurement records. Filters are combined with AND logic; `query` searches the record title and common notice, plan, project, bid, and contract numbers.\n\n| Parameter | Type | Description |\n|---|---|---|\n| `recordType` | enum, optional | Procurement record type; see values below |\n| `query` | string, optional | Title or procurement identifier; minimum 2 characters |\n| `procuringEntity` | string, optional | Partial procuring-entity name |\n| `participant` | string, optional | Partial participant organization or award name |\n| `provinceCode` | string, optional | Exact province code in the record |\n| `bidField` | string, optional | Partial bid-field value |\n| `status` | string, optional | Partial status value |\n| `publicDateFrom` | date, optional | Earliest publication date, `YYYY-MM-DD` |\n| `publicDateTo` | date, optional | Latest publication date, `YYYY-MM-DD` |\n| `page` | integer, optional | Page number, minimum `1`, default `1` |\n| `limit` | integer, optional | Results per page, `1`–`100`, default `20` |\n\nSupported record types:\n\n- `NOTICE_CONTRACTOR`\n- `PLAN_PROJECT`\n- `BID_PROJECT`\n- `CONTRACT`\n- `QUOTE_REQUEST`\n- `CONTRACTOR_INPUT_RESULT_OTHER`\n- `CONTRACTOR_SELECTION_PLAN`\n- `CONTRACT_PUBLISH_FRAME`\n- `PRE_NOTICE_CONTRACTOR`\n- `SHOPPING_RESULT`\n- `INTEREST_NOTICE`\n\nReturns `{ data, total, page, limit }`, ordered by publication date descending. Value fields are returned as decimal strings to preserve precision.\n\nExample:\n\n```json\n{\n  \"recordType\": \"NOTICE_CONTRACTOR\",\n  \"query\": \"medical equipment\",\n  \"provinceCode\": \"79\",\n  \"publicDateFrom\": \"2025-01-01\",\n  \"limit\": 20\n}\n```\n\n### `Vietnam_get_tender`\n\nFetch one procurement record after selecting its `id` from a search result.\n\n| Parameter | Type | Description |\n|---|---|---|\n| `id` | string | Exact Vietnam procurement record id |\n\nReturns the record's identifiers, publication and decision dates, investor and procuring entity, procurement status and method, value fields, locations, packages, and participants. Returns `null` for an unknown id.\n\nExample:\n\n```json\n{\n  \"id\": \"record-id-from-search\"\n}\n```\n\n### `Vietnam_search_participants`\n\nSearch organizations named in Vietnam procurement records.\n\n| Parameter | Type | Description |\n|---|---|---|\n| `query` | string | Partial organization name, organization code, or award name |\n| `awardedOnly` | boolean, optional | Only rows with an award name; default `false` |\n| `page` | integer, optional | Page number, minimum `1`, default `1` |\n| `limit` | integer, optional | Results per page, `1`–`100`, default `20` |\n\nReturns `{ data, total, page, limit }`. Each participant includes its related procurement-record summary.\n\nExample:\n\n```json\n{\n  \"query\": \"Viettel\",\n  \"awardedOnly\": true,\n  \"limit\": 20\n}\n```\n\n## Example prompts\n\n- *\"Find Vietnamese contract notices for medical equipment published in 2025.\"*\n- *\"Show procurement records from this procuring entity and summarize their values.\"*\n- *\"Find tenders involving this supplier and identify awarded records.\"*\n- *\"Get the packages and participants for this procurement record id.\"*\n\n## Setup — Claude\n\n1. Go to [claude.ai/customize/connectors](https://claude.ai/customize/connectors)\n2. Click **Add custom connector**\n3. Name it **Vietnam Government Tenders** and paste `https://thecompanyatlas.com/mcp/vietnam`\n4. Save and sign in with Google when prompted\n\n",
+  "status": "curated"
+}

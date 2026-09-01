@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/igorrochap/commitgen/implement",
+  "type": "skill",
+  "name": "implement",
+  "description": "Implement a piece of work based on a spec or set of tickets.",
+  "author": "igorrochap",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/igorrochap/commitgen/blob/HEAD/.agents/skills/implement/SKILL.md",
+    "repo": "igorrochap/commitgen",
+    "path": ".agents/skills/implement/SKILL.md"
+  },
+  "license": "NOASSERTION",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 4,
+    "pushed_at": "2026-08-20T14:16:00Z",
+    "score": 58,
+    "star_history": [
+      {
+        "d": "2026-09-01",
+        "s": 4
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "办公",
+    "featured": false
+  },
+  "readme": "# commitgen\n\nA CLI tool that uses an LLM provider to generate [Conventional Commits](https://www.conventionalcommits.org) messages from your staged changes. It supports local generation with [Ollama](https://ollama.com) by default, plus hosted providers such as OpenAI, Anthropic Claude, and Google Gemini.\n\n## How it works\n\n1. Detects your staged changes\n2. Sends the diff to the selected LLM provider with a prompt that enforces the Conventional Commits format\n3. Presents the generated message for you to **accept**, **edit**, or **regenerate**\n\n## Requirements\n\n- [Go](https://go.dev) 1.21+\n- [Git](https://git-scm.com)\n- [Ollama](https://ollama.com) running locally with at least one model pulled, or an API key for a hosted provider\n\n## Installation\n\n```bash\ngo install github.com/igorrochap/commitgen@latest\n```\n\nThis drops the binary in `$(go env GOPATH)/bin` (usually `~/go/bin`). Make sure that directory is on your `$PATH`.\n\n### Alternative: build from source\n\n```bash\ngit clone https://github.com/igorrochap/commitgen.git\ncd commitgen\n./install.sh\n```\n\nThis builds the binary and installs it to `/usr/local/bin/commitgen`.\n\n## Updating\n\nOnce installed, you can upgrade to the latest version at any time with:\n\n```bash\ncommitgen update\n```\n\nWhen a newer release is available, `commitgen` shows a short notice before running your command.\n\nUnder the hood this runs `go install github.com/igorrochap/commitgen@latest`, so the `go` toolchain must be on your `$PATH`.\n\nIf you originally installed via `./install.sh` (to `/usr/local/bin`), the fresh binary lands in `$(go env GOPATH)/bin`. `commitgen update` will tell you the exact command to copy it over the system binary.\n\n## Usage\n\nInside any git repository, run:\n\n```bash\ncommitgen [flags]\n```\n\nStage the files you want to commit before running `commitgen`.\n\nShow the installed version with:\n\n```bash\ncommitgen version\ncommitgen --version\ncommitgen -v\n```\n\n### Flags\n\n| Flag         | Default        | Description                              |\n|--------------|----------------|------------------------------------------|\n| `-v`, `--version` |              | Show commitgen version                   |\n| `--context`  |                | Additional context for generation        |\n| `--language` | `en`           | Language for the commit message          |\n| `--model`    | `gemma4:31b-cloud`  | Model to use for generation       |\n| `--provider` | `ollama`       | LLM provider: `ollama`, `openai`, `anthropic`, or `gemini` |\n\n### Persistent defaults\n\nSave your preferred language, provider, model, or API key once with:\n\n```bash\ncommitgen config set --language pt-BR\ncommitgen config set --model llama3.2\ncommitgen config set --language pt-BR --model llama3.2\ncommitgen config set --provider openai --model gpt-5.5 --api-key \"$OPENAI_API_KEY\"\ncommitgen config set --provider anthropic --model claude-sonnet-4-5 --api-key \"$ANTHROPIC_API_KEY\"\ncommitgen config set --provider gemini --model gemini-3.5-flash --api-key \"$GEMINI_API_KEY\"\n```\n\nShow the current defaults with:\n\n```bash\ncommitgen config show\n```\n\nSaved defaults apply to future `commitgen` runs. One-off flags still take precedence:\n\n```bash\ncommitgen --language en\n```\n\n### Supported languages\n\n| Value   | Language            |\n|---------|---------------------|\n| `en`    | English (default)   |\n| `pt-BR` | Brazilian Portuguese|\n\n### Examples\n\n```bash\n# Generate a commit in English using the default model\ncommitgen\n\n# Use a different Ollama model\ncommitgen --model llama3.2\n\n# Use OpenAI after configuring its API key\ncommitgen --provider openai --model gpt-5.5\n\n# Use Anthropic Claude after configuring its API key\ncommitgen --provider anthropic --model claude-sonnet-4-5\n\n# Use Google Gemini after configuring its API key\ncommitgen --provider gemini --model gemini-3.5-flash\n\n# Generate the commit message in Brazilian Portuguese\ncommitgen --language pt-BR\n\n# Provide additional context for the generated commit message\ncommitgen --context \"fix ci failure\"\n\n# Combine flags\ncommitgen --model llama3.2 --language pt-BR\n```\n\nGenerate a Pull Request title and description with additional context:\n\n```bash\ncommitgen pr --context \"closes the issue #15 on github\"\n```\n\n## Interactive selection\n\nAfter the message is generated, you are prompted to choose an action:\n\n- **Accept** — commits immediately with the generated message\n- **Edit** — opens the message in your `$EDITOR` (falls back to `nano`, then `vim`) so you can tweak it before committing\n- **Regenerate** — discards the message and generates a new one\n",
+  "status": "curated"
+}

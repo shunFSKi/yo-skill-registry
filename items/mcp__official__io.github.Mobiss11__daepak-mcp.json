@@ -1,0 +1,64 @@
+{
+  "id": "mcp:official/io.github.Mobiss11/daepak-mcp",
+  "type": "mcp",
+  "name": "Daepak Market Intelligence",
+  "description": "Market analyst tools + AI agent: crypto, US equities, options, Korean market, backtests, journal",
+  "author": "io.github.Mobiss11",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/Mobiss11/daepak-mcp",
+    "repo": "Mobiss11/daepak-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "daepak-mcp"
+    ],
+    "env": [
+      {
+        "name": "DAEPAK_API_KEY",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-01T05:41:01.326716Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "写作",
+    "featured": false
+  },
+  "readme": "# Daepak MCP\n\n<!-- mcp-name: io.github.Mobiss11/daepak-mcp -->\n\nMarket intelligence tools for any MCP-capable engine — Claude Code, Claude Desktop, or your\nown agent. Prices, indicators, levels, positioning, the Korean market, US equities, options,\nbacktests, and your own trading journal. **98 tools**, the same ones the product's own\nanalyst uses.\n\nThe server describes nothing itself: it pulls the catalogue from `GET /v1/tools`, so it\nshows exactly what your key is allowed to call and never drifts from the product.\n\n## Quick start\n\n```bash\nclaude mcp add daepak -e DAEPAK_API_KEY=dpk_live_… -- uvx daepak-mcp\n```\n\nOr install it yourself:\n\n```bash\npip install daepak-mcp\n```\n\nGet a key on the **Keys** page of your profile at [daepak.com](https://daepak.com). The free\nplan includes 2 000 credits a month — enough to build something over an evening.\n\n## Configuration\n\n| variable | default | purpose |\n|---|---|---|\n| `DAEPAK_API_KEY` | — | your key, `dpk_live_…`. Required. |\n| `DAEPAK_BASE_URL` | `https://daepak.com` | point at another environment |\n| `DAEPAK_TIMEOUT` | `120` | seconds per call |\n\nNothing else is read. In particular there is **no** setting that names a user: the account\nis derived from the key, and a request cannot claim to be someone else.\n\n## What you get\n\nThe catalogue is filtered by your key's scopes — you never see a tool you cannot call.\n\n| scope | tools | what it opens |\n|---|---|---|\n| `read:market` | 78 | prices, candles, indicators, levels, scores, narratives, derivatives, order book, liquidations, options, US equities, Korean market, backtests |\n| `read:personal` | 9 | your positions, portfolio, trade journal, catalysts, memory, background tasks |\n| `write:personal` | 11 | writing to those same records |\n| `agent:chat` | — | full analyst answers, streamed or complete |\n\nBeing allowed to read your journal does not allow writing to it. That is a separate scope.\n\n**Crypto** — `get_price`, `get_price_history`, `get_levels` (support/resistance, Fibonacci,\nATR — computed, not drawn), `get_indicators`, `get_score`, `get_regime`, `get_derivatives`,\n`get_orderbook`, `get_liquidations`, `get_fear_greed`\n\n**Korea** — `get_kimchi_premium` (the Upbit-to-global spread, decomposed into the asset leg\nand the currency leg), Korean tickers, fresh Upbit listings\n\n**US equities** — `get_stock_quote`, `get_stock_history`, `get_stock_levels`,\n`get_stock_holders` (institutions and insiders), `get_us_gap_stats`, `get_us_movers`,\n`get_us_halts`, `get_us_insiders`\n\n**Options** — `get_iv_metrics`, `get_options_positioning`, `get_option_structure` (payoff and\ngreeks), `get_options_backtest`\n\n**Validation** — `get_backtest`, `get_signal_outcomes`, `get_hit_rate`, `get_score_history`\n\n**Arbitrary tokens** — `resolve_token`, `get_token_market`, `get_token_onchain`,\n`get_token_holders`, for anything outside the watchlist\n\n**Research** — `search_news` (RAG over the collected corpus), `search_narratives`,\n`fetch_url`, `web_search`\n\n## The agent\n\nThe same analyst that answers in the product, over HTTP. It has everything the chat has:\n\n| | |\n|---|---|\n| `POST /v1/agent/stream` | server-sent events — text arrives as it is written |\n| `POST /v1/agent/messages` | the complete answer in one response |\n| `GET /v1/agent/resume/{id}` | reconnect to a generation already running |\n| `POST /v1/agent/cancel/{id}` | stop one |\n| `GET /v1/agent/conversations` | your conversations, and `/{id}` for the messages |\n\n```bash\ncurl -N -X POST https://daepak.com/v1/agent/stream \\\n     -H \"Authorization: Bearer dpk_live_…\" -H \"Content-Type: application/json\" \\\n     -d '{\"message\": \"How does BTC look right now?\", \"mode\": \"mentor\"}'\n```\n\n**Conversation memory.** The first event carries `conversation_id`; pass it back and the\ncontext continues.\n\n**Images.** `images` takes data-URLs, exactly like chat attachments — the agent reads charts\nand screenshots.\n\n**Mentor mode.** `mode: \"mentor\"` explains how the reading was arrived at, not just the\nconclusion.\n\n⚠️ **A dropped connection loses nothing.** Generation continues in the background, the answer\nstill lands in the conversation, and `resume` replays what you missed. Keep the\n`conversation_id` from the first event — that is where you reconnect.\n\n⚠️ `suggest` (follow-up questions) arrives **after** `done`. A client that stops reading at\n`done` will never see it. The order is deliberate: the spinner should stop before the\nsuggestions are computed.\n\n## Credits\n\nEvery tool declares its price in the catalogue, so a sequence can be budgeted before it runs.\nPrices come from measuring the tools in production, not from guessing:\n\n| tier | what | credits |\n|---|---|---|\n| our database | prices, indicators, levels, candles, narratives | 1 |\n| external call | equities, tokens, options, on-chain | 5 |\n| embedding, sandbox | news search, code execution | 20 |\n\nA tool nobody has priced yet costs 5, not 1 — an unpriced tool is either an oversight or\nsomething heavy, and both are safer to over-charge than to give away.\n\n```bash\ncurl -H \"Authorization: Bearer dpk_live_…\" https://daepak.com/v1/usage\n```\n\nWhen the monthly credits run out you get `402` naming two ways forward: a higher plan or the\nrenewal at the start of the month. **There is no overage billing** — we would rather refuse\nthan send an invoice nobody expected.\n\n## Using the API directly\n\nThe MCP server is a thin shell over a plain REST API.\n\n```bash\n# catalogue: schema, scope and price for every tool your key can call\ncurl -H \"Authorization: Bearer dpk_live_…\" https://daepak.com/v1/tools\n\n# call one\ncurl -X POST https://daepak.com/v1/tools/get_price \\\n     -H \"Authorization: Bearer dpk_live_…\" \\\n     -H \"Content-Type: application/json\" \\\n     -d '{\"coin\": \"BTC\"}'\n```\n\n```json\n{\n  \"tool\": \"get_price\",\n  \"credits_used\": 1,\n  \"credits_left\": 1999,\n  \"took_ms\": 104,\n  \"data\": { \"coin\": \"BTC\", \"price\": 78017.26, \"change_24h\": -1.2 }\n}\n```\n\nFull reference: [daepak.com/reference](https://daepak.com/reference) ·\nOpenAPI 3.1: [/v1/openapi.json](https://daepak.com/v1/openapi.json) (106 operations, no key\nneeded to read it).\n\n## Reading the answers honestly\n\nA few things the data will tell you if you look, and which are easy to get wrong:\n\n- **Compare against the baseline, not against zero.** \"68 % of directions guessed\" means\n  nothing until you know what a random entry at the same moment would have given.\n- **Win rate is not money.** On our own data 68 % correct directions produced a\n  profit factor of 1.04.\n- **Groups under 30 observations are flagged `reliable=false`.** That is an absence of a\n  conclusion, not a weak one.\n- **The kimchi premium has two legs** — a discount on the asset and a discount on the won.\n  Read together they mislead. And they explain rather than predict: on horizons up to a day\n  we found no relationship (646 episodes).\n- Every answer carries the age of its data. If it is stale, say so rather than passing\n  yesterday off as now.\n\n## Troubleshooting\n\n**`401`** — the key is missing, revoked, or malformed. Send it as\n`Authorization: Bearer dpk_live_…`.\n\n**`403 scope_required`** — the key lacks the scope; the response names which one.\n\n**`400 user_id_not_accepted`** — the body contained a `user_id`. The account comes from the\nkey; the field is rejected explicitly rather than ignored, so that a copied example fails\nloudly instead of quietly returning nothing.\n\n**`404 conversation_not_found`** — that conversation belongs to another account.\n\n**`429`** — over the per-minute ceiling for your plan. The minute limit protects the service;\nthe monthly one protects your budget.\n\n**`CERTIFICATE_VERIFY_FAILED`** — you are running from source without `certifi`. Install the\npackage instead of the file; the dependency exists for exactly this.\n\nError messages default to English; send `X-Lang: ko` or `ru` for those languages.\n\n## Links\n\n- [daepak.com](https://daepak.com) — the product\n- [Developer docs](https://daepak.com/developers) — with a live request tester\n- [GitHub](https://github.com/Mobiss11/daepak-mcp) · [PyPI](https://pypi.org/project/daepak-mcp/)\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

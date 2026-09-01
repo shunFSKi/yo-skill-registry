@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.IndoTender/indonesia-regulatory",
+  "type": "mcp",
+  "name": "Indonesia Regulatory Data",
+  "description": "Indonesian BPOM product registrations, DGIP trademarks, and Komdigi PSE registrations.",
+  "author": "io.github.IndoTender",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/IndoTender/indonesia-regulatory-mcp",
+    "repo": "IndoTender/indonesia-regulatory-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://indotender.com/mcp/regulatory"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-01T07:01:10.02981Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Indonesia Regulatory MCP\n\nConnect your AI assistant to [IndoTender](https://indotender.com) for Indonesian regulatory and registration data through the Model Context Protocol.\n\nThis listing provides search access to:\n\n- **BPOM** — food, drug, and cosmetic product registrations\n- **DGIP** — Indonesian trademark records\n- **Komdigi PSE** — electronic system provider registrations\n\n## Connect\n\n```\nhttps://indotender.com/mcp\n```\n\nAdd this URL as a custom MCP connector in Claude, Cursor, or any MCP-compatible client. Sign in with Google when prompted.\n\n- Transport: Streamable HTTP\n- Auth: Google OAuth\n- Docs: [indotender.com/mcp/connect](https://indotender.com/mcp/connect)\n\n## Tools\n\n### `Bpom_search`\n\nSearch Indonesian BPOM product registrations. Filters are combined with AND logic.\n\n| Parameter | Type | Description |\n|---|---|---|\n| `productName` | string, optional | Partial product name |\n| `productRegister` | string, optional | Partial BPOM registration number |\n| `productBrands` | string, optional | Partial product brand |\n| `applicant` | string, optional | Partial applicant or company name |\n| `applicantNpwp` | string, optional | Applicant NPWP; an `ID` company-id prefix is removed automatically |\n| `category` | string, optional | Partial product category |\n| `status` | string, optional | Partial registration status |\n| `class` | string, optional | Exact BPOM product class |\n| `page` | integer, optional | Page number, minimum `1`, default `1` |\n| `limit` | integer, optional | Results per page, `1`–`500`, default `25` |\n| `sortBy` | enum, optional | `productDate`, `submitDate`, `productName`, or `id`; default `productDate` |\n| `sortOrder` | enum, optional | `asc` or `desc`; default `desc` |\n\nReturns `{ total, page, data }` with full BPOM registration rows. Results are sorted by `productDate` descending by default.\n\nExample:\n\n```json\n{\n  \"productName\": \"paracetamol\",\n  \"status\": \"approved\",\n  \"page\": 1,\n  \"limit\": 25\n}\n```\n\n### `Trademark_search`\n\nSearch Indonesian trademark records from DGIP. Use specific owner, registration, or company fields for narrower results.\n\n| Parameter | Type | Description |\n|---|---|---|\n| `brandName` | string, optional | Partial brand name |\n| `ownerName` | string, optional | Partial owner name; may be an individual or domestic or foreign company |\n| `ownerCompanyId` | string, optional | Exact linked company id |\n| `registrationNumber` | string, optional | Partial trademark registration number |\n| `classNumbers` | string, optional | Partial Nice classification number(s) |\n| `applicationStatus` | string, optional | Partial application status |\n| `page` | integer, optional | Page number, minimum `1`, default `1` |\n| `limit` | integer, optional | Results per page, `1`–`500`, default `25` |\n| `sortBy` | enum, optional | `applicationDate`, `registrationDate`, or `id`; default `applicationDate` |\n| `sortOrder` | enum, optional | `asc` or `desc`; default `desc` |\n\nReturns `{ total, page, data }`. Each result includes:\n\n```text\nid, brandName, applicationDate, statusGroupLabel, ownerName,\nownerCompanyId, registrationNumber, registrationDate, classNumbers,\nprovinceName, imagePath\n```\n\nDates are ISO-8601 date strings and nullable fields may be `null`.\n\nExample:\n\n```json\n{\n  \"ownerName\": \"Unilever\",\n  \"classNumbers\": \"3\",\n  \"sortBy\": \"registrationDate\",\n  \"sortOrder\": \"desc\"\n}\n```\n\n### `KomdigiPse_search`\n\nSearch Indonesian Komdigi PSE (Penyelenggara Sistem Elektronik) registrations. Filters are combined with AND logic.\n\n| Parameter | Type | Description |\n|---|---|---|\n| `domain` | string, optional | Partial registered domain |\n| `systemName` | string, optional | Partial registered system or product name |\n| `registrationNumber` | string, optional | Partial PSE registration number |\n| `providerName` | string, optional | Partial domestic or foreign provider name |\n| `status` | string, optional | Partial registration status |\n| `companyId` | string, optional | Exact linked company id |\n| `isDomestic` | boolean, optional | Restrict to domestic (`true`) or foreign (`false`) providers |\n| `limit` | integer, optional | Results to return, `1`–`500`, default `25` |\n| `sortBy` | enum, optional | `registered_date`, `id`, `status`, or `provider_name`; default `registered_date` |\n| `sortOrder` | enum, optional | `asc` or `desc`; default `desc` |\n\nReturns `{ total, data }` with PSE registration rows, including domain, domestic/foreign status, system name, registration number, provider name, status, registration date, and linked company id.\n\nExample:\n\n```json\n{\n  \"providerName\": \"Google\",\n  \"isDomestic\": false,\n  \"limit\": 25\n}\n```\n\n## Example prompts\n\n- *\"Find BPOM registrations for products containing paracetamol.\"*\n- *\"Show Indonesian trademarks owned by a company containing 'Unilever'.\"*\n- *\"Which PSE registrations belong to this domain: example.com?\"*\n- *\"Find a company’s BPOM products, trademarks, and PSE registrations.\"*\n\n## Setup — Claude\n\n1. Go to [claude.ai/customize/connectors](https://claude.ai/customize/connectors)\n2. Click **Add custom connector**\n3. Name it **Indonesia Regulatory Data** and paste `https://indotender.com/mcp`\n4. Save and sign in with Google when prompted\n\n## Setup — Cursor / other MCP clients\n\nAdd to your MCP config:\n\n```json\n{\n  \"mcpServers\": {\n    \"indonesia-regulatory\": {\n      \"url\": \"https://indotender.com/mcp\"\n    }\n  }\n}\n```\n",
+  "status": "curated"
+}

@@ -1,0 +1,65 @@
+{
+  "id": "mcp:official/io.github.karljsamuel/mcp-ecc",
+  "type": "mcp",
+  "name": "mcp-ecc",
+  "description": "Unified MCP server for Email, Calendar & Contacts (Google, M365, Zoho, IMAP/SMTP, DAV).",
+  "author": "io.github.karljsamuel",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/karljsamuel/mcp-ecc",
+    "repo": "karljsamuel/mcp-ecc"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "mcp-ecc"
+    ],
+    "env": [
+      {
+        "name": "MCP_ENCRYPTION_KEY",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-01T04:32:33.381172Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "办公",
+    "featured": false
+  },
+  "readme": "<div align=\"center\">\n\n# mcp-ecc\n\n### Email · Calendar · Contacts — one MCP server for all your accounts\n\nA Model Context Protocol (MCP) server that lets AI assistants read, write and manage your **email, calendar and contacts** — across **Google, Microsoft 365/Outlook, Zoho, and any IMAP/SMTP, CalDAV or CardDAV account** — from a single interface.\n\n![License](https://img.shields.io/badge/license-MIT-blue?logo=open-source-initiative&logoColor=white)\n![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)\n![Version](https://img.shields.io/badge/version-0.4.0--beta.1-purple)\n[![Sponsor](https://img.shields.io/github/sponsors/karljsamuel?color=ea4aaa&logo=github-sponsors&logoColor=white)](https://github.com/sponsors/karljsamuel)\n![Node](https://img.shields.io/badge/node-%3E%3D24-339933?logo=nodedotjs&logoColor=white)\n![MCP](https://img.shields.io/badge/Model%20Context%20Protocol-black)\n![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white)\n![Multi-arch](https://img.shields.io/badge/arch-amd64%20%7C%20arm64-lightgrey)\n\n</div>\n\n---\n\n**mcp-ecc** aggregates your mail, calendar and contacts into standardised MCP tools (`mail.*`, `calendar.*`, `contacts.*`, `accounts.*`) so any MCP client — Claude, Cursor, and others — can work with all of them uniformly.\n\n- **One OAuth consent** per cloud provider covers mail + calendar + contacts\n- **Multi-user** — users self-manage their own accounts, each with a per-user MCP API key\n- **Credentials encrypted at rest** (AES-256-GCM)\n- **Self-hostable** — single container serving a web admin UI, REST API and the MCP endpoint on one port\n\n---\n\n## Quick start\n\n### Docker\n\n```bash\ndocker run -d --name mcp-ecc \\\n  -p 3001:3001 \\\n  -e MCP_ENCRYPTION_KEY=\"$(openssl rand -hex 32)\" \\\n  karljsamuel/mcp-ecc:beta\n```\n\nOpen **http://localhost:3001** → create the admin account → add your provider accounts.\n\n### CLI (npm)\n\n```bash\nnpm install -g mcp-ecc\nmcp-ecc            # interactive TUI — login, add accounts, manage everything\nmcp-ecc start      # stdio MCP server for agent hosts\n```\n\n### From source\n\n```bash\ngit clone https://github.com/karljsamuel/mcp-ecc.git\ncd mcp-ecc\nnpm install\nnpm run build\nnode packages/cli/dist/bin.js --help\n```\n\n---\n\n## Connecting an MCP client\n\nPoint your client at the HTTP endpoint with your per-user API key (shown in the web UI under **Settings**):\n\n```json\n{\n  \"mcpServers\": {\n    \"mcp-ecc\": {\n      \"type\": \"http\",\n      \"url\": \"http://localhost:3001/mcp\",\n      \"headers\": { \"Authorization\": \"Bearer <your-api-key>\" }\n    }\n  }\n}\n```\n\nAgents can read [`SKILL.md`](https://github.com/karljsamuel/mcp-ecc/blob/main/SKILL.md) or [`llms.txt`](https://github.com/karljsamuel/mcp-ecc/blob/main/llms.txt) for guided, automated setup.\n\n---\n\n## Providers\n\n| Provider | Mail | Calendar | Contacts | Authentication |\n|----------|:---:|:---:|:---:|------|\n| **Google** (Gmail, Calendar, People) | ✅ | ✅ | ✅ | OAuth 2.0 |\n| **Microsoft 365 / Outlook** (Graph) | ✅ | ✅ | ✅ | OAuth 2.0 |\n| **Zoho** (Mail, Calendar, Contacts) | ✅ | ✅ | ✅ | OAuth 2.0 |\n| **IMAP / SMTP** (any mail server) | ✅ | ❌ | ❌ | App password |\n| **CalDAV** (Nextcloud, Radicale, BAIKAL) | ❌ | ✅ | ❌ | Password |\n| **CardDAV** | ❌ | ❌ | ✅ | Password |\n\n> **Microsoft 365:** app passwords are being retired — use OAuth (Microsoft Graph) only.\n\n> **CalDAV/CardDAV compatibility:** the providers implement standard WebDAV (CalDAV RFC 4791, CardDAV RFC 6352) with Basic auth and should work with any standards-compliant server. **Tested against Radicale 3.7.8.** Not tested against other servers; OAuth-only providers (e.g. iCloud without an app-specific password) are not supported.\n\nDeployment notes: Google/Microsoft/Zoho run everywhere; IMAP/SMTP, CalDAV and CardDAV require a Node.js runtime (CLI or Docker), not Cloudflare Workers.\n\n---\n\n## MCP tools\n\n```text\nmail.listFolders · mail.listMessages · mail.getMessage · mail.sendMessage\nmail.searchMessages · mail.moveMessage · mail.setFlags · mail.deleteMessage\n\ncalendar.listCalendars · calendar.listEvents · calendar.getEvent · calendar.freeBusy\ncalendar.createEvent · calendar.updateEvent · calendar.deleteEvent\n\ncontacts.list · contacts.get · contacts.create · contacts.update\ncontacts.delete · contacts.search\n\naccounts.list · accounts.get · accounts.add · accounts.remove · accounts.sync\n```\n\nFull reference with input schemas: [`docs/mcp-tools.md`](https://github.com/karljsamuel/mcp-ecc/blob/main/docs/mcp-tools.md)\n\n---\n\n## Documentation\n\n- **[Getting started](https://github.com/karljsamuel/mcp-ecc/blob/main/docs/README.md)** — overview and quick start\n- **[CLI reference](https://github.com/karljsamuel/mcp-ecc/blob/main/docs/cli.md)** — every `mcp-ecc` command and workflow\n- **[Auth & users](https://github.com/karljsamuel/mcp-ecc/blob/main/docs/auth-users.md)** — multi-user model, bootstrap, per-user API keys\n- **[Accounts & identity](https://github.com/karljsamuel/mcp-ecc/blob/main/docs/accounts-identity.md)** — name vs slug\n- **Deployment** — [CLI](https://github.com/karljsamuel/mcp-ecc/blob/main/docs/deployment-cli.md) · [Docker](https://github.com/karljsamuel/mcp-ecc/blob/main/docs/deployment-docker.md) · [Cloudflare Workers](https://github.com/karljsamuel/mcp-ecc/blob/main/docs/deployment-cloudflare-workers.md)\n- **Providers** — [Google](https://github.com/karljsamuel/mcp-ecc/blob/main/docs/providers-google.md) · [Microsoft 365](https://github.com/karljsamuel/mcp-ecc/blob/main/docs/providers-microsoft.md) · [Zoho](https://github.com/karljsamuel/mcp-ecc/blob/main/docs/providers-zoho.md) · [IMAP/SMTP](https://github.com/karljsamuel/mcp-ecc/blob/main/docs/providers-imap-smtp.md) · [CalDAV/CardDAV](https://github.com/karljsamuel/mcp-ecc/blob/main/docs/providers-caldav-carddav.md)\n\n---\n\n## Contributing\n\nFeature branches off `dev`; PRs against `dev`. Run `npm run build` to compile all packages. Keep `Changelog.md` and `docs/` in sync.\n\n## Support & Contributions\n\nIf you find `mcp-ecc` useful, consider supporting its development:\n\n- **PayPal:** [paypal.me/KarlJosephSamuel](https://paypal.me/KarlJosephSamuel)\n- **GitHub Sponsors:** [github.com/sponsors/karljsamuel](https://github.com/sponsors/karljsamuel)\n- **Ko-fi:** [ko-fi.com/karljsamuel](https://ko-fi.com/karljsamuel)\n- **Patreon:** [patreon.com/karljsamuel](https://patreon.com/karljsamuel)\n- **Buy Me a Coffee:** [buymeacoffee.com/karljsamuel](https://buymeacoffee.com/karljsamuel)\n\n---\n\n## License",
+  "status": "curated"
+}

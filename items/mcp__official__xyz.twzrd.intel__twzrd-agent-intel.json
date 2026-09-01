@@ -2,7 +2,7 @@
   "id": "mcp:official/xyz.twzrd.intel/twzrd-agent-intel",
   "type": "mcp",
   "name": "TWZRD Agent Intelligence",
-  "description": "Trust + receipt layer for x402 agents on Solana: free preflight + paid signed V6 trust receipt.",
+  "description": "Pre-spend x402 reputation from observed behavior, plus portable signed V6 receipts.",
   "author": "xyz.twzrd.intel",
   "source": {
     "registry": "mcp-official",
@@ -26,8 +26,8 @@
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-07-11T00:22:56.233368Z",
-    "score": 37
+    "pushed_at": "2026-09-01T05:49:22.946643Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -59,6 +59,6 @@
     "category": null,
     "featured": false
   },
-  "readme": null,
+  "readme": "# TWZRD\n\n**Spend control and counterparty trust for agents paying over x402 on Solana (and Base).**  \nVet the seller **before** USDC leaves the wallet, cap and ledger every spend, and bind each settled payment to the exact offer it paid for (**bind-v1** — verifiable from public chain data). Free preflight → optional paid V6 receipt. Not a wallet. Not a payment network.\n\n**Canonical skill (always refresh)** • https://intel.twzrd.xyz/skill.md (twzrd-trust **1.13.16**) · [ClawHub `twzrd-trust`](https://clawhub.ai)  \n**Spend-control SDK (npm)** • [`twzrd-x402-gate@0.9.3`](https://www.npmjs.com/package/twzrd-x402-gate) + seat [`x402-solana@3.0.0`](https://www.npmjs.com/package/x402-solana)  \n**Live MCP** • https://intel.twzrd.xyz/mcp (streamable HTTP — 24 tools)  \n**Agent contract** • https://intel.twzrd.xyz/llms.txt · https://intel.twzrd.xyz/.well-known/agent.json\n\n---\n\n## 60-second deterministic free demo\n\nRun this one-line command with **no wallet, no API key, and no configuration**:\n\n```bash\ncurl -fsS https://intel.twzrd.xyz/v1/intel/demo-gate | jq '{verdict: (.steps[] | select(.name == \"block_path\") | .verdict), approved: (.steps[] | select(.name == \"block_path\") | .approved), signerInvocations: (.steps[] | select(.name == \"block_path\") | .signer_invocations), mode, ok}'\n```\n\nWithout `jq`, run: `curl -fsS https://intel.twzrd.xyz/v1/intel/demo-gate`\n\nExpected output:\n```json\n{\n  \"verdict\": \"block\",\n  \"approved\": false,\n  \"signerInvocations\": 0,\n  \"mode\": \"no_spend\",\n  \"ok\": true\n}\n```\n\n*Blocks happen before your signer is invoked (`signerInvocations: 0`) — zero USDC at risk.*\n\n---\n\n## Quickstart\n\n### 1. Install\n\n```bash\nnpm install twzrd-x402-gate@0.9.3 x402-solana@3.0.0\n```\n\n### 2. Wrap paid fetches with spend controls\n\n```ts\nimport { twzrd } from \"twzrd-x402-gate\";\n\nconst result = await twzrd.safeFetch(\"https://merchant.example/paid-endpoint\", {\n  maxSpend: \"0.10\",            // per-call cap AND cumulative budget in USD\n  allowNetworks: [\"solana\"],   // allowed settlement networks\n  requireOfferBinding: true,   // demand an on-chain verifiable bind-v1 receipt\n  pay: async ({ url, paymentRequired, selected }) => {\n    // Your existing x402 client signs here — e.g. @x402/fetch + your signer\n    return await myWallet.payX402(url, paymentRequired, selected);\n  },\n});\n\n// On block: result.verdict === \"block\", result.signerInvocations === 0\n```\n\n### 3. Or hook an existing client\n\n```ts\nimport { createX402Client } from \"x402-solana\";\nimport { createTwzrdBeforePaymentHook } from \"twzrd-x402-gate\";\n\nconst client = createX402Client({\n  wallet,\n  network: \"solana\",\n  beforePayment: createTwzrdBeforePaymentHook({ refuseWashFlagged: true }),\n});\n```\n\n---\n\n## Default Protection Sequence\n\n1. **Discover** — `GET /v1/intel/resources` (resource catalog)\n2. **Merchant card** — `GET /v1/intel/merchant_card/{pay_to}` (refuse if `wash_flagged: true`)\n3. **Preflight** — `POST /v1/intel/preflight` → ReadinessCard (allow / warn / block)\n4. **Optional V6 Receipt** — `GET /v1/intel/trust/{pay_to}` ($0.05 USDC paid receipt)\n5. **Pay** — sign only when preflight & spend policy allow\n\n```bash\n# Free preflight (no signup, no wallet)\ncurl -s -X POST https://intel.twzrd.xyz/v1/intel/preflight \\\n  -H 'content-type: application/json' \\\n  -d '{\"seller_wallet\":\"46vMcwuC4sK11sB3gkLhyA7J7GEwfkhn5rFyDtihBwqe\",\"price_usdc\":0.01,\"agent_intent\":\"preflight\"}'\n```\n\n---\n\n## Packages & References\n\n| Package | Pin | Description |\n|---|---|---|\n| `twzrd-x402-gate` | **@0.9.3** | Spend-control SDK (`twzrd.safeFetch`) + pre-sign gate hooks |\n| `x402-solana` | **@3.0.0** | Compatible Solana client seat for the pre-payment gate |\n| `twzrd-receipt-verifier` | **@^1.3.0** | Standalone offline verifier for Ed25519 V6 receipts |\n| `twzrd-mcp-server` | **@0.5.2** | Local spend-capped auto-pay client (6 tools) |\n\n- **Step-by-step Guide:** [QUICKSTART.md](./QUICKSTART.md)\n- **Concepts & Architecture:** [docs/taxonomy.md](./docs/taxonomy.md)\n- **V6 Receipt Specification:** [docs/receipt-v6-spec.md](./docs/receipt-v6-spec.md)\n- **Receipt Verification & Ground Truth:** [REVIEW.md](./REVIEW.md)\n- **Security Policy:** [SECURITY.md](./SECURITY.md) · [docs/security-assurance.md](./docs/security-assurance.md)\n",
   "status": "curated"
 }

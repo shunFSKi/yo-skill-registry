@@ -1,0 +1,61 @@
+{
+  "id": "mcp:official/io.github.yumaheymans/genmagic",
+  "type": "mcp",
+  "name": "GenMagic",
+  "description": "Generate text, images, speech, music, and video with any AI model, from one credit balance.",
+  "author": "io.github.yumaheymans",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/yumaheymans/genmagic-mcp",
+    "repo": "yumaheymans/genmagic-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://genmagic.co/api/mcp",
+    "env": [
+      {
+        "name": "Authorization",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-01T05:39:08.50558Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "设计",
+    "featured": false
+  },
+  "readme": "# GenMagic MCP Server\n\n**One [Model Context Protocol](https://modelcontextprotocol.io) server that lets any AI agent generate text, images, speech, music, and video, billed against a single prepaid credit balance.**\n\nGenMagic is one studio and one API for every generative AI model, in every medium. This repository is the connection guide and registry descriptor for its **remote MCP server**: point any MCP client at one URL, drop in your key, and your agent gets six generation tools that route to the best underlying model automatically.\n\n- **Endpoint:** `https://genmagic.co/api/mcp`\n- **Transport:** Streamable HTTP (stateless JSON-RPC)\n- **Auth:** `Authorization: Bearer gm_live_...` (create a key at <https://genmagic.co/app/settings>)\n- **Hosted:** nothing to install or run. It is a live remote server.\n- **Registry:** listed on the [Official MCP Registry](https://registry.modelcontextprotocol.io) as `io.github.yumaheymans/genmagic` (see [`server.json`](./server.json)).\n\n## Tools\n\n| Tool | What it does |\n| --- | --- |\n| `generate_text` | Generate text, code, an SVG graphic, or a full web page (optional `type`). |\n| `generate_image` | Generate or edit an image; `type=logo` for a brand mark. |\n| `generate_speech` | Text to speech, voiced verbatim. |\n| `generate_music` | An original music track from a description. |\n| `create_video` | Start an async video job (returns a job id, charges nothing yet). |\n| `get_video` | Poll a video job; charges once, on completion. |\n\n`initialize`, `ping`, and `tools/list` are open; `tools/call` requires your key. Every tool result self-describes its spend in the MCP `_meta` field (`cost_cents`, `credits_remaining`, and a `rate` object), so an agent paces itself and tracks its budget from the result it already has.\n\n## Connect\n\nCreate a key at <https://genmagic.co/app/settings>, then add the server to your client.\n\n### Claude Code\n\n```bash\nclaude mcp add --transport http genmagic https://genmagic.co/api/mcp \\\n  --header \"Authorization: Bearer gm_live_your_key\"\n```\n\n### Cursor, VS Code, Windsurf, and most clients\n\nAdd a `genmagic` entry to your MCP config (`.cursor/mcp.json`, `.vscode/mcp.json`, or the client's equivalent):\n\n```json\n{\n  \"mcpServers\": {\n    \"genmagic\": {\n      \"url\": \"https://genmagic.co/api/mcp\",\n      \"headers\": { \"Authorization\": \"Bearer gm_live_your_key\" }\n    }\n  }\n}\n```\n\n### Claude Desktop\n\nAdd GenMagic as a custom connector in **Settings → Connectors**, using the URL `https://genmagic.co/api/mcp` and a header `Authorization: Bearer gm_live_your_key`.\n\n### Any JSON-RPC client (raw)\n\nThe server is plain JSON-RPC over HTTP, so you can drive it with `curl`:\n\n```bash\n# List the tools (no key required)\ncurl https://genmagic.co/api/mcp \\\n  -H \"Content-Type: application/json\" \\\n  -H \"Accept: application/json, text/event-stream\" \\\n  -d '{ \"jsonrpc\": \"2.0\", \"id\": 1, \"method\": \"tools/list\" }'\n\n# Generate an image (key required)\ncurl https://genmagic.co/api/mcp \\\n  -H \"Authorization: Bearer gm_live_your_key\" \\\n  -H \"Content-Type: application/json\" \\\n  -H \"Accept: application/json, text/event-stream\" \\\n  -d '{\n    \"jsonrpc\": \"2.0\", \"id\": 2, \"method\": \"tools/call\",\n    \"params\": {\n      \"name\": \"generate_image\",\n      \"arguments\": { \"prompt\": \"a cobalt prism refracting into a spectrum, dark studio, 3D render\", \"size\": \"1024x1024\" }\n    }\n  }'\n```\n\n## How billing works\n\nThere is no separate agent meter. Every generation, from the studio, the REST API, or this MCP server, draws the underlying model's real provider cost from one prepaid USD balance (1 credit = 1 US cent). New accounts get a one-time $0.50 starter balance; top up in $5 to $100 increments, or subscribe for a renewing balance with a subscriber bonus and commercial-use rights. `create_video` and a still-rendering `get_video` poll charge nothing; the clip's cost lands on the poll that completes it. See <https://genmagic.co/pricing>.\n\n## On-brand generation\n\nTurn on **personalization** once in the app (connect a website or LinkedIn) and every tool call comes out shaped by your brand's voice, audience, and colors, no prompt changes required. Visual tool results additionally report a `brand_fit` read-back so an agent can regenerate anything that drifted off-palette.\n\n## Links\n\n- Studio and API keys: <https://genmagic.co>\n- Full API + MCP docs: <https://genmagic.co/developers>\n- Machine-readable discovery: [`/.well-known/mcp.json`](https://genmagic.co/.well-known/mcp.json) · [`/llms.txt`](https://genmagic.co/llms.txt) · [`/openapi.json`](https://genmagic.co/openapi.json)\n- Pricing: <https://genmagic.co/pricing>\n\n## License\n\nMIT. See [LICENSE](./LICENSE). This repository is connection documentation and the registry descriptor; the GenMagic service itself is operated at genmagic.co.\n",
+  "status": "curated"
+}

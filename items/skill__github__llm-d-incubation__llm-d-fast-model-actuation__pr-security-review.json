@@ -10,14 +10,20 @@
     "repo": "llm-d-incubation/llm-d-fast-model-actuation",
     "path": ".agents/skills/pr-security-review/SKILL.md"
   },
-  "license": null,
+  "license": "Apache-2.0",
   "install": {
     "kind": "skill-dir"
   },
   "quality": {
-    "stars": null,
-    "pushed_at": null,
-    "score": 25
+    "stars": 18,
+    "pushed_at": "2026-08-31T14:54:59Z",
+    "score": 67,
+    "star_history": [
+      {
+        "d": "2026-09-01",
+        "s": 18
+      }
+    ]
   },
   "security": {
     "score": 100,
@@ -49,6 +55,6 @@
     "category": "编程",
     "featured": false
   },
-  "readme": null,
+  "readme": "The llm-d-fast-model-actuation repository is part of the\n[llm-d](https://github.com/llm-d) ecosystem for serving large\nlanguage models on Kubernetes. FMA lives in the\n[llm-d-incubation](https://github.com/llm-d-incubation) organization,\nwhere new llm-d components are developed before graduation.\n\nThis repository contains work on one of the many areas of work that\ncontribute to fast model actuation. This area concerns exploiting\ntechniques in which an inference server process dramatically changes\nits properties and behavior over time.\n\nThere are two sorts of changes contemplated here. Both are currently\nrealized only for vLLM and nvidia's GPU operator, but we hope that\nthese ideas can generalize.\n\n1. vLLM level 1 sleep and wake_up. A vLLM instance in level 1 sleep\nhas its model tensors in main (CPU) memory rather than accelerator\n(GPU) memory. While in this state, this instance can not serve\ninference requests --- but has freed up accelerator resources for use\nby a different instance. But the sleeping instance is still a running\nprocess (e.g., it can still serve administrative requests) as far as\nthe OS is concerned. And that process is still the main process of a\ncontainer in a Pod, as far as Kubernetes is concerned. The process of\nwaking up the sleeping instance is very fast; for example, taking\nabout 3 seconds for a model with 64 GiB of tensor data. This behavior\nis available in vLLM today.\n\n2. A vllm launcher process. This is a process that can have multiple\nchild processes, each running a distinct vllm instance (which is\nitself the usual parent/child pair of main and engine). The launcher\nloads the Python modules, shaving the time for that off of the startup\nof each launched vllm instance. The launcher has a network API for\nCRUDL of vllm instances.\n\nBy reducing the startup latency of vllm instances, these ideas reduce\nthe latency to change which model a given accelerator (or array of\naccelerators) is being used for. We sometimes use the term \"model\nswapping\" to evoke this idea.\n\nA process with sleep/wake and/or launcher functionality does not\neasily fit into the Kubernetes milieu. The most obvious and natural\nway in Kubernetes to define a desired inference server is to create a\n`Pod` object. However, a `Pod` has a static allocation of accelerator\nresources and a static command line. That is, the obvious way to\ndefine a `Pod` is such that it serves one fixed model and server\noptions, with no resource-freeing hiatus. This repository contains a\nway of fitting the process flexibility into the Kubernetes milieu. We\ncall this technique \"dual pods\". It makes a distinction between (a) a\n_server-requesting Pod_, which describes a desired inference server\nbut does not actually run it, and (b) a _server-providing Pod_, which\nactually runs the inference server(s).\n\nThe topics above are realized by the following software components.\n\n- A **dual-pods controller**, which manages the server-providing Pods\n  in reaction to the server-requesting Pods that other manager(s)\n  create and delete. This controller is written in the Go programming\n  language and this repository's contents follow the usual conventions\n  for one containing Go code.\n\n- A **vLLM instance launcher**, the persistent management process\n  mentioned above. This is written in Python and the source code is in\n  the [inference_server/launcher](inference_server/launcher)\n  directory.\n\n- A **launcher-population controller** (also called the **launcher\n  populator** or simply the **populator**), which watches\n  LauncherConfig and LauncherPopulationPolicy objects and ensures that\n  the right number of launcher pods exist on each node. This\n  controller is also written in Go.\n\nThese controllers are deployed together via a unified Helm chart at\n[charts/fma-controllers](charts/fma-controllers). The chart also\ninstalls the shared RBAC resources and optional ValidatingAdmissionPolicies.\n\nThe repository defines three Custom Resource Definitions (CRDs):\n\n- **InferenceServerConfig** — declares the properties of an inference\n  server (image, command, resources) that server-providing Pods use.\n- **LauncherConfig** — declares the configuration for a launcher\n  process (image, resources, ports) that manages vLLM instances.\n- **LauncherPopulationPolicy** — declares the desired population of\n  launcher pods per node.\n\nThese CRD definitions live in [config/crd](config/crd) and the Go\ntypes are in [pkg/api](pkg/api).\n\nThe development roadmap started with three milestones and then shifts\nto more nuanced \"releases\". Milestone 2, which introduced vLLM\nsleep/wake without the launcher, is finished.  Milestone 3 (AKA minor\nrelease 0.6), which adds the launcher, is essentially finished; we are\nfinding and fixing bugs in a series of patch releases. The next major\nstep is minor release 0.7, in which we expect to introduce a TCP\nreverse-proxy in the requester Pod, to make it an even better\nrepresentative of the inference server.\n\nFor further design documentation, see [the docs\ndirectory](docs/README.md).\n",
   "status": "curated"
 }

@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/com.tracklution/server-side-tracking",
+  "type": "mcp",
+  "name": "server-side-tracking",
+  "description": "Server-side conversion tracking, installed and configured by your AI coding agent.",
+  "author": "com.tracklution",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/tracklution/tracklution-cli",
+    "repo": "tracklution/tracklution-cli"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "tracklution"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-01T06:25:58.346249Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# tracklution-cli\n\nMonorepo for the npm packages that act as Tracklution's brand- and category-surface discovery wedge for AI coding agents:\n\n- [`tracklution`](packages/tracklution) -- canonical. The published bin runs the agent-readable install instructions.\n- [`create-tracklution`](packages/create-tracklution) -- alias so `npm create tracklution@latest` works.\n- [`@tracklution/cli`](packages/at-tracklution-cli) -- scope-reserved alias.\n- [`tracklution-mcp`](packages/tracklution-mcp) -- alias today; future versions will offer a local stdio<->Streamable-HTTP MCP proxy.\n- [`server-side-tracking`](packages/server-side-tracking) -- category-surface alias for `npm view server-side-tracking` / `npx server-side-tracking`.\n- [`conversion-tracking`](packages/conversion-tracking) -- category-surface alias for `npm view conversion-tracking` / `npx conversion-tracking`.\n- [`conversion-api`](packages/conversion-api) -- category-surface alias for `npm view conversion-api` / `npx conversion-api`.\n\n## What this is\n\nWhen a user prompts an AI coding agent (Cursor, Claude Code, Codex, Windsurf, Cline, Lovable, Replit, Bolt, ...) with \"Install Tracklution\" -- or, by category, \"Install server-side tracking\" / \"Install conversion tracking\" -- most agents reflexively run `npm view <name>` and then `npx <name>`. These packages exist so that reflex succeeds and the agent gets deterministic, paste-safe install instructions delivered via the agent's normal stdout-reading toolloop -- instead of falling back to web search and inventing tracking code.\n\nThe actual install runs through the Tracklution MCP server at `https://mcp.tracklution.com/mcp`. The agent reaches that MCP via a one-shot REST bootstrap at `https://api.trlution.com/install/quick-setup` (the \"magic install\" path) -- which provisions the user's account and returns an `mcp.json` snippet that already carries `Authorization: Bearer <jwt>`. This CLI publishes the machine-readable description of that flow.\n\n```\nUser: \"Install Tracklution\"\n   |\n   v\nAgent runs `npm view tracklution`         (finds the package)\nAgent runs `npx tracklution`              (reads stdout + parses --json)\nAgent POSTs to /install/quick-setup       (one HTTP call, REST bootstrap)\nAgent merges data.mcp_config_snippet      (Authorization header included)\nAgent calls get_status -> get_installation_scripts -> verify_and_score\n            (every onboarding call carries container_hash for auth)\n```\n\nUser-action hosts (Lovable, Replit, Bolt) cannot drive HTTP-POST + file-edit from inside the agent, so they fall back to the OAuth Connect-button flow -- the CLI's `install_methods` block tells the agent which hosts support magic install via `magic_install_supported: true`.\n\n## Layout\n\n```\ntracklution-cli/\n  package.json                   workspace root (private, not published)\n  packages/\n    tracklution/                 canonical published package (the bin)\n      bin/cli.js\n      src/payload.js             single source of truth for the stdout payload\n      package.json\n    create-tracklution/          resolve-and-spawn shim\n    at-tracklution-cli/          resolve-and-spawn shim (publishes as @tracklution/cli)\n    tracklution-mcp/             resolve-and-spawn shim\n    server-side-tracking/        resolve-and-spawn shim (category-surface)\n    conversion-tracking/         resolve-and-spawn shim (category-surface)\n    conversion-api/              resolve-and-spawn shim (category-surface)\n  tests/\n    cli.test.js                  default / --json / --version / --help\n    parity.test.js               compare local payload to live install-recipes endpoint\n    aliases.test.js              each alias produces the same stdout as the canonical\n  .github/workflows/\n    test.yml\n    publish.yml\n```\n\n## Development\n\n```bash\nnpm install               # installs workspace deps, symlinks packages/* into each others node_modules\nnpm test                  # runs Vitest across all three test files\nnpm run lint              # syntax-checks every bin/cli.js\nnpm run pack:dry          # dry-run npm pack for all published packages\n```\n\n## Publishing\n\nBump the version in **every** `packages/*/package.json` (keep them in lockstep), tag `vX.Y.Z`, push to GitHub. The publish workflow at `.github/workflows/publish.yml` verifies the lockstep, then runs `npm publish --provenance` for each package in dependency order (canonical `tracklution` first, then all alias shims).\n\n## Single source of truth\n\nThe install methods, MCP URL, and reference URLs are duplicated across:\n\n- [packages/tracklution/src/payload.js](packages/tracklution/src/payload.js) (this repo)\n- [tracklution-app/src/config/install-recipes.json](https://github.com/tracklution/tracklution-app/blob/master/src/config/install-recipes.json)\n- [tracklution-app/public/.well-known/tracklution.json](https://github.com/tracklution/tracklution-app/blob/master/public/.well-known/tracklution.json)\n- [tracklution-app/public/agent-install.md](https://github.com/tracklution/tracklution-app/blob/master/public/agent-install.md) (prose form)\n\nDrift is policed by `tests/parity.test.js`, which fetches the live `https://www.tracklution.com/api/install-recipes/` endpoint and deep-checks the `install_methods` block of `payload.js` against it. The test is skipped if `PARITY_TEST_SKIP=1` (offline CI) or the live endpoint returns a non-200.\n\n## License\n\n[MIT](LICENSE).\n",
+  "status": "curated"
+}

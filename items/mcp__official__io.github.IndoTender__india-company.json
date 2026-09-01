@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.IndoTender/india-company",
+  "type": "mcp",
+  "name": "India Company & Director Data",
+  "description": "Indian company registry research and director-related company due diligence.",
+  "author": "io.github.IndoTender",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/IndoTender/india-company-mcp",
+    "repo": "IndoTender/india-company-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://thecompanyatlas.com/mcp/india"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-01T07:04:49.903144Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# India Company & Director MCP\n\nConnect your AI assistant to [The Company Atlas](https://thecompanyatlas.com) for Indian company registry research and company due diligence through the Model Context Protocol.\n\nThis listing is a focused entry point for:\n\n- Indian company searches\n- Company registration and identity checks\n- Company status, address, industry, and capital information\n- Director-related company research where available on the company profile\n\nThe MCP connection is provided by The Company Atlas. This repository does not run a separate server.\n\n## Connect\n\n```\nhttps://thecompanyatlas.com/mcp\n```\n\nAdd this URL as a custom MCP connector in Claude, Cursor, or any MCP-compatible client. Sign in with Google when prompted.\n\n- Transport: Streamable HTTP\n- Auth: Google OAuth (sign in once, stays authorized)\n- Docs: [thecompanyatlas.com/mcp/connect](https://thecompanyatlas.com/mcp/connect)\n\n## Tools\n\n### `Company_search`\n\nSearch the global company registry by name, restricted to India with `country: \"IN\"`.\n\n| Parameter | Type | Description |\n|---|---|---|\n| `q` | string | Company name or id; 4–60 characters |\n| `nameMatchMode` | enum, optional | `contains` (default), `startsWith`, or `endsWith` |\n| `limit` | integer, optional | Maximum results, `1`–`20`, default `20` |\n| `country` | ISO country code, optional | Use `IN` for India |\n\nReturns matching company ids, names, slugs, country codes, and active status. If no name matches, `q` is tried once as an exact company id.\n\nExample:\n\n```json\n{\n  \"q\": \"Tata\",\n  \"country\": \"IN\",\n  \"nameMatchMode\": \"contains\",\n  \"limit\": 20\n}\n```\n\n### `Company_extended_search`\n\nSearch Indian companies using additional registry fields. Filters are combined with AND logic. Include at least one criterion.\n\n| Parameter | Type | Description |\n|---|---|---|\n| `country` | ISO country code, optional | Use `IN` for India |\n| `name` | string, optional | Company name |\n| `nameMatchMode` | enum, optional | `contains` (default), `startsWith`, or `endsWith` |\n| `localName` | string, optional | Local company name |\n| `id` | string, optional | Company id |\n| `id2` | string, optional | Alternative company id |\n| `slug` | string, optional | Company slug |\n| `abbr` | string, optional | Company abbreviation |\n| `entityType` | string, optional | Entity type |\n| `status` | string, optional | Company status |\n| `active` | boolean, optional | Active/inactive filter |\n| `address` | string, optional | Partial address |\n| `industryCode` | string, optional | Partial industry code |\n| `industryName` | string, optional | Partial industry name |\n| `postalCode` | string, optional | Partial postal code |\n| `areaId` | string, optional | Partial area id |\n| `authorizedCapitalGte` | number, optional | Minimum authorized capital |\n| `authorizedCapitalLte` | number, optional | Maximum authorized capital |\n| `paidUpCapitalGte` | number, optional | Minimum paid-up capital |\n| `paidUpCapitalLte` | number, optional | Maximum paid-up capital |\n| `incorporationDateGte` | string, optional | Minimum incorporation date |\n| `incorporationDateLte` | string, optional | Maximum incorporation date |\n| `formerName` | string, optional | Exact former-name array entry |\n| `page` | integer, optional | 0-based page index, default `0` |\n| `limit` | integer, optional | Results per page, `1`–`100`, default `50` |\n\nReturns company details including identity, status, incorporation date, address, industry, capital, postal code, and area id.\n\nExample:\n\n```json\n{\n  \"country\": \"IN\",\n  \"industryName\": \"pharmaceutical\",\n  \"active\": true,\n  \"page\": 0,\n  \"limit\": 50\n}\n```\n\n### `Company_get_by_id`\n\nFetch one company profile after selecting an id from `Company_search` or `Company_extended_search`.\n\n| Parameter | Type | Description |\n|---|---|---|\n| `id` | string | Company primary key returned by a search |\n\nReturns the company’s core registry profile, including name, local name, entity type, status, incorporation date, address, former names, industry, authorized capital, paid-up capital, postal code, area id, and score. Returns `null` for an unknown id.\n\nExample:\n\n```json\n{\n  \"id\": \"IN...\"\n}\n```\n\n### `IndiaDirector_search`\n\nSearch Indian company director appointments from `IndiaDirectorData`.\n\n| Parameter | Type | Description |\n|---|---|---|\n| `cin` | string, optional | Indian company CIN; an `IN` prefix is removed automatically |\n| `din` | string, optional | Exact director DIN |\n| `directorName` | string, optional | Case-insensitive partial director name |\n| `currentOnly` | boolean, optional | Only appointments without a resignation date; default `false` |\n| `page` | integer, optional | Page number, minimum `1`, default `1` |\n| `limit` | integer, optional | Results per page, `1`–`100`, default `25` |\n\nProvide at least one of `cin`, `din`, or `directorName`. Returns `{ total, page, limit, data }`. Each row includes the company CIN, director DIN and name, designation, and join and resignation dates.\n\nExample:\n\n```json\n{\n  \"directorName\": \"Sharma\",\n  \"currentOnly\": true,\n  \"limit\": 25\n}\n```\n\n## Director data\n\nUse `IndiaDirector_search` to find director appointments by company CIN, director DIN, or director name. Use the company tools to identify the relevant Indian company and retrieve its registry profile.\n\n## Example prompts\n\n- *\"Find Indian companies containing 'Tata' and show their active status.\"*\n- *\"Search for active Indian pharmaceutical companies incorporated after 2015.\"*\n- *\"Find the company profile for this Indian registration id.\"*\n- *\"What company and director information is available for this Indian company?\"*\n\n## Setup — Claude\n\n1. Go to [claude.ai/customize/connectors](https://claude.ai/customize/connectors)\n2. Click **Add custom connector**\n3. Name it **India Company & Director Data** and paste `https://thecompanyatlas.com/mcp`\n4. Save and sign in with Google when prompted\n\n## Setup — Cursor / other MCP clients\n\nAdd to your MCP config:\n\n```json\n{\n  \"mcpServers\": {\n    \"india-company\": {\n      \"url\": \"https://thecompanyatlas.com/mcp\"\n    }\n  }\n}\n```\n",
+  "status": "curated"
+}

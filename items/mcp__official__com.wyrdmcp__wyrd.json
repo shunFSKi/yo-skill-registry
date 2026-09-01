@@ -1,0 +1,65 @@
+{
+  "id": "mcp:official/com.wyrdmcp/wyrd",
+  "type": "mcp",
+  "name": "wyrd",
+  "description": "Exposes one granted folder to any AI client, read-only, behind a path-containment fence.",
+  "author": "com.wyrdmcp",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/MortalPastry/wyrd-mcp",
+    "repo": "MortalPastry/wyrd-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "wyrd-mcp"
+    ],
+    "env": [
+      {
+        "name": "WYRD_GRANT",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-31T23:07:23.546867Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# wyrd\n\n**An MCP server that exposes one folder of Markdown to an AI client, read-only.**\n\nPoint Claude Code, Codex, Cursor, ChatGPT or Claude Desktop at a folder of notes and let it read\nthem. Wyrd serves exactly the folder you grant and refuses everything else, and it tells you plainly\nwhat that means before you grant anything.\n\nIf the folder happens to be a Mage vault — one organised into `Arc/` and `Mage/` layers — wyrd\nnotices and says which layers it found. If it is an ordinary folder of notes, it works the same\nway; vault structure is a detected bonus, never a requirement.\n\n## Install\n\n```\nnpm install -g wyrd-mcp\n```\n\nNode 20 or newer.\n\n## Use\n\nWyrd refuses to start until you grant it a folder. Grant one on the command line or in the\nenvironment:\n\n```\nwyrd-mcp --grant /absolute/path/to/notes\nWYRD_GRANT=/absolute/path/to/notes wyrd-mcp\n```\n\n**Claude Code** — save as `wyrd.mcp.json` and pass `--mcp-config wyrd.mcp.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"wyrd\": {\n      \"command\": \"wyrd-mcp\",\n      \"args\": [\"--grant\", \"/absolute/path/to/notes\"]\n    }\n  }\n}\n```\n\n**Codex** — MCP servers arrive as config overrides:\n\n```\ncodex exec -c 'mcp_servers.wyrd.command=\"wyrd-mcp\"' \\\n           -c 'mcp_servers.wyrd.args=[\"--grant\",\"/absolute/path/to/notes\"]' \"...\"\n```\n\nOther clients take a `command` and `args` in their own MCP configuration; the shape is the same.\n\n## What it can reach — read this before granting\n\n**Wyrd serves the folder you name, read-only. It does not serve anything above it.**\n\n⚠ **EVERY file inside that folder can be read**, of any type, including hidden files and directories\nsuch as `.git`, `.env` and `.ssh`. There is no extension filter and no ignore-file support. **Grant a\nsubfolder containing only what you mean to share.**\n\nA path that resolves outside the granted folder is refused, and the refusal names the rule that\nfired rather than pretending the file is absent.\n\n### Known limits, stated before you grant rather than after\n\nA containment claim without its limits would be false, so:\n\n- A **hard link** created inside the granted folder can reach a file outside it.\n- A path component **swapped between validation and opening** may be read instead of the one\n  checked. Both of these need write access to the granted folder.\n- Some **filesystem reparse points are invisible to this runtime** and are not detected at all — not\n  partially. ⚠ **This one needs no attacker**: an ordinary cloud-synced or WSL-mounted folder can\n  contain one in normal use.\n- A refusal distinguishes *\"outside the grant\"* from *\"does not exist\"*, which tells a caller one bit\n  about whether a file outside the folder exists.\n\n**This list is what is known, not a proof that nothing else exists.** The limits were measured on\nWindows; behaviour on macOS and Linux is reasoned but unmeasured, and the package declares no OS\nrestriction.\n\n## What leaves your machine\n\n**Nothing, by wyrd.** It is a local stdio server: it reads files and hands them to the client that\nlaunched it. It opens no network connection and phones nothing home.\n\n⚠ **What your AI client does with the content is between you and that client.** Wyrd cannot see or\ncontrol that, and no server on this side of the protocol can.\n\n## Tests\n\n```\nnpm test              # the full battery\nnpm run test:portable # the arms that need no symlink privilege\n```\n\n⚠ **`npm test` needs the Windows symlink privilege** (Developer Mode, or an elevated shell) because\nmost fence arms build link fixtures. Without it the suite **refuses to run rather than skipping**, so\na green never means \"the arms that could run, ran.\"\n\n`npm run test:portable` runs the arms that need no privilege and **states its own denominator** — how\nmany ran, how many were held back, and which. A green there is not a green fence; it is a partial run\nthat says so.\n\n## Licence\n\nMIT. See `LICENSE`.\n\n---\n\n*wyrd — Old English, \"that which has become\": the accumulated weight of what has already happened,\nconstraining what can happen next.*\n",
+  "status": "curated"
+}

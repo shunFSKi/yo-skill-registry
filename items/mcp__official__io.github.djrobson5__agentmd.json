@@ -1,0 +1,70 @@
+{
+  "id": "mcp:official/io.github.djrobson5/agentmd",
+  "type": "mcp",
+  "name": "agentmd",
+  "description": "Convert PDF, DOCX, HTML, and URLs to clean, LLM-ready markdown with tables preserved",
+  "author": "io.github.djrobson5",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/djrobson5/agentmd-mcp",
+    "repo": "djrobson5/agentmd-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "agentmd-mcp"
+    ],
+    "env": [
+      {
+        "name": "AGENTMD_API_KEY",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "AGENTMD_BASE_URL",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-08-31T22:22:04.138068Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "写作",
+    "featured": false
+  },
+  "readme": "# agentmd-mcp\n\nMCP server for [AgentMD](https://www.getagentmd.com) — convert **PDF, DOCX, HTML, and URLs into clean, LLM-ready markdown**, with tables preserved and web-page boilerplate stripped.\n\nAgents ingest documents constantly, and most document formats are hostile to language models. This gives your agent three tools that turn any of them into markdown it can actually read.\n\n## Install\n\nGet a free API key (50 conversions, no card) at https://www.getagentmd.com — or fully programmatically:\n\n```bash\ncurl -X POST https://www.getagentmd.com/api/v1/keys/free \\\n  -H \"Content-Type: application/json\" -d '{\"email\": \"you@example.com\"}'\n```\n\nThen:\n\n**Claude Code**\n\n```bash\nclaude mcp add agentmd --env AGENTMD_API_KEY=<your-key> -- npx -y agentmd-mcp\n```\n\n**Any MCP client** (`mcp.json` / `claude_desktop_config.json`):\n\n```json\n{\n  \"mcpServers\": {\n    \"agentmd\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"agentmd-mcp\"],\n      \"env\": { \"AGENTMD_API_KEY\": \"<your-key>\" }\n    }\n  }\n}\n```\n\n**Remote (no install)** — the hosted server speaks streamable HTTP directly:\n\n```bash\nclaude mcp add --transport http agentmd https://www.getagentmd.com/api/mcp \\\n  --header \"Authorization: Bearer <your-key>\"\n```\n\n## Tools\n\n| Tool | Use it for |\n| --- | --- |\n| `convert_url_to_markdown` | A web page or a document at an http(s) URL |\n| `convert_file_to_markdown` | A document on the local filesystem, by path |\n| `convert_document_to_markdown` | Document bytes you already hold, as base64 |\n\nAll three return markdown, prefixed with the detected title and any warnings.\n\n## Supported formats\n\n- **PDF** — text extraction (scanned/image-only PDFs return a warning; OCR is on the roadmap)\n- **DOCX** — headings, lists, and tables preserved\n- **HTML / URLs** — main-article extraction, GFM tables, links resolved to absolute URLs\n- **Markdown / plain text** — normalized passthrough\n\nLimit: 25 MB per document.\n\n## Configuration\n\n| Variable | Required | Purpose |\n| --- | --- | --- |\n| `AGENTMD_API_KEY` | yes | Your API key |\n| `AGENTMD_BASE_URL` | no | Point at a different deployment (self-hosting, staging) |\n\n## Pricing\n\nFirst 50 conversions free (per email, no card). After that, $0.002 per successful conversion, billed monthly. No per-seat licensing — you pay for calls your agents actually make.\n\n## License\n\nMIT (this client shim). The hosted service has its own terms.\n",
+  "status": "curated"
+}
