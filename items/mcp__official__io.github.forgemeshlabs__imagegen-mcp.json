@@ -6,8 +6,8 @@
   "author": "io.github.forgemeshlabs",
   "source": {
     "registry": "mcp-official",
-    "url": "https://github.com/forgemeshlabs/forgemesh-imagegen",
-    "repo": "forgemeshlabs/forgemesh-imagegen"
+    "url": "https://github.com/forgemeshlabs/imagegen-mcp",
+    "repo": "forgemeshlabs/imagegen-mcp"
   },
   "license": null,
   "install": {
@@ -27,8 +27,8 @@
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-05-17T21:02:40.259036Z",
-    "score": 32
+    "pushed_at": "2026-09-01T17:50:04.127983Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -60,6 +60,6 @@
     "category": "设计",
     "featured": false
   },
-  "readme": null,
+  "readme": "# forgemesh-imagegen\n\n[![M8ven Verified](https://m8ven.ai/badge/mcp/forgemeshlabs-imagegen-mcp-5nc38d?variant=verified)](https://m8ven.ai/mcp/forgemeshlabs-imagegen-mcp-5nc38d)\n\n**MCP server for AI image generation.** Generate images, remove backgrounds, upscale to 4x HD — all from a single MCP tool call. Payments handled automatically in USDC on Base mainnet via x402. No API key. No subscription. Pay per image.\n\nPart of the [ForgeMesh](https://github.com/forgemeshlabs/forgemesh) ecosystem — infrastructure for autonomous agents.\n\n---\n\n## Tools\n\n| Tool | What it does | Price |\n|---|---|---|\n| `generate_image` | Standard text-to-image generation | $0.25 USDC |\n| `generate_clean` | Generate + background removal | $0.35 USDC |\n| `generate_hd` | Premium generate + 4x upscale (HD) | $0.50 USDC |\n| `generate_pro` | Top-tier generate + bg removal + 4x upscale | $0.75 USDC |\n\nAll tools accept `prompt` (required) and `aspect` (optional: `1:1`, `16:9`, `9:16`, `4:3`).\n`generate_image` also accepts `affiliate_id` for Pyrimid attribution, or uses `PYRIMID_AFFILIATE_ID` from the environment.\n\n---\n\n## Install\n\n### Claude Desktop\n\nAdd to `claude_desktop_config.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"forgemesh-imagegen\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"forgemesh-imagegen\"],\n      \"env\": {\n        \"WALLET_PRIVATE_KEY\": \"0x...\",\n        \"PYRIMID_AFFILIATE_ID\": \"af_your_id\"\n      }\n    }\n  }\n}\n```\n\n### Claude Code\n\n```bash\nclaude mcp add forgemesh-imagegen -- npx -y forgemesh-imagegen\n```\n\nThen set the env var:\n```bash\nexport WALLET_PRIVATE_KEY=0x...\n```\n\n---\n\n## Requirements\n\n- A Base mainnet wallet private key with USDC\n- $1 USDC ≈ 4 base images, 2 clean, 2 HD, or 1 pro\n- No other API keys needed\n\nGet USDC on Base: [Coinbase](https://coinbase.com) → Bridge to Base, or buy directly on Base.\n\n---\n\n## Example usage\n\n```\ngenerate_image(prompt=\"a red panda in a spacesuit\", aspect=\"1:1\")\n→ { image_url: \"https://...\", prompt: \"...\", aspect: \"1:1\", tier: \"image\" }\n\ngenerate_image(prompt=\"a red panda in a spacesuit\", affiliate_id=\"af_your_id\")\n→ routes through Pyrimid product 3 with no extra cost to the caller\n\ngenerate_clean(prompt=\"a product photo of a ceramic mug\")\n→ { image_url: \"https://...\", tier: \"clean\" }   // transparent PNG\n\ngenerate_hd(prompt=\"a futuristic city at night, cyberpunk style\")\n→ { image_url: \"https://...\", tier: \"hd\" }       // 4096x4096\n\ngenerate_pro(prompt=\"a logo mark, geometric eagle\")\n→ { image_url: \"https://...\", tier: \"pro\" }      // transparent + HD\n```\n\n---\n\n## How it works\n\nEach tool call makes an HTTP request to the ForgeMesh imagegen service gated by the [x402 protocol](https://x402.org). If payment is required, the MCP automatically signs and broadcasts a USDC transfer from your wallet on Base mainnet — then retries the request. You see the result, your wallet is charged, no manual steps.\n\n- Network: Base mainnet (eip155:8453)\n- Token: USDC\n- Protocol: [x402](https://x402.org)\n\n---\n\n## Links\n\n- [ForgeMesh](https://github.com/forgemeshlabs/forgemesh) — ecosystem overview\n- [npm](https://www.npmjs.com/package/forgemesh-imagegen)\n- [x402 Protocol](https://x402.org)\n\n---\n\n## License\n\nMIT © ForgeMesh Labs\n",
   "status": "curated"
 }

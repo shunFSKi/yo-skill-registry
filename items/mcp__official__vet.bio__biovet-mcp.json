@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/vet.bio/biovet-mcp",
+  "type": "mcp",
+  "name": "biovet-mcp",
+  "description": "Moscow vet clinic network (20 clinics, 24/7): clinics, live prices, slots, booking, triage. Russian",
+  "author": "vet.bio",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/Bio-Vet/biovet-mcp",
+    "repo": "Bio-Vet/biovet-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://bio.vet/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-01T17:49:33.375476Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# BioVet MCP Server\n\n[![BioVet MCP server on Glama](https://glama.ai/mcp/servers/Bio-Vet/biovet-mcp/badges/score.svg)](https://glama.ai/mcp/servers/Bio-Vet/biovet-mcp)\n[![smithery badge](https://smithery.ai/badge/pwnz13/biovet)](https://smithery.ai/servers/pwnz13/biovet)\n\n**Remote MCP server for BioVet — a network of 20 veterinary clinics in Moscow, Russia (open 24/7).**\n\nLets AI assistants (Claude, agentic browsers, any MCP client) find a clinic, check live prices, see open appointment slots, **book a visit**, run a symptom urgency check (triage table approved by licensed veterinarians) and check whether a food or houseplant is safe for a pet.\n\n- **Endpoint:** `https://bio.vet/mcp` (Streamable HTTP, stateless JSON-RPC 2.0, no auth required)\n- **Manifest:** [`https://bio.vet/.well-known/mcp.json`](https://bio.vet/.well-known/mcp.json)\n- **Language:** tools accept and answer in Russian (the clinics operate in Moscow)\n\n## Quick start\n\nClaude Code:\n\n```bash\nclaude mcp add --transport http biovet https://bio.vet/mcp\n```\n\nClaude Desktop: *Settings → Connectors → Add custom connector* → `https://bio.vet/mcp`.\n\n## Tools\n\n| Tool | What it does |\n|---|---|\n| `find_clinic` | Nearest of 20 clinics by district / metro / street query or by coordinates, with live Yandex Maps ratings and `clinic_id` |\n| `get_prices` | Live prices from the clinic network's price list (900+ services, same in every clinic) |\n| `check_slots` | Doctors of a clinic with their open appointment times; if the requested specialty is absent, suggests real clinics in the network that have it |\n| `book_visit` | Books a real appointment (name + phone + clinic + time). The assistant must show the user a summary and get explicit confirmation first |\n| `triage` | Symptom urgency check — *go now / see a vet today / observe* — based on a sign table approved by the network's veterinarians. Routing only, never a diagnosis |\n| `food_check` | Is this food/plant safe for a cat, dog, rodent or bird — vet-reviewed reference |\n\n## Example\n\n```bash\ncurl -s -X POST https://bio.vet/mcp -H 'Content-Type: application/json' -d '{\n  \"jsonrpc\": \"2.0\", \"id\": 1, \"method\": \"tools/call\",\n  \"params\": { \"name\": \"find_clinic\", \"arguments\": { \"query\": \"Марьино\" } }\n}'\n```\n\n## Safety\n\n- Booking is rate-limited per IP and every booking is tagged in the clinic's journal; the CRM may call the client back to confirm.\n- No drug dosages and no medical advice beyond urgency routing are ever returned — triage always ends with \"see a veterinarian\".\n- Read tools are free to call; there is no tracking of MCP clients.\n\n## About\n\n[BioVet](https://bio.vet/) — сеть ветеринарных клиник: 20 клиник в Москве и Реутове, все работают круглосуточно, собственная лаборатория. Этот MCP-сервер — официальный.\n\nОткрытые ветеринарные датасеты сети (CC BY 4.0): [github.com/Bio-Vet](https://github.com/Bio-Vet) · [bio.vet/open-data](https://bio.vet/open-data/)\n",
+  "status": "curated"
+}

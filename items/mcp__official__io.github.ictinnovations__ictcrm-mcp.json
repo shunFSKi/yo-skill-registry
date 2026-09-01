@@ -1,0 +1,90 @@
+{
+  "id": "mcp:official/io.github.ictinnovations/ictcrm-mcp",
+  "type": "mcp",
+  "name": "ictcrm-mcp",
+  "description": "Read CRM contact groups and manage contacts on ICTCRM (ICTContact backend).",
+  "author": "io.github.ictinnovations",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/ictinnovations/ictcrm-mcp",
+    "repo": "ictinnovations/ictcrm-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "ictcrm-mcp"
+    ],
+    "env": [
+      {
+        "name": "ICTCRM_BASE_URL",
+        "required": true,
+        "secret": false
+      },
+      {
+        "name": "ICTCRM_USERNAME",
+        "required": true,
+        "secret": false
+      },
+      {
+        "name": "ICTCRM_PASSWORD",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "ICTCRM_MCP_ALLOW_WRITE",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "ICTCRM_TIMEOUT_MS",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "ICTCRM_TLS_INSECURE",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-01T10:32:47.699108Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "营销",
+    "featured": false
+  },
+  "readme": "# ictcrm-mcp\n\nA [Model Context Protocol](https://modelcontextprotocol.io) server for\n**[ICTCRM](https://ictcrm.com)** from [ICT Innovations](https://ictinnovations.com).\n\n`ictcrm.com` runs on the ICTContact backend, so this server speaks that RPC surface.\nIt lets an AI assistant read contact groups and — only when you turn writes on —\ncreate and delete contacts and add a contact to a campaign.\n\n## Install\n\n```bash\nnpx -y ictcrm-mcp      # no install\nnpm install -g ictcrm-mcp\n```\n\nRequires Node.js 18 or newer.\n\n## Configure\n\n| Variable | Required | Default | |\n|----------|----------|---------|--|\n| `ICTCRM_BASE_URL` | yes | | Server base URL, without the `/rest` suffix, e.g. `https://your-ictcrm` |\n| `ICTCRM_USERNAME` | yes | | API account username |\n| `ICTCRM_PASSWORD` | yes | | Password for that account |\n| `ICTCRM_MCP_ALLOW_WRITE` | no | `false` | Unlock the contact write tools (see Safety) |\n| `ICTCRM_TIMEOUT_MS` | no | `30000` | Per-request timeout |\n| `ICTCRM_TLS_INSECURE` | no | `false` | Skip TLS verification — self-signed test servers only |\n\n### Claude Desktop example\n\n```json\n{\n  \"mcpServers\": {\n    \"ictcrm\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"ictcrm-mcp\"],\n      \"env\": {\n        \"ICTCRM_BASE_URL\": \"https://your-ictcrm\",\n        \"ICTCRM_USERNAME\": \"admin\",\n        \"ICTCRM_PASSWORD\": \"your-password\"\n      }\n    }\n  }\n}\n```\n\n## Tools\n\nRead tools are always available:\n\n| Tool | What it does |\n|------|--------------|\n| `ictcrm_list_contact_groups` | List contact groups (id, name, description) |\n\nWrite tools appear only when `ICTCRM_MCP_ALLOW_WRITE=true`:\n\n| Tool | What it does |\n|------|--------------|\n| `ictcrm_create_contact` | Create a contact in a group; returns the contact id |\n| `ictcrm_delete_contact` | Delete a contact by id |\n| `ictcrm_add_contact_to_campaign` | Create a contact and attach it to a campaign |\n\n## Safety\n\nThe server is **read-only by default**. Creating and deleting contacts only becomes\npossible when you set `ICTCRM_MCP_ALLOW_WRITE=true`.\n\n## A note on listing contacts\n\nThe ICTContact backend that ICTCRM runs on exposes contact groups and contact\ncreation/deletion, but its \"list contacts\" method errors server-side, so this server\ndoes not offer a contact-listing tool. It manages contacts and reads contact groups;\nlisting individual contacts is not available over the API today.\n\n## How it connects\n\nCalls go to a form-encoded RPC API at `{base}/rest/<Method>`, each carrying the\naccount username and password. There is no separate token to provision.\n\n## About\n\nBuilt by Tahir Almas at [ICT Innovations](https://ictinnovations.com) — the team\nbehind ICTCRM, ICTContact, ICTDialer, ICTBroadcast, ICTFax and ICTPBX. Learn more at\n[ictcrm.com](https://ictcrm.com).\n\nMIT licensed. Issues and PRs welcome at\n[github.com/ictinnovations/ictcrm-mcp](https://github.com/ictinnovations/ictcrm-mcp).\n",
+  "status": "curated"
+}

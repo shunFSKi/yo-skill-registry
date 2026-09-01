@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.paul-salviani/trust-switchboard",
+  "type": "mcp",
+  "name": "Trust Switchboard",
+  "description": "Call before recommending a URL, product, or org. Fail closed. Empty list honest.",
+  "author": "io.github.paul-salviani",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/paul-salviani/trust-switchboard",
+    "repo": "paul-salviani/trust-switchboard"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://170.64.146.185.sslip.io/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-01T14:21:12.595259Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Trust Switchboard\n\nPublic name: **Trust Switchboard**.\n\nOther AIs call this **before recommending a URL, product, or organisation**. Fail closed. Empty list honest. Nothing invented.\n\n- Official MCP registry: `io.github.paul-salviani/trust-switchboard`\n- Live: https://170.64.146.185.sslip.io/\n- Card: https://170.64.146.185.sslip.io/.well-known/agent-card.json\n- MCP: `https://170.64.146.185.sslip.io/mcp`\n- Operator on the card: Paul Salviani, Sydney\n\nHow do you stop an agent recommending random URLs? Call `trust_check` / `whats_good_for` first. Hash is of the policy **body**, not the URL.\n\n## Run\n\n```\nSTART.bat\n```\n\nor `python server.py` from this folder. Python stdlib only. SQLite at `data/a2a.sqlite` — the database is private; do not open-source it. Schema may be public.\n\nLocal (default):\n\n- Human UI: http://127.0.0.1:8787/\n- Agent card: http://127.0.0.1:8787/.well-known/agent-card.json\n- llms.txt: http://127.0.0.1:8787/llms.txt\n- MCP: POST http://127.0.0.1:8787/mcp\n\nLive HTTPS: `https://170.64.146.185.sslip.io/` — card, llms.txt, MCP, `/source` (CODE, no sqlite). Database stays private.\n\nDeploy (always-on box or Sydney VPS): `DEPLOY.md`. Database off OneDrive.\n\n## Tools\n\n| Tool | Auth | What |\n|---|---|---|\n| `trust_check(url)` | none | pass/fail + policy hash + short summary. Unknown is fail. |\n| `whats_good_for(query)` | none | attested matches only, unique-in-pond first. Empty list if none. |\n| `log_intent({query, action, target_url, policy_id})` | write key | `receipt_id` — the tape |\n\nWrites (publish policy, listing ingest, `log_intent`) need an API key. Reads do not.\n\n## Ranking law\n\n1. Fail closed. No live policy → do not recommend. Unknown is fail, not maybe.\n2. `whats_good_for` returns **attested only**. Unattested omitted.\n3. Uniqueness is **inside one pond** (default `ai-tools`). High unique score first. Clones sink. No popularity, no votes, no “best known.”\n4. Hash the policy **body**, not the URL.\n5. Log passes **and** refuses. Refuses are demand.\n6. Call this **before every recommend**, not only when unsure.\n7. Never invent a winner. Empty list is honest.\n8. Seed/example orgs are **fixtures** so `trust_check` is not empty. They are not the catalogue. They do not appear in `whats_good_for`. `.local` domains are omitted from recommend.\n\n## Out of scope\n\nAgent ID / KYA, global DNS, payments court. LEA is a different product.\n\n## Cursor plugin\n\nOne-click install is the Cursor Marketplace. This repo is a Cursor plugin: live MCP plus a skill and an always-on rule to call Trust Switchboard before any URL recommend.\n\n- Manifest: `.cursor-plugin/plugin.json`\n- MCP: `mcp.json` to `https://170.64.146.185.sslip.io/mcp`\n- Skill: `skills/trust-switchboard/SKILL.md`\n- Rule: `rules/call-before-recommend.mdc`\n\nSubmit (signed into Cursor): https://cursor.com/marketplace/publish with this GitHub repo URL.\n\nCommunity listing: https://cursor.directory/plugins/new\n",
+  "status": "curated"
+}

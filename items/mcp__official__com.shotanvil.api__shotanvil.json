@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/com.shotanvil.api/shotanvil",
+  "type": "mcp",
+  "name": "shotanvil",
+  "description": "Screenshot/PDF/HTML rendering API. API key or x402 required — keyless access disabled.",
+  "author": "com.shotanvil.api",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/Psykepro/shotanvil-examples",
+    "repo": "Psykepro/shotanvil-examples"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://api.shotanvil.com/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-01T16:00:39.873983Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# shotanvil-examples\n\nUsage examples and a live-synced OpenAPI spec copy for the [shotanvil](https://shotanvil.com)\nscreenshot API — `1 screenshot = 1 request`, a free tier that's actually free, from $9/mo.\n\nBase URL: `https://api.shotanvil.com`\n\n## Access paths\n\n`GET /take` and `POST /render-html` accept three access paths, checked in this order:\n\n1. **x402** — send an `X-Payment` header (pay-per-call, no signup, testnet-settled).\n2. **API key** — send `X-Api-Key: <key>` or `?access_key=<key>`.\n3. **Keyless** — no credential, IP-rate-limited, only when the operator has keyless access enabled.\n\nAn invalid API key always fails with `401` and never falls through to keyless, even when keyless\nis enabled — a typo'd paying key never silently downgrades to a lower tier.\n\nGet an API key at [shotanvil.com](https://shotanvil.com).\n\n## Quickstart\n\nTake a screenshot:\n\n```bash\ncurl \"https://api.shotanvil.com/take?url=https://example.com\" \\\n  -H \"X-Api-Key: $SHOTANVIL_API_KEY\" \\\n  -o screenshot.png\n```\n\nGet text + metadata as JSON instead of raw bytes:\n\n```bash\ncurl \"https://api.shotanvil.com/take?url=https://example.com&response_format=json\" \\\n  -H \"X-Api-Key: $SHOTANVIL_API_KEY\"\n```\n\nRender inline HTML:\n\n```bash\ncurl -X POST https://api.shotanvil.com/render-html \\\n  -H \"Content-Type: application/json\" \\\n  -H \"X-Api-Key: $SHOTANVIL_API_KEY\" \\\n  -d '{\"html\": \"<html><body><h1>Hello</h1></body></html>\"}' \\\n  -o out.png\n```\n\nMore runnable examples: [`examples/curl.sh`](examples/curl.sh),\n[`examples/node/screenshot.mjs`](examples/node/screenshot.mjs).\n\n## Common `GET /take` parameters\n\n| Param | Type | Notes |\n|---|---|---|\n| `url` | string, required | Target page URL, http/https only. |\n| `format` | string | `png` (default), `jpeg`, `webp`, or `pdf`. |\n| `full_page` | bool | Capture the full scrollable page height, not just the viewport. |\n| `viewport_width` / `viewport_height` | int | 320–3840 / 240–2160. |\n| `cache_ttl` | int | Seconds to cache this exact render, 0–86400. |\n| `fresh` | bool | Bypass the cache read for this request. |\n| `block_ads` | bool | Block ad-network requests via an EasyList-derived blocklist. |\n| `block_cookie_banners` | bool | Inject a CSS kill-list that hides common cookie-consent banners. |\n| `dark_mode` | bool | Emulate `prefers-color-scheme: dark` before navigation. |\n| `response_format` | string | `binary` (default) returns raw bytes; `json` wraps image (base64) + extracted text/metadata. |\n\nFull parameter reference, request/response schemas, and every field's worked example live in\n[`openapi.json`](openapi.json) — open it in any OpenAPI viewer (e.g.\n[editor.swagger.io](https://editor.swagger.io)) for the browsable version.\n\n## Rate limits\n\nEach API key has a per-second rate limit and a daily call cap. `GET /usage` reports the current\nkey's usage for the day. Exceeding either returns `429` with a `retry_after_s` field.\n\n## Keeping `openapi.json` in sync\n\n`openapi.json` in this repo is a **point-in-time copy**, fetched from the live\n`GET https://api.shotanvil.com/openapi.json` endpoint — it is not hand-written and will drift as\nthe API evolves.\n\nBefore relying on it for anything beyond casual browsing, or before any future update to this\nrepo, re-fetch and diff:\n\n```bash\ncurl -sS https://api.shotanvil.com/openapi.json -o /tmp/openapi.latest.json\ndiff openapi.json /tmp/openapi.latest.json\n```\n\nIf they differ, review the diff, replace `openapi.json` with the fresh copy, and commit — do not\nhand-edit `openapi.json` directly.\n\n## License\n\nExamples in this repo are MIT-licensed — copy and adapt freely. `openapi.json` describes the\nshotanvil API and is provided for reference only.\n",
+  "status": "curated"
+}

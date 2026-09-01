@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.pasichDev/todo-mcp",
+  "type": "mcp",
+  "name": "todo-mcp",
+  "description": "Shared TODO/backlog MCP server with claim tracking, web UI, and encrypted local storage.",
+  "author": "io.github.pasichDev",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/pasichDev/todo-mcp",
+    "repo": "pasichDev/todo-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@pasichdev/todo-mcp"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-01T13:17:39.456374Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "设计",
+    "featured": false
+  },
+  "readme": "# todo-mcp\n\n[![npm](https://img.shields.io/npm/v/%40pasichdev%2Ftodo-mcp.svg)](https://www.npmjs.com/package/@pasichdev/todo-mcp)\n[![CI](https://github.com/pasichDev/todo-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/pasichDev/todo-mcp/actions/workflows/ci.yml)\n[![MCP Registry](https://img.shields.io/badge/MCP%20Registry-io.github.pasichDev%2Ftodo--mcp-blue)](https://registry.modelcontextprotocol.io)\n[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)\n\nA shared TODO/backlog list exposed as an [MCP](https://modelcontextprotocol.io)\nserver, so every AI client you use (Claude Code, Claude Desktop, Warp, Codex,\nor any other MCP host) — and every concurrent session in each of them — reads\nand writes the same list. Comes with a small web UI, agent claim/release\ntracking (so you can see who's working on what right now), full change\nhistory per item, and an encrypted local data file.\n\n## Installation guide\n\nFive minutes, no prior MCP experience needed. This sets up the server, the\nweb UI, and the optional Claude Code skill in one go.\n\n**You need:** [Claude Code](https://claude.com/claude-code) already\ninstalled, and Node.js 18+ (check with `node --version` in a terminal — if\nthat command isn't found, get Node from [nodejs.org](https://nodejs.org)).\n\n**1. Register the server.** Open a terminal and run:\n\n```sh\nclaude mcp add todo-mcp -- npx -y @pasichdev/todo-mcp\n```\n\nThis just tells Claude Code how to start todo-mcp — nothing is downloaded\nyet. `npx` fetches and runs it the first time it's actually used.\n\n**2. Restart Claude Code** (close and reopen it, or start a new session) so\nit picks up the new server.\n\n**3. Try it.** In a chat, ask Claude something like *\"add a todo: buy\nmilk\"*. If it uses the tool and confirms, the server is working.\n\n**4. Open the web UI.** Go to **http://localhost:8787** in your browser —\nit started itself the moment step 3 ran, no separate install step. From\nhere you can add/edit/complete items with a mouse, switch light/dark theme,\nand tap the phone icon (top right) for a QR code to open the same list on\nyour phone (same Wi-Fi network).\n\n**5. (Optional) Install the claim-tracking skill.** This teaches Claude\nCode to mark an item as \"in progress\" while it's actively working on it,\nand to check first before starting something another session already\nclaimed. In Claude Code:\n\n```\n/plugin marketplace add pasichDev/todo-mcp\n/plugin install todo-mcp-claim@todo-mcp\n```\n\nNothing to configure afterward — it applies automatically.\n\nUsing a different MCP host (Claude Desktop, Warp, Codex)? See\n[Install](#install) below for the config-file form. Something not working?\nSee [Manual smoke test](#manual-smoke-test) to isolate whether it's\n`npx`/npm, the server itself, or your MCP client's config.\n\n## Why\n\nIf you use more than one AI coding tool, or run several sessions in\nparallel, plain in-chat todo lists don't survive a context switch. todo-mcp\nis one shared list, backed by a single local file, that every client reads\nand writes through the same MCP tools.\n\n## Features\n\n- **Two lists**: `todo` (near-term, actionable) and `backlog` (parked, out\n  of context)\n- **Rich fields**: title + separate description, category (e.g. a ticket\n  id), priority, due date\n- **Claim/release**: mark an item as actively being worked on so other\n  agents/sessions don't duplicate the effort — shown live in the web UI with\n  the claiming agent's name and a pulsing highlight\n- **Full history**: every create/edit/claim/release/complete is logged with\n  who and when, visible per item in both the web UI and via `todo_history`\n- **Web UI**: `http://localhost:8787` by default — light/dark theme, search,\n  sort, inline edit, undo-delete, QR code + LAN URL so you can open it from\n  your phone on the same Wi-Fi\n- **Encrypted at rest**: the data file is AES-256-GCM encrypted with a\n  locally generated key (see [Data & encryption](#data--encryption))\n- **Schema-versioned**: a stale process (old code still holding an MCP\n  connection after an update) refuses to silently misread newer data instead\n  of guessing\n\n## Install\n\nReference for other MCP hosts, or building from source instead of `npx`.\nFor the default Claude Code path, see [Installation guide](#installation-guide) above.\n\n### Other MCP hosts\n\nFor Claude Desktop or another MCP host, add the equivalent of the Claude\nCode command to its config:\n\n```json\n{\n  \"mcpServers\": {\n    \"todo-mcp\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@pasichdev/todo-mcp\"]\n    }\n  }\n}\n```\n\n### From source\n\n```sh\ngit clone https://github.com/pasichDev/todo-mcp.git\ncd todo-mcp\nnpm install\nnpm run build\nclaude mcp add todo-mcp -- node \"$(pwd)/dist/index.js\"\n```\n\n## Tools\n\n| Tool | Description |\n|---|---|\n| `todo_add(title, description?, list?, category?, priority?, dueDate?)` | Add an item. `list` is `\"todo\"` (default) or `\"backlog\"`. |\n| `todo_edit(id, ...)` | Edit any subset of fields by id. Pass `\"\"` to clear description/category/priority/dueDate. |\n| `todo_claim(id)` | Mark an item as actively being worked on by you. Advisory, not a lock — warns (and lets you take over) if already claimed. |\n| `todo_release(id)` | Clear your claim without completing the item. |\n| `todo_list(filter?, list?, category?, agent?, session?, inProgress?)` | List items, filterable by status, list, category, who added them, session, or claim state. |\n| `todo_complete(id)` | Mark done (also clears any claim). |\n| `todo_history(id)` | Full change log for one item — who did what, when. |\n| `todo_version()` | Report the running process's data-format version and start time — use to sanity-check a possibly-stale MCP connection. |\n| `todo_delete(id)` | Permanently remove an item. |\n\nSee [`skills/todo-mcp-claim/SKILL.md`](skills/todo-mcp-claim/SKILL.md) for\nthe full field/workflow reference written for an agent to follow.\n\n## Claude Code skill\n\nCovered in step 5 of the [Installation guide](#installation-guide) above.\nThe non-interactive form: `claude plugin marketplace add pasichDev/todo-mcp`\nthen `claude plugin install todo-mcp-claim@todo-mcp`. Source:\n[`skills/todo-mcp-claim/SKILL.md`](skills/todo-mcp-claim/SKILL.md).\n\n## Web UI\n\nA read/write dashboard on `http://localhost:8787` (override with\n`TODO_MCP_WEB_PORT`) — light/dark theme, search, sort, inline edit,\nundo-delete, QR code + LAN URL so you can open it from your phone on the\nsame Wi-Fi. Starts itself automatically (see step 4 above); how that\nactually works under the hood:\n\nIt runs as its own process, separate from the MCP server. Every time an MCP\nclient starts `todo-mcp`, it first checks whether something is already\nanswering on the web UI's port — if not, it spawns `web.js` detached in the\nbackground and moves on. The child survives after the short-lived MCP\nprocess exits, and every later MCP connection (from any client) finds it\nalready running and does nothing. No launchd/systemd unit, no manual\n`npm run web`, no double-spawning across multiple concurrent sessions.\n\nIt's bound to `0.0.0.0`, so it's also reachable from other devices on your\nLAN. It polls every 3s, so it stays live while any MCP client adds/edits/\ncompletes items.\n\n**Note:** the web UI serves over plain HTTP with no auth — anyone on the\nsame Wi-Fi network who knows or guesses the URL can read and edit your list.\nFine on a trusted home network; don't run it on a shared/public network.\n\n**Optional — keep it running even with no MCP client connected**, or across\nreboots (macOS example, adapt paths for your setup):\n\n```xml\n<!-- ~/Library/LaunchAgents/com.todo-mcp.web.plist -->\n<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n<plist version=\"1.0\">\n<dict>\n  <key>Label</key><string>com.todo-mcp.web</string>\n  <key>ProgramArguments</key>\n  <array>\n    <string>/usr/bin/env</string><string>node</string>\n    <string>/ABSOLUTE/PATH/TO/todo-mcp/dist/web.js</string>\n  </array>\n  <key>RunAtLoad</key><true/>\n  <key>KeepAlive</key><true/>\n</dict>\n</plist>\n```\n\n```sh\nlaunchctl load ~/Library/LaunchAgents/com.todo-mcp.web.plist\n```\n\n## Data & encryption\n\nData lives in `~/.todo-mcp/`:\n\n- `todos.json.enc` — the store, AES-256-GCM encrypted\n- `key` — a locally generated 256-bit key, written once with `chmod 600`\n  (owner-read-only)\n- `server.log` — plain-text process log (no todo content in it)\n\n**Threat model:** this protects the data file from accidental exposure — a\nstray `git add -A`, a backup tool that doesn't preserve file permissions,\nanother account on a shared machine. It does **not** protect against\nsomeone with read access to your own user account, since the key sits next\nto the data it encrypts. If you upgrade from a version before encryption\nwas added, the old plaintext `todos.json` is migrated automatically on\nfirst read and kept as `todos.json.bak` (never overwritten again — delete\nit yourself once you've confirmed the new file works).\n\n## Manual smoke test\n\n```sh\nnpx @modelcontextprotocol/inspector node dist/index.js\n```\n\nCall `todo_add`, `todo_list`, `todo_claim`, `todo_complete`, `todo_delete`\nfrom the inspector UI and confirm `~/.todo-mcp/todos.json.enc` updates on\ndisk (it won't be human-readable — that's the point).\n\n## License\n\nMIT — see [LICENSE](LICENSE).\n\n<details>\n<summary><strong>Releasing</strong> (maintainer reference)</summary>\n\nTags matching `v*` trigger [`.github/workflows/release.yml`](.github/workflows/release.yml),\nwhich publishes the npm package and then the [MCP Registry](https://modelcontextprotocol.io/registry)\nlisting. One-time setup before the first tag:\n\n1. `NPM_TOKEN` repo secret — an npm **Automation** token (bypasses 2FA) with\n   publish rights on `@pasichdev/todo-mcp`.\n2. `MCP_GITHUB_TOKEN` repo secret — a GitHub PAT (no special scopes), used\n   only to prove ownership of the `io.github.pasichDev/...` server name.\n3. `server.json` — already committed; regenerate with `mcp-publisher init`\n   after `mcp-publisher login github` if the server metadata changes.\n\nThen: `npm version <major|minor|patch>`, `git push --follow-tags`.\n\n</details>\n\n",
+  "status": "curated"
+}

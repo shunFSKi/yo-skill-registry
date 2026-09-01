@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/studio.pulsecircle/pulse",
+  "type": "mcp",
+  "name": "Pulse",
+  "description": "Pulse SDK setup and store-connection guides for AI coding agents, fully offline.",
+  "author": "studio.pulsecircle",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/Pulse-Circle-Studio/pulse-sdk",
+    "repo": "Pulse-Circle-Studio/pulse-sdk"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@pulse-circle/mcp"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-01T09:37:36.589201Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# Pulse SDK\n\nOpen-source analytics SDKs for **web**, **React Native**, **iOS**, and\n**Android**. Add analytics to your app with a reliable, offline-first event\nqueue and clean identity — and nothing else.\n\n- **Tiny.** The web SDK is **≤ 10 KB gzipped** with **zero dependencies**.\n- **Reliable.** A persistent, ordered queue survives offline periods and\n  process death. Delivery is idempotent: retries never duplicate events.\n- **Honest about privacy.** No auto-capture, no fingerprinting, no IDFA/GAID,\n  no ad SDKs. The SDK sends only the events you send it.\n- **One protocol, four platforms.** Every SDK implements the same\n  [wire protocol](./protocol/PROTOCOL.md) and passes the same\n  [conformance fixtures](./protocol/fixtures) in CI. The Pulse ingestion\n  server replays those same fixtures — the contract is verified from both\n  ends.\n\nThis repository holds the TypeScript packages. The Swift and Kotlin SDKs live\nin [`pulse-sdk-native`](https://github.com/Pulse-Circle-Studio/pulse-sdk-native).\n\n## For AI agents\nInstall: `npm i @pulse-circle/web`, then `Pulse.init('pk_...')` and\n`Pulse.track('event', {...})`. The package is self-contained (zero deps, default\nendpoint baked in) and ships llms.txt inside it. Installing needs only npm; event\ndelivery happens in the end-user's browser at runtime.\n\n## Packages\n\n| Package | What it's for | Install |\n|---|---|---|\n| [`@pulse-circle/web`](./packages/web) | Browser / any web app | `npm i @pulse-circle/web` |\n| [`@pulse-circle/react-native`](./packages/react-native) | React Native & Expo | `npm i @pulse-circle/react-native` |\n| [`@pulse-circle/core`](./packages/core) | Platform-agnostic engine (used by the above) | `npm i @pulse-circle/core` |\n| [`@pulse-circle/mcp`](./packages/mcp) | Local (stdio) MCP server — offline setup/connect guides for AI agents | `claude mcp add pulse -- npx -y @pulse-circle/mcp` |\n\n## Quickstart (web)\n\n```bash\nnpm install @pulse-circle/web\n```\n\n```ts\nimport { Pulse } from '@pulse-circle/web';\n\nPulse.init('pk_your_api_key');\n\n// Track product events — the SDK batches, persists, and retries for you.\nPulse.track('subscription_started', { plan: 'pro' });\n\n// Tie events to a user after login.\nPulse.identify('user_42');\n\n// On logout, start a fresh anonymous identity.\nPulse.reset();\n```\n\nThat's the whole API. See each package's README for the platform-specific\ninstall (script tag, Expo, etc.) and the full reference.\n\n## The API, everywhere\n\nThe five methods are identical across all four platforms, in each language's\nidiomatic syntax:\n\n```\ninit(apiKey, options?)      // configure once\ntrack(event, properties?)   // queue an event\nidentify(userId)            // associate the current identity with a user id\nreset()                     // logout: new anonymous identity\nflush()                     // force-send the queue (tests, critical moments)\n```\n\nThere are deliberately no screen/page auto-tracking and no revenue methods:\nrevenue comes from server-side connectors, so there is exactly one source of\ntruth per number.\n\n## The reliability contract\n\n- Every event gets an `idempotency_key` and a `timestamp` **at the moment you\n  call `track`** — never at send time. Retries resend both **byte-identical**,\n  and the server's primary key includes both, so a flaky network can never\n  create a duplicate.\n- The queue is persistent (localStorage on web, files on mobile) and ordered.\n  It survives reloads, crashes, and offline periods up to a per-platform cap,\n  then evicts oldest-first with a debug warning rather than growing without\n  bound.\n- Retries use exponential backoff with jitter. A batch the server keeps\n  rejecting (a \"poison\" batch) is moved aside after 10 attempts so it can\n  never block everything behind it.\n\nThe normative details are in [`protocol/PROTOCOL.md`](./protocol/PROTOCOL.md).\n\n## Development\n\n```bash\nnpm install\nnpm test          # conformance fixtures + unit tests (vitest)\nnpm run lint\nnpm run typecheck\nnpm run build     # tsup builds for every package\nnpm run size -w @pulse-circle/web   # enforce the 10 KB budget\n```\n\n### Conformance fixtures\n\n[`protocol/fixtures`](./protocol/fixtures) is the source of truth for\ncross-platform behaviour. Each JSON file is a scenario (\"these API calls\nproduce these HTTP requests\"); every SDK runs them through a shared\n[fixture runner](./protocol/FIXTURES.md), and the server replays them against\nreal ingestion. Change behaviour by changing a fixture, and every platform's\nCI tells you who's out of contract.\n\n## Releasing\n\nVersions are independent per package. Bump the version in the package's\n`package.json`, then push a tag:\n\n```\ncore-v0.1.0 | web-v0.1.0 | react-native-v0.1.0\n```\n\nThe [publish workflow](./.github/workflows/publish.yml) verifies the tag\nmatches `package.json`, runs the full test + build + size gate, and publishes\nto npm with provenance.\n\n## License\n\nMIT © Pulse Circle Studio\n",
+  "status": "curated"
+}

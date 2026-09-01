@@ -1,8 +1,8 @@
 {
   "id": "mcp:official/io.github.reutavidan/zetesis",
   "type": "mcp",
-  "name": "zetesis",
-  "description": "Scientific due diligence on a claim, sealed in a verifiable attestation. Free screen, gated dossier.",
+  "name": "Zetesis Scientific Due Diligence",
+  "description": "Scientific due diligence on a claim: reviewer questions, failure patterns, dated evidence.",
   "author": "io.github.reutavidan",
   "source": {
     "registry": "mcp-official",
@@ -26,8 +26,8 @@
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-07-18T21:41:34.911528Z",
-    "score": 40
+    "pushed_at": "2026-09-01T17:45:37.598397Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -59,6 +59,6 @@
     "category": null,
     "featured": false
   },
-  "readme": null,
+  "readme": "# Zetesis\n\nScientific due diligence on a claim, from inside Claude, Copilot, or any MCP host.\n\nZetesis takes a high-dimensional scientific or technical claim and grades it\ndimension by dimension against public literature, clinical trials, and filings.\nIt returns an overall reading, cites every source by id, and, for a full\nevaluation, translates the science into what a commitment to the claim turns on\nand seals the result in an attestation anyone can re-check.\n\nThis package is a thin MCP client. It holds no keys and runs no model. Every call\nis proxied to the hosted engine at <https://api.zetesis.science> with your token.\n\n## Get a token\n\nFree, no card, at <https://api.zetesis.science/signup>. The free plan gives you a\nhandful of screening evaluations each month.\n\n## Connect it\n\nClaude Code:\n\n```bash\nclaude mcp add zetesis --env ZETESIS_TOKEN=zk_... -- uvx --from zetesis zetesis-client\n```\n\nClaude Desktop (`claude_desktop_config.json`):\n\n```json\n{\n  \"mcpServers\": {\n    \"zetesis\": {\n      \"command\": \"uvx\",\n      \"args\": [\"--from\", \"zetesis\", \"zetesis-client\"],\n      \"env\": { \"ZETESIS_TOKEN\": \"zk_...\" }\n    }\n  }\n}\n```\n\n## Tools\n\n- **evaluate_claim** — grade a claim. `depth=\"screen\"` returns the verdict directly\n  (free tier); `depth=\"deep\"` runs the full signed dossier in the background.\n  `mode=\"research\"` is science only; `mode=\"diligence\"` adds the capital reading.\n- **check_evaluation** — get the verdict and the rendered dossier link for a deep run.\n- **verify_attestation** — re-check any Zetesis attestation. No account needed.\n- **account_status** — your plan and remaining evaluations or credits.\n\n## How it grades\n\nIt grades only what the evidence supports, cites sources by hard id (PMID, DOI,\nNCT, NIH grant, SEC filing), and flags gaps rather than filling them. It never\ninvents citations. Claim text is not logged; only metadata (the routed domain,\ndepth, counts) is kept.\n\n## Configuration\n\n- `ZETESIS_TOKEN` — your token (required for evaluations; verify works without one)\n- `ZETESIS_API` — override the API base (default `https://api.zetesis.science`)\n\nMIT licensed. The hosted engine is a separate service.\n\n---\nmcp-name: io.github.reutavidan/zetesis\n",
   "status": "curated"
 }

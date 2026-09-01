@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/ai.cerebrium/docs",
+  "type": "mcp",
+  "name": "Cerebrium Docs",
+  "description": "Search the Cerebrium docs: deployment, cerebrium.toml, hardware, endpoints. Also sends feedback.",
+  "author": "ai.cerebrium",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/CerebriumAI/cerebrium-skills",
+    "repo": "CerebriumAI/cerebrium-skills"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://cerebrium.ai/docs/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-01T16:54:17.505427Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "写作",
+    "featured": false
+  },
+  "readme": "# Cerebrium agent skills\n\nOfficial [Agent Skills](https://agentskills.io) and hosted docs MCP for\n[Cerebrium](https://www.cerebrium.ai), the serverless GPU and CPU platform for real-time AI\nworkloads. The skills teach a coding agent to write a valid `cerebrium.toml`, pick hardware and a\nregion, deploy, call the endpoint, and debug the result without leaving the terminal. The MCP\ngives it live search over the documentation.\n\nWorks with Claude Code, Codex, Cursor, GitHub Copilot, Windsurf, Cline and anything else that\nreads the Agent Skills format.\n\n## Install\n\nAny agent (installs the skills into every detected harness):\n\n```bash\nnpx skills add CerebriumAI/cerebrium-skills -g -y\nnpx add-mcp https://cerebrium.ai/docs/mcp -n cerebrium-docs -g -y\n```\n\nClaude Code (one plugin bundles the skills and the docs MCP):\n\n```\n/plugin marketplace add CerebriumAI/cerebrium-skills\n/plugin install cerebrium@cerebrium\n```\n\nCodex:\n\n```bash\ncodex plugin marketplace add CerebriumAI/cerebrium-skills\n```\n\nGemini CLI (one extension bundles the skills and the docs MCP):\n\n```bash\ngemini extensions install https://github.com/CerebriumAI/cerebrium-skills\n```\n\nCursor loads the repository directly as an [Agent Plugin](https://agent-plugins.org): the root\n`plugin.json` and `mcp.json` are the open-standard manifests, so no Cursor-specific install step\nis needed.\n\nOr agent-driven: paste this into the agent of your choice.\n\n```\nInstall the Cerebrium agent toolkit following instructions from\ngithub.com/CerebriumAI/cerebrium-skills: use `npx skills add` and `npx add-mcp`,\nglobal and auto-confirmed for all agents (-g -y).\n```\n\nThen create an account and authenticate the CLI once:\n\n```bash\n# create an account at https://dashboard.cerebrium.ai (also where API keys are created)\npip install cerebrium   # or: brew tap cerebriumai/tap && brew install cerebrium\ncerebrium login\n```\n\nCompute is billed per second: see [pricing](https://www.cerebrium.ai/pricing) for current rates\nand any starting credit.\n\nIn CI, skip `login` and set `CEREBRIUM_SERVICE_ACCOUNT_TOKEN` instead.\n\n## What is in here\n\nOne skill, structured for progressive disclosure: agents load the ~120-line core\n(`skills/cerebrium/SKILL.md`, the workflow, the safety rules, the endpoint shapes) when a\nCerebrium task appears, and pull in a reference file only when the task needs it.\n\n| Reference | Loaded when the task involves |\n| --- | --- |\n| `references/cli.md` | Any `cerebrium` command: full surface, flags, non-interactive auth, CI/CD, which commands cost money. |\n| `references/config.md` | `cerebrium.toml`: every key, the default the API applies when it is omitted, accepted ranges, rebuild triggers. |\n| `references/hardware.md` | The 13 accepted `compute` identifiers, per-GPU and per-plan limits, preference lists, regional availability, storage. |\n| `references/troubleshooting.md` | Failed builds, queueing, reverted settings, the cold-start playbook. |\n\nThe docs MCP (hosted at `https://cerebrium.ai/docs/mcp`) is read-only: documentation search and\nfilesystem, no account access, no key needed. It is declared twice on purpose, because the two\nformats are not interchangeable: `.mcp.json` is the Claude Code convention, and `mcp.json` at the\nrepository root is the path the Agent Plugins standard requires, with that standard's\n`streamable-http` transport name.\n\nThe plugin metadata is likewise declared per host: `.claude-plugin/` for Claude Code,\n`.agents/plugins/` for Codex, root `plugin.json` for Agent Plugins clients such as Cursor, and\n`gemini-extension.json` for the Gemini CLI. `server.json` is the MCP registry entry.\n\n## Try it\n\n- \"Deploy this FastAPI app to Cerebrium on an H100 with auth enabled, then follow the logs.\"\n- \"My Cerebrium app queues requests under load. Work out why and fix the config.\"\n- \"Which GPU and region fit a 13B vLLM model on Cerebrium, and what should the cerebrium.toml be?\"\n\n## Related surfaces\n\n- Any docs page as markdown: append `.md` to the URL\n- Page index: `https://cerebrium.ai/docs/llms.txt`\n- Runnable examples: [CerebriumAI/examples](https://github.com/CerebriumAI/examples)\n\n## Accuracy\n\nEvery default, enum, flag and signature here was read out of the CLI source and the API\nvalidator rather than copied from a docs page. See [CONTRIBUTING.md](CONTRIBUTING.md) for where\nto check each kind of claim, and keep it that way.\n\nMIT licensed.\n",
+  "status": "curated"
+}

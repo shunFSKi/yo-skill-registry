@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/am.sublime/sublime",
+  "type": "mcp",
+  "name": "sublime",
+  "description": "Crie, avalie, calibre e publique agentes procedurais confiáveis em produção na Sublime.",
+  "author": "am.sublime",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/sublime-co/skills",
+    "repo": "sublime-co/skills"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://api.sublime.am/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-01T18:19:31.11724Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Sublime Agent Development\n\n[![npm version](https://img.shields.io/npm/v/@sublime.am/skill.svg)](https://www.npmjs.com/package/@sublime.am/skill)\n[![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)\n\n**Descreva o processo do seu negócio. Receba um agente que o executa — medido, calibrado e com evidência auditável.**\n\nUma Agent Skill para Claude Code, Cursor, Codex, Copilot, Gemini CLI, Windsurf, OpenCode e dezenas de outros agentes de código. Ela não escreve prompts avulsos: conduz um método para **descobrir, redesenhar, modelar, construir, calibrar e provar** um agente procedural — julgando o processo antes de automatizá-lo e definindo o que significa “correto” antes de medir seu comportamento.\n\n## Instalar\n\n```bash\nnpx @sublime.am/skill\n```\n\nDetecta os agentes instalados na máquina e **pergunta em quais instalar** — nada é escrito num harness que você não escolheu. Enter aceita todos. **Reinicie o agente depois**, porque Skills são carregadas na inicialização.\n\nPara pular a pergunta:\n\n```bash\nnpx @sublime.am/skill --all                 todos os encontrados\nnpx @sublime.am/skill --agent claude-code   só os que você nomear\n```\n\nO padrão instala **para o seu usuário**, valendo em todos os projetos:\n\n| Agente | Onde fica |\n| --- | --- |\n| Claude Code | `~/.claude/skills/sublime` |\n| Cursor | `~/.cursor/skills/sublime` |\n| Codex | `~/.agents/skills/sublime` |\n| Copilot · Gemini CLI · Windsurf · Antigravity · OpenCode | o diretório de skills de cada um |\n\n### No projeto, para o time inteiro\n\n```bash\nnpx @sublime.am/skill --project\n```\n\nEscreve a Skill **dentro do repositório atual**, na convenção que cada agente lê em projeto — `.claude/skills/sublime` para o Claude Code, `.github/skills/sublime` para o Copilot, `.windsurf/skills/sublime` para o Windsurf.\n\nCommite o diretório. A partir daí, todo mundo que clonar o repositório recebe a Skill junto, sem instalar nada — e ela fica versionada com o código a que serve.\n\n**Atenção ao escopo no Claude Code:** quando a mesma Skill existe nos dois lugares, **a do usuário vence a do projeto**. Quem já instalou no `~` continua rodando a versão dele mesmo depois de clonar o repositório. Para o time inteiro rodar a mesma versão, cada um remove a pessoal:\n\n```bash\nnpx @sublime.am/skill --uninstall\n```\n\nEm monorepo, um `.claude/skills/` dentro de um pacote também é carregado quando o Claude toca arquivos daquele pacote — dá para deixar a Skill perto do código a que ela serve, em vez de na raiz.\n\n### Marketplace — Skill e MCP no mesmo ato\n\nO caminho recomendado para quem ainda não tem a borda configurada, porque instala a Skill **e** conecta o servidor MCP de uma vez.\n\n**Claude Code:**\n\n```bash\n/plugin marketplace add sublime-co/skills\n/plugin install sublime\n```\n\nO instalador pergunta o escopo — **user** para todos os seus projetos, **project** para todos os colaboradores deste repositório, **local** só para você aqui. Se a saída pedir, rode `/reload-plugins`.\n\n**Cursor:** abra **Customize** na barra lateral e procure `sublime`. Em equipe, um administrador importa este repositório em **Dashboard → Plugins → Team Marketplaces → Import from Repo**.\n\n### Outras formas\n\nPelo CLI do ecossistema, se você já usa:\n\n```bash\nnpx skills add sublime-co/skills\n```\n\nVários agentes de uma vez, ou removendo:\n\n```bash\nnpx @sublime.am/skill --agent cursor,codex\nnpx @sublime.am/skill --uninstall\n```\n\n> **Requer o servidor MCP da Sublime conectado:** `https://api.sublime.am/mcp`. A Skill não trabalha sem uma borda alcançável e informa o que está faltando. Crie sua conta em [Sublime](https://sublime.am).\n\n## O que ela faz\n\nUm agente não é um prompt. Ele é a **composição de um processo**.\n\nAutomatizar um processo ruim apenas torna seus erros sistemáticos. Por isso, a Skill julga o processo antes de codificá-lo, declara o contrato de correção antes de observar o comportamento e só publica quando há evidência suficiente para passar pelo portão de qualidade.\n\n```text\nDISCOVER → REDESIGN → MODEL → BUILD → CALIBRATE → PROVE\n```\n\n| Fase          | O que acontece                                                                                                                      |\n| ------------- | ----------------------------------------------------------------------------------------------------------------------------------- |\n| **Discover**  | Descobre como o trabalho acontece de verdade, a partir de casos concretos — não da versão idealizada.                               |\n| **Redesign**  | Define como o processo deveria funcionar. **Você decide**, com as consequências em dinheiro, risco e tempo.                         |\n| **Model**     | Transforma o processo em conhecimento, procedimentos e tabelas de decisão. Regras decididas viram consultas, não apostas do modelo. |\n| **Build**     | Constrói os artefatos em preview e compila a régua antes de qualquer medição.                                                       |\n| **Calibrate** | Mede iterativamente: uma mudança por rodada. Diferença dentro da dispersão não é ganho.                                             |\n| **Prove**     | Reúne evidência, reconcilia o relatório, passa pelo portão e publica.                                                               |\n\nTudo que a Skill escreve é feito em **preview** e permanece reversível. **Publicação é um ato separado** e só ocorre depois da aprovação do portão de qualidade.\n\n## Mantendo atualizada\n\nO Claude Code atualiza plugins automaticamente, mas **marketplaces de terceiros vêm com a atualização automática desativada**. Para habilitá-la:\n\n```text\n/plugin → Marketplaces → sublime → Enable auto-update\n```\n\nSem isso, você permanece na versão instalada. Para atualizar imediatamente:\n\n```bash\nclaude plugin update sublime@sublime\n```\n\nSe instalou via `npx`, execute novamente:\n\n```bash\nnpx @sublime.am/skill\n```\n\n## Reportar um defeito\n\n**Este repositório é gerado e não aceita pull requests.**\n\nUse uma **[issue](../../issues/new)**. Para uma Skill, o relato comportamental é mais útil que um diff: descreva **o que você pediu, o que a Skill fez, o que deveria ter feito e, quando possível, qual evidência demonstrou o desvio**.\n\nIssues incorporadas à Skill chegam às releases seguintes, com crédito ao autor do relato.\n\n---\n\n`sublime` v2.0.1 · [Sublime](https://sublime.am) · [privacidade](PRIVACY.md) · licença [MIT](LICENSE)\n",
+  "status": "curated"
+}

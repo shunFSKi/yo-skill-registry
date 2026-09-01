@@ -1,0 +1,65 @@
+{
+  "id": "mcp:official/io.github.ArtyKOMarkets/warda",
+  "type": "mcp",
+  "name": "warda",
+  "description": "Economic authority for autonomous agents on Kaspa L1. Never holds a key.",
+  "author": "io.github.ArtyKOMarkets",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/ArtyKOMarkets/warda",
+    "repo": "ArtyKOMarkets/warda"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@warda_protocol/mcp"
+    ],
+    "env": [
+      {
+        "name": "WARDA_TEMPLATE",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-01T14:04:37.82933Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Warda\n\n**Give agents money. Not unlimited authority.**\n\nAn open protocol for creating, delegating, verifying and enforcing cryptographic\neconomic grants for autonomous software agents, on Kaspa.\n\nA principal commits funds to a *grant* and defines what the agent may do with\nthem. The property that matters:\n\n> The agent cannot exceed the authority encoded in its grant — even if the agent\n> itself, its wallet software, or the Warda backend is compromised.\n\nEnforcement is not a policy in a database. It is a Toccata covenant: the\nsettlement layer refuses to produce a valid transaction.\n\n---\n\n## Live on testnet-10\n\nAn agent was prompt-injected and told to pay an address outside its allowlist.\n**The network refused the transaction.**\n\n| | |\n|---|---|\n| Legitimate spend — accepted | `36f3dff2e5218651d80e62f1c7e620313a58fbc6ecd18a81d68050a33544fb55` |\n| Prompt injection — refused | `e251a20effea166c90f9cf4f19e28073856e57b3dc9ef0209269347e7a1396f1` |\n\nSame grant, same address, same key — differing in one field, the payee. Full\ndetail in [DEPLOYED.md](DEPLOYED.md).\n\n## Status: experimental, unaudited, nothing on mainnet\n\nThe spend and delegation covenants exist and are **proven against\n`TxScriptEngine`** — the same script engine a Kaspa node uses to validate a\ntransaction. 33 covenant tests, 45 protocol tests, sub-second, no node required.\n\n| | |\n|---|---|\n| Protocol semantics | `@warda_protocol/core`, 45 tests |\n| Spend covenant | proven, 1,810 bytes |\n| Delegation covenant | proven, conservation demonstrated |\n| Consensus limits | measured — [LIMITS.md](LIMITS.md) |\n| Signing path | verified — [SIGNING.md](SIGNING.md) |\n| On a public network | **testnet-10** — [DEPLOYED.md](DEPLOYED.md) |\n\nNothing here has touched mainnet, and Silverscript itself is pre-v1 and may\nbreak without notice.\n\n## Quick start\n\n```bash\nnpm run check                              # protocol semantics: typecheck + 45 tests\ncd covenant/harness && cargo test          # covenant vs. the node engine: 33 tests\ncd covenant/deploy && cargo run -- dry-run # deploy tool, no node needed\n```\n\n## What is actually proven\n\nEach row below has a **flip test**: a spend the engine *accepts*, with exactly\none field changed. Because the baseline passes, the rejection can only be caused\nby that field.\n\n| Attack | Verdict |\n|---|---|\n| Prompt injection to an unlisted payee | rejected |\n| Overspend past the per-transaction cap | rejected |\n| Payment diverted after a valid proof | rejected |\n| Agent rewrites its own authority | rejected |\n| Successor state not advanced | rejected |\n| Delegation escalation, on every axis | rejected |\n| Authority created by delegating | rejected |\n| **A correctly formed spend** | **accepted** |\n\nThis distinction matters more than it looks. The engine collapses every failed\n`require` into one opaque `VerifyError` — it never says *which* rule rejected. So\n`assert!(is_err())` against a baseline that never passed proves nothing at all: a\nmalformed script produces the same verdict as a working per-spend cap.\n\n## Layout\n\n```\nsrc/            @warda_protocol/core — protocol semantics in TypeScript, no dependencies\ntest/           45 tests: attacks, conservation, epochs, allowlists\nvectors/        test vectors any covenant implementation is checked against\ncovenant/\n  warda_grant.sil    the covenant\n  harness/           executes it against the node's script engine\n  deploy/            puts it on testnet-10\n```\n\n## Findings\n\nThe interesting parts of this project are the things that turned out not to be\ntrue. Each of these cost real debugging and is written up:\n\n- **[PHASE0.md](PHASE0.md)** — Toccata is mainnet-live; `tx.daa` is write-only, so\n  epochs need a different construction; **expiry cannot be enforced** — it is a\n  reclaim right, not a spend prohibition\n- **[DEPLOYED.md](DEPLOYED.md)** — the testnet transactions, and the four things\n  only a real network could teach us\n- **[LIMITS.md](LIMITS.md)** — script size, compute budget and stack depth. Includes\n  a corrected measurement: the first compute figure was taken with the signature\n  charge suppressed, and measured the flag rather than the system\n- **[SIGNING.md](SIGNING.md)** — covenant bindings enter the signature only at\n  transaction **version 1**; a v0 signer fails in a way that looks exactly like a\n  covenant bug\n- **[DELEGATION.md](DELEGATION.md)** — why authority had to move out of constructor\n  parameters and into state before delegation could be expressed at all\n- **[REUSE.md](REUSE.md)** — six bugs inherited from a prior Kaspa covenant project,\n  every one of which bit again\n- **[CORE.md](CORE.md)** — `@warda_protocol/core` internals and design rules\n\nThe single best example: `byte constant LEAF = 0x00` compiles to an **empty**\nbyte array, because Kaspa script encodes zero as the empty string. The Merkle\nleaf domain separator silently vanished — the source read as domain-separated,\nthe bytecode was not. No code review catches that, and no test comparing one\nimplementation to itself catches it either, because both sides were consistently\nwrong. It took per-opcode tracing against the real engine.\n\n## Not built yet\n\nThe presentation-layer challenge, covenant-side allowlist narrowing (a child\ncurrently inherits its parent's allowlist rather than narrowing it), multi-level\ndelegation beyond one generation, and the hosted services.\n\n## License\n\nMIT.\n",
+  "status": "curated"
+}

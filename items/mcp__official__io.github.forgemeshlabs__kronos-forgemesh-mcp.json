@@ -27,8 +27,8 @@
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-08-07T19:55:19.418505Z",
-    "score": 42
+    "pushed_at": "2026-09-01T17:50:05.759396Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -60,6 +60,6 @@
     "category": "金融",
     "featured": false
   },
-  "readme": null,
+  "readme": "# Kronos by ForgeMesh MCP\n\n[![M8ven Verified](https://m8ven.ai/badge/mcp/forgemeshlabs-kronos-forgemesh-mcp-1dod5h?variant=verified)](https://m8ven.ai/mcp/forgemeshlabs-kronos-forgemesh-mcp-1dod5h)\n\nAn MCP stdio server that lets agents purchase structured Kronos market\nintelligence from `https://kronos.forgemesh.io` using x402 USDC payments on\nBase. This is the agent client layer for the third Kronos product origin.\n\n## Tools\n\n| Tool | Purpose | Price |\n| --- | --- | ---: |\n| `get_kronos_risk` | Risk state, streaks, and cooldown context | $0.02 |\n| `get_kronos_whale_flows` | Whale, exchange, bridge, and stablecoin flows | $0.02 |\n| `get_kronos_signals` | Current multi-symbol signal context | $0.05 |\n| `get_kronos_history` | Up to 168 hours of signal history | $0.05 |\n| `get_kronos_forecast` | Calibrated 80% range and upside probability | $0.05 |\n| `check_kronos_preflight` | Conditions check before journaling | $0.05 |\n| `audit_kronos_decision` | Outcome audit for a prior `decision_id` | $0.07 |\n| `create_kronos_decision` | Auditable market-intelligence journal | $0.15 |\n\n## Install\n\n```bash\nnpx -y @forgemeshlabs/kronos-forgemesh-mcp\n```\n\nThe private key stays local and is used only to sign x402 payment\nauthorizations. Use a dedicated low-balance Base wallet; never use a primary\nwallet. The server allowlists `https://kronos.forgemesh.io` as its only\nproduction API origin.\n\n## Claude Code / Desktop\n\n```json\n{\n  \"mcpServers\": {\n    \"kronos\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@forgemeshlabs/kronos-forgemesh-mcp\"],\n      \"env\": {\n        \"WALLET_PRIVATE_KEY\": \"0x<dedicated-low-balance-wallet-key>\"\n      }\n    }\n  }\n}\n```\n\nNo payment occurs when the server starts or lists its tools. Payment happens\nonly when an agent invokes one of the eight tools.\n\nUnpaid challenge requests time out after 30 seconds; paid retries time out\nafter 60 seconds. Errors are returned as structured `KRONOS_TOOL_ERROR`\npayloads so the calling agent can recover without reading server logs.\n\nMarket intelligence only. Outputs are not instructions to transact.\n\nSource: https://github.com/forgemeshlabs/kronos-forgemesh-mcp\n",
   "status": "curated"
 }

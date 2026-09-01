@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.zkp2p/peer",
+  "type": "mcp",
+  "name": "Peer",
+  "description": "Read Peer protocol, market, checkout, and Peer Cash data through one MCP server.",
+  "author": "io.github.zkp2p",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/zkp2p/peer-cli",
+    "repo": "zkp2p/peer-cli"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://mcp.peer.xyz/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-01T09:28:13.85692Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "<!-- mcp-name: io.github.zkp2p/peer -->\n\n# peer-cli\n\nThe canonical agent interface for Peer: one JSON-first CLI, local and hosted MCP\nservers, and one generated contract for protocol, indexer, market, checkout,\nand Peer Cash workflows.\n\n- Docs and agent-readable text: <https://agents.peer.xyz>\n- Exact CLI schemas: [`agents/tool-catalog.json`](agents/tool-catalog.json)\n- Error contract: [`agents/error-catalog.json`](agents/error-catalog.json)\n- Runtime profiles and counts:\n  [`agents/runtime-manifest.json`](agents/runtime-manifest.json)\n\nThe generated files come from the runtime registries. Do not hand-maintain a\nsecond command list in documentation.\n\n## Install\n\nNode.js 22 or newer is required.\n\nThe package is `peer-protocol-cli`; do not install the unrelated unscoped\n`peer-cli` package.\n\n```bash\nnpm install --global peer-protocol-cli@0.3.1\npeer --help\n```\n\nRun without a global install:\n\n```bash\nnpx -y peer-protocol-cli@0.3.1 quote --from USD --amount 100 --platform wise\n```\n\nSuccessful output is JSON by default. Errors always use the canonical JSON\nerror envelope on stderr. `--format table` changes successful human-facing\noutput only.\n\n## Safety model\n\nRead commands execute immediately. Commands that can mutate state return a\ntransaction or API preview first and execute only when the process receives\n`--yes`.\n\nSigner material resolves from `PEER_PRIVATE_KEY` or `--wallet-path`. Passing a\nprivate key on the command line is supported but visible in process listings;\nprefer the environment or an owner-readable wallet file. Persistent config and\ncheckout caches are written with owner-only permissions.\n\nNever start a write-capable MCP process with `--yes` unless every write tool in\nthat process is intentionally allowed to broadcast without a second CLI\npreview.\n\n## MCP profiles\n\n`peer mcp` requires one of three explicit profiles:\n\n- `read-only` — default protocol reads plus Peer Cash reads. No signing or\n  broadcasting.\n- `cash` — the complete custody-separated `peer_cash_*` surface. It prepares\n  unsigned transaction plans but never accepts a private key, signs, or\n  broadcasts.\n- `full` — every generic CLI-backed MCP tool plus Peer Cash. Generic write tools\n  still preview unless the MCP process was started with global `--yes`.\n\nThe current tool counts are generated in `agents/runtime-manifest.json`.\n\n```json\n{\n  \"mcpServers\": {\n    \"peer\": {\n      \"command\": \"npx\",\n      \"args\": [\n        \"-y\",\n        \"peer-protocol-cli@0.3.1\",\n        \"mcp\",\n        \"--profile\",\n        \"read-only\"\n      ]\n    }\n  }\n}\n```\n\nUse `--profile cash` for the portable Peer Cash workflow or `--profile full`\nfor the complete operator surface.\n\nThe hosted MCP server exposes only the `read-only` profile over Streamable HTTP:\n\n```text\nhttps://mcp.peer.xyz/mcp\n```\n\nRun the same transport yourself with `peer mcp --transport http`. HTTP refuses\nthe `cash` and `full` profiles; those authority-bearing profiles remain local\nstdio processes.\n\n## Peer Cash\n\nThe retired standalone `peer-cash-mcp` server now lives here. Its tool names and\ncustody boundary are unchanged:\n\n1. `peer_cash_capabilities` / `peer_cash_source_capabilities` — fetch live\n   payout rails and Relay-supported source chains and tokens.\n2. `peer_cash_fill_stats` / `peer_cash_buyer` — inspect historical fill\n   evidence and buyer protocol history.\n3. `peer_cash_quote_source` / `peer_cash_relay_status` — quote and track a\n   cross-chain route into Base USDC without granting signer authority.\n4. `peer_cash_estimate` — estimate fiat received at the current oracle rate.\n5. `peer_cash_prepare` — return ordered unsigned approval and deposit\n   transactions.\n6. `peer_cash_finalize` — resolve a confirmed receipt into a durable\n   `depositId`.\n7. `peer_cash_order` / `peer_cash_orders` — resume and inspect orders.\n8. `peer_cash_prepare_access_policy`, `peer_cash_prepare_withdraw`, and\n   `peer_cash_prepare_top_up` — prepare follow-up transactions.\n\nBase USDC amounts are decimal strings in 6-decimal base units: 100 USDC is\n`100000000`. Estimates are not locked quotes; the binding Chainlink rate\nresolves when a buyer fills.\n\nInstall the packaged portable skill from\n[`skills/peer-cash/SKILL.md`](skills/peer-cash/SKILL.md) when the agent host\nsupports Agent Skills.\n\n## Configuration\n\nConfiguration resolves in this order:\n\n1. CLI flags\n2. environment variables\n3. `~/.peer/config.json`\n4. runtime defaults\n\nCommon settings:\n\n- `PEER_ENV`: `production`, `preproduction`, or `staging`\n- `PEER_PRIVATE_KEY` / `PEER_WALLET_PATH`: signer material for generic write\n  commands\n- `PEER_RPC_URL`: Base RPC override\n- `PEER_API_KEY`: Curator API key when required\n- `PEER_INDEXER_API_KEY` / `PEER_INDEXER_URL`: indexer overrides\n- `PEER_MARKET_API_KEY` / `PEER_MARKET_BASE_URL`: Peerlytics access\n- `PEER_PAY_API_KEY` / `PEER_PAY_BASE_URL`: hosted checkout access\n- `PEER_BASE_API_URL`: Curator override. Defaults follow `PEER_ENV`:\n  `api.zkp2p.xyz`, `api-preprod.zkp2p.xyz`, or `api-staging.zkp2p.xyz`.\n- `PEER_CASH_RPC_URL`, `PEER_CASH_API_KEY`, `PEER_CASH_REFERRAL_CODE`, and\n  `PEER_CASH_REFERRER`: cash-profile overrides\n\nUse `peer config show`, `set`, `unset`, and `reset` for persistent local\nsettings. `peer config show` masks secret values. Prefer environment variables\nfor credentials.\n\n## Command families\n\nThe CLI covers:\n\n- quotes, payee registration, and payee-hash resolution\n- deposit lifecycle, payment methods, currencies, oracle configuration, and\n  batch updates\n- intents, pre-intent hooks, fulfillment, release, and cleanup\n- StakeVault deposits, withdrawals, authorization, indexed freshness, and\n  matured chargeback releases\n- IntentGuardian policy, live extension quotes, payer funding, and\n  preview-first intent extension\n- ProtocolViewer and indexer reads, including a raw GraphQL escape hatch\n- vaults, rate managers, delegation, fees, and snapshots\n- Peerlytics market, explorer, history, attribution, and API-key operations\n- USDC balances and transfers\n- hosted checkout creation, reads, cancellation, and local resume cache\n- local config and environment inspection\n\nRun `peer --help`, `peer <family> --help`, or inspect the generated tool catalog\nfor the exact current paths, flags, schemas, auth requirements, and danger\nmarkers.\n\nEvery command also accepts `--params <json>` and `--params-file <path>`. Typed\nflags override raw values.\n\n## Development\n\nThis repository uses npm and its committed `package-lock.json`.\n\n```bash\nnpm install\nnpm run dev -- quote --from USD --amount 100 --platform wise\nnpm run check\n```\n\n`npm run build` regenerates all agent catalogs before bundling `peer` and the\npublic MCP library entry point. Run `npm run test:e2e` after changing networked\nflows or checkout behavior.\n\nThe documentation application for `agents.peer.xyz` is owned by\n`zkp2p/zkp2p-clients` at `clients/agents`; this repository owns the executable\nruntime, package manifests, portable skill, and generated contracts it\ndocuments.\n",
+  "status": "curated"
+}
