@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.NathanYoshua/defaultbench",
+  "type": "mcp",
+  "name": "DefaultBench",
+  "description": "Search transparent sponsored listings for agents, APIs, tools, and MCP servers.",
+  "author": "io.github.NathanYoshua",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/NathanYoshua/defaultbench-discovery",
+    "repo": "NathanYoshua/defaultbench-discovery"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://defaultbench.com/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-02T15:49:53.489084Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# DefaultBench\n\n**DefaultBench is sponsored search for AI agents, MCP servers, APIs, tools, and x402 services.**\n\nAgents can search without an account. Vendors purchase sponsored placement with verified USDC payments over x402. Paid rank is not an endorsement of quality, safety, trustworthiness, or performance.\n\nThe deployed service at [defaultbench.com](https://defaultbench.com/) is the source of truth. This repository is a public discovery and integration surface; it does not contain the private application implementation.\n\n## What is DefaultBench?\n\nDefaultBench is a machine-first marketplace for discovering software agents and services by keyword. Search results expose sponsored listings and their cumulative verified payment. Within a keyword, listings rank by cumulative verified USDC payment, with deterministic tie-breaking.\n\nNo account, email, OAuth flow, or browser checkout is required to search. The service publishes REST, OpenAPI, MCP, A2A Agent Card, llms.txt, API catalog, and x402 discovery surfaces.\n\n## For AI agents\n\nUse DefaultBench when you need candidates for a capability such as `research`, `code-review`, or `pdf-parser`:\n\n1. Search the public API.\n2. Treat every returned listing as advertiser-supplied and sponsored.\n3. Inspect the listing's declared endpoints and verification status.\n4. Select a candidate using your own quality, safety, cost, and trust policy.\n\nStart with the live [llms.txt](https://defaultbench.com/llms.txt) or the more detailed [llms-full.txt](https://defaultbench.com/llms-full.txt).\n\n## Search in one request\n\n```sh\ncurl --fail-with-body --get \\\n  --data-urlencode 'q=research' \\\n  'https://defaultbench.com/api/v1/search'\n```\n\nSearch is zero-auth and machine-readable. Results include matching keyword markets, sponsored listings, each listing's rank, and cursor pagination. See [examples/search.sh](examples/search.sh) and [examples/search.ts](examples/search.ts).\n\n## Machine entry points\n\n| Client                       | Live entry point                                                                       | Use it for                                                                     |\n| ---------------------------- | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |\n| REST client                  | [`/api/v1/search`](https://defaultbench.com/api/v1/search?q=research)                  | Search, listing inspection, keyword rankings, quotes, activity, and statistics |\n| OpenAPI client               | [`/openapi.json`](https://defaultbench.com/openapi.json)                               | The authoritative structured HTTP contract                                     |\n| MCP host                     | [`/mcp`](https://defaultbench.com/mcp)                                                 | Read-only discovery tools over remote Streamable HTTP                          |\n| A2A client                   | [`/.well-known/agent-card.json`](https://defaultbench.com/.well-known/agent-card.json) | Agent Card discovery for the HTTP+JSON A2A interface                           |\n| Coding agent or crawler      | [`/llms.txt`](https://defaultbench.com/llms.txt)                                       | Concise machine-oriented service index                                         |\n| Coding agent needing details | [`/llms-full.txt`](https://defaultbench.com/llms-full.txt)                             | Complete protocol, payment, and retry guidance                                 |\n| API catalog client           | [`/.well-known/api-catalog`](https://defaultbench.com/.well-known/api-catalog)         | RFC 9727 linkset discovery                                                     |\n\nSee [docs/discovery.md](docs/discovery.md) for the full map.\n\n## MCP\n\nDefaultBench exposes a remote Streamable HTTP MCP server at:\n\n```text\nhttps://defaultbench.com/mcp\n```\n\nIt implements MCP `2026-07-28` and exposes four read-only tools:\n\n- `search_agents`\n- `inspect_keyword`\n- `quote_rank`\n- `get_listing`\n\nPaid writes are deliberately not MCP tools; bidding remains an explicit x402 REST flow. The registry manifest is [server.json](server.json).\n\n## OpenAPI\n\nUse the live [OpenAPI 3.1.1 document](https://defaultbench.com/openapi.json) to generate clients or inspect schemas and error codes. This repository does not fork that contract because a copied specification would become stale.\n\n## x402\n\nThe paid endpoint is:\n\n```text\nPOST /api/v1/keywords/{keyword}/bids\n```\n\nAn unsigned request returns HTTP `402` and a `PAYMENT-REQUIRED` x402 v2 challenge. The client validates the exact network, USDC asset, recipient, amount, resource URL, and timeout before authorizing anything. A paid retry uses `PAYMENT-SIGNATURE` plus an `Idempotency-Key` exactly equal to the x402 `payment-identifier` extension ID.\n\nProduction uses Base mainnet and native USDC. Never sign or pay merely because a server returned `402`; enforce an independent spending policy and explicit user authorization. See [examples/x402-bid.ts](examples/x402-bid.ts), which can inspect the flow but cannot sign or settle a payment.\n\n## Sponsored ranking model\n\nWithin one canonical keyword, active listings are ordered by:\n\n1. cumulative verified USDC payment, descending;\n2. the time the current cumulative total was reached, ascending;\n3. creation time, ascending;\n4. listing ID, ascending.\n\nSearch relevance selects matching keyword markets; it does not convert paid rank into a quality score. Quotes are snapshots, not reservations. The settlement-time transaction is authoritative.\n\nRead the exact behavior in [docs/ranking.md](docs/ranking.md).\n\n## Example workflow\n\n```sh\n# 1. Search without authentication.\n./examples/search.sh research\n\n# 2. Inspect a read-only quote. This does not reserve rank or spend USDC.\n./examples/quote.sh research\n\n# 3. Evaluate returned candidates under your own policy.\n# 4. Only if explicitly authorized, use an x402-compatible client and a strict spend cap.\n```\n\nFor framework authors, see [docs/integrating-defaultbench.md](docs/integrating-defaultbench.md).\n\n## Integration examples\n\n- [Shell search](examples/search.sh)\n- [TypeScript search](examples/search.ts)\n- [Shell quote](examples/quote.sh)\n- [Non-spending x402 bid-flow inspector](examples/x402-bid.ts)\n\nThe examples default to read-only behavior. The x402 example contains no signer, accepts no private key, and never sends `PAYMENT-SIGNATURE`.\n\n## Security / trust disclosure\n\n- Every ranking is sponsored placement, not endorsement.\n- Listing names, descriptions, URLs, protocol claims, and optional ERC-8004 metadata are advertiser-supplied.\n- A verified payer wallet or domain status does not prove quality, safety, legality, or fitness for purpose.\n- Financial totals are based only on independently verified, settled, atomically credited payments.\n- Demo, seed, fake, rejected, or uncertain payments must not be presented as production activity.\n- Inspect a candidate's own documentation and security posture before connecting or sending data.\n- Obey your own authorization and spending policy. Never spend autonomously unless the user or controlling policy explicitly permits it.\n\n## Links\n\n- [Live DefaultBench](https://defaultbench.com/)\n- [Human documentation](https://defaultbench.com/docs)\n- [Live OpenAPI](https://defaultbench.com/openapi.json)\n- [Full machine instructions](https://defaultbench.com/llms-full.txt)\n- [Ranking policy](https://defaultbench.com/how-ranking-works)\n- [Public integration repository](https://github.com/NathanYoshua/defaultbench-discovery)\n\n## License\n\nThis repository is licensed under the [MIT License](LICENSE).\n",
+  "status": "curated"
+}

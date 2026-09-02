@@ -1,0 +1,61 @@
+{
+  "id": "mcp:official/io.github.commodus67/sports-probabilities-mcp",
+  "type": "mcp",
+  "name": "Sports Probabilities MCP",
+  "description": "Monte Carlo NFL, MLB and soccer odds, plus model-vs-market edge from live prices",
+  "author": "io.github.commodus67",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/commodus67/sports-probabilities-mcp",
+    "repo": "commodus67/sports-probabilities-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://commodus67--sports-probabilities-mcp.apify.actor/mcp",
+    "env": [
+      {
+        "name": "Authorization",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-02T17:43:07.151929Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "生活",
+    "featured": false
+  },
+  "readme": "# Sports Probabilities MCP\n\nAn MCP server that gives AI assistants **Monte Carlo probabilities for the NFL, MLB and 17 soccer leagues**, plus a model-versus-market comparison against live Kalshi prices.\n\nAsk in plain language from Claude, ChatGPT or Cursor and get a computed number back — not an estimate the model made up.\n\n**The server runs on Apify:** https://apify.com/commodus67/sports-probabilities-mcp\n\nThis repository holds the documentation and the registry manifest (`server.json`). The implementation lives in the Actor above.\n\n## Coverage\n\n| Sport | Teams | Probabilities |\n|---|---|---|\n| NFL | All 32 | Playoffs, division, wild card, No. 1 seed |\n| MLB | All 30 | Postseason, division, wild card, top seed |\n| Soccer | 17 leagues | Title, top four, continental qualification, playoff, relegation |\n\nSoccer leagues: Premier League, EFL Championship, LaLiga, Serie A, Bundesliga, Ligue 1, Eredivisie, Primeira Liga, Süper Lig, Belgian Pro League, Scottish Premiership, Brasileirão, Liga MX, Liga Profesional (Argentina), Primera A (Colombia), MLS, Austrian Bundesliga. Other ESPN soccer slugs are supported.\n\n## Tools\n\n| Tool | Purpose |\n|---|---|\n| `get_team_probabilities` | One team's full probability set, current record, projected finish and ranking |\n| `get_league_probabilities` | A whole league ranked by probability rather than by points or record |\n| `compare_model_vs_market` | Model against live Kalshi prices: edge, expected value after fees, fractional Kelly stake |\n| `run_scenario` | A fresh simulation under custom model assumptions, with movement analysis |\n| `get_probability_history` | How a team's probability moved across the season, from archived runs |\n\n## Connect\n\nStreamable HTTP transport, stateless. Add the endpoint to your MCP client with an Apify API token as a bearer token:\n\n```json\n{\n  \"mcpServers\": {\n    \"sports-probabilities\": {\n      \"url\": \"https://commodus67--sports-probabilities-mcp.apify.actor/mcp\",\n      \"headers\": {\n        \"Authorization\": \"Bearer YOUR_APIFY_API_TOKEN\"\n      }\n    }\n  }\n}\n```\n\n## How it works\n\nEach answer comes from one of three published Monte Carlo Actors that take live standings and the remaining schedule, play out the rest of the season thousands of times, and count how often each outcome happens. The MCP server calls those Actors and caches the result — it does not reimplement the simulation, so an answer here never disagrees with the same query made directly against the API.\n\nEvery response carries the date and the source of the run it came from.\n\n## Pricing\n\nPay per event, billed through Apify. From **$50.00 per 1,000 probability reads**. Full pricing on the Actor page.\n\n## Note\n\nThis is statistics and simulation. It is not betting advice, and it does not produce picks.\n",
+  "status": "curated"
+}

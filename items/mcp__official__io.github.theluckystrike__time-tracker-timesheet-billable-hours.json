@@ -1,0 +1,65 @@
+{
+  "id": "mcp:official/io.github.theluckystrike/time-tracker-timesheet-billable-hours",
+  "type": "mcp",
+  "name": "time-tracker-timesheet-billable-hours",
+  "description": "Track billable time from your AI chat: timers, entries, reports, CSV export. All data stays local.",
+  "author": "io.github.theluckystrike",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/theluckystrike/mcp-servers",
+    "repo": "theluckystrike/mcp-servers"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "https://github.com/theluckystrike/mcp-servers/releases/download/v0.2.2/time-tracker.mcpb"
+    ],
+    "env": [
+      {
+        "name": "MCP_LICENSE_KEY",
+        "required": false,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-02T15:16:52.000194Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "办公",
+    "featured": false
+  },
+  "readme": "# MCP servers by theluckystrike\n\n![License](https://img.shields.io/badge/license-MIT-blue)\n![MCP Registry](https://img.shields.io/badge/MCP%20registry-listed-brightgreen)\n![Release](https://img.shields.io/badge/release-v0.2.1-informational)\n\nPractical Model Context Protocol servers for people who work inside Claude, Cursor and other MCP clients.\nEvery server runs locally over stdio, keeps all data on your machine, and has a genuinely useful free tier.\nPro unlocks the limits for a one-time payment: $19 per server or $39 for the bundle, lifetime. Five of the\nsix are also reachable as a hosted remote endpoint with no install at all (see below).\n\n| Server | Demo | What it does | Install |\n|---|---|---|---|\n| [mcp-time-tracker](servers/time-tracker/README.md) | ![time-tracker](assets/demo-time-tracker.gif) | Track billable time from chat: timers, entries, reports, CSV, invoice summaries | `npx -y @theluckystrike/mcp-time-tracker`* |\n| [mcp-price-tracker](servers/price-tracker/README.md) | ![price-tracker](assets/demo-price-tracker.gif) | Check and watch product prices on ordinary shop pages, history, target alerts | `npx -y @theluckystrike/mcp-price-tracker`* |\n| [mcp-spreadsheet](servers/spreadsheet/README.md) | ![spreadsheet](assets/demo-spreadsheet.gif) | Read, query, add columns to and convert xlsx/csv files without corrupting them | `npx -y @theluckystrike/mcp-spreadsheet`* |\n| [mcp-invoice](servers/invoice/README.md) | ![invoice](assets/demo-invoice.gif) | Create numbered invoices with tax lines and render professional PDFs | `npx -y @theluckystrike/mcp-invoice`* |\n| [mcp-expense-tracker](servers/expense-tracker/README.md) | ![expense-tracker](assets/expense-tracker-logo.png) | Log receipts and mileage in chat, split the VAT, rebill onto an invoice | `npx -y @theluckystrike/mcp-expense-tracker`* |\n| [mcp-office-suite](servers/office-suite/README.md) | (bundle, no demo yet) | One install that proxies all five servers above behind a single config line | `npx -y @theluckystrike/mcp-office-suite`* |\n\n\\* npm publish is still pending for all six packages (see npm status below). Until then, the fastest path is the\n`.mcpb` one-click bundle from the\n[latest release](https://github.com/theluckystrike/mcp-servers/releases/latest) -- double-click it in Claude\nDesktop and it installs, no terminal needed. Or clone and build:\n`git clone https://github.com/theluckystrike/mcp-servers.git && cd mcp-servers`, `npm install`,\n`npm run build -w packages/mcp-license -w servers/<name>`. Each server's README has the full 60-second install\nwith all three client configs.\n\nBuy Pro: https://mcp.zovo.one  (keys verify offline with Ed25519; no phone-home).\n\n## Hosted endpoints (no install)\n\nFive of the six servers are also live behind streamable HTTP, for clients that connect to a URL instead of\nspawning a local process:\n\n- Base URL: `https://mcp.zovo.one/mcp` -- `GET` returns an index of the endpoints; each server is\n  `https://mcp.zovo.one/mcp/<server>` (time-tracker, price-tracker, spreadsheet, invoice, expense-tracker).\n- Auth: `Authorization: Bearer <token>`. `GET https://mcp.zovo.one/mcp/token` mints a free anonymous token\n  (`anon_<32 hex>`, 30-day KV TTL, refreshed on every request); a Pro license key (`MCPL1....`) works the same\n  way and lifts the free-tier limits.\n- `spreadsheet` runs in inline-data mode remotely, since a hosted worker has no disk to read a path from:\n  `sheet_load {name, csv}` or `sheet_load {name, xlsx_base64}` loads the data into the request's virtual\n  filesystem first, then `sheet_query`, `sheet_stats`, `sheet_add_column` and `sheet_convert` work on it as\n  usual. The stdio install is still the answer for files that live on your own disk.\n- Anything a tool would normally write to a file (an invoice PDF, a CSV export, a converted spreadsheet) comes\n  back as a download link, `https://mcp.zovo.one/mcp/download/<token>`, valid for one hour; invoices render as\n  an HTML document rather than a PDF on this path.\n- office-suite is not hosted: it is a stdio proxy that spawns the other five as local child processes, which\n  has no meaning on a remote worker. Install it locally to get all five in one config line instead.\n\n## Registry names\n\nThe MCP registry listing for all six of these servers uses word-rich names instead of the plain directory\nname, for example `time-tracker-timesheet-billable-hours` instead of `time-tracker`, or\n`office-suite-time-invoice-expense-excel-price` instead of `office-suite`: every extra token is a word the\nserver's own tool descriptions already use, and registry search matches on whole words, so a name built only\nfrom `time-tracker` was invisible to a search for \"timesheet\" or \"billable hours\". The old short names are\ndeprecated on the registry; npm package names, directory names and checkout URLs are unchanged.\n\n## Why these six\n\nThe median MCP server on the public registry gets installed and never called again. Looking at what actually gets\nused, two things separate the servers people keep: a config snippet that works on the first try, and a visible\ndemo of the tool actually answering a real prompt before anyone installs it. Both of those are cheap to provide and\nmost servers skip them -- READMEs bury the config three scroll-lengths down, or show no output at all. These servers\nwere picked because they replace a task people already do in a spreadsheet, a SaaS dashboard or a browser\ntab (tracking time, watching a price, editing a sheet, cutting an invoice, logging a receipt) with one that runs\nentirely on-device: no account, no telemetry, no server-side data at rest (the hosted endpoints are the one\nexception, and they say plainly what they keep and for how long). office-suite exists because the most-used\nserver in this category, measured across the registry, is an aggregator: one install beats five.\n\n## Guides\n\n- [Track time in Claude Code](https://mcp.zovo.one/guides/track-time-in-claude-code)\n- [Invoice PDF from chat](https://mcp.zovo.one/guides/invoice-pdf-from-chat)\n- [Read Excel in Cursor](https://mcp.zovo.one/guides/read-excel-in-cursor)\n- [Price drop alerts with Claude](https://mcp.zovo.one/guides/price-drop-alerts-with-claude)\n- [Expense tracking in Claude](https://mcp.zovo.one/guides/expense-tracking-in-claude)\n- [MCP server free vs pro](https://mcp.zovo.one/guides/mcp-server-free-vs-pro)\n\n## Validation\n\nBefore anything ships: 130 unit tests across the six servers and the shared license package (protocol smoke\ntests over real stdio, plus adversarial cases: bad input, oversized strings, path traversal, concurrent\nwriters, zero-byte files), a 121-check live validation database run against the built servers and the hosted\nworker, three rounds of user-value testing through a real MCP client (one prompt per conversation, not a unit\ntest), and an independent adversarial review plus a separate Codex model review of the billing and remote\nworker code. Details: [docs/AUDIT.md](docs/AUDIT.md), [docs/EXPENSE_AUDIT.md](docs/EXPENSE_AUDIT.md),\n[docs/USER_VALUE.md](docs/USER_VALUE.md), [docs/USER_VALUE_R2.md](docs/USER_VALUE_R2.md),\n[docs/USER_VALUE_R3.md](docs/USER_VALUE_R3.md), [docs/CODEX_REVIEW.md](docs/CODEX_REVIEW.md),\n[docs/CODEX_REVIEW_REMOTE.md](docs/CODEX_REVIEW_REMOTE.md), [docs/REMOTE_RESULT.md](docs/REMOTE_RESULT.md).\n\n## npm status\n\nNone of the six packages are on npm yet (the account's publish token is dead; see\n[docs/NPM_AUTH_RESULT.md](docs/NPM_AUTH_RESULT.md)). The working install paths today are the `.mcpb` one-click\nbundle from the [latest release](https://github.com/theluckystrike/mcp-servers/releases/latest), a clone and\nbuild from source, or the hosted endpoints above -- no local install at all. The `npx` lines in this README and\nin each server's own README start working the moment npm publish succeeds; nothing else about them changes.\n\nRepository layout: `servers/*` one package per server, `packages/mcp-license` shared licensing, `billing/` Cloudflare Worker\nthat sells keys through Stripe Checkout, `remote/` Cloudflare Worker serving the hosted endpoints, `dashboard/` status page, `docs/` runbooks.\n\nBuilt by theluckystrike. https://github.com/theluckystrike  Support: support@zovo.one\n",
+  "status": "curated"
+}

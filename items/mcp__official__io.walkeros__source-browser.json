@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.walkeros/source-browser",
+  "type": "mcp",
+  "name": "walkerOS Source Browser",
+  "description": "Generate, parse, and validate walkerOS data-elb HTML tagging attributes",
+  "author": "io.walkeros",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/elbwalker/walkerOS",
+    "repo": "elbwalker/walkerOS"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@walkeros/mcp-source-browser"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-02T15:52:14.311365Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "<p align=\"left\">\n  <a href=\"https://www.walkeros.io\">\n    <img alt=\"walkerOS\" title=\"walkerOS\" src=\"https://www.walkeros.io/img/walkerOS_logo.svg\" width=\"256px\"/>\n  </a>\n</p>\n\n# Event collection you own, version, and trust\n\n<div align=\"left\">\n  <a href=\"https://github.com/elbwalker/walkerOS/blob/main/LICENSE\">\n    <img src=\"https://img.shields.io/github/license/elbwalker/walkerOS\" alt=\"License\" />\n  </a>\n  <a href=\"https://www.walkeros.io/docs/\">\n    <img src=\"https://img.shields.io/badge/docs-www.walkeros.io/docs-yellow\" alt=\"walkerOS Documentation\" />\n  </a>\n  <a href=\"https://github.com/elbwalker/walkerOS/tree/main/apps/demos/react\">\n    <img src=\"https://img.shields.io/badge/React_demo-blue\" alt=\"React demo\" />\n  </a>\n  <a href=\"https://storybook.walkeros.io/\">\n    <img src=\"https://img.shields.io/badge/Storybook_demo-pink\" alt=\"Storybook demo\" />\n  </a>\n  <a href=\"https://www.npmjs.com/package/@walkeros/collector\">\n    <img src=\"https://img.shields.io/npm/v/@walkeros/collector\" alt=\"npm version\" />\n  </a>\n</div>\n\nFrom browser to BigQuery and ad platforms - warehouse-native, and ready for AI\nagents via MCP.\n\n## The problem\n\nGA4, custom tags, ad pixels - each one a separate setup, none of them agreeing\non the same numbers. When something breaks, you can't see where.\n\nwalkerOS is one collection layer for all of them.\n\n## Why walkerOS?\n\n- **Config-as-code** - version control your tracking, review it in PRs, deploy\n  with confidence\n- **Declarative tagging** - tag your UI in HTML, not scattered JavaScript\n- **Consent-native** - events queue until consent is given, then flush correctly\n  to every destination\n- **Schema validation** - catch bad events at collection time, not weeks later\n  in a dashboard\n- **One layer, many destinations** - send to your warehouse and ad platforms\n  from a single event definition\n- **Warehouse-native** - events land clean and structured in your data\n  warehouse, ready to query\n- **MIT licensed** - self-host anywhere, no vendor lock-in\n\n## How it works\n\n![walkerOS Architecture](https://raw.githubusercontent.com/elbwalker/walkerOS/main/website/static/diagrams/walkeros_readme.png)\n\n- **Sources:** Where events come from (browser, dataLayer, Express, AWS Lambda,\n  GCP Functions, and more)\n- **Collector:** The processing engine (consent, validation, mapping, routing,\n  enrichment)\n- **Destinations:** Where events go (GA4, Google Ads, Meta CAPI, BigQuery, and\n  more)\n\n## Two ways to install walkerOS\n\nChoose one based on your workflow and integration possibilities:\n\n| Mode           | Description                                                  | Best For                                |\n| -------------- | ------------------------------------------------------------ | --------------------------------------- |\n| **Integrated** | Import directly into your TypeScript application             | React/Next.js apps, TypeScript projects |\n| **Bundled**    | Build a standalone script from JSON config with npx walkeros | Static sites, Docker deployments, CI/CD |\n\n**Integrated** (import into your app):\n\n```typescript\nimport { startFlow } from '@walkeros/collector';\n\nconst { elb } = await startFlow({\n  destinations: {\n    console: {\n      code: {\n        type: 'console',\n        config: {},\n        push: (event) => console.log('Event:', event.name),\n      },\n    },\n  },\n});\n\nawait elb('page view', { title: 'Home' });\n// -> logs: Event: page view\n```\n\nWire a real source and destination once you are ready:\n\n```typescript\nimport { startFlow } from '@walkeros/collector';\nimport { sourceBrowser } from '@walkeros/web-source-browser';\nimport { destinationGtag } from '@walkeros/web-destination-gtag';\n\nawait startFlow({\n  sources: {\n    browser: {\n      code: sourceBrowser,\n      config: { settings: { pageview: true } },\n    },\n  },\n  destinations: {\n    ga4: {\n      code: destinationGtag,\n      config: {\n        settings: { ga4: { measurementId: 'G-XXX' } },\n      },\n    },\n  },\n});\n```\n\n**Bundled** (build from JSON config):\n\n```json\n{\n  \"version\": 4,\n  \"flows\": {\n    \"default\": {\n      \"config\": {\n        \"platform\": \"web\",\n        \"bundle\": {\n          \"packages\": {\n            \"@walkeros/collector\": {},\n            \"@walkeros/web-source-browser\": {},\n            \"@walkeros/web-destination-gtag\": {}\n          }\n        }\n      },\n      \"sources\": {\n        \"browser\": {\n          \"package\": \"@walkeros/web-source-browser\",\n          \"config\": { \"settings\": { \"pageview\": true } }\n        }\n      },\n      \"destinations\": {\n        \"ga4\": {\n          \"package\": \"@walkeros/web-destination-gtag\",\n          \"config\": {\n            \"settings\": { \"ga4\": { \"measurementId\": \"G-XXX\" } }\n          }\n        }\n      }\n    }\n  }\n}\n```\n\nThen: `npx walkeros bundle flow.json`\n\n- **[Operating Modes](https://www.walkeros.io/docs/getting-started/modes/)**\n- **[Quickstart guide for React](https://www.walkeros.io/docs/getting-started/quickstart/react)**\n- **[Full Documentation](https://www.walkeros.io/docs/)** - Complete guides and\n  API reference\n- **[Destinations](https://www.walkeros.io/docs/destinations/)** - GA4, Meta,\n  BigQuery, and more\n- **[React Demo](https://github.com/elbwalker/walkerOS/tree/main/apps/demos/react)**\n- **[Storybook](https://storybook.walkeros.io/)**\n\n## AI-ready via MCP\n\nwalkerOS exposes a Model Context Protocol (MCP) interface. AI agents can read\nyour event schema, suggest tracking definitions, and generate integration code -\nmaking your event layer programmable, not just configurable.\n\nIn Claude Code, one plugin installs both MCP servers and the walkerOS skills:\n\n```\n/plugin marketplace add elbwalker/walkerOS\n/plugin install walkeros@elbwalker\n```\n\nFor any other MCP client, add the servers to its configuration:\n\n```json\n{\n  \"mcpServers\": {\n    \"walkeros-flow\": {\n      \"command\": \"npx\",\n      \"args\": [\"@walkeros/mcp\"]\n    },\n    \"walkeros-source-browser\": {\n      \"command\": \"npx\",\n      \"args\": [\"@walkeros/mcp-source-browser\"]\n    }\n  }\n}\n```\n\nLoading a flow, validating it, and simulating an event all run locally, no\naccount needed. See the [MCP docs](https://www.walkeros.io/docs/apps/mcp).\n\nComing from Google Tag Manager? See\n[walkerOS vs. GTM](https://www.walkeros.io/docs/comparisons/gtm).\n\n## Contributing\n\n⭐️ Help us grow and star us. See our\n[Contributing Guidelines](https://www.walkeros.io/docs/contributing) to get\ninvolved.\n\n## Support\n\nNeed help? Start a\n[discussion](https://github.com/elbwalker/walkerOS/discussions), or reach out\nvia [email](mailto:hello@elbwalker.com).\n\nFor more insights, visit the\n[talks repository](https://github.com/elbwalker/talks).\n\n## License\n\nLicensed under the [MIT License](./LICENSE).\n",
+  "status": "curated"
+}

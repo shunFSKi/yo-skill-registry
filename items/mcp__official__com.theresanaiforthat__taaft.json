@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/com.theresanaiforthat/taaft",
+  "type": "mcp",
+  "name": "There's An AI For That",
+  "description": "Search TAAFT for AI tools and retrieve public tool details.",
+  "author": "com.theresanaiforthat",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/taaft/mcp",
+    "repo": "taaft/mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://theresanaiforthat.com/mcp-server/"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-02T15:07:46.748908Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# TAAFT MCP server\n\nRemote, stateless [Model Context Protocol](https://modelcontextprotocol.io/)\nserver for finding AI tools in the TAAFT directory.\n\nIt exposes:\n\n- `search_tools` — search by query, type, sort, and result limit.\n- `get_tool` — retrieve public details by the slug returned from search.\n\nThe MCP endpoint is `POST /mcp`. `GET /healthz` is an unauthenticated\nliveness endpoint.\n\n## Install\n\nThe public endpoint is:\n\n```text\nhttps://theresanaiforthat.com/mcp-server/\n```\n\nIt uses Streamable HTTP and requires no authentication.\n\n### Cursor\n\nThe repository root is a Cursor plugin. For local plugin development:\n\n```bash\nmkdir -p ~/.cursor/plugins/local\nln -s \"$(pwd)\" ~/.cursor/plugins/local/taaft\n```\n\nRun **Developer: Reload Window**, then confirm `taaft` appears under\nCustomize. Remove or disable a manually configured `taaft` server to avoid a\nduplicate name.\n\n### Claude\n\nAdd the connector directly to Claude Code:\n\n```bash\nclaude mcp add --transport http taaft \\\n  https://theresanaiforthat.com/mcp-server/\n```\n\nOr install the Claude plugin from this repository:\n\n```bash\nclaude plugin marketplace add taaft/mcp\nclaude plugin install taaft@taaft-plugins\n```\n\nFor Claude.ai and Claude Desktop, add a custom connector under\n**Customize → Connectors** using the public endpoint and authentication\ntype **None**.\n\n### Codex\n\nAdd the server directly to Codex CLI or the Codex IDE extension:\n\n```bash\ncodex mcp add taaft \\\n  --url https://theresanaiforthat.com/mcp-server/\n```\n\nFor plugin-capable Codex surfaces:\n\n```bash\ncodex plugin marketplace add taaft/mcp\ncodex plugin add taaft@taaft-plugins\n```\n\nYou can also install it interactively from `/plugins`. Codex IDE supports\ndirect MCP configuration but does not currently install plugins.\n\n### ChatGPT\n\nEnable **Developer mode**, open **Plugins**, select **+**, and register:\n\n- URL: `https://theresanaiforthat.com/mcp-server/`\n- Authentication: **None**\n- Transport: **Streamable HTTP**\n\nThe repository contains the Codex/OpenAI plugin package, but a ChatGPT plugin\nalso needs an `.app.json` mapping to the `plugin_asdk_app...` identifier that\nChatGPT creates when the endpoint is registered. That account-specific file\ncannot be generated before registration.\n\n### Visual Studio Code\n\nThis repository includes `.vscode/mcp.json`. Opening the repository in VS Code\nloads the server at workspace scope. To install it globally without cloning:\n\n```bash\ncode --add-mcp \\\n  '{\"name\":\"taaft\",\"type\":\"http\",\"url\":\"https://theresanaiforthat.com/mcp-server/\"}'\n```\n\nA VS Code extension is unnecessary for a fixed remote endpoint. Public\n`@mcp` gallery inclusion is a separate, curated GitHub MCP Registry process.\n\n### Google Antigravity\n\nAfter cloning the repository:\n\n```bash\nmkdir -p ~/.gemini/config/plugins\ncp -R plugins/antigravity/taaft ~/.gemini/config/plugins/taaft\n```\n\nThe plugin uses `serverUrl`, the current Antigravity key for remote MCP\nservers. No transport or authentication fields are needed. Restart\nAntigravity after copying the plugin.\n\n## Prerequisites\n\n- Node.js 22+\n- Access to the internal TAAFT HTTP API\n\n## Local development\n\n```bash\nnpm install\ncp .env.example .env\n```\n\nSet at least `TAAFT_API_BASE_URL` in `.env`, then run:\n\n```bash\nnpm run dev\n```\n\nBy default, the service listens on `http://localhost:3000/mcp`.\n\nThe upstream adapter expects:\n\n- `GET {TAAFT_SEARCH_PATH}?query=...&type=...&sort=...&limit=...`\n- `GET {TAAFT_TOOL_PATH_TEMPLATE}`, replacing `{slug}` with the URL-encoded slug\n\nSearch may return an array or an object containing `tools`, `results`, or\n`data`. Detail may return the tool directly or under `tool` or `data`. Change\nthe adapter in `src/taaft-client.ts` if the internal API contract differs; do\nnot add more environment-driven response mapping.\n\nExample client configuration:\n\n```json\n{\n  \"mcpServers\": {\n    \"taaft\": {\n      \"url\": \"https://theresanaiforthat.com/mcp-server/\"\n    }\n  }\n}\n```\n\n## Production\n\nSet:\n\n- `NODE_ENV=production`\n- `PUBLIC_BASE_URL` to the external HTTPS origin\n- `TAAFT_API_BASE_URL` and, if required, `TAAFT_API_KEY`\n\nBuild and run:\n\n```bash\ndocker build -t taaft-mcp .\ndocker run --rm -p 3000:3000 --env-file .env taaft-mcp\n```\n\nTerminate TLS at your ingress or load balancer. The application is stateless,\nso it can run multiple replicas without sticky sessions. Apply rate limits at\nthe ingress because the MCP endpoint is intentionally public; application-level\nrate limiting is ineffective once replicas are added.\n\n## Verification\n\n```bash\nnpm run typecheck\nnpm test\nnpm run build\n```\n\nThen connect with the MCP Inspector:\n\n```bash\nnpx @modelcontextprotocol/inspector http://localhost:3000/mcp\n```\n",
+  "status": "curated"
+}

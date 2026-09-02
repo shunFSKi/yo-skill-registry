@@ -1,0 +1,65 @@
+{
+  "id": "mcp:official/com.balmasai/balmas-mcp",
+  "type": "mcp",
+  "name": "balmas-mcp",
+  "description": "Agents read cleaned copies of your files: PII replaced with local consistent tokens. Read-only.",
+  "author": "com.balmasai",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/YaakovTzedek/balmas-mcp",
+    "repo": "YaakovTzedek/balmas-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "balmas-mcp"
+    ],
+    "env": [
+      {
+        "name": "BALMAS_API_KEY",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-02T15:51:02.890058Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# balmas-mcp\n\n> **Your AI agent reads everything. This gateway hands it redacted copies instead.**\n\n[![npm](https://img.shields.io/npm/v/balmas-mcp)](https://www.npmjs.com/package/balmas-mcp)\n[![license](https://img.shields.io/badge/license-MIT-3DDC97)](./LICENSE)\n\n![balmas-mcp demo: the agent reads a contract and sees PERSON_001 instead of real names](./demo.svg)\n\n## Why\n\nAI agents are getting file access — and they over-read. Israel's Privacy\nProtection Authority put it bluntly in its guidance on AI agents: an\nemail-sorting agent can analyze 15 years of correspondence for a 2-year task,\ninfer your health and finances along the way, and leak what it learned. Their\nrecommendation: **strict permission minimization** — read-only, dedicated\nfolders, minimum necessary data.\n\nbalmas-mcp turns that advice into code, and goes one step further: it\nminimizes not just *which* files the agent reads, but *what's inside them*.\n\n## How it works\n\n1. **You allowlist folders.** The agent can't reach anything else — enforced\n   with realpath checks, not honor rules.\n2. **Every read is anonymized locally.** Names, ID numbers, phones, emails,\n   companies and amounts become consistent tokens (`PERSON_001`, `ID_001`)\n   *before* the content is returned. The same person is `PERSON_001` in every\n   file, so the agent's reasoning stays coherent. Detection runs in this\n   process — deterministic patterns, lexicons and checksums (Israeli ID\n   included). Hebrew and English.\n3. **The answer comes back real.** `restore_text` maps the tokens in the\n   agent's final output back to the original values — locally.\n\nRead-only by design: the server exposes no write tools at all.\n\n## Quickstart\n\n1. Create a free account at [balmasai.com/signup](https://www.balmasai.com/signup) (10 documents/month free).\n2. Create an API key (`bk_...`) at [balmasai.com/app/team](https://www.balmasai.com/app/team).\n3. Add to your MCP client config (Claude Desktop shown; Cursor and others are the same idea):\n\n```json\n{\n  \"mcpServers\": {\n    \"balmas\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"balmas-mcp\", \"/Users/me/Documents/work\", \"--level\", \"strict\"],\n      \"env\": { \"BALMAS_API_KEY\": \"bk_...\" }\n    }\n  }\n}\n```\n\n**Options:** allowed folders as positional args (required, one or more) ·\n`--level standard|strict|maximum` (default `strict`).\n\n## Tools\n\n| Tool | What the agent gets |\n|---|---|\n| `list_files` | Names, sizes, types inside allowed folders — never contents |\n| `read_clean_file` | The file's text after local anonymization |\n| `restore_text` | Real values back into its output (session tokens only) |\n\nSupported inputs: `txt` `csv` `md` `docx` `xlsx` `pptx` `pdf` (text layer).\n\n## Privacy model\n\n| | Leaves your machine? |\n|---|---|\n| File contents | **Never** |\n| File names / paths | **Never** |\n| The replacement map | **Never** |\n| Metering counters (file type + item counts) | Yes — that's all |\n\nEach file read counts as one document against your account's monthly quota\n(free 10 / PRO 200 / TEAM 1,000). Full processing happens in this local\nprocess.\n\n## Honest limits\n\n- The gateway helps only when the agent reads files **through it** — grant it\n  *instead of* raw filesystem access, not alongside.\n- Detection is deterministic: excellent, not clairvoyant. Review output where\n  the stakes demand it.\n- Scanned PDFs (no text layer) need the OCR flow at\n  [balmasai.com/clean](https://www.balmasai.com/clean).\n\n---\n\nBuilt by [BALMAS AI](https://www.balmasai.com) — sensitive data stops here.\nDocs: [balmasai.com/mcp](https://www.balmasai.com/mcp)\n",
+  "status": "curated"
+}

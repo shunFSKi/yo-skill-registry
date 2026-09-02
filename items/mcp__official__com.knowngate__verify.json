@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/com.knowngate/verify",
+  "type": "mcp",
+  "name": "KnownGate",
+  "description": "Food verification for people and AI agents: evidence-backed verdicts, with sources and dates.",
+  "author": "com.knowngate",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/FocusedCreativity/knowngate",
+    "repo": "FocusedCreativity/knowngate"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://mcp.knowngate.com"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-02T13:13:04.636596Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# KnownGate\n\nKnownGate is the food verification layer for people and AI agents: it checks\nfood against what must not be in it, or a number it must stay under, and\nreturns evidence-backed verdicts with their sources and read dates.\n\n## MCP endpoint\n\n```\nhttps://mcp.knowngate.com\n```\n\nStreamable HTTP and SSE. The versioned path\n`https://www.knowngate.com/api/knowngate/v0/mcp` serves the same server and\nstays documented, but the subdomain is the address to configure: it does not\nbake a version number into anything you publish.\n\n- Server card: <https://www.knowngate.com/.well-known/mcp/server-card.json>\n- Evidence standard: <https://www.knowngate.com/standard> and, as a document\n  you can build against, <https://www.knowngate.com/standard/v1.json>\n- For agents: <https://www.knowngate.com/llms.txt>\n\n**Authentication.** A Bearer key, and a free one is created in-band with the\n`register` tool. There is no signup to call this.\n\n## Tools\n\n| Tool | Rules on |\n| --- | --- |\n| `check_item` | One product or dish |\n| `check_venue` | A whole menu |\n| `check_plan` | A set of items, a recipe, a basket |\n| `register` | Mints a free key, in-band |\n\n## Verdicts\n\nEvery check returns exactly one of four, with the source it rested on and the\ndate that source was read:\n\n`no_conflict_found` · `conflict_found` · `ask_one_question` · `couldnt_verify`\n\nUnknown counts as no. A claim can create a conflict but never a clear. The word\n\"safe\" is not used anywhere in this system. What each verdict means, and the\nhighest verdict each kind of source can reach, is published in full at\n[/standard](https://www.knowngate.com/standard).\n\nVerdicts are not cryptographically signed in v1.0, and the profile says so\n(`signed_verdicts: false`). A saved record at `/ck/{id}` is the durable\nartifact: it carries the subject, the premise, the verdict, its source and read\ndate, and the standard version it was issued under.\n\n## Licensing\n\n- **Code:** MIT.\n- **Evidence standard** (`/standard`, `/standard/v1.json`): **CC-BY-4.0**. Take\n  it and build on it. A standard others build against is worth more to us than\n  a database others cannot see.\n\n## Project artifacts\n\n- [KnownGate challenge brief](docs/challenge-brief.md): project context, challenge requirements, product direction, WebMCP contract, judging strategy, and open decisions captured on 30 August 2026.\n- [KnownGate build brief](docs/build-brief.md): implementation requirements, product doctrine, screens, design system, WebMCP tools, API contracts, fixtures, evaluations, and delivery criteria.\n\n## Getting Started\n\nFirst, run the development server:\n\n```bash\nnpm run dev\n# or\nyarn dev\n# or\npnpm dev\n# or\nbun dev\n```\n\nOpen [http://localhost:3000](http://localhost:3000) with your browser to see the result.\n\nYou can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.\n\nThis project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.\n\n## Learn More\n\nTo learn more about Next.js, take a look at the following resources:\n\n- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.\n- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.\n\nYou can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!\n\n## Deploy on Vercel\n\nThe easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.\n\nCheck out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.\n",
+  "status": "curated"
+}

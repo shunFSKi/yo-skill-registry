@@ -2,7 +2,7 @@
   "id": "mcp:official/io.github.menantonio83-hue/tnt-house-risk-data-api",
   "type": "mcp",
   "name": "tnt-house-risk-data-api",
-  "description": "Solana token risk-scoring MCP server for AI trading agents with insider wallet cluster detection.",
+  "description": "RiskDataApi — Solana token risk scoring for AI agents. Safety score, insider clusters, honeypot.",
   "author": "io.github.menantonio83-hue",
   "source": {
     "registry": "mcp-official",
@@ -16,8 +16,8 @@
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-07-25T18:16:46.038112Z",
-    "score": 37
+    "pushed_at": "2026-09-02T14:08:31.919534Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -46,9 +46,9 @@
     ]
   },
   "tags": {
-    "category": "金融",
+    "category": "编程",
     "featured": false
   },
-  "readme": null,
+  "readme": "# RiskDataApi\n\n[![tnt-house MCP server](https://glama.ai/mcp/servers/menantonio83-hue/tnt-house/badges/card.svg)](https://glama.ai/mcp/servers/menantonio83-hue/tnt-house)\n\n[![MCP Marketplace](https://img.shields.io/badge/MCP%20Marketplace-Indexed-blueviolet)](https://getlulu.dev/mcps)\n\nRiskDataApi is a Solana token-risk API for trading bots and AI agents. One call returns a safety score (0–100), insider wallet clusters (shared first-funder), honeypot risk, and LP lock.\n\n- **Website (humans):** 3 manual checks/day, no email, no key — [tnt-audit.com/risk-api](https://www.tnt-audit.com/risk-api)\n- **API key (bots):** email signup, 15 calls/day, no card\n- **Agents:** x402 $0.02 USDC/call, no key — `GET /api/v1/token-risk/x402`\n- **Subscription:** $45 / 30 days / 5000 calls, then $0.015/call\n- **MCP:** [https://tnt-audit.com/api/mcp](https://tnt-audit.com/api/mcp)\n- **Docs:** [https://www.tnt-audit.com/risk-api/docs](https://www.tnt-audit.com/risk-api/docs)\n\nThis repository hosts a remote **Model Context Protocol (MCP) server** exposing the RiskDataApi engine as tools for AI agents (Claude, Cursor, and any other MCP-compatible client). See the [MCP Server section](#mcp-server--risk-data-api) below.\n\n## Getting Started (3 steps)\n\n1. **Try it now, no signup** — no API key needed for your first **5 MCP calls/day** (no signup at all). Three ways, pick whichever is easiest:\n   - **⚡ Glama's MCP Inspector (fastest, zero setup, real MCP call)** — go to [glama.ai/mcp/inspector](https://glama.ai/mcp/inspector), paste `https://tnt-audit.com/api/mcp` as the server URL, and call `check_token_risk` right in your browser — no install needed.\n   - **Claude Desktop / Cursor** — paste this into your MCP config, no key required:\n     ```json\n     {\n       \"mcpServers\": {\n         \"tnt-risk-data-api\": {\n           \"command\": \"npx\",\n           \"args\": [\"-y\", \"mcp-remote\", \"https://tnt-audit.com/api/mcp\"]\n         }\n       }\n     }\n     ```\n   - **Browser, raw REST preview** — open [a live example](https://tnt-audit.com/api/v1/token-risk?mint=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v) directly, no install, no signup. ⚠️ *This is a REST preview of the underlying data, not the MCP tool itself — for the real MCP tool, use the Inspector above.*\n2. **Want more?** — get a free API key in seconds at [tnt-audit.com/risk-api](https://www.tnt-audit.com/risk-api) (email only, no card). A free key raises your limit to **15 calls/day**.\n3. **Need higher volume?** — on the same page, paste your key into the pricing section and pay per-call ($0.02), by subscription ($45/5000 calls), or via x402 (autonomous agents, no key at all, $0.02/call).\n\n## Tech Stack\n- Next.js 14 (App Router) + React 18 + TypeScript\n- Tailwind CSS\n- Supabase (auth, billing, key storage)\n- Helius (Solana RPC) + RugCheck + DexScreener (market/risk data)\n- Vercel (hosting, cron via QStash)\n\n## MCP Server — Risk-Data API\n\nThis repository includes a remote **[Model Context Protocol](https://modelcontextprotocol.io) (MCP) server**, built with the official **[`@modelcontextprotocol/sdk`](https://www.npmjs.com/package/@modelcontextprotocol/sdk)** (TypeScript), exposing Solana token risk data as tools for AI agents.\n\n- **Source:** [`app/api/mcp/route.ts`](./app/api/mcp/route.ts)\n- **Docs:** [`app/api/mcp/README.md`](./app/api/mcp/README.md)\n- **Endpoint:** `https://tnt-audit.com/api/mcp` (Streamable HTTP transport)\n- **Auth:** `Authorization: Bearer <api_key>` — free key at [tnt-audit.com/risk-api](https://www.tnt-audit.com/risk-api)\n\n### Tools\n\nRegistered via `server.registerTool(...)`:\n\n| Tool | Description |\n|---|---|\n| `check_token_risk` | Safety score, insider wallet cluster detection, mint/freeze authority, holder concentration, live price/liquidity/volume for one Solana token mint |\n| `check_token_risk_batch` | Same as above for up to 25 mints in one call |\n| `get_token_risk_history` | Hourly historical risk/price data for a mint over up to 90 days |\n\nFull tool schemas and input parameters: [`app/api/mcp/README.md`](./app/api/mcp/README.md).\n\n## Local Development\n\n```bash\nnpm install\nnpm run dev\n```\n\nOpen [http://localhost:3000](http://localhost:3000)\n\n## Deployment\n\nVercel-ready. Connected to this repo's `main` branch for auto-deploys.\n\n**Links:** [X @RiskDataApiSol](https://x.com/RiskDataApiSol) | [Risk-Data API](https://www.tnt-audit.com/risk-api) | [Telegram](https://t.me/tnt_house2026)\n",
   "status": "curated"
 }

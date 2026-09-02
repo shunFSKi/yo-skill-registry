@@ -10,14 +10,20 @@
     "repo": "serika12345/Konyak",
     "path": ".agents/skills/konyak-docs-only/SKILL.md"
   },
-  "license": null,
+  "license": "MIT",
   "install": {
     "kind": "skill-dir"
   },
   "quality": {
-    "stars": null,
-    "pushed_at": null,
-    "score": 25
+    "stars": 7,
+    "pushed_at": "2026-07-19T03:23:45Z",
+    "score": 58,
+    "star_history": [
+      {
+        "d": "2026-09-02",
+        "s": 7
+      }
+    ]
   },
   "security": {
     "score": 100,
@@ -49,6 +55,6 @@
     "category": "写作",
     "featured": false
   },
-  "readme": null,
+  "readme": "# Konyak\n\n## Product\n\nKonyak manages Wine/Proton bottles and launches Windows applications from a\nFlutter UI backed by a Dart CLI.\n\nKonyak targets arm64 macOS first and x86_64 Linux second.\nKonyak owns its bottle metadata, managed runtime installation, and update flows\ninstead of relying on live external plist metadata. The Flutter app lives in\n`apps/konyak`, and the CLI backend lives in `packages/konyak_cli`.\n\nKonyak is distributed under the MIT License.\n\n## Project Goals\n\nKonyak treats the Wine/CrossOver runtime supply chain as a core product\nsurface. Existing Wine wrapper projects are useful, but many distribute\nprebuilt engines without publishing the complete recipe that produced the\nruntime a user actually runs. Published upstream source is valuable, but it is\nnot the same as a reproducible runtime recipe that records dependencies,\npatches, configure flags, bundled components, packaging layout, manifests, and\nverification.\n\nKonyak aims to keep those runtime recipes in Nix, update them continuously, and\nverify them through CI against the current compatibility stack. The goal is for\nusers to get modern Wine/CrossOver-compatible runtimes from auditable inputs\ninstead of opaque engine archives.\n\nKonyak's long-term goal is to provide a cross-platform, game-oriented Windows\ncompatibility environment across macOS and Linux. Each platform should use the\ngraphics stack that fits it best: Metal-oriented components on macOS and\nVulkan-oriented components such as DXVK and vkd3d-proton on Linux.\n\nLicense transparency is part of the runtime contract. Konyak should avoid\nruntime stacks that depend on unclear redistribution of commercial application\nbinaries or restrictive graphics components such as D3DMetal/GPTK. When a\ncomponent cannot be rebuilt, redistributed, or audited under clear terms, that\nconstraint should be explicit instead of hidden inside the wrapper.\n\nThis makes Konyak useful even before a polished GUI exists. Power users can\nalready benefit from CLI-driven bottles, reproducible builds, explicit runtime\nmanifests, reviewable artifacts, and CI-backed smoke verification. The Flutter\napp should improve ergonomics without replacing the CLI and runtime recipes as\nthe source of truth.\n\nTechnical details are kept in developer documentation:\n\n- [Compatibility profile authoring guide](docs/public/profiles/index.md):\n  public manifest, validation, and schema-version documentation\n- [AGENTS.md](AGENTS.md): repository engineering contract\n- [docs/flutter-architecture-plan.md](docs/flutter-architecture-plan.md):\n  architecture and system shape\n- [docs/todo.md](docs/todo.md): remaining roadmap work\n- [docs/progress.md](docs/progress.md): current handoff state\n- [docs/release.md](docs/release.md): release builds, artifacts, and smoke\n  checks\n- [docs/cli-distribution.md](docs/cli-distribution.md): Flutter-to-CLI\n  distribution contract\n- [runtime/konyak-macos-runtime/README.md](runtime/konyak-macos-runtime/README.md):\n  macOS runtime build and release contract\n\n## Agent Workflows\n\nRefactoring work is tracked as large milestones, small milestones, and PR\ngates in [docs/todo.md](docs/todo.md). Current handoff state lives in\n[docs/progress.md](docs/progress.md).\n\nCommon agent action commands:\n\n- `/advance-large`: advance the current large milestone on a dedicated branch,\n  open a draft PR at the review gate, then stop.\n- `/advance-pr`: advance only the next unfinished `PR Gate` in `docs/todo.md`,\n  open a draft PR, then stop.\n- `/advance-small`: advance the next coherent small milestone in the active\n  gate, commit and push the verified step, then stop.\n- `/review-gate`: summarize the current branch for review without implementing\n  more work.\n- `/konyak-status`: report branch state, worktree state, active milestone, and\n  recommended next action without modifying files.\n\nRepo-scoped skills under `.agents/skills` mirror these commands for Codex IDE\nselection, such as `$konyak-advance-large` and `$konyak-advance-pr`.\n\n## Build\n\nRun builds through the Nix flake.\n\nmacOS release build:\n\n```sh\nnix develop -c zsh -lc 'just macos-release'\n```\n\nLinux release build:\n\n```sh\nnix develop -c zsh -lc 'just linux-release'\n```\n",
   "status": "curated"
 }

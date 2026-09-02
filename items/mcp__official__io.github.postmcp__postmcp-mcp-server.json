@@ -1,0 +1,70 @@
+{
+  "id": "mcp:official/io.github.postmcp/postmcp-mcp-server",
+  "type": "mcp",
+  "name": "postmcp-mcp-server",
+  "description": "Publish and schedule posts to LinkedIn, X, Facebook, Instagram, Threads, Bluesky and YouTube Shorts.",
+  "author": "io.github.postmcp",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/postmcp/postmcp-mcp-server",
+    "repo": "postmcp/postmcp-mcp-server"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@postmcpai/server"
+    ],
+    "env": [
+      {
+        "name": "POSTMCPAI_API_KEY",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "POSTMCPAI_PROJECT_ID",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-02T13:28:40.055672Z",
+    "score": 55
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# PostMCP AI Model Context Protocol (MCP) Server\n\n[![npm version](https://img.shields.io/npm/v/@postmcpai/server.svg?style=flat-square)](https://www.npmjs.com/package/@postmcpai/server)\n[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)\n[![MCP Compatible](https://img.shields.io/badge/MCP-Compatible-blue.svg?style=flat-square)](https://modelcontextprotocol.io)\n\nOfficial [PostMCP AI](https://postmcpai.com) Model Context Protocol (MCP) Server. Connect your social media publishing pipelines directly into AI assistants, desktop applications, IDE workflows, and web environments like **Claude Desktop**, **Claude.ai**, **Cursor**, and **ChatGPT Custom GPTs**.\n\nSupported platforms include **LinkedIn**, **X (Twitter)**, **Facebook**, **Instagram**, **Threads**, **Bluesky**, and **YouTube Shorts**.\n\n---\n\n## 🚀 Features & Capabilities\n\n- 🤖 **15 Built-in Tools**: Workspaces, connected accounts and their token health, brand kits, the post queue, pre-flight checks, create/schedule/reschedule/publish/retry/delete, and image generation.\n- ⚡ **Dual Transport Modes**: Native **Stdio mode** (for local desktop apps & IDEs) and **Streamable HTTP mode** (for web services, Claude.ai, and remote connectors).\n- 🔑 **Flexible Authentication**: Auto-detects API key from environment variables (`POSTMCPAI_API_KEY`), URL query parameters (`?apikey=YOUR_KEY`), or HTTP authorization headers (`x-api-key`, `Bearer token`).\n- 🗂️ **Multi-Workspace Aware**: The API key carries its own workspace, so a bare key is enough. To act on another one, every tool takes an optional `workspaceId`, also settable per connection (`?projectId=...`, `x-project-id`) or per process (`POSTMCPAI_PROJECT_ID`).\n- 🤖 **ChatGPT Actions Compatible**: Includes built-in OpenAPI 3.0 specification generator (`/openapi.json`) and REST endpoints (`/api/tools/:name`) for ChatGPT Custom GPT integration.\n- 🔒 **OAuth 2.0 & RFC 9728 Support**: Advertises PKCE authorization server metadata for seamless dynamic client registration with Claude.ai.\n\n---\n\n## 📁 Repository Architecture\n\n```\nmcp-server/\n├── bin/\n│   └── cli.js            # Executable CLI entry point (Stdio / HTTP mode runner)\n├── src/\n│   ├── config.js         # Centralized configuration & environment loader\n│   ├── client.js         # Backend API client, API key & workspace extraction\n│   ├── platforms.js      # Platform limits, credit pricing & post cost helper\n│   ├── tools/\n│   │   ├── definitions.js# MCP tool JSON schemas & parameter specifications\n│   │   ├── handlers.js   # MCP tool execution handlers\n│   │   └── index.js      # Tool definitions aggregator\n│   ├── server.js         # MCP Server instance factory\n│   ├── routes/\n│   │   ├── oauth.js      # OAuth 2.0 & RFC 9728 discovery endpoints\n│   │   ├── openapi.js    # OpenAPI 3.0 schema & ChatGPT REST endpoints\n│   │   ├── mcpHttp.js    # MCP Streamable HTTP transport (/mcp)\n│   │   └── health.js     # Health check & system metadata endpoints\n│   ├── app.js            # Express application factory\n│   └── index.js          # Main library entry point\n├── index.js              # Executable wrapper script\n├── package.json\n└── README.md\n```\n\n---\n\n## ⚙️ Environment Configuration\n\n| Environment Variable | Description | Default Value |\n| :--- | :--- | :--- |\n| `POSTMCPAI_API_KEY` | **Required.** Your secret API key from the PostMCP AI dashboard. | `None` |\n| `POSTMCPAI_API_URL` | Backend API root. Only set for a self-hosted or local backend. | `https://api.postmcpai.com` |\n| `POSTMCPAI_PROJECT_ID` | Optional. Overrides the workspace the API key is bound to. Overridden in turn by a call's `workspaceId`. | The workspace the API key was issued from |\n| `PORT` | Setting this launches the server in **Remote Streamable HTTP Mode**. | `None` (Defaults to Stdio Mode) |\n\n---\n\n## 🛠️ MCP Tools Reference\n\nEvery tool below also accepts an optional `workspaceId` (from `list_workspaces`) to act on a specific workspace.\n\n### Reading\n\n| Tool Name | Description | Required | Optional |\n| :--- | :--- | :--- | :--- |\n| `get_user_info` | Authenticated user: plan, credit balance, AI tokens, active workspace and role. | — | `workspaceId` |\n| `list_workspaces` | Every workspace the user belongs to, with ids, roles, and connected platforms. | — | — |\n| `get_connected_accounts` | Connected social profiles with the `profileId` needed to target them. | — | `workspaceId` |\n| `get_account_health` | Connections whose token expired or is close to it and need reconnecting. | — | `workspaceId` |\n| `list_brandings` | Brand kits: tone, audience, keywords, style images. | — | `workspaceId` |\n| `list_posts` | Post queue, newest first, with per-profile delivery status, pagination and counts. | — | `status`, `page`, `limit`, `all` |\n| `get_post` | One post in full: which profiles received it, live URLs, and per-profile errors. | `id` | — |\n\n### Writing\n\n| Tool Name | Description | Required | Optional |\n| :--- | :--- | :--- | :--- |\n| `preflight_post` | Dry run: character limits, unconnected profiles, missing media, credit cost. Publishes nothing. | `content` | `targetAccounts`, `platforms`, `mediaUrl` |\n| `create_post` | Draft, schedule, or immediately publish a post to named profiles. Each profile becomes its own post with its own id. | `content` | `targetAccounts`, `variants`, `platforms`, `publishImmediately`, `scheduleDate`, `scheduleTime`, `timezone`, `mediaUrl` |\n| `publish_post_now` | Publish an existing post immediately; also retries a failed post, skipping delivered profiles. | `id` | — |\n| `update_post` | Update content, target profiles, schedule, media, or status. | `id` | `content`, `targetAccounts`, `platforms`, `scheduleDate`, `scheduleTime`, `timezone`, `mediaUrl`, `status` |\n| `reschedule_post` | Move a post to a new slot, keeping copy and targets. Re-arms failed and draft posts. | `id`, `scheduleDate`, `scheduleTime` | `timezone` |\n| `reset_stuck_post` | Release a post stuck mid-publish so it can be retried. Delivered profiles keep their state. | `id` | `force` |\n| `delete_post` | Cancel and delete a scheduled or failed post. | `id` | — |\n| `generate_image` | Generate a post image and return its hosted URL for `mediaUrl`. Spends AI tokens. | `prompt` | `brandingId`, `styleImageUrl` |\n\n### Batching\n\n| Tool Name | Description | Required | Optional |\n| :--- | :--- | :--- | :--- |\n| `multicall` | Run up to 20 of the tools above in one request, in order. Tool names are validated before anything executes, so a typo cannot leave half a batch written. Cannot nest. | `calls` | `stopOnError`, `workspaceId` |\n\n```json\n{\n  \"calls\": [\n    { \"id\": \"img\", \"tool\": \"generate_image\", \"arguments\": { \"prompt\": \"launch banner\" } },\n    {\n      \"tool\": \"create_post\",\n      \"arguments\": {\n        \"content\": \"We shipped it 🚀\",\n        \"targetAccounts\": [\n          { \"platform\": \"linkedin\", \"profileId\": \"lin_7741903\" },\n          { \"platform\": \"twitter\", \"profileId\": \"tw_1293847\", \"content\": \"We shipped it 🚀\" }\n        ],\n        \"scheduleDate\": \"2026-09-01\",\n        \"scheduleTime\": \"10:00\",\n        \"timezone\": \"Asia/Kolkata\"\n      }\n    }\n  ],\n  \"stopOnError\": true\n}\n```\n\nThe reply carries one entry per call — `{ id, tool, ok, result }` or `{ id, tool, ok: false, error }` — plus counts and, when a failure stopped the batch, the calls that were skipped.\n\n### Notes for clients\n\n- **Target profiles, not platforms.** `targetAccounts` sends only to the profiles named; `platforms` fans out to every connected profile on each platform.\n- **One post per profile.** `create_post` stores a separate post per targeted profile, so each can be edited, retried or cancelled on its own. Give per-profile copy through `targetAccounts[].content` or the `variants` map.\n- **Always pass `timezone`** when a wall-clock time matters. The backend defaults to UTC, so a 9:00 IST post scheduled without a zone goes out at 14:30 IST.\n- **Credits** are charged per profile delivered to (X/Twitter costs 5, others 1), plus a one-off 50-credit surcharge when the copy contains a link. `preflight_post` reports this before you commit.\n\n---\n\n## 💻 Client Integration Guides\n\n### 1. Claude Desktop App (Stdio Mode)\n\nAdd the configuration below to your Claude Desktop config file:\n\n- **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`\n- **Windows**: `%APPDATA%\\Claude\\claude_desktop_config.json`\n\n```json\n{\n  \"mcpServers\": {\n    \"postmcpai\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@postmcpai/server\"],\n      \"env\": {\n        \"POSTMCPAI_API_KEY\": \"pmcp_sec_your_secret_api_key_here\"\n      }\n    }\n  }\n}\n```\n\n---\n\n### 2. Cursor IDE\n\n1. Open **Cursor Settings** -> **Features** -> **MCP**.\n2. Click **+ Add New MCP Server**.\n3. Fill in the details:\n   - **Name**: `postmcpai`\n   - **Type**: `command`\n   - **Command**: `npx -y @postmcpai/server`\n4. Under **Environment Variables**, add:\n   - `POSTMCPAI_API_KEY` = `pmcp_sec_your_secret_api_key_here`\n5. Click **Save**.\n\n---\n\n### 3. Claude.ai & Remote Web Connectors (Streamable HTTP / SSE Mode)\n\nHost this server on any cloud service (Render, Railway, Fly.io, Vercel) or tunnel your local machine using `ngrok`.\n\n#### Launching in HTTP Mode:\n```bash\nexport POSTMCPAI_API_KEY=\"pmcp_sec_your_secret_api_key_here\"\nexport PORT=3000\n\nnpm run start:sse\n```\n\n#### Connecting to Claude.ai:\n1. Provide your public MCP URL with your API key attached:\n   `https://your-hosted-domain.com/mcp?apikey=pmcp_sec_your_secret_api_key_here`\n2. Claude.ai will discover tool capabilities via `/mcp` and authenticate seamlessly.\n3. That URL is all you need: the key is bound to the workspace it was issued from, so tools act on that workspace without being told. To point the same key at a *different* workspace, append `&projectId=YOUR_WORKSPACE_ID` (or send an `x-project-id` header); individual tool calls can still override either with `workspaceId`.\n\n---\n\n### 4. ChatGPT Custom GPTs (REST Actions)\n\n1. When configuring a **Custom GPT Action**, specify your server URL (e.g. `https://your-hosted-domain.com`).\n2. Import the OpenAPI schema directly from:\n   `https://your-hosted-domain.com/openapi.json`\n3. Set Authentication to **API Key** (Header Name: `Authorization` or `x-api-key`).\n\n---\n\n### 5. Programmatic Node.js Library Usage\n\nYou can also use `@postmcpai/server` as a library in your own Node.js backends:\n\n```js\nimport { createServer, createExpressApp, makeBackendRequest } from \"@postmcpai/server\";\n\n// Create a standalone MCP Server instance\nconst mcpServer = createServer(() => process.env.POSTMCPAI_API_KEY);\n\n// Or create an Express app with all remote routes attached\nconst app = createExpressApp();\napp.listen(3000);\n```\n\n---\n\n## 🧪 Local Testing & Development\n\n```bash\n# Clone the repository\ngit clone https://github.com/postmcp/postmcp-mcp-server.git\ncd postmcp-mcp-server\n\n# Install dependencies\nnpm install\n\n# Start in Stdio Mode\nnpm start\n\n# Start in HTTP Mode with hot reload\nnpm run dev\n```\n\n---\n\n## 📄 License\n\nDistributed under the [MIT License](LICENSE). Copyright © 2026 PostMCP AI.\n",
+  "status": "curated"
+}

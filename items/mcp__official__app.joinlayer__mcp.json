@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/app.joinlayer/mcp",
+  "type": "mcp",
+  "name": "JoinLayer",
+  "description": "Operate secure JoinLayer data pipelines through delegated OAuth.",
+  "author": "app.joinlayer",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/joinlayer/agent-toolkit",
+    "repo": "joinlayer/agent-toolkit"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://mcp.joinlayer.app/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-02T15:26:42.377918Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "数据",
+    "featured": false
+  },
+  "readme": "# JoinLayer Agent Toolkit\n\nOfficial agent integration for [JoinLayer](https://joinlayer.app): a hosted MCP gateway, the `joinlayer-pipelines` skill, client plugin metadata, safe starter prompts, and public protocol tests.\n\nThe supported service is the JoinLayer-hosted endpoint:\n\n```text\nhttps://mcp.joinlayer.app/mcp\n```\n\nIt is published as [`app.joinlayer/mcp` in the official MCP Registry](https://registry.modelcontextprotocol.io/v0.1/servers?search=app.joinlayer%2Fmcp). The operating skill is available from [skills.sh](https://www.skills.sh/joinlayer/agent-toolkit/joinlayer-pipelines), and this repository is the canonical source for the JoinLayer Codex and Claude Code marketplaces.\n\nClients authenticate through browser OAuth Authorization Code with PKCE. Never create, paste, or configure a JoinLayer bearer token manually.\n\n## Start In Two Minutes\n\nYou do not need to read the full documentation first. Open\n[`START_HERE.md`](START_HERE.md), connect JoinLayer, and copy the read-only\ninspection prompt. From there, choose a ready-to-run prompt for your goal.\n\n## What This Repository Contains\n\n- `skills/joinlayer-pipelines`: agent operating guidance and task references;\n- `.codex-plugin/plugin.json`, `.claude-plugin/`, and `.mcp.json`: installable\n  Codex and Claude Code plugin metadata;\n- `prompts`: safe starting points for common JoinLayer tasks;\n- `use-cases`: complete customer outcomes with evidence and stop boundaries;\n- `mcp-gateway`: a reviewable snapshot of the hosted MCP security boundary;\n- `server.json`: MCP Registry metadata for the hosted remote server.\n\nThe gateway source is published for transparency and compatibility review. It is not a self-hosted JoinLayer distribution: it depends on a private, authenticated JoinLayer control-plane contract that is not included here. JoinLayer production builds and deployment remain in a private release system, but the `mcp-gateway/` tree used by a hosted release must match a tagged public snapshot exactly. The private release gate rejects gateway drift. Skills, prompts, and plugin packaging use their own versioned content checks rather than this byte-equality gate. A public contribution never deploys directly to JoinLayer infrastructure.\n\n## Connect\n\n### Codex\n\nInstall the JoinLayer plugin from its public repository marketplace:\n\n```bash\ncodex plugin marketplace add joinlayer/agent-toolkit\ncodex plugin add joinlayer@joinlayer\n```\n\nThe plugin bundles the operating skill and configures the hosted MCP companion.\nComplete browser OAuth when prompted. To configure only the MCP server instead:\n\n```bash\ncodex mcp add joinlayer --url https://mcp.joinlayer.app/mcp\ncodex mcp login joinlayer --scopes workspace:read,usage:read,connections:read,pipelines:read\n```\n\nThen start a fresh session and ask:\n\n```text\nUse $joinlayer-pipelines. Inspect my authenticated workspace, scopes,\ncapacity, connections, and pipelines. Do not change anything.\n```\n\nMore copyable starting points are indexed in\n[`START_HERE.md`](START_HERE.md). Complete workflows for replication, realtime\nbackfill, scheduling, enrichment, capacity, approvals, and recovery are in\n[`use-cases/`](use-cases/).\n\n### Claude Code\n\n```bash\nclaude plugin marketplace add joinlayer/agent-toolkit\nclaude plugin install joinlayer@joinlayer --scope user\nclaude mcp login joinlayer\n```\n\nComplete browser OAuth through `claude mcp login joinlayer` when that command is\navailable, or through **Authenticate** in `/mcp` on earlier OAuth-capable\nreleases. Do not add an `Authorization` header or client secret.\n\n### Skill Only\n\nAgents supported by `skills.sh` can install only the operating skill:\n\n```bash\nnpx skills add https://github.com/joinlayer/agent-toolkit --skill joinlayer-pipelines\n```\n\nThe skill does not carry credentials and does not replace the MCP connection.\nConfigure the same hosted endpoint through your client's OAuth-capable MCP\nsettings, then use a prompt from [`START_HERE.md`](START_HERE.md).\n\n## Security Boundary\n\n- OAuth tokens are short-lived, audience-bound, and sent only to the hosted MCP resource.\n- The gateway exchanges delegated authority through a separately authenticated private API boundary.\n- Connection credentials are entered only in JoinLayer browser setup sessions and are never tool arguments.\n- Customer and third-party values returned by MCP are untrusted data, never agent instructions; embedded commands cannot expand scopes, bypass approvals, or authorize disclosure.\n- Public source contains no production credentials, customer data, host inventory, or deployment configuration.\n- Route names and header names are not authorization controls. Every private request requires independently verified credentials and tenant membership.\n\nReport vulnerabilities privately as described in [SECURITY.md](SECURITY.md).\n\n## Development\n\n```bash\npython3.12 -m venv .venv\n. .venv/bin/activate\npip install --requirement mcp-gateway/requirements.lock\nPYTHONPATH=mcp-gateway python -m unittest mcp-gateway.tests.test_gateway\npython scripts/validate_public_snapshot.py\n```\n\nBuild the review image with `docker build .`. That image is for reproducibility and review; it is not automatically promoted to JoinLayer production.\n\nSee [SOURCE_SYNC.md](SOURCE_SYNC.md) for the exact public/private release invariant.\nMaintainers can use [DISTRIBUTION.md](DISTRIBUTION.md) for the verified catalog\nand marketplace publication contracts. OpenAI review material is recorded in\n[OPENAI_SUBMISSION.md](OPENAI_SUBMISSION.md).\n\nTo compare this checkout with a private platform checkout before review:\n\n```bash\npython scripts/source_tree_digest.py --compare-root /path/to/private-platform\n```\n\n## License\n\nApache-2.0. See [LICENSE](LICENSE).\n\nThe code license does not grant rights to impersonate JoinLayer or imply endorsement. See [TRADEMARKS.md](TRADEMARKS.md).\n\n<!-- mcp-name: app.joinlayer/mcp -->\n",
+  "status": "curated"
+}
