@@ -10,14 +10,20 @@
     "repo": "addyosmani/factory-demo",
     "path": ".agents/skills/factory-implement/SKILL.md"
   },
-  "license": null,
+  "license": "MIT",
   "install": {
     "kind": "skill-dir"
   },
   "quality": {
-    "stars": null,
-    "pushed_at": null,
-    "score": 25
+    "stars": 2,
+    "pushed_at": "2026-08-19T03:08:45Z",
+    "score": 59,
+    "star_history": [
+      {
+        "d": "2026-09-02",
+        "s": 2
+      }
+    ]
   },
   "security": {
     "score": 100,
@@ -49,6 +55,6 @@
     "category": "编程",
     "featured": false
   },
-  "readme": null,
+  "readme": "# Reel Good: a worked software factory demo\n\n**Reel Good shows the complete path from a GitHub issue to a tested, independently\nverified draft pull request using [Factory](https://github.com/addyosmani/factory). It is\nalso a small TMDB movie app you can run with your Claude Code or Codex subscription.**\n\nA coding agent can already build a feature quickly. The factory adds the parts that become\nimportant when you want the work to continue without supervising every prompt: a queue,\nexplicit risk boundaries, deterministic claims, fail-closed checks, independent review,\ndurable run evidence, and a deliberate handoff to a human.\n\n```mermaid\nflowchart LR\n  I[\"GitHub issue\"] --> T[\"Triage + checkable handoff\"]\n  T --> C[\"Atomic branch claim\"]\n  C --> B[\"Test-first implementation\"]\n  B --> G[\"Types, lint, tests, build\"]\n  G --> V[\"Fresh-context verification\"]\n  V --> P[\"Verified draft PR\"]\n  P --> H[\"Human review and merge\"]\n```\n\nThe human stays in the loop at the consequential point. Factory agents never merge.\n\n## What is in the demo?\n\nThe baseline app has a responsive discovery page and movie details backed by TMDB. The\nfactory then picked up three GitHub issues:\n\n- [Local favorites and a watchlist](https://github.com/addyosmani/factory-demo/pull/7)\n- [A persistent light and dark theme](https://github.com/addyosmani/factory-demo/pull/6)\n- [An accessible quick finder](https://github.com/addyosmani/factory-demo/pull/8)\n\nThese are draft PRs on purpose. Each has an issue handoff, deterministic `claude/fq-*`\nclaim branch, new regression test, exact gate verdict, negative-test proof, immutable run\nrecord, and independent verifier result. PR #7 also records a useful recovery path: green\ngates were not enough, the verifier rejected over-persistence in local storage, and a human\ncomment authorized a narrowly scoped retry.\n\n## Run the app\n\nYou need Node.js 20.9 or newer and your own [TMDB API key](https://www.themoviedb.org/settings/api).\n\n```bash\nnpm install\ncp .env.example .env.local\n# Add your own key to TMDB_API_KEY in .env.local\nnpm run dev\n```\n\nOpen [http://localhost:3000](http://localhost:3000). `TMDB_API_KEY` is read only from the\nserver-side data module. `.env.local` is ignored by Git and must not be committed.\n\nFor a deterministic preview with no key or network requests:\n\n```bash\nTMDB_USE_MOCKS=true npm run dev\n```\n\n## Reproduce the workshop\n\nThere are two useful checkpoints:\n\n| Checkpoint | Branch | Commit | Use it for |\n|---|---|---|---|\n| App, no factory | [`workshop-start`](https://github.com/addyosmani/factory-demo/tree/workshop-start) | `ef02553` | Install and configure Factory yourself |\n| App + configured factory | [`factory-ready`](https://github.com/addyosmani/factory-demo/tree/factory-ready) | `5da7571` | Create issues and run the queue immediately |\n\nFollow the [step-by-step workshop](docs/WORKSHOP.md) for Claude Code Desktop and Codex in\nthe ChatGPT desktop app. It covers forking from a checkpoint, local secrets, the first\nprompts, GitHub labels, issue handoffs, implementation, verification, human recovery, and\noptional scheduling.\n\nThe [first-run learnings](LEARNINGS.md) capture what was fast, what took roughly 82\nminutes, which defects the verifier caught, and where the workflow needs a tighter latency\nbudget.\n\n## Project checks\n\n```bash\nnpm run typecheck\nnpm run lint\nnpm test\nnpm run build\n./.claude/scripts/gates.sh full\n./.factory/scripts/doctor.sh\n```\n\nThe factory gate ends with one machine-readable `FACTORY_GATES:` line. Missing required\nchecks produce `MISCONFIGURED`, not a convenient green result.\n\n## Boundaries worth noticing\n\n- Unattended work cannot touch `lib/tmdb.ts`, environment files, package manifests, or the\n  factory policy. Remote TMDB search and account-backed favorites therefore need a human\n  spec; the quick finder intentionally searches only data already on the page.\n- The committed fixture mode makes checks reproducible without giving an unattended agent\n  your TMDB credential.\n- GitHub labels and the latest `factory-handoff:v1` issue comment are the live queue.\n  Markdown queue files are evidence, not synchronization.\n- Three items awaiting review trigger back-pressure. Producing more PRs is not progress if\n  nobody has capacity to read them.\n\n## TMDB attribution\n\nThis product uses the TMDB API but is not endorsed or certified by TMDB. The app uses an\napproved TMDB mark and keeps the required notice in its About section. See the\n[TMDB API terms](https://www.themoviedb.org/documentation/api/terms-of-use).\n\n## License\n\n[MIT](LICENSE)\n",
   "status": "curated"
 }

@@ -1,0 +1,61 @@
+{
+  "id": "mcp:official/io.github.Aggrometer/aggrometer",
+  "type": "mcp",
+  "name": "aggrometer",
+  "description": "The gaming attention graph: Steam players, Twitch live viewers, aggro ratio, hype, history.",
+  "author": "io.github.Aggrometer",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/Aggrometer/aggrometer",
+    "repo": "Aggrometer/aggrometer"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://aggrometer.com/mcp",
+    "env": [
+      {
+        "name": "Authorization",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-02T05:19:15.722367Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "生活",
+    "featured": false
+  },
+  "readme": "# Aggrometer — the gaming attention graph\n\n**Live cross-platform gaming market data for humans and AI agents.** Aggrometer continuously measures ~2,000 games: **Steam concurrent players** (hourly) and **Twitch live viewership** (15-min, game-level aggregates), plus prices, discounts, top-seller ranks, clip velocity, review counts, and pre-release hype — joined per game.\n\n**Signature metric: `aggro` = live viewers ÷ concurrent players, same hour.** Above 1.0, a game holds more audience than players — the signal that streamer marketing converts, that a spectacle moment is happening, or that attention is arriving ahead of sales.\n\n🌐 **[aggrometer.com](https://aggrometer.com)** · [API index](https://aggrometer.com/v1) · [OpenAPI](https://aggrometer.com/v1/openapi.json) · [llms.txt](https://aggrometer.com/llms.txt) · [Pricing](https://aggrometer.com/#pricing)\n\n## MCP server\n\nRemote, streamable HTTP, stateless — 8 read-only tools:\n\n`get_summary` · `top_played` · `top_watched` · `aggro_board` · `genre_rollup` · `hype_board` · `game_detail` · `search_games`\n\n**Endpoint:** `https://aggrometer.com/mcp`\n**Auth:** `Authorization: Bearer <your aggrometer API key>` — [get a key](https://aggrometer.com/#pricing) (Basic $3.99/mo · Pro $29/mo · prepaid agent credits $9.99/1,000 queries)\n\n### Claude Code\n\n```bash\nclaude mcp add --transport http aggrometer https://aggrometer.com/mcp --header \"Authorization: Bearer YOUR_KEY\"\n```\n\n### Claude Desktop / other MCP clients (config JSON)\n\n```json\n{\n  \"mcpServers\": {\n    \"aggrometer\": {\n      \"url\": \"https://aggrometer.com/mcp\",\n      \"headers\": { \"Authorization\": \"Bearer YOUR_KEY\" }\n    }\n  }\n}\n```\n\n### Cursor\n\nThis repo ships a [.mcp.json](.mcp.json) — set the `AGGROMETER_API_KEY` environment variable and Cursor picks it up.\n\n## REST API\n\nSame key, plain JSON:\n\n```bash\ncurl -H \"Authorization: Bearer YOUR_KEY\" \"https://aggrometer.com/v1/boards/aggro?genre=RPG\"\n```\n\nFull endpoint index (self-describing, no auth): [`GET /v1`](https://aggrometer.com/v1) · [OpenAPI spec](https://aggrometer.com/v1/openapi.json)\n\n## Also on Apify\n\nPay-per-query without an Aggrometer key: [apify.com/aggrometer/aggrometer-gaming-attention-data](https://apify.com/aggrometer/aggrometer-gaming-attention-data) — agent-callable via Apify's MCP, x402-payable.\n\n## Who uses this\n\n- **Game developers & publishers** — genre whitespace, launch scouting, competitor attention\n- **Marketing teams** — watched-vs-played balance, per game and genre\n- **Analysts & press** — attention momentum, hype pipelines, discount effects\n- **AI agents** — all of the above, autonomously\n\n## Data notes\n\nGame-level derived aggregates and estimates only. History accrues continuously since 2026-08-26; sparse series indicate a young warehouse, not missing coverage. Live viewership data provided by Twitch; the anticipation score is Aggrometer's own composite index (Steam wishlist rank + pre-release Twitch attention).\n\n## Support\n\nsupport@aggrometer.com\n",
+  "status": "curated"
+}

@@ -1,0 +1,89 @@
+{
+  "id": "mcp:official/io.github.setheerwagen/mcp-modelmanager",
+  "type": "mcp",
+  "name": "Model Manager",
+  "description": "Manage your local model machine over MCP: state, model pull/remove, service switch, LoRA training",
+  "author": "io.github.setheerwagen",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/setheerwagen/local-ai-mcp-servers",
+    "repo": "setheerwagen/local-ai-mcp-servers"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "mcp-modelmanager"
+    ],
+    "env": [
+      {
+        "name": "MM_VM_HOST",
+        "required": true,
+        "secret": false
+      },
+      {
+        "name": "MM_VM_USER",
+        "required": true,
+        "secret": false
+      },
+      {
+        "name": "MM_CONTAINER_ROOT",
+        "required": true,
+        "secret": false
+      },
+      {
+        "name": "MM_MAX_TIER",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "MM_ENABLED_OPERATIONS",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "MM_VM2_HOST",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-01T23:52:41.815532Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Local-AI MCP servers: Ollama & vLLM model management and local LLM access for Claude, ChatGPT and other MCP clients\n\n[![CI](https://github.com/setheerwagen/local-ai-mcp-servers/actions/workflows/ci.yml/badge.svg)](https://github.com/setheerwagen/local-ai-mcp-servers/actions/workflows/ci.yml)\n[![PyPI mcp-modelmanager](https://img.shields.io/pypi/v/mcp-modelmanager)](https://pypi.org/project/mcp-modelmanager/)\n[![PyPI mcp-ollama-vllm](https://img.shields.io/pypi/v/mcp-ollama-vllm)](https://pypi.org/project/mcp-ollama-vllm/)\n[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/setheerwagen/local-ai-mcp-servers/blob/main/LICENSE)\n![Python](https://img.shields.io/badge/python-3.10%2B-blue)\n\nTwo self-hostable [Model Context Protocol (MCP)](https://modelcontextprotocol.io/)\nservers for running and steering your own local language models: manage an\nOllama/vLLM model machine, and query a local LLM (Ollama, vLLM or an\nOpenAI-compatible backend) for language work with schema-validated JSON output.\nSelf-hosted and privacy-first: the models and their machine stay on your own\nhardware, and neither server process reaches out to a public address on its\nown. Version 1.0.0, single-operator tool, actively used by the author.\n\nBoth servers speak the Model Context Protocol (MCP), so an AI tool such as Claude\nor ChatGPT can use them. Each server's own traffic goes only to your own computer\nor your local network; a start-up guard rejects public addresses. Installing the\ntwo direct dependencies needs the internet once, at setup time. Fetching a model\nis a separate matter: in `mcp-modelmanager`, calling `fetch_model` is a\ndeliberate, tool-triggered connection from your model machine to a public\nmodel registry, at whatever point you invoke it, not something limited to\nsetup time. The default `source=\"ollama\"` makes the machine's own Ollama\ndaemon pull from `registry.ollama.ai` for plain model names, or from whatever\nother registry a prefixed name such as `hf.co/user/repo` points at;\n`source=\"huggingface\"` instead reaches Hugging Face directly. `switch_service`\nnever reaches either registry itself;\nit refuses and asks for `fetch_model` first if the model is not already on the\nmachine. Each server stands on its own: pick one, or run both.\n\nA caveat: the AI tool you *drive* these servers with (Claude, ChatGPT,\netc.) is itself a hosted service in the usual case. The instructions you give it\nand the tool inputs and results it handles pass through that provider, exactly as\nany other MCP call would. \"Local\" here means the models, the model machine and\nits data; it is not a claim that nothing you type ever reaches a third party.\nDrive them with a local model if that matters to you.\n\n## The two servers\n\n### `mcp-modelmanager` -> [mcp-modelmanager/](mcp-modelmanager/)\n\nManage your own model machine through an AI tool: read state (GPU memory, disk,\nrunning service, containers), pull and remove models, switch the vLLM inference\nservice to a different model, build custom Ollama variants and run LoRA training.\nThere is deliberately no tool for free remote control: every operation is a fixed\ntemplate and every parameter first passes an allowlist, checked independently on\nboth sides. This server ships both halves: the client/server code the AI tool\ntalks to, and the machine-side scripts, wrapper and network-fence templates that\nrun on and lock down the model machine.\n\n### `mcp-ollama-vllm` -> [mcp-ollama-vllm/](mcp-ollama-vllm/)\n\nCall a local model directly from an AI session for the language work: writing,\nsummarizing, classifying, extracting structured data. Its distinctive feature is\nschema-validated JSON output, checked by its own dependency-free validator and\nretried automatically on a violation, the same way whether the configured backend\nis Ollama or vLLM. It is a model call, not an agent: no tools, no file access, no\nshell.\n\nThe two are complementary. `mcp-ollama-vllm` *asks* a model (read-only, no\nmanagement rights); `mcp-modelmanager` *manages* the machine. Keeping them\nseparate means a query call never accidentally holds management rights.\n\n## Repository layout\n\n```\n.\n|-- README.md                 this file\n|-- CHANGELOG.md              version history (Keep a Changelog style)\n|-- CONTRIBUTING.md           how to contribute\n|-- LICENSE                   MIT, covers the repo as a whole\n|-- .gitignore\n|-- .github/\n|   `-- workflows/\n|       `-- ci.yml            lockfile check, locked-tree tests, shell lint, advisory pip-audit\n|-- mcp-modelmanager/         manage your own model machine (server + machine side)\n|   |-- README.md             server and client guide (start here)\n|   |-- SETUP.md              client-side step-by-step setup\n|   |-- AGENT-SETUP.md        setup procedure written for an AI agent\n|   |-- MACHINE.md            machine-side overview (start here for the machine)\n|   |-- SETUP-MACHINE.md      gapless machine provisioning\n|   |-- SECURITY.md           the three-layer security model\n|   |-- LICENSE\n|   |-- .gitignore            SSH-key and build patterns (kept from the server)\n|   |-- requirements.txt\n|   |-- pyproject.toml\n|   |-- uv.lock               full resolved dependency tree, pinned\n|   |-- src/mcp_modelmanager/  server package (server code and shared modules)\n|   |-- setup/                machine-side setup scripts\n|   |-- vm_side/              machine-side wrapper and job runners\n|   `-- security/             network-fence templates (sshd, firewall, WireGuard)\n`-- mcp-ollama-vllm/          call local models with schema-checked JSON\n    |-- README.md             server guide (start here)\n    |-- AGENT-SETUP.md        setup procedure written for an AI agent\n    |-- SECURITY.md           what the bridge does and does not protect\n    |-- LICENSE\n    |-- requirements.txt\n    |-- pyproject.toml\n    |-- uv.lock               full resolved dependency tree, pinned\n    `-- src/mcp_ollama_vllm/  server package (server code)\n```\n\n## Quickstart\n\nEach server has its own guide; start with the README in its folder.\n\n- `mcp-modelmanager`: read [mcp-modelmanager/README.md](mcp-modelmanager/README.md)\n  and follow [mcp-modelmanager/SETUP.md](mcp-modelmanager/SETUP.md) for the client\n  side. For the model machine itself, start from\n  [mcp-modelmanager/MACHINE.md](mcp-modelmanager/MACHINE.md).\n- `mcp-ollama-vllm`: read [mcp-ollama-vllm/README.md](mcp-ollama-vllm/README.md);\n  it has no separate SETUP.md (the README covers setup, there is no machine side\n  and no management rights to document separately), and its SECURITY.md states\n  the boundaries of the bridge.\n\n`mcp-modelmanager` needs Python 3.11 or newer, `mcp-ollama-vllm` 3.10 or newer;\neach has only two **direct**, pinned dependencies (`mcp` and `httpx`); `mcp`\nitself pulls in a number of further packages transitively (`anyio`, `pydantic`,\n`starlette`, `uvicorn`, `jsonschema`, `pyjwt` among them). The full resolved\ntree, direct and transitive, is pinned per server in its `uv.lock`; CI checks\nwith `uv lock --check` that the lock still matches `pyproject.toml` and runs\nthe tests against the exact locked tree, so a drifted lock fails CI. No\naccount, no paid service, no cloud is required.\n\n## Installation / Usage\n\nInstall whichever server(s) you need from PyPI:\n\n```bash\npip install mcp-modelmanager\npip install mcp-ollama-vllm\n```\n\nEach ships a console entry point (`mcp-modelmanager` / `mcp-ollama-vllm`) after\ninstall, so an MCP client can point `command` straight at it, for example:\n\n```json\n{\n  \"mcpServers\": {\n    \"modelmanager\": {\n      \"command\": \"/path/to/.venv/bin/mcp-modelmanager\",\n      \"env\": {\n        \"MM_ACCESS\": \"direct\",\n        \"MM_VM_HOST\": \"<your-machine-or-127.0.0.1>\",\n        \"MM_VM_USER\": \"<your-ssh-user>\",\n        \"MM_CONTAINER_ROOT\": \"/srv/models\"\n      }\n    },\n    \"local-models\": {\n      \"command\": \"/path/to/.venv/bin/mcp-ollama-vllm\",\n      \"env\": {\n        \"LOCAL_BACKEND\": \"ollama\",\n        \"LOCAL_HOST\": \"http://localhost:11434\"\n      }\n    }\n  }\n}\n```\n\nThe required environment variables differ per server (`mcp-modelmanager` needs\nthe three `MM_*` fields above to start at all; `mcp-ollama-vllm` runs with\ndefaults for a local Ollama). This is only the shape; do not copy the values\nverbatim. For the full, current install/registration steps, including the\ncheckout-based (non-PyPI) path and running from source, see each server's own\nREADME: [mcp-modelmanager/README.md](mcp-modelmanager/README.md#installation)\nand [mcp-ollama-vllm/README.md](mcp-ollama-vllm/README.md#installation).\n\n## Security and scope\n\n- **Local and self-hosted.** Both server processes run on your own hardware and\n  talk only to your own computer or your local/private network. Public addresses\n  are rejected at start-up, and names are resolved so the guard cannot be\n  bypassed via DNS. This governs the *servers'* own traffic; the AI tool that\n  drives them is a separate service (see the caveat above), and so is a model\n  download you explicitly trigger through `mcp-modelmanager` (`fetch_model`):\n  with the default `source=\"ollama\"` it makes the machine's own Ollama daemon\n  pull from `registry.ollama.ai` (or from the registry a prefixed model name\n  such as `hf.co/user/repo` points at), and with `source=\"huggingface\"` it reaches\n  Hugging Face directly, both from the model machine at the time you ask for\n  it. `switch_service` does not reach either registry; it refuses a model that\n  is not already on the machine and points you at `fetch_model` instead.\n- **No credentials in this repository.** No keys, tokens or passwords are stored\n  here; SSH keys for `mcp-modelmanager` live outside the repo in your `~/.ssh`,\n  and the `.gitignore` additionally excludes key and `.env` patterns.\n- **Placeholders, not real values.** Every machine-specific value in the docs and\n  templates is a `<placeholder>` or an environment variable you fill in on your\n  own machine at setup time.\n- **Each server has its own `SECURITY.md`** ([mcp-modelmanager](mcp-modelmanager/SECURITY.md),\n  [mcp-ollama-vllm](mcp-ollama-vllm/SECURITY.md)) that goes into the actual\n  trust boundaries and layers, and states plainly what remains unaddressed.\n\n## License\n\nMIT for both servers. See the `LICENSE` file in each server folder.\nCopyright (c) 2026 Siegfried Emil Timothy Heerwagen.\n",
+  "status": "curated"
+}

@@ -6,8 +6,8 @@
   "author": "com.sourcey",
   "source": {
     "registry": "mcp-official",
-    "url": "https://github.com/sourcey/startup-credits",
-    "repo": "sourcey/startup-credits"
+    "url": "https://github.com/sourcey/mcp-server",
+    "repo": "sourcey/mcp-server"
   },
   "license": null,
   "install": {
@@ -16,8 +16,8 @@
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-08-29T06:58:43.382495Z",
-    "score": 42
+    "pushed_at": "2026-09-02T03:03:44.41948Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -49,6 +49,6 @@
     "category": null,
     "featured": false
   },
-  "readme": null,
+  "readme": "# Sourcey MCP Server\n\nFind evidence-backed startup credits and deals, inspect Agent Readiness report cards, and\nprepare canonical service declarations from an agent client.\n\nSourcey is already a hosted Streamable HTTP MCP server:\n\n```text\nhttps://mcp.sourcey.com/mcp\n```\n\nUse that URL directly when your client supports remote MCP. This package is the thin stdio\nbridge for clients that require a local command:\n\n```bash\nnpx -y @sourcey/mcp-server\n```\n\n```json\n{\n  \"mcpServers\": {\n    \"sourcey\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@sourcey/mcp-server\"]\n    }\n  }\n}\n```\n\nThe bridge downloads no Catalog and contains no tool implementations. At startup it negotiates\nwith the live Sourcey server, reads the current tool definitions once, and relays tool calls. A\nCatalog or tool-description update therefore needs no package release.\n\n## What agents can do\n\n- search and compare current startup credits, discounts, free tiers, programs, perks, and deals;\n- inspect exact evidence, freshness, eligibility unknowns, and the signed change feed;\n- search and inspect Agent Readiness report cards, including visible grades, five-stage findings,\n  blockers, remediations, methods, coverage, and freshness;\n- prepare canonical Agent Readiness declaration YAML without assigning a grade; and\n- discover Sourcey's paid HTTP services and x402 endpoint without paying inside MCP.\n\nCall `tools/list` for the exact live schemas and descriptions. Sourcey's full agent guide is at\n[sourcey.com/SKILL.md](https://sourcey.com/SKILL.md), its OpenAPI contract is at\n[api.sourcey.com/openapi.yml](https://api.sourcey.com/openapi.yml), and x402 discovery is at\n[api.sourcey.com/.well-known/x402](https://api.sourcey.com/.well-known/x402).\n\n## Boundary\n\nThis package performs only two actions: MCP over local stdio and MCP over the configured hosted\nHTTP endpoint. It has no wallet, payment signer, credentials, telemetry, browser, background\ndaemon, mutable plugin, Catalog data, Agent Readiness executor, or submission authority. Paid\nwork remains on Sourcey's canonical HTTP API.\n\n`SOURCEY_MCP_URL` may select another HTTPS Sourcey endpoint. Plain HTTP is accepted only for a\nloopback test server. URLs containing credentials or fragments are refused.\n\n## Development\n\n```bash\nnpm ci\nnpm run verify\ndocker build -t sourcey-mcp .\n```\n\nThe verification path builds from clean output, checks all generated metadata, tests the real\nHTTP-to-stdio boundary, creates an SBOM, installs the exact packed tarball into a blank project,\nand repeats protocol introspection from those installed bytes.\n\nMIT. See `SECURITY.md` and `SUPPORT.md` for reporting paths.\n",
   "status": "curated"
 }

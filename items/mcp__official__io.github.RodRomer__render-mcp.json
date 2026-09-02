@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.RodRomer/render-mcp",
+  "type": "mcp",
+  "name": "render-mcp",
+  "description": "A real browser for AI agents: screenshots, PDFs, post-JS HTML. No API key.",
+  "author": "io.github.RodRomer",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/RodRomer/render-mcp",
+    "repo": "RodRomer/render-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://render.makermargins.com/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-02T06:48:51.486561Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# render-mcp\n\n**Gives an AI agent a real browser.** Screenshots, PDFs, and the HTML a page produces *after*\nJavaScript has run.\n\nNo API key. No signup. No account. Point your client at a URL and it works.\n\n```\nhttps://render.makermargins.com/mcp\n```\n\n---\n\n## Why this exists\n\nAn agent can fetch a URL. It cannot *see* one.\n\nAsk an assistant to check whether a page looks right, or to read a site built with React, and it\nhits a wall: a plain HTTP fetch returns an empty shell and a loading spinner. The content is\nbuilt by JavaScript that never runs.\n\nThe usual answer is a rendering API — but every one of them requires you to sign up, verify an\nemail, and paste an API key. **An agent working on its own can't do any of that.** It has no\ninbox and no card. A free tier it cannot register for is worth nothing to it.\n\nThis server needs none of it. It runs on Cloudflare's network, launches a real headless browser,\nand hands back what the page actually looks like.\n\n## Install\n\n**Claude Code**\n\n```bash\nclaude mcp add --transport http render https://render.makermargins.com/mcp\n```\n\n**Claude Desktop, Cursor, and other clients** — add to your MCP config:\n\n```json\n{\n  \"mcpServers\": {\n    \"render\": {\n      \"type\": \"http\",\n      \"url\": \"https://render.makermargins.com/mcp\"\n    }\n  }\n}\n```\n\nThat's the whole setup. Nothing to install, nothing to configure, no credentials.\n\n## Tools\n\n### `screenshot_url`\n\nSee a page as a person would. Returns a PNG.\n\n| Argument | Type | Notes |\n|---|---|---|\n| `url` | string | **Required.** Absolute, including `https://` |\n| `full_page` | boolean | Capture the whole scrollable page. Default `false` |\n| `width` | number | Viewport width, 320–2560. Default `1280` |\n| `height` | number | Viewport height, 240–2000. Default `800` |\n\nGood for: confirming a deployment looks right, checking a layout, seeing what a user sees.\n\n### `rendered_html`\n\nThe DOM *after* JavaScript has executed. Returns HTML text.\n\n| Argument | Type | Notes |\n|---|---|---|\n| `url` | string | **Required.** Absolute, including `https://` |\n| `wait_for` | string | CSS selector to wait for, if content loads late |\n| `max_chars` | number | Truncation limit, 1,000–500,000. Default `100000` |\n\nGood for: single-page apps, anything where a plain fetch returns a shell.\n\n### `url_to_pdf`\n\nRender a page to PDF as a browser would print it.\n\n| Argument | Type | Notes |\n|---|---|---|\n| `url` | string | **Required.** Absolute, including `https://` |\n| `landscape` | boolean | Default `false` |\n\nGood for: archiving a page, turning a rendered report into a document.\n\n## What it won't do\n\nStated plainly, so an agent doesn't waste calls discovering them:\n\n- **No private networks.** Loopback, RFC1918 ranges, `169.254.x.x`, `.internal` and `.local`\n  hostnames are refused. This server runs inside Cloudflare's network and an unvalidated URL\n  would be a server-side request forgery.\n- **No logins.** There's no session, so anything behind authentication renders as its login page.\n- **20 second navigation limit.** Very slow pages will time out.\n- **No JavaScript injection.** It renders pages; it doesn't run your code on them.\n\nFailures come back as readable text explaining what went wrong, not as protocol errors — so an\nagent can route around them rather than crashing.\n\n## Privacy\n\nNothing is stored. No logging of URLs, no retention of rendered output, no analytics. Each call\nlaunches a browser, does the work, and closes it.\n\n## Development\n\n```bash\nnpm install\nnpm test        # 55 tests, no network or browser needed\nnpm run dev     # local worker\nnpm run deploy  # to Cloudflare\n```\n\nThe MCP protocol layer in `src/protocol.js` is pure functions with no Cloudflare or browser\ndependencies, so the whole request/response surface — including every URL validation rule — is\ntested under plain Node before anything is deployed. `src/index.js` is a thin shell that does\nthe browser work.\n\n## Status\n\nEarly and free. Built to find out whether MCP registry discovery actually works. If it gets\nused, it'll be maintained; if it doesn't, that's a useful answer too.\n\nIssues and pull requests welcome.\n\n## Licence\n\nMIT\n",
+  "status": "curated"
+}

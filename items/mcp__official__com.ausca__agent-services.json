@@ -6,8 +6,8 @@
   "author": "com.ausca",
   "source": {
     "registry": "mcp-official",
-    "url": "https://ausca.com/mcp",
-    "repo": null
+    "url": "https://github.com/auscahq/mcp-server",
+    "repo": "auscahq/mcp-server"
   },
   "license": null,
   "install": {
@@ -16,8 +16,8 @@
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-08-30T23:44:26.748913Z",
-    "score": 42
+    "pushed_at": "2026-09-02T03:12:55.887661Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -49,6 +49,6 @@
     "category": "编程",
     "featured": false
   },
-  "readme": null,
+  "readme": "# mcp-server\n\nPublic metadata and connection docs for the **Ausca** MCP server.\n\nAusca exposes pay-per-call APIs and MCP services for agents. There are no accounts and no\nAPI keys. Every paid execution settles against an immutable offer revision and returns a\nverifiable receipt.\n\nThe server is hosted. There is nothing to install from this repository.\n\n## Connect\n\nStreamable HTTP endpoint:\n\n```\nhttps://ausca.com/mcp\n```\n\nClaude Desktop / Claude Code:\n\n```json\n{\n  \"mcpServers\": {\n    \"ausca\": {\n      \"type\": \"http\",\n      \"url\": \"https://ausca.com/mcp\"\n    }\n  }\n}\n```\n\n## Tools\n\n**Offers**\n\n| Tool | What it does |\n| --- | --- |\n| `ausca_search_offers` | Search the current immutable offer catalog by free-text query. Returns stable offer identities and revisions. |\n| `ausca_get_offer` | Resolve one active offer or an exact immutable revision, including the schema and revision digests. |\n\n**Invocations**\n\n| Tool | What it does |\n| --- | --- |\n| `ausca_prepare_invocation` | Validate one exact invocation envelope and return immutable preparation terms or a typed refusal. |\n| `ausca_get_invocation` | Read the durable state, output commitment, and receipt reference for one invocation. |\n| `ausca_cancel_invocation` | Request bounded cancellation of one invocation. Idempotent, and may be refused. |\n\n**Agent inbox**\n\n| Tool | What it does |\n| --- | --- |\n| `ausca_agent_inbox_status` | Return the receive-only address, lease status, and expiry for one inbox. |\n| `ausca_agent_inbox_messages` | Return up to 50 normalized message summaries after an opaque cursor. |\n| `ausca_agent_inbox_read` | Return one bounded normalized message. HTML is inert untrusted content and is never rendered. |\n| `ausca_agent_inbox_attachment` | Return a short-lived download URL, only when the stored attachment has a clean safety verdict. |\n| `ausca_agent_inbox_delete` | Stop inbound visibility and delete retained message and attachment content for one lease. |\n\n**Browser sessions**\n\n| Tool | What it does |\n| --- | --- |\n| `ausca_browser_session_status` | Return status and expiry for one browser-session lease. |\n| `ausca_browser_session_connect` | Return a short-lived CDP relay URL for an active lease. The upstream provider URL and credential are never exposed. |\n| `ausca_browser_session_close` | Terminate the relay and upstream browser for one lease. Closing never creates a payment. |\n\n## How to use it\n\nResolve an offer with `ausca_search_offers` and `ausca_get_offer` before acting, so the\nwork is bound to an exact immutable revision.\n\nThe public MCP transport does not accept wallets or payment credentials, and the\npaid-invocation tool is not exposed over it. Paid execution goes through the canonical\nHTTP invocation resource described by the selected service's `SKILL.md`.\n\n## Links\n\n- Website: <https://ausca.com>\n- MCP endpoint: <https://ausca.com/mcp>\n- Registry entry: `com.ausca/agent-services`\n\n## License\n\nMIT. See [LICENSE](LICENSE).\n",
   "status": "curated"
 }

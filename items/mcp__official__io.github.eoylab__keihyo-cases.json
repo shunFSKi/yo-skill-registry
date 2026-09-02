@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.eoylab/keihyo-cases",
+  "type": "mcp",
+  "name": "景品表示法 措置命令・課徴金納付命令",
+  "description": "Japan's 景表法 enforcement orders (措置命令・課徴金) with cited provisions and source URLs. No verdicts.",
+  "author": "io.github.eoylab",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/eoylab/keihyo-cases",
+    "repo": "eoylab/keihyo-cases"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "https://github.com/eoylab/keihyo-cases/releases/download/v0.1.1/keihyo-cases.mcpb"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-02T07:55:12.095488Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# keihyo-cases\n\n**景品表示法（不当景品類及び不当表示防止法）の措置命令・課徴金納付命令のデータセットと MCP サーバー**\n\n消費者庁が公表した処分 **151件**（128社、2021-04-09〜2026-08-06）を、\n機械可読な形にしたものです。全件に出典URLがあります。\n\n→ **[検索できる一覧](https://eoylab.github.io/keihyo-cases/)**\n\n*A machine-readable dataset of Japanese advertising-law (Keihyoho) enforcement\nactions published by the Consumer Affairs Agency, plus an MCP server so a model\ncan cite a real order instead of inventing one. Japanese-language source data.*\n\n## これは何をしないか\n\n**違反の判定をしません。** 各レコードは、消費者庁が**既に発出して公表した処分**の再記述です。\n「この表示は違反にあたる」という判断は含みません。\n\n過去の処分の一覧は、個別の広告表現が適法かどうかの答えにはなりません。\n消費者庁自身が個別事案ごとの判断という立場を取っています。\n\n## なぜあるか\n\n広告表示のチェックを LLM にやらせると、**実在しない処分事例を作ります。**\n根拠になる機械可読なデータが無いからです。\nこのデータセットは、モデルが**思い出す代わりに引用できる**ものを置くために作りました。\n\n## 使う\n\n### MCP サーバー（Claude Desktop / Claude Code など）\n\n```json\n{\n  \"mcpServers\": {\n    \"keihyo-cases\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"github:eoylab/keihyo-cases\", \"keihyo-mcp\"]\n    }\n  }\n}\n```\n\n依存パッケージはありません。ネットワークにも出ません（同梱の JSON だけを読みます）。\n\n| ツール | 何を返すか |\n|---|---|\n| `search_cases` | 事業者名・商品名・条項・公表日・処分種別で絞り込み |\n| `get_case` | id で1件 |\n| `list_recent` | 公表日の新しい順 |\n| `stats` | 年度別・処分種別・条項別の件数 |\n\n### データを直接使う\n\n| ファイル | |\n|---|---|\n| [`data/cases.json`](data/cases.json) | 全件（配列） |\n| [`data/cases.jsonl`](data/cases.jsonl) | 1行1件 |\n| [`data/cases.csv`](data/cases.csv) | 表形式 |\n| [`data/unparsed.json`](data/unparsed.json) | レコードにならなかった発表と、その理由 |\n| [`data/meta.json`](data/meta.json) | 件数・取得範囲・出典 |\n\n### 1レコードの形\n\n```json\n{\n  \"id\": \"047140\",\n  \"url\": \"https://www.caa.go.jp/notice/entry/047140/\",\n  \"published_date\": \"2026-08-06\",\n  \"company\": \"「SNOW」と称するアプリケーションの利用サービスの提供事業者2社\",\n  \"order_type\": \"措置命令\",\n  \"provisions\": [\n    \"第5条第3号(ステルスマーケティング告示)\",\n    \"第7条第1項\"\n  ],\n  \"product\": {\n    \"name\": \"SNOW\",\n    \"kind\": \"アプリケーションの利用サービスの提供事業者2社に対し\"\n  },\n  \"lead_text\": \"消費者庁は、本日、「SNOW」と称するアプリケーションの利用サービスの提供事業者2社に対し、両社が供給する「SNOW」と称するアプリケーションの利用サービスに係る表示について、それぞれ、景品表示法に違反する行為(同法第5条第3号(ステルスマーケティング告示)に該当)が認められたことから、同法第7条第1項の規定に基づき、措置命令を行いました。\",\n  \"authority\": \"消費者庁\"\n}\n```\n\n`title` と `lead_text` は公表ページの**記載そのまま**です。\n\n## 内訳\n\n| 処分 | 件数 |\n|---|---|\n| 措置命令 | 98 |\n| 課徴金納付命令 | 53 |\n\n主な条項（1件で複数に該当することがあります）：\n\n- `第7条第1項` … 101件\n- `第5条第1号(優良誤認)` … 63件\n- `第8条第1項` … 53件\n- `第5条第2号(有利誤認)` … 25件\n- `第5条第3号(ステルスマーケティング告示)` … 6件\n- `第5条第3号(おとり広告)` … 2件\n\n## どう作っているか\n\n**モデルを使っていません。判断もしていません。**\n索引ページと個別ページから、読める規則で決定論的に抽出しています（`src/ingest/extract.mjs`）。\n\n- 事業者名は表題の「〈事業者〉に対する」という構成から\n- 処分種別は表題中の「措置命令」「課徴金納付命令」の記載から\n- 条項は本文中の記載を出現順に、重複を除いて\n\n**抽出できなかった項目は `null` にしてあり、推測で埋めていません。**\nレコードとして成立しなかった発表（確約計画の認定、注意喚起など）は\n`data/unparsed.json` に理由つきで残しています ——\n**注意喚起で名前が出た会社は、何かを命じられたわけではありません。**\n処分と並べて置けば、その会社を誤って表すことになります。\n\n更新するには：\n\n```bash\nnpm run build          # 2020年度以降を取り込む\nnpm test               # 保存したページに対して逐語一致を検証\n```\n\n取得は1リクエスト/秒、連絡先を含む User-Agent で行います。\n\n### 公式 MCP Registry から入れる\n\n[MCP Registry](https://registry.modelcontextprotocol.io/) に\n`io.github.eoylab/keihyo-cases` として登録してあります。\n対応クライアントはこの名前で導入できます。\n\n手で入れる場合は、リリースの `.mcpb` を使ってください\n（データが同梱されているので、実行時に通信しません）。\n\n```json\n{\n  \"mcpServers\": {\n    \"keihyo-cases\": {\n      \"command\": \"node\",\n      \"args\": [\"/path/to/keihyo-cases/src/mcp/server.mjs\"]\n    }\n  }\n}\n```\n\n## 商用利用・Hosted API・日次更新\n\n**元データは消費者庁の[公共データ利用規約（PDL1.0）](https://www.caa.go.jp/terms_of_use/)準拠、\nコードは MIT です。現状のデータセットと MCP サーバーは、そのまま商用利用できます。**\n許可を買う必要はありません。この無料部分を後から有料に切り替えることもしません。\n\nそのうえで、**こちらが費用を負担する部分**（自前でホストしないエンドポイント、\n日次更新と webhook、稼働保証、過去分の遡り、導入支援）に需要があるか知りたい。\n\n**まだ一つも作っていません。** 要るものだけ作りたいので、価格を書いた Issue を置いています。\n\n| | 内容 | 目安 | 投票 |\n|---|---|---|---|\n| 1 | Hosted API | 月 ¥4,000 | [#1](https://github.com/eoylab/keihyo-cases/issues/1) |\n| 2 | 日次更新 / webhook | 月 ¥3,000 | [#2](https://github.com/eoylab/keihyo-cases/issues/2) |\n| 3 | 商用ライセンス / SLA | 月 ¥15,000 | [#3](https://github.com/eoylab/keihyo-cases/issues/3) |\n| 4 | bulk access / 過去分 | 単発 ¥30,000 | [#4](https://github.com/eoylab/keihyo-cases/issues/4) |\n| 5 | 導入支援 | 時間 ¥15,000 | [#5](https://github.com/eoylab/keihyo-cases/issues/5) |\n\n使いたいものに **👍** を付けてください。条件があればコメントでどうぞ。\n一覧に無いものが今週必要なら [Issue を立ててください](https://github.com/eoylab/keihyo-cases/issues/new) —\n仕組みが無いだけで、データはもうあります。\n\n詳細: <https://eoylab.github.io/keihyo-cases/commercial.html>\n\n## 出典とライセンス\n\n**出典: 消費者庁ウェブサイト**（各レコードの `url` が一次情報）\n\n元データは[公共データ利用規約（第1.0版）](https://www.caa.go.jp/terms_of_use/)に準拠します。\n**編集・加工の主体は keihyo-cases です。** 詳細は [DATA-LICENSE.md](DATA-LICENSE.md)。\n\nコードは MIT。\n\n## 既知の限界\n\n- **PDF の本文は含みません。** 公表ページの PDF リンクはスクリプトで挿入されており、\n  配信される HTML に無いため `pdf_url` は多くが `null` です。**推測で URL を作っていません**\n- **2020年度以前の索引が空です。** URL の構造が違う可能性があり、未確認\n- **課徴金の金額は含みません。** 発表本文ではなく PDF 側にあるため\n",
+  "status": "curated"
+}

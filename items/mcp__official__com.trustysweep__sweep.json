@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/com.trustysweep/sweep",
+  "type": "mcp",
+  "name": "Trusty Sweep",
+  "description": "Verified, reversible, receipted Sweeps across Gmail, Drive, Outlook, OneDrive and Dropbox.",
+  "author": "com.trustysweep",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/TrustyCap-Technologies/sweep-platform",
+    "repo": "TrustyCap-Technologies/sweep-platform"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://mcp.trustysweep.com/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-02T04:19:06.687818Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Trusty Sweep Developer Platform\n\nThe public, Apache-2.0 perimeter of [Trusty Sweep](https://trustysweep.com): everything a developer, partner application, or AI agent needs to use the Sweep engine programmatically.\n\n| Package | Path | What it is |\n|---|---|---|\n| `@trustysweep/api-spec` | `spec/` | OpenAPI 3.1 specification, JSON Schemas, error taxonomy, event catalog, webhook signing contract, Postman collection |\n| `@trustysweep/sdk` | `sdk-typescript/` | TypeScript / JavaScript SDK (Node 20+, browsers, Workers) |\n| `trustysweep` | `sdk-python/` | Python SDK (sync + async, Python 3.10+) |\n| `@trustysweep/cli` | `cli/` | `sweep` command line over the same API |\n| `@trustysweep/connector-sdk` | `connector-sdk/` | Provider Adapter / Destination Adapter contract + certification harness |\n| `@trustysweep/connector-s3` | `connectors/s3/` | Reference connector: S3-compatible object storage |\n| examples | `examples/` | MCP client, A2A client, Sweep Connect (Express), Python quickstart |\n\nDocumentation: https://developers.trustysweep.com\n\n## One engine\n\nThe API is a thin, governed externalization of the same primitives the consumer product uses. There is no developer-only business logic and no developer-only deletion path. Every material action follows **plan → validate → authorize → commit → verify → receipt**:\n\n```ts\nimport { TrustySweep } from \"@trustysweep/sdk\";\n\nconst sweep = new TrustySweep({ apiKey: process.env.SWEEP_API_KEY });\nconst plan = await sweep.plans.create({ intent: \"sweep\", source_ids: [\"src_…\"], selection: { classes: [\"promotional\", \"large_attachment\"], min_confidence: 0.85 } });\nconst pricing = await sweep.plans.pricing(plan.plan_id);\nconst auth = await sweep.plans.authorize(plan.plan_id);\nif (auth.status === \"authorized\") {\n  const execution = await sweep.plans.commit(plan.plan_id);\n  const done = await sweep.executions.waitFor(execution.id);\n  const receipt = await sweep.executions.receipt(done.id);\n}\n```\n\n## Contributing\n\nContributions are welcome under the Developer Certificate of Origin (`git commit -s`). See `CONTRIBUTING.md`. Security reports: `SECURITY.md`.\n\nTrusty Sweep and the Trusty Sweep mark are trademarks of TrustyCap Technologies, Inc.\n",
+  "status": "curated"
+}
