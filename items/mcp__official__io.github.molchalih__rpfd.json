@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.molchalih/rpfd",
+  "type": "mcp",
+  "name": "rpf",
+  "description": "Read and write RAGE Package Format archives",
+  "author": "io.github.molchalih",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/molchalih/rpfd",
+    "repo": "molchalih/rpfd"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "https://github.com/molchalih/rpfd/releases/download/v0.2.2/rpf-v0.2.2.mcpb"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-03T16:49:57.610066Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "写作",
+    "featured": false
+  },
+  "readme": "<div align=\"center\">\n\n<picture>\n  <source media=\"(prefers-color-scheme: dark)\" srcset=\".github/banner-dark.svg\">\n  <source media=\"(prefers-color-scheme: light)\" srcset=\".github/banner-light.svg\">\n  <img src=\".github/banner-light.svg\" alt=\"rpfd\" width=\"800\">\n</picture>\n\n[![release](https://img.shields.io/github/v/release/molchalih/rpfd?style=for-the-badge&logo=github&logoColor=white)](https://github.com/molchalih/rpfd/releases/latest)\n[![rust 1.98+](https://img.shields.io/badge/rust-1.98%2B-000000?style=for-the-badge&logo=rust&logoColor=white)](https://www.rust-lang.org)\n[![platforms](https://img.shields.io/badge/platforms-macOS%20%7C%20Linux%20%7C%20Windows-lightgrey?style=for-the-badge)](https://github.com/molchalih/rpfd/releases/latest)\n\n</div>\n\nA dependency-light Rust toolchain for reading, editing and rebuilding RPF7\narchives — the `dlc.rpf` files RAGE Multiplayer and FiveM servers hand to their\nclients, and the archives Grand Theft Auto V ships. One command-line binary with\nno runtime prerequisite, and the same code behind a JSON-RPC daemon and a VS\nCode extension.\n\n## Formats\n\n| Version | Variant | Used by | Support |\n|---|---|---|---|\n| RPF7 | `OPEN`, unencrypted | RAGE MP and FiveM server packs | Read, write |\n| RPF7 | AES-256, `0x0FFFFFF9` | GTA V, nested archives such as `des_*` and `script_*` | Read, write — key from the game executable |\n| RPF7 | AES-256, `0x0FFFFFF7` | Rockstar Games Launcher | Read, write — key from `Launcher.exe` |\n| RPF7 | NG, `0x0FEFFFFF` | GTA V Legacy and Enhanced, every top-level archive | Read, write — both need a memory image |\n| RPF8 | — | Red Dead Redemption 2 | Not supported |\n| RPF6 | — | Red Dead Redemption, 2010 and 2023 | Not supported |\n| RPF4 | — | Max Payne 3 | Not supported |\n| RPF3 | — | GTA IV audio, Midnight Club: LA | Not supported |\n| RPF2 | — | GTA IV, main archives | Not supported |\n| RPF0 | — | Table Tennis | Not supported |\n\nPre-RPF7 attributions are read from other implementations, not measured here;\n`docs/rpf-format.md` records them and where they disagree. Every non-RPF7\nversion is recognised by its magic word and refused by number.\n\nEncryption is per entry as well as per archive: the tag covers the table of\ncontents and the names blob, and each entry's row says whether its payload is\nunder the transform.\n\n## Installing\n\n`INSTALL.md` is the page for this, and it answers three separate questions: how\nto install the editor extension from a `.vsix`, how to register the MCP server\nwith an editor or an agent, and where to put the binary if that is all you want.\nPrebuilt binaries for macOS, Windows and Linux are attached to each release.\n\nTo build from source instead — the toolchain is pinned in `rust-toolchain.toml`:\n\n```\ngit clone <this repository> && cd rpf\ncargo build --release          # target/release/rpf\n```\n\nEncrypted archives need key material, extracted from your own installation:\n\n```\n$ rpf keys extract GTA5.exe         # the AES key and the hash lookup table\n$ rpf keys extract Launcher.exe     # the second AES key, carried by no game executable\n$ rpf keys extract <memory image>   # the NG expanded keys and decrypt tables\n```\n\nNo key material is bundled here, and none ever will be. Each source is cached\nunder the hash of its own bytes in `./keys`, which every command consults\nwithout a flag; `--cache-dir` selects another cache, the one way to keep several\ninstallations apart, and `rpf keys invalidate` empties one. No command prints a\nkey — only offsets, lengths, counts and paths. NG material stands in the clear\nonly in a memory image of a running game, so that is the sole route to an NG\narchive; obtaining one is out of scope here. An archive whose material is absent\nfails rather than guessing.\n\n## Usage\n\nList an archive, descending into the archives inside it:\n\n```\n$ rpf ls -R dlc.rpf\nbinary    xml          2199  content.xml\ndirectory -               3  data\nbinary    xml          5100  data/vehicles.meta\ndirectory -               2  x64\ndirectory -               1  x64/vehiclemods\nbinary    -         2544128  x64/vehiclemods/meringls63amg24_mods.rpf\nresource  -          262144  x64/vehiclemods/meringls63amg24_mods.rpf/meringls63amg24_brabus_diffuser_1.yft\n...\n```\n\nThe second column says what an entry holds; `pso`, `rbf` and `meta` have an XML\nview:\n\n```\n$ rpf cat --as xml des_hosp_ceil2.rpf des_hosp_ceil2.ytyp\n<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<hash_D98BB561 pso:struct=\"hash_D98BB561\">\n  <hash_018A3B1B pso:array=\"atarray\">\n    <pso:item pso:struct=\"hash_82D6FC83\">\n      <hash_BF74DFA7 pso:float=\"100.0\"/>\n      <hash_D9EF8236 pso:float3=\"-2.80584, -2.95097, 0.0\"/>\n...\n```\n\n`rpf put --as xml` writes an edited document back in the entry's own encoding.\nAsk what a write costs, then make it:\n\n```\n$ rpf put dlc.rpf data/vehicles.meta edited.meta --dry-run\nwould patch 1632 bytes in place at 2048 (room for 2048)\n\n$ rpf put dlc.rpf data/vehicles.meta edited.meta\npatched 1632 bytes in place at 2048 (room for 2048)\n```\n\n`put --create`, `rm`, `mv` and `mkdir` move every offset after the header, so\nthey always rebuild and say so first. A rebuild is atomic: a scratch file beside\nthe archive replaces the original in one step.\n\nTake an archive apart, build it back, check the result:\n\n```\n$ rpf extract dlc.rpf tree/\n7 files and 3 directories into tree/\n\n$ rpf pack tree/ rebuilt.rpf\n11 entries, 65160704 bytes\n\n$ rpf verify rebuilt.rpf --against tree/\n27 entries read back; 7 of 7 recorded checksums checked against tree/\n20 entries carry no recorded checksum: an entry inside a nested archive is covered by the checksum of the entry that holds it\n```\n\nEvery reporting command takes `--json`; `rpf --help` lists the rest.\n`clients/agent/README.md` is the page for driving the tool from a program: the\nJSON shapes, the failure object, and `cat --out` for a payload nobody is going\nto read.\n\n## The daemon\n\n`rpf serve --stdio` speaks JSON-RPC, one object per line. It answers everything\nthe binary does, holds edits until `commit`, and reports a long rebuild's\nprogress as cancellable notifications.\n\n```\n$ echo '{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"open\",\"params\":{\"path\":\"/tmp/dlc.rpf\"}}' | rpf serve --stdio\n{\"id\":1,\"jsonrpc\":\"2.0\",\"result\":{\"entries\":11,\"handle\":1,\"len\":144504832,\"path\":\"/private/tmp/dlc.rpf\"}}\n```\n\n## The editor extension\n\n`clients/vscode` mounts an archive as a workspace folder: files open, edit and\nsave like any other, and a nested archive is a folder inside a folder. The\narchive is written by one explicit act, previewed as patch or rebuild. See\n`clients/vscode/README.md`.\n\n## Exit codes\n\nStable, so a caller can classify a failure without reading the message. The\ndaemon reports the same numbers as a JSON-RPC `error.code`, with a symbolic\n`error.data.reason`.\n\n| Code | Meaning |\n|---|---|\n| 0 | Everything worked |\n| 1 | A failure with no better classification |\n| 2 | The arguments were wrong |\n| 3 | The path is not in the archive |\n| 4 | The archive is malformed or does not decompress as it promises |\n| 5 | The archive needs key material that is not available |\n| 6 | The request or its input was wrong, and the tool declined to act |\n| 7 | Reading or writing failed |\n| 8 | The caller stopped the operation part-way |\n| 9 | This build cannot do it |\n\n## Building and testing\n\n```\ncargo build --release\ncargo fmt --all -- --check\ncargo clippy --all-targets --all-features -- -D warnings\ncargo test --all\n```\n\nThe suite needs no game data and passes without it, skipping what it cannot\nreach. Four variables point it at real data: `RPF_CORPUS` at a directory of\narchives, `RPF_GAME_EXE` at game executables, `RPF_GAME_IMAGE` at one memory\nimage of a running game, and `RPF_METADATA` at metadata payloads already out of\ntheir archives, as `tools/metadata-dump` writes them. Each has a companion —\n`RPF_REQUIRE_CORPUS` and its three siblings — turning its own skips into\nfailures.\n\n`DR-N`, cited throughout the source and the documents, names a decision record\nunder `docs/decisions/`, kept in the working tree and not distributed.\n\n## Licence\n\n`MIT OR Apache-2.0`, at your option. See `LICENSE-MIT` and `LICENSE-APACHE`.\n",
+  "status": "curated"
+}

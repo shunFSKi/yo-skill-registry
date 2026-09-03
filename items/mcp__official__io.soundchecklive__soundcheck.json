@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.soundchecklive/soundcheck",
+  "type": "mcp",
+  "name": "Soundcheck",
+  "description": "Staff live events: gigs, crew, setlists, call lists, ingest. Hosted MCP with OAuth.",
+  "author": "io.soundchecklive",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/soundchecklive/soundcheck-plugin",
+    "repo": "soundchecklive/soundcheck-plugin"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://mcp.soundchecklive.io/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-03T14:07:18.557402Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "<p align=\"center\">\n  <img src=\"assets/logo.png\" alt=\"Soundcheck\" width=\"128\" height=\"128\" />\n</p>\n\n# Soundcheck for Cursor\n\nCursor plugin that connects Agent to **Soundcheck** — live-event staffing for gigs, crew, setlists, call lists, and document ingest. Package skills plus a URL-only MCP member server. Sign in with OAuth. No API keys.\n\n## Install\n\n**Cursor Marketplace (when listed)** — install **Soundcheck** from the Cursor Marketplace, then connect the MCP server with OAuth when prompted.\n\n**Local test (before / without Marketplace listing)**\n\n```bash\nmkdir -p ~/.cursor/plugins/local\nln -s /path/to/this-repo ~/.cursor/plugins/local/soundcheck\n```\n\nReload the window (`Developer: Reload Window`), then open **Customize** and confirm the plugin, skills, and MCP server appear.\n\n## Connect (OAuth, no API keys)\n\nThis plugin ships a Streamable HTTP MCP config. Cursor infers transport from `url`. Authentication is OAuth 2.0 (RFC 9728 Protected Resource Metadata) — you do not paste tokens or Bearer headers.\n\nDocumented member connect URL (used in `mcp.json`):\n\n`https://mcp.soundchecklive.io/mcp`\n\nUnauthenticated discovery (not packaged in this plugin; paste only when you want the public tools):\n\n`https://api.soundchecklive.io/public/mcp`\n\nSee [MCP server docs](https://docs.soundchecklive.io/integrations/mcp-server) and [MCP discovery](https://docs.soundchecklive.io/integrations/mcp-discovery).\n\n## What you get\n\n| Piece | Role |\n| --- | --- |\n| MCP `soundcheck` | Member tools for events, crew, setlists, ingest, messaging, imports |\n| Skill `staff-a-live-event` | Create and staff a gig end-to-end |\n| Skill `ingest-a-gig` | Batch → add docs → review → gated commit |\n| Skill `clone-workspace` | Export → preview UEF → gated import into an org you own |\n\nConsequential writes (`invite_org_member`, `settle_event`, `send_message`, `broadcast_event_reminder`, ingestion/import commits, and related gated tools) return `confirmation_required`. The agent should show you the summary and only resend with the token after you confirm.\n\n## Usage examples\n\n**Staff a Friday show**\n\n> Staff Friday's show at the Blue Note — FOH, two A2s, and our usual opener set.\n\nAgent runs `staff-a-live-event`: `get_me` / `list_organizations` → `create_event` → link or create venue → call list + `apply_calllist_to_event` → setlist → checklist.\n\n**Ingest an advance PDF**\n\n> Ingest this advance PDF for Saturday's wedding and pull crew and load-in into the gig.\n\nAgent runs `ingest-a-gig`: `create_ingestion_batch` → upload/add text → review proposals → gated commit only after you approve. If analysis fails, it reports that instead of inventing fields.\n\n**Clone last tour into a new org**\n\n> Clone last tour's workspace into our new production-company org.\n\nAgent runs `clone-workspace`: `export_workspace` on the source → `preview_uef_import` on the dest with commit off → `import_uef` only after you confirm. Destination must be an org you own.\n\n## Links\n\n- Product: [soundchecklive.io](https://soundchecklive.io)\n- MCP docs: [docs.soundchecklive.io/integrations/mcp-server](https://docs.soundchecklive.io/integrations/mcp-server)\n- Discovery: [docs.soundchecklive.io/integrations/mcp-discovery](https://docs.soundchecklive.io/integrations/mcp-discovery)\n- AI info: [docs.soundchecklive.io/ai-info](https://docs.soundchecklive.io/ai-info)\n- Privacy: [soundchecklive.io/privacy](https://soundchecklive.io/privacy)\n\n## License\n\nMIT © Soundcheck Live, Inc.\n",
+  "status": "curated"
+}

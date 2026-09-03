@@ -1,0 +1,95 @@
+{
+  "id": "mcp:official/io.github.ecomkit-com-ua/horoshop",
+  "type": "mcp",
+  "name": "horoshop",
+  "description": "MCP server for the Horoshop e-commerce API — orders, catalog, customers, webhooks",
+  "author": "io.github.ecomkit-com-ua",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/ecomkit-com-ua/horoshop-mcp",
+    "repo": "ecomkit-com-ua/horoshop-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "horoshop-mcp"
+    ],
+    "env": [
+      {
+        "name": "HOROSHOP_DOMAIN",
+        "required": true,
+        "secret": false
+      },
+      {
+        "name": "HOROSHOP_LOGIN",
+        "required": true,
+        "secret": false
+      },
+      {
+        "name": "HOROSHOP_PASSWORD",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "HOROSHOP_READONLY",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "HOROSHOP_TIMEOUT_MS",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "HOROSHOP_MAX_RESPONSE_BYTES",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "HOROSHOP_INSECURE_HTTP",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-03T11:47:44.684815Z",
+    "score": 52
+  },
+  "security": {
+    "score": 85,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": false
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# horoshop-mcp\n\n**English:** an MCP server for the [Horoshop](https://horoshop.ua) e-commerce platform. It gives\nClaude, Cursor and any other MCP client direct access to a Horoshop store's API — orders,\ncatalog, categories, customers, product sets, reference data and webhooks. Install with\n`npx -y horoshop-mcp`, configure with your store domain and an admin\nlogin. `llms-install.md` lets an AI agent do the whole setup for you. MIT licensed.\nDocumentation below is in Ukrainian.\n\n---\n\n> Пояснення для власника магазину, без технічних деталей —\n> [ecomkit.com.ua/instrumenty](https://ecomkit.com.ua/instrumenty/?utm_source=github&utm_medium=readme&utm_campaign=horoshop-mcp).\n\n## Що це\n\nЦе MCP-сервер для [Horoshop](https://horoshop.ua). Він дає Claude (або будь-якому іншому\nMCP-клієнту) прямий доступ до API вашого магазину: замовлення, каталог, розділи, покупці,\nкомплекти товарів, довідники доставки й оплати, вебхуки.\n\nДалі можна просто просити звичайною мовою:\n\n- «покажи замовлення за минулий тиждень, які ще в обробці»\n- «вивантаж товари з розділу \"Аксесуари\", де не заповнений SEO-опис»\n- «онови ціни на ці 20 артикулів»\n- «скільки покупців зареєструвалося в серпні»\n\nСервер не має власної логіки поверх Horoshop — це тонка обгортка над\n[офіційним API](https://horoshop.notion.site/api-doc).\n\n## Що потрібно\n\n- Node.js 20 або новіший\n- магазин на Horoshop\n- логін і пароль адміністратора\n\n## Встановлення через ШІ\n\nНайшвидший шлях — попросити про це самого асистента. Скопіюйте цей промпт у Claude Code,\nClaude Desktop або Cursor:\n\n```\nВстанови мені MCP-сервер horoshop-mcp.\nІнструкція для тебе:\nhttps://github.com/ecomkit-com-ua/horoshop-mcp/blob/main/llms-install.md\nПрочитай її й виконай: спитай у мене домен магазину, логін і пароль адміна, пропиши конфіг\nдля того клієнта, у якому ти зараз працюєш, залиш на перший раз режим лише-читання\nі перевір, що сервер відповідає.\n```\n\nАсистент сам спитає доступи, впише блок у потрібний файл конфігурації й перевірить зв'язок.\nПароль він записує тільки в конфіг — не в чат і не в git.\n\nДалі — те саме руками, якщо так зручніше.\n\n## Крок 1. Створіть окремого адміна для API\n\nВ адмінпанелі магазину: **Налаштування → Адміни → додати адміністратора**.\n\nСтворіть **окремий** обліковий запис саме для API, а не використовуйте свій особистий. Так\nдоступ можна відкликати одним рухом, не блокуючи собі вхід, і в логах видно, що саме робив\nінтеграційний доступ.\n\nHoroshop не має API-ключів: авторизація йде звичайним логіном і паролем адміна.\n\n## Крок 2. Підключіть сервер\n\n**Claude Code** — у `.mcp.json` в корені проєкту:\n\n```json\n{\n  \"mcpServers\": {\n    \"horoshop\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"horoshop-mcp\"],\n      \"env\": {\n        \"HOROSHOP_DOMAIN\": \"myshop.com.ua\",\n        \"HOROSHOP_LOGIN\": \"api\",\n        \"HOROSHOP_PASSWORD\": \"...\"\n      }\n    }\n  }\n}\n```\n\n**Claude Desktop** — те саме, але у `claude_desktop_config.json`\n(macOS: `~/Library/Application Support/Claude/`, Windows: `%APPDATA%\\Claude\\`).\n\n**Cursor** — той самий блок у `~/.cursor/mcp.json`.\n\n**Cline** — той самий блок у `cline_mcp_settings.json`.\n\n**Gemini CLI** — той самий блок у `~/.gemini/settings.json`.\n\n**VS Code (GitHub Copilot)** — те саме у `.vscode/mcp.json`, але сервери лежать\nпід ключем `servers`, а не `mcpServers`.\n\nБудь-який інший клієнт із підтримкою MCP через stdio теж підійде — конфіг скрізь той самий.\n\nПісля цього перезапустіть клієнт.\n\n`npx` сам завантажить пакет з npm — окремо нічого встановлювати не треба. Найсвіжіший код,\nще до релізу, ставиться прямо з GitHub: `[\"-y\", \"github:ecomkit-com-ua/horoshop-mcp\"]`.\n\n> Файл конфігурації містить пароль адміна відкритим текстом. Тримайте його поза git —\n> додайте `.mcp.json` у `.gitignore`.\n\n## Інструменти\n\nЧитання:\n\n- `horoshop_orders_list` — замовлення з товарами, доставкою, оплатою, знижками й UTM-мітками.\n  Фільтри за датами, номерами та статусами\n- `horoshop_order_statuses` — усі статуси замовлень магазину (потрібен Horoshop 4.0+)\n- `horoshop_products_export` — товари з каталогу: ціни, наявність, розділи, характеристики,\n  залишки, SEO. Фільтри за розділом, артикулом і видимістю\n- `horoshop_categories_export` — дерево розділів каталогу з ідентифікаторами\n- `horoshop_users_export` — зареєстровані покупці\n- `horoshop_store_reference` — довідники магазину одним інструментом: варіанти й типи доставки,\n  варіанти й методи оплати, валюти з курсами, іконки товарів, а для B2B — групи покупців і\n  рівні цін\n\nЗапис:\n\n- `horoshop_products_import` — створення й оновлення товарів\n- `horoshop_orders_update` — статус, ознака оплати, номер відстеження\n- `horoshop_users_import` — створення й оновлення покупців\n- `horoshop_product_sets_import` / `horoshop_product_sets_remove` — комплекти «разом дешевше»\n- `horoshop_webhook_subscribe` / `horoshop_webhook_unsubscribe` — підписка на події магазину\n\nУніверсальний виклик:\n\n- `horoshop_call` — будь-яка функція API за назвою з документації. Для того, чого ще немає\n  серед окремих інструментів\n\n## Обережно з імпортом товарів\n\n`horoshop_products_import` пише в живий магазин, і **скасувати це неможливо**. Найнебезпечніші\nзначення за замовчуванням:\n\n- `images`, `gallery_common` і `gallery_360` мають `override: true` за замовчуванням — це\n  **видаляє поточну галерею** перед завантаженням нових фото. Щоб додати фото без видалення,\n  передавайте `override: false`; щоб не чіпати галерею — не передавайте її взагалі\n- `accessories` і `gifts` **замінюють** поточні списки, а не доповнюють їх\n\nПеред масовим імпортом перевірте все на одному тестовому артикулі й звірте результат через\n`horoshop_products_export`.\n\nЯкщо потрібен доступ лише на читання — поставте `HOROSHOP_READONLY=1`, і інструменти запису\nвзагалі не з'являться в списку.\n\n## Змінні середовища\n\nОбов'язкові:\n\n- `HOROSHOP_DOMAIN` — домен магазину, наприклад `myshop.com.ua`. Можна з `https://`, можна без\n- `HOROSHOP_LOGIN` — логін адміна\n- `HOROSHOP_PASSWORD` — пароль адміна\n\nНеобов'язкові:\n\n- `HOROSHOP_READONLY=1` — сховати всі інструменти запису\n- `HOROSHOP_TIMEOUT_MS` — таймаут запиту, за замовчуванням `60000`\n- `HOROSHOP_MAX_RESPONSE_BYTES` — межа розміру відповіді, за замовчуванням `100000`. Великі\n  вивантаження обрізаються з поміткою, скільки записів показано — див. «Гортання великих\n  вивантажень»\n- `HOROSHOP_INSECURE_HTTP=1` — звертатися по `http` замість `https` (для тестових магазинів)\n\n## Гортання великих вивантажень\n\n`horoshop_orders_list`, `horoshop_products_export` і `horoshop_users_export` приймають `limit`\nі `offset`. Але розмір відповіді обмежений ще й окремо — через `HOROSHOP_MAX_RESPONSE_BYTES`.\n\nЦі два обмеження незалежні, і це важливо. Horoshop може віддати всі 50 запитаних товарів, а в\nбюджет відповіді влізе, скажімо, 17. Решта 33 вже приїхали, але показані не будуть.\n\nТому підказка про наступну сторінку рахується **від показаних записів, а не від `limit`**: після\nтакої обрізаної сторінки сервер каже продовжити з `offset 17`, а не з `offset 50`. Якби він\nрадив `offset 50`, ті 33 товари зникли б назавжди — жоден наступний запит їх би не зачепив.\n\nЩо з цього варто знати:\n\n- обрізана сторінка завжди залишається валідним JSON — записи прибираються з кінця масиву цілими,\n  сервер не ріже відповідь посередині запису\n- якщо в бюджет не влазить навіть один запис, сервер каже про це прямо: гортання тут не допоможе,\n  потрібно просити менше полів (`include_params`) або підняти `HOROSHOP_MAX_RESPONSE_BYTES`\n- якщо Horoshop віддав менше, ніж запитано, сервер позначає це як останню сторінку й не пропонує\n  наступний `offset`\n\n## Обмеження Horoshop, про які варто знати\n\n- токен авторизації живе 600 секунд — сервер оновлює його сам\n- `catalog/export` віддає максимум 500 товарів за раз; гортайте через `offset`\n- `orders/get` і `users/export` ігнорують `offset` без `limit` — сервер завжди надсилає обидва\n- вебхуків на одну подію може бути не більше 5, і API не вміє показати наявні підписки\n- частина функцій потребує Horoshop 4.0+ або модуля B2B — тоді у відповіді буде\n  `UNDEFINED_FUNCTION`\n\n## Розробка\n\n```bash\nnpm install\nnpm run build\nnode dist/index.js\n```\n\n### Тести\n\n```bash\nnpm test\n```\n\n`npm test` спочатку виконує `npm run build`, тож тести завжди йдуть проти скомпільованого\n`dist/`, а не проти джерел. Справжній магазин для цього не потрібен: макет Horoshop піднімається\nна випадковому порту `127.0.0.1`, тому тести не роблять жодного зовнішнього запиту.\n\nЩо де лежить:\n\n- `test/format.test.mjs` — юніт-тести форматера відповіді: обрізання великих payload'ів,\n  підказки про наступну сторінку, статуси `EMPTY` і `WARNING`, перетворення помилок\n- `test/server.test.mjs` — інтеграційні тести. Піднімають справжній `dist/index.js` окремим\n  процесом і спілкуються з ним по JSON-RPC через stdio, як це робить MCP-клієнт: рукостискання,\n  список інструментів, режим лише-читання, життєвий цикл токена, форми відповідей Horoshop\n- `test/support/mock-horoshop.mjs` — макет API: авторизація, протермінований токен, конверти\n  відповідей, неконвертовані `hooks/*`, HTML замість JSON\n- `test/support/mcp-client.mjs` — мінімальний MCP-клієнт для тестів\n\nОдин файл окремо:\n\n```bash\nnode --test test/format.test.mjs\n```\n\nНовий файл тестів достатньо назвати `test/<щось>.test.mjs` — `npm test` підхопить його сам.\nФайли в `test/support/` тестами не вважаються, це допоміжний код.\n\n## Ліцензія\n\nMIT.\n\n## Privacy Policy\n\n**No data is collected.** This server contains no telemetry, analytics or usage reporting,\nand makes no requests to any server operated by ecomkit.\n\n- **Credentials** — your store domain, admin login and password are stored in your own MCP\n  client's configuration file on your own machine and are transmitted only to your own store.\n  The author has no access to them.\n- **Where your data does go** — the server passes your store's data into your conversation\n  with your AI assistant, so it reaches your AI provider (Anthropic, Google, OpenAI or\n  another) under that provider's privacy policy, not this one. Do not request exports of data\n  that must not leave your company.\n- **Third parties** — none beyond those two. Nothing is shared, sold or transferred.\n- **Retention** — none by the author, as nothing is received.\n- **Contact** — hello@ecomkit.com.ua\n\nFull policy, in Ukrainian and English:\n[ecomkit.com.ua/pryvatnist-instrumenty](https://ecomkit.com.ua/pryvatnist-instrumenty/)\n\n---\n\nЗробив [Сергій Троїцький](https://ecomkit.com.ua) — запуск, SEO та автоматизація інтернет-магазинів.\nПотрібен аудит магазину на Horoshop?\n[ecomkit.com.ua](https://ecomkit.com.ua/instrumenty/?utm_source=github&utm_medium=readme&utm_campaign=horoshop-mcp)\n",
+  "status": "curated"
+}

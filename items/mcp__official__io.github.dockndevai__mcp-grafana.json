@@ -1,0 +1,75 @@
+{
+  "id": "mcp:official/io.github.dockndevai/mcp-grafana",
+  "type": "mcp",
+  "name": "mcp-grafana",
+  "description": "Search & edit Grafana dashboards, query datasources (PromQL/LogQL/SQL), inspect alerts.",
+  "author": "io.github.dockndevai",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/dockndevai/mcp-grafana",
+    "repo": "dockndevai/mcp-grafana"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@dockndevai/mcp-grafana"
+    ],
+    "env": [
+      {
+        "name": "GRAFANA_URL",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "GRAFANA_TOKEN",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "GRAFANA_MODE",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-03T15:34:08.402708Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# mcp-grafana\n\n[![npm](https://img.shields.io/npm/v/@dockndevai/mcp-grafana)](https://www.npmjs.com/package/@dockndevai/mcp-grafana)\n[![CI](https://github.com/dockndevai/mcp-grafana/actions/workflows/ci.yml/badge.svg)](https://github.com/dockndevai/mcp-grafana/actions/workflows/ci.yml)\n[![licence](https://img.shields.io/badge/licence-MIT-blue)](LICENSE)\n\nA **safe-by-default** [Model Context Protocol](https://modelcontextprotocol.io) server for **Grafana**. It lets an agent explore and operate Grafana — search dashboards, read the dashboard JSON model, list and **query datasources** (Prometheus / Loki / SQL), inspect alert rules and annotations, and (in higher modes) create/update dashboards and folders, write annotations, and delete.\n\nPart of the [dockndevai MCP server suite](https://dockndevai.github.io/) — one governance model across all of them.\n\n## What it gives an agent\n\nThe server starts **read-only** (see [Safe by default](#safe-by-default)); higher-capability tools are only registered when you raise the mode.\n\n| Tool | For | Needs mode |\n|---|---|---|\n| `get_health` | check the instance is up, version | read-only |\n| `search` | find dashboards & folders by name/tag (get UIDs) | read-only |\n| `list_dashboards` / `list_folders` | enumerate dashboards / folders | read-only |\n| `get_dashboard` | the full dashboard JSON model + meta | read-only |\n| `list_datasources` / `get_datasource` | datasources (secrets redacted) | read-only |\n| `query_datasource` | run PromQL / LogQL / SQL via the unified query API | read-only |\n| `list_alert_rules` | Grafana-managed alert rules | read-only |\n| `list_annotations` | events overlaid on graphs | read-only |\n| `create_or_update_dashboard` | upsert a dashboard (versioned, reversible) | read-write |\n| `create_folder` | create a folder | read-write |\n| `create_annotation` | mark a deploy/incident on graphs | read-write |\n| `delete_dashboard` / `delete_folder` / `delete_annotation` | delete (irreversible) | admin + `GRAFANA_ALLOW_DELETE` |\n\n## Install\n\n```bash\nnpx -y @dockndevai/mcp-grafana\n```\n\nYou need a Grafana **service account token** (Administration → Service accounts → *Add service account* → *Add token*). Give it the **least role** that works — **Viewer** for read-only use, **Editor** to create/update, **Admin** only if you must delete.\n\n## Configure\n\n```json\n{\n  \"mcpServers\": {\n    \"grafana\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@dockndevai/mcp-grafana\"],\n      \"env\": {\n        \"GRAFANA_URL\": \"http://localhost:3000\",\n        \"GRAFANA_TOKEN\": \"glsa_...\",\n        \"GRAFANA_MODE\": \"read-only\"\n      }\n    }\n  }\n}\n```\n\nSee [docs/CLIENTS.md](docs/CLIENTS.md) for Claude Code / Cursor / Codex / VS Code / Windsurf snippets, and [.env.example](.env.example) for every supported variable.\n\n## Safe by default\n\nThe access model is enforced by [`src/security.ts`](src/security.ts) — defence in depth on top of the service-account token's own role:\n\n- **`GRAFANA_MODE`** — `read-only` (default) → `read-write` → `admin`. A tool is registered only if the mode allows its capability. Read-only exposes the 11 read tools; edits need `read-write`; deletes need `admin`.\n- **`GRAFANA_ALLOW_DELETE`** — deletes are irreversible, so on top of `admin` mode they also require this flag.\n- **`GRAFANA_FOLDER_ALLOWLIST` / `GRAFANA_PROTECTED_FOLDERS`** — confine which folders can be written to; mark folders (e.g. `production`) that may be read but never modified or deleted.\n- **`GRAFANA_DATASOURCE_ALLOWLIST`** — restrict which datasources `query_datasource` may hit.\n- **`GRAFANA_DRY_RUN`** — validate and log writes without executing them.\n- **`GRAFANA_AUDIT_LOG`** — a JSON audit line per guarded operation, on stderr (default on).\n- **Secrets are never returned** — datasource `secureJsonData`, passwords and tokens are stripped from every response.\n\nSee [SECURITY.md](SECURITY.md).\n\n## Working with dashboards & queries\n\nConventions for the dashboard JSON model, panel/target shapes, PromQL/LogQL/SQL query patterns, folder organisation and safe editing live in the bundled skill: [`.claude/skills/grafana-dashboards-and-queries/SKILL.md`](.claude/skills/grafana-dashboards-and-queries/SKILL.md). Agents that load it can build and edit dashboards to a consistent standard without being re-taught each time.\n\n## Developing\n\n```bash\nnpm install\nnpm run build\nGRAFANA_URL=http://localhost:3000 GRAFANA_TOKEN=glsa_… node dist/index.js\n# introspect without a live Grafana:\necho '{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"tools/list\",\"params\":{}}' | GRAFANA_TOKEN=x node dist/index.js\n```\n\n## Licence\n\nMIT\n",
+  "status": "curated"
+}

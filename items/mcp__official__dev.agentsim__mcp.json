@@ -16,8 +16,8 @@
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-09-02T17:06:03.072194Z",
-    "score": 52
+    "pushed_at": "2026-09-02T23:21:45.331919Z",
+    "score": 42
   },
   "security": {
     "score": 100,
@@ -49,6 +49,6 @@
     "category": "编程",
     "featured": false
   },
-  "readme": "# agentsim-mcp\n\n<!-- mcp-name: dev.agentsim/mcp -->\n\nMCP server that exposes AgentSIM challenge tools to AI coding assistants: Claude Code, Cursor, Windsurf, and any other MCP-compatible host. Primary tools: `open_challenge`, `wait_for_verdict`. Aliases: `provision_number`, `wait_for_otp`.\n\n## Setup\n\n### Claude Code\n\n```bash\nclaude mcp add agentsim -e AGENTSIM_API_KEY=asm_live_xxx -- uvx agentsim-mcp\n```\n\n### Claude Desktop\n\nAdd to `~/Library/Application Support/Claude/claude_desktop_config.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"agentsim\": {\n      \"command\": \"uvx\",\n      \"args\": [\"agentsim-mcp\"],\n      \"env\": {\n        \"AGENTSIM_API_KEY\": \"asm_live_xxx\"\n      }\n    }\n  }\n}\n```\n\n### Cursor / Windsurf\n\nAdd `agentsim-mcp` as a stdio MCP server with `AGENTSIM_API_KEY` in the environment config.\n\n### Remote (no install)\n\nConnect directly to the hosted MCP server without installing anything locally:\n\n```json\n{\n  \"mcpServers\": {\n    \"agentsim\": {\n      \"type\": \"streamable-http\",\n      \"url\": \"https://mcp.agentsim.dev/mcp\",\n      \"headers\": {\n        \"x-api-key\": \"asm_live_...\"\n      }\n    }\n  }\n}\n```\n\nThe hosted endpoint uses stateless HTTP and does not issue `mcp-session-id` headers. The `session_id` returned by AgentSIM tools identifies a challenge and remains valid across tool calls.\n\n## Tools\n\n### Control-Plane Nouns (Recommended)\n\n| Tool | Description |\n|------|-------------|\n| `open_challenge` | Open an authentication challenge session — accepts channel (sms_otp \\| email_otp \\| magic_link \\| webauthn_required), returns session ID + identifier (phone number or email address) |\n| `wait_for_verdict` | Long-poll for the challenge verdict — returns structured outcome including otp_code, magic_link, webauthn_required, or policy_denied |\n| `get_messages` | List raw SMS messages received on a session |\n| `release_number` | Release a session early (allocation returned to pool) |\n| `list_numbers` | List all active sessions for this account |\n\n### Legacy Aliases (Backward Compatibility)\n\n| Tool | Maps to | Description |\n|------|---------|-------------|\n| `provision_number` | `open_challenge(channel=sms_otp)` | Provision a temporary programmable US number for SMS OTP — kept for backward compatibility |\n| `wait_for_otp` | `wait_for_verdict` | Long-poll until an OTP arrives — kept for backward compatibility |\n\n## Auth\n\nSet `AGENTSIM_API_KEY` in your environment. Get your key at [console.agentsim.dev](https://console.agentsim.dev).\n\n## Supported Countries\n\nUS (more coming soon)\n",
+  "readme": null,
   "status": "curated"
 }

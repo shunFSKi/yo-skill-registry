@@ -1,0 +1,69 @@
+{
+  "id": "mcp:official/io.github.trigeochiral/rgx",
+  "type": "mcp",
+  "name": "RGX — Snap Router + Pricing-Truth",
+  "description": "Snap Router (x402/MCP tool selection, no LLM) + on-chain liquidity & price integrity for agents",
+  "author": "io.github.trigeochiral",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/trigeochiral/rgx-mcp",
+    "repo": "trigeochiral/rgx-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "rgx-mcp"
+    ],
+    "env": [
+      {
+        "name": "RGX_API",
+        "required": true,
+        "secret": false
+      },
+      {
+        "name": "RGX_XPAYMENT",
+        "required": false,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-03T17:34:03.752721Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "金融",
+    "featured": false
+  },
+  "readme": "# RGX — MCP server\n\n<!-- mcp-name: io.github.trigeochiral/rgx -->\n\nMCP client for **RGX**: two primitives for AI trading agents, pay-per-call in USDC\non Base (x402), free tier, no signup.\n\nHosted API: `https://rgx.tail817c3b.ts.net` — set it as `RGX_API`.\n\n| Tool | What |\n|---|---|\n| `snap_router` | **Snap Router** — your task → the ranked x402 / MCP tools that serve it, over the merged x402 Bazaar + MCP Registry catalog (16k+). One pass, ~200ms, no LLM call. $0.003 |\n| `vet_bounty` | **is this bounty a trap?** — screens a GitHub issue URL or raw title+body for prompt-injection / system-prompt exfiltration payloads, throwaway farm repos, no payment rail, points/token \"pay\", mass-recruitment dilution. Call before an agent acts on any bounty it found itself. $0.03 |\n| `token_report` | pre-trade: real tradeable depth vs headline TVL + multi-pool price corroboration + honeypot test, one call. $0.04 |\n| `token_depth` | largest trade that fills within 1 / 2 / 5% price impact, vs the headline TVL. $0.01 |\n| `price_corroboration` | consensus USD price only when ≥2 deep pools agree; flags single-source / manipulated prices. $0.01 |\n| `honeypot_check` | real buy + sell round-trip; flags honeypot / transfer tax. $0.005 |\n| `redeem_spread` | ERC-4626 share redemption value vs market. $0.01 |\n| `anomaly_screener` | tokens on a chain that just broke (depth collapse / price break / new honeypot). $0.025 |\n\nChains: `base`, `ethereum`, `arbitrum`.\n\n## Why\n\n- **Snap Router** — the tool-retrieval bottleneck: past ~2,000 tools, semantic\n  retrieval beats keyword and beats long-context. Coinbase's Bazaar `/ask` is\n  LLM-ranked (a model call on every task); 402index falls back to keyword-only\n  when its embedding service times out. Snap Router has neither hole.\n- **Pricing-Truth** — every \"token safety\" tool checks the *contract*. None check\n  whether the liquidity is real or the price is trustworthy. A pool can show\n  \\$15M TVL and fill \\$4.\n\n## Install\n\n```bash\npip install rgx-mcp\nclaude mcp add rgx --env RGX_API=https://rgx.tail817c3b.ts.net -- rgx-mcp\n```\n\nor with `uvx` (no install):\n\n```bash\nclaude mcp add rgx --env RGX_API=https://rgx.tail817c3b.ts.net -- uvx rgx-mcp\n```\n\nOptional: `RGX_XPAYMENT` = a base64 x402 `X-PAYMENT` payload, to make paid calls\npast the free tier. Without it you get 25 free calls/day per IP.\n\n## Direct HTTP (no MCP)\n\n```bash\n# Snap Router\ncurl -sX POST https://rgx.tail817c3b.ts.net/v1/snap -H 'content-type: application/json' \\\n  -d '{\"task\":\"check a base token for honeypot before trading\",\"k\":4}'\n\n# Pre-trade report\ncurl -s https://rgx.tail817c3b.ts.net/v1/base/token/0x532f27101965dd16442E59d40670FaF5eBB142E4/report\n```\n\nDiscovery: `/.well-known/agent-card.json` (A2A), `/.well-known/x402`,\n`/.well-known/mcp.json`, `/llms.txt`, `/openapi.json`.\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

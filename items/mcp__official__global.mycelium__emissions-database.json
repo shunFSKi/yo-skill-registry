@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/global.mycelium/emissions-database",
+  "type": "mcp",
+  "name": "Mycelium Emissions Database",
+  "description": "Search company carbon emissions: scope 1, 2 and 3 figures, Mycelium Scores and rankings.",
+  "author": "global.mycelium",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/MyceliumNetwork/mcp-server",
+    "repo": "MyceliumNetwork/mcp-server"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://mycelium.global/mcp/server"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-03T16:05:00.569038Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# Mycelium Emissions Database MCP Server\n\nA hosted [Model Context Protocol](https://modelcontextprotocol.io) server that gives AI assistants direct access to the Mycelium open corporate carbon emissions database: company search, Mycelium Scores, and full per-scope greenhouse gas figures.\n\n- **Endpoint (streamable HTTP):** `https://mycelium.global/mcp/server`\n- **Auth:** none - anonymous access with a per-IP rate limit, so a pasted URL works in any MCP client\n- **Info page:** https://mycelium.global/mcp\n- **REST API + OpenAPI spec:** https://github.com/MyceliumNetwork/api\n- **Website:** https://mycelium.global\n\n## Setup\n\n### Claude (claude.ai, Claude Desktop)\n\nSettings → Connectors → Add custom connector → paste `https://mycelium.global/mcp/server`.\n\n### Claude Code\n\n```bash\nclaude mcp add --transport http mycelium https://mycelium.global/mcp/server\n```\n\n### Cursor / generic MCP client\n\n```json\n{\n  \"mcpServers\": {\n    \"mycelium\": {\n      \"url\": \"https://mycelium.global/mcp/server\"\n    }\n  }\n}\n```\n\n## Tools\n\n### `search-entities`\n\nSearch the emissions database for companies by name. Returns matching companies with their Mycelium Score and the slug handle used by the other tools.\n\n| Input | Type | Description |\n| --- | --- | --- |\n| `query` | string (required) | Company name or name fragment |\n| `country` | string | Optional ISO 3166-1 alpha-3 filter, e.g. `GBR`, `DEU` |\n| `limit` | integer | Max matches to return, 1-25, default 10 |\n\n### `get-entity-profile`\n\nA company's public Mycelium profile: identity and registration, Mycelium Score (0 to 10) with industry rank, Transparency Score, and a per-year summary of total emissions in tonnes CO2e split into reported and estimated.\n\n| Input | Type | Description |\n| --- | --- | --- |\n| `entity` | string (required) | Slug from `search-entities`, or Mycelium public id GUID |\n\n### `get-emission-figures`\n\nFull greenhouse gas figures for one reporting year in the [OpenCCF](https://mycelium.global) data model: per-scope lines (Scope 1, 2 and 3 with categories) in kgCO2e, each tagged as reported by the company or estimated by Mycelium.\n\n| Input | Type | Description |\n| --- | --- | --- |\n| `entity` | string (required) | Slug from `search-entities`, or Mycelium public id GUID |\n| `year` | integer | Reporting year, e.g. 2023. Defaults to the latest on file |\n\n## Provenance\n\nEvery emissions line is tagged as **reported** by the company or **estimated** by Mycelium. Clients should preserve that distinction and never present an estimate as a company's own disclosure.\n\n## About the data\n\nMycelium is an open corporate carbon disclosure platform covering hundreds of thousands of entities, built from company reporting, registry data (GLEIF, Companies House and others) and modelled estimates. The same data is available over REST: see the [Mycelium Network API](https://github.com/MyceliumNetwork/api).\n\n## License\n\nDocumentation in this repository is MIT licensed (see [LICENSE](LICENSE)). Use of the hosted service is governed by the terms at https://mycelium.global.\n",
+  "status": "curated"
+}

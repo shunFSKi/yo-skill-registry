@@ -1,0 +1,57 @@
+{
+  "id": "mcp:official/io.github.Michael-Drake/rentctl",
+  "type": "mcp",
+  "name": "rentctl",
+  "description": "Leased dev environments — every server dies when its AI session ends.",
+  "author": "io.github.Michael-Drake",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/Michael-Drake/rentctl",
+    "repo": "Michael-Drake/rentctl"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "rentctl"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-03T18:35:29.343758Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# rentctl\n\n<!-- mcp-name: io.github.Michael-Drake/rentctl -->\n\n**A dev server should never outlive the work that needed it.**\n\n`rentctl` *rents* dev environments to your AI coding sessions. Every environment is a\n**lease**: it dies when the session ends, when the lease expires, or when you say so —\nwhichever comes first. Cleanup is owned by code, not by an agent remembering to clean up.\n\nShips as both a CLI (`rent`) and an MCP server, so an agent can start and stop\nenvironments through tools instead of shelling out to a raw `npm run dev` it will forget\nabout.\n\n## Why\n\nAn AI coding session starts a dev server. Then the session ends — crashes, is closed, or\njust moves on — and the server keeps running. By Friday there are six of them, three are\non ports you've forgotten, and one is quietly serving stale code that makes a bug look\nunreproducible.\n\nTelling the agent to clean up doesn't fix this, because the failure mode *is* the agent\nnot doing what it was told. `rentctl` makes the cleanup structural: the environment has an\nexpiry, and something other than the agent enforces it.\n\n## Install\n\n```\npip install rentctl\n```\n\nRequires Python 3.12+. **macOS and Linux.** There is no Windows support and no Windows\nclaim — process-group teardown is the safety-critical mechanism here, and it has no\ntested Windows equivalent yet.\n\n## Enroll a project\n\nA project describes itself in a `rentctl.toml` at its repo root (a `devctl.toml`\nleft over from before the rename is still read, so nothing needs renaming to keep\nworking):\n\n```toml\n[project]\nname = \"myapp\"          # lowercase, no separators — it is used as a filename\nrunner = \"process\"\n\n[profiles.default]\ncmd = 'npm run dev -- --port \"$PORT\" --strictPort'\ncwd = \"frontend\"        # repo-relative, never absolute\nport_env = \"PORT\"       # rentctl sets this in the child's environment\n```\n\nThen, from the repo:\n\n```\nrent init\n```\n\n`init` shows you the exact command it will run, asks you to approve it, claims a block of\nports for the project, and wires both the MCP server and the cleanup hooks. Nobody else\nhas to edit anything.\n\n**There is no port field.** Ports are drawn when a server starts, not written down in a\ntracked file — so two checkouts of the same repo get different ports instead of fighting,\nand a config file can't hand out a number the allocator never heard of. Each project owns\na contiguous block of 10 ports.\n\n## Use\n\n```\nrent up myapp              # start (or renew) — prints the URL and the port\nrent down --all --cwd .    # stop everything leased to this directory\nrent ls                    # every environment on this machine\nrent sweep                 # reconcile: stop what's expired or dead\nrent events --summary      # what happened, and which cleanup layer did it\nrent sync                  # re-approve a changed rentctl.toml\nrent report-kill myapp --note \"…\"   # \"you killed something I was using\"\n```\n\n`report-kill` exists because `rentctl` cannot tell, on its own, whether a teardown\nwas unwanted — a kill you asked for and a kill you regret look identical from the\ninside. The report lands in the same append-only log as everything else and is\nmatched to the teardown it disputes, so an unwanted kill becomes a fact on the\nrecord rather than an anecdote.\n\nLeases default to **120 minutes** and are capped at **480**. `rent up` on a live lease\nrenews it rather than starting a second server.\n\n## How cleanup actually happens\n\nFour independent layers, so no single failure leaves an orphan:\n\n1. **You ask** — `rent down`.\n2. **The session ends** — a `SessionEnd` hook, installed by `init`, tears down everything\n   leased to that directory.\n3. **The lease expires** — a detached watchdog per lease kills it at expiry, even if the\n   session died without running its hook.\n4. **The next sweep** — `rent sweep` reconciles anything the first three missed.\n\nThere is **no daemon.** State lives on disk and the OS process table is the source of\ntruth, so there is no background service to babysit, and nothing to resurrect after a\nreboot.\n\n### It won't kill things it doesn't own\n\nEvery lease records the process's PID **and its start time**. Before killing anything,\n`rentctl` re-checks both. If the PID was recycled onto some unrelated process, the start\ntimes disagree and it refuses — a stale lease can't get your database killed.\n\nA listener inside a project's port block with no lease behind it is a **squatter**:\n`rentctl` routes around it and reports it. It does not kill it.\n\nAnd when it genuinely cannot tell whether a port is in use — no usable probe on the host —\nit says so, rather than reporting the port as free. \"No squatters found\" means something\nlooked.\n\n## Security: what you are trusting\n\nRead this part. `rentctl` runs a command out of a config file in your repo.\n\n**That is arbitrary code execution, and no tool can make it not be.** If you can run\n`npm run dev`, you can run anything. What `rentctl` guarantees is narrower and more\nuseful: **it adds no *silent* path to it.**\n\n- The command from `rentctl.toml` is shown to you and approved **once**, explicitly, at\n  `rent init`.\n- On approval it is copied into `rentctl`'s own registry along with a hash of the\n  execution-determining fields.\n- If the repo's `rentctl.toml` later changes that command, the next start **stops** and\n  shows you a diff of approved-versus-current. It does not run the new command. You\n  re-approve with `rent sync` or you don't.\n\nThe hash deliberately covers only the fields that determine execution, not the whole\nfile — hashing everything trains you to click through re-approvals for comment edits,\nwhich defeats the point.\n\nConsequences worth being explicit about:\n\n- **`git pull` cannot change what `rentctl` runs.** It can change the file; it cannot\n  change the approved command.\n- **A repo cannot walk `rentctl` out of its own directory.** `cwd` is repo-relative and\n  rejected if it is absolute, contains `..`, or symlinks outside the repo. Project names\n  are filename-safe or refused.\n- **Non-interactive enrollment is explicit.** CI passes `--trust-repo`, which is recorded\n  as trust-on-first-use rather than being the quiet default.\n- **`rentctl` only manages what you enrolled.** Test-framework servers (pytest fixtures,\n  Playwright's `webServer`) own their own lifecycle and use ephemeral ports; `rentctl`\n  never touches them.\n\n### Development machines only\n\n**Install this on machines where dev servers are meant to be disposable.** Not on a\nhost running anything you would mind losing.\n\nA default install is safe: enforcement is **advisory** everywhere, and `rentctl` only\nscans the port blocks of projects you enrolled. Nothing else on the machine is examined\nand nothing unenrolled is ever signalled.\n\nBut `rentctl`'s whole job is killing processes that outlive a session, and strict\nenforcement exists to make that unavoidable. A tool built to reap servers you forgot\nabout is the wrong tool to arm on a host serving traffic — there, the servers outliving\ntheir session are *supposed* to. Keep it on development machines.\n\n## Known gaps\n\nStated plainly, because a tool making safety claims should be honest about its edges:\n\n- `runner = \"compose\"` is designed but not implemented. Asking for it fails with a clear\n  error rather than doing nothing.\n- The only environment beyond the port is `port_env`. Anything else a server needs has to\n  ride inside `cmd` today.\n- Windows: see Install. Not supported, not claimed.\n\n## A note on the comments in the source\n\nThe source cites its own design decisions — `ADR-0008`, `WI-0040`, `spec §10`. Those\nrefer to this project's design log, which is kept privately; the reasoning around each\ncitation is written out where it is cited, so nothing is missing if you can't follow the\npointer.\n\n## License\n\nApache License 2.0 — see [LICENSE](LICENSE) and [NOTICE](NOTICE).\n\nCopyright 2026 Michael Drake.\n",
+  "status": "curated"
+}
