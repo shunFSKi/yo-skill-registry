@@ -27,7 +27,7 @@
   "quality": {
     "stars": null,
     "pushed_at": "2026-09-03T15:47:14.959956Z",
-    "score": 52
+    "score": 42
   },
   "security": {
     "score": 100,
@@ -59,6 +59,6 @@
     "category": null,
     "featured": false
   },
-  "readme": "# raposa-mcp\n\nAn MCP server that gives your agent one honest tool: **ask a human**.\n\n```\nrequest_human_approval(action, context, risk) -> { approved: true|false, decided_by, ... }\n```\n\n`approved` is `true` only when a named person pressed Approve. A timeout, an expiry or a rejection all\nreturn `approved: false` — silence is not consent. Every decision is sealed in Raposa's hash-chained\naudit log, exportable for an auditor. EU-hosted, DPA available.\n\n<!-- mcp-name: group.raposa/raposa-mcp -->\n\n## Install\n\n```json\n{\n  \"mcpServers\": {\n    \"raposa\": {\n      \"command\": \"uvx\",\n      \"args\": [\"raposa-mcp\"],\n      \"env\": { \"RAPOSA_API_KEY\": \"<your key>\" }\n    }\n  }\n}\n```\n\nClaude Code: `claude mcp add raposa -e RAPOSA_API_KEY=<your key> -- uvx raposa-mcp`\n\nGet a free sandbox key (100 approvals a month) at https://raposa.group/start/ — it arrives by email in a minute.\n\n## Tools\n\n| Tool | What it does |\n|---|---|\n| `request_human_approval(action, context, risk, requested_by?, wait_sec=600, expires_in_sec?)` | creates the request and waits for a human; returns `approved` |\n| `create_approval(action, context, risk, requested_by?, expires_in_sec?, webhook_url?)` | returns the id at once; decision arrives on the HMAC-signed webhook or via `get_approval` |\n| `get_approval(approval_id)` | reads one approval |\n\n`risk` is `low | medium | high`. The API key is read from `RAPOSA_API_KEY` only and never appears in tool\ninputs or outputs. Base URL override: `RAPOSA_API_BASE` (default `https://dcescrypt.com/api`).\n\n## Who approves\n\nThe people on your team who hold the approve button get a scoped console login and, if you give us their\nemail, every request also reaches them as a mail with signed Approve / Reject links. Their name is recorded on\nthe decision. Docs: https://raposa.group/docs/#approvers\n\n## Develop\n\n```bash\npip install -e \".[test]\" && pytest -q\n```\n\nMIT · DC ESCRYPT SL · contact@raposa.group\n",
+  "readme": null,
   "status": "curated"
 }

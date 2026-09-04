@@ -1,0 +1,75 @@
+{
+  "id": "mcp:official/io.github.meridian-silkdev/meridian-mcp",
+  "type": "mcp",
+  "name": "meridian-mcp",
+  "description": "MCP server for Meridian: services, requests, workflow, payments, meetings for founders.",
+  "author": "io.github.meridian-silkdev",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/meridian-silkdev/meridian-mcp",
+    "repo": "meridian-silkdev/meridian-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@meridiantoolkit/mcp"
+    ],
+    "env": [
+      {
+        "name": "MERIDIAN_API_URL",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "MERIDIAN_API_KEY",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "MERIDIAN_MCP_LOG_LEVEL",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-04T14:31:32.15473Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "办公",
+    "featured": false
+  },
+  "readme": "# @meridiantoolkit/mcp\n\n[![meridian-mcp MCP server](https://glama.ai/mcp/servers/meridian-silkdev/meridian-mcp/badges/score.svg)](https://glama.ai/mcp/servers/meridian-silkdev/meridian-mcp)\n\nMCP server for the **Meridian** business-services platform. Exposes services, service requests, workflow steps, payments and meetings as [Model Context Protocol](https://modelcontextprotocol.io) tools and resources. MCP is a protocol, not a host-specific plugin format — this server runs unchanged in **Claude Code, Codex CLI, Claude Desktop, pi**, or any other MCP-compatible client.\n\nListed on the [official MCP Registry](https://registry.modelcontextprotocol.io) as `io.github.meridian-silkdev/meridian-mcp`, and on [Glama](https://glama.ai/mcp/servers/meridian-silkdev/meridian-mcp).\n\n## Install\n\n```bash\ncd meridian-mcp\nnpm install\nnpm run build\n```\n\nOr once published:\n\n```bash\nnpx @meridiantoolkit/mcp\n```\n\n## Configure\n\nCopy `.env.example` or set env vars directly:\n\n| Var | Description | Default |\n|-----|-------------|---------|\n| `MERIDIAN_API_URL` | Meridian app base URL | `http://localhost:3000` |\n| `MERIDIAN_API_KEY` | `mrd_` API key (Better Auth) for REST calls | *(none — tools return placeholder hint until set)* |\n| `DATABASE_URL` | Optional direct DB access fallback | |\n| `MERIDIAN_MCP_LOG_LEVEL` | debug/info/warn/error | info |\n\nMore: `/.well-known/agent-configuration` exposes **Agent Auth** discovery (capability-based, short-lived JWTs, device-auth/CIBA approval). Agents can use either a long-lived `mrd_` key or scoped Agent Auth grants — see `meridian-skills` `meridian-api` skill.\n\nWithout `MERIDIAN_API_KEY` every tool still responds — it explains what endpoint would be called and what to configure, so the server is safe to run in dry-run / demo mode.\n\n## Run\n\n```bash\nnpm start            # stdio MCP server\nnpm run dev          # watch mode via tsx\n```\n\n### Claude Code\n\n```bash\nclaude mcp add meridian -- node /absolute/path/to/meridian-mcp/dist/index.js\n# or, once published:\nclaude mcp add meridian -- npx -y @meridiantoolkit/mcp\n```\n\nOr drop a `.mcp.json` in your project root (shareable with a team, checked into git):\n\n```json\n{\n  \"mcpServers\": {\n    \"meridian\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@meridiantoolkit/mcp\"],\n      \"env\": {\n        \"MERIDIAN_API_URL\": \"http://localhost:3000\",\n        \"MERIDIAN_API_KEY\": \"...\"\n      }\n    }\n  }\n}\n```\n\n### Codex CLI\n\nCodex reads MCP servers from `~/.codex/config.toml` (or a project-scoped `.codex/config.toml` for a trusted project):\n\n```toml\n[mcp_servers.meridian]\ncommand = \"npx\"\nargs = [\"-y\", \"@meridiantoolkit/mcp\"]\nenv = { MERIDIAN_API_URL = \"http://localhost:3000\", MERIDIAN_API_KEY = \"...\" }\n```\n\nOr via the CLI: `codex mcp add meridian -- npx -y @meridiantoolkit/mcp`. The same config is shared by Codex CLI, the IDE extension, and the ChatGPT desktop app.\n\nCodex has no plugin/skill system (unlike Claude Code and pi) — its equivalent of `meridian-plugin`/`meridian-skills` is just this MCP server plus project guidance. Copy [`AGENTS.md.example`](./AGENTS.md.example) into your project's `AGENTS.md` for the same tool-usage guidance the skills packages give elsewhere.\n\n### Claude Desktop / pi\n\nAdd to your MCP config (Claude Desktop: `claude_desktop_config.json`; pi: `.pi/settings.json` → `mcpServers`, or `pi --mcp`):\n\n```json\n{\n  \"mcpServers\": {\n    \"meridian\": {\n      \"command\": \"node\",\n      \"args\": [\"/absolute/path/to/meridian-mcp/dist/index.js\"],\n      \"env\": {\n        \"MERIDIAN_API_URL\": \"http://localhost:3000\",\n        \"MERIDIAN_API_KEY\": \"...\"\n      }\n    }\n  }\n}\n```\n\n```bash\npi --mcp meridian-mcp/dist/index.js\n# or via npx after publish\nnpx @meridiantoolkit/mcp\n```\n\n## Tools\n\n| Tool | Description |\n|------|-------------|\n| `meridian_status` | Check API connectivity/config and list available tools/resources. No params. Works the same in every client — this replaces the pi-only `meridian_status` extension tool from `meridian-plugin` so status-checking isn't tied to one host. |\n| `list_services` | List services (filter: categorySlug, isActive, countryCode) |\n| `get_service` | Get service by id/slug with formConfig |\n| `list_categories` | List service categories |\n| `list_service_requests` | List requests (filter: status, customerId, providerId, limit) |\n| `get_service_request` | Get request by id with steps |\n| `create_service_request` | Create request (serviceId, answers, customTitle) |\n| `update_request_status` | Patch request status (prefer `advance_step`) |\n| `get_workflow_status` | Current phase + all requestSteps |\n| `advance_step` | Complete current step → next step |\n| `list_request_steps` | All RequestSteps in order |\n| `get_payment_status` | Payment row for a request |\n| `verify_payment` | Server-side verify with Flouci (Tunisia, local) or Stripe (international) |\n| `list_meetings` | List meetings (filter: serviceRequestId, status) |\n| `create_meeting` | Create Teams meeting + invites |\n| `respond_to_meeting` | RSVP ACCEPTED/DECLINED/PENDING |\n\n## Resources\n\n| URI | Description |\n|-----|-------------|\n| `meridian://services` | Service catalog JSON |\n| `meridian://workflow` | Workflow backbone + phases |\n\n## Development\n\n```bash\nnpm run typecheck\nnpm run build\nnpm test          # spawns the built server over stdio and exercises every tool/resource\n```\n\n## Publish\n\nFirst publish (manual, one-time — a scoped package can't use Trusted Publishing until it exists on the registry):\n\n```bash\nnpm login                     # once per machine\nnpm publish --access public\n```\n\n## CI/CD\n\n- **`.github/workflows/ci.yml`** — every push to `main` and every PR: `npm ci`, typecheck, build, `npm test` (the real stdio smoke suite).\n- **`.github/workflows/publish.yml`** — fires on a **published GitHub Release**, re-runs the full test suite, checks the release tag matches `package.json`'s version, then:\n  1. `npm publish --provenance` via npm's **Trusted Publishing (OIDC)** — no `NPM_TOKEN` secret to create or rotate.\n  2. Publishes/updates the listing on the **official MCP Registry** via `mcp-publisher login github-oidc` + `mcp-publisher publish` (also OIDC, no secret). `server.json`'s version is synced to the release tag automatically. This step has `continue-on-error: true` — the registry is explicitly in preview, so a hiccup there never blocks the actual npm release.\n\n**mcpName requirement:** `package.json` has an `\"mcpName\": \"io.github.meridian-silkdev/meridian-mcp\"` field — the registry's package validator needs this to confirm the npm package and the GitHub-verified server identity are published by the same owner. If you ever rename the server in `server.json`, update this field too or publishes will 400.\n\n**Known upstream bug, worked around:** the *interactive* `mcp-publisher login github` device flow reliably 403s when publishing under a GitHub **organization** namespace (confirmed-public membership, Owner role, doesn't matter — see [modelcontextprotocol/registry#1537](https://github.com/modelcontextprotocol/registry/issues/1537), still open as of this writing). `github-oidc` from inside a GitHub Actions workflow running in the org's own repo sidesteps it entirely, since it verifies the workflow's repo identity rather than checking the human account's org list. That's why the registry publish step lives in CI, not as a manual local command.\n\n**One-time setup after the first manual publish:** on the package's npmjs.com page → Settings → Trusted Publisher → GitHub Actions, and point it at `meridian-silkdev/meridian-mcp`, workflow `publish.yml`. After that, releasing a new version is just:\n\n```bash\nnpm version patch   # or minor/major — bumps package.json + creates a git tag\ngit push --follow-tags\ngh release create v0.1.3 --generate-notes   # publishing this release triggers both the npm and MCP Registry publish steps\n```\n",
+  "status": "curated"
+}

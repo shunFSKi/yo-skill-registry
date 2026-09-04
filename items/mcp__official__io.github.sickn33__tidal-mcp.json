@@ -1,0 +1,70 @@
+{
+  "id": "mcp:official/io.github.sickn33/tidal-mcp",
+  "type": "mcp",
+  "name": "TIDAL MCP",
+  "description": "Search, analyze, organize, and safely modify TIDAL through 112 typed MCP tools.",
+  "author": "io.github.sickn33",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/sickn33/tidal-mcp",
+    "repo": "sickn33/tidal-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@sickn33/tidal-mcp"
+    ],
+    "env": [
+      {
+        "name": "TIDAL_MCP_ENABLE_WRITES",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "TIDAL_MCP_DATA_DIR",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-04T12:14:10.172887Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# TIDAL MCP — Complete, Safety-First TIDAL Server for AI Assistants\n\n![Abstract sound waves becoming a network of MCP tools](assets/tidal-mcp-hero.webp)\n\n[![CI](https://github.com/sickn33/tidal-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/sickn33/tidal-mcp/actions/workflows/ci.yml)\n[![Website](https://img.shields.io/badge/website-live-B8FF3D?logo=githubpages&logoColor=111111)](https://sickn33.github.io/tidal-mcp/)\n[![npm](https://img.shields.io/npm/v/%40sickn33%2Ftidal-mcp?logo=npm)](https://www.npmjs.com/package/@sickn33/tidal-mcp)\n[![Python 3.11–3.13](https://img.shields.io/badge/Python-3.11%E2%80%933.13-3776AB?logo=python&logoColor=white)](https://www.python.org/)\n[![MCP Python SDK 2.x](https://img.shields.io/badge/MCP%20Python%20SDK-2.x-6C5CE7)](https://modelcontextprotocol.io/)\n[![Tests: 100% statements + branches](https://img.shields.io/badge/tests-100%25%20statements%20%2B%20branches-brightgreen)](#verified-quality)\n[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)\n\n**TIDAL MCP** connects Codex, Claude Desktop, Claude Code, Cursor, and other\nstdio-compatible Model Context Protocol clients to a TIDAL account. Search the catalog,\nanalyze playlists, discover music, read lyrics and credits, manage favorites, organize folders,\nand safely create or edit playlists through **112 typed MCP tools**.\n\n> **Positioning:** as of September 4, 2026, this is the most complete public TIDAL MCP\n> implementation found in a reproducible review of the current GitHub landscape. The claim is\n> based on registered tool coverage, structured schemas, mutation safety, and automated test\n> evidence—not marketing alone. See the [dated comparison](docs/COMPETITIVE_MATRIX.md).\n\n<!-- mcp-name: io.github.sickn33/tidal-mcp -->\n\n## Why this TIDAL MCP exists\n\nMost TIDAL integrations expose a small selection of search and playlist commands. TIDAL MCP is\nbuilt as a complete local control surface for AI agents while keeping credentials and approvals\non your machine.\n\n- **112 discoverable tools:** 74 reads, 36 mutation previews, and 2 approval-token commits.\n- **Broad account coverage:** catalog, editorial pages, recommendations, lyrics, favorites,\n  playlists, folders, mixes, images, and playback metadata.\n- **Safe writes:** mutations are off by default and always require preview → explicit approval →\n  commit.\n- **Private authentication:** OAuth session data never travels through MCP tool responses.\n- **Typed and bounded:** every input and output has a schema, limits, and MCP safety annotations.\n- **Verified quality:** 100% statement and branch test coverage plus a real stdio handshake and an\n  optional authenticated read-only smoke test.\n\n## What can an AI assistant do with TIDAL?\n\nAsk naturally:\n\n- “Analyze my entire workout playlist: artist concentration, eras, duplicates, duration, and\n  sequencing.”\n- “Find 20 tracks related to these three songs, exclude anything already in my playlist, and use\n  at most two tracks per artist.”\n- “Compare an artist’s albums, EPs, singles, appearances, top tracks, biography, and related\n  artists.”\n- “Show my favorite albums and playlists, then summarize how my collection is distributed.”\n- “Prepare a new playlist from these recommendations and show me the exact changes before doing\n  anything.”\n- “Move these playlists into a folder, but ask for confirmation before changing my account.”\n\nSee [real-world workflows and prompt examples](docs/USE_CASES.md).\n\n## Tool coverage\n\n| Surface | Tools | Examples |\n| --- | ---: | --- |\n| Authentication, search, recommendations | 3 | status, multi-type search, deterministic multi-seed recommendations |\n| Catalog, editorial, discovery | 49 | tracks, albums, artists, videos, lyrics, credits, genres, Home, Explore, For You |\n| Collection, playlists, folders | 22 | favorites, counts, playlist items, owned/public playlists, folders, mixes |\n| Exact mutation previews | 36 | playlist CRUD, item moves, visibility, favorites, folders |\n| Approval-token commits | 2 | universal commit and compatible playlist-creation alias |\n\nEvery list operation is bounded and paginated. Every result uses a public-field allowlist so OAuth\ntokens, request clients, and internal session data cannot enter model context. The complete map is\nin [API_COVERAGE.md](docs/API_COVERAGE.md).\n\n## Quick start\n\n### Requirements\n\n- macOS or Linux; macOS is live-account tested\n- Node.js 18 or newer\n- Python 3.11–3.13\n- [`uv`](https://docs.astral.sh/uv/)\n- A TIDAL account\n\n### 1. Install and authenticate\n\n```bash\nnpx -y @sickn33/tidal-mcp auth\n```\n\nOpen the device-authorization URL, approve access in TIDAL, and return to the terminal. The session\nis stored in your private operating-system application-data directory, not in the repository.\n\nCheck or remove it at any time:\n\n```bash\nnpx -y @sickn33/tidal-mcp auth --status\nnpx -y @sickn33/tidal-mcp auth --logout --yes\n```\n\nTo install from source for development instead:\n\n```bash\ngit clone https://github.com/sickn33/tidal-mcp.git\ncd tidal-mcp\nuv sync\nuv run tidal-auth\n```\n\n### 2. Connect an MCP client\n\nUse npm directly; the package launches the pinned Python implementation locally through `uvx`:\n\n```json\n{\n  \"mcpServers\": {\n    \"tidal\": {\n      \"command\": \"npx\",\n      \"args\": [\n        \"-y\",\n        \"@sickn33/tidal-mcp\"\n      ]\n    }\n  }\n}\n```\n\nRestart or reconnect your MCP client, then ask: **“Check my TIDAL authentication status.”**\n\n## Enable safe account writes\n\nRemote writes are disabled unless the MCP process receives:\n\n```json\n\"env\": {\n  \"TIDAL_MCP_ENABLE_WRITES\": \"1\"\n}\n```\n\nEnabling the flag does **not** make mutations automatic. Every change still uses three explicit\nsteps:\n\n1. A named `tidal_preview_*` tool records the exact parameters and target metadata in a private,\n   short-lived local draft.\n2. The assistant presents that preview to the user.\n3. Only after approval does `tidal_commit_action` accept the single-use token and execute exactly\n   the recorded action.\n\nSuccessful token replays return the stored result. Expired tokens fail closed. Ambiguous failed\nwrites are locked to reduce duplicate effects. Destructive previews are clearly annotated.\n\n## Supported TIDAL operations\n\n- **Search and lookup:** tracks, albums, artists, playlists, videos, mixes, users, barcodes, ISRCs.\n- **Track intelligence:** details, radio, radio mixes, lyrics, credits, playback metadata, temporary\n  account-scoped URLs.\n- **Artists and albums:** discographies, EPs and singles, appearances, biographies, reviews,\n  related artists, similar albums, resolutions, artwork, and editorial pages.\n- **Discovery:** Home, Explore, For You, genres, moods, mixes, videos, hi-res, and local genre hubs.\n- **Collection:** favorite tracks, albums, artists, playlists, videos, mixes, folders, and counts.\n- **Playlists:** metadata, tracks, mixed items, counts, images, create/edit/delete/clear/merge,\n  visibility, add/remove/reorder operations.\n- **Folders:** inspect, create, rename, delete, and move collection-tree items.\n\nThe server intentionally does not download media, bypass DRM, expose raw OAuth methods, or provide\nan unrestricted private-endpoint proxy.\n\n## Configuration\n\n| Variable | Default | Meaning |\n| --- | --- | --- |\n| `TIDAL_MCP_ENABLE_WRITES` | `0` | Permit approval-token commits for allowlisted account mutations |\n| `TIDAL_MCP_DATA_DIR` | OS application-data directory | Session and draft root |\n| `TIDAL_MCP_SESSION_FILE` | `<data-dir>/session.json` | Override the OAuth session path |\n| `TIDAL_MCP_DRAFT_TTL_SECONDS` | `900` | Approval lifetime, between 60 and 3600 seconds |\n\nNew private directories use mode `0700` and sensitive files use `0600` on systems supporting POSIX\npermissions. Existing custom parent directories are never silently permission-rewritten.\n\n## Verified quality\n\n```bash\nuv sync --all-groups\nuv run ruff format --check .\nuv run ruff check .\nuv run pytest --cov=tidal_mcp --cov-report=term-missing\nuv run python scripts/smoke_stdio.py\nuv build\n```\n\nThe coverage gate is **100% for statements and branches**. Tests exercise every registered read\nand mutation route through the MCP schemas and the pinned `tidalapi` adapter without contacting\nTIDAL. The stdio smoke test launches the packaged protocol process and verifies all 112 tool\nschemas.\n\nOfficial releases are published from GitHub Actions through npm Trusted Publishing, with no\nlong-lived npm write token. npm attaches provenance automatically, and the same release workflow\npublishes the matching metadata to the official MCP Registry through GitHub OIDC.\n\nAn optional authenticated smoke test performs representative reads only:\n\n```bash\nuv run python scripts/smoke_live_read_only.py\n```\n\nRelease maintainers can test the exact public npm package through the same MCP client path:\n\n```bash\nuv run python scripts/smoke_live_read_only.py \\\n  --command npx \\\n  --server-arg=-y \\\n  --server-arg=@sickn33/tidal-mcp@1.0.1\n```\n\nThe deterministic [evaluation suite](docs/EVALUATION.md) and the dated\n[competitive matrix](docs/COMPETITIVE_MATRIX.md) make quality claims inspectable.\n\n## Architecture and compatibility\n\nTIDAL provides developer APIs, but developer credentials are issued separately and the official\nsurface does not cover every consumer-account workflow. This local server therefore pins\n`tidalapi 0.8.11`, an unofficial adapter around TIDAL’s consumer endpoints, for broad device-login\ncoverage. TIDAL changes can require maintenance; the pinned dependency and live smoke test make\nthat risk visible.\n\nThe server uses the MCP Python SDK over stdio. Blocking upstream calls run outside the async\nprotocol event loop. It does not launch a Flask sidecar or store authentication in temporary\ndirectories.\n\n## Documentation\n\n- [Complete API coverage](docs/API_COVERAGE.md)\n- [Use cases and prompt cookbook](docs/USE_CASES.md)\n- [Frequently asked questions](docs/FAQ.md)\n- [Security policy](SECURITY.md)\n- [Competitive evidence](docs/COMPETITIVE_MATRIX.md)\n- [Deterministic evaluation](docs/EVALUATION.md)\n- [Contributing](CONTRIBUTING.md)\n- [Changelog](CHANGELOG.md)\n\n## Project status\n\nVersion **1.0.1** is the first fully automated supply-chain release. npm is the primary\ninstallation channel, and every release is also published to the official MCP Registry.\n\n## License, attribution, and trademark notice\n\nMIT. This repository preserves the history and license of\n[`yuhuacheng/tidal-mcp`](https://github.com/yuhuacheng/tidal-mcp); see [NOTICE.md](NOTICE.md).\n\nTIDAL is a trademark of its respective owner. This is an independent, unofficial community\nproject and is not affiliated with, endorsed by, or sponsored by TIDAL. No TIDAL logo or album\nartwork is bundled with the project.\n",
+  "status": "curated"
+}

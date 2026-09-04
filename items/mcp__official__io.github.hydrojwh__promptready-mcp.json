@@ -1,0 +1,57 @@
+{
+  "id": "mcp:official/io.github.hydrojwh/promptready-mcp",
+  "type": "mcp",
+  "name": "promptready-mcp",
+  "description": "Convert PDF/CSV to Markdown with AI-powered OCR via the PromptReady cloud API.",
+  "author": "io.github.hydrojwh",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/hydrojwh/promptready-mcp",
+    "repo": "hydrojwh/promptready-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "promptready-mcp"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-04T13:04:40.633532Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "AI",
+    "featured": false
+  },
+  "readme": "# PromptReady MCP\n\n<!-- mcp-name: io.github.hydrojwh/promptready-mcp -->\n\nOfficial [Model Context Protocol](https://modelcontextprotocol.io/) client for\n[PromptReady](https://promptready.space) — convert PDF/CSV to Markdown from AI\nagents (Grok, Claude Code, Cursor, and other MCP hosts).\n\n**Same PromptReady account and credits as the web app.**\n\n## Features\n\n- Browser Google login (tokens stay on your machine)\n- `get_credits`, `convert_pdf`, `get_status`, `wait_and_download`\n- Slash commands for humans: `/promptready:convert` and five more (below)\n- Saved convert defaults (engine, tables, images) — not on every call\n- Factory default: **PaddleOCR-VL**, tables on, images off\n\n## Install\n\n```bash\npip install promptready-mcp\n```\n\nOr run it without installing:\n\n```bash\nuvx promptready-mcp\n```\n\n<details>\n<summary>From source</summary>\n\n```bash\ngit clone https://github.com/hydrojwh/promptready-mcp.git\ncd promptready-mcp\npython3 -m venv .venv && source .venv/bin/activate\npip install -e .\n```\n\n</details>\n\n## Login (once per machine)\n\n```bash\npromptready-mcp-login\n```\n\nIf you installed with `uvx`, the login command lives in the same package:\n\n```bash\nuvx --from promptready-mcp promptready-mcp-login\n```\n\nEither opens Google OAuth and saves credentials to\n`~/.config/promptready/credentials.json` (file mode `0600`). That path is in your\nhome directory, so it survives `uvx` cache resets. You can also log in from inside\nan MCP host by calling the `login` tool.\n\nAfter you sign in, the browser returns to `http://127.0.0.1:18765/callback` — a\nlocal page started by the login command. No Supabase configuration is needed.\n\n<details>\n<summary>Email login fallback</summary>\n\nIf browser-based Google login is not an option, the same command accepts email\nand password:\n\n```bash\npromptready-mcp-login --email you@x.com\n```\n\nLeave out `--password` and you will be prompted for it instead — this keeps the\npassword out of your shell history.\n\n</details>\n\nAlready have an access token? Set `PROMPTREADY_ACCESS_TOKEN` in the environment\n(MCP host or shell). Environment variables take precedence over the saved\ncredentials file.\n\n## MCP host config\n\n### Fastest: let your AI agent install it\n\nIf you are already in an MCP-capable agent, skip the JSON editing and just\nask:\n\n> Install the PromptReady MCP server for me. The PyPI package is\n> `promptready-mcp` (stdio command `promptready-mcp`). Add it to your MCP\n> config, then I will run the `login` tool.\n\nIn Claude Code the agent can use the built-in CLI:\n\n```bash\nclaude mcp add promptready -- promptready-mcp\n```\n\n### Reconnect after changing config\n\nHosts do not pick up MCP config changes mid-session. After changing the\nconfig, restart the host or reconnect the server — in Claude Code, open the\n`/mcp` panel and reconnect.\n\nThe `/mcp` panel shows server status and lists the connected servers'\ntools, but it does **not** run them: picking a tool in that list will\nnot invoke it. Tools are invoked through normal conversation — ask the\nagent to convert a file and it calls `convert_pdf` for you. If a call\nfails, reconnect from the panel first.\n\n### Claude Code\n\n```bash\nclaude mcp add promptready -- promptready-mcp\n```\n\nThe default scope is `local` (this project only). Use `--scope user` to\nregister it for all your projects, or `--scope project` to share the\nregistration through a committed `.mcp.json`.\n\n### Cursor\n\nAdd to `~/.cursor/mcp.json` (or `.cursor/mcp.json` for a single project):\n\n```json\n{\n  \"mcpServers\": {\n    \"promptready\": {\n      \"command\": \"promptready-mcp\"\n    }\n  }\n}\n```\n\n### Grok\n\n```toml\n[mcp_servers.promptready]\ncommand = \"promptready-mcp\"\nenabled = true\ntool_timeout_sec = 3600\n```\n\n### Claude Desktop / generic JSON\n\n```json\n{\n  \"mcpServers\": {\n    \"promptready\": {\n      \"command\": \"promptready-mcp\"\n    }\n  }\n}\n```\n\nNo access token in config files required after login.\n\n<details>\n<summary>Host cannot find <code>promptready-mcp</code></summary>\n\nGUI hosts start servers with a narrow `PATH`, so a console script installed by\n`pip install --user` is often invisible to them — the host reports a spawn\nfailure or \"server disconnected\" rather than a missing command.\n\nTwo reliable fixes:\n\n```json\n{ \"mcpServers\": { \"promptready\": {\n  \"command\": \"uvx\", \"args\": [\"promptready-mcp\"] } } }\n```\n\nor point at the absolute path of the script:\n`/ABS/PATH/.venv/bin/promptready-mcp`.\n\n</details>\n\n## Tools\n\n| Tool | Purpose |\n|------|---------|\n| `login` / `logout` | Browser auth / clear local credentials |\n| `get_credits` | Credit balance |\n| `get_convert_settings` / `set_convert_settings` | Saved convert defaults |\n| `convert_pdf` | Upload path → queue (optional `wait`) |\n| `get_status` | Job status |\n| `wait_and_download` | Poll + save `.md` |\n\nDownloaded names follow the web app: `{name}_PaddleOCR-VL.md` (engine label).\n\nCredits are deducted by the server when a job is queued, exactly as on the web\napp. `convert_pdf(wait=True)` can run for a long time, so give the host a high\ntool timeout.\n\n## Slash commands\n\nMCP *prompts* are the human entry point: instead of describing what you\nwant, you pick a command. Hosts that surface prompts as slash commands\n(Claude Code does) show them as `/promptready:<name>`:\n\n| Slash command | Purpose |\n|---------------|---------|\n| `/promptready:login` | Log in (opens the browser Google sign-in) |\n| `/promptready:logout` | Log out on this machine |\n| `/promptready:credits` | Show your credit balance |\n| `/promptready:convert` | Convert a PDF/CSV to Markdown |\n| `/promptready:site` | Show the PromptReady web app URL |\n| `/promptready:settings` | Show — and optionally change — convert defaults |\n\nEach command expands to a short instruction; the agent then calls the\nmatching tool (`login`, `get_credits`, `convert_pdf`, …) for you.\n\n`/promptready:convert` optionally takes two positional arguments, input\npath then output directory. Pick the command from the slash menu (hosts\nmay list it as `promptready:convert (MCP)`) and append the arguments:\n\n```text\n/promptready:convert (MCP) report.pdf markdown-out\n```\n\nArguments are split on whitespace and cannot be quoted, so paths with\nspaces do not fit on the command line — run the command bare and give\nthe paths in chat instead. With no arguments the command asks you for\nthem. The conversion itself always goes through the `convert_pdf` tool:\nnever re-run it for the same file while a download is pending — that\nqueues a fresh conversion and spends fresh credits; the expanded command\ntells the agent to call `wait_and_download` instead.\n\nHosts that do not map prompts to slash commands simply ignore this\nsection; the tools keep working as before.\n\n## Security\n\n- Tokens are **never** hardcoded in this repository.\n- Do **not** commit `~/.config/promptready/*` or `.env`.\n- Only use the official package linked from https://promptready.space\n- Vulnerability reports: see [SECURITY.md](SECURITY.md)\n\n## Service terms\n\nUsing the cloud API is subject to the\n[Terms of Service](https://promptready.space/legal/terms-of-service.en.md) and\n[Privacy Policy](https://promptready.space/legal/privacy-policy.en.md).\nThis MIT-licensed client does not grant free unlimited conversion.\n\n## Smoke test (no account)\n\n```bash\n./scripts/smoke_stdio.sh\n```\n\n## License\n\nMIT — see [LICENSE](LICENSE).\n",
+  "status": "curated"
+}

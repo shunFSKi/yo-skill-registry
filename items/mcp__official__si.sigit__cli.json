@@ -1,0 +1,70 @@
+{
+  "id": "mcp:official/si.sigit/cli",
+  "type": "mcp",
+  "name": "siGit CLI",
+  "description": "Run sigit.si locally: browse repos, search code, manage PRs, issues, and Cloud Sessions.",
+  "author": "si.sigit",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/getsigit/si",
+    "repo": "getsigit/si"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "sigit-si-cli"
+    ],
+    "env": [
+      {
+        "name": "SIGIT_TOKEN",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "SIGIT_TOOLSETS",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-04T11:12:02.22484Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# sigit-si-cli\n\n`si` is the command line interface for [sigit.si](https://sigit.si) — sign in,\nmanage repositories, review pull requests, triage issues, search code, and\ndrive Cloud Sessions, all from the terminal. It's the `gh` of sigit.si.\n\n## Install\n\n```sh\ncargo install --path crates/cli\n```\n\nThis installs a binary named `si`.\n\n## Usage\n\n```sh\nsi auth login                     # sign in with your sigit.si account\nsi repo list                      # your repositories\nsi repo create my-project --private\n\n# Inside a repo checkout, si infers OWNER/NAME from the sigit.si git remote —\n# --repo is only needed when you're not standing in one.\nsi pr list\nsi pr view 42\nsi pr create --title \"Fix the thing\" --base main\n\nsi issue list --state open\nsi issue create --title \"Bug: ...\" --body \"Steps to reproduce...\"\n\nsi code search \"TODO\" --ref main\nsi code view README.md\n\nsi session new --title \"Refactor auth\"\nsi billing show\n\nsi browse                          # open the current repo on sigit.si\nsi api repos                       # raw escape hatch for any endpoint\n```\n\nPass `--json` to any read command for machine-readable output.\n\n### As an MCP server\n\n<!-- mcp-name: si.sigit/cli -->\n\n`si mcp` serves these same commands to an AI agent as\n[MCP](https://modelcontextprotocol.io) tools over stdio:\n\n```jsonc\n{\n  \"mcpServers\": {\n    \"sigit\": { \"command\": \"si\", \"args\": [\"mcp\"] }\n  }\n}\n```\n\nThere is nothing to authenticate — the server reuses the token `si auth login`\nstored. Point your editor at the directory of a checkout and repository tools\ndefault to the repo you're standing in, so the agent can say \"list the open\npull requests\" without naming one; `create_pull_request` likewise defaults its\nhead to the checked-out branch.\n\nTrim the tool list when an agent doesn't need all of it:\n\n```sh\nsi mcp --read-only                    # drop every tool that writes\nsi mcp --toolsets repo,issue,pr,code  # or SIGIT_TOOLSETS=repo,issue\n```\n\nToolsets are `account`, `repo`, `issue`, `pr`, `code`, `hook`, `session`, and\n`billing`. sigit.si also hosts a remote MCP server at `/api/v1/mcp` for clients\nthat would rather connect over HTTP than spawn a binary.\n\n### Environments\n\n```sh\nsi --environment dev repo list          # a local sigit.si server (localhost:3000)\nSIGIT_HOST=staging.example.com si repo list\n```\n\nCredentials are stored per-environment in `~/.sigit/token` (or\n`~/.sigit-dev/token`). `SIGIT_TOKEN` overrides the stored token, which is how\nCI authenticates without an interactive login.\n\n## Workspace layout\n\n- **`crates/sigit-si-api`** — a standalone, typed Rust client for the sigit.si\n  JSON API. No CLI dependencies (clap, dialoguer, …); usable from any Rust\n  project that wants to talk to sigit.si, including the desktop app.\n- **`crates/cli`** — the `si` binary: command parsing, terminal rendering, git\n  remote resolution, and credential storage, built on top of `sigit-si-api`.\n\nIssues, pull requests, and code search have no REST surface on sigit.si yet —\nthey're served over the same MCP (Model Context Protocol) JSON-RPC endpoint\nthe AI agent uses. `sigit-si-api` speaks that transport internally; it's not\nvisible at the call site.\n\n## MCP Registry listings\n\nThis repo publishes two entries to the\n[official MCP Registry](https://registry.modelcontextprotocol.io), one per way\nof reaching the same tools, so registry-aware clients can add either in one\nclick:\n\n| Listing | File | What it is |\n| --- | --- | --- |\n| `si.sigit/cli` | `server.json` | This CLI: a cargo package listing that runs `si mcp` over stdio. |\n| `si.sigit/sigit` | `server-sigit.json` | The hosted server at `sigit.si/api/v1/mcp`, a remote Streamable-HTTP listing. The endpoint `sigit-si-api` talks to, and the official server siGit Code bakes in. |\n\nThe CLI holds `server.json` because it's what this repo ships, and that's the\nfilename `mcp-publisher` defaults to. Sibling listings are named after their\nown leaf, so the file says which entry it publishes.\n\nBoth go out through the `release-mcp-registry.yml` workflow, and both prove\nnamespace ownership with a DNS TXT record on `sigit.si` rather than GitHub\nOIDC, so one credential covers the pair. A package listing has a second hurdle:\nthe registry fetches the crate from crates.io and looks for the\n`mcp-name: si.sigit/cli` marker in its README, which is why that marker sits in\nthis file. Crate versions are immutable, so a release that ships without the\nmarker can never be listed, and fixing it costs a new version. The internal\nsetup and release runbook live with the server (private `sigit-si` repo).\n\n## Development\n\n```sh\nmake build   # cargo build --workspace\nmake test    # cargo test --workspace\nmake lint    # cargo clippy --workspace --all-targets -- -D warnings\nmake fmt     # cargo fmt --all\nmake check   # fmt + lint + test\n```\n\n## Disclaimer\n\nAll em dashes are written by Seto Elkahfi.\n\n## License\n\nApache-2.0\n",
+  "status": "curated"
+}

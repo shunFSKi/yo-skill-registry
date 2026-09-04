@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.anima-labs-ai/anima",
+  "type": "mcp",
+  "name": "anima",
+  "description": "Give your AI agent an identity it owns: email inbox, US phone number, SMS, voice, and a vault.",
+  "author": "io.github.anima-labs-ai",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/anima-labs-ai/mcp-server",
+    "repo": "anima-labs-ai/mcp-server"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://mcp.useanima.sh/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-04T15:37:25.051931Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "办公",
+    "featured": false
+  },
+  "readme": "# @anima-labs/mcp-server\n\nThe **hosted** MCP server behind `https://mcp.useanima.sh` — the recommended way to connect AI assistants to Anima. It exposes the full tool surface (66 tools today) over streamable HTTP with `Authorization: Bearer <ak_… or mk_…>`.\n\nThis package is deliberately **not published to npm**: it is the deployed gateway. For a local/stdio server use [`@anima-labs/mcp`](https://github.com/anima-labs-ai/mcp) (published, 53 core tools) — same platform, same auth. Client setup for both lives in the [MCP docs](https://docs.useanima.sh/mcp-servers), or run `anima setup-mcp`.\n\n## Endpoints\n\nOne gateway, scoped mounts. `/mcp` carries everything; the per-domain mounts serve tailored connections with a smaller tool count:\n\n- `/mcp` — all tools (recommended)\n- `/agent` — agent lifecycle (create/get/list/update/delete)\n- `/email` — Anima agent mailboxes: inbox create/get/list/update/delete, send/reply/forward, threads, drafts, attachments, custom domains (`agents.useanima.sh` addresses or your own domain — no Gmail/SMTP relay involved)\n- `/phone` — phone number provisioning, SMS threads, voice calls + transcripts/recordings (Telnyx-backed)\n- `/platform` — account/usage overviews and webhook management\n- `/vault` — encrypted credential vault: CRUD, search, TOTP, server-side use, credential requests, OAuth connections, Connect Links\n- `/extension` — browser extension connect (headless / Puppeteer)\n\n## Run locally (development)\n\n```\nbun run src/index.ts\n```\n\nEnvironment: `ANIMA_API_URL` (defaults to a local dev API at `http://127.0.0.1:3100`; the production deployment sets it to the live API), `MCP_BASE_URL`, `PORT`.\n\n## History\n\nReplaces five separate packages (`mcp-agent`, `mcp-email`, `mcp-phone`, `mcp-platform`, `mcp-vault`) and the `mcp-core` shared library.\n",
+  "status": "curated"
+}

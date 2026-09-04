@@ -1,0 +1,69 @@
+{
+  "id": "mcp:official/app.apiguru/amazon-data",
+  "type": "mcp",
+  "name": "Apiguru Amazon Data",
+  "description": "Live Amazon product, review, search, deal, offer/stock and seller data across 20 marketplaces.",
+  "author": "app.apiguru",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/apiguru-app/agent-kit",
+    "repo": "apiguru-app/agent-kit"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "apiguru-mcp"
+    ],
+    "env": [
+      {
+        "name": "APIGURU_API_KEY",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "APIGURU_BASE_URL",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-04T17:01:53.35142Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# Apiguru Agent Kit\n\nEverything needed for an AI agent to discover, call and pay for the Apiguru\nAmazon Data API — **with no account, no API key and no subscription**.\n\nThe existing backend is not modified by any of this. Not one line.\n\n## Install in your agent\n\n| Client | How |\n|---|---|\n| Claude Code | `claude mcp add --transport http apiguru https://mcp.apiguru.app/mcp` or `/plugin marketplace add apiguru-app/agent-kit` then `/plugin install apiguru@apiguru` |\n| claude.ai, Claude Desktop, ChatGPT | add connector `https://mcp.apiguru.app/account` and sign in |\n| Codex CLI | `codex mcp add apiguru --url https://mcp.apiguru.app/mcp` |\n| Cursor | [Add to Cursor](cursor://anysphere.cursor-deeplink/mcp/install?name=apiguru&config=eyJjb21tYW5kIjogIm5weCIsICJhcmdzIjogWyIteSIsICJhcGlndXJ1LW1jcCJdfQ==) (runs `npx -y apiguru-mcp`) |\n| VS Code | [Install in VS Code](vscode:mcp/install?%7B%22name%22%3A%20%22apiguru%22%2C%20%22command%22%3A%20%22npx%22%2C%20%22args%22%3A%20%5B%22-y%22%2C%20%22apiguru-mcp%22%5D%7D) |\n| Gemini CLI | `gemini extensions install https://github.com/apiguru-app/agent-kit` |\n| Hermes, OpenClaw, any stdio client | `npx -y apiguru-mcp` (npm, Node only) or `uvx apiguru-mcp` (PyPI) |\n| Skill only (any agent) | `npx skills add apiguru-app/agent-kit` or ClawHub `apiguru-amazon-data` |\n\n## Why this exists\n\nThe API is gated behind register → verify email → get key → top up. Every step\nassumes a human. Agents cannot do any of it, so agent traffic bounces off the\nfront door.\n\nAnd agents don't browse — they query indexes: the x402 Bazaar, the MCP\nRegistry, ClawHub. Apiguru was in none of them, and the repo had no OpenAPI\nspec at all, so there was nothing machine-readable to publish.\n\n## How it works\n\n```\nagent ──► agent.apiguru.app/agent/v1/v2/product-details\n            │  ① free probes left for this IP?   serve it (a 5xx hands the probe back)\n            │  ② payment header present?         verify → serve → settle\n            │  ③ otherwise                       402 + payment challenge\n            ▼\n          a verified payment provisions a real `users` row for the payer wallet\n          and the request is forwarded with THAT account's API key\n            ▼\n          apiguru_backend:8787 — existing @api_key_required + @billing_required\n          count usage, unchanged\n            ▼\n          billable answer (2xx, or the 404 the backend bills)? settle on-chain,\n          write `agent_payments`. Anything else: `X-Payment-Status: not-settled`,\n          nothing charged.\n```\n\nBecause the payer becomes an ordinary account, usage counters, per-second rate\nlimits, `api_logs` and the admin dashboard all work on agent traffic for free.\nThe payer's wallet address is the abuse-dedup identity, playing the role\n`canonical_email` plays for human signups — and it is far harder to farm.\n\nSettlement happens **after** the upstream call, in the x402 reference order. An\nearlier version settled first, which charged agents real money for our own\n503s and for their own 413s. The wallet's `users.balance` is never credited or\ncharged: the agent plan's internal rate is 0, so the backend can never block a\npaid request on balance (its per-request counting — about 3 upstream requests\nper ASIN on `/stock` — does not match the per-item quote).\n\n## Layout\n\n```\nagent-kit/\n├─ spec/                    SOURCE OF TRUTH\n│  ├─ endpoints.json        canonical: paths, schemas, prices, Bazaar copy\n│  ├─ generate.py           emits everything below from it\n│  ├─ openapi.yaml/.json    OpenAPI 3.1 (validated)\n│  └─ llms.txt              for agents crawling the site\n├─ gateway/                 keyless x402 paywall (Quart, port 8790)\n├─ mcp/                     MCP server, stdio + streamable HTTP (port 8791)\n├─ npm/                     `npx apiguru-mcp`: Node stdio bridge to the hosted server (no Python, no uv)\n├─ skill/                   SKILL.md in the Agent Skills open standard (canonical)\n├─ plugin/                  Claude Code plugin; plugin/apiguru/skills/ is a generated mirror of skill/\n├─ .claude-plugin/          marketplace manifest\n└─ deploy/                  nginx, deploy script, distribution checklist\n```\n\n### One spec, four consumers\n\n`spec/endpoints.json` is the only file describing the API. `generate.py`\nwrites the OpenAPI document, `llms.txt`, the MCP package's bundled copy, the\ngateway's copy, and the skill's reference docs. They cannot drift.\n\n```bash\npython spec/generate.py\n```\n\nAdding an endpoint is one edit to `endpoints.json` plus that command.\n\n## Components\n\n| Component | What it gives you |\n|---|---|\n| **Gateway** | Keyless access + x402 payments + free probes + Bazaar metadata |\n| **MCP server** | 11 tools for Claude Code, Codex CLI, OpenClaw, claude.ai, ChatGPT |\n| **Skill** | One `SKILL.md` that runs in 20+ agents unmodified |\n| **Plugin** | One-command install bundling the skill and MCP server (`uvx apiguru-mcp`) |\n| **npm bridge** | `npx -y apiguru-mcp` for clients whose docs assume npx; Node 18+ is the only prerequisite |\n| **Spec** | OpenAPI + llms.txt so crawling agents self-onboard |\n\n## Quick start\n\n```bash\n# regenerate all derived artifacts\npython spec/generate.py\n\n# run the MCP server locally (no install; uvx fetches it from this repo)\nuvx apiguru-mcp\nuvx apiguru-mcp --http --port 8791\n\n# deploy the gateway + MCP to server1\ncp .env.agent.example .env.agent  # fill in DATABASE_URL and X402_PAY_TO\n./deploy/deploy.sh\n```\n\n## Tests\n\n```bash\npip install \"x402[evm,extensions]\" quart sqlalchemy aiosqlite httpx mcp\npython tests/run_tests.py\n```\n\nNo network, no database, no wallet: pricing and item counting, spec drift\n(including the plugin's mirrored skill), MCP tool schemas and client-side\nvalidation, unforgeable client identity (including the hosted-MCP internal\nheader), the free-probe budget and its refund on 5xx, 413 before challenge,\n402 challenge structure, and the paid path end to end (verify → serve →\nsettle, wallet provisioning, the revenue ledger, testnet tagging, and that an\nupstream failure leaves the payment unsettled).\n\n`deploy/deploy.sh` runs the same suite on the server, in a throwaway\ncontainer, before it rebuilds anything.\n\n## Status: LIVE\n\n| | |\n|---|---|\n| Gateway | `https://agent.apiguru.app` — Base mainnet, real USDC |\n| MCP | `https://mcp.apiguru.app/mcp` — 11 tools |\n| Receiving wallet | `0x766B4cc27333955BBb163a61e2B85aFa6e491422` |\n| Facilitator | PayAI (no account, no company) |\n| Free tier | 3 calls per client per 24h, then 402 |\n\nTestnet settlement was proven end to end first — tx\n[`0xa4812b6c…390a61`](https://sepolia.basescan.org/tx/0xa4812b6c0b2c311c781bf20956b57664b8c1f558af833f3c93674b5d34390a61).\nRevert to testnet any time with `./deploy/go-mainnet.sh testnet`.\n\n## Before going live\n\nTwo things need you, not code:\n\n1. **A receiving wallet.** `X402_PAY_TO` is just a self-custody wallet address\n   — no company, no KYC, no account, about five minutes to create. You do\n   **not** need Coinbase: the facilitator is swappable by config, and PayAI\n   (`https://facilitator.payai.network`) runs on Base mainnet with no\n   credentials at all. Coinbase CDP is worth it only for automatic x402 Bazaar\n   listing. See `deploy/PAYMENT-SETUP.md`.\n2. **DNS.** Done — both resolve and are **grey-clouded** (DNS only). Keep them\n   that way: Cloudflare's fixed 100s timeout is shorter than these Amazon\n   fetches, and it buffers SSE, which breaks MCP streamable HTTP. See\n   `deploy/CLOUDFLARE.md`.\n\nNeither blocks the other four distribution channels — MCP Registry, ClawHub,\nthe plugin marketplace and llms.txt all ship without any payment rail. Run with\n`X402_ENABLED=false` if you want to defer payments entirely.\n\nThen work through `deploy/DISTRIBUTION.md`, which is ordered by leverage.\n\n## Money units — read once\n\n`users.balance` and `subscription_plans.cost_per_request_cents` are both in\n**dollars** despite the column name (the Stripe webhook divides cents by 100\nbefore adding to `balance`; the PAYG plan row is `0.0050` = $0.005/request).\nA version of this kit read them as cents and credited $1.00 for a $0.01\npayment. The full evidence is in `gateway/money.py`.\n\nThe gateway now stays out of `users.balance` altogether: the agent plan's\ninternal rate is 0, and revenue is recorded only in `agent_payments`, written\nafter on-chain settlement. Testnet settlements are tagged `TESTNET` in\n`detail` and excluded from revenue by the admin dashboard.\n\n## Known boundary\n\nThe Stripe MPP rail emits correct `WWW-Authenticate: Payment` challenges and\nparses credentials, but **redemption is not implemented** — Stripe's reference\nflow uses a Node-first SDK with no verified Python equivalent. `MPP_ENABLED`\ndefaults to `false` and the gateway runs on x402 alone. See the note at the top\nof `gateway/mpp_rail.py`.\n\n## Deploy safety\n\nThis is a separate compose project that builds its own images. It never\ntouches the running apiguru containers. Do not run `docker-compose down` or\n`--force-recreate` against the main stack on that host — the compose 1.29 +\nDocker 27.x ContainerConfig bug leaves it unrecoverable.\n",
+  "status": "curated"
+}

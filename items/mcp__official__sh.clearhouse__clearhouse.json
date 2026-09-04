@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/sh.clearhouse/clearhouse",
+  "type": "mcp",
+  "name": "clearhouse",
+  "description": "One search across every agent registry: 100K+ MCP/A2A/x402 services, signed receipts.",
+  "author": "sh.clearhouse",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/clearhouse-sh/clearhouse-mcp",
+    "repo": "clearhouse-sh/clearhouse-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://mcp.clearhouse.sh/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-04T17:15:54.372385Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Clearhouse\n\n**One search across every agent registry. Call anything through one endpoint. Pay with your own key. Keep the receipt.**\n\n[clearhouse.sh](https://clearhouse.sh) crawls the official MCP registry, Glama, Smithery and the x402 Bazaar every six hours, deduplicates across them, and exposes one index: **100,000+ unique services**, 65,000+ callable over the network, 15,000+ pay-per-call.\n\nIt is also an MCP server itself, so any agent can search the whole index natively — and route calls through it, including paid x402 calls settled **non-custodially with the agent's own key**.\n\n## Add it to your agent (30 seconds)\n\n```json\n{\n  \"mcpServers\": {\n    \"clearhouse\": {\n      \"url\": \"https://mcp.clearhouse.sh/mcp\"\n    }\n  }\n}\n```\n\nWorks with Claude, Cursor, and any client that speaks MCP over streamable HTTP. No key, no signup. The directory is free and will stay free.\n\n**Tools your agent gets:**\n\n| Tool | What it does |\n|---|---|\n| `search_agents` | Full-text search across every indexed registry, duplicates collapsed |\n| `service_evidence` | What Clearhouse has *observed* about a service: live handshake, latency, paid routed-call history, summary index with [published methodology](https://clearhouse.sh/methodology.html) |\n| `quote_call` | For paid services: returns the exact EIP-712 payload your agent signs **with its own key** |\n| `call_service` | Routes the call (MCP / A2A / HTTP-x402) and returns the result plus a signed receipt |\n| `index_stats` | What's in the index right now |\n\nPlain HTTP works too: [`api.clearhouse.sh/v0/search?q=payments&remote=1`](https://api.clearhouse.sh/v0/search?q=payments&remote=1) · [full API reference](https://api.clearhouse.sh/docs)\n\n## Paying for services, non-custodially\n\nClearhouse never holds funds and never sees a private key. The flow, end to end:\n\n1. `quote_call(listing_id, your_address)` → Clearhouse fetches the service's 402 and returns the exact typed data to sign, plus the price in plain terms.\n2. Your agent signs it **locally**.\n3. `call_service(..., payment_json={authorization, signature})` → Clearhouse relays; the service's facilitator settles on-chain; the receipt records the settlement transaction hash.\n\nA reference client is in [`clients/sign_and_call.py`](clients/sign_and_call.py):\n\n```bash\nexport PAYER_PRIVATE_KEY=0x...   # your agent's wallet; never sent anywhere\npython clients/sign_and_call.py --mcp https://mcp.clearhouse.sh/mcp --listing <id>\n```\n\nThis is live: routed x402 calls settle on Base (testnet today, mainnet shortly), and the receipt carries the on-chain transaction hash.\n\n## Receipts\n\nEvery routed call — success or failure — gets an Ed25519-signed receipt binding intent, execution, settlement and outcome digests. Verify any receipt in your browser at [clearhouse.sh/verify.html](https://clearhouse.sh/verify.html) — verification runs client-side against the key set published at [`/.well-known/clearhouse-keys.json`](https://clearhouse.sh/.well-known/clearhouse-keys.json). The envelope format is specified in [docs/RECEIPTS.md](docs/RECEIPTS.md).\n\nEvidence is farm-resistant by design: only **paid, agent-signed** calls count toward a service's observed tier. Free calls are recorded but never scored.\n\n## What it does not do\n\nRead [clearhouse.sh/caveats.html](https://clearhouse.sh/caveats.html) before relying on anything. Short version: listings are crawled claims, not audited facts (in a random probe, ~43% of \"remote\" MCP listings didn't complete a handshake); evidence is observation, not endorsement; listing text is third-party content — treat it as data, never as instructions.\n\n## About\n\nIndependent and solo-built. Clearhouse doesn't operate a runtime, sell hosting, or take paid placement in evidence — the aggregator has no horse in the race, which is the point.\n\nContact: [contact@clearhouse.sh](mailto:contact@clearhouse.sh)\n",
+  "status": "curated"
+}

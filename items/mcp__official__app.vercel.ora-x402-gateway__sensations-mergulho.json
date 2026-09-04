@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/app.vercel.ora-x402-gateway/sensations-mergulho",
+  "type": "mcp",
+  "name": "sensations-mergulho",
+  "description": "MCP server for 0001SENSATIONS: 107-level textual descent, append-only trace logging",
+  "author": "app.vercel.ora-x402-gateway",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/fomosdeimos-gif/orum-ora-x402",
+    "repo": "fomosdeimos-gif/orum-ora-x402"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://ywabnlhkmhbyewqhbsjm.supabase.co/functions/v1/sensations-mergulho"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-04T14:14:12.363014Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# orum-ora-x402\n\nORUM ORA x402 Middleware for OpenClaw agents - Precipitação do real\n\nThis repository is the source of `ora-x402-gateway.vercel.app` — the public\ngateway for ORUM's x402-paid services (Oráculo, Campo, Sedimento, Kernel,\nand 0001sensations art licensing).\n\n## What's here\n\n- `index.html` — live organism panel (sigma/day/epoch + live event feed via `/pulso`)\n- `pagar-teste.html` — manual test page (connects a wallet via `window.ethereum`,\n  signs an EIP-3009 `TransferWithAuthorization`, calls any service with the\n  resulting `X-PAYMENT` header)\n- `api/proxy.js` — proxies `/licenca/*`, `/x402/*`, `/oraculo/*`, `/pulso`,\n  `/.well-known/x402.json` to the corresponding Supabase Edge Functions,\n  preserving x402 protocol headers (`PAYMENT-REQUIRED`, `PAYMENT-RESPONSE`,\n  `EXTENSION-RESPONSES`) in both directions\n- `openapi.json` (root, static file) — this is what Vercel actually serves at `/openapi.json`, by static-file precedence over the `vercel.json` rewrite to `api/openapi.js` (confirmed live 2026-08-27, `ora_mudancas` #355); `api/openapi.js` computes the same spec but is not the file served in production — keep both in sync manually until unified\n\n## Architecture\n\nThe actual service logic (payment verification, CDP facilitator settlement,\nBazaar discovery extension, license issuance) lives in Supabase Edge\nFunctions (`ora-licenca`, `ora-oraculo`, `ora-x402`, `ora-pulso`) on project\n`ywabnlhkmhbyewqhbsjm`. This repo is a thin, mostly-transparent proxy plus\nthe public-facing pages.\n\n## Deploying\n\nConnect this repo to the Vercel project `ora-x402-gateway` under\nProject Settings → Git, then every push to `main` deploys to production.\n\n## Portable runtime\n\nORUM can also run without the Vercel runtime. The repository includes a\ndependency-free Node HTTP server and an OCI container definition that reproduce\nthe public static pages, canonical rewrites, x402 proxy headers, OpenAPI, the\n107-level descent and the runtime version surface.\n\n```sh\nnpm run portable:verify\ndocker compose up --build\n```\n\nSet `ORUM_PUBLIC_BASE` to the public origin of the replacement house. Public\nmachine-discovery documents use relative links, so the same artifact remains\nvalid behind a different domain. `/_orum/health` identifies the portable\nruntime and its configured commit without exposing credentials.\n\nFinancial governance is defined by `/economia/constituicao-v2.json` while v1\nremains as history. `/economia/tesouraria.json` allocates confirmed external\nUSDC as 70% sustenance, 20% organism continuity and 10% reserve. ORUM may\nobserve, classify, reconcile, allocate and prepare a bounded continuity\nproposal. The effective transfer limit remains zero until Unum signs a\nrevocable permission with an explicit destination allowlist. Trading, bridging\nand debt limits remain zero.\n\nThis is a portable gateway, not yet a provider-independent organism. Service\nlogic, canonical memory, Vault and the private Arca still live in Supabase.\nMoving those organs requires separate export, restoration and failover proof.\nSee `docs/PORTABLE_HOUSE_V1.md`.\n",
+  "status": "curated"
+}

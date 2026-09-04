@@ -1,0 +1,80 @@
+{
+  "id": "mcp:official/io.github.bnymnDev/shopware-mcp",
+  "type": "mcp",
+  "name": "shopware-mcp",
+  "description": "Query and safely manage a Shopware 6 shop: products, orders, customers, stock, audits, reports.",
+  "author": "io.github.bnymnDev",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/bnymnDev/shopware-mcp",
+    "repo": "bnymnDev/shopware-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "shopware-mcp"
+    ],
+    "env": [
+      {
+        "name": "SHOPWARE_URL",
+        "required": true,
+        "secret": false
+      },
+      {
+        "name": "SHOPWARE_CLIENT_ID",
+        "required": true,
+        "secret": false
+      },
+      {
+        "name": "SHOPWARE_CLIENT_SECRET",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "SHOPWARE_MCP_ALLOW_WRITE",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-04T18:04:42.154046Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# shopware-mcp\n\n**The Shopware 6 MCP server.** Give Claude, Cursor or any MCP host a safe, complete view of your shop: products, orders, customers, stock, promotions, plugins, a one-shot **health audit**, aggregated **sales reports**, and schema-aware access to **every other Shopware entity**. Read-only by default. Writes only when you say so, and always with a dry run first.\n\n```\nYou:    Is everything okay with the shop?\nAgent:  → shop_audit {}\n        2 critical, 3 warnings.\n        ● 3 paid orders not shipped for >7 days: #10042 (9 d), #10038, #10031\n        ● Sales channel \"Storefront\" is in maintenance mode\n        ▲ 12 active products out of stock, 7 below 5 units, 1 expired promotion still active\n        Want me to reopen #10042 or deactivate the SUMMER promotion? (dry run first)\n```\n\n![shop_audit running in the MCP Inspector against a Shopware 6.7 test shop: prioritised findings with sample orders](https://raw.githubusercontent.com/bnymnDev/shopware-mcp/main/docs/screenshots/shop-audit.png)\n\n[![npm](https://img.shields.io/npm/v/shopware-mcp)](https://www.npmjs.com/package/shopware-mcp)\n[![CI](https://github.com/bnymnDev/shopware-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/bnymnDev/shopware-mcp/actions/workflows/ci.yml)\n[![MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)\n[![Sponsor](https://img.shields.io/badge/sponsor-%E2%9D%A4-ff69b4)](https://github.com/sponsors/bnymnDev)\n\n## Why this one\n\n| | shopware-mcp |\n|---|---|\n| **Coverage** | 16 curated tools for the daily questions, plus `entity_search` + `entity_schema` for the other 200+ Shopware entities. Nothing is out of reach. |\n| **Insight, not just CRUD** | `shop_audit` finds stuck orders, stock problems, expired promotions and pending updates in one call. `sales_report` aggregates revenue, states, channels, a timeline and top products server-side. |\n| **Safe by default** | Write tools are not registered unless you pass `--allow-write`. Every write defaults to `dryRun: true`. Credentials never appear in output, logs or errors. Secrets are scrubbed from every entity payload. |\n| **Built for agents** | Compact JSON with `total` for paging, LLM-written tool descriptions, Shopware Criteria filters 1:1 (no invented DSL), `fields` to opt into raw data like `customFields`. |\n| **Adapts to the shop** | Detects installed extensions and registers extra tools for them, so a shop with more plugins gets a richer agent without any configuration. |\n| **Runs anywhere** | `npx`, Docker, Claude Desktop extension (`.mcpb`), stdio and Streamable HTTP. Shopware 6.6+. |\n| **Solid** | Token cache with early refresh, one retry on 401 and on 429/5xx, exact totals, 80+ unit tests against mocked Admin API responses, nightly e2e against dockware, npm releases signed with build provenance. |\n\n## Install\n\nCreate an **Integration** in your Shopware admin (Settings → System → Integrations) and copy the access key ID and secret.\n\n```bash\nnpx shopware-mcp                       # stdio (default)\nnpx shopware-mcp --http --port 3333    # Streamable HTTP on http://127.0.0.1:3333/mcp\nnpx shopware-mcp --allow-write         # also register the guarded write tools\n```\n\n### Claude Desktop\n\nDownload `shopware-mcp.mcpb` from the [latest release](https://github.com/bnymnDev/shopware-mcp/releases) and double-click it, or add this to `claude_desktop_config.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"shopware\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"shopware-mcp\"],\n      \"env\": {\n        \"SHOPWARE_URL\": \"https://shop.example.com\",\n        \"SHOPWARE_CLIENT_ID\": \"SWIA...\",\n        \"SHOPWARE_CLIENT_SECRET\": \"...\"\n      }\n    }\n  }\n}\n```\n\n### Claude Code\n\n```bash\nclaude mcp add shopware \\\n  -e SHOPWARE_URL=https://shop.example.com \\\n  -e SHOPWARE_CLIENT_ID=SWIA... \\\n  -e SHOPWARE_CLIENT_SECRET=... \\\n  -- npx -y shopware-mcp\n```\n\n### MCP registry\n\nListed as `io.github.bnymnDev/shopware-mcp`, so hosts that read the [official registry](https://registry.modelcontextprotocol.io) can install it by name.\n\n### Cursor / other MCP hosts\n\nAny host that speaks stdio MCP works with the same `npx -y shopware-mcp` command and environment. For hosts that prefer HTTP, run `--http` and point them at `http://127.0.0.1:3333/mcp`.\n\n### Docker\n\n```bash\ndocker run --rm -p 3333:3333 \\\n  -e SHOPWARE_URL=https://shop.example.com \\\n  -e SHOPWARE_CLIENT_ID=SWIA... -e SHOPWARE_CLIENT_SECRET=... \\\n  ghcr.io/bnymndev/shopware-mcp\n```\n\nThe image serves Streamable HTTP on port 3333. See [docs/self-hosting.md](docs/self-hosting.md) for stdio-in-Docker and reverse-proxy notes.\n\n## Configuration\n\n| Variable | Required | Notes |\n|---|---|---|\n| `SHOPWARE_URL` | yes | Shop base URL, e.g. `https://shop.example.com` (trailing slash is stripped) |\n| `SHOPWARE_CLIENT_ID` | yes | Integration access key ID |\n| `SHOPWARE_CLIENT_SECRET` | yes | Integration secret access key |\n| `SHOPWARE_MCP_ALLOW_WRITE` | no | `true` registers the write tools. Default: off |\n| `SHOPWARE_MCP_DEFAULT_LIMIT` | no | Default page size for search tools (default 20, max 50) |\n| `SHOPWARE_MCP_EXTENSIONS` | no | `false` disables plugin-aware tools and the extension lookup at startup |\n| `SHOPWARE_LANGUAGE_ID` | no | Language UUID for translated fields (`sw-language-id`). Default: shop default language |\n| `SHOPWARE_MCP_LOG_LEVEL` | no | `error` (default), `warn`, `info`, `debug`. Logs go to stderr only |\n\nCLI flags override the environment: `--allow-write`, `--no-extensions`, `--http`, `--port <n>`, `--host <addr>`, `--log-level <level>`.\n\nThe Integration needs read permissions on the entities you query and write permissions on product, order and promotion for the write tools. The *Administrator* role is the quick path for a dev shop; use a dedicated role in production (see [docs/self-hosting.md](docs/self-hosting.md#shopware-permissions)).\n\n## Tools\n\n<!-- TOOLS:START -->\n| Tool | Access | Purpose |\n|---|---|---|\n| [`shop_info`](docs/tools.md#shop_info) | read | Shop info |\n| [`sales_channels_list`](docs/tools.md#sales_channels_list) | read | List sales channels |\n| [`products_search`](docs/tools.md#products_search) | read | Search products |\n| [`products_get`](docs/tools.md#products_get) | read | Get product |\n| [`orders_search`](docs/tools.md#orders_search) | read | Search orders |\n| [`orders_get`](docs/tools.md#orders_get) | read | Get order |\n| [`customers_search`](docs/tools.md#customers_search) | read | Search customers |\n| [`customers_get`](docs/tools.md#customers_get) | read | Get customer |\n| [`categories_list`](docs/tools.md#categories_list) | read | List categories |\n| [`promotions_list`](docs/tools.md#promotions_list) | read | List promotions |\n| [`plugins_list`](docs/tools.md#plugins_list) | read | List plugins and apps |\n| [`stock_get`](docs/tools.md#stock_get) | read | Get stock |\n| [`sales_report`](docs/tools.md#sales_report) | read | Sales report |\n| [`shop_audit`](docs/tools.md#shop_audit) | read | Shop health audit |\n| [`entity_schema`](docs/tools.md#entity_schema) | read | Entity schema |\n| [`entity_search`](docs/tools.md#entity_search) | read | Search any entity |\n| [`stock_set`](docs/tools.md#stock_set) | write (guarded) | Set stock (guarded) |\n| [`product_update`](docs/tools.md#product_update) | write (guarded) | Update product (guarded) |\n| [`order_state_transition`](docs/tools.md#order_state_transition) | write (guarded) | Transition order state (guarded) |\n| [`promotion_toggle`](docs/tools.md#promotion_toggle) | write (guarded) | Toggle promotion (guarded) |\n<!-- TOOLS:END -->\n\n### See it working\n\nAll screenshots come from a real Shopware 6.7.13 instance with generated demo data, viewed through the MCP Inspector.\n\n`sales_report` aggregates a period server-side: totals, breakdowns, a timeline and the top products. The figures were cross-checked against SQL on the same database.\n\n![sales_report result for the last 30 days: totals, revenue by currency and sales channel, orders by state; timeline and top products follow further down](https://raw.githubusercontent.com/bnymnDev/shopware-mcp/main/docs/screenshots/sales-report.png)\n\nWhen a shop has extensions the server knows, matching tools appear next to the core set. Here the four Merqo tools were registered after the shop reported the plugins as active; nothing about them exists in a shop without them.\n\n![The tool list with the four plugin-aware Merqo tools at the end, and the merqo_health tool with its description ready to run](https://raw.githubusercontent.com/bnymnDev/shopware-mcp/main/docs/screenshots/plugin-aware-tools.png)\n\nFull parameter reference: [docs/tools.md](docs/tools.md). Every search tool takes `{ term?, filter?, sort?, page?, limit?, fields? }` and returns `{ total, page, limit, items }`. Filters map 1:1 to Shopware Criteria filters, so anything you can filter in the Admin API works here too. See the [filter cheat sheet](docs/quickstart.md#filters-cheat-sheet).\n\nResources: `shopware://shop`, `shopware://sales-channels`. Prompts: `order_summary`, `low_stock_report`.\n\n### Plugin-aware tools\n\nShops are not identical, so the tool list is not either. At startup the server looks up which\nextensions are installed and active and registers extra tools for the ones it knows. The lookup\nruns in the background, a shop that does not answer simply gets the core tools, and\n`--no-extensions` turns the whole mechanism off.\n\nToday one suite is supported, [Merqo](https://github.com/bnymnDev/merqo), which adds tools for\ncompliance status, incoming e-invoices, returns and abandoned carts. Shops without it never see\nthose tools. Adding support for another vendor's extensions means one file under\n`src/extensions/`, and pull requests are welcome.\n\n## Safety\n\n- Without `--allow-write` (or `SHOPWARE_MCP_ALLOW_WRITE=true`) the server exposes read tools only. Agents cannot discover or call write tools.\n- Write tools (`stock_set`, `product_update`, `order_state_transition`, `promotion_toggle`) default to `dryRun: true` and return `{ dryRun: true, wouldSend: { method, url, body } }` without touching the shop. Real writes return the re-fetched entity.\n- `product_update` only touches name, description, active and one currency's price. Nothing else is writable.\n- `entity_search` strips passwords, keys, tokens and hashes from every payload and refuses entities that exist to hold credentials or system internals (users, integrations, ACL roles, apps, system config).\n- The HTTP transport has no authentication layer in v0.1. Bind it to localhost (the default) or put it behind a reverse proxy that authenticates.\n- Secrets are never logged and never appear in error messages. Errors come back as `{ error: { status, code, detail } }`.\n\n## Open core\n\nEverything in this repository is MIT and stays that way. It covers one shop, one operator, interactive use.\n\nThe same author builds [Merqo](https://github.com/bnymnDev/merqo), a commercial suite of Shopware\nextensions for EU compliance and daily operations. This server detects them and adds matching\ntools, but it never requires them, and the core tools behave the same either way.\n\nAgencies and merchants running this at scale usually need more, and that is what I build and operate for clients:\n\n- **Multi-shop**: one MCP endpoint that routes to dozens of shops with per-shop credentials and permissions\n- **Hosted with audit trail**: every tool call logged with who/what/when, role-based access, SLA\n- **Bulk operations and migrations**: mass price/stock updates, catalogue imports, safe rollbacks\n- **Custom agents and Shopware plugins**: workflows tailored to your ERP, PIM or support desk\n\nInterested? Open an issue with the `consulting` label or reach out via [github.com/bnymnDev](https://github.com/bnymnDev). Using shopware-mcp in production and want it to stay maintained? [Sponsoring](https://github.com/sponsors/bnymnDev) helps.\n\n## Development\n\n```bash\npnpm install\npnpm dev          # stdio server via tsx\npnpm test         # vitest + msw-mocked Admin API\npnpm build        # tsup → dist/ (npm) and dist/bundle/ (self-contained)\npnpm pack:mcpb    # Claude Desktop extension → shopware-mcp.mcpb\npnpm inspect      # MCP Inspector against dist/\npnpm docs:tools   # regenerate docs/tools.md + the table above\n```\n\nEnd-to-end tests against a real Shopware (`dockware/dev`) run with `pnpm test:e2e`; see [CONTRIBUTING.md](CONTRIBUTING.md).\n\n## License\n\n[MIT](LICENSE)\n",
+  "status": "curated"
+}

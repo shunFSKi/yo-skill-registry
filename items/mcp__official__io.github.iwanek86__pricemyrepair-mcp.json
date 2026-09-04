@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.iwanek86/pricemyrepair-mcp",
+  "type": "mcp",
+  "name": "pricemyrepair-mcp",
+  "description": "UK car repair and servicing cost ranges per car model, in GBP, from PriceMyRepair.",
+  "author": "io.github.iwanek86",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/iwanek86/pricemyrepair-mcp",
+    "repo": "iwanek86/pricemyrepair-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://app.pricemyrepair.co.uk/functions/pmrMcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-04T11:26:17.764856Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# PriceMyRepair MCP Server\n\nUK car repair and servicing cost ranges, per car model, as an MCP server. Ask any MCP-capable assistant \"how much should a clutch cost on a Ford Fiesta in the UK?\" and it can answer with a real independent-garage range, a dealer estimate, and a link to the source page.\n\n**Endpoint (Streamable HTTP, no authentication):**\n\n```\nhttps://app.pricemyrepair.co.uk/functions/pmrMcp\n```\n\nData comes from [PriceMyRepair](https://pricemyrepair.co.uk), a UK repair-cost and MOT data site built on the driver's side. Figures are estimates for a typical UK independent garage, parts and labour; they are not quotes.\n\n## Tools\n\n| Tool | Input | Returns |\n|---|---|---|\n| `get_repair_cost` | `model`, `repair` (free text) | Independent and dealer cost range in GBP, notes (e.g. timing chain vs cambelt), `source_url` |\n| `get_model_costs` | `model` | Every repair and service the price matrix covers for that model |\n| `list_models` | — | Models with per-model prices |\n| `list_repairs` | — | Repairs and services covered, with the page each is documented on |\n\nModel and repair inputs are matched loosely: \"VW Golf\", \"Volkswagen Golf\" and \"golf\" all resolve; \"timing belt\", \"cam belt\" and \"cambelt\" all resolve. Pass `uk-average` as the model for a generic UK figure when the car isn't covered.\n\n## Coverage\n\n15 of the most common UK cars (Ford Fiesta and Focus, Vauxhall Corsa and Astra, VW Golf and Polo, Toyota Yaris, Honda Civic, Nissan Juke and Qashqai, Kia Sportage, Audi A3, BMW 1 and 3 Series, Mercedes A-Class) plus a UK-average row, across 18 jobs: clutch (with and without dual-mass flywheel), cambelt, front brake pads, pads and discs, suspension component, DPF clean and replace, EGR valve, turbo, head gasket, alternator, starter motor, full service, tyre, MOT test, air-con regas and small fixes.\n\n## Connect\n\n**Claude.ai / Claude Desktop:** Settings → Connectors → Add custom connector → paste the endpoint URL, authentication *None*.\n\n**Claude Code:**\n```bash\nclaude mcp add --transport http pricemyrepair https://app.pricemyrepair.co.uk/functions/pmrMcp\n```\n\n**Cursor / VS Code / any Streamable-HTTP client:**\n```json\n{\n  \"mcpServers\": {\n    \"pricemyrepair\": {\n      \"url\": \"https://app.pricemyrepair.co.uk/functions/pmrMcp\"\n    }\n  }\n}\n```\n\n**Raw JSON-RPC:**\n```bash\ncurl -s https://app.pricemyrepair.co.uk/functions/pmrMcp \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"tools/call\",\"params\":{\"name\":\"get_repair_cost\",\"arguments\":{\"model\":\"Ford Fiesta\",\"repair\":\"clutch\"}}}'\n```\n\n## Example response\n\n```json\n{\n  \"model\": \"Ford Fiesta\",\n  \"repair\": \"Clutch replacement\",\n  \"independent_garage_gbp\": { \"low\": 430, \"high\": 680 },\n  \"dealer_gbp\": { \"low\": 645, \"high\": 1020 },\n  \"currency\": \"GBP\",\n  \"source_url\": \"https://pricemyrepair.co.uk/clutch-replacement-cost-ford-fiesta/\",\n  \"attribution\": \"Source: PriceMyRepair (pricemyrepair.co.uk). Estimates only — final quotes come from garages.\"\n}\n```\n\n## Attribution\n\nIf you build on this data, please attribute PriceMyRepair and keep the `source_url` — the linked pages carry engine-by-engine detail, worked examples and a way to compare live garage quotes, which the range alone doesn't.\n\n## Implementation\n\nThe server is a single Deno function (`entry.ts` in this repo) running on the PriceMyRepair app backend. It implements the MCP Streamable HTTP transport statelessly over JSON-RPC 2.0, reads prices live from the price matrix on every call, and computes dealer figures as 1.5× independent, rounded to £5. Rate limited to 60 requests per minute per IP.\n\n## Licence\n\nServer code: MIT. Price data: © PriceMyRepair, free to use with attribution.\n",
+  "status": "curated"
+}

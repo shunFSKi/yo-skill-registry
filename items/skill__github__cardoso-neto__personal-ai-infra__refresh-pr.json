@@ -17,10 +17,10 @@
   "quality": {
     "stars": 3,
     "pushed_at": "2026-08-28T05:43:32Z",
-    "score": 47,
+    "score": 57,
     "star_history": [
       {
-        "d": "2026-09-03",
+        "d": "2026-09-04",
         "s": 3
       }
     ]
@@ -55,6 +55,6 @@
     "category": null,
     "featured": false
   },
-  "readme": null,
+  "readme": "# Personal AI Infrastructure\n\nVersion-controlled instructions and reusable resources for agent harnesses.\nThe repository mirrors the managed parts of the home directory.\n\n## Structure\n\n- `.agents/`\n  - Canonical harness-neutral instructions, user context, agents, and skills.\n- `.claude/`\n  - Claude Code settings, hooks, and status lines.\n  - Relative links expose the canonical instructions, agents, and skills.\n- `.codex/`\n  - Codex's global instruction link.\n- `.pi/agent/`\n  - Pi's global instruction link.\n\nRuntime state, credentials, sessions, caches, and machine-local settings are not versioned.\n\n## Transcripts\n\n`~/.claude/projects/` holds every Claude Code session transcript as JSONL.\nIt is excluded because it is large and contains proprietary work, not because it is disposable.\n\n- Never delete old transcripts.\n  - They are complete agent trajectories, including diagnoses, decisions, and dead ends.\n  - Age makes them more valuable when unwritten context disappears.\n  - `cleanupPeriodDays: 99999` in `.claude/settings.json` is deliberate.\n  - `cc-convo-explorer` mines them, so pruning silently degrades the skill.\n- Never let a disk-cleanup pass touch `~/.claude/projects/`.\n  - Prune regenerable state such as `shell-snapshots/`, `jobs/`, `plugins/cache/`, `file-history/`, and `todos/` instead.\n- Keep transcripts backed up off this disk.\n  - `~/cardoso-neto/agent-logs/sync-agent-logs.sh` archives Claude and Codex trajectories hourly via cron at `:17`.\n  - The archive currently has no git-annex remote, so it still needs an off-device copy.\n  - Keep every destination private because transcripts contain client source code.\n\n## Principles\n\n- Keep shared material harness-neutral.\n- Keep harness directories thin.\n- Version declarative configuration, not runtime state.\n- Maintain one canonical copy of each instruction or resource.\n",
   "status": "curated"
 }

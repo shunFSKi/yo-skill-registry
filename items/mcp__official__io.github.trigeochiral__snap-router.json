@@ -1,0 +1,69 @@
+{
+  "id": "mcp:official/io.github.trigeochiral/snap-router",
+  "type": "mcp",
+  "name": "Snap Router",
+  "description": "Task-to-tool discovery over the merged x402 Bazaar + MCP Registry catalog",
+  "author": "io.github.trigeochiral",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/trigeochiral/snap-router-mcp",
+    "repo": "trigeochiral/snap-router-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "snap-router-mcp"
+    ],
+    "env": [
+      {
+        "name": "SNAP_API",
+        "required": true,
+        "secret": false
+      },
+      {
+        "name": "SNAP_XPAYMENT",
+        "required": false,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-04T13:00:19.548135Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "办公",
+    "featured": false
+  },
+  "readme": "# Snap Router — MCP server\n\n<!-- mcp-name: io.github.trigeochiral/snap-router -->\n\nTask-to-tool discovery for AI agents, pay-per-call in USDC on Base (x402), free tier, no signup.\n\nHosted API: `https://trigeochiral.com` — set it as `SNAP_API`.\n\n## Tool\n\n| Tool | What |\n|---|---|\n| `snap_router` | Your task → the ranked x402 / MCP tools that serve it, over the merged x402 Bazaar + MCP Registry catalog (16k+). One pass, ~200ms, no LLM call. $0.003 |\n\n## Why\n\nPast ~2,000 tools, semantic retrieval beats keyword and beats long-context. Coinbase's Bazaar\n`/ask` is LLM-ranked (a model call on every task); 402index falls back to keyword-only when its\nembedding service times out. Snap Router has neither hole.\n\n## Install\n\n```bash\npip install snap-router-mcp\nclaude mcp add snap-router --env SNAP_API=https://trigeochiral.com -- snap-router-mcp\n```\n\nor with `uvx` (no install):\n\n```bash\nclaude mcp add snap-router --env SNAP_API=https://trigeochiral.com -- uvx snap-router-mcp\n```\n\nOptional: `SNAP_XPAYMENT` = a base64 x402 `X-PAYMENT` payload, to make paid calls past the free\ntier. Without it you get 25 free calls/day per IP.\n\n## Direct HTTP (no MCP)\n\n```bash\ncurl -sX POST https://trigeochiral.com/v1/snap -H 'content-type: application/json' \\\n  -d '{\"task\":\"check a base token for honeypot before trading\",\"k\":4}'\n```\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

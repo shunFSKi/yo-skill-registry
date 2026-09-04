@@ -2,22 +2,29 @@
   "id": "mcp:official/com.asterwise/mcp",
   "type": "mcp",
   "name": "Asterwise",
-  "description": "Vedic and Western astrology, numerology, tarot. Kundali, dasha, panchanga, Rajju/Vedha matching.",
+  "description": "Vedic and Western astrology for AI agents: charts, dasha, matchmaking, panchanga, numerology, tarot.",
   "author": "com.asterwise",
   "source": {
     "registry": "mcp-official",
-    "url": "https://mcp.asterwise.com/mcp",
-    "repo": null
+    "url": "https://github.com/asterwise/asterwise-mcp",
+    "repo": "asterwise/asterwise-mcp"
   },
   "license": null,
   "install": {
     "kind": "remote",
-    "remote_url": "https://mcp.asterwise.com/mcp"
+    "remote_url": "https://mcp.asterwise.com/mcp",
+    "env": [
+      {
+        "name": "Authorization",
+        "required": true,
+        "secret": true
+      }
+    ]
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-07-25T14:04:47.903607Z",
-    "score": 37
+    "pushed_at": "2026-09-04T17:29:45.80463Z",
+    "score": 55
   },
   "security": {
     "score": 100,
@@ -49,6 +56,6 @@
     "category": null,
     "featured": false
   },
-  "readme": null,
+  "readme": "# Asterwise MCP Server\n\nAstrology and divination calculations as MCP tools. **103 tools** covering Vedic and Western astrology, numerology, tarot, crystals, dreams, natal charts, Dasha, matchmaking and Panchanga, with interpretations that follow classical Jyotish method. Every position is verified against an independent Swiss Ephemeris run: [asterwise.com/proof](https://asterwise.com/proof/).\n\n## Quick Start (2 minutes)\n\nSee it first: [46-second demo of Claude Desktop casting a chart through this server](https://youtu.be/Oe17c6pXl8c), and the [independent Swiss Ephemeris cross-check](https://asterwise.com/proof/).\n\n### Get your API key\n\nSign up free at [asterwise.com/dashboard](https://asterwise.com/dashboard): 500 calls/month on the Sandbox tier. No credit card. No time limit.\n\n### Connect to Claude Desktop\n\nAdd to `~/Library/Application Support/Claude/claude_desktop_config.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"asterwise\": {\n      \"command\": \"npx\",\n      \"args\": [\n        \"mcp-remote\",\n        \"https://mcp.asterwise.com/mcp\"\n      ],\n      \"env\": {\n        \"MCP_HEADER_AUTHORIZATION\": \"Bearer your-api-key-here\"\n      }\n    }\n  }\n}\n```\n\n### Connect to Cursor\n\nAdd to `.cursor/mcp.json` in your project:\n\n```json\n{\n  \"mcpServers\": {\n    \"asterwise\": {\n      \"url\": \"https://mcp.asterwise.com/mcp\",\n      \"headers\": {\n        \"Authorization\": \"Bearer your-api-key-here\"\n      }\n    }\n  }\n}\n```\n\n### Test the connection\n\n```bash\ncurl https://mcp.asterwise.com/health\n```\n\n## Authentication\n\nTwo methods supported:\n\n**Method 1 — API Key (quick start)**  \nPass your Asterwise API key (starts with `aw_`) either as `Authorization: Bearer <api-key>` or as an `X-API-Key: <api-key>` header. Both are equivalent; use whichever your MCP client can set.\n\n**Method 2 — OAuth 2.1 (production)**  \nExchange your API key for a short-lived token:\n\n```bash\ncurl -X POST https://mcp.asterwise.com/oauth/token \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n    \"grant_type\": \"client_credentials\",\n    \"client_id\": \"your-api-key\",\n    \"client_secret\": \"your-api-key\"\n  }'\n```\n\nReturns: `{\"access_token\": \"...\", \"expires_in\": 3600, ...}`\n\nUse the token: `Authorization: Bearer <access_token>`\n\nAccess tokens are stateless HS256 JWTs. The API key is carried inside the token encrypted with a key derived from `JWT_SECRET`; only a SHA-256 hash of the key appears in the `sub` claim. Keep `JWT_SECRET` private.\n\n## Configuration\n\nCopy `.env.example` to `.env` and set at least:\n\n| Variable | Required | Description |\n|----------|----------|-------------|\n| `ASTERWISE_API_BASE_URL` | Yes | Asterwise API base URL (e.g. `https://api.asterwise.com`). |\n| `JWT_SECRET` | For `/oauth/token` | At least 32 characters; used to sign access tokens. |\n| `MCP_SERVER_HOST` / `MCP_SERVER_PORT` | No | Bind address and port for the MCP HTTP server. |\n| `LOG_LEVEL` | No | Default `INFO`. |\n| `MCP_OAUTH_SECRET` | For OAuth | Shared with asterwise-api; verifies access tokens issued by its `/v1/oauth/token`. |\n| `INTERNAL_API_TOKEN` | For OAuth client registration | Shared with asterwise-api; used when forwarding dynamic client registration. |\n| `FRONTEND_URL` | For `/authorize` | Where the browser is sent for sign-in and consent (e.g. `https://asterwise.com`). |\n| `OPENAI_APPS_CHALLENGE_TOKEN` | No | Served at `/.well-known/openai-apps-challenge` for directory verification. |\n\n## Tools (103 total)\n\nThe MCP server exposes **103 tools** organized by Python module. The categorization reflects code organization; tools may serve multiple traditions (e.g. matchmaking includes both Sanskrit Dashakoot and Tamil Porutham methods).\n\n- **western** — 16 tools (chart, transits, returns, progressions)\n- **natal** — 13 tools (chart, dasha trees, ascendant systems)\n- **numerology** — 11 tools (profile, compatibility, life path)\n- **tarot** — 9 tools (draws, spreads, suit references)\n- **vedic_reference** — 8 tools (nakshatra, planet nature, ayanamsha, classical reference)\n- **numerology_gaps** — 7 tools (expression, soul urge, personality, maturity, balance, karmic, personal cycles)\n- **panchanga** — 6 tools (panchanga, choghadiya, rahu kaal, hora)\n- **crystals** — 5 tools (list, by planet, recommendations, individual)\n- **dasha** — 5 tools (vimshottari, ashtottari, yogini, char, transits)\n- **matchmaking** — 5 tools (dashakoot, porutham, thirumana, papasamyam, compatibility)\n- **horoscope** — 4 tools (daily/weekly/monthly/yearly)\n- **yoga_dosha** — 4 tools (yogas, doshas, sade sati, pitra dosha)\n- **angel_numbers** — 3 tools (today, personal, lookup)\n- **varshaphal** — 3 tools (annual chart, saham, harsha bala)\n- **dreams** — 2 tools (symbols, individual)\n- **panchanga_ext** — 2 tools (calendar, festivals, tamil)\n\nFor the full tool list see [docs.asterwise.com](https://docs.asterwise.com) or the MCP server's tool listing endpoint.\n\n## Run locally\n\n```bash\npython -m venv .venv\nsource .venv/bin/activate\npip install -r requirements-dev.txt\nexport ASTERWISE_API_BASE_URL=https://api.asterwise.com\nexport JWT_SECRET=\"$(python -c 'import secrets; print(secrets.token_hex(32))')\"\nuvicorn server:app --host 0.0.0.0 --port 8080\n```\n\n`uvicorn server:app` is the same entry point the production `Dockerfile` and `railway.toml` use, so the auth middleware, OAuth routes and `/health` are all present locally. Runtime dependencies are pinned in `requirements.txt`; `requirements-dev.txt` adds the test tooling.\n\n## Tests\n\n```bash\npytest\n```\n\nCoverage is enforced at **78%** for core modules (`auth`, `client`, `errors`, `logging_config`, `models`, `runtime`, `server`); tool modules are excluded from the gate (see `.coveragerc`).\n\n## Status\n\n[https://status.asterwise.com](https://status.asterwise.com)\n\n## License\n\nMIT. See [LICENSE](LICENSE). Security reports: see [SECURITY.md](SECURITY.md).\n",
   "status": "curated"
 }

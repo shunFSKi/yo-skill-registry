@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.clairwave/clairwave",
+  "type": "mcp",
+  "name": "Clairwave",
+  "description": "Ocean acoustics: propagation models, bathymetry, sound speed, vessel noise, live AIS. Open.",
+  "author": "io.github.clairwave",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/clairwave/clairwave-mcp",
+    "repo": "clairwave/clairwave-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://www.clairwave.com/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-04T12:35:15.859712Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# clairwave-mcp\n\n**An open MCP server that gives AI assistants physically grounded ocean acoustics.**\n\n[Clairwave](https://www.clairwave.com) runs validated propagation models (Bellhop,\nRAM/parabolic equation) on global bathymetry and seasonal sound-speed profiles,\ntracks live AIS vessels, and serves 3D hull models for them\n([shipshape](https://github.com/clairwave/shipshape)). This server exposes that\nto Claude, ChatGPT, Gemini and any other MCP client — so an assistant reasoning\nabout the ocean can *run the physics* instead of guessing.\n\nEvery result carries provenance (model, data source, `run_id`) and an\n`open_url` that opens the exact result in the platform. Simulation results\ninclude the bathymetry, sound-speed profile and bottom parameters that were\nused, so a researcher can replicate the run in MATLAB, Python or anything else.\n\n**Endpoint (no auth, no key):** `https://www.clairwave.com/mcp` — Streamable HTTP.\n\n## Connect\n\n- **Claude Code:** `claude mcp add --transport http clairwave https://www.clairwave.com/mcp`\n- **Claude.ai / Claude Desktop:** Settings → Connectors → *Add custom connector* → the URL above\n- **ChatGPT:** Settings → Connectors → *Create* (developer mode) → the URL above\n- **Any MCP client:** point it at the URL; the server is stateless and JSON-response capable\n\n## Tools\n\n| Tool | What it does |\n|---|---|\n| `get_bathymetry` | Depth at a point, or a transect profile along a bearing |\n| `get_sound_speed_profile` | Seasonal c(z) for a month + seabed parameters (cp, cs, density, attenuation, sediment) |\n| `run_transmission_loss` | RAM parabolic-equation TL along a bearing; bathymetry/SSP/seabed fetched automatically; replication bundle included |\n| `estimate_detection_range` | Sonar equation on a RAM run: continuous and furthest detection range, signal excess vs range |\n| `run_bellhop_volume` | 3D Bellhop TL volume stored under a run id (uint8 cube + JSON sidecar links) |\n| `vessel_source_level` | Ship radiated noise: broadband + third-octave spectrum + mechanism breakdown |\n| `search_vessels` / `vessels_near` | Live AIS by name/MMSI, or within a radius of a point |\n| `get_vessel` | Live position/track, particulars, and the 3D model (GLB, bow=+Z) with platform links |\n| `get_vessel_photo` | Wikimedia Commons photo with attribution |\n| `resolve_place` | Place name (port, strait, sea, 'off Halifax') → water coordinates; gazetteer + OpenStreetMap, snapped seaward off land |\n| `habitat_received_level` | Power-summed vessel noise at a fixed site (fish farm, reef, hydrophone): live snapshot or 10-minute history series; top contributors |\n| `about` | Models, data sources, limits |\n\nTypical latency against the live platform: bathymetry 0.5 s, SSP 6 s first time\nper 0.1° cell then cached, RAM transmission loss 1–3 s, detection range 1–3 s.\n\n## Run locally\n\n```bash\npip install \"mcp[cli]<2\" httpx\npython server.py            # streamable HTTP on :8890 (/mcp)\npython server.py --stdio    # stdio for local clients\npython tests/smoke_client.py\n```\n\nEnvironment: `CLAIRWAVE_API`, `CLAIRWAVE_FLEET`, `CLAIRWAVE_SITE`, `MCP_PORT`.\n\n## Where to find it\n\n- Official MCP Registry: `io.github.clairwave/clairwave` (https://registry.modelcontextprotocol.io/v0.1/servers?search=io.github.clairwave/clairwave)\n- Claude: Settings > Connectors > Add custom connector, URL `https://www.clairwave.com/mcp`, no auth.\n- ChatGPT (developer mode) and Grok (grok.com/connectors > New > Custom): paste the same URL.\n- xAI / OpenAI APIs: `{\"type\": \"mcp\", \"server_url\": \"https://www.clairwave.com/mcp\", \"server_label\": \"clairwave\"}`.\n\n## Place names\n\nEvery location tool takes either `lat`/`lon` or a `place` string. Names go through a\nmaritime gazetteer first (ports resolve to their approaches, straits and seas to a\nrepresentative water point; ~120 entries in `gazetteer.py`), then OpenStreetMap\nNominatim. If the point is on land or shallower than 10 m it is walked seaward until\nit is deep enough, and the response's `location` block reports the original point,\nthe snap distance and bearing, and the depth used. `resolve_place` exposes the same\nlogic directly, with `offshore_km` to push a point further out.\n\n## Example prompts\n\n- \"What is the sound speed profile 50 km west of Gibraltar in March, and where is the sonic layer depth?\"\n- \"How far could a 150 Hz, 170 dB source at 20 m depth be detected by a receiver at 100 m near 36N 5.5W, along bearing 090?\"\n- \"Show transmission loss versus range at 200 Hz out to 30 km north of Halifax in winter.\"\n- \"What ships are within 15 km of the Strait of Hormuz right now, and how loud is the largest one?\"\n- \"Run a 3D Bellhop volume at 400 Hz around 49.2N 123.3W and give me the link to open it.\"\n\n## Limits and support\n\n- No sign-in. Compute calls share a platform-wide budget of about 20 per minute.\n- Simulations are climatology-based (monthly sound speed, global bathymetry) and are\n  not a substitute for in-situ measurements.\n- Privacy policy: [PRIVACY.md](PRIVACY.md). Support: contact@clairwave.com.\n  Issues: https://github.com/clairwave/clairwave-mcp/issues\n\n## Backend identity and analytics\n\nThe MCP endpoint itself is open (no caller auth). The server calls the Clairwave\nAPI as a dedicated Keycloak service account (`clairwave-mcp`, client-credentials\ngrant, realm role `premium`), so every caller gets the full solver set without\nfree-tier caps, and all MCP traffic is attributed to one identity in the\nplatform logs. Configure it with two environment variables (see `.env.example`);\nwithout them the server still works, calling the platform anonymously.\n\nEvery tool call is appended to `analytics.jsonl` (tool, arguments, latency,\nMCP client name/version from the initialize handshake, source IP). Summarise with:\n\n```\npython mcp_stats.py analytics.jsonl --days 7\n```\n\nPer-caller authentication (MCP OAuth mapped to Clairwave accounts and tiers) is\nthe planned path for paid usage; the service-account identity stays as the\ndefault for anonymous callers.\n\n## License\n\nMIT. Data: AIS via the AISHub peer network (Clairwave contributes receivers);\nvessel photos CC-licensed with attribution; bathymetry and SSP sources cited in\neach response.\n",
+  "status": "curated"
+}

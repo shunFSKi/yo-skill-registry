@@ -17,7 +17,7 @@
   "quality": {
     "stars": null,
     "pushed_at": "2026-09-03T12:35:33.651397Z",
-    "score": 52
+    "score": 42
   },
   "security": {
     "score": 100,
@@ -49,6 +49,6 @@
     "category": "设计",
     "featured": false
   },
-  "readme": "# Instafan MCP Server\n\nLet AI agents plan real trips — where to go for a mood, what a destination is like right now, its strongest Google-rated places with photos, and a day-by-day plan — using Instafan's live data (Google Places, climate normals, official safety advisories).\n\n**Hosted, no install, no auth.** Streamable-HTTP endpoint:\n\n```\nhttps://instafan.app/mcp\n```\n\n## Tools\n\n| Tool | What it does | Inputs |\n|------|--------------|--------|\n| **`find_destinations`** | A trip mood or constraint set (\"somewhere warm in November, food-first\") → 3–5 destination suggestions with the why. | `mood` (required) |\n| **`destination_brief`** | One destination: the story, typical weather this month, official safety verdict, a postcard photo link. | `destination` (required) |\n| **`top_spots`** | The strongest real Google-rated places — top attractions by default, or a specific ask like \"rooftop bars\" — with photo links. Never invented. | `destination` (required), `query` |\n| **`build_itinerary`** | A day-by-day plan built from the destination's strongest places. | `destination`, `days` (both required) |\n| **`spot_photos`** | Up to two real photos of one spot, embedded inline as MCP image blocks plus direct links, credited to their Google Maps authors. | `destination` (required), `spot` |\n\n## Connect\n\n**ChatGPT** → Settings → Apps & Connectors → enable Developer mode → Create → URL: `https://instafan.app/mcp`, auth: none.\n\n**Claude Desktop / Claude.ai** → Settings → Connectors → Add custom connector → URL: `https://instafan.app/mcp`\n\n**Claude Code:**\n```bash\nclaude mcp add instafan --transport http https://instafan.app/mcp\n```\n\n**Cursor / other MCP clients** — add a remote (streamable-http) server pointing at the URL above. One-click: see https://instafan.app/connect/\n\n**Test with curl:**\n```bash\ncurl -s -X POST https://instafan.app/mcp \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"tools/list\"}'\n```\n\n## Example\n\n> *\"Build me a Lisbon trip for my wife and I in the best weather.\"*\n\nThe agent calls `destination_brief` → learns Lisbon is 18–26°C with ~4 rainy days right now and officially rated relaxed; `top_spots` → real rated places with photos; `spot_photos` → Belém Tower, inline; `build_itinerary` → a day-by-day plan. Every answer links back into instafan.app, where the trip becomes a group decision — immerse in 3D, save spots, let the group vote.\n\n## About\n\nBuilt by Instafan — plan trips with friends. https://instafan.app\n\n- Discovery: [`/.well-known/mcp/server-card.json`](https://instafan.app/.well-known/mcp/server-card.json)\n- Connect page: https://instafan.app/connect/\n\n## License\n\nMIT\n",
+  "readme": null,
   "status": "curated"
 }

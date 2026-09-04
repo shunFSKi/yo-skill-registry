@@ -2,7 +2,7 @@
   "id": "mcp:official/io.github.atomno-mcp/mcp-newbuild",
   "type": "mcp",
   "name": "mcp-newbuild",
-  "description": "Russian new-build (214-FZ) checker: developers, declarations, escrow, permits, risk.",
+  "description": "New-build MCP on the client's EISZHS contract. Spec is closed.",
   "author": "io.github.atomno-mcp",
   "source": {
     "registry": "mcp-official",
@@ -18,16 +18,26 @@
     ],
     "env": [
       {
+        "name": "MCP_NEWBUILD_EISZHS_CLIENT_ID",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "MCP_NEWBUILD_EISZHS_CLIENT_SECRET",
+        "required": false,
+        "secret": true
+      },
+      {
         "name": "MCP_NEWBUILD_API_KEY",
-        "required": true,
+        "required": false,
         "secret": true
       }
     ]
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-07-14T18:59:20.769764Z",
-    "score": 37
+    "pushed_at": "2026-09-04T16:49:58.853462Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -56,9 +66,9 @@
     ]
   },
   "tags": {
-    "category": "编程",
+    "category": null,
     "featured": false
   },
-  "readme": null,
+  "readme": "<!-- mcp-name: io.github.atomno-mcp/mcp-newbuild -->\n\n# atomno-mcp-newbuild\n\nПроверка новостроек и застройщиков на **ключе вашего договора** с ЕИСЖС. Своего доступа к ЕИСЖС у нас нет; на живом ключе клиента обмен не проверяли. Перечень методов закрыт договором — выдуманный запрос не отправляем.\n\nNew-build MCP on the client's EISZHS contract. Method spec is closed.\n\n> Это **не** инвестиционная рекомендация.\n\n## Что умеет сейчас\n\n- Принимает `MCP_NEWBUILD_EISZHS_CLIENT_ID` и `MCP_NEWBUILD_EISZHS_CLIENT_SECRET` из оферты API ЕИСЖС (бизнес.дом.рф).\n- Без учётки — честный отказ: доступ не настроен. Не пустая карточка «объект не найден».\n- С учёткой — честный отказ `spec_closed`: спецификация методов выдаётся после договора, путей и полей в открытом доступе нет. Когда описание будет — методы включатся.\n\n## Что не подключено\n\n- Живой вызов методов ЕИСЖС (описание закрыто)\n- Обход защиты портала наш.дом.рф без договора\n\n## Быстрый старт\n\n```bash\npipx install atomno-mcp-newbuild\n```\n\n```json\n{\n  \"mcpServers\": {\n    \"newbuild\": {\n      \"command\": \"uvx\",\n      \"args\": [\"atomno-mcp-newbuild\"],\n      \"env\": {\n        \"MCP_NEWBUILD_EISZHS_CLIENT_ID\": \"<client_id из договора ЕИСЖС>\",\n        \"MCP_NEWBUILD_EISZHS_CLIENT_SECRET\": \"<client_secret из договора ЕИСЖС>\"\n      }\n    }\n  }\n}\n```\n\nДоступ: заявка и оферта на https://бизнес.дом.рф/api-еисжс (для юрлиц). Своего договора у нас нет. Наше размещение — отдельная услуга (`MCP_NEWBUILD_API_KEY`), не замена ключа ЕИСЖС.\n\n## Переменные окружения\n\n| Переменная | Описание | Обязательна |\n|---|---|---|\n| `MCP_NEWBUILD_EISZHS_CLIENT_ID` | Идентификатор учётки API ЕИСЖС | нет (нужен вместе с секретом) |\n| `MCP_NEWBUILD_EISZHS_CLIENT_SECRET` | Секрет учётки API ЕИСЖС | нет |\n| `MCP_NEWBUILD_EISZHS_BASE_URL` | Адрес промышленной среды (когда будет в спецификации) | нет |\n| `MCP_NEWBUILD_EISZHS_TOKEN_URL` | Адрес выдачи токена (когда будет в спецификации) | нет |\n| `MCP_NEWBUILD_API_KEY` | Ключ нашего размещения | нет |\n| `MCP_NEWBUILD_API_BASE` | URL нашего размещения | нет |\n| `MCP_NEWBUILD_TIMEOUT` | Таймаут HTTP, сек | нет |\n| `MCP_NEWBUILD_LOG_LEVEL` | Уровень логирования | нет |\n\n## Тулы\n\n| Тул | Вход | Что отвечает сейчас |\n|---|---|---|\n| `check_developer` | ident (ИНН/ОГРН) | отказ: нет ключа / описание закрыто |\n| `get_project_declaration` | object_id | отказ: нет ключа / описание закрыто |\n| `check_escrow` | object_id | отказ: нет ключа / описание закрыто |\n| `check_construction_permit` | object_id | отказ: нет ключа / описание закрыто |\n| `list_new_buildings` | фильтры | отказ: нет ключа / описание закрыто |\n| `get_developer_risk_summary` | inn | отказ: нет ключа / описание закрыто |\n\n## Дисклеймер\n\nЭто **не** инвестиционная рекомендация. Не аффилировано с ДОМ.РФ и ЕИСЖС. Своего доступа к ЕИСЖС у нас нет; на живом ключе клиента обмен не проверяли.\n\n## Лицензия\n\nMIT © Atomno\n",
   "status": "curated"
 }

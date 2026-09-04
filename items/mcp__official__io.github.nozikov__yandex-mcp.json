@@ -1,0 +1,69 @@
+{
+  "id": "mcp:official/io.github.nozikov/yandex-mcp",
+  "type": "mcp",
+  "name": "Yandex Analytics",
+  "description": "Read-only Yandex analytics for AI agents: Metrika, Webmaster, Direct and Wordstat.",
+  "author": "io.github.nozikov",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/nozikov/yandex-mcp",
+    "repo": "nozikov/yandex-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "yandex-mcp"
+    ],
+    "env": [
+      {
+        "name": "YANDEX_MCP_DEFAULT_COUNTER",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "YANDEX_MCP_CLIENT_ID",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-04T14:03:05.581937Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "数据",
+    "featured": false
+  },
+  "readme": "# yandex-mcp\n\n<!-- mcp-name: io.github.nozikov/yandex-mcp -->\n\n**Спрашивай свою аналитику Яндекса словами.** Метрика, Вебмастер, Директ и Вордстат\nв одном MCP-сервере.\n\n[![tests](https://img.shields.io/github/actions/workflow/status/nozikov/yandex-mcp/ci.yml?branch=main&style=flat-square&label=tests)](https://github.com/nozikov/yandex-mcp/actions/workflows/ci.yml)\n[![PyPI](https://img.shields.io/pypi/v/yandex-mcp?style=flat-square)](https://pypi.org/project/yandex-mcp/)\n[![Python](https://img.shields.io/pypi/pyversions/yandex-mcp?style=flat-square)](https://pypi.org/project/yandex-mcp/)\n[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](./LICENSE)\n\n```\n> Как изменился трафик за последний месяц и откуда пришёл рост?\n> По каким запросам мы на второй странице — там, где до топа осталось чуть-чуть?\n> Сколько стоила заявка в Директе на прошлой неделе по каждой кампании?\n```\n\n## Как это работает\n\n<picture>\n  <source media=\"(prefers-color-scheme: dark)\" srcset=\"docs/how-it-works-dark.svg\">\n  <img alt=\"Клиент и сервер работают на твоём компьютере и ходят в API Яндекса напрямую\" src=\"docs/how-it-works-light.svg\">\n</picture>\n\nСервер — обычная программа на твоём компьютере. Агент просит у неё данные, она идёт\nв API Яндекса и возвращает готовый текст. Никаких промежуточных серверов: твой токен\nи твои цифры не проходят через чужие руки.\n\nЗависимостей нет вообще — ни одной сторонней библиотеки. Через этот процесс идёт доступ\nк твоей аналитике и рекламному кабинету, и чем меньше здесь чужого кода, тем лучше.\n\n## Установка\n\n**Claude Code** — две команды, вместе с сервером ставятся скиллы:\n\n```\n/plugin marketplace add nozikov/yandex-mcp\n/plugin install yandex-mcp@nozikov\n```\n\n**Codex CLI** — дописать в `~/.codex/config.toml` и перезапустить Codex:\n\n```toml\n[mcp_servers.yandex]\ncommand = \"uvx\"\nargs = [\"yandex-mcp\"]\nenv = { YANDEX_MCP_DEFAULT_COUNTER = \"12345678\" }\n```\n\n**Любой другой клиент** — через PyPI:\n\n```bash\nclaude mcp add yandex -e YANDEX_MCP_DEFAULT_COUNTER=12345678 -- uvx yandex-mcp\n```\n\nИли вручную в конфиге, см. [`.mcp.json.example`](./.mcp.json.example):\n\n```json\n{\n  \"mcpServers\": {\n    \"yandex\": {\n      \"command\": \"uvx\",\n      \"args\": [\"yandex-mcp\"],\n      \"env\": { \"YANDEX_MCP_DEFAULT_COUNTER\": \"12345678\" }\n    }\n  }\n}\n```\n\nСчётчик указывать необязательно — без него его придётся называть в каждом вопросе.\n\n## Вход\n\n<picture>\n  <source media=\"(prefers-color-scheme: dark)\" srcset=\"docs/login-dark.svg\">\n  <img alt=\"Три шага входа: попросить агента, подтвердить в браузере, вернуть код в чат\" src=\"docs/login-light.svg\">\n</picture>\n\nТерминал не нужен: скажи агенту «подключи Яндекс», и он проведёт по шагам.\n\nОдин раз перед этим нужно зарегистрировать своё приложение в Яндексе — это бесплатно\nи занимает пять минут. Команда `yandex-mcp setup` откроет нужную страницу и подскажет,\nчто заполнять. Пароль от приложения не понадобится: используется PKCE.\n\nЕдинственный шаг, который агент не сделает за тебя, — сама регистрация: это твой аккаунт.\nА полученный ClientID можно просто продиктовать ему, он не секрет:\n\n```bash\nyandex-mcp setup --client-id <ClientID>\n```\n\n<details>\n<summary>Что вписать при регистрации приложения</summary>\n\nЯндекс спросит тип приложения. Подходят оба, разница только в способе входа:\n\n| Тип | Redirect URI | Вход |\n|---|---|---|\n| «Для авторизации пользователей» | свой: `http://localhost:8765/callback` | `yandex-mcp login` |\n| «Для доступа к API или отладки» | зафиксирован Яндексом | `yandex-mcp login --manual` |\n\nВ разделе «Доступ к данным» добавь права по названию:\n\n```\nmetrika:read\nwebmaster:hostinfo\nwebmaster:verify\ndirect:api           ← нужна заявка в кабинете Директа, рассматривают до 7 дней\n```\n\nВход просит все права разом. Если `direct:api` ещё не одобрен, Яндекс откажет — сервер\nэто заметит, войдёт без Директа и скажет об этом. Метрика и Вебмастер заработают сразу,\nа когда заявку одобрят, повторный вход подхватит Директ.\n\nКоманды в терминале: `setup`, `login`, `status`, `logout`.\n</details>\n\n## Что умеет\n\n**Метрика**\n\n| | |\n|---|---|\n| `metrika_summary` | Сводка за период: визиты, посетители, отказы, глубина, достижения всех целей |\n| `metrika_compare` | Сравнение двух периодов — по итогам или построчно по источникам, устройствам, страницам |\n| `metrika_report` | Любой отчёт: свои метрики, измерения и фильтры |\n| `metrika_counters` | Какие счётчики доступны |\n\n**Вебмастер**\n\n| | |\n|---|---|\n| `webmaster_summary` | ИКС, страниц в поиске, исключено, активные проблемы |\n| `webmaster_queries` | Поисковые запросы: показы, клики, средняя позиция |\n| `webmaster_indexing` | Как менялось число страниц в поиске |\n| `webmaster_sitemaps` | Какие карты сайта видит Яндекс и есть ли в них ошибки |\n| `webmaster_recrawl` | Поставить страницы на переобход. Единственное действие, а не чтение — требует явного подтверждения |\n\n**Директ и Вордстат**\n\n| | |\n|---|---|\n| `direct_campaigns` | Кампании и остаток баллов API |\n| `direct_report` | Расход, показы, клики, CTR — по кампаниям, объявлениям, группам или запросам |\n| `wordstat_phrases` | Частотности: сколько раз в месяц ищут фразу и что ищут вместе с ней |\n\n**Подключение**\n\n| | |\n|---|---|\n| `yandex_login` | Начать вход — выдаёт ссылку |\n| `yandex_submit_code` | Завершить вход — принимает код |\n| `yandex_auth_status` | Что подключено и когда истекает |\n\n### Скиллы\n\nСтавятся вместе с плагином Claude Code:\n\n| | |\n|---|---|\n| `/yandex-mcp:site-weekly` | Недельный отчёт по сайту: трафик, источники, поиск, реклама — и что делать |\n| `/yandex-mcp:seo-opportunities` | Запросы на границе топа: где до первой страницы осталось немного |\n\n## Где лежит токен\n\n<picture>\n  <source media=\"(prefers-color-scheme: dark)\" srcset=\"docs/token-storage-dark.svg\">\n  <img alt=\"Хранилище выбирается автоматически: переменная окружения, Keychain, secret-tool, файл 0600\" src=\"docs/token-storage-light.svg\">\n</picture>\n\nНичего настраивать не нужно — подходящее хранилище выбирается само. Форсировать можно\nпеременной `YANDEX_MCP_KEYSTORE`.\n\nЗаписи лежат под общим префиксом, чтобы `logout` не задел чужое:\n\n```\nyandex-mcp-token             общий токен\nyandex-mcp-metrika-token     токен одного сервиса, если нужен узкий доступ\nyandex-mcp-client-id         ID приложения Яндекса\n```\n\nТокен можно передать и напрямую, минуя хранилище: `YANDEX_MCP_SECRET_TOKEN` для общего,\n`YANDEX_MCP_SECRET_METRIKA_TOKEN` для узкого. Так удобно в Docker и CI.\n\n## Почему 15 инструментов, а не 130\n\nОписания всех инструментов уходят в контекст модели **при каждом запросе**, пока сервер\nподключён. Здесь это около 1 800 токенов. У серверов со 130–150 инструментами — за 40 000,\nи это постоянный налог на каждый диалог.\n\nОставлено то, на что реально смотрят: цифры и их динамика. Управлять кампаниями и ставками\nотсюда нельзя — для этого есть кабинет Директа, и цена ошибки там другая.\n\n## Переменные окружения\n\n| Переменная | Зачем |\n|---|---|\n| `YANDEX_MCP_DEFAULT_COUNTER` | Счётчик Метрики по умолчанию |\n| `YANDEX_MCP_CLIENT_ID` | ID приложения Яндекса, если не хочешь держать его в хранилище |\n| `YANDEX_MCP_KEYSTORE` | `keychain`, `secret-tool` или `file` — выбрать хранилище вручную |\n| `YANDEX_MCP_SECRET_TOKEN` | Готовый токен мимо хранилища (Docker, CI) |\n| `YANDEX_MCP_DIRECT_SANDBOX` | `1` — Директ отвечает из песочницы, баллы API не тратятся |\n| `YANDEX_MCP_DIRECT_CLIENT_LOGIN` | Логин клиента для агентских аккаунтов |\n| `YANDEX_MCP_WORDSTAT_WAIT` | Сколько секунд ждать отчёт Вордстата, по умолчанию 170 |\n\n## О чём стоит знать\n\n- Инструменты Директа и Вордстата требуют одобренной заявки на API Директа. До неё Директ\n  отвечает ошибкой 58.\n- Отчёт Вордстата готовится у Яндекса около трёх минут. Если вернулось «ещё готовится» —\n  повтори запрос с теми же фразами, готовый результат подхватится сразу.\n- Отчёт Директа тоже может готовиться минутами. Сервер ждёт сам, но в очереди Яндекса\n  помещается не больше пяти таких отчётов на аккаунт.\n- Переобход страниц ограничен: 20 URL за вызов при суточной квоте 150 на сайт.\n- Ответ обрезается на 20 000 символах. Для больших выгрузок сужай период.\n- Токен живёт около полугода, потом нужно войти заново. Обновлять его автоматически Яндекс\n  разрешает только приложениям с паролем, а у PKCE-приложения его нет.\n- Там, где системного хранилища нет (Windows, сервер без графики, контейнер), токен лежит\n  в файле с правами `0600` — как `~/.aws/credentials` или SSH-ключ без пароля.\n\n## Безопасность\n\nТокен не появляется ни в ответе инструмента, ни в тексте ошибки: есть отдельный фильтр,\nвычищающий его из любого текста. `status` показывает только отпечаток.\n\nПочти всё — чтение. Единственное изменяющее действие, переобход страниц, требует явного\nподтверждения в аргументах вызова.\n\nДанные из API считаются недоверенными: поисковые фразы, UTM-метки и названия кампаний\nпишут посторонние люди. К каждому ответу добавляется пометка, что это данные для анализа,\nа не инструкции агенту.\n\n## Разработка\n\n```bash\npip install -e \".[dev]\"\npytest\n```\n\nТесты не ходят в сеть и не трогают системное хранилище. CI гоняет их на Linux, macOS\nи Windows, на Python от 3.8 до 3.14.\n\n```\nsrc/yandex_mcp/\n  cli.py         точка входа: без аргументов сервер, с аргументами настройка\n  server.py      JSON-RPC поверх stdio\n  registry.py    сборка списка инструментов\n  httpclient.py  запросы к Яндексу\n  scrub.py       вычищение секретов из ответов\n  auth/          хранилище, токены, вход по PKCE\n  tools/         по модулю на сервис\n```\n\nКод лежит в `src/`, чтобы `import yandex_mcp` брал установленный пакет, а не случайно\nподхваченную рабочую директорию — иначе тесты могут проходить на коде, которого нет\nв собранном колесе.\n\nДиаграммы в `docs/` собираются из `scripts/make_diagrams.py`, а `scripts/check_metadata.py`\nследит, чтобы README не разошёлся с кодом: версии, список инструментов и переменные\nокружения проверяются на каждом прогоне CI.\n\n## Лицензия\n\nMIT\n",
+  "status": "curated"
+}
