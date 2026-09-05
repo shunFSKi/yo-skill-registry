@@ -27,13 +27,18 @@
         "name": "BSVKEY_BASE_URL",
         "required": false,
         "secret": false
+      },
+      {
+        "name": "BSVKEY_WIF",
+        "required": false,
+        "secret": true
       }
     ]
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-09-04T18:45:08.887191Z",
-    "score": 42
+    "pushed_at": "2026-09-05T14:53:24.523013Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -65,6 +70,6 @@
     "category": "AI",
     "featured": false
   },
-  "readme": null,
+  "readme": "# @bsvkey/inference-mcp\n\nAn MCP server that lets any agent buy **Claude & Grok inference metered per token,\nsettled in BSV**, through the hosted gateway at **inference.bsvkey.com**. Zero\ndependencies (Node ≥ 18, uses global `fetch`). It's a thin HTTP client — it never\nholds your keys or runs models; every call is billed through the gateway.\n\nTools: `list_models`, `infer`, `channel_balance`, `open_channel`, `x402_infer`.\n\nTwo ways to pay: a **prepaid channel** (`infer`, fund once, draw down per token) or\n**per call via x402** (`x402_infer` — no channel; the agent pays each request in BSV\nwith its own key). `x402_infer` needs a funded WIF (`wif` arg or `BSVKEY_WIF`) and the\noptional `@bsvkey/x402-bsv-client` + `@bsv/sdk` packages (installed with this one).\n\n## Quick start\n1. **Fund a channel once** at https://inference.bsvkey.com (BRC-100 wallet, or\n   load a key in-page). Copy the key it returns: `channelId:channelSecret`.\n2. **Add the MCP server** to your agent host (below), with that key in\n   `BSVKEY_API_KEY`.\n3. Ask your agent to run inference — it calls `infer` and pays per token.\n\n`list_models` and `open_channel` work with no key; `infer` and `channel_balance`\nneed a funded channel key.\n\n## Install\n\nPublished on npm as **[@bsvkey/inference-mcp](https://www.npmjs.com/package/@bsvkey/inference-mcp)**.\n\n### Claude Code\n```bash\nclaude mcp add bsvkey-inference \\\n  --env BSVKEY_API_KEY=channelId:channelSecret \\\n  -- npx -y @bsvkey/inference-mcp\n```\n\n### Claude Desktop / Codex / any MCP host (JSON config)\n```json\n{\n  \"mcpServers\": {\n    \"bsvkey-inference\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@bsvkey/inference-mcp\"],\n      \"env\": { \"BSVKEY_API_KEY\": \"channelId:channelSecret\" }\n    }\n  }\n}\n```\nNo npm? Grab the single-file server directly (`https://inference.bsvkey.com/mcp/server.js`) and use `\"command\": \"node\", \"args\": [\"server.js\"]`.\n\n## Configuration (env)\n| Var | Default | Meaning |\n|---|---|---|\n| `BSVKEY_BASE_URL` | `https://inference.bsvkey.com/v1` | Gateway base URL (set to a self-hosted deployment if you run your own). |\n| `BSVKEY_API_KEY` | — | `channelId:channelSecret` for a funded channel. Optional; can also be passed per call as `apiKey`. |\n\n## Verify it's wired (no key needed)\n```bash\nprintf '%s\\n' \\\n  '{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"initialize\",\"params\":{}}' \\\n  '{\"jsonrpc\":\"2.0\",\"id\":2,\"method\":\"tools/list\",\"params\":{}}' \\\n  '{\"jsonrpc\":\"2.0\",\"id\":3,\"method\":\"tools/call\",\"params\":{\"name\":\"list_models\",\"arguments\":{}}}' \\\n  | node server.js\n```\n\n## Marketplace listing blurb\n> **BSV Inference** — Pay-per-token Claude & Grok, settled in BSV. Prepay a channel\n> once, then meter every token with no subscription, account, or card. OpenAI-\n> compatible, optional live web search, on-chain settlement. MCP + portable SKILL.md.\n\n## Publishing (operator)\n- Live on npm under the `@bsvkey` org (owner: `interence`). First publish: v1.0.0.\n- To ship an update: bump `version` in `package.json`, then\n  `npm publish --access public` (2FA/security-key prompt applies).\n- Canonical source: https://github.com/BSVKey/inference-mcp\n- To list on a skills marketplace (e.g. bopen.ai), submit `SKILL.md` + this README.\n",
   "status": "curated"
 }

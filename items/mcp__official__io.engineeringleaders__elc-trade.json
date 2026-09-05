@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.engineeringleaders/elc-trade",
+  "type": "mcp",
+  "name": "elc-trade",
+  "description": "Score a meetup topic, place a speaker on the right stage, price community reach. ELC data.",
+  "author": "io.engineeringleaders",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/marian-kamenistak/elc-trade",
+    "repo": "marian-kamenistak/elc-trade"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://www.engineeringleaders.io/mcp/trade"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-05T08:05:32.046594Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# elc-trade\n\n\"Will this meetup topic fill a room?\"\n\"Is this person ready to speak, or should they warm up first?\"\n\"What does it cost to get in front of engineering leaders in Central Europe?\"\n\nYour AI can answer these from the Engineering Leaders Community's own experience instead of\nguessing: 3,300+ engineering leaders across Prague, Brno, Bratislava and Kraków, 12 meetups a\nyear at 120+ people in the room, running since 2019.\n\nThis is a remote MCP server. No install, no API key, no signup. One URL:\n\n```\nhttps://www.engineeringleaders.io/mcp/trade\n```\n\nThere is also a conformant **A2A v1.0** endpoint at\n`https://www.engineeringleaders.io/a2a/v1`, with its agent card at\n[`/.well-known/agent-card.json`](https://www.engineeringleaders.io/.well-known/agent-card.json).\nSame services, same answers, two protocols.\n\nPrefer a page to read? [engineeringleaders.io/agents](https://www.engineeringleaders.io/agents/).\n\n## Tools\n\n| Tool | The question it answers |\n| --- | --- |\n| `evaluate_meetup_topic` | Will this topic fill a room? Scores a title and abstract against the checklist behind 12 meetups a year at 120+ attendees. Returns the red flags, a formula that would fit, and the questions only the organiser can answer |\n| `assess_speaker_readiness` | Which stage does this speaker belong on? Places them on the ladder ELC uses itself: public writing, then a 120+ meetup as the audition, then a conference. Names the gap to the next rung |\n| `benchmark_leadership_ratio` | Is my engineering org top-heavy? Compares your manager-to-senior-IC split against the community's own composition |\n| `assess_community_launch_readiness` | Should I start a meetup in my city? Five questions from the playbook used to open Brno, Bratislava and Kraków |\n| `build_partnership_business_case` | How do I get this funded internally? Reach numbers, framing for your goal, and an email you can forward to whoever holds the budget |\n| `buy_reach` | What does it cost to reach these people? Prices a combination of the published one-off options and returns a quote a person signs |\n\nEverything above is free to call except `buy_reach`, which quotes real money and ends with a\nhuman. Prices are published in the agent card under the\n`https://www.engineeringleaders.io/extensions/pricing/v1` extension, so an agent can budget\nbefore it asks.\n\n## Connect\n\n**Claude** (claude.ai, Desktop) — Settings, then Connectors, then Add custom connector. Name it\n`elc-trade`, paste the URL, leave Authentication as None. Switch it on in the chat and ask it\n*\"score this meetup title for me\"*.\n\n**ChatGPT** (developer mode) — Settings, Connectors, Add, MCP server URL, paste the URL.\n\n**Microsoft 365 Copilot** (via Copilot Studio) — your agent, then Tools, Add a tool, New tool,\nModel Context Protocol, paste the URL as the Server URL. Copilot Studio speaks streamable HTTP,\nwhich is what this server uses.\n\n**Perplexity** (Pro/Enterprise) — All settings, Connectors, Custom connector, Remote, paste the\nURL, transport Streamable HTTP.\n\n**For developers**\n\n```bash\nclaude mcp add -t http elc-trade https://www.engineeringleaders.io/mcp/trade\n```\n\nCursor — add to `.cursor/mcp.json`:\n\n```json\n{ \"mcpServers\": { \"elc-trade\": { \"url\": \"https://www.engineeringleaders.io/mcp/trade\" } } }\n```\n\nOn a company Team, Enterprise or Business account the Add button is often admin-only. Forward\nthis page to whoever administers your workspace.\n\n## Where the answers come from\n\n`evaluate_meetup_topic` and `assess_speaker_readiness` score against ELC's own internal topic\nguide and speaker pipeline: the 100+ attendance formula, the seven-point topic checklist, the\nfive title criteria, and the tier ladder used to decide who goes on which stage. The checks that\ncan be measured are measured, not estimated. The judgment calls the guide says a human has to\nmake come back as questions rather than invented answers.\n\nThe other three tools are answered by ELC's sibling servers,\n[`/mcp`](https://www.engineeringleaders.io/mcp) and\n[`/mcp/partnership`](https://www.engineeringleaders.io/mcp/partnership), which own those\ndomains. Prices come from the partnership catalogue, never from a copy held here, so a quote\ncannot drift from what the site publishes.\n\nEvery number traces to the ELC Data Points registry. If a figure is not in there, this server\ndoes not say it.\n\n## What is not for sale\n\nMember contact data. The list is never handed over, at any price.\n\nIntroductions without the member agreeing first. ELC will carry a request to the right person\nand introduce you if they want it. A no costs you nothing.\n\nA pitch from the stage. A speaker at a meetup you host passes the same bar as every other\nspeaker, because the room can tell.\n\n## More from ELC\n\n- [The ELC Toolkit](https://www.engineeringleaders.io/toolkit/) — free tools, also callable over MCP\n- [Company membership](https://www.engineeringleaders.io/partner/) — what companies get and what it costs\n- [Community reach](https://www.engineeringleaders.io/partner/reach/) — the one-off options `buy_reach` prices\n- [Speak at a meetup](https://www.engineeringleaders.io/cfp/) — the CFP and the speaker alumni\n\nBuilt and maintained by the [Engineering Leaders Community](https://www.engineeringleaders.io/?ref=mcp).\nQuestions: weare@engineeringleaders.io\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

@@ -1,0 +1,57 @@
+{
+  "id": "mcp:official/ai.lbrain/lbrain",
+  "type": "mcp",
+  "name": "LBrain",
+  "description": "Local-first agent memory. Source, date, bind/abstain. Identity: lbrain.ai",
+  "author": "ai.lbrain",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/metavolve-labs/lbrain-coding-agents",
+    "repo": "metavolve-labs/lbrain-coding-agents"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "lbrain-coding-agents"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-05T10:08:05.797494Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "AI",
+    "featured": false
+  },
+  "readme": "# LBrain coding-agents\n\n<!-- mcp-name: ai.lbrain/lbrain -->\n\nInstall LBrain where the agent already lives.\n\nClaim your agent identity free at https://lbrain.ai\n\nNative MCP + companion skill + fail-closed session-start for Claude Code, Codex, Cursor, Copilot, Grok Build, Gemini CLI, Antigravity, and OpenClaw.\n\nThis package does **not** modify the LBrain engine. It wires hosts to `lbrain mcp`. The Official MCP Registry / VS Code `@mcp` gallery entry also execs that same stdio server.\n\n## Install the engine first\n\n```bash\npip install \"lbrain[local]\"\nlbrain init --source ~/notes\nlbrain import && lbrain embed --stale\n```\n\n## Wire your coding agents\n\n```bash\npip install lbrain-coding-agents\npython3 -m lbrain_agents status\npython3 -m lbrain_agents install            # lists detections, changes nothing\npython3 -m lbrain_agents install all        # every detected harness\npython3 -m lbrain_agents install claude-code grok-build\npython3 -m lbrain_agents install all --dry-run\n```\n\nA bare `install` is a no-op. That is deliberate: wiring every agent on the machine never happens by accident.\n\n## Paste to a desktop AI (no terminal)\n\nSome people never open a shell. They paste this into Claude, Cursor, Codex, Copilot, or Grok and the agent does the work:\n\n```\nInstall LBrain as my local memory.\n\npip install \"lbrain[local]\" lbrain-coding-agents\nIf python3 -m lbrain_agents works here, run: python3 -m lbrain_agents install all\nOtherwise add an MCP server named lbrain: command lbrain, args [\"mcp\"], stdio.\n\nThen call whoami. Prefer binds. Near-miss is not an answer. Abstain if nothing binds. SUPERSEDED must not govern. Leave LBRAIN_HOME alone if it is already set.\n\nhttps://lbrain.ai/integrations.html\n```\n\nExisting `lbrain` MCP entries are left untouched unless you pass `--force`. Skills are copied to each host's skills directory. Session-start injects `lbrain whoami` (Claude Code).\n\n## Two-line wrap\n\n```python\nfrom openai import OpenAI\nfrom lbrain_agents.wrap import wrap_openai\n\nclient = wrap_openai(OpenAI(), home=\"~/.lbrain\")\n```\n\nRecall first. If nothing binds, the model is told to abstain. Writes are opt-in (`remember=True`).\n\n## Agent Plugin\n\n`lbrain_agents/share/agent-plugin/` is a portable bundle (`plugin.json` + `mcp.json` + skill) for hosts that speak the Agent Plugins spec.\n\n## Cookbooks\n\n1. Abstain when the record does not bind\n2. SUPERSEDED does not govern\n3. Model swap, same mind\n\nSee `lbrain_agents/share/cookbooks/`.\n\n## Safety\n\n- Merges only the `lbrain` key. Other MCP servers stay.\n- Backs up a config once as `*.lbrain-backup` before the first write.\n- Does not set `LBRAIN_HOME` unless you pass `--home`. A working seat mount is not overwritten.\n- HTTP MCP is **not** enabled by this installer. stdio only. The engine's HTTP transport has no auth; do not bind it to the world.\n\n## What this package is not\n\nThis is the free installer and the serve-boundary skill. It is not LBrain Connect, Managed LBrain, or LBrain Govern. It does not issue `gcx://` names, inscribe permanence, or ship study gold sets. The engine's resolver client is open; registrar issuance is not in this tree.\n\n## License\n\nBSD-3-Clause. Metavolve Labs, Inc.\n\nPatents pending. The licence covers the code; it does not grant patent rights.\n",
+  "status": "curated"
+}

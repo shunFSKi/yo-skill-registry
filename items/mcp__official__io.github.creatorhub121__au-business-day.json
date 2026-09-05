@@ -1,13 +1,13 @@
 {
   "id": "mcp:official/io.github.creatorhub121/au-business-day",
   "type": "mcp",
-  "name": "AU Business Day",
-  "description": "Australian business-day and public-holiday calculations for AI agents and applications.",
+  "name": "AU Agent Utilities",
+  "description": "Reliable Australian business-day, public-holiday and deadline tools for AI agents.",
   "author": "io.github.creatorhub121",
   "source": {
     "registry": "mcp-official",
-    "url": "https://au-business-day.auagentutilities.workers.dev/mcp",
-    "repo": null
+    "url": "https://github.com/creatorhub121/au-business-day",
+    "repo": "creatorhub121/au-business-day"
   },
   "license": null,
   "install": {
@@ -16,8 +16,8 @@
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-09-01T03:58:19.351598Z",
-    "score": 42
+    "pushed_at": "2026-09-05T09:14:52.906939Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -49,6 +49,6 @@
     "category": null,
     "featured": false
   },
-  "readme": null,
+  "readme": "# AU Agent Utilities\n\nReliable Australian utility tools for AI agents and applications.\n\nAU Agent Utilities is a growing collection of deterministic, Australia-specific tools designed to give AI agents reliable answers for calculations and data that are easy to get wrong with generic reasoning alone.\n\n## Current Release\n\n**Business Day Engine v1.2.0**\n\nThe current release provides Australian business-day, public-holiday, date-range and deadline calculations across all states and territories.\n\n## Live MCP Endpoint\n\n```text\nhttps://au-business-day.auagentutilities.workers.dev/mcp\n```\n\n## Available Tools\n\n### `check_australian_business_day`\n\nChecks whether a date is a business day in an Australian state or territory.\n\nReturns:\n\n- whether the date is a business day\n- weekend or public-holiday reason\n- holiday name where applicable\n- previous business day\n- next business day\n\nExample:\n\n```text\nDate: 2021-12-27\nState: NSW\n```\n\nResult:\n\n```text\nBusiness day: false\nReason: public_holiday\nHoliday: Christmas Day (substitute day)\nNext business day: 2021-12-29\n```\n\n---\n\n### `calculate_australian_business_date`\n\nAdds or subtracts Australian business days from a starting date.\n\nPositive numbers move forward and negative numbers move backward.\n\nThe start date is excluded by default.\n\nExample:\n\n```text\nStart date: 2021-12-24\nState: NSW\nBusiness days: 1\n```\n\nResult:\n\n```text\n2021-12-29\n```\n\nThe calculation skips weekends and applicable public holidays, including substitute public holidays.\n\n---\n\n### `count_australian_business_days`\n\nCounts business days between two Australian calendar dates.\n\nBoundary inclusion is explicit so agents do not have to guess whether the start or end date should be counted.\n\nThe result can include:\n\n- business days\n- non-business days\n- weekend days\n- public-holiday weekdays\n- holidays encountered\n\nExample:\n\n```text\nStart date: 2021-12-24\nEnd date: 2021-12-29\nState: NSW\nInclude start: false\nInclude end: true\n```\n\nResult:\n\n```text\nBusiness days: 1\n```\n\n---\n\n### `calculate_australian_deadline`\n\nCalculates an Australian deadline using either calendar days or business days.\n\nSupports explicit rules for:\n\n- whether the start date is counted\n- rolling a non-business deadline forward\n- rolling a non-business deadline backward\n- leaving the calculated date unchanged\n\nExample:\n\n```text\nStart date: 2021-12-20\nState: NSW\nDays: 7\nDay type: calendar\nInclude start: false\nRoll: next\n```\n\nThe unadjusted deadline is:\n\n```text\n2021-12-27\n```\n\nBecause that date is a substitute public holiday, the final deadline becomes:\n\n```text\n2021-12-29\n```\n\n## Supported Jurisdictions\n\n- ACT\n- NSW\n- NT\n- QLD\n- SA\n- TAS\n- VIC\n- WA\n\n## Holiday Handling\n\nThe engine accounts for:\n\n- Saturdays\n- Sundays\n- state and territory public holidays\n- substitute public holidays where represented in the installed holiday dataset\n\nPublic-holiday information is provided using the `date-holidays` dataset.\n\nLocal, regional or industry-specific holidays are not guaranteed unless represented in the relevant jurisdiction dataset.\n\n## HTTP Endpoints\n\nThe Worker can also be used directly over HTTP.\n\n### Check a business day\n\n```text\n/check?date=2021-12-27&state=NSW\n```\n\n### Add or subtract business days\n\n```text\n/calculate?date=2021-12-24&state=NSW&days=1\n```\n\n### Count business days\n\n```text\n/count?start_date=2021-12-24&end_date=2021-12-29&state=NSW&include_start=false&include_end=true\n```\n\n### Calculate a deadline\n\n```text\n/deadline?start_date=2021-12-20&state=NSW&days=7&day_type=calendar&include_start=false&roll=next\n```\n\n## Why AU Agent Utilities?\n\nAI agents are good at reasoning, but deterministic local rules should not depend on guessing.\n\nAU Agent Utilities is being built as a reliable Australian utility layer for agents, with the Business Day Engine as the first module.\n\nFuture utilities will expand beyond dates into other Australian data, verification and workflow functions.\n\n## Deployment\n\nThe MCP server is deployed on Cloudflare Workers and is available remotely through the live MCP endpoint above.\n\nIt is also published through Smithery as:\n\n```text\ncreatorhub121/au-agent-utilities\n```\n\n## Version\n\n```text\n1.2.0\n```\n",
   "status": "curated"
 }

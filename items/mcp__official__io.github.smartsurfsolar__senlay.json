@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.smartsurfsolar/senlay",
+  "type": "mcp",
+  "name": "Senlay Physical Context",
+  "description": "Physical-world evidence and operability checks with provenance and explicit data gaps.",
+  "author": "io.github.smartsurfsolar",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/smartsurfsolar/senlay-platform",
+    "repo": "smartsurfsolar/senlay-platform"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://senlay.cloud/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-05T14:46:25.884028Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Senlay — Verified Physical Context for Systems That Act Outside\n\nThis is the Senlay Open Network: the open protocol, JavaScript SDK, and edge-gateway starter for connecting independently operated sensors to verified physical context.\n\n[senlay.cloud](https://senlay.cloud) · [API documentation](https://senlay.cloud/docs)\n\n## Connect an AI agent with MCP — no install\n\nAdd the public stateless Streamable HTTP endpoint to an MCP-capable client. Anonymous trial access requires no signup or OAuth:\n\n```json\n{\n  \"mcpServers\": {\n    \"senlay\": {\n      \"url\": \"https://senlay.cloud/mcp\"\n    }\n  }\n}\n```\n\nThe MCP `2026-07-28` server exposes exactly `sense_location`, `check_operability`, and `list_domains`. It preserves Senlay evidence provenance and explicitly reports unavailable inputs instead of inventing values. To use an account tier, add `Authorization: Bearer sl_live_...` to the server headers. Operability results are decision support; humans remain the final authority.\n\nOfficial MCP Registry metadata is provided in [`server.json`](server.json). Version `1.0.0` is published as `io.github.smartsurfsolar/senlay` after live endpoint and schema validation.\n\n## What is open here\n\n- vendor-neutral observation envelope and JSON Schema\n- deterministic validation and normalization\n- HMAC request signing for provider-to-gateway transport\n- JavaScript client for any compatible ingestion endpoint\n- small edge gateway that validates before forwarding\n- adapter example and automated tests\n\nThe production aggregation engine, global registry, authentication, billing, provider credentials, historical place-memory corpus, risk models, and commercial connectors remain in the private `senlay-platform-core` repository.\n\n## Status\n\nThis is the first `0.x` protocol release. Self-service station registration and signed observation ingestion are available at `senlay.cloud` for authenticated Senlay accounts. The server retains only a non-recoverable hash of every station secret; save each secret when it is returned.\n\n## Connect a station to the live network\n\nFirst create a normal account at [senlay.cloud/register.html](https://senlay.cloud/register.html), then create or retrieve an API key in the dashboard. Use that account key only for provider and station management; use the station secret only to sign observations.\n\n```bash\n# Create a provider with your account API key.\ncurl -sS -X POST https://senlay.cloud/api/v1/providers/register \\\n  -H \"Authorization: Bearer $API_KEY\" -H 'content-type: application/json' \\\n  --data '{\"name\":\"My community network\",\"slug\":\"my-community-network\"}'\n\n# Substitute the returned prv_... ID. Save the returned station secret now.\ncurl -sS -X POST https://senlay.cloud/api/v1/stations/register \\\n  -H \"Authorization: Bearer $API_KEY\" -H 'content-type: application/json' \\\n  --data '{\"providerId\":\"prv_REPLACE_ME\",\"name\":\"Beach wind station\",\"sensorType\":\"weather_station\",\"location\":{\"lat\":15.8801,\"lng\":108.3380}}'\n```\n\nBefore publishing live data, use the dashboard's `Send signed test` action to verify the station secret and payload shape without storing a fake observation. Then publish to `https://senlay.cloud/api/v1/observations` using the returned `stationId` plus the `X-Senlay-*` signature headers described in [the network protocol](docs/NETWORK_PROTOCOL.md).\n\nNearby accepted observations appear in later authenticated `/api/v1/sense` and `/api/v1/pwm` responses as explicitly labelled direct station evidence. Checked station measurements also contribute to Senlay local memory baselines for the same place and season; those baselines are historical context, not current evidence.\n\n## Five-minute Python station\n\nThe Python connector uses only the standard library, so a Raspberry Pi or ordinary computer needs no package installation. Copy the `stationId` and one-time station secret returned by the dashboard, then preview a simulated observation locally:\n\n```bash\ngit clone https://github.com/smartsurfsolar/senlay-platform.git\ncd senlay-platform\nexport SENLAY_STATION_ID='stn_REPLACE_ME'\nexport SENLAY_STATION_SECRET='sl_station_REPLACE_ME'\npython3 python/simulator.py --seed 1\n```\n\nPreview mode does not contact Senlay. To verify the signature and payload without storing a reading, add the account API key and use the commissioning endpoint:\n\n```bash\nexport SENLAY_ACCOUNT_API_KEY='sl_live_REPLACE_ME'\npython3 python/simulator.py --dry-run --seed 1\n```\n\nTo exercise live ingestion with generated data, use `--publish`. Simulator readings are always marked `estimated`, carry `simulated: true`, and never enter the checked-reading place-memory baseline.\n\n```bash\npython3 python/simulator.py --publish --count 3 --interval 10 --seed 1\n```\n\nFor a real wind sensor, pass its readings to the publisher. The default quality is `raw`; use `--quality checked` only when your adapter and sensor calibration justify that claim.\n\n```bash\npython3 python/publish_reading.py \\\n  --lat 15.8801 --lng 108.3380 \\\n  --wind-speed 7.4 --wind-direction 62\n```\n\nImport `SenlayClient` and `observation` from [`python/senlay_client.py`](python/senlay_client.py) to connect another sensor process directly.\n\n## Try the live API — no install\n\n```bash\nCREDS=\"$(curl -sS -X POST https://senlay.cloud/api/v1/agent-register -H 'content-type: application/json' --data '{\"ownerEmail\":\"you@example.com\",\"agentName\":\"my-first-agent\"}')\"; printf '%s\\n' \"$CREDS\"\nAPI_KEY=\"$(printf '%s' \"$CREDS\" | sed -n 's/.*\"apiKey\":\"\\([^\"]*\\)\".*/\\1/p')\"\ncurl -sS -H \"Authorization: Bearer $API_KEY\" \"https://senlay.cloud/api/v1/sense?lat=15.8801&lng=108.3380&field=kitesurfing\"\n```\n\nSave both the `apiKey` and `recoveryToken` shown by the first command; each is returned only once. Replace `you@example.com` and `my-first-agent` with your own identity.\n\n## Local SDK and gateway\n\n```bash\nnpm install\nnpm test\ncp .env.example .env\nnpm run gateway\n```\n\nSend the example observation to the local gateway:\n\n```bash\nnpm run example\n```\n\nThe gateway validates observations locally. Set `SENLAY_INGEST_URL` to forward them to an authorized compatible ingestion endpoint.\n\n## MQTT bridge (optional)\n\nFor hardware that publishes JSON observations to an MQTT broker, configure the MQTT variables in `.env` and run:\n\n```bash\nnpm run mqtt-bridge\n```\n\nThe bridge subscribes to `SENLAY_MQTT_TOPIC`, validates every message through the SDK, signs it with the station secret, and forwards it to the HTTPS ingestion endpoint. Use one bridge credential per station; do not share a station secret among devices.\n\n## Branches\n\n- `main`: stable public releases\n- `develop`: active public development\n\nChanges move from a feature branch to `develop`, then reach `main` after review and tests. See [CONTRIBUTING.md](CONTRIBUTING.md).\n\n## Minimal SDK example\n\n```js\nimport { SenlayClient } from '@senlay/open-network';\n\nconst client = new SenlayClient({\n  endpoint: 'https://senlay.cloud/api/v1/observations',\n  providerId: 'prv_REPLACE_ME',\n  signingSecret: process.env.SENLAY_STATION_SECRET\n});\n\nawait client.publish({\n  stationId: 'stn_REPLACE_ME',\n  observedAt: new Date().toISOString(),\n  location: { lat: 15.8801, lon: 108.3380 },\n  measurements: [{ phenomenon: 'wind.speed', value: 7.4, unit: 'm/s' }]\n});\n```\n\n## License\n\nApache-2.0. Contributions are welcome under the same license.\n",
+  "status": "curated"
+}

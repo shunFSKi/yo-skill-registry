@@ -1,0 +1,61 @@
+{
+  "id": "mcp:official/dev.dvt/dvt",
+  "type": "mcp",
+  "name": "dvt",
+  "description": "Dashboards as data. Author, validate, render, and share dvt dashboards from any MCP client.",
+  "author": "dev.dvt",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/getdvt/dvt-plugin",
+    "repo": "getdvt/dvt-plugin"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://mcp.dvt.dev/mcp",
+    "env": [
+      {
+        "name": "Authorization",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-05T16:18:57.052032Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "数据",
+    "featured": false
+  },
+  "readme": "# dvt-plugin\n\nThe dvt Claude Code plugin — a thin client for [dvt](https://dvt.dev) (data viz tool).\n\ndvt is an AI-native approach to data visualization: data teams design, generate, and deploy\ndashboards through a spec-driven workflow, where a dashboard is a versioned JSON spec that humans\nand agents author the same way. This plugin brings that workflow into Claude Code. It is a **thin\nclient** — it carries no data and no compute. It bundles two things:\n\n- the **dvt dashboard-spec authoring skill**, so an agent knows how to read, write, and validate a\n  dvt dashboard spec; and\n- an **MCP client** pointed at a dvt endpoint, so the agent can design, validate, render, and apply\n  specs against a live dvt instance.\n\nThe plugin is open and ungated. It contains no secret and no entitlement logic — your access is\ngoverned entirely by the dvt endpoint and the key you connect with.\n\n## Install\n\nIn any Claude Code session:\n\n```\n/plugin marketplace add getdvt/dvt-plugin\n/plugin install dvt@dvt-plugin\n```\n\nThen restart Claude Code (plugins don't hot-load).\n\n## Connect\n\nAfter installing, run **`/dvt:connect`** and follow the prompts. The plugin talks to a dvt endpoint\nover MCP; point it at one of two targets:\n\n- **dvt Gallery (hosted)** — connect to `https://mcp.dvt.dev/mcp` with a Gallery API key. Mint a key\n  in your dvt workspace at `https://app.dvt.dev/app/api-keys`, then paste the `dvt_live_…` value when\n  `/dvt:connect` prompts for it. The key is stored by Claude Code at user scope, never committed here.\n- **Direct engine URL** — point the client at a dvt engine URL you already have (e.g.\n  `http://localhost:8001/mcp`).\n\n`/dvt:connect` registers a user-scoped `dvt` MCP server with your endpoint and (for Gallery) your\nkey, then verifies the connection by listing your dashboards. Once connected, just ask the agent to\nbuild a dashboard.\n\nThe plugin bundles the authoring skill so it works offline, but a connected engine also serves **its\nown** copy — matched to the spec version that engine speaks — at the MCP Resource\n`dvt://skill/spec-authoring`. When that revision is at least as new as the bundled one, `/dvt:connect`\nprefers it for the session (and tells you), so authoring stays correct as the schema evolves without a\nre-install. If the engine doesn't serve it, the bundled copy is always a valid fallback (ADR-0047).\n\n> The plugin never embeds a key or any entitlement check. What you can do is decided by your dvt\n> endpoint and the scopes on the key you provide.\n\n## What's inside\n\n```\n.claude-plugin/\n  marketplace.json              single-plugin marketplace so /plugin marketplace add resolves this repo\nplugins/dvt/\n  .claude-plugin/plugin.json    plugin manifest (name \"dvt\", semver)\n  commands/connect.md           /dvt:connect — first-run setup + verify (registers the MCP server)\n  commands/dvt-review.md        /dvt:dvt-review — critique a spec or a built dashboard, GO / REVISE\n  agents/dvt-layout-critic.md   layout, visual design, readability — PASS / NEEDS ATTENTION / SIGNIFICANT ISSUES\n  agents/dvt-narrative-critic.md  analytical story coherence — COHERENT / PARTIALLY COHERENT / INCOHERENT\n  skills/dvt-spec-author/       dvt dashboard-spec authoring skill (generated at publish time)\n  icon.svg\n  README.md\n  SETUP.md                      connecting from Cowork (GUI-only environments)\n.github/workflows/\n  plugin-release.yml            tags each published version v<semver>\nRELEASING.md                    version + tag convention (semver in plugin.json)\nLICENSE                         Apache-2.0\n```\n\n> **This repo is publish-only — do not send pull requests here.** Every file above is rendered from\n> `plugins/**` in the private `getdvt/dvt` repo and pushed by the `dvt-publisher` GitHub App, so a\n> commit made directly to this repo is overwritten by the next publish. Issues and discussions are\n> closed for the same reason. To propose a change, talk to us at [dvt.dev](https://dvt.dev). Security\n> reports go to `security@dvt.dev` (also `dvt.dev/.well-known/security.txt`), or via GitHub private\n> vulnerability reporting on this repo.\n\nThe bundled spec-authoring skill has a single canonical source in `getdvt/dvt`\n(`web/public/dvt-spec-authoring-skill.md`) and is generated into the tree at publish time, so the\npublished copy cannot drift from it.\n\nMaintainers: see [RELEASING.md](./RELEASING.md) for the version + tag flow.\n\n## License\n\n[Apache-2.0](./LICENSE). dvt is an open funnel artifact — this plugin matches the spec and SDK\nlicensing.\n",
+  "status": "curated"
+}

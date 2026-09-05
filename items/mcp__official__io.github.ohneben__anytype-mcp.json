@@ -1,0 +1,95 @@
+{
+  "id": "mcp:official/io.github.ohneben/anytype-mcp",
+  "type": "mcp",
+  "name": "Anytype (self-hosted HTTP)",
+  "description": "Self-hosted Anytype MCP server: the full Anytype API as an always-on Docker + HTTP endpoint.",
+  "author": "io.github.ohneben",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/ohneben/Anytype-MCP",
+    "repo": "ohneben/Anytype-MCP"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "ghcr.io/ohneben/anytype-mcp:1.0.6"
+    ],
+    "env": [
+      {
+        "name": "ANYTYPE_API_KEY",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "PORT",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "ANYTYPE_API_BASE_URL",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "ANYTYPE_VERSION",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "ANYTYPE_API_HOST_HEADER",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "MCP_SHARED_TOKEN",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "ANYTYPE_MCP_SLIM_RESPONSES",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-05T08:26:25.781836Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# ohneben Anytype MCP\n\n[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-ohneben-FFDD00?style=for-the-badge&logo=buymeacoffee&logoColor=black)](https://buymeacoffee.com/ohneben)\n\n[![CI](https://github.com/ohneben/Anytype-MCP/actions/workflows/ci.yml/badge.svg)](https://github.com/ohneben/Anytype-MCP/actions/workflows/ci.yml)\n[![MCP Registry](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fregistry.modelcontextprotocol.io%2Fv0.1%2Fservers%2Fio.github.ohneben%252Fanytype-mcp%2Fversions%2Flatest&query=%24.server.version&prefix=v&label=MCP%20Registry&color=blue&logo=modelcontextprotocol&logoColor=white)](https://registry.modelcontextprotocol.io/v0.1/servers/io.github.ohneben%2Fanytype-mcp/versions/latest)\n[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](./LICENSE.md)\n[![Anytype-MCP MCP server](https://glama.ai/mcp/servers/ohneben/Anytype-MCP/badges/score.svg)](https://glama.ai/mcp/servers/ohneben/Anytype-MCP)\n\nTalk to your [Anytype](https://anytype.io) knowledge base in plain language from\nAI assistants like **Claude**, **Cursor**, and any other\n[MCP](https://modelcontextprotocol.io) client.\n\nThis is a self-hosted fork of the official\n[`anyproto/anytype-mcp`](https://github.com/anyproto/anytype-mcp) that adds a\n**Docker container** and a **Streamable-HTTP** transport, so the server can run\nquietly in the background and be reached by any MCP client over HTTP. (The\noriginal speaks stdio only.)\n\n## Why this one?\n\nThe [official Anytype MCP server](https://github.com/anyproto/anytype-mcp) is\ngreat, but it runs as a `stdio` subprocess that each client has to launch on\ndemand. This project keeps **100% of its capabilities** and adds a\n**production-style deployment**: one always-on server, in Docker, that any\nnumber of MCP clients can reach over HTTP.\n\n| Capability | **This project** | Official `anyproto/anytype-mcp` | Other community servers\\* |\n| --- | :---: | :---: | :---: |\n| Full Anytype API coverage (dynamic OpenAPI → MCP tools) | ✅ | ✅ | ✅ |\n| `stdio` transport | ✅ | ✅ | ✅ |\n| **Streamable-HTTP transport** (native, or via `mcp-remote`) | ✅ | ❌ | ❌ |\n| **Always-on background service** | ✅ | ❌ | ❌ |\n| **One server → many clients at once** | ✅ | ❌ | ❌ |\n| **Docker + docker-compose** | ✅ | ❌ | ❌ |\n| **Health-check endpoint + auto-restart** | ✅ | ❌ | ❌ |\n| **Optional bearer-token auth** on the endpoint | ✅ | ❌ | ❌ |\n| 🟢 / 🟡 / 🔴 read-only / write / destructive tool hints | ✅ | ➖ | ➖ |\n| Automated test suite (Vitest) | ✅ | ✅ | ➖ |\n| License | MIT | MIT | varies |\n\n<sub>\\*Community servers such as [`Qwinty/anytype-mcp`](https://github.com/Qwinty/anytype-mcp) (JS), [`wethegreenpeople/anytype-mcp`](https://github.com/wethegreenpeople/anytype-mcp) (Python) and [`anytype-mcp-plus`](https://github.com/MAB2908/anytype-mcp-plus) — most are `stdio`-only and launched via `npx`. \"➖\" = not documented / varies. Snapshot from July 2026; check each project for its latest.</sub>\n\n**In short:** if you just want to try Anytype from your AI client, the official\nserver is perfect. If you want it **running in the background, always ready, and\nshared across every MCP client on your machine**, use this one.\n\n## What you can do\n\nOnce it's connected, ask your assistant things like:\n\n- \"Search my Anytype for notes about the Q3 launch.\"\n- \"Create a task 'Write the report', due in 3 days.\"\n- \"Make a new space called 'Travel' and add a packing checklist.\"\n\nTools are generated automatically from your running Anytype app and grouped into\n🟢 read-only, 🟡 write, and 🔴 delete.\n\nThe server is tuned to keep your assistant fast and frugal with tool calls:\n\n- **`API-get-overview`** — a synthesized tool that returns all spaces with their\n  types (or, given a `space_id`, that space's types and property definitions) in\n  a single call, instead of a list-spaces → list-types → list-properties cascade.\n- **Slim responses** — API payloads are compacted before they reach the\n  assistant: empty property values, `object` discriminators, and nulls are\n  dropped, and the type embedded in each search/list result is reduced to its\n  identifiers. This typically shrinks list/search responses by well over half,\n  which means less context burned per call and fewer follow-up calls. Set\n  `ANYTYPE_MCP_SLIM_RESPONSES=false` to get raw API payloads instead.\n- **Routing hints** — tool descriptions tell the assistant which tool is\n  cheapest for a job (e.g. search instead of paginating lists, and that only\n  `get-object` returns the full markdown body).\n\n## How it works\n\n```\nClaude / Cursor / …  ──MCP──►  this server  ──HTTP──►  Anytype desktop app (local API)\n```\n\nThe server only talks to the **local API** of the Anytype **desktop app** on\nyour own machine. Your data stays on your computer.\n\n## Requirements\n\n- The **Anytype desktop app**, installed and running (it serves a local API at\n  `127.0.0.1:31009`).\n- **Docker** (Docker Desktop on macOS/Windows) for the setup below.\n\n## Quick start (Docker)\n\n**1. Add your API key.** Copy the example config and paste in a key:\n\n```bash\ncp .env.example .env\n# open .env and set ANYTYPE_API_KEY=...   (see \"Get an API key\" below)\n```\n\n**2. Start the server:**\n\n```bash\ndocker compose up -d --build\n```\n\n**3. Confirm it's running:**\n\n```bash\ncurl -s http://localhost:8769/healthz     # → {\"status\":\"ok\"}\n```\n\n**4. Connect your MCP client.** Add an `anytype` entry under `mcpServers`, then\nfully quit and reopen the app. Pick the form that matches your client:\n\n**Claude Code** (or any client that speaks Streamable-HTTP natively) — connect\ndirectly, no helper process:\n\n```json\n\"anytype\": {\n  \"type\": \"http\",\n  \"url\": \"http://localhost:8769/mcp\"\n}\n```\n\n**Claude Desktop** (its config is stdio-only) needs the `mcp-remote` bridge.\nInstall it once, then launch it via `node` rather than `npx`:\n\n```bash\nnpm i -g mcp-remote\n```\n\n```json\n\"anytype\": {\n  \"command\": \"/opt/homebrew/bin/node\",\n  \"args\": [\n    \"/opt/homebrew/lib/node_modules/mcp-remote/dist/proxy.js\",\n    \"http://localhost:8769/mcp\",\n    \"--allow-http\"\n  ]\n}\n```\n\n> **Why not `npx -y mcp-remote …`?** `npx` re-resolves the package through the npm\n> cache on every launch. When a client cold-starts several MCP servers at once they\n> contend on that cache, and some launchers can wedge *inside npx* for minutes —\n> which the client reports as a connection timeout. Installing `mcp-remote` once and\n> launching it with `node` removes that step. Use absolute paths (GUI apps don't\n> inherit your shell `PATH`, and `mcp-remote`'s own `#!/usr/bin/env node` shebang\n> can't find `node` otherwise). The paths above are Apple-Silicon Homebrew defaults;\n> adjust with `which node` and `npm root -g` if yours differ.\n\nThat's it — ask your assistant to search or create something in Anytype.\n\n## Get an API key\n\nIn the Anytype desktop app: **Settings → API Keys → Create new**. Copy the key\ninto `.env` as `ANYTYPE_API_KEY=`. Your key stays in `.env`, which git ignores,\nso it is never committed.\n\n## Configuration\n\nEverything is set in `.env` (copied from `.env.example`):\n\n| Variable | Default | What it does |\n| --- | --- | --- |\n| `ANYTYPE_API_KEY` | — | Your Anytype API key. **Required.** |\n| `ANYTYPE_VERSION` | `2025-11-08` | Anytype API version header. |\n| `ANYTYPE_API_BASE_URL` | `http://host.docker.internal:31009` | Where the Anytype app's API is reachable from the container. |\n| `ANYTYPE_API_HOST_HEADER` | *(auto)* | `Host` header sent to the Anytype API. Auto-set to `localhost:<port>` when the base URL uses a container host alias, because Anytype rejects any other `Host` with `403 request origin is not allowed`. |\n| `PORT` | `8769` | Host port for the MCP endpoint. |\n| `MCP_SHARED_TOKEN` | *(empty)* | Optional bearer token to protect the endpoint. Empty = open, for localhost only. |\n| `ANYTYPE_MCP_SLIM_RESPONSES` | `true` | Compact API responses before sending them to the assistant. Set to `false` for raw payloads. |\n\nAfter changing `.env`, reload with `docker compose up -d --force-recreate`.\n\nFor logs, restart, key rotation, and verification commands, see\n**[DOCKER.md](./DOCKER.md)**.\n\n## Run from source (stdio, no Docker)\n\nPrefer the classic stdio mode? Build it locally:\n\n```bash\nnpm install\nnpm run build\n```\n\nThen register it with your client using a stdio command and your key in\n`OPENAPI_MCP_HEADERS` — see the\n[upstream README](https://github.com/anyproto/anytype-mcp#readme) for the exact\nstdio configuration.\n\n## Security\n\n- Your API key lives only in `.env`, which is git-ignored. **Never commit real keys.**\n- The HTTP endpoint is unauthenticated by default (fine on localhost). To expose\n  it beyond your machine, set `MCP_SHARED_TOKEN` and send it as a `Bearer` header\n  or `?token=…`.\n\n## MCP Registry\n\nThis server publishes to the official\n[MCP Registry](https://registry.modelcontextprotocol.io) under the name\n`io.github.ohneben/anytype-mcp`. To look up the current listing:\n\n```bash\ncurl \"https://registry.modelcontextprotocol.io/v0/servers?search=io.github.ohneben/anytype-mcp\"\n```\n\nIts listing is described by [`server.json`](./server.json) and is republished\nautomatically on every `v*.*.*` tag by\n[`.github/workflows/publish-mcp.yml`](./.github/workflows/publish-mcp.yml),\nwhich waits for the matching GHCR image and authenticates with GitHub OIDC (no\nsecret needed). The registry proves the image is ours via the\n`io.modelcontextprotocol.server.name` label in the [Dockerfile](./Dockerfile),\nso **the GHCR package must stay Public**.\n\n### Releasing\n\n**The git tag is the version.** Pushing `v1.2.3` is the whole release: the tag\nis stamped into `package.json` before the image is built and into `server.json`\nbefore the listing is published, so the version the server reports to MCP\nclients, the image tag, and the registry entry cannot disagree. Nothing needs to\nbe bumped by hand first, and the versions committed here are only the defaults\nused by local builds.\n\n## Credits & license\n\nBuilt on the official\n[Anytype MCP server](https://github.com/anyproto/anytype-mcp) by Any Association.\nLicensed under the [MIT License](./LICENSE.md).\n",
+  "status": "curated"
+}

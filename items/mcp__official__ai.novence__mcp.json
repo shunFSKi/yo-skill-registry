@@ -16,15 +16,15 @@
     "env": [
       {
         "name": "Authorization",
-        "required": true,
+        "required": false,
         "secret": true
       }
     ]
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-08-26T20:46:19.330203Z",
-    "score": 42
+    "pushed_at": "2026-09-05T08:49:11.856911Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -56,6 +56,6 @@
     "category": "运维",
     "featured": false
   },
-  "readme": null,
+  "readme": "# Novence MCP\n\nHosted [Model Context Protocol](https://modelcontextprotocol.io) server for **Novence** — static site hosting for AI agents.\n\n- **Endpoint:** `https://api.novence.ai/mcp` (streamable HTTP)\n- **Auth:** optional to start. Call `bootstrap(email)`; the session adopts the `nv_` key. Then `Authorization: Bearer nv_…` for later sessions.\n- **Docs:** [novence.ai/mcp](https://novence.ai/mcp)\n- **Privacy:** [novence.ai/privacy](https://novence.ai/privacy)\n\nThis repository is the **Claude Code plugin / install package** ([Novence-ai/mcp](https://github.com/Novence-ai/mcp)). The MCP server itself is hosted; there is nothing to run locally.\n\nThe `Dockerfile` and `catalog/` stdio adapter are **only** for MCP directories (Glama). They answer `tools/list` with public tool schemas. They do not contain the hosting API. End users should use `https://api.novence.ai/mcp`.\n\n## Install (Claude Code)\n\n```bash\nclaude plugin marketplace add Novence-ai/mcp\n# or: enable from the Claude plugin directory after listing is approved\n```\n\nLeave **Novence API key** blank. Call `bootstrap(email)` (MCP). After the live URL, paste the `nv_` key in plugin settings (Keychain) and run `/reload-plugins` so later sessions stay authenticated.\n\nClaude stores the key via **plugin `userConfig`**. Empty interpolation is treated as unauthenticated (`Bearer ` / uninterpolated `${user_config.api_key}`), so bootstrap works before you fill the field.\n\n## Cursor / shell\n\nConnect with no header, then bootstrap:\n\n```json\n{\n  \"mcpServers\": {\n    \"novence\": {\n      \"url\": \"https://api.novence.ai/mcp\"\n    }\n  }\n}\n```\n\nAfter `bootstrap`, persist the key:\n\n```bash\nexport NOVENCE_API_KEY='nv_…'\n```\n\n```json\n{\n  \"mcpServers\": {\n    \"novence\": {\n      \"url\": \"https://api.novence.ai/mcp\",\n      \"headers\": {\n        \"Authorization\": \"Bearer ${env:NOVENCE_API_KEY}\"\n      }\n    }\n  }\n}\n```\n\nOne-click install (no key): [Add to Cursor](https://novence.ai/mcp#connect)\n\n## Generic MCP clients\n\nSame as Cursor: URL only first, then add `Authorization: Bearer nv_…` after bootstrap.\n\nREST fallback if you are not on MCP:\n\n```bash\n# Deploy first (no email): curl -sS -X POST https://api.novence.ai/v1/demo\ncurl -sS -X POST https://api.novence.ai/v1/bootstrap \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"email\":\"you@example.com\"}'\n```\n\nVerify the emailed OTP after the live URL to unlock full Free quotas.\n\n## Tools\n\n| Tool | Description |\n| --- | --- |\n| `bootstrap` / `verify_email` / `resend_verification` / `reissue_key` | Signup without a prior `nv_` key; OTP after live URL |\n| `create_project` / `list_projects` / `get_project` / `update_project_settings` | Project lifecycle |\n| `get_upload_url` / `get_upload_urls_batch` / `confirm_upload` / `confirm_uploads_batch` | Upload site files |\n| `list_files` / `get_file` / `delete_file` | Manage project files |\n| `deploy` / `get_deployment_status` / `get_preview_url` | Publish and poll until live |\n| `run_checks` / `get_checks_results` | Quality checks (Lighthouse, a11y, links) |\n| `configure_custom_domain` / `get_domain_status` | Custom domains |\n| `create_form` / `list_forms` / `update_form` / `list_form_submissions` / `delete_form_submission` | Forms |\n| `checkout` / `mpp_upgrade` / `billing_portal` | Paid plans (verified email; after 2nd project or a 402) |\n| `get_quotas_and_usage` / `get_project_usage` / `update_project_settings` (`analytics_enabled`) / `get_project_analytics` / `get_account` | Quotas, usage, and opt-in site traffic |\n| `create_account_session` / `get_account_console_kit` | Billing/account console kit (never embed `nv_` in HTML) |\n\n## Official registry\n\nPublished as `ai.novence/mcp` on [registry.modelcontextprotocol.io](https://registry.modelcontextprotocol.io).\n\n## Directories / Glama\n\nDo not run this image as a substitute for the hosted MCP. After a Glama maintainer deploys it:\n\n1. Open https://glama.ai/mcp/servers/Novence-ai/mcp/admin/dockerfile\n2. Deploy, then **Make Release**\n\n```bash\nnpm ci\nnpm run catalog:smoke\n```\n\n## License\n\nMIT — see [LICENSE](./LICENSE).\n",
   "status": "curated"
 }

@@ -1,0 +1,70 @@
+{
+  "id": "mcp:official/io.github.Firefloco/chirpie",
+  "type": "mcp",
+  "name": "Chirpie",
+  "description": "Post, schedule, and track social posts on X, Bluesky, LinkedIn, Instagram and more from AI agents.",
+  "author": "io.github.Firefloco",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/Firefloco/chirpie-mcp",
+    "repo": "Firefloco/chirpie-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@chirpie/mcp"
+    ],
+    "env": [
+      {
+        "name": "CHIRPIE_API_KEY",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "CHIRPIE_BASE_URL",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-05T14:25:25.451599Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# @chirpie/mcp\n\n**Post, schedule, and track social posts on X, Bluesky, LinkedIn, Instagram and more from AI agents.** Chirpie is one API for X/Twitter, Bluesky, LinkedIn, Threads, Mastodon, Instagram, Facebook and Telegram — posting, threads, scheduling, deletion and analytics. This MCP server puts all of it in front of Claude, Cursor, ChatGPT or any other MCP-capable agent, so \"post this to X and LinkedIn, and schedule the follow-up for 9am\" is a single sentence rather than a pile of platform SDKs, OAuth dances and rate-limit handling.\n\n## Hosted server (recommended)\n\nYou don't need to install anything. Point your client at:\n\n```\nhttps://chirpie.ai/mcp\n```\n\nSign in when prompted and you're connected — no API key to copy, nothing to keep up to date.\n\n**Claude Code**\n\n```bash\nclaude mcp add --transport http chirpie https://chirpie.ai/mcp\n```\n\n**Claude** — Settings → Connectors → Add custom connector → `https://chirpie.ai/mcp`\n\n**Cursor** — add to `.cursor/mcp.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"chirpie\": {\n      \"url\": \"https://chirpie.ai/mcp\"\n    }\n  }\n}\n```\n\n**ChatGPT** — Settings → Connectors → Create → MCP server → `https://chirpie.ai/mcp`\n\nPrefer a key over OAuth (CI, scripts, clients without an OAuth flow)? Send it as a header:\n\n```json\n{\n  \"mcpServers\": {\n    \"chirpie\": {\n      \"type\": \"http\",\n      \"url\": \"https://chirpie.ai/mcp\",\n      \"headers\": { \"Authorization\": \"Bearer chirpie_sk_your_key_here\" }\n    }\n  }\n}\n```\n\n## Local server (this package)\n\nRun the same tool set locally over stdio.\n\n```bash\nnpm install -g chirpie\nchirpie login\n```\n\n**Claude Code**\n\n```bash\nclaude mcp add chirpie -- npx @chirpie/mcp\n```\n\n**Claude Desktop** — `~/Library/Application Support/Claude/claude_desktop_config.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"chirpie\": {\n      \"command\": \"npx\",\n      \"args\": [\"@chirpie/mcp\"]\n    }\n  }\n}\n```\n\n**Cursor** — add to your MCP settings:\n\n```json\n{\n  \"mcpServers\": {\n    \"chirpie\": {\n      \"command\": \"npx\",\n      \"args\": [\"@chirpie/mcp\"]\n    }\n  }\n}\n```\n\nThe local server resolves credentials in this order:\n\n1. `CHIRPIE_API_KEY` environment variable\n2. `~/.chirpie/config.json` (written by `chirpie login`)\n\nThe CLI and this server share that config, so one `chirpie login` covers both.\n\n## Tools\n\n| Tool | What it does |\n|------|--------------|\n| `chirpie_post` | Post to any connected account, now or scheduled |\n| `chirpie_thread` | Post a 2–25 part thread |\n| `chirpie_list_posts` | List posts, filtered by status or account |\n| `chirpie_get_post` | Fetch one post |\n| `chirpie_delete_post` | Delete a post (and remove it from the platform) |\n| `chirpie_list_accounts` | List connected social accounts |\n| `chirpie_analytics` | Engagement metrics for a published post |\n| `chirpie_create_key` | Create an API key |\n| `chirpie_list_keys` | List API keys |\n| `chirpie_revoke_key` | Revoke an API key |\n| `chirpie_connect_x` | Connect X/Twitter (returns an authorization link) |\n| `chirpie_connect_linkedin` | Connect LinkedIn |\n| `chirpie_connect_threads` | Connect Threads |\n| `chirpie_connect_instagram` | Connect Instagram |\n| `chirpie_connect_facebook` | Connect a Facebook Page |\n| `chirpie_connect_bluesky` | Connect Bluesky with an app password |\n| `chirpie_connect_mastodon` | Connect Mastodon on any instance |\n| `chirpie_connect_telegram` | Connect a Telegram bot |\n| `chirpie_set_x_keys` | Register your own X developer app for connecting X accounts |\n| `chirpie_get_x_keys_status` | Check whether your own X developer app is configured |\n| `chirpie_remove_x_keys` | Remove your own X developer app |\n\nThe hosted and local servers expose exactly the same tools. On the hosted server,\n`chirpie_create_key`, `chirpie_list_keys`, `chirpie_revoke_key` and\n`chirpie_remove_x_keys` require API-key auth — sign in with OAuth and they are not\noffered, since an OAuth connection must not leave a long-lived key behind or tear\ndown credentials your other connections depend on.\n\n## Try it\n\nOnce connected, ask your agent:\n\n- \"Post to X and LinkedIn: we just shipped v2.\"\n- \"Draft a 5-post thread about why we moved off cron, and schedule it for 9am tomorrow.\"\n- \"How did my last Bluesky post do?\"\n- \"Connect my X account.\"\n\n## Links\n\n- Docs — https://chirpie.ai/docs/mcp\n- API reference — https://chirpie.ai/docs\n- Dashboard — https://chirpie.ai/dashboard\n\nMIT © Fireflo LLC\n\n---\n\n> This repository is an automatically maintained source mirror of `packages/mcp` in the Chirpie monorepo. Pull requests opened here cannot be merged.\n",
+  "status": "curated"
+}

@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.adrianov/rrubocop",
+  "type": "mcp",
+  "name": "rrubocop",
+  "description": "Fast RuboCop-compatible Ruby linter with MCP inspect and autocorrect tools.",
+  "author": "io.github.adrianov",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/adrianov/rrubocop",
+    "repo": "adrianov/rrubocop"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "rrubocop"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-05T10:29:16.010054Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# rrubocop\n\n**10x faster RuboCop drop-in** — same CLI, `.rubocop.yml`, and offense output, without maintaining RuboCop gems. Linting and simple config need no Ruby; complex ERB still does. Point it at an existing project and use it like RuboCop.\n\nOne binary — runs the same way regardless of rbenv, rvm, system Ruby, or Docker. Uses [tree-sitter](https://tree-sitter.github.io/tree-sitter/); **no Ruby runtime required** for linting or simple ERB. Unsupported ERB falls back to `ruby` / `bundle exec ruby`.\n\nDrop-in parity: reads your existing `.rubocop.yml`, emits RuboCop-like text/JSON, supports `-a`/`-A` autocorrect, and grows cop coverage over time.\n\n**Baseline** (shown in `--help` / `--version`): rubocop `1.84.2` with rubocop-rails `2.34.3`, rubocop-performance `1.26.1`, rubocop-rspec `3.9.0`, rubocop-rspec_rails `2.32.0`, rubocop-factory_bot `2.28.0` — pinned in `src/resources/baseline.json`.\n\nParity runs have been verified over **600+** installed Ruby gem projects (RuboCop vs rrubocop on the same trees).\n\n## Install\n\n```sh\nbrew install adrianov/rrubocop/rrubocop\n```\n\n```sh\ncargo install rrubocop\n```\n\nmacOS (`.tar.gz` from [GitHub Releases](https://github.com/adrianov/rrubocop/releases); binary + man):\n\n```sh\n# Apple Silicon — use the *-x86_64-apple-darwin.tar.gz asset on Intel Macs\ncurl -LO https://github.com/adrianov/rrubocop/releases/download/v0.8.3/rrubocop-0.8.3-aarch64-apple-darwin.tar.gz\ntar -xzf rrubocop-0.8.3-aarch64-apple-darwin.tar.gz\nsudo cp rrubocop-0.8.3-aarch64-apple-darwin/rrubocop /usr/local/bin/\nsudo mkdir -p /usr/local/share/man/man1\nsudo cp rrubocop-0.8.3-aarch64-apple-darwin/rrubocop.1 /usr/local/share/man/man1/\n```\n\nUbuntu / Debian (`.deb` from [GitHub Releases](https://github.com/adrianov/rrubocop/releases); amd64, Ubuntu 22.04+ / Debian bookworm+):\n\n```sh\n# example for v0.8.3 — use the asset name from the release page\ncurl -LO https://github.com/adrianov/rrubocop/releases/download/v0.8.3/rrubocop_0.8.3-1_amd64.deb\nsudo dpkg -i rrubocop_0.8.3-1_amd64.deb\nman rrubocop\n```\n\n```sh\nrrubocop [OPTIONS] [PATH]...\n```\n\n## Features\n\n- **Config** — RuboCop-compatible resolution: walk-up discovery, `inherit_from` / `inherit_gem` / `require`/`plugins`, `inherit_mode` (merge/override), nested `.rubocop.yml` overrides, `DisabledByDefault`, `NewCops` / `Enabled: pending`, plus per-cop `Enabled` / `Exclude` / `Include` / options; public gem defaults/`inherit_gem` YAML are vendored by version (from `Gemfile.lock`, with `same_as` aliases when YAML is identical) and parsed in memory; private/unlisted gems fall back to `bundle info --path`; simple ERB in YAML expands natively (Ruby only for unsupported tags)\n- **Autocorrect** — `-a` (safe) / `-A` (all)\n- **Output** — `progress` (marks stream as files finish), `text`, `json`, `github`, `quiet`, `files`, … (TTY color like RuboCop; `--color` / `--no-color`)\n- **Directives** — `# rubocop:disable` / `enable`\n- **Parser** — tree-sitter-ruby (no Prism / no CRuby)\n- **Cache** — content-addressed `cache.redb` under `$RRUBOCOP_CACHE_DIR` or `$XDG_CACHE_HOME/rrubocop` / `~/.cache/rrubocop` (same style as abcop); `--cache false` skips reads but still writes\n- **MCP** — `rrubocop --mcp` starts a [Model Context Protocol](https://modelcontextprotocol.io/) server (official Rust [`rmcp`](https://crates.io/crates/rmcp) SDK) with the same tools as RuboCop 1.85+: `rubocop_inspection` and `rubocop_autocorrection`\n\nReference implementations: [nitrocop](https://github.com/6/nitrocop) (architecture & fixtures), upstream [RuboCop](https://github.com/rubocop/rubocop).\n\n## Built-in cops\n\nDepartments grow breadth-first from common RuboCop plugin sets (nitrocop / gem sources). Notable coverage:\n\n| Department | Notes |\n|---|---|\n| `Layout/*` | 90 layout cops (alignment, spacing, empty lines, indentation; all with autocorrect) |\n| `Lint/*`, `Style/*`, `Naming/*`, `Security/*` | 69 / 143 / 9 / 4 |\n| `Metrics/*` | `AbcSize`, `BlockNesting`, `ClassLength`, `CollectionLiteralLength`, `ModuleLength`, `ParameterLists` |\n| `Rails/*` | 62 rails cops |\n| `Performance/*` | 24 performance cops |\n| `RSpec/*` | 104 rspec cops |\n| `RSpecRails/*` | 2 (`HttpStatus`, `InferredSpecType`) |\n| `FactoryBot/*` | 4 (`AssociationStyle`, `AttributeDefinedStatically`, `CreateList`, `FactoryClassName`) |\n| `Bundler/*`, `Gemspec/*`, `Rake/*` | 4 / 4 / 5 |\n| `GraphQL/*` | 26 rubocop-graphql cops |\n\nUse `rrubocop --list-cops` for the full registered set, and `rrubocop --list-autocorrectable-cops` for cops with `-a`/`-A` support (180 with autocorrect so far; Layout complete; Style/Lint/Rails/RSpec growing).\n\n## Usage\n\n```sh\nrrubocop                         # lint .\nrrubocop app lib                 # paths\nrrubocop -f json .               # JSON offenses\nrrubocop -a .                    # safe autocorrect\nrrubocop -A .                    # all autocorrect\nrrubocop --only Metrics/AbcSize lib\nrrubocop --list-cops\nrrubocop -L                      # list target files\nrrubocop -F 10                   # stop after 10 offenses (off by default; `-F` = 1)\n                                 # with `-a`/`-A`, N is non-autocorrectable offenses only\nrrubocop --mcp                   # MCP server on stdio (for AI clients)\n```\n\nExit codes: `0` clean, `1` offenses at/above `--fail-level`, `2` error.\n\n## MCP (Model Context Protocol)\n\n`rrubocop --mcp` runs a long-lived MCP server on stdio — same idea as [RuboCop’s MCP](https://docs.rubocop.org/rubocop/latest/usage/mcp.html), with no Ruby `mcp` gem. Tools:\n\n| Tool | Purpose |\n|---|---|\n| `rubocop_inspection` | Lint via `path` and/or inline `source_code`; returns LSP-shaped offense JSON |\n| `rubocop_autocorrection` | Autocorrect (`safety: true` = safe only; `false` = all); writes files when `path` is set |\n\n- MCP Registry name: `mcp-name: io.github.adrianov/rrubocop`\n\nMetadata lives in [`server.json`](./server.json) (Cargo package on crates.io). Each `v*` tag publishes that listing to the [MCP Registry](https://registry.modelcontextprotocol.io/).\n\nExample client config (Cursor / VS Code / Windsurf):\n\n```json\n{\n  \"mcpServers\": {\n    \"rrubocop\": {\n      \"type\": \"stdio\",\n      \"command\": \"rrubocop\",\n      \"args\": [\"--mcp\"],\n      \"cwd\": \"/path/to/your/project\"\n    }\n  }\n}\n```\n\nClaude Code:\n\n```sh\nclaude mcp add rrubocop -- rrubocop --mcp\n```\n\nIntended for MCP clients, not interactive use.\n\n## Caching\n\nContent-addressed cache under `$RRUBOCOP_CACHE_DIR` (or `$XDG_CACHE_HOME/rrubocop` / `~/.cache/rrubocop`). Keys cover contents, version, rule revision, `--only`/`--except`, config fingerprint, and path. Auto-pruned to 20 000 entries; `--cache false` skips reads but still writes. Autocorrect runs bypass the cache. Nothing is written inside the project.\n\n## Benchmarks\n\nCold lint (cache off) on a large Rails codebase (~3.8k Ruby files), same host:\n\n| Tool | Wall clock | Result | Notes |\n|---|---|---|---|\n| `bundle exec rubocop --cache false` | **2m 37s** (`2:36.64`) | 0 offenses | ~99% CPU (mostly single-core) |\n| `rrubocop --cache false` | **7.0s** (`7.005`) | 0 offenses | ~1040% CPU (parallel) |\n| `nitrocop --no-cache` | **8.9s** (`8.906`) | ~21k offenses | ~1000% CPU; not a fair parity run (see below) |\n\nrrubocop is ≈ **22×** faster wall clock than RuboCop (`156.6s / 7.0s`) on the same clean result. RuboCop user time was 155s; rrubocop used 71s of CPU across cores.\n\n**nitrocop caveat:** out of the box it did not honor the same disabled cops / custom rules / gem configs as `bundle exec rubocop` (e.g. failed `inherit_gem` load, skipped/unimplemented cops), so it reported ~21k false positives vs RuboCop/rrubocop’s clean run. Matching that baseline needs extra setup (`--migrate`, plugin/config wiring). Treat the 8.9s figure as raw throughput only, not drop-in parity.\n\nCold lint (cache off) on [rails/rails](https://github.com/rails/rails) (`main`, RuboCop 1.79.2 via `bundle exec`), same host (4 cores), both clean (0 offenses). Two runs averaged:\n\n| Tool | Wall clock | Notes |\n|---|---|---|\n| `bundle exec rubocop --cache false` | **1m 7s** (`67.254`) | ~99% CPU (mostly single-core); 3543 files |\n| `rrubocop --cache false` | **5.7s** (`5.668`) | ~357% CPU (parallel); 3446 files |\n\n≈ **12×** faster wall clock (`67.254s / 5.668s`). RuboCop user time was 66.9s; rrubocop used 20.2s of CPU across cores.\n\nSame host, cold `--cache false`, offense-set parity on **Active Support** and **Active Record** (`fp=0`, `fn=0` on shared `.rb` files):\n\n| Target | RuboCop | rrubocop | Speedup |\n|---|---|---|---|\n| `activesupport` (rails `main`) | 11.566s (531 files) | 1.872s | ≈6.2× |\n| `activerecord` (rails `main`) | 29.611s (1162 files) | 2.780s | ≈10.7× |\n| `activesupport` (v8.1.3.1) | 10.729s (506 files) | 1.795s | ≈6.0× |\n| `activerecord` (v8.1.3.1) | 27.847s (1126 files) | 2.656s | ≈10.5× |\n\nCold lint on a fresh **`rails new`** app (Rails 8.1.3.1, default `rubocop-rails-omakase` via `inherit_gem`, RuboCop 1.90.0 via `bundle exec`), plus scaffold/model/mailer/job generators (41 identical target files). Offense-set parity `fp=0`, `fn=0` (both clean). Two-run average:\n\n| Tool | Wall clock |\n|---|---|\n| `bundle exec rubocop --cache false` | **0.722s** |\n| `rrubocop --cache false` | **0.593s** |\n\n## Cross-test vs nitrocop\n\nWith a local nitrocop build:\n\n```sh\ntestdata/cross_test_nitrocop.py /path/to/fixture_dir\n```\n\nCompares `(path, line, cop_name)` offense sets.\n\n## License\n\nGPL-3.0-or-later. See [NOTICE](NOTICE) for MIT attribution of nitrocop-derived design/logic.\n",
+  "status": "curated"
+}

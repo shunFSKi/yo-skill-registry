@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.unnamedaiagent/sigtap-agent-tools",
+  "type": "mcp",
+  "name": "sigtap Agent Tools",
+  "description": "13 paid x402 micro-tools, USDC on Base: email audit/grade/templates, hash, JWT, UUID, slug, regex.",
+  "author": "io.github.unnamedaiagent",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/unnamedaiagent/sigtap-agent-tools",
+    "repo": "unnamedaiagent/sigtap-agent-tools"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://sigtap-mcp.sigtap.workers.dev/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-05T13:28:56.499916Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "办公",
+    "featured": false
+  },
+  "readme": "# sigtap Agent Tools\n\n12 paid micro-tools for AI agents over **x402** (HTTP 402, USDC on Base mainnet) plus a\nrunnable **MCP server**. Pay per call ($0.001-$0.01), no signup, no API keys -\nthe signed payment IS the credential.\n\n- HTTP API: `https://sigtap-outreach-api.sigtap.workers.dev` (15 resources registered on x402scan)\n- MCP (Streamable HTTP): `https://sigtap-mcp.sigtap.workers.dev/mcp` (13 tools; discovery: [/openapi.json](https://sigtap-mcp.sigtap.workers.dev/openapi.json), [/llms.txt](https://sigtap-mcp.sigtap.workers.dev/llms.txt), [server-card](https://sigtap-mcp.sigtap.workers.dev/.well-known/mcp/server-card.json))\n- Facilitator: PayAI (`eip155:8453`, asset USDC `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913`)\n- Kit tier (humans): https://unnamedaiagent.github.io/pitchpilot-kit/ - AI Outreach Kit, $19, crypto checkout\n\n## Free touch (no wallet needed)\n\n| Route | What it returns |\n|---|---|\n| `GET /` | Free catalog: every tool with price, params, live URL |\n| `GET /score-preview?subject=...` | Subject-line-only preview of the email grader |\n| `GET /hash-preview?text=...` | sha256 + crc32 of the first 1000 chars |\n| `GET /openapi.json` | Full OpenAPI with `x-payment-info` prices |\n| `GET /llms.txt` | Agent-readable endpoint digest |\n\n## Paid endpoints (price live-verified from `/openapi.json`)\n\n**Outreach intelligence (the money tools):**\n\n| Endpoint | Price | Output |\n|---|---|---|\n| `GET /deliverability?domain=` | $0.003 | SPF/DKIM/DMARC audit for a sending domain |\n| `GET /grade?to=&subject=&body=` | $0.005 | 12-point cold-email score with concrete fixes |\n| `GET /template?...` | $0.010 | Personalized cold email from proven templates |\n\n**Micro-tools ($0.001-$0.003):**\n\n| Endpoint | Price | Output |\n|---|---|---|\n| `GET /tools/crypto-price?from=BTC&to=USD` | $0.002 | Coinbase spot/buy/sell + spread % |\n| `GET /tools/domain-age?domain=` | $0.003 | Registration date, age, registrar (RDAP) |\n| `GET /tools/hash?text=` | $0.001 | SHA-256/384/512, hex, base64(url), CRC32 |\n| `GET /tools/json?data=` | $0.001 | Flatten to dot paths / rows to CSV |\n| `GET /tools/jwt-decode?token=` | $0.001 | JWT header+payload with safety flags |\n| `GET /tools/regex?pattern=&text=` | $0.001 | Matches, groups, count, ReDoS-risk heuristic |\n| `GET /tools/slug?text=` | $0.001 | Unicode-safe slug (incl. Cyrillic translit) |\n| `GET /tools/uuid?type=&count=` | $0.001 | UUIDv4/v7, ULID, nanoid - batched |\n| `GET /tools/weather?lat=&lon=` | $0.001 | Current + next-3h temps (open-meteo) |\n\n## x402 payment flow (one round-trip)\n\n1. `GET /tools/hash?text=hello` without payment -> **HTTP 402** with a\n   `PAYMENT-REQUIRED` header (base64 JSON: resource, `amount` in USDC units,\n   network `eip155:8453`, `payTo`, 300s timeout).\n2. Any x402-aware client signs the exact USDC transfer and retries with an\n   `X-PAYMENT` header.\n3. 200 + result. First settled call also activates the listing on the\n   PayAI facilitator's Bazaar discovery catalog.\n\n> **Heads-up:** the API is behind Cloudflare. Python's default\n> `Python-urllib` User-Agent is blocked (403 error 1010). Any real UA\n> works (`requests`, `httpx`, `curl`, `axios` pass as-is). Details in\n> [SKILL.md](SKILL.md#client-notes-avoid-a-silent-403).\n\n## MCP server\n\n- **Hosted**: `https://sigtap-mcp.sigtap.workers.dev/mcp` -\n  Streamable HTTP, 13 tools, x402 v2 payment settled in-band. Health: `/health`,\n  card: `/.well-known/mcp/server-card.json`.\n- **This repo** (`mcp_server.py`, Dockerfile): zero-dependency stdio server,\n  Python 3 stdlib only. `catalog`, `score_preview`, `hash_preview` are free;\n  paid tools proxy the live API and surface the real 402 block until settled.\n  See [SERVER.md](SERVER.md). Registered in the Official MCP Registry as\n  `io.github.unnamedaiagent/pitchpilot-agent-tools`.\n\n## Agent integration\n\n- Skill for Claude Code / any SKILL.md-aware agent: see [SKILL.md](SKILL.md)\n  (indexed on skills.sh).\n- Claude Desktop / MCP clients: hosted URL above, or docker stdio:\n  `docker run -i --rm pitchpilot-agent-tools`.\n\nStats: `GET /stats` on the API (total paid calls, revenue, by route - public,\nno PII). Pricing may be adjusted upward; `/openapi.json` is always live.\n",
+  "status": "curated"
+}

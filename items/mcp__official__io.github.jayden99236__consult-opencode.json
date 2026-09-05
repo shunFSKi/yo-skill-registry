@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.jayden99236/consult-opencode",
+  "type": "mcp",
+  "name": "consult-opencode",
+  "description": "Delegate a self-contained task to opencode's free-tier models as a one-shot subagent.",
+  "author": "io.github.jayden99236",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/jayden99236/consult-opencode",
+    "repo": "jayden99236/consult-opencode"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "https://github.com/jayden99236/consult-opencode/releases/download/v0.1.1/consult-opencode.mcpb"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-05T14:34:42.160653Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "办公",
+    "featured": false
+  },
+  "readme": "# consult-opencode\n\n[![MCP Registry](https://img.shields.io/badge/MCP_Registry-io.github.jayden99236%2Fconsult--opencode-blue)](https://registry.modelcontextprotocol.io/v0/servers?search=consult-opencode)\n\nDelegate a self-contained task to [opencode](https://opencode.ai) as a one-shot subagent, from any coding agent (or human) that can run a shell command — or, more directly, straight from inside an AI chat client via [MCP](#direct-integration-mcp-server).\n\nListed on the [official MCP Registry](https://registry.modelcontextprotocol.io) as `io.github.jayden99236/consult-opencode`, with a one-click `.mcpb` bundle attached to each [release](https://github.com/jayden99236/consult-opencode/releases) for Claude Desktop and other MCPB-compatible clients.\n\n## Demo\n\n![consult-opencode demo](docs/demo.gif)\n\n## Why\n\nIf you're driving an expensive/primary coding agent (Claude, GPT, etc.) through a session, it's often wasteful to spend one of its own turns on something small and self-contained: summarizing a file, drafting a regex, writing a boilerplate test, getting a second opinion. `opencode` ships its own free-tier models under the `opencode/` provider namespace — zero config, no API key required. This repo gives you two ways to reach it:\n\n- **MCP server** (`mcp-server.mjs`) — the easiest path. Add it once to your AI chat client's config and the model gets a native `consult_opencode` tool, no shell commands involved. See [Direct integration](#direct-integration-mcp-server) below.\n- **CLI script** (`consult-opencode.mjs`) — zero dependencies, for agents/scripts that can only run shell commands, or for calling it yourself from a terminal.\n\nBoth wrap the same core logic in `lib.mjs`.\n\n## Requirements\n\n- [Node.js](https://nodejs.org) >= 18\n- [`opencode`](https://opencode.ai) installed and on your `PATH`:\n  ```bash\n  npm install -g opencode-ai\n  ```\n\nThe CLI script itself (`consult-opencode.mjs` + `lib.mjs`) has no dependencies beyond Node built-ins. The MCP server additionally needs `@modelcontextprotocol/sdk` and `zod` — run `npm install` in this repo to get those (see below).\n\n## Direct integration (MCP server)\n\n[MCP](https://modelcontextprotocol.io) is the standard way to give an AI chat client a native tool without it having to shell out to anything. Once configured, the model just sees a `consult_opencode` tool it can call directly.\n\n```bash\ngit clone https://github.com/jayden99236/consult-opencode.git\ncd consult-opencode\nnpm install\n```\n\n### Claude Desktop\n\nAdd to your `claude_desktop_config.json` ([find it here](https://modelcontextprotocol.io/quickstart/user)):\n\n```json\n{\n  \"mcpServers\": {\n    \"consult-opencode\": {\n      \"command\": \"node\",\n      \"args\": [\"/absolute/path/to/consult-opencode/mcp-server.mjs\"]\n    }\n  }\n}\n```\n\nRestart Claude Desktop and `consult_opencode` shows up as an available tool.\n\n### Claude Code\n\n```bash\nclaude mcp add consult-opencode -- node /absolute/path/to/consult-opencode/mcp-server.mjs\n```\n\nOr add it to a project's `.mcp.json` directly using the same `mcpServers` block shown above.\n\n### Other MCP clients (Cursor, Windsurf, etc.)\n\nAny MCP-compatible client takes the same shape: a command (`node`) and args (the absolute path to `mcp-server.mjs`), configured as a stdio server. Check your client's docs for where that config lives — the `mcpServers` entry above is portable as-is.\n\nThe tool takes `task` (required) and an optional `model` (defaults to `opencode/big-pickle`, opencode's free tier), and returns the subagent's response as text.\n\n## CLI usage\n\n```bash\nnode consult-opencode.mjs \"Summarize what this function does: ...\"\n```\n\nOr install it globally to get a `consult-opencode` command:\n\n```bash\nnpm install -g .\nconsult-opencode \"Write a regex for US zip codes\"\n```\n\nPipe a task in instead of passing it as an argument:\n\n```bash\ncat some-file.js | consult-opencode \"Explain what this file does\"\n```\n\n### Options\n\n| Flag | Description |\n|---|---|\n| `--model <provider/model>` | Model to use (default: `opencode/big-pickle`, opencode's free tier). Once you've authenticated another provider in opencode (`opencode providers login`), you can point this at it, e.g. `--model anthropic/claude-haiku-4-5`. |\n| `--json` | Print `{ model, text, cost }` as JSON instead of plain text. |\n| `-h`, `--help` | Show usage. |\n\n### From another agent\n\nMost coding agents can just run this as a shell command and read its stdout:\n\n```bash\nnode /path/to/consult-opencode.mjs \"task description here\"\n```\n\nExit code is non-zero on failure, with the error on stderr; stdout carries only the result text (or the JSON blob with `--json`), so it composes cleanly in scripts and pipelines.\n\n## The Windows gotcha this script works around\n\n`opencode`'s compiled Windows binary (`opencode.exe`) has been observed to **hang indefinitely** when its stdout is an anonymous pipe — which is exactly what Node's `child_process` gives you by default when you capture a child process's output. This reproduced consistently (6/6 runs) across both a direct `.exe` spawn and a shell-wrapped one.\n\nThe fix: redirect the child's stdout/stderr to a real temp file on disk, then read the file back once the process exits, instead of piping. This works reliably on Windows and is harmless on other platforms, so `consult-opencode` always does it this way regardless of OS.\n\nIf you're integrating with opencode from your own Node tooling and see a hang with zero output, this is almost certainly why.\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

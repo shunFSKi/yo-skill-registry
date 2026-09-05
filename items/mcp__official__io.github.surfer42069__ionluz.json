@@ -1,0 +1,61 @@
+{
+  "id": "mcp:official/io.github.surfer42069/ionluz",
+  "type": "mcp",
+  "name": "ionluz — solar quotes (Brazil)",
+  "description": "Solar quotes for Brazilian installers: kWp sizing, own pricing, payback under Law 14.300, PDF.",
+  "author": "io.github.surfer42069",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/surfer42069/ionluz-mcp",
+    "repo": "surfer42069/ionluz-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://app.ionluz.com.br/api/mcp",
+    "env": [
+      {
+        "name": "Authorization",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-05T07:49:26.466975Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "办公",
+    "featured": false
+  },
+  "readme": "# ionluz MCP server\n\nRemote MCP server that lets an AI agent quote solar energy systems for Brazilian installers, using the installer's own pricing and catalog.\n\n- Endpoint (Streamable HTTP): `https://app.ionluz.com.br/api/mcp`\n- Auth: `Authorization: Bearer <ionluz API key>` (keys start with `ilz_`; created in the ionluz dashboard, plan Total + API)\n- Docs: https://app.ionluz.com.br/docs/api#mcp\n- Product: https://ionluz.com.br/\n\n## Tools\n\n| Tool | What it does |\n|---|---|\n| `quote_solar` | Takes monthly consumption in kWh (required) and optional UF, connection type (mono/bi/tri), desired kWp, tariff, roof type and lead data. Returns system size, price (installer's pricing), payback and savings under Law 14.300. Simulates by default; `persist=true` (requires `consent=true`) saves the proposal and returns the PDF and interactive-page links. |\n| `check_coverage` | Returns the power ranges the account can quote with kit and price, so the agent knows what it can offer before promising. |\n\n## Client configuration\n\n```json\n{\n  \"mcpServers\": {\n    \"ionluz\": {\n      \"url\": \"https://app.ionluz.com.br/api/mcp\",\n      \"headers\": { \"Authorization\": \"Bearer ilz_your_key\" }\n    }\n  }\n}\n```\n\n## Limits\n\n- 300 requests/min per IP before authentication (anti-flood, REST and MCP).\n- 120 JSON-RPC messages/min per key on the MCP transport.\n- Saving a proposal creates a lead with personal data: `persist=true` requires explicit consent (`consent=true`, LGPD). An optional `idempotencyKey` prevents duplicate leads on retries.\n\n## About\n\nionluz is a proposal generator for solar installers in Brazil: from the customer's consumption to a premium PDF and interactive proposal in seconds, with honest payback under Law 14.300. This repository holds only the MCP registry metadata; the server itself is hosted.\n\nGuide (Portuguese): https://ionluz.com.br/guias/cotacao-solar-por-agente-de-ia-mcp/\n",
+  "status": "curated"
+}

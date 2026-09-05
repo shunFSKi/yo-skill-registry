@@ -6,25 +6,29 @@
   "author": "io.github.getanyapi-com",
   "source": {
     "registry": "mcp-official",
-    "url": "https://github.com/getanyapi-com/skills",
-    "repo": "getanyapi-com/skills"
+    "url": "https://github.com/getanyapi-com/mcp",
+    "repo": "getanyapi-com/mcp"
   },
   "license": null,
   "install": {
-    "kind": "remote",
-    "remote_url": "https://api.getanyapi.com/mcp",
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "anyapi-mcp"
+    ],
     "env": [
       {
-        "name": "Authorization",
-        "required": true,
+        "name": "ANYAPI_API_KEY",
+        "required": false,
         "secret": true
       }
     ]
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-06-17T05:06:41.656122Z",
-    "score": 40
+    "pushed_at": "2026-09-05T08:49:05.079953Z",
+    "score": 55
   },
   "security": {
     "score": 100,
@@ -56,6 +60,6 @@
     "category": "编程",
     "featured": false
   },
-  "readme": null,
+  "readme": "# AnyAPI MCP server\n\nHundreds of scraping and data APIs through one gateway: one key, USD\npay-per-request, normalized schemas, automatic failover.\n\nThis package is a local **stdio** MCP server that proxies to the hosted AnyAPI\nMCP server at `https://api.getanyapi.com/mcp`. Clients that speak remote\nStreamable HTTP can point at that URL directly and skip this package entirely.\nUse this one when your client only launches local MCP servers over stdio.\n\n- Website: https://getanyapi.com\n- Docs: https://getanyapi.com/docs - MCP page: https://getanyapi.com/docs/mcp-server\n- Contact: support@getanyapi.com\n\n## Install\n\nWith `npx`, no clone and no build:\n\n```json\n{\n  \"mcpServers\": {\n    \"anyapi\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"anyapi-mcp\"],\n      \"env\": { \"ANYAPI_API_KEY\": \"aa_live_...\" }\n    }\n  }\n}\n```\n\nWith Docker, no clone and no build:\n\n```json\n{\n  \"mcpServers\": {\n    \"anyapi\": {\n      \"command\": \"docker\",\n      \"args\": [\"run\", \"-i\", \"--rm\", \"-e\", \"ANYAPI_API_KEY\", \"ghcr.io/getanyapi-com/mcp\"],\n      \"env\": { \"ANYAPI_API_KEY\": \"aa_live_...\" }\n    }\n  }\n}\n```\n\nGet a key at https://getanyapi.com/dashboard/keys. Agents can mint their own\nfree-trial key with no dashboard and no email:\n\n```bash\ncurl -s -X POST https://api.getanyapi.com/agent/signup\n```\n\n## Configuration\n\n| Variable | Required | Default | Meaning |\n| --- | --- | --- | --- |\n| `ANYAPI_API_KEY` | No | none | Your AnyAPI key. Every tool call needs it. Connecting and listing the tools does not. |\n| `ANYAPI_MCP_URL` | No | `https://api.getanyapi.com/mcp` | The hosted endpoint to proxy to. |\n\nThe key is optional on purpose, but be precise about what that buys. The hosted\nserver answers `initialize` and `tools/list` without a credential, so a client\nconnects and sees the ten tools with no account. **Every `tools/call` needs a\nkey, including the discovery tools** - `search_apis`, `list_apis` and `get_api`\nall return 401 without one.\n\nTo read the catalog with no account at all, use the public REST endpoints\ninstead: `GET https://api.getanyapi.com/catalog` and\n`GET https://api.getanyapi.com/catalog/search`. Both answer keyless.\n\n## Tools\n\nTen tools, read live from the hosted server rather than declared in this\npackage, so a catalog or schema change reaches you without a release here.\n\n| Tool | What it does |\n| --- | --- |\n| `search_apis` | Search APIs by meaning and keyword. Takes any combination of `query`, `category` and `platform`; a scope on its own is a complete search. |\n| `list_apis` | Browse the catalog as lightweight summaries (id, name, category, USD pricing), with an optional `category`. |\n| `get_api` | The full definition of one API: normalized input/output JSON Schemas, per-lane USD pricing, and trailing-30-day latency. |\n| `quote_api` | The exact USD price of a `run_api` call before running it. Nothing is charged or executed. |\n| `run_api` | Execute an API by SKU with normalized input. Returns the output, `costUsd`, and items. Supports `fields`, `max_items`, `summary` and `jq`. |\n| `get_request` | Inspect or resume a durable request. Reads stored state and never repeats the paid dispatch. |\n| `read_result` | Re-shape a prior run's output without re-running or paying again. |\n| `get_balance` | The remaining USD wallet balance for the key. |\n| `report_bug` | Report wrong, empty, or malformed data for input you believe is valid. Free. |\n| `send_feedback` | Report a missing API, a missing field, or anything confusing. Free. |\n\nFailed calls are never charged.\n\n## Develop\n\n```bash\nnpm install\nnpm run check   # build, then unit tests\n```\n\n`npm run check` needs no network and no API key. To drive the built server\nagainst production by hand:\n\n```bash\nnpm run build\nANYAPI_API_KEY=aa_live_... node dist/index.js\n```\n\n## License\n\nApache-2.0\n",
   "status": "curated"
 }
