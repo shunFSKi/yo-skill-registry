@@ -27,7 +27,7 @@
   "quality": {
     "stars": null,
     "pushed_at": "2026-09-04T17:03:22.832666Z",
-    "score": 52
+    "score": 42
   },
   "security": {
     "score": 100,
@@ -59,6 +59,6 @@
     "category": null,
     "featured": false
   },
-  "readme": "<!-- mcp-name: io.github.atomno-mcp/mcp-pharma -->\n\n# atomno-mcp-pharma\n\nКлиент справочника лекарств РФ. Ответ — из официальной суточной выгрузки ГРЛС, реестра предельных цен ЖНВЛП и еженедельной выгрузки Росздравнадзора о контроле качества серий. Это справка из государственного реестра, а не медицинский совет.\n\nDrug reference MCP client. Official Minzdrav GRLS dump, VEDL ceiling prices, Roszdravnadzor series letters.\n\n> **Это справка из государственного реестра, а не медицинский совет.**\n\n## Что умеет\n\n- Поиск препарата по торговому названию или МНН.\n- Карточка регистрационного удостоверения: статус, держатель, даты, формы, производитель.\n- Предельная цена по перечню ЖНВЛП, если позиция есть в реестре цен.\n- Письма Росздравнадзора о сериях: название, серия, тип письма, номер и дата.\n\nТекста инструкции в выгрузке ГРЛС нет: тул `get_instruction` отвечает `ready: false` и называет причину. Пустой список препаратов не подменяет отказ источника.\n\n## Быстрый старт\n\n```bash\npipx install atomno-mcp-pharma\n# или: uvx atomno-mcp-pharma\n```\n\nCursor / Claude Desktop (`mcp.json` / `claude_desktop_config.json`):\n\n```json\n{\n  \"mcpServers\": {\n    \"pharma\": {\n      \"command\": \"uvx\",\n      \"args\": [\"atomno-mcp-pharma\"],\n      \"env\": { \"MCP_PHARMA_API_KEY\": \"<ваш-ключ-Pro>\" }\n    }\n  }\n}\n```\n\n## Переменные окружения\n\n| Переменная | Описание | Обязательна |\n|---|---|---|\n| `MCP_PHARMA_API_KEY` | Ключ Pro (заголовок X-API-Key). [Получить](https://atomno-mcp.ru/pricing#pharma-pro) | да |\n| `MCP_PHARMA_API_BASE` | URL hosted-бэкенда (по умолчанию — прод) | нет |\n| `MCP_PHARMA_TIMEOUT` | Таймаут HTTP, сек (default 30) | нет |\n| `MCP_PHARMA_LOG_LEVEL` | Уровень логирования (DEBUG/INFO/WARNING/ERROR, default WARNING) | нет |\n\n## Тулы\n\n| Тул | Вход | Что отвечает |\n|---|---|---|\n| `check_drug_registration` | name? / mnn? / ru_number? | статус РУ, держатель, даты |\n| `get_drug_card` | name? / ru_number? | карточка из ГРЛС |\n| `search_drug` | query, limit? | список совпадений |\n| `get_zhnvlp_price` | name? / mnn? | предельные цены ЖНВЛП |\n| `check_recall` | name? / series? | письма Росздравнадзора о сериях |\n| `get_instruction` | name? / ru_number? | `ready: false` — текста инструкции в выгрузке нет |\n\nКаждый ответ содержит `source`, `checked_at` и `disclaimer`.\n\n## Дисклеймер\n\nЭто справка из государственного реестра, а не медицинский совет. Не аффилировано с Минздравом РФ и Росздравнадзором.\n\n## Лицензия\n\nMIT © Atomno\n",
+  "readme": null,
   "status": "curated"
 }

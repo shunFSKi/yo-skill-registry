@@ -2,12 +2,12 @@
   "id": "mcp:official/dev.vantagemcp/vantage",
   "type": "mcp",
   "name": "Vantage",
-  "description": "Checks AI-answer-engine visibility: is your brand cited by ChatGPT, Google AI Overview",
+  "description": "Checks if ChatGPT and Google AI Overviews cite your site for a keyword, and who they cite instead.",
   "author": "dev.vantagemcp",
   "source": {
     "registry": "mcp-official",
-    "url": "https://vantagemcp.dev/mcp",
-    "repo": null
+    "url": "https://github.com/vantagemcp/vantage-mcp",
+    "repo": "vantagemcp/vantage-mcp"
   },
   "license": null,
   "install": {
@@ -16,8 +16,8 @@
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-08-21T00:28:12.363232Z",
-    "score": 42
+    "pushed_at": "2026-09-05T02:58:28.954632Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -46,9 +46,9 @@
     ]
   },
   "tags": {
-    "category": "营销",
+    "category": null,
     "featured": false
   },
-  "readme": null,
+  "readme": "# Vantage\n\n[![vantage-mcp MCP server](https://glama.ai/mcp/servers/vantagemcp/vantage-mcp/badges/score.svg)](https://glama.ai/mcp/servers/vantagemcp/vantage-mcp)\n\nKnow if AI actually cites you.\n\nVantage is an MCP server that checks whether ChatGPT and Google's AI Overview cite your brand, callable directly from Claude Code, Cursor, or any MCP client. No dashboard to interpret, just a straight answer.\n\n## Try it without installing anything\n\n[vantagemcp.dev/check](https://vantagemcp.dev/check) runs a real citation check with no account, no email and no card. Give it a keyword and it returns the measured shape of the answer ChatGPT actually cites for it: whether the answer opens with a list, how long the opening is, how many sources it cites, and which domains those are.\n\nEvery answer keeps a permanent page, and they are all listed in [check/sitemap.xml](https://vantagemcp.dev/check/sitemap.xml).\n\nPublished on the [Official MCP Registry](https://registry.modelcontextprotocol.io/) under the domain-verified namespace `dev.vantagemcp/vantage`.\n\n> **Not to be confused with:** [vantage.sh](https://www.vantage.sh), a cloud cost-management company with its own, unrelated MCP server also named Vantage. Different product, same name.\n\n## Install\n\nAdd to your MCP client config:\n\n```json\n{\n  \"mcpServers\": {\n    \"vantage\": {\n      \"url\": \"https://vantagemcp.dev/mcp\",\n      \"headers\": { \"Authorization\": \"Bearer YOUR_API_KEY\" }\n    }\n  }\n}\n```\n\nTry it first with no account at all at [vantagemcp.dev/check](https://vantagemcp.dev/check), or get a free API key (3 checks/month, no card required) at [vantagemcp.dev](https://vantagemcp.dev).\n\n## Tools\n\n### `check_ai_visibility`\nIs a domain cited at all, on a given AI platform.\n> \"Does ChatGPT know about us?\"\n\n### `find_citation_leaders`\nWho dominates AI-answer citations for a topic, and whether a domain is among them.\n> \"Who's winning AI search for this?\"\n\n### `analyze_citation_trend`\nMonth-by-month mention counts for a domain, so you can see whether visibility is growing or fading.\n> \"Is our AI visibility improving?\"\n\n### `analyze_citation_structure`\nHow the winning AI answer for a topic is actually shaped: list-led, sources cited, opening length.\n> \"What does a winning answer look like?\"\n\n### `analyze_citation_structure_batch`\nSame as `analyze_citation_structure`, across up to 10 related topics in one call, for content planning across a cluster.\n> \"What do winning answers look like across this whole topic cluster?\"\n\n### `analyze_citation_gap`\nDiffs your own page's structure against the winning AI-cited answer for the same keyword, so you get concrete gaps to close instead of just the winner's shape.\n> \"What should I actually change on this page to get cited?\"\n\n## Example\n\n```\n> agent calls find_citation_leaders(\n  keyword: \"best mood tracker app\",\n  platform: \"chat_gpt\"\n)\n\n< response\n{\n  \"keyword\": \"best mood tracker app\",\n  \"platform\": \"chat_gpt\",\n  \"top_domains\": [\n    { \"domain\": \"www.reddit.com\", \"mentions\": 59 },\n    { \"domain\": \"apps.apple.com\", \"mentions\": 55 },\n    { \"domain\": \"en.wikipedia.org\", \"mentions\": 49 },\n    { \"domain\": \"www.makeuseof.com\", \"mentions\": 12 },\n    { \"domain\": \"play.google.com\", \"mentions\": 11 }\n  ]\n}\n```\n\n## Running your own instance\n\nThis repo is the MCP server itself: API-key auth, usage metering, one tool per read (see Tools above). Billing and account provisioning are a separate internal service, not included here.\n\n```bash\nuv pip install -e .\nexport DATAFORSEO_USERNAME=...\nexport DATAFORSEO_PASSWORD=...\n\n# stdio (local MCP client, e.g. Claude Desktop config pointing at this command)\npython -m vantage_mcp.server\n\n# streamable-http (network service, bind to loopback behind your own reverse proxy)\nexport VANTAGE_PORT=8420\npython -m vantage_mcp.server --http\n```\n\nRequires a [DataForSEO](https://dataforseo.com/) account for the underlying SERP/AI-answer data.\n\n## License\n\nMIT\n",
   "status": "curated"
 }

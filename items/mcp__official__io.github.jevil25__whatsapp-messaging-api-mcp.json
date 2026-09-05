@@ -1,0 +1,65 @@
+{
+  "id": "mcp:official/io.github.jevil25/whatsapp-messaging-api-mcp",
+  "type": "mcp",
+  "name": "WhatsApp Messaging API",
+  "description": "Send WhatsApp messages from Claude. No Meta Business approval or WhatsApp Business account.",
+  "author": "io.github.jevil25",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/jevil25/whatsapp-messaging-api-mcp",
+    "repo": "jevil25/whatsapp-messaging-api-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "whatsapp-messaging-api-mcp"
+    ],
+    "env": [
+      {
+        "name": "WHATSAPP_API_KEY",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-05T07:23:43.527337Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# WhatsApp Messaging API — MCP Server\n\nSend WhatsApp messages from Claude, Cursor, or any MCP client. Create a session, scan a QR code, and send text, images and files — **no Meta Business approval and no WhatsApp Business account required.**\n\nWraps the [WhatsApp Messaging API](https://rapidapi.com/jevil257/api/whatsapp-messaging-bot).\n\n## Quick start\n\n1. Get a free API key from [RapidAPI](https://rapidapi.com/jevil257/api/whatsapp-messaging-bot) — no credit card.\n2. Add this to your MCP client config (Claude Desktop: `claude_desktop_config.json`):\n\n   ```json\n   {\n     \"mcpServers\": {\n       \"whatsapp\": {\n         \"command\": \"npx\",\n         \"args\": [\"-y\", \"whatsapp-messaging-api-mcp\"],\n         \"env\": {\n           \"WHATSAPP_API_KEY\": \"your-rapidapi-key\"\n         }\n       }\n     }\n   }\n   ```\n\n3. Restart the client. Ask it to create a WhatsApp session and show you the QR code.\n\nNothing to install or build — `npx` fetches the package on first run.\n\n## Tools\n\n| Tool | Description |\n|---|---|\n| `list_sessions` | List all sessions on this API key |\n| `create_session` | Create a new session |\n| `get_session_status` | Check a session's current status |\n| `get_qr_code` | Get the QR code to authenticate a session |\n| `request_pairing_code` | Get an 8-digit pairing code instead of a QR |\n| `check_contact_exists` | Check if a phone number is on WhatsApp before sending |\n| `send_text_message` | Send a text message |\n| `send_image` | Send an image via URL |\n| `send_file` | Send a file (PDF, document) via URL |\n\n## Typical flow\n\n1. `create_session` → `get_qr_code` → scan with WhatsApp (Settings → Linked Devices)\n2. `get_session_status` until it reports `WORKING`\n3. `check_contact_exists`, then `send_text_message` / `send_image` / `send_file`\n\nSessions stay authenticated between runs, so steps 1-2 are one-time per number.\n\n## Configuration\n\n| Variable | Required | Description |\n|---|---|---|\n| `WHATSAPP_API_KEY` | yes | Your RapidAPI key. The server exits on startup if it is missing. |\n\nThe key is read from the environment and sent only to the API host. It is never logged.\n\n## Local development\n\n```bash\ngit clone https://github.com/jevil25/whatsapp-messaging-api-mcp.git\ncd whatsapp-messaging-api-mcp\nnpm install\nnpm run dev      # runs src/index.ts directly via tsx, no build step\nnpm run build    # compile to dist/\nnpm test         # boots the built server and drives a real MCP handshake\n```\n\n`npm test` needs no credentials — it passes a dummy key, which gets far enough to\nlist tools because nothing in the handshake makes an API call.\n\nTo point an MCP client at your local build, use `\"command\": \"node\"` with\n`\"args\": [\"/absolute/path/to/dist/index.js\"]`.\n\nSee [DEVELOPING.md](DEVELOPING.md) for the release process.\n\n## Links\n\n- [npm package](https://www.npmjs.com/package/whatsapp-messaging-api-mcp)\n- [MCP registry entry](https://registry.modelcontextprotocol.io/v0/servers?search=whatsapp-messaging-api-mcp) — `io.github.jevil25/whatsapp-messaging-api-mcp`\n- [WhatsApp Messaging API docs](https://whatsapp-messaging.retentionstack.agency/docs)\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

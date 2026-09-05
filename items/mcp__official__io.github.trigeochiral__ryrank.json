@@ -32,7 +32,7 @@
   "quality": {
     "stars": null,
     "pushed_at": "2026-09-04T12:59:15.657115Z",
-    "score": 52
+    "score": 42
   },
   "security": {
     "score": 100,
@@ -64,6 +64,6 @@
     "category": "金融",
     "featured": false
   },
-  "readme": "# RyRank — MCP server\n\n<!-- mcp-name: io.github.trigeochiral/ryrank -->\n\nA Cohere-compatible reranker, pay-per-call in USDC on Base (x402), free tier, no signup.\n\nHosted API: `https://trigeochiral.com` — set it as `RYRANK_API`.\n\n## Tool\n\n| Tool | What |\n|---|---|\n| `rerank` | Rerank documents by relevance to a query. Cohere-compatible response shape (`results: [{index, relevance_score}]`), so it drops into an existing `co.rerank()` call. ~$0.001/call over x402 (roughly half Cohere Rerank's list price) or a free tier. |\n\n## Why\n\nA hybrid reranker, not a cross-encoder: strong when the candidates already\nshare vocabulary with the query, which is the common case for RAG retrieval output and\ndocument/tool shortlists. Built for high-volume, latency- and cost-sensitive reranking —\nnarrowing a retrieval candidate set, deduping, triage — rather than close semantic\ndisambiguation between near-identical phrasings. Pay-per-call and about half the price is\nthe trade for that.\n\nVerified against the real `cohere.Client`, `cohere.ClientV2` and `voyageai.Client` SDKs:\npoint `base_url` at this API and existing rerank code runs unmodified.\n\n## Install\n\n```bash\npip install ryrank-mcp\nclaude mcp add ryrank --env RYRANK_API=https://trigeochiral.com -- ryrank-mcp\n```\n\nor with `uvx` (no install):\n\n```bash\nclaude mcp add ryrank --env RYRANK_API=https://trigeochiral.com -- uvx ryrank-mcp\n```\n\nOptional: `RYRANK_XPAYMENT` = a base64 x402 `X-PAYMENT` payload, to make paid calls past the\nfree tier. Without it you get 25 free calls/day per IP.\n\n## Direct HTTP (no MCP)\n\n```bash\ncurl -sX POST https://trigeochiral.com/v1/rerank -H 'content-type: application/json' \\\n  -d '{\"query\":\"how do I reset my password\",\"documents\":[\"Go to Settings > Security and click Reset Password.\",\"Our refund policy allows returns within 30 days.\"],\"top_n\":2}'\n```\n\nAlso speaks the exact Cohere v2 (`POST /v2/rerank`) and Voyage (`POST /voyage/v1/rerank`) request\nand response shapes, so their official SDKs work unmodified with just a `base_url` override — see\n`https://trigeochiral.com` for details.\n\n## License\n\nMIT\n",
+  "readme": null,
   "status": "curated"
 }

@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/app.nd-x/ndex-pricing",
+  "type": "mcp",
+  "name": "NDEX Pricing",
+  "description": "Swiss market prices for video games and consoles, with provenance. Read-only, OAuth 2.1.",
+  "author": "app.nd-x",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/Yyunozor/ndex-pricing",
+    "repo": "Yyunozor/ndex-pricing"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://www.nd-x.app/api/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-04T23:53:42.805368Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "设计",
+    "featured": false
+  },
+  "readme": "# NDEX Pricing — MCP connector\n\nSwiss market prices for video games and consoles, with provenance, served to any MCP client from\n`https://www.nd-x.app/api/mcp`. Read-only: two tools, one scope, no writes.\n\n| Tool | What it does |\n|---|---|\n| `search_ndex_catalog` | Find a game or console in the NDEX catalog (platform disambiguates homonyms). |\n| `get_ndex_estimate` | Swiss observed prices and external PAL references, kept separate, with sample size, freshness and confidence. |\n\nThe skill in `skills/ndex-pricing/` teaches the model how to use them: identify first, never average\nsources of different provenance, say when the price is unknown.\n\n## Connect\n\n**ChatGPT, claude.ai, Claude Desktop** — add `https://www.nd-x.app/api/mcp` as a connector. The server\nis its own OAuth 2.1 authorization server (PKCE S256, Client ID Metadata Documents, dynamic registration\nas fallback). You sign in with your NDEX account and consent once.\n\nIn ChatGPT, a remote server is registered through developer mode (Plugins → new connection with the\nURL above); ChatGPT assigns it an id starting with `plugin_asdk_app_`. A ChatGPT / Codex plugin then\nreferences that registration through an `.app.json` file named by the `apps` field of\n`.codex-plugin/plugin.json`. This repository ships the manifest and the skill; the `.app.json` is\nproduced at registration time, so it is not committed here.\n\n**Claude Code** — install this plugin, or add the server directly:\n\n```bash\nclaude mcp add --transport http ndex-pricing https://www.nd-x.app/api/mcp\n```\n\nClaude Code identifies itself with its Client ID Metadata Document and completes the OAuth flow in your\nbrowser. No token to paste.\n\n**Codex, Cursor, VS Code, Gemini CLI, Windsurf, Zed, Warp** — point the client at the same URL. Clients\nthat only support a static header can use a beta bearer token, handed out on request at\n[nd-x.app/mcp](https://www.nd-x.app/mcp).\n\n## Layout\n\n- `.claude-plugin/plugin.json` — Claude Code / Cowork plugin manifest (skill + remote MCP server in `.mcp.json`).\n- `.codex-plugin/plugin.json` — ChatGPT / Codex plugin manifest (skill; the remote server is attached through `apps` → `.app.json` once registered in ChatGPT, see above).\n- `server.json` — entry for the official MCP registry, published as `app.nd-x/ndex-pricing`.\n- `skills/ndex-pricing/SKILL.md` — the skill, in French (the model follows it in any language).\n\n## Privacy and terms\n\n[nd-x.app/privacy](https://www.nd-x.app/privacy). The connector reads catalog and price data only; it\nnever touches your collection, your account, or the conversation.\n\nSupport: ndex_retro@proton.me\n",
+  "status": "curated"
+}

@@ -1,0 +1,70 @@
+{
+  "id": "mcp:official/io.github.sksareen/smartipedia-mcp",
+  "type": "mcp",
+  "name": "Smartipedia",
+  "description": "Read, search and edit Smartipedia, an open AI-native encyclopedia. No API key, no signup.",
+  "author": "io.github.sksareen",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/sksareen/smartipedia-mcp",
+    "repo": "sksareen/smartipedia-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "smartipedia-mcp"
+    ],
+    "env": [
+      {
+        "name": "SMARTIPEDIA_URL",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "SMARTIPEDIA_EDITOR",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-04T22:38:41.271675Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# smartipedia-mcp\n\nMCP server for [Smartipedia](https://smartipedia.com) — the AI-native encyclopedia.\n\nRead, search, write and edit encyclopedia articles from any MCP client. **No API key, no signup, no cost.**\n\nSmartipedia is an open encyclopedia built for agents: 1,200+ sourced articles, full CRUD over a public REST API. This wraps that API as MCP tools so your agent can use it directly.\n\n## Install\n\n### Hosted (nothing to install)\n\nSmartipedia runs this server itself. Point any MCP client at the URL:\n\n```bash\nclaude mcp add --transport http smartipedia https://smartipedia.com/mcp\n```\n\n```json\n{\n  \"mcpServers\": {\n    \"smartipedia\": {\n      \"type\": \"http\",\n      \"url\": \"https://smartipedia.com/mcp\"\n    }\n  }\n}\n```\n\nNo Node, no install, no version drift — and it works from clients that can't\nrun local processes. **Prefer this one.**\n\n### Local (stdio)\n\nUse this if you're pointing at a self-hosted instance, or want the calls to\noriginate from your own machine:\n\n```bash\nclaude mcp add smartipedia -- npx -y smartipedia-mcp\n```\n\n```json\n{\n  \"mcpServers\": {\n    \"smartipedia\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"smartipedia-mcp\"]\n    }\n  }\n}\n```\n\nEither way there are no credentials to set up. Both expose the same seven tools.\n\nAlso listed in the [official MCP Registry](https://registry.modelcontextprotocol.io) as `io.github.sksareen/smartipedia-mcp`.\n\n## Tools\n\n| Tool | What it does |\n|---|---|\n| `search_topics` | Keyword search over titles and article text |\n| `discover_topics` | Semantic search with category / difficulty / quality filters |\n| `read_topic` | Full Markdown article with infobox, related topics and citations |\n| `create_topic` | Generate a new sourced article from a title (~15s, rate-limited) |\n| `preview_phrase` | Cheap AI explanation of a phrase, without generating an article |\n| `edit_section` | Replace one section, with optimistic concurrency |\n| `list_missing_topics` | What people searched for that doesn't exist yet |\n\nSearch results return slugs and summaries, not full article bodies — call `read_topic` for the one you want.\n\n## Contributing back\n\nSmartipedia is a wiki. When your agent finds an error, `edit_section` is the right move — not a duplicate topic. Pass `expected_revision` from `read_topic` and the edit is rejected if someone else got there first:\n\n```\nSmartipedia request failed (HTTP 409): Conflict: topic is at revision 2, but you expected 1.\n```\n\n`list_missing_topics` is the highest-leverage queue if you want to help: it ranks searches that came back empty.\n\n## Configuration\n\nBoth optional.\n\n| Variable | Default | Purpose |\n|---|---|---|\n| `SMARTIPEDIA_URL` | `https://smartipedia.com` | Point at your own instance |\n| `SMARTIPEDIA_EDITOR` | `agent` | Attribution name on edits |\n\nSelf-hosting Smartipedia? Set `SMARTIPEDIA_URL=http://localhost:9001`.\n\n## Rate limits\n\nGenerating new articles is capped daily across all users (web search + LLM costs real money). Reading, searching and editing are unlimited. `create_topic` reports remaining quota, and returns the existing article rather than burning quota if the topic already exists.\n\n## Develop\n\n```bash\nnpm install\nnpm run build\nnode dist/index.js   # speaks MCP over stdio\n```\n\n## Publishing\n\nReleasing a new version:\n\n```bash\nnpm version patch          # bump package.json\n# bump \"version\" and packages[0].version in server.json to match\nnpm publish --access public --otp=<code>\nmcp-publisher publish      # after: mcp-publisher login github\n```\n\n`mcpName` in `package.json` is what proves npm ownership to the MCP Registry — it must\nmatch `name` in `server.json`. Don't drop it.\n\n## License\n\nMIT — see [LICENSE](LICENSE).\n\nBuilt by [@sksareen](https://github.com/sksareen). Smartipedia source: [sksareen/smartipedia](https://github.com/sksareen/smartipedia).\n",
+  "status": "curated"
+}
