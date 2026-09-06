@@ -1,0 +1,114 @@
+{
+  "id": "mcp:official/io.github.gronare/notes-vault-mcp",
+  "type": "mcp",
+  "name": "Notes Vault",
+  "description": "Indexed search, schema-checked writes and session hooks for a markdown notes vault",
+  "author": "io.github.gronare",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/gronare/notes-vault-mcp",
+    "repo": "gronare/notes-vault-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "notes-vault-mcp"
+    ],
+    "env": [
+      {
+        "name": "VAULT_PATH",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "S3_ENDPOINT",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "S3_ACCESS_KEY",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "S3_SECRET_KEY",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "S3_BUCKET",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "S3_PREFIX",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "S3_REGION",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "VAULT_CACHE_DIR",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "VAULT_SCHEMA",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "VAULT_TOKEN",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "VAULT_STOP_HOOK",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-05T23:20:03.665363Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "写作",
+    "featured": false
+  },
+  "readme": "<!-- mcp-name: io.github.gronare/notes-vault-mcp -->\n\n# notes-vault-mcp\n\nAn MCP server for a vault of markdown notes — the kind Obsidian keeps: a folder of `.md` files with\nYAML frontmatter. The vault lives either in a local directory or in an S3 bucket (MinIO included),\nand the server gives an agent a cheap, indexed way to read and write it.\n\nThe point is that an agent should be able to answer \"what do we already know about this?\" in one\ncall, and should be told when the vault has drifted away from the code. So the server does more than\nread and write files:\n\n- **A local SQLite index.** Every tool call refreshes it, fetching only the notes whose version\n  changed. Search never downloads the vault.\n- **Full-text search with BM25 ranking**, folder weights, recency decay and a status factor, so the\n  living system note outranks a two-year-old archived plan on the same words.\n- **A schema.** The frontmatter contract lives in the vault as `.vault/schema.yml`: which folders\n  exist and what each is for, which fields are required, which statuses and kinds are legal, which\n  folders must link an `area`. Writes are validated against it and refused when they do not hold.\n- **A lifecycle.** `close` archives a finished note and stamps its status; `log_append` writes one\n  dated line per repo per session; `lint` reports every kind of drift it can see.\n- **Session hooks** for Claude Code: `session-start` hands the agent the system notes for the repo it\n  is about to touch — plus the commits made since each note was last updated — and `stop` refuses to\n  end a session that left commits unlogged or notes stale.\n\nSwedish or English notes both work: the index folds diacritics, and the schema carries a synonym list\nso `bokning` finds `booking`.\n\n## Install\n\n### As a Claude Code plugin\n\n```sh\nclaude plugin marketplace add https://github.com/gronare/claude-plugins\nclaude plugin install vault@gronare\n```\n\nThe plugin asks for the vault settings and passes them as `CLAUDE_PLUGIN_OPTION_*` environment\nvariables, which this server reads as if they were the bare names.\n\n### As an MCP server, straight from PyPI\n\n```sh\nclaude mcp add vault -s user \\\n  -e VAULT_PATH=$HOME/vault \\\n  -- uvx notes-vault-mcp\n```\n\nOr against S3 / MinIO:\n\n```sh\nclaude mcp add vault -s user \\\n  -e S3_ENDPOINT=https://minio.example.com \\\n  -e S3_ACCESS_KEY=... \\\n  -e S3_SECRET_KEY=... \\\n  -e S3_BUCKET=vault \\\n  -- uvx notes-vault-mcp\n```\n\n### As a container\n\n```sh\nclaude mcp add vault -s user -- \\\n  docker run --rm -i \\\n  -e S3_ENDPOINT -e S3_ACCESS_KEY -e S3_SECRET_KEY -e S3_BUCKET \\\n  ghcr.io/gronare/notes-vault-mcp:latest\n```\n\n## Configuration\n\nEvery variable is also read from `CLAUDE_PLUGIN_OPTION_<NAME>`, which is how the Claude Code plugin\npasses its user config. The bare name wins when both are set.\n\n| Variable | Required | Meaning |\n| --- | --- | --- |\n| `VAULT_PATH` | for a local vault | Directory holding the vault. Selects the local backend. |\n| `S3_ENDPOINT` | for an S3 vault | Endpoint URL, e.g. `https://minio.example.com`. |\n| `S3_ACCESS_KEY` | for an S3 vault | Access key. |\n| `S3_SECRET_KEY` | for an S3 vault | Secret key. |\n| `S3_BUCKET` | for an S3 vault | Bucket holding the vault. |\n| `S3_PREFIX` | no | Key prefix inside the bucket. |\n| `S3_REGION` | no | Region, default `us-east-1`. |\n| `VAULT_CACHE_DIR` | no | Where the index lives, default `~/.cache/notes-vault-mcp`. |\n| `VAULT_SCHEMA` | no | Local path to a schema file, overriding the one in the vault. |\n| `VAULT_TOKEN` | for HTTP | Bearer token. Required by `--transport http`. |\n| `VAULT_STOP_HOOK` | no | `off` disables the stop hook. |\n\nSet `VAULT_PATH` **or** the four `S3_*` variables. With neither, the server exits with one line\nsaying so.\n\n## First run\n\n```sh\nuvx notes-vault-mcp init\n```\n\n`init` writes into the vault, and refuses to overwrite anything without `--force`:\n\n- `.vault/schema.yml` — the frontmatter contract, copied from the built-in default so you can edit it.\n- `Areas.base`, `Open tasks.base`, `Resources.base` — Obsidian Bases views over the same structure.\n\nIt then prints a CLAUDE.md snippet to stdout: the workflow rules an agent needs on its side of the\nconversation.\n\n## The schema\n\n`.vault/schema.yml` is deep-merged over the built-in default, so it only needs to carry what differs.\nThe default lays out five folders:\n\n| Folder | Kind | Weight | Role |\n| --- | --- | --- | --- |\n| `Areas/` | system | 3.0 | One living note per system. Current state only. The hubs of the graph. |\n| `Resources/` | reference | 2.0 | Traps, how-tos and decisions with their reasons. |\n| `Projects/` | task | 1.0 | Open work spanning sessions. Closed with `close`. |\n| `Log/` | log | 1.0 | Append-only log per repo, one note per repo. |\n| `Archive/` | archive | 0.3 | History. Searched only on request. |\n\nand the contract for a note:\n\n```yaml\nfrontmatter:\n  required: [title, date, updated, tags, status]\n  optional: [kind, area, summary, path, superseded_by]\n  area_required_in: [Projects, Resources, Log]\n  status_values: [draft, active, complete, superseded]\n  kind_values: [system, task, trap, howto, decision, reference, log]\n```\n\n`path` is what ties a note to code: a comma-separated list of directories (`~` is kept as written and\nalso indexed expanded). That is what `context` and the session hook match against.\n\nThe repo log is one note per repo, and both its filename and its line format are schema settings:\n\n```yaml\nlog:\n  folder: Log\n  file_format: \"{repo}-log.md\"\n  entry_format: \"- [{date}] {line} | commits: {commits} | {area}\"\n```\n\n`file_format` takes a single `{repo}` placeholder, and the default suffix is what keeps the log clear\nof the hub note: with `Areas/greenhouse.md` and `Log/greenhouse.md` both in the vault, Obsidian cannot\nresolve `[[greenhouse]]`. Every place that builds the log path reads this setting — `log_append`, the\nlog tail in `context`, the stop hook's unlogged-commit check, `changelog` and `lint` — so changing it\nmoves all of them at once. Rename the existing files to match when you change it.\n\nAlso configurable: the tag vocabulary and whether it is enforced, the synonym groups search expands,\n`stale_after_days`, and the search weights.\n\n## Tools\n\nEvery call refreshes the index first, throttled to at most once every 20 seconds.\n\n| Tool | Cost | What it does |\n| --- | --- | --- |\n| `search` | cheap | Full-text over the index. Title, summary, tags and body, with synonyms, prefixes, quoted phrases and folded diacritics. A bare commit sha finds the notes that mention it. Hides archive and superseded notes and says how many. |\n| `context` | cheap | The session-start call: the system notes covering a path, the open tasks, the reference notes and the tail of the repo log, in one answer. |\n| `list_files` | cheap | Paths only. |\n| `read_file` | moderate | One note, prefixed with `etag: <version>`. A superseded note carries a warning callout. |\n| `lint` | moderate | Reads every note and reports drift. |\n| `write_file` | write | Validates against the schema and refuses the write if it does not hold. Stamps `updated`, fills `date`. Pass `expected_etag` to make the write conditional. |\n| `append_file` | write | Appends and bumps `updated`. Creates the note when missing. |\n| `close` | write | Sets status complete (or superseded, with `superseded_by`, when `merged_into` is given) and moves the note into the archive. |\n| `log_append` | write | One dated line in the repo log, with the commits it produced. Creates the log when missing. |\n| `move_file` | write | Moves or renames. |\n| `delete_file` | write | Deletes for good. Prefer `close`. |\n\n`search` filters: `folder`, `status`, `tag`, `kind`, `area`, `path_prefix`, `since`,\n`include_archive`, `include_superseded`, `limit`.\n\n### What lint reports\n\n`broken_frontmatter`, `missing_required` (per field), `missing_area`, `unknown_tags` (only when the\nvocabulary is strict), `unresolved_links`, `orphans` (no inbound wikilink; log and archive ignored),\n`stale_active`, `archive_status_mismatch`, `duplicate_stems`, `superseded_target_missing`.\n\n```sh\nuvx notes-vault-mcp lint\nuvx notes-vault-mcp lint --write \"Log/lint-$(date +%F).md\"\n```\n\n## Hooks\n\nTwo Claude Code hooks, both reading the hook JSON on stdin and both exiting 0 whatever happens.\n\n`session-start` prints the context bundle for the working directory, then — for each system note it\nreturned — the commits touching that note's `path` since the note was last updated. That is the\nanswer to \"is this note still true?\" before the agent believes it.\n\n`stop` blocks the end of a session that left work unrecorded: commits from the last 24 hours whose\nsha does not appear in the repo log, and open task notes older than 14 days. It returns\n`{\"decision\": \"block\", \"reason\": ...}`, or nothing at all when the vault is up to date. Set\n`VAULT_STOP_HOOK=off` to silence it.\n\n```json\n{\n  \"hooks\": {\n    \"SessionStart\": [\n      { \"hooks\": [{ \"type\": \"command\", \"command\": \"uvx notes-vault-mcp hook session-start\" }] }\n    ],\n    \"Stop\": [\n      { \"hooks\": [{ \"type\": \"command\", \"command\": \"uvx notes-vault-mcp hook stop\" }] }\n    ]\n  }\n}\n```\n\n## Other commands\n\n```sh\nnotes-vault-mcp serve --transport stdio          # the default\nnotes-vault-mcp sync --rebuild                   # drop the index and read every note again\nnotes-vault-mcp search \"bokning\" --limit 5       # the same ranking, from a shell\nnotes-vault-mcp changelog greenhouse 2026-08 --repo-path ~/projects/greenhouse\nnotes-vault-mcp changelog greenhouse 2026-08 --repo-path ~/projects/greenhouse --write\nnotes-vault-mcp changelog --all                  # this month (and last month during its first week)\n```\n\n`changelog` prints the log lines, the git commits grouped by day, and the repo's notes dated inside\nthe period. With `--write` it keeps that as a period page, `Log/<repo>-<period>.md`, between the\nmarkers `<!-- changelog:generated -->` and `<!-- /changelog:generated -->`; prose above the markers\n(a summary written by an agent at month end) is left alone, and the page's status follows the\ncalendar. `--all` does it for every repo the session-start hook has seen on this machine, and the\nstop hook runs that once a day, so the pages stay current without a cron.\n\n## Backlog\n\n```sh\nnotes-vault-mcp backlog --area greenhouse --priority high\n```\n\nA backlog item is a task note with `status: backlog`, an `area`, a one-line `summary`, an optional\n`priority` (`urgent`, `high`, `medium`, `low`) and an optional `source` (who said it and when, or a\nsha). `backlog_add` files one from a conversation the moment something is deferred; `backlog` lists\nthem by priority then age, filtered by area or family; `context` shows the ones relevant to the\ncurrent repo apart from the open tasks. Picking an item up is setting its status to `active`;\nfinishing it is `close`. Lint leaves backlog notes alone however old they get, and flags a\n`complete` note that was never closed. `init` writes `Backlog.base` next to the other Obsidian bases.\n\n## HTTP transport\n\n```sh\nVAULT_TOKEN=$(openssl rand -hex 32) notes-vault-mcp serve --transport http --host 0.0.0.0 --port 8765\n```\n\nStreamable HTTP on `/mcp`. Every request must carry `Authorization: Bearer $VAULT_TOKEN`; anything\nelse gets 401 before it reaches the server. `VAULT_TOKEN` is mandatory in this mode — the command\nrefuses to start without it.\n\n## Development\n\n```sh\nuv sync\nuv run pytest\nuv run ruff check .\n```\n\nThe test suite runs against a fixture vault under `tests/fixtures/vault/` and a moto-mocked S3\nbucket. It never touches a real bucket.\n\n## License\n\nMIT. See [LICENSE](LICENSE).\n",
+  "status": "curated"
+}

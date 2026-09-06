@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/dev.workers.rasczak-commons.rasczak-agent-service/agent-service",
+  "type": "mcp",
+  "name": "Rasczak Knowledge Commons",
+  "description": "Free decision methods, work-kit previews and optional feedback. Hosted research is not available.",
+  "author": "dev.workers.rasczak-commons.rasczak-agent-service",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/rasczak-commons/agent-service",
+    "repo": "rasczak-commons/agent-service"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://rasczak-agent-service.rasczak-commons.workers.dev/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-06T05:03:45.082425Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Rasczak agent service\n\nTen free, source-linked decision methods, three optional decision packs, REST, static pages, a stateless MCP endpoint, and an offline Agent Skill. Requests use reviewed fixed content and make no model calls. Payments are disabled by default; deployment owners must verify live settlement before enabling them.\n\nVersion 0.4.0 adds a decision-workflow preview, a free client skill, private version entitlement code and bounded public-source collection. The first workflow has a $5 price hypothesis but cannot be purchased. Paired model evaluation and independent trials remain pending. Hosted research is a preview, not an available service.\n\n`/workflows/` and the `workflow_catalog` MCP tool expose scope and evaluation status. `/books/` links to two optional books with royalty disclosure. Customer decision artifacts remain with the customer. General feedback is not permission to reuse work as a published example.\n\nKitAccess is an inactive backend component tested with ephemeral wallet signatures and local storage fixtures. A settled receipt binds buyer, SKU, version and artifact hash; fresh one-use signatures gate each download. Production private storage, actual settlement and refund reconciliation still need qualification. Environment flags cannot activate the workflow purchase or access routes. Source code and free clients are public; private workflow drafts are excluded from this repository and static assets.\n\nThe optional market collector reads at most three operator-approved GitHub issue sources and inserts at most twenty deduplicated links/titles per UTC day, with a total ceiling of 1,000 records. It makes no model calls and never executes issue text. Configure approved sources privately through D1, not public request bodies. A crashed run needs reconciliation; provider throttling stops without retry. No collector runs without its enable flag and approved sources.\n\n## Research preview and privacy\n\nGET /api/v2/research explains the future capped-cost service. GET /api/v2/kits supports q, domain, offset and limit; GET /api/v2/kits/{id} reads metadata. GET /api/v2/changes provides version changes. POST /api/v2/research/feedback accepts general interest or skill feedback under the OpenAPI schema. It never creates an order or charge. Feedback requires RESEARCH_FEEDBACK_ENABLED=true, a D1 binding and FEEDBACK_HASH_KEY set through the deployment secret store. Never put its value in source or a prompt.\n\nApply migrations/0002_research.sql before enabling feedback. The daily deterministic cleanup aggregates expired feedback and removes raw submissions after 30 days. Per-day limits: five submissions per pseudonym, twenty per network hash, one thousand globally. Hashes are not verified customer identities. General comments must omit private information; do not post customer scenarios or credentials. The service sends no notifications or outreach.\n\nResearch quote/order/status/result/refund endpoints return 503. A Cloudflare Workflow entrypoint is provided but is not bound and unconditionally refuses execution. Live model and refund transports are deliberately absent. Setting flags cannot bypass this release gate. Offline modules implement integer micro-USD pricing, a 30% markup, quote acceptance, atomic cost reservations, uncertain-call reconciliation, lifecycle transitions and refund intents. Only injected mock adapters may rehearse a job.\n\nBefore any pilot, qualify an adapter's worst-case costs, fund a loss reserve, verify payment/refund settlement, benchmark deliverable scope and obtain explicit launch authorization. Budget visible and reasoning tokens, tools, validation, retries, payment and refund fees. Unused funds are returned; failure to deliver the contracted output requires a full refund. Quotes are not available until those gates pass.\n\nThe existing source license remains unchanged. New paid kit drafts are not included in this repository or static assets. Runtime documentation is not a claim of measured cross-model quality or token savings.\n\n## Run locally\n\n```sh\nnpm ci --include=dev\nnpm run check\nnpm run deploy:dry\nnpm run dev\n```\n\nUse Node 22 or the pinned local Node dependency. The SQLite tests use Node's experimental built-in driver; hosted receipts use Cloudflare D1.\n\n## Interface\n\n- `/api/v1/catalog` lists supported methods and packs.\n- `/api/v1/methods/{id}` returns a free method; unknown IDs return 404.\n- `/api/v1/sample` returns a complete free vendor-evaluation pack.\n- `/api/v1/packs/{id}` offers an optional assembled pack. Disabled payments return 503; enabled payments require verified, recorded settlement.\n- `/mcp` exposes `catalog`, `method`, `sample_pack`, and `pack_offer` through Streamable HTTP. None of these tools pays or authorizes spending.\n- `/full` returns 410.\n- `skill/rasczak-knowledge-commons` contains the offline skill and its ten references.\n\nConnect clients to the origin configured by the deployment owner. Service URLs and repository links are configuration, not embedded account identifiers.\n\nFor MCP Registry HTTP ownership verification, optionally set `MCP_REGISTRY_PUBLIC_KEY` to a base64 Ed25519 public key at build time. The public verification record is generated at `/.well-known/mcp-registry-auth`. Keep the matching private key exclusively in your secret store; the server never needs it.\n\n## Build and publish\n\n`scripts/build.mjs` generates the static release from the curated catalog. `scripts/package-release.mjs` creates a separate source package using an explicit allowlist. Both run the privacy validator before writing output. Unknown release files stop packaging.\n\nSet `RELEASE_PRIVACY_POLICY` to a private JSON policy file containing `forbiddenStrings` for local names, account identifiers, original filenames, and internal project names. Keep this policy outside the release. `allowedPublicUrls` can exempt exact approved public endpoints from identifier matching. Pattern checks alone cannot recognize every private identifier. Review Git history and author metadata separately before pushing.\n\nPublish only the generated package from a fresh, separate checkout. Use neutral author metadata. Do not copy source archives, session records, browser profiles, credentials, debug logs, source maps, or original working folders into it. Generic paths such as `data/input.json` describe the distributable structure only. Public primary-source citations are retained so method claims remain verifiable.\n\n## Deployment\n\n1. Authenticate the hosting CLI to the intended account. Supply configuration through the process environment and the hosting secret store. Never include credential values in source, logs, commands, or documentation.\n2. Set `PUBLIC_ORIGIN` to the verified HTTPS origin at build time and in the deployment configuration. Optionally set `PUBLIC_REPOSITORY` to the approved public repository. Rebuild and run `npm run deploy:check`.\n3. Keep `PAYMENTS_ENABLED=false` and `MAINNET_SETTLEMENT_APPROVED=false`. Deploy only the allowlisted assets and Worker. Verify the homepage, health, catalog, sample, unknown IDs, Origin rejection, disabled payments, and an actual MCP client connection.\n4. If receipts are needed, create a D1 database, bind it as `RECEIPTS`, and apply `migrations/0001_receipts.sql`. Use your own database identifier. Back up receipts before schema changes.\n5. Use Base Sepolia and its exact USDC asset for payment trials. Configure `X402_PAY_TO` from a controlled receiving address. A receiving-wallet private key is never needed by this server.\n6. Store facilitator credentials as hosting secrets. Verify real settlement, identical retries, replay rejection, ambiguous-settlement reconciliation, and result recovery. An explicitly authorized bounded mainnet trial must pass before production payments are enabled.\n7. Use the verified namespace and URL for registry listings. Confirm listings and actual independent usage separately. No listing or customer count is implied by these source files.\n\n## Payment behavior and limits\n\nThe service uses x402 v2 exact EIP-3009 on Base or Base Sepolia with a 120-second authorization window. It supports 65-byte EOA signatures. Local signature tests are cryptographic; settlement tests use fixtures.\n\nReceipts bind network, asset, payer, nonce, proof hash, resource, and transaction. The result is stored before settlement. The same recorded proof retrieves the same result without another charge. Changed resources are rejected. Uncertain settlement is quarantined and never automatically retried.\n\nIf settlement succeeds but receipt commit fails, reconcile the receipt with facilitator and chain evidence before recovering the stored result. Never clear a reservation to force another payment. No public receipt-edit endpoint or automated refund action exists.\n\nSee `EVALUATION.md` for the measurement protocol. Tests, visits, and owner payments do not establish customer demand.\n",
+  "status": "curated"
+}

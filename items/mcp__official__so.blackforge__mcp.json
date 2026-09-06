@@ -1,0 +1,70 @@
+{
+  "id": "mcp:official/so.blackforge/mcp",
+  "type": "mcp",
+  "name": "mcp",
+  "description": "Crypto market data: order book depth, liquidity lifetimes and taker flow on 9 spot venues",
+  "author": "so.blackforge",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/blackforge-so/mcp",
+    "repo": "blackforge-so/mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@blackforge-so/mcp"
+    ],
+    "env": [
+      {
+        "name": "BLACKFORGE_API_KEY",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "BLACKFORGE_BASE_URL",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-06T00:27:37.850923Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "金融",
+    "featured": false
+  },
+  "readme": "# @blackforge-so/mcp\n\nA [Model Context Protocol](https://modelcontextprotocol.io) stdio server that puts\nBlackForge market-data in your agent's hands. **The whole crypto market, in real time** —\nnine spot venues (binance, bitget, bybit, coinbase, gate, kraken, kucoin, mexc, okx) and\nevery column it measures, per pair per closed 5-minute window.\n\nEvery column is a **measurement with a definition** — order-book depth and shape, resting\nliquidity lifetimes, trade-explained vs book-implied volume, spreads, market-wide context —\nreturned in-context so an agent can read the raw microstructure directly. It is a thin client\nover the public BlackForge `/v1` API; it stores nothing and re-shapes nothing.\n\n## Quickstart\n\nAdd the server to your MCP client and paste an API key. **Claude Desktop**\n(`claude_desktop_config.json`) or **Claude Code** (`.mcp.json`):\n\n```json\n{\n  \"mcpServers\": {\n    \"blackforge\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@blackforge-so/mcp\"],\n      \"env\": { \"BLACKFORGE_API_KEY\": \"bf_live_your_key\" }\n    }\n  }\n}\n```\n\nNo install step — `npx -y @blackforge-so/mcp` fetches and runs the server on demand.\n\n### Where to get a key\n\nMint a key at **[app.blackforge.so → API](https://app.blackforge.so/api)**. The server never\ncreates keys; it reads `BLACKFORGE_API_KEY` from its environment. The `blackforge_catalog`\ntool works **without a key**, so you can verify the install before pasting one.\n\n## Tools\n\n| Tool | Returns |\n|------|---------|\n| `blackforge_catalog` | Every venue and every column definition — 9 venues, and `metricCount` is the live column count. Keyless. **Call this first** to learn valid `exchange` and `metric` identifiers. |\n| `blackforge_symbols` | The trading pairs a venue lists, e.g. `[\"BTCUSDT\", …]`. |\n| `blackforge_latest` | The latest completed 5-minute window for one `(exchange, symbol)` — a `values` object of column → number, with epoch-ms `ts`. Pass `columns` to narrow it. |\n| `blackforge_series` | A time series for one column over a range: ascending `{ ts, value }` points at `5m`, `1h`, or `1d`. Capped at 50,000 points. |\n| `blackforge_usage` | The key's recent request counts and remaining monthly row quota. |\n\nPlan entitlements (which venues, columns, and intervals a key may read) are enforced by the\nAPI. When a column is dropped because your plan does not include it, the tool result reports\nit in `columnsOmitted` so the agent understands why a key is absent. Venue- or interval-level\nrestrictions come back as a clear tool error carrying the HTTP status and the server's message\n(including the upgrade URL, verbatim).\n\n## Charts\n\n`blackforge_series` also ships an interactive chart. A host that implements the\n[MCP Apps](https://modelcontextprotocol.io/extensions/apps/overview) extension\n(`io.modelcontextprotocol/ui`) renders the result as a line chart with flagged buckets drawn\nin the same convention the BlackForge console uses; every other host sees exactly the JSON it\nsaw before.\n\nNothing about the tool contract changes. The chart payload travels in the result's `_meta`,\nwhich is protocol metadata and reaches no model, so `content[0].text` is **byte-identical**\nwhether or not your host renders widgets — the token cost of a series is the same either way.\nThat is deliberate: `structuredContent` would have been the obvious home for it, but core MCP\ntreats that field as server-produced result data, and a host without Apps support may hand it\nto the model, doubling the cost of a large series.\n\nThe chart is one self-contained HTML file with uPlot and all CSS inlined, because MCP Apps\nrender under a deny-by-default CSP where an external `<script>` would simply never load. It is\nread-only and never calls back into the server: it draws the points it was given and cannot\nspend your row quota behind your back. Series longer than 2,000 points are decimated **for the\nchart only** — the tool still returns every point — and the payload says so rather than\nquietly thinning the line.\n\n## Data quality\n\nWhen the API reports a row's measurement quality, `blackforge_latest` carries it through as a\n`quality` object (`flags` naming what went wrong in the window, `contaminates` listing which\nfigures it flags) plus a plain-English `qualityNote`. `blackforge_series`\naggregates it into one `qualitySummary` (`{ flaggedBuckets, of, flags }`) rather than repeating\nit on every point. Both keys are **omitted entirely** when nothing is flagged, and a\n`quality.raw` of `32768` means the row predates the quality rail and was never assessed —\nunknown, not bad. The flag decode table lives on the `qualityFlags` metric in\n`blackforge_catalog`, as a `bits` array; this server reads it from there and never carries a\ncopy of its own.\n\n## Configuration\n\n| Env var | Default | Purpose |\n|---------|---------|---------|\n| `BLACKFORGE_API_KEY` | *(none)* | Your key. Required for every tool except `blackforge_catalog`. |\n| `BLACKFORGE_BASE_URL` | `https://api.blackforge.so` | API base. Paths are appended as `/v1/...`. Override for a self-hosted or local dev API (e.g. `http://localhost:3001/api`). |\n\n## Local development\n\n```bash\nnpm install\nnpm run build     # → dist/index.js (ESM, executable) + dist/widget/chart.html\nnpm test          # client unit tests + a stdio integration test\n```\n\n`build` runs tsup first and the widget's vite build second, and the order is load-bearing:\ntsup's `clean` wipes the whole of `dist/`, so reversing them deletes the widget and leaves the\nserver serving a resource that is not there.\n\nThe integration test spawns the built server over stdio and drives it with the MCP client.\nIts data assertions need a local BlackForge API at `http://localhost:3001/api`; without one,\nthose assertions are skipped and the tool-listing checks still run.\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

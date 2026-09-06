@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/br.com.bridgeaibrasil/bridgeai",
+  "type": "mcp",
+  "name": "BridgeAI",
+  "description": "Hospedagem no Brasil que o agente opera: cria banco, publica, lê log e diz o custo.",
+  "author": "br.com.bridgeaibrasil",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/marcoshenriquemaia/bridgeai-plugin",
+    "repo": "marcoshenriquemaia/bridgeai-plugin"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://mcp.bridgeaibrasil.com.br/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-06T01:14:43.251949Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# BridgeAI — plugin para Claude Code\n\n**[bridgeaibrasil.com.br](https://bridgeaibrasil.com.br)** · hospedagem brasileira\nque o seu agente de código opera sozinho.\n\nConecta o Claude Code à plataforma BridgeAI. Com ele, o Claude para de trabalhar no\nescuro: cria o projeto, enxerga o banco, os logs, o custo e o estado do que está no\nar — e mostra o preço antes de gastar o seu dinheiro.\n\nServidor, banco PostgreSQL, cache e arquivos em máquinas no Brasil, com crédito\npré-pago por Pix — sem assinatura, sem fatura e sem cartão internacional. Você\ncontrata item por item, e o que não foi pedido não é cobrado.\n\nO preço fica em\n**[bridgeaibrasil.com.br/precos](https://bridgeaibrasil.com.br/precos)**, e não\naqui de propósito: aquela página é **gerada do mesmo catálogo que emite a\ncobrança**, então ela não tem como divergir. Um valor digitado neste README\ndivergiria no primeiro dia em que o catálogo mudasse, dentro de um arquivo que\nninguém relê.\n\nFeito para funcionar **junto** com o\n[guardrail](https://github.com/marcoshenriquemaia/claude-guardrail), não no lugar\ndele. O guardrail cuida de segurança e qualidade em qualquer projeto; este cuida da\nplataforma. Instale os dois.\n\n---\n\n## Instalar\n\nDentro do Claude Code:\n\n```\n/plugin marketplace add marcoshenriquemaia/bridgeai-plugin\n/plugin install bridgeai@bridgeai\n```\n\nSe aparecer `Run /reload-plugins to activate`, digite `/reload-plugins`.\n\n### Entrar\n\n```\n/bridgeai:entrar\n```\n\nAparece um código de 8 letras, o navegador abre no GitHub, você confirma. O acesso\nfica guardado na sua máquina e **não aparece na tela**. Depois, **feche e abra o\nClaude Code** — é assim que ele passa a enxergar seus projetos.\n\n### Criar o primeiro projeto\n\n```\n/bridgeai:comecar\n```\n\nEle prepara a máquina, cria o projeto na BridgeAI e deixa rodando no seu computador.\nPublicar na internet é um `git push`: o passo a passo está no próprio comando.\n\n### Precisa de Node.js\n\nO login, o túnel e as verificações rodam em Node. Confira com `node --version`; se\nder erro, baixe a versão LTS em [nodejs.org](https://nodejs.org). O\n`/bridgeai:comecar` também instala sozinho no Windows.\n\n---\n\n## O que vem junto\n\n### Comandos\n\n| Comando | Para |\n|---|---|\n| `/bridgeai:entrar` | Conectar esta máquina à sua conta |\n| `/bridgeai:comecar` | Da máquina vazia ao projeto rodando |\n| `/bridgeai:publicar` | Põe o projeto no ar, sem configurar nada no GitHub |\n| `/bridgeai:doutor` | Quando \"parou de funcionar\" — confere e conserta |\n| `/bridgeai:custo` | Quanto está gastando e no que dá para economizar |\n\n### Skills\n\nCarregam sozinhas quando o assunto aparece — você não precisa chamar.\n\n| Skill | Quando |\n|---|---|\n| `publicar-mobile` | App de celular: testar, distribuir, publicar nas lojas |\n| `painel-do-projeto` | Área administrativa, CMS, métricas |\n\n### Proteções automáticas\n\n- **Operação sem volta exige código de aprovação.** Criar projeto, mudar de plano ou\n  apagar um app só acontece com um código que você copia do painel. O Claude não\n  consegue gerar esse código — e é isso que impede que uma instrução escondida\n  dentro de um log ou de um registro do banco destrua alguma coisa.\n- **Custo antes de gastar.** Nenhum recurso é proposto sem o preço em reais por mês.\n- **Conexão com o GitHub conferida antes do envio.** Quando o acesso expira, em vez\n  de um erro em inglês, você recebe o passo para reconectar.\n- **Regras carregadas em toda sessão**, ajustadas ao perfil da conta.\n\n---\n\n## Perfis\n\nO tom muda conforme quem está do outro lado:\n\n- **guided** (padrão) — o Claude explica em linguagem simples, decide as questões\n  técnicas sozinho, faz em vez de mandar fazer, e fala de custo em reais por mês.\n- **technical** — só as regras da plataforma, sem a camada de condução.\n\nPara forçar em uma sessão: `BRIDGEAI_PROFILE=technical`. Para fixar na máquina,\n`~/.bridgeai/profile.json` com `{\"profile\": \"technical\"}`.\n\n---\n\n## Estrutura\n\n```\n.claude-plugin/plugin.json   manifesto\n.mcp.json                    conexão com o MCP da BridgeAI (login por OAuth)\nhooks/hooks.json             início de sessão e proteções\nrules/platform.md            sempre carregado\nrules/guided.md              carregado só no perfil guided\ncommands/                    os comandos acima\nskills/                      carregadas sob demanda\nscripts/                     login, túnel e hooks — Node sem dependências\ntemplates/publicar.yml       o workflow que publica o seu projeto\n```\n\nO que fica em `rules/` é injetado em **toda** sessão e ocupa contexto que seria do\ncódigo do usuário. Antes de acrescentar algo lá, pergunte se aquilo precisa valer\ndesde a primeira mensagem. Se a resposta for \"só quando o assunto aparecer\", é skill.\n\n## Licença\n\nMIT.\n",
+  "status": "curated"
+}

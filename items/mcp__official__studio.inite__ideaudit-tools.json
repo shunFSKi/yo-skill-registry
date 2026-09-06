@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/studio.inite/ideaudit-tools",
+  "type": "mcp",
+  "name": "ideaudit",
+  "description": "The scoring behind an audit allowed to say no. Twenty deterministic tools, offline, no account.",
+  "author": "studio.inite",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/inite-ai/ideaudit-mcp",
+    "repo": "inite-ai/ideaudit-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@inite/ideaudit-tools"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-06T04:55:17.188485Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# ideaudit-tools\n\nThe deterministic scoring behind [ideaudit](https://inite.studio), as a local\nMCP server. No account, no key, no network, no model calls — just the\narithmetic.\n\n```bash\nclaude mcp add ideaudit-tools -- npx -y @inite/ideaudit-tools\n```\n\nListed in the MCP registry as `studio.inite/ideaudit-tools`, which carries\nboth ways in: this package over stdio, and the hosted server over HTTP.\nInstalling straight from this repository — `npx -y github:inite-ai/ideaudit-mcp`\n— also works and runs the same code.\n\n## Why this is published\n\nThe product's claim is that it is an audit *allowed to say no*. A verdict\nnobody can inspect is a verdict nobody has to believe, so the part that\nproduces the number is open — including the number that says no. You can read\nhow three lens scores become `KILL`, disagree with the thresholds, and argue\nabout the arithmetic rather than about our word.\n\nIt is also the honest shape of the system. The server makes zero model calls;\njudgement lives in the skills, determinism lives in the tools. These are the\ntools.\n\n## What runs locally\n\nTwenty tools, every one a pure function of its input:\n\n| | |\n|---|---|\n| **The verdict** | `compute_dealbreakers_v2`, `compute_crossed_matrix`, `derive_kill_criteria` |\n| Composite scoring | `compute_lrs_composite`, `compute_lrs_composite_v2`, `compute_urgency_composite`, `compute_collection_scores` |\n| Market shape | `compute_barrier`, `compute_multi_source_tam`, `compute_search_velocity`, `compute_search_velocity_v2`, `compute_social_pain` |\n| Money | `validate_unit_economics`, `compute_monetization`, `compute_budget_proof`, `compute_ppc_spend_signal` |\n| Signals | `compute_funding_momentum`, `compute_hiring_demand`, `compute_x_signal`, `compute_build_complexity` |\n\n`compute_dealbreakers_v2` is the one that decides. Stage-aware weights,\nconfidence-weighted lens scores, and a deliberately risk-asymmetric verdict:\n`GO` needs a score ≥ 80 *and* zero red flags *and* average confidence ≥ 0.6,\nwhile the `KILL` gate is observer-invariant — a founder profile shifts every\nthreshold above the gate, and none of them below it. You cannot buy a better\nanswer by describing yourself more favourably. There is a test that says so.\n\nSame input, same output as the hosted server — because it is the same\nspecification object, imported rather than reimplemented. A test asserts that\nidentity rather than comparing two copies, so the two cannot drift.\n\n## Where to look\n\nBe told where the numbers are rather than hunt for them:\n\n- **`src/specs/*.ts`** — one file per tool: what it accepts, what it means,\n  what it returns. `compute-dealbreakers-v2.ts` is the verdict.\n- **`src/server.ts`** — the whole server, including what it refuses.\n- **`src/__tests__/parity.test.ts`** — the claims above, as assertions. The\n  observer-invariant KILL gate is checked against all five archetypes.\n- **`dist/bundle.js`** — the arithmetic, un-minified. `computeBarrier` is a\n  dozen lines and every constant is visible: 0.6 off the score per direct\n  competitor, 0.2 per adjacent, six points of range spent on SERP noise, and\n  labels at 18 / 12 / 6. Disagree with those numbers, not with our word.\n\nThat last one is a build artefact and reads like one — the commented source\nof the maths lives in the monorepo this repository is mirrored from, and is\nnot here. If you want the reasoning behind a threshold rather than the\nthreshold itself, open an issue and ask; that is a cheaper conversation than\neither of us pretending.\n\n## What needs the hosted server\n\nNot withheld to make a point — these genuinely need somewhere to keep things\nand someone to pay for them:\n\n- **Persistence.** Saving an audit, finalising it, reading it back, comparing\n  two of them, the dashboard. A verdict that exists only in a chat transcript\n  is one nobody can re-open or defend later.\n- **Data.** SERP, keyword volume, funding rounds, hiring signals, social\n  mentions. Those are metered third-party APIs.\n- **The knowledge graph.** Entities, evidence, contradictions across audits.\n\nThat boundary is enforced rather than documented. The hosted\n`compute_dealbreakers_v2` takes an `auditId`; this one refuses it, by name,\ninstead of letting zod strip it silently and handing you a correct verdict\nplus the false belief that it had been written down.\n\n```\n$ compute_dealbreakers_v2 {\"auditId\": \"…\", …}\n{ \"error\": \"unknown_arguments\", \"unknown\": [\"auditId\"],\n  \"message\": \"This server computes; it stores nothing. …\" }\n```\n\n## The hosted server\n\n```bash\nclaude mcp add ideaudit --transport http https://api.inite.studio/mcp \\\n  --scope user --header \"Authorization: Bearer $IDEAUDIT_API_KEY\"\n```\n\nIt serves these twenty tools and everything above them. Sign up at\n[inite.studio](https://inite.studio); `--scope user` matters, or the\nregistration is bound to one directory.\n\n## Using both\n\nThey compose. Register the local server for the arithmetic and the hosted one\nfor everything else; tool names do not collide because the local set is a\nstrict subset served under the same names, so whichever you register wins for\nthose twenty and the rest resolve to the platform.\n\nIf you only want to check our maths against your own numbers, the local server\nalone is enough and always will be.\n\n## Contributing, and a warning about it\n\nThis repository is a projection. It is rebuilt and force-pushed from the\nmonorepo that develops it every time the package changes, which means a pull\nrequest opened here would be overwritten by the next sync — through no fault\nof yours, and with no notification. Saying so is cheaper than letting someone\nfind out by losing an afternoon.\n\nIssues are the right channel and they are read: a threshold you think is\nwrong, a number you cannot reproduce, a tool that accepts something it should\nrefuse. Bring the input you used — every tool here is deterministic, so a\ndisagreement about an answer is always settleable.\n\n## Licence\n\nApache-2.0. See `LICENSE`.\n",
+  "status": "curated"
+}

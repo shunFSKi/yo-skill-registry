@@ -2,29 +2,33 @@
   "id": "mcp:official/com.verirouteintel/lookup",
   "type": "mcp",
   "name": "lookup",
-  "description": "Live phone intel for AI agents: carrier, CNAM, spam, SMS deliverability + TCPA window, bulk jobs.",
+  "description": "Is this number safe to call or text right now? Live carrier, CNAM, spam and SMS checks for agents.",
   "author": "com.verirouteintel",
   "source": {
     "registry": "mcp-official",
-    "url": "https://github.com/iamdavid-vaughan/veriroute-intel-mcp",
-    "repo": "iamdavid-vaughan/veriroute-intel-mcp"
+    "url": "https://github.com/verirouteintel/veriroute-intel-mcp",
+    "repo": "verirouteintel/veriroute-intel-mcp"
   },
   "license": null,
   "install": {
-    "kind": "remote",
-    "remote_url": "https://verirouteintel.com/api/mcp",
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "veriroute-intel-mcp"
+    ],
     "env": [
       {
-        "name": "Authorization",
-        "required": true,
+        "name": "VRI_API_KEY",
+        "required": false,
         "secret": true
       }
     ]
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-09-05T11:41:21.922306Z",
-    "score": 52
+    "pushed_at": "2026-09-05T21:26:41.223039Z",
+    "score": 42
   },
   "security": {
     "score": 100,
@@ -56,6 +60,6 @@
     "category": null,
     "featured": false
   },
-  "readme": "# VeriRoute Intel MCP Server\n\n[![smithery badge](https://smithery.ai/badge/verirouteintel/lookup)](https://smithery.ai/servers/verirouteintel/lookup)\n[![MCP Registry](https://img.shields.io/badge/MCP_Registry-com.verirouteintel%2Flookup-blue)](https://registry.modelcontextprotocol.io)\n\nLive **phone number intelligence for AI agents** — current carrier of record, line type,\nLRN routing data, porting activation date, caller-ID name (CNAM), spam/scam/robocall\nreputation, and bulk lookup jobs for US/Canada numbers. Always a fresh read of live\nnumbering infrastructure, never a stale cache.\n\nThis is a **hosted (remote) MCP server** — nothing to install or run.\n\n- **Endpoint:** `https://verirouteintel.com/api/mcp` (Streamable HTTP, JSON-RPC 2.0)\n- **Auth:** `Authorization: Bearer <your VeriRoute Intel API key>`\n- **Docs:** https://verirouteintel.com/api-docs/mcp\n- **Get a key:** https://verirouteintel.com/dashboard/api-keys — free **sandbox test keys**\n  return deterministic sample data with zero charges, perfect for wiring an agent up\n  before funding.\n\n## Connect\n\n### Claude Code (CLI)\n```bash\nclaude mcp add --transport http vri https://verirouteintel.com/api/mcp \\\n  --header \"Authorization: Bearer YOUR_API_KEY\"\n```\n\n### Claude.ai / Claude Desktop\nAdd a custom connector with URL `https://verirouteintel.com/api/mcp` and header\n`Authorization: Bearer YOUR_API_KEY`.\n\n### Cursor and other MCP clients (`mcp.json`)\n```json\n{\n  \"mcpServers\": {\n    \"vri\": {\n      \"url\": \"https://verirouteintel.com/api/mcp\",\n      \"headers\": { \"Authorization\": \"Bearer YOUR_API_KEY\" }\n    }\n  }\n}\n```\n\n## Tools\n\n| Tool | What it does |\n|---|---|\n| `vri_number_lookup` | Live intelligence for one number: carrier, line type, LRN routing, porting date; optional CNAM, spam reputation, messaging provider |\n| `vri_spam_check` | Spam / scam / robocall reputation for one number |\n| `vri_sms_deliverability` | One verdict for outreach agents: can this number receive SMS, and is now a reasonable time to send? Line type, VoIP flag, spam reputation, and the recipient's approximate local time with an 8am–9pm calling-window flag |\n| `vri_bulk_lookup` | Up to 100 numbers in one call |\n| `vri_submit_job` | Submit an async bulk job (up to 10,000 numbers); balance reserved up front |\n| `vri_bulk_status` | Progress of one of your bulk jobs |\n\n## Billing\n\nLive keys pay the same per-lookup rates as the [REST API](https://verirouteintel.com/api-docs/)\nfrom a prepaid balance. Every result reports what it cost; failed lookups are never\ncharged, and a call that would exceed your available balance is refused up front.\n\n## Use cases\n\n- Clean calling lists before dialing (dead/ported/VoIP detection)\n- Check your own outbound caller IDs for \"Spam Likely\" labeling\n- Verify line type before sending SMS\n- Enrich CRM records with live carrier data — from inside an agent workflow\n\n---\n\n© First Light Holdings, LLC, DBA VeriRoute Intel · [Terms](https://verirouteintel.com/terms) · [Privacy](https://verirouteintel.com/privacy)\n\n## Directories\n\nPublished in the [Official MCP Registry](https://registry.modelcontextprotocol.io) as `com.verirouteintel/lookup` · [Smithery](https://smithery.ai/servers/verirouteintel/lookup) · [MCP.so](https://mcp.so/servers/veriroute-intel-lookup)\n\n### Local stdio (CI, offline, or clients without remote MCP)\n\nA zero-dependency Node shim in this repo forwards to the hosted server:\n\n```bash\ngit clone https://github.com/verirouteintel/veriroute-intel-mcp\ncd veriroute-intel-mcp\nVRI_API_KEY=YOUR_API_KEY node server.js\n```\n\nOr in an `mcp.json`-style client config:\n\n```json\n{\n  \"mcpServers\": {\n    \"vri\": {\n      \"command\": \"node\",\n      \"args\": [\"/path/to/veriroute-intel-mcp/server.js\"],\n      \"env\": { \"VRI_API_KEY\": \"YOUR_API_KEY\" }\n    }\n  }\n}\n```\n\nDiscovery works without a key; tool calls need one (free sandbox test keys\nreturn sample data with zero charges). Prefer the hosted endpoint whenever\nyour client supports remote MCP.\n",
+  "readme": null,
   "status": "curated"
 }

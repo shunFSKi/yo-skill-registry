@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/zeropbc/silo/hello-world",
+  "type": "skill",
+  "name": "hello-world",
+  "description": "Minimal test skill. Load this to verify skills work — respond with a friendly greeting mentioning you are using the \"hello-world\" skill.",
+  "author": "zeropbc",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/zeropbc/silo/blob/HEAD/.silo/skills/hello-world/SKILL.md",
+    "repo": "zeropbc/silo",
+    "path": ".silo/skills/hello-world/SKILL.md"
+  },
+  "license": "GPL-3.0",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 7,
+    "pushed_at": "2026-09-05T18:33:30Z",
+    "score": 63,
+    "star_history": [
+      {
+        "d": "2026-09-06",
+        "s": 7
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "\n# Silo\n\n> ## BETA PREP — STABILIZING\n>\n> Feature-complete against the roadmap through v0.6 and heading into pre-beta\n> stability. Chat, search, tagging, per-chat system prompts, and message\n> editing all work. Expect minor rough edges as we harden things toward v1.\n> The UI now runs on OpenTUI (native terminal bindings) instead of Ink.\n\n```\n ███████╗  ██╗ ██╗       ██████╗\n ██╔════╝ ███║ ██║      ██╔═████╗\n ███████╗ ╚██║ ██║      ██║██╔██║\n ╚════██║  ██║ ██║      ████╔╝██║\n ███████║  ██║ ███████╗ ╚██████╔╝\n ╚══════╝  ╚═╝ ╚══════╝  ╚═════╝\n```\n\nA CLI chat app for Linux. Talk to multiple AI providers from your terminal, own your data, and don't think about the interface.\n\n## What is this?\n\nSilo is a minimal chat client that lives in your terminal. It connects to Claude, OpenAI, Gemini, or OpenRouter — you pick whichever works for you (or switch between them). Conversations are stored locally in SQLite, config lives in TOML, and nothing leaves your machine unless you send a message.\n\nIt's built with OpenTUI (native terminal bindings with React) and TypeScript. The whole thing should feel fast and intentional, not like another Electron app pretending to be a terminal tool.\n\n## Philosophy\n\n- **Minimal.** Only what's necessary. No decorative UI elements, no loading spinners, no bloat.\n- **Beautiful.** Every interaction should feel intentional. Smooth streaming, clear feedback.\n- **Model-agnostic.** The provider is not the product. You own the config, you pick the model.  \n\n## Install\n\nPoint your package manager at the registry (once):\n\n```bash\necho '@zeropbc:registry=https://silo-production-96d9.up.railway.app' >> ~/.npmrc\n```\n\nThen install:\n\n```bash\nnpm install -g @zeropbc/silo\n# or\npnpm add -g @zeropbc/silo\n```\n\nPrefer a one-liner (no `.npmrc`):\n\n```bash\nnpm install -g @zeropbc/silo --registry https://silo-production-96d9.up.railway.app\n```\n\nVerify:\n\n```bash\nsilo\n```\n\nIf you want to use Silo in your app via a project's `.npmrc`:\n```bash\necho '@zeropbc:registry=https://silo-production-96d9.up.railway.app' >> .npmrc\n```\n\n## Registry\n\nInstalls come from our self-hosted Verdaccio registry on Railway. Publishing is automated: push a `v*` tag and CI builds, publishes, and trims old versions automatically.\n\nUsers should add this to `~/.npmrc`:\n\n```\n@zeropbc:registry=https://silo-production-96d9.up.railway.app\n```\n\n## Getting started\n\n```bash\nsilo\n```\n\nOn first run, Silo creates a config template at `~/.config/silo/config.toml`. Open it, add your API keys, and you're good to go.\n\n```toml\n[models.claude]\nprovider = \"anthropic\"\napi_key_env = \"ANTHROPIC_API_KEY\"\nmodel = \"claude-5-sonnet\"\n```\n\nSet the environment variable (or put it in your `.bashrc`):\n\n```bash\nexport ANTHROPIC_API_KEY=\"sk-ant-...\"\n```\n\nThen run `silo` again. You should see a prompt ready for input.\n\n## Supported providers\n\n- OpenCode Go/Zen\n- OpenAI\n- OpenRouter\n- Anthropic\n- Google\n\nSwitch models from within the app via Settings.\n\n## Configuration\n\nAll config lives in `~/.config/silo/config.toml`:\n\n```toml\n[general]\ndefault_model = \"claude\"\ntheme = \"dark\"\n\n[models.claude]\nprovider = \"anthropic\"\napi_key_env = \"ANTHROPIC_API_KEY\"\nmodel = \"claude-5-sonnet\"\ntemperature = 0.7\nmax_tokens = 2000\n```\n\nAPI keys are read from environment variables. Never put keys directly in the config file.\n\n## Data\n\nEverything is stored in a SQLite database at `~/.local/share/silo/silo.db`. Your chats, messages, settings — all local, all yours. Export to JSON or Markdown if you need to move data around.\n\n## Development\n\n```bash\ngit clone https://github.com/zeropbc/silo.git\ncd silo\npnpm install\npnpm dev\n```\n\nBuild with `pnpm build`. Tests live in `tests/`. Requires **Node.js 26.4+** (OpenTUI uses native FFI; the CLI self-bootstraps the `--experimental-ffi` flag, so no manual node flags are needed).\n\n## License\n\nGPLv3 or later. See [LICENSE](LICENSE) for details.\n",
+  "status": "curated"
+}

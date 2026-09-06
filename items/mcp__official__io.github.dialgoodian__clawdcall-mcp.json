@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.dialgoodian/clawdcall-mcp",
+  "type": "mcp",
+  "name": "ClawdCall",
+  "description": "Give AI agents a phone layer for consent-based calls, transcripts, summaries, and outcomes.",
+  "author": "io.github.dialgoodian",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/dialgoodian/clawdcall-mcp",
+    "repo": "dialgoodian/clawdcall-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://gateway.clawdcall.com/mcp/"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-06T03:20:45.509367Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# ClawdCall MCP Server\n\n<!-- mcp-name: io.github.dialgoodian/clawdcall-mcp -->\n\nGive AI agents access to ClawdCall's agent-facing phone execution API through the Model Context Protocol.\n\n`clawdcall-mcp` exposes the confirmed ClawdCall workflow:\n\n- send signup OTP\n- verify signup OTP\n- place expected outbound calls\n- fetch call transcripts\n\n## Hosted Remote\n\nConnect compatible remote MCP clients to the Streamable HTTP endpoint:\n\n```text\nhttps://gateway.clawdcall.com/mcp/\n```\n\nThe endpoint advertises OAuth protected-resource metadata. Existing ClawdCall integrations may also use an API key according to the [agent documentation](https://clawdcall.com/skill.md).\n\n## Local Stdio Package\n\nAdd the published npm package to a local MCP client:\n\n```json\n{\n  \"mcpServers\": {\n    \"clawdcall\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"clawdcall-mcp\"],\n      \"env\": {\n        \"CLAWDCALL_API_KEY\": \"your_clawdcall_api_key\"\n      }\n    }\n  }\n}\n```\n\n`CLAWDCALL_API_KEY` is required for outbound calls and transcript retrieval. Signup OTP tools do not require an existing key.\n\nFor staging or self-hosted API routing:\n\n```json\n{\n  \"mcpServers\": {\n    \"clawdcall\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"clawdcall-mcp\"],\n      \"env\": {\n        \"CLAWDCALL_API_KEY\": \"your_clawdcall_api_key\",\n        \"CLAWDCALL_BASE_URL\": \"https://api.clawdcall.com\"\n      }\n    }\n  }\n}\n```\n\n## Safe First Test\n\n1. Open the [ClawdCall agent setup](https://clawdcall.com/agents/?utm_source=github&utm_medium=repository&utm_campaign=mcp_listing_blitz&utm_content=readme).\n2. Connect the hosted endpoint or local package from a compatible agent client.\n3. Ask the agent to call you or an expected internal recipient with a bounded task.\n4. Confirm the destination and task before allowing the call.\n5. Review the returned status, transcript evidence, summary, or structured outcome.\n\nClawdCall is not intended for cold calling, robocalling, bulk outreach, emergency use, political outreach, or sensitive advice workflows.\n\n## Copy-Paste Examples\n\nThe [`examples`](examples) directory contains bounded first-call workflows for:\n\n- [MCP self-call](examples/mcp-self-call)\n- [OpenAI Agents SDK](examples/openai-agents-sdk)\n- [LangGraph-backed agents](examples/langgraph-escalation)\n- [Signed webhook-to-call alerts](examples/webhook-to-call)\n\nThe code examples keep the recipient in operator-controlled environment variables. Agent-generated input cannot change the phone number, and live side effects require an explicit approval or opt-in.\n\n## Tools\n\n| Tool | Confirmed endpoint | Description |\n| --- | --- | --- |\n| `send_signup_otp` | `POST /cc/signup/send-otp` | Send a phone verification OTP for signup. |\n| `verify_signup_otp` | `POST /cc/signup/verify-otp` | Verify the OTP and receive account/API-key details. |\n| `place_outbound_call` | `POST /external/v1/agent/outbound?conversionFlag=1` | Place an expected outbound voice-agent call. |\n| `get_call_transcript` | `GET /cc/v1/calls/{id}/transcript` | Fetch a transcript by call ID or campaign ID. |\n\n## Environment Variables\n\n| Variable | Required | Default | Description |\n| --- | --- | --- | --- |\n| `CLAWDCALL_API_KEY` | For call/transcript tools | | ClawdCall API key. |\n| `CLAWDCALL_BASE_URL` | No | `https://api.clawdcall.com` | API base URL. |\n\n## Development\n\n```bash\ngit clone https://github.com/dialgoodian/clawdcall-mcp.git\ncd clawdcall-mcp\nnpm install\nnpm run dev\n```\n\nBuild:\n\n```bash\nnpm run build\n```\n\nRun the built server:\n\n```bash\nCLAWDCALL_API_KEY=your_clawdcall_api_key npm start\n```\n\n## Discovery Metadata\n\n- [`server.json`](server.json) contains the Official MCP Registry metadata.\n- [Server card](https://www.clawdcall.com/.well-known/mcp/server-card.json)\n- [Agent-readable documentation](https://clawdcall.com/skill.md)\n- [OpenAPI description](https://clawdcall.com/.well-known/openapi.json)\n\n## API Contract\n\nThis server tracks these ClawdCall agent-facing endpoints:\n\n- `POST /cc/signup/send-otp`\n- `POST /cc/signup/verify-otp`\n- `POST /external/v1/agent/outbound?conversionFlag=1`\n- `GET /cc/v1/calls/{id}/transcript`\n\nDo not add MCP tools for agents, number purchase, SMS, conversations, voices, or general webhooks until those routes exist in ClawdCall's API contract.\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

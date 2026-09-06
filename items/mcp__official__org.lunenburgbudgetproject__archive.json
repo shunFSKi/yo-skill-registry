@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/org.lunenburgbudgetproject/archive",
+  "type": "mcp",
+  "name": "archive",
+  "description": "The Lunenburg, Massachusetts town and school budget, every figure traced to its source document.",
+  "author": "org.lunenburgbudgetproject",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/tjloughlin16/lunenburgbudgetapp",
+    "repo": "tjloughlin16/lunenburgbudgetapp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://lunenburgbudgetproject.org/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-06T01:28:00.185668Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "写作",
+    "featured": false
+  },
+  "readme": "# The Lunenburg Budget Project\n\nAn independent, checkable archive of the Lunenburg, Massachusetts town and school budget:\n3,877 documents, 58 datasets, and 1,422 agendas and sets\nof minutes across 40 town boards. Not affiliated with the Town of Lunenburg, the\nSchool Committee or the school district.\n\nThe site is **[https://lunenburgbudgetproject.org](https://lunenburgbudgetproject.org)**. This repository is everything behind it.\n\nStart there: [the data API](https://lunenburgbudgetproject.org/api/index) · [an MCP server](https://lunenburgbudgetproject.org/mcp) ·\n[every published address](https://lunenburgbudgetproject.org/agents) · [the guide for agents](https://lunenburgbudgetproject.org/llms.txt).\n\n---\n\n## If you are an agent, start here\n\n**Read [`fy28/public/llms.txt`](https://raw.githubusercontent.com/tjloughlin16/lunenburgbudgetapp/main/fy28/public/llms.txt) first.** It is written for you:\nwhat this archive holds, what it does not, and the specific ways to get a confident wrong\nanswer out of the data.\n\nIf you can reach the site, use it — every address below has a live equivalent and the site\nserves smaller, indexed forms. If you can only reach GitHub, fetch raw files directly; no\nclone is needed:\n\n    https://raw.githubusercontent.com/tjloughlin16/lunenburgbudgetapp/main/<path>\n\n| you want | fetch |\n|---|---|\n| what this holds, and its limits | [`fy28/public/llms.txt`](https://raw.githubusercontent.com/tjloughlin16/lunenburgbudgetapp/main/fy28/public/llms.txt) |\n| every dataset, with row counts and sizes | [`fy28/public/api/tables.json`](https://raw.githubusercontent.com/tjloughlin16/lunenburgbudgetapp/main/fy28/public/api/tables.json) — 49 of them |\n| the grain of every table, and the traps | [`fy28/public/api/schema.json`](https://raw.githubusercontent.com/tjloughlin16/lunenburgbudgetapp/main/fy28/public/api/schema.json) |\n| every figure the site computes | [`fy28/public/data/model/index.json`](https://raw.githubusercontent.com/tjloughlin16/lunenburgbudgetapp/main/fy28/public/data/model/index.json) — 38 sections, one file each |\n| every source document, with its sha256 | [`sources/data/archive-manifest.csv`](https://raw.githubusercontent.com/tjloughlin16/lunenburgbudgetapp/main/sources/data/archive-manifest.csv) |\n| which meeting documents mention a word | [`fy28/public/minutes/find/README.txt`](https://raw.githubusercontent.com/tjloughlin16/lunenburgbudgetapp/main/fy28/public/minutes/find/README.txt) |\n\n**Nothing in `fy28/public/api/` is larger than one fetch.** Anything that would be is split\n— `staff_roster_entries.json` is an index and `staff_roster_entries/2022.json` is that year.\n\n**The documents themselves are not in this repository.** 3,877 files, 1.47 GB, live\nin a public object store; `sources/data/archive-manifest.csv` lists every one with its\nsha256 and `python3 scripts/sync_archive.py --pull` fetches them. The extracted text IS\nhere, under `sources/*/text/`, and that is what the analysis reads.\n\n## Where things are\n\n| | |\n|---|---|\n| `sources/` | the archive, keyed by **how a document reached us** — see `sources/README.txt` |\n| `sources/data/` | 58 datasets extracted from those documents, CSV |\n| `sources/analyses/` | the written analyses, each with a verifier script |\n| `model/` | the projection — `python3 model/export.py` writes `fy28/src/data/model.json` |\n| `scripts/` | extraction, verification and publishing |\n| `fy28/` | the site: React app, Cloudflare Pages Functions, and everything published |\n| `notes/` | working notes; `notes/reference/` is generated |\n| `plans/` | what is being built and why |\n\n## The rules this project works under\n\n`CLAUDE.md` carries them in full and each one exists because it was learned by getting it\nwrong here. The four that matter most to anybody reading the data:\n\n1. **Never mix budgets with actuals in one calculation.** They differ by up to 59% on some\n   lines, and a growth rate measured from one to the other is partly growth and partly the\n   step between them.\n2. **A budget line is NET, and it is dollars.** It is what the town must raise after\n   grants, fees and state aid — not what the thing costs, and never a count of people.\n3. **Only facts are stated as facts.** A number computed from the data is a fact; an\n   explanation for why it moved is a hypothesis, and it is labelled as one.\n4. **Every figure is interpolated from the model, never typed into prose.** Including the\n   counts in this file.\n\n## Running it\n\n    npm install --prefix fy28\n    python3 scripts/sync_archive.py --pull      # the documents; the manifest says what\n    python3 model/export.py                     # -> fy28/src/data/model.json\n    npm run --prefix fy28 build:site            # -> fy28/dist\n\n`CLAUDE.md` lists every check. The ones that guard what this file describes:\n\n    python3 scripts/build_readme.py --check       # this file, against the repository\n    python3 scripts/build_api.py                  # every dataset, fetchable\n    node fy28/scripts/check-agents.mjs            # every advertised URL answers, and can be read\n    python3 scripts/check_archive_storage.py      # the archive against its manifest\n\n---\n\n*Generated by `scripts/build_readme.py`. Edit that, not this.*\n",
+  "status": "curated"
+}

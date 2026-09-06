@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.kadopi/japan-rulewatch-mcp",
+  "type": "mcp",
+  "name": "Japan RuleWatch",
+  "description": "Official Japanese e-commerce rule evidence for mail-order advertising and return-policy disclosures.",
+  "author": "io.github.kadopi",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/kadopi/japan-rulewatch-mcp",
+    "repo": "kadopi/japan-rulewatch-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://japan-rulewatch-mcp.kadopi.workers.dev/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-06T04:46:40.771379Z",
+    "score": 55
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "营销",
+    "featured": false
+  },
+  "readme": "# Japan RuleWatch\n\nRead-only Remote MCP for official Japanese rule evidence. The tourism pack targets overseas OTA and travel-tech teams implementing Japan-bound hotel flows.\n\nIt exposes four tools over stateless Streamable HTTP:\n\n- `search_rules` and `get_evidence_pack`: free ecommerce evidence lookup.\n- `get_tourism_preflight`: free A/B/C service-flow classification, missing facts, and manual-review triggers.\n- `get_tourism_evidence_pack`: x402-paid tourism evidence pack for a complete supported A/B/C flow.\n\nThe paid pack returns official URLs, evidence locations, checked dates, source versions, general requirements, traveler-screen checks, and re-check triggers. It does not determine legal compliance, travel-business registration requirements, or legal risk for a particular service.\n\n## Public endpoint\n\n`https://japan-rulewatch-mcp.kadopi.workers.dev/mcp`\n\n## Tourism flow\n\nCall `get_tourism_preflight` first with the four service-flow facts. Incomplete or unsupported facts remain free and return missing facts or a manual-review trigger. A complete supported flow can call `get_tourism_evidence_pack`; its x402 402 response is the authoritative payment requirement.\n\nThe commercial hypothesis is 25 USDC per evidence pack. Base Sepolia uses 0.01 test USDC only for integration verification. Mainnet is not deployed or verified.\n\n## Example: find official sources for a Japanese ecommerce workflow\n\nUse Japan RuleWatch to find curated official sources when researching mail-order advertising and return-policy disclosures for a Japanese online store.\n\nConnect your MCP client to the public endpoint above.\n\n1. Call `search_rules` with `{\"query\":\"return policy\",\"limit\":2}`.\n2. Choose a returned ID and call `get_evidence_pack`, for example `{\"id\":\"caa-mail-order-advertising-qa\"}`.\n\nThe response includes an official source URL, a short summary, and scope limitations. Open the official source to verify its current content before using it. This is a small curated index, not a live legal-update feed, a website scanner, or a compliance verdict. `retrievedAt` is the response time, not the date the official source was last verified.\n\n## Local development\n\n```bash\nnpm install\nnpx wrangler d1 create your-japan-rulewatch-purchases\n# Replace the Worker name, D1 name/ID, and receiving address placeholders in wrangler.jsonc.\nnpx wrangler d1 execute your-japan-rulewatch-purchases --local --file migrations/0001_purchases.sql\nnpm run check\nnpm test\nnpm run dev\n```\n\nEndpoints:\n\n- `GET /`\n- `GET /health`\n- MCP Streamable HTTP: `/mcp`\n\n## Safety boundary\n\n- Official HTTPS sources only\n- Fixed local dataset; no arbitrary URL fetching\n- Read-only tools\n- Inputs limited by schema; incomplete tourism requests are never charged\n- D1 retains payment state and saved paid results; no private key or raw proof\n- Outputs are informational evidence, not legal advice\n\nDeployment is manual and requires explicit approval.\n",
+  "status": "curated"
+}

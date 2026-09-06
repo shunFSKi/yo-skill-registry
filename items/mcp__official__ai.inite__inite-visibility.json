@@ -1,0 +1,65 @@
+{
+  "id": "mcp:official/ai.inite/inite-visibility",
+  "type": "mcp",
+  "name": "INITE AI Visibility",
+  "description": "See how ChatGPT, Claude, Gemini and Perplexity read any website. Scored out of 100.",
+  "author": "ai.inite",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/inite-ai/inite-visibility",
+    "repo": "inite-ai/inite-visibility"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@inite/visibility"
+    ],
+    "env": [
+      {
+        "name": "INITE_TOKEN",
+        "required": false,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-06T04:30:58.184227Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# INITE MCP — AI visibility, from inside your agent\n\nAsk your assistant whether the answer engines can see a website, and get a\nnumber back.\n\n```\n> Can ChatGPT actually find stripe.com, or is it invisible?\n\n  analyze_site(url: \"stripe.com\")   → run_id: cm4x…\n  get_analysis(run_id: \"cm4x…\")     → Score: 78/100\n```\n\nThe audit reads a live site the way an assistant does — the identity files an\nengine looks for (`llms.txt`, `ai.json` and the rest), the crawler policy, the\nschema graph, page health — and then asks Claude, ChatGPT, Gemini and\nPerplexity whether they name it. One score out of 100 across eight weighted\nsections.\n\nIt is the same audit that runs at [inite.ai/en/analyze](https://inite.ai/en/analyze).\n\n## Works before you sign in\n\nThree of the tools run entirely on your machine — a `robots.txt` fetched, a\nfile probed for, a page parsed. No account, no allowance, no call home.\n\n```\n> Is anything blocking AI crawlers on stripe.com?\n\n  check_ai_access(url: \"stripe.com\")\n\n  Retrieval: all 7 answer-engine crawlers may fetch the site.\n  Training:  3 of 8 blocked — Meta-ExternalAgent, Bytespider, Amazonbot.\n```\n\nSigning in adds the two that cost something real: the answer engines are\nactually asked whether they name the site, and the eight weighted sections are\nscored.\n\n## Install\n\n**Claude Desktop, Cursor, or any client that launches a stdio server:**\n\n```json\n{\n  \"mcpServers\": {\n    \"inite\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@inite/visibility\"]\n    }\n  }\n}\n```\n\nThen sign in once:\n\n```sh\nnpx @inite/visibility login\n```\n\nThat opens a browser, you approve, and the token is stored at\n`~/.config/inite/mcp.json` with owner-only permissions. Authorization code with\nPKCE over a loopback redirect, the flow RFC 8252 prescribes for a native app.\nNothing is written to the repository and no secret ships in the package.\n\n**Already have a token** (CI, a shared config, a container):\n\n```json\n{\n  \"mcpServers\": {\n    \"inite\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@inite/visibility\"],\n      \"env\": { \"INITE_TOKEN\": \"…\" }\n    }\n  }\n}\n```\n\n`INITE_TOKEN` wins over the stored file.\n\n**Client speaks the MCP authorization flow?** Skip this package. Point it\nstraight at `https://inite.ai/api/mcp` and it will discover the rest: an\nunauthenticated call answers `401` with `WWW-Authenticate` naming\n[the protected-resource metadata](https://inite.ai/.well-known/oauth-protected-resource),\nwhich names the authorization server.\n\n## Tools\n\n**Local — no account:**\n\n| tool | what it does |\n|---|---|\n| `check_ai_access(url)` | Which AI crawlers `robots.txt` lets in, separating the ones that fetch a page to answer a live question from the ones that only collect training data. Blocking the first kind is what makes a site invisible; blocking the second costs nothing. |\n| `check_identity_files(url)` | Which of the ten identity files exist — `llms.txt`, `ai.json`, `identity.json` and the rest. |\n| `check_page_signals(url)` | Title, description, canonical, hreflang, and the Schema.org types in the page's JSON-LD. |\n\n**Remote — needs an account:**\n\n| tool | what it does |\n|---|---|\n| `analyze_site(url)` | Starts the full audit and returns a `run_id`. Takes about a minute. |\n| `get_analysis(run_id)` | Progress while it runs; the score out of 100 and the report address once it finishes. |\n\nTwo tools rather than one for the audit, because it is asynchronous. A single\ntool that blocked for a minute would be torn down by most clients' timeouts.\n\n## Commands\n\n```\ninite-visibility            run as an MCP server over stdio (what a client does)\ninite-visibility login      sign in through the browser\ninite-visibility whoami     say whether a usable token is present\n```\n\n## What this package is\n\nTwo halves.\n\nThe local checks are real work done here: fetching, parsing, and the robots\nrules applied properly — most-specific group wins, longest matching rule wins,\n`Allow` breaks a tie. They cost nobody anything because your machine does them.\n\nThe remote half defines no schemas of its own. It asks `inite.ai` what it\noffers and forwards calls there, so that tool list is whatever the service\nimplements today. A local copy would be a second source of truth, and the first\nthing it would do is drift.\n\nWhat stays on the server is what costs something or is ours: four answer\nengines asked whether they name a site, and the weights that turn everything\ninto one number. The local tools report facts; `analyze_site` reports a score.\n\n## Account and allowance\n\nAn audit spends real work — fetches, and model calls across four answer\nengines — so it runs against an account rather than anonymously. The daily\nallowance and the depth of the report are your plan's own, exactly as on the\nwebsite: a free account gets the teaser tier, a paid one the full pipeline.\n[Plans are here](https://inite.ai/en/pricing).\n\n## Environment\n\n| variable | meaning |\n|---|---|\n| `INITE_TOKEN` | Use this token instead of the stored one. |\n| `INITE_MCP_URL` | Point at a different endpoint. Default `https://inite.ai/api/mcp`. |\n| `INITE_TOKEN_FILE` | Where the token lives. Default `~/.config/inite/mcp.json`. |\n| `INITE_AUTH_URL` | Authorization server. Default `https://auth-api.inite.ai`. |\n\n## Namespace\n\nPublished to the MCP registry as `ai.inite/inite-visibility`, a namespace held\nby proving control of `inite.ai` — the public half of the key is served at\n[/.well-known/mcp-registry-auth](https://inite.ai/.well-known/mcp-registry-auth).\n\nNamed by the domain rather than the code host on purpose: a service whose whole\njob is being legible to machines should tell them who it belongs to in its own\nname.\n\n## A note on the command name\n\n`npx @inite/visibility` resolves because there is exactly one binary in the\npackage. npm looks for a command matching the package name with the scope\nstripped — `visibility` — does not find it, and runs the only one there is.\n\nThe binary is called `inite-visibility` rather than `visibility` on purpose: a\nscoped package has no business claiming a word that general in your `PATH` on\na global install. The cost is that a second binary would break the line above\nfor every client, so a test pins it at one.\n\nIf you are invoking it from a directory that contains this package's own\n`package.json`, npm prefers the local copy and finds no linked command. Name it\nexplicitly there:\n\n```sh\nnpx -p @inite/visibility inite-visibility login\n```\n\n## Development\n\n```sh\nnpm install\nnpm run build\nnpm test\n```\n\nThe tests cover what the bridge can get wrong without saying so: dropping the\ncredential, turning \"signed out\" into \"broken\", swallowing an error into a\nsuccess, and letting a stale file beat the environment.\n\n## Licence\n\nMIT. The service it talks to is [INITE](https://inite.ai).\n",
+  "status": "curated"
+}

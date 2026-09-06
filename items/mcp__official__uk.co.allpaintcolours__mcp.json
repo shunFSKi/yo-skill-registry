@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/uk.co.allpaintcolours/mcp",
+  "type": "mcp",
+  "name": "All Paint Colours",
+  "description": "Every UK paint colour, matched across brands by ΔE and priced; palettes, planner projects, trends.",
+  "author": "uk.co.allpaintcolours",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/hwam91/allpaintcolours-api",
+    "repo": "hwam91/allpaintcolours-api"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://mcp.allpaintcolours.co.uk/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-05T23:34:58.091017Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "营销",
+    "featured": false
+  },
+  "readme": "# All Paint Colours — API & MCP server\n\nProgrammatic access to every paint colour from every major UK manufacturer:\n**5,300+ colours from 14 retail brands**, plus the RAL Classic and BS 4800\nreference systems, with cross-brand colour matching (CIEDE2000), prices,\ntechnical finish specs, a room-by-room paint planner, and market trend data.\n\n- **Website:** https://allpaintcolours.co.uk\n- **MCP server:** `https://mcp.allpaintcolours.co.uk/mcp`\n- **REST API:** `https://allpaintcolours.co.uk/api/v2` ([interactive docs](https://allpaintcolours.co.uk/api/v2/docs) · [OpenAPI](openapi.json))\n- **Sign up / API keys:** https://allpaintcolours.co.uk/account/\n- **Pricing & terms:** https://allpaintcolours.co.uk/developers/\n\nThis repository is the public documentation for the API — the OpenAPI\nschema, the MCP tool catalogue, the planner project format, and worked\nexamples. Issues and questions are welcome here.\n\n## What it answers\n\n- \"What's the closest Dulux colour to Farrow & Ball Railings?\"\n- \"Same colour, but cheaper\" — visually equivalent paints from other brands,\n  ranked by £/m² saving (fairer than £/L, since coverage differs by brand)\n- \"What paint matches this hex from a photo or a brand palette?\"\n- \"What's the retail equivalent of RAL 7016 / BS 4800 18 B 25?\"\n- \"My bedroom is 4m × 3.2m — how many tins, which primer, what's the cost?\"\n- \"What's trending in greens this month, and who's changed prices?\"\n\n## MCP quick start\n\n```bash\nclaude mcp add --transport http apc https://mcp.allpaintcolours.co.uk/mcp\n```\n\nIn Claude (desktop or web): Settings → Connectors → *Add custom connector* →\npaste `https://mcp.allpaintcolours.co.uk/mcp`. ChatGPT (developer mode) and\nCursor take the same URL. Sign-in happens through OAuth in your browser on\nfirst connect — no API keys to handle.\n\nSee [MCP_TOOLS.md](MCP_TOOLS.md) for the full tool catalogue.\n\n## REST quick start\n\nCreate a key at https://allpaintcolours.co.uk/account/, then:\n\n```bash\ncurl -H \"Authorization: Bearer apc_live_...\" \\\n  \"https://allpaintcolours.co.uk/api/v2/search?query=railings\"\n\ncurl -H \"Authorization: Bearer apc_live_...\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"colours\": [\"#45494C\"], \"limit\": 3}' \\\n  \"https://allpaintcolours.co.uk/api/v2/match\"\n```\n\nMore in [examples/](examples/).\n\n## Tiers\n\n| | Free | Home (£12/mo or £120/yr inc. VAT) | Pro (£60/mo or £600/yr inc. VAT) |\n|---|---|---|---|\n| Colour research & ΔE matching | ✓ | ✓ | ✓ |\n| Price data + cheapest alternatives | — | ✓ | ✓ |\n| Saved palettes | 1 | Unlimited | Unlimited |\n| Planner projects | — | Unlimited | Unlimited |\n| Market data (trends, rankings, changes) | — | — | ✓ |\n| Calls/month (MCP + API pooled) | 200 | 2,500 | 25,000 |\n\nFull details, the plan comparison and FAQs: https://allpaintcolours.co.uk/pricing/ — monthly plans cancel any time.\n| Commercial use in customer-facing products | — | — | ✓ |\n\nEvery tool is visible at every tier; above-tier calls return a structured\n`requires_tier` error with an upgrade link rather than a bare failure.\n\n## Notes on the data\n\nColour data is factual information gathered from public manufacturer\nsources. Hex values are sRGB approximations of physical paint — always\ncheck a sample pot before committing. Prices are indicative and change;\ncoverage figures are the manufacturers' own. Trend data is a relative\n0–100 interest index derived from site engagement, not industry sales.\n\nAll Paint Colours is **not affiliated with or endorsed by any paint\nmanufacturer**; brand names identify their products.\n\n## Licence\n\nThe documentation in this repository is CC0. The colour data served by the\nAPI is subject to the terms at\nhttps://allpaintcolours.co.uk/developers/ — no bulk redistribution.\n",
+  "status": "curated"
+}
