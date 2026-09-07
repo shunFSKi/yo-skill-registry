@@ -1,0 +1,94 @@
+{
+  "id": "mcp:official/io.github.fbossiere/open-transcribe-mcp",
+  "type": "mcp",
+  "name": "OpenTranscribe MCP",
+  "description": "Provider-independent speech-to-text with normalized transcripts over MCP.",
+  "author": "io.github.fbossiere",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/fbossiere/open-transcribe-mcp",
+    "repo": "fbossiere/open-transcribe-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "open-transcribe-mcp"
+    ],
+    "env": [
+      {
+        "name": "OT_HOST",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "OT_PORT",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "OT_SECURITY__BEARER_TOKEN",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "OT_MICROSOFT__ENDPOINT",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "OT_MICROSOFT__API_KEY",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "OT_ELEVENLABS__API_KEY",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "OT_GROQ__API_KEY",
+        "required": false,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-07T18:48:40.623259Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# OpenTranscribe MCP\n\n<!-- mcp-name: io.github.fbossiere/open-transcribe-mcp -->\n\n[![CI](https://github.com/fbossiere/open-transcribe-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/fbossiere/open-transcribe-mcp/actions/workflows/ci.yml)\n[![CodeQL](https://github.com/fbossiere/open-transcribe-mcp/actions/workflows/codeql.yml/badge.svg)](https://github.com/fbossiere/open-transcribe-mcp/actions/workflows/codeql.yml)\n[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)\n\n<p align=\"center\">\n  <img src=\"docs/assets/open-transcribe-hero.jpg\" alt=\"OpenTranscribe MCP turns recorder audio into a provider-independent transcript\" width=\"100%\">\n</p>\n\n**Own the recorder. Choose the intelligence.**\n\nOpenTranscribe is an open-source MCP server that routes audio to the speech-to-text model of your choice and returns one provider-independent transcript schema.\n\nIt is built around a simple idea: buying a great recorder should not lock you into one transcription subscription. Use Plaud, a phone, an open-source wearable, or any other audio source you are authorized to access, then choose Microsoft MAI, ElevenLabs Scribe, or Groq Whisper without changing the downstream workflow.\n\nOpenTranscribe does not jailbreak hardware or bypass access controls. It works only with audio the operator is authorized to access.\n\n## How it works\n\n<picture>\n  <source media=\"(prefers-color-scheme: dark)\" srcset=\"docs/assets/transcription-pipeline-dark.jpg\">\n  <source media=\"(prefers-color-scheme: light)\" srcset=\"docs/assets/transcription-pipeline-light.jpg\">\n  <img src=\"docs/assets/transcription-pipeline-light.jpg\" alt=\"Audio flows from a recorder through OpenTranscribe MCP and a selectable speech-to-text provider into one canonical transcript schema for downstream workflows\" width=\"100%\">\n</picture>\n\nOpenTranscribe keeps the integration boundary stable: the recorder supplies an audio file or HTTPS URL, the server selects or calls the requested speech-to-text provider, and downstream tools receive the same canonical transcript shape.\n\n## What v1 ships\n\n- MCP Streamable HTTP at `/mcp`, with stateless operation and bearer authentication\n- `transcribe_audio`, `list_transcription_models`, `estimate_transcription_cost`, `get_transcript_chunk`, and `delete_transcript`\n- Microsoft `MAI-Transcribe-2`, ElevenLabs `scribe-v2`, and Groq Whisper adapters\n- explicit capability negotiation, routing policies, retries, and observable fallbacks\n- HTTPS URL passthrough when supported and a bounded streaming proxy otherwise\n- SSRF controls, signed-URL redaction, zero content logging, and cost/resource limits\n- disabled-by-default retention; optional memory or S3-compatible temporary result storage\n- Docker, production-oriented Scaleway Serverless Containers Terraform, tests, and GitHub Actions CI\n\n## Ten-minute quickstart\n\nRequirements: Python 3.12 and [uv](https://docs.astral.sh/uv/), or Docker.\n\n```bash\ngit clone https://github.com/fbossiere/open-transcribe-mcp.git\ncd open-transcribe-mcp\ncp .env.example .env\n```\n\nEdit `.env` with one provider credential and a strong random MCP bearer token. For Microsoft:\n\n```dotenv\nOT_MICROSOFT__ENDPOINT=https://YOUR-RESOURCE.cognitiveservices.azure.com\nOT_MICROSOFT__API_KEY=YOUR-KEY\nOT_SECURITY__BEARER_TOKEN=YOUR-RANDOM-TOKEN\n```\n\nStart the server:\n\n```bash\nuv sync\nuv run open-transcribe-mcp\n```\n\nThe MCP endpoint is `http://localhost:8000/mcp`; probes are available at `/healthz` and `/readyz`.\n\nRun the included bilingual, two-voice synthetic recording through the connected provider:\n\n```bash\nuv run python examples/transcribe.py --token YOUR-RANDOM-TOKEN\n```\n\nThe [fixture and reference transcript](tests/fixtures/README.md) are non-sensitive and\nredistributable. Pass another authorized public HTTPS audio URL as the first argument to use your\nown source.\n\nConnect a FastMCP client:\n\n```python\nimport asyncio\nfrom fastmcp import Client\n\n\nasync def main() -> None:\n    async with Client(\"http://localhost:8000/mcp\", auth=\"YOUR-RANDOM-TOKEN\") as client:\n        models = await client.call_tool(\"list_transcription_models\", {})\n        print(models)\n        result = await client.call_tool(\n            \"transcribe_audio\",\n            {\n                \"request\": {\n                    \"source\": {\"type\": \"url\", \"url\": \"https://example.org/authorized-audio.mp3\"},\n                    \"provider\": \"auto\",\n                    \"routing_policy\": \"quality\",\n                    \"diarization\": True,\n                    \"timestamps\": \"segment\",\n                    \"transcript_style\": \"clean\",\n                }\n            },\n        )\n        print(result)\n\n\nasyncio.run(main())\n```\n\nProvider choice does not alter the response contract. Set `provider` and `model` to switch explicitly, or use `auto` with `default`, `quality`, `cost`, or `latency` routing.\n\n## Docker\n\n```bash\ndocker build -t open-transcribe-mcp:1.1.0 .\ndocker run --rm -p 8000:8000 \\\n  -e OT_ENVIRONMENT=prod \\\n  -e OT_MICROSOFT__ENDPOINT=\"https://YOUR-RESOURCE.cognitiveservices.azure.com\" \\\n  -e OT_MICROSOFT__API_KEY=\"YOUR-KEY\" \\\n  -e OT_SECURITY__AUTH_MODE=bearer \\\n  -e OT_SECURITY__BEARER_TOKEN=\"YOUR-RANDOM-TOKEN\" \\\n  open-transcribe-mcp:1.1.0\n```\n\nThe published image is also available as `ghcr.io/fbossiere/open-transcribe-mcp:1.1.0`.\n\n## Configuration\n\nAll settings use the `OT_` prefix and `__` for nesting. See [.env.example](.env.example). Provider credentials are server-side environment variables and are never accepted as MCP tool arguments.\n\nTemporary storage is disabled by default. `result_mode=stored` requires:\n\n```dotenv\nOT_RESULT_STORE__BACKEND=memory  # local/test only; use s3 for horizontally scaled production\nOT_RESULT_STORE__CURSOR_SECRET=ANOTHER-RANDOM-SECRET\n```\n\nFor Scaleway Object Storage, install the `s3` extra and configure the S3 bucket/endpoint variables documented in [the deployment guide](docs/deploy-scaleway.md).\n\nThe reference Scaleway deployment is codified in [`infra/scaleway`](infra/scaleway/README.md). It provisions a private image registry, a scale-to-zero Serverless Container, health probes, HTTPS-only ingress, and an optional TTL-bound result bucket with a dedicated runtime identity.\n\n## Security and privacy defaults\n\n- source HTTPS is required;\n- private, loopback, link-local, multicast, reserved, and metadata destinations are rejected;\n- every redirect target is resolved and validated;\n- proxy downloads connect to the validated public IP while preserving HTTPS SNI and the original Host header;\n- source downloads are streamed to an ephemeral file with byte limits, then deleted;\n- signed URL queries, audio, transcript text, authorization headers, and phrase hints are not logged;\n- no project telemetry is emitted;\n- transcripts are not retained unless a result store is explicitly enabled and used.\n- ElevenLabs zero-retention requests are enabled by default; disabling them is an explicit operator choice.\n\nRead [SECURITY.md](SECURITY.md), [the threat model](docs/security.md), and [the retention policy](docs/privacy.md) before exposing the service publicly.\n\n## Known limitations\n\nOpenTranscribe v1.0 targets self-hosted, single-tenant installations. Provider feature parity is deliberately not guaranteed; capability negotiation exposes differences instead of hiding them. URL ingestion is the only remote input type. Synchronous provider limits still apply. OIDC and asynchronous jobs are planned for later releases. The memory store is neither durable nor horizontally scalable. S3 lookups prioritize a simple deployment contract over very-large-bucket indexing; dedicate the result prefix and enforce lifecycle deletion.\n\nApplication controls do not replace network policy. Internet-facing operators should still combine exact source-host allow-listing with egress firewall rules.\n\nProvider prices, APIs, and capabilities change. The checked-in metadata is informational, not a contractual quote.\n\n## Recording consent\n\n> OpenTranscribe processes audio supplied by the operator. Recording and transcribing people may be subject to consent, privacy, employment, telecommunications, or data-protection laws. Operators are responsible for ensuring they have the necessary rights and consent.\n\nTranscript content is untrusted data. OpenTranscribe never interprets it as instructions; downstream agents must preserve the same boundary.\n\n## Documentation\n\nThe canonical documentation site is [fbossiere.github.io/open-transcribe-mcp](https://fbossiere.github.io/open-transcribe-mcp/).\n\n- [Architecture](docs/architecture.md)\n- [Providers and capabilities](docs/providers.md)\n- [Security model](docs/security.md)\n- [Privacy and retention](docs/privacy.md)\n- [Scaleway deployment](docs/deploy-scaleway.md)\n- [Release process](docs/releasing.md)\n- [Plaud recipe](docs/recipes/plaud.md)\n- [ChatGPT + Google Drive recipe](docs/recipes/chatgpt-gdrive.md)\n- [Contributing](CONTRIBUTING.md)\n- [Governance](GOVERNANCE.md)\n- [Support](SUPPORT.md)\n- [Full product and technical specification](SPEC.md)\n\n## Contributing\n\nContributions are welcome. Start with the [contribution guide](CONTRIBUTING.md); open a feature issue before substantial work, and report vulnerabilities only through the private process in [SECURITY.md](SECURITY.md).\n\n## Independence and trademarks\n\nOpenTranscribe is an independent open-source project maintained by its contributors. It is not affiliated with, endorsed by, or sponsored by Plaud, Microsoft, ElevenLabs, Groq, or any transcription provider.\n\nPlaud and all provider product names are trademarks of their respective owners.\n\n## License\n\nApache License 2.0. See [LICENSE](LICENSE).\n",
+  "status": "curated"
+}

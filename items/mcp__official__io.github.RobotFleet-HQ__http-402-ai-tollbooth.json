@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.RobotFleet-HQ/http-402-ai-tollbooth",
+  "type": "mcp",
+  "name": "HTTP 402 AI Tollbooth",
+  "description": "Free MCP troubleshooting-preview tools; purchases stay human-directed.",
+  "author": "io.github.RobotFleet-HQ",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/RobotFleet-HQ/http-402-ai-tollbooth-public",
+    "repo": "RobotFleet-HQ/http-402-ai-tollbooth-public"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://http-402-ai-tollbooth.rsaun-lightning.workers.dev/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-07T12:18:40.926364Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# HTTP 402 AI Tollbooth\n\n> Agent-ready developer troubleshooting data, sold per request over Bitcoin Lightning.\n\n**Live:** https://http-402-ai-tollbooth.rsaun-lightning.workers.dev\n\nHTTP 402 AI Tollbooth gives developers and AI agents three useful records free, then unlocks complete structured datasets with a BOLT11 Lightning payment. There are no accounts, subscriptions, credit cards, or API keys.\n\nThis is a public, documentation and example repository. The production Worker implementation remains private and is not included here.\n\n## Try it now\n\nList the complete catalog:\n\n```bash\ncurl -sS https://http-402-ai-tollbooth.rsaun-lightning.workers.dev/api/catalog\n```\n\nPreview exactly three records without payment:\n\n```bash\ncurl -sS https://http-402-ai-tollbooth.rsaun-lightning.workers.dev/api/preview/api-error-fixes\n```\n\nRequest the full product and receive an HTTP 402 Lightning challenge:\n\n```bash\ncurl -i https://http-402-ai-tollbooth.rsaun-lightning.workers.dev/api/data/api-error-fixes\n```\n\nThe last command creates an invoice. Do not run it unless you intentionally want a payment challenge; simply requesting it does not spend sats.\n\n## Why agents use it\n\n- 203 products across DevOps, APIs, ML/AI, Web/Frontend, and Databases\n- Entry, Standard, and Premium datasets with 50, 100, or 200 records\n- Exactly three free records per product for try-before-you-buy discovery\n- Stable `error_code`, `description`, and `programmatic_fix` fields\n- HTTP 402 and Bitcoin Lightning payments without user accounts\n- OpenAPI 3.1, MCP discovery metadata, and `llms.txt`\n- Deterministic fallback generation for resilient dataset delivery\n- Durable one-time redemption and replay protection\n- Future x402 settlement is documented but remains disabled pending verification\n\n## Architecture\n\n```text\nAI agent / developer\n        |\n        | HTTPS: catalog, preview, paid dataset\n        v\nCloudflare Worker\n   |         |                    |\n   |         |                    +--> Alby --> Bitcoin Lightning invoice\n   |         |\n   |         +--> Durable Objects --> atomic redemption + counters\n   |\n   +--> Workers KV --> invoice challenges + generated dataset cache\n```\n\n## Pricing\n\n| Tier | Price | Records |\n|---|---:|---:|\n| Entry | 2,000 sats | 50 |\n| Standard | 5,000 sats | 100 |\n| Premium | 10,000 sats | 200 |\n\nSee [the pricing rationale](docs/PRICING.md), including the live-verified 2,000-sat receiving floor.\n\n## How to pay\n\n1. Request a paid product endpoint.\n2. Receive `402 Payment Required` with a BOLT11 invoice and payment hash.\n3. Pay the invoice in a Lightning wallet.\n4. Retry the same endpoint with `X-Payment-Hash` and `X-Payment-Preimage`.\n5. Receive the full dataset once; replayed proofs are rejected.\n\nNever publish or share a payment preimage before using it for its intended redemption. Future Solana USDC/x402 support is disabled until its manual verification process is completed.\n\n## Discovery documents\n\n- [Smithery server card](docs/server-card.json)\n- [OpenAPI 3.1 document](docs/openapi.json)\n- [llms.txt](docs/llms.txt)\n- [Billboard integration summary](BILLBOARD.md)\n- [Official MCP Registry readiness](docs/MCP-REGISTRY-SUBMISSION.md)\n\n## Integrations\n\n- **MCP metadata:** tool descriptions for catalog, preview, and purchase discovery\n- **MCP transport:** a live Streamable HTTP JSON-RPC endpoint at `/mcp` with four read-only tools\n- **OpenAPI:** complete HTTP endpoint descriptions for agent frameworks\n- **LLMs.txt:** concise machine-readable project and payment guidance\n\nConnect an MCP client to `https://http-402-ai-tollbooth.rsaun-lightning.workers.dev/mcp`. The server supports `list_products`, `preview_product`, `list_payment_methods`, and `buy_product`. The last tool only returns payment directions and an HTTP 402 challenge; it never pays an invoice or creates a purchase on the caller's behalf.\n\nFor a complete no-payment example, see [the Node agent recovery sample](examples/node-agent-recovery/).\n\n## Runnable free sample\n\nThe sample shows how an agent can inspect malformed JSON, retry a transient `429` once after `Retry-After`, and safely stop when a response is not recoverable. It uses Node 22+ built-ins only:\n\n```bash\ncd examples/node-agent-recovery\nnpm test\nnpm start\n```\n\nThe demo calls only the public three-record preview endpoint. It does not call a paid route, create an invoice, or automatically replay a payment proof.\n\n## License\n\nThe documentation in this billboard repository is available under the MIT License. The private production source code is not covered by this repository or license.\n",
+  "status": "curated"
+}

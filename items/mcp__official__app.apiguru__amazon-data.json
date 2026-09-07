@@ -31,8 +31,8 @@
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-09-05T13:10:28.734443Z",
-    "score": 42
+    "pushed_at": "2026-09-07T17:29:38.020212Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -64,6 +64,6 @@
     "category": "编程",
     "featured": false
   },
-  "readme": null,
+  "readme": "# Apiguru Agent Kit\n\nEverything needed for an AI agent to discover, call and pay for the Apiguru\nAmazon Data API — **with no account, no API key and no subscription**.\n\nThe existing backend is not modified by any of this. Not one line.\n\n## Install in your agent\n\n| Client | How |\n|---|---|\n| Claude Code | `claude mcp add --transport http apiguru https://mcp.apiguru.app/mcp` or `/plugin marketplace add apiguru-app/agent-kit` then `/plugin install apiguru@apiguru` |\n| claude.ai, Claude Desktop, ChatGPT | add connector `https://mcp.apiguru.app/account` and sign in |\n| Codex CLI | `codex mcp add apiguru --url https://mcp.apiguru.app/mcp` |\n| Cursor | [Add to Cursor](cursor://anysphere.cursor-deeplink/mcp/install?name=apiguru&config=eyJjb21tYW5kIjogIm5weCIsICJhcmdzIjogWyIteSIsICJhcGlndXJ1LW1jcCJdfQ==) (runs `npx -y apiguru-mcp`) |\n| VS Code | [Install in VS Code](vscode:mcp/install?%7B%22name%22%3A%20%22apiguru%22%2C%20%22command%22%3A%20%22npx%22%2C%20%22args%22%3A%20%5B%22-y%22%2C%20%22apiguru-mcp%22%5D%7D) |\n| Gemini CLI | `gemini extensions install https://github.com/apiguru-app/agent-kit` |\n| Hermes, OpenClaw, any stdio client | `npx -y apiguru-mcp` (npm, Node only) or `uvx apiguru-mcp` (PyPI) |\n| Skill only (any agent) | `npx skills add apiguru-app/agent-kit` or ClawHub `apiguru-amazon-data` |\n\n## Why this exists\n\nThe API is gated behind register → verify email → get key → top up. Every step\nassumes a human. Agents cannot do any of it, so agent traffic bounces off the\nfront door.\n\nAnd agents don't browse — they query indexes: the x402 Bazaar, the MCP\nRegistry, ClawHub. Apiguru was in none of them, and the repo had no OpenAPI\nspec at all, so there was nothing machine-readable to publish.\n\n## Telling us what is broken\n\nAgents are the ones who find the defects in this API, so there are two ways\nback to us and neither costs anything:\n\n- **GitHub issues — preferred:**\n  <https://github.com/apiguru-app/agent-kit/issues>. A thread can hold a\n  reply, and a fix gets linked back to it.\n- **The wall, for callers with no GitHub account:** one unauthenticated\n  `POST https://dash.apiguru.app/api/v1/feedback` with\n  `{\"message\": \"...\", \"category\": \"bug|wish|praise|question|other\",\n  \"endpoint\": \"/search\", \"agent\": \"your-name/1.0\", \"contact\": \"optional\"}`.\n  No key, no signup, never billed. Read it at\n  <https://dash.apiguru.app/feedback>, or `GET` the same URL for JSON.\n- Over MCP: the free `send_feedback` tool. From the skill:\n  `python scripts/probe.py feedback --message \"...\" --category bug`.\n\nThis is not decoration. 1.1.3 exists because an agent reported that search\nreturned the brand as `product_title`, `null` for every\n`product_num_ratings`, and delivery text with the words welded together.\n\n\n## What is in this repository\n\n| Path | What it is |\n|---|---|\n| `skill/apiguru-amazon-data/` | The agent skill: SKILL.md, references, and `scripts/probe.py` |\n| `mcp/` | The MCP server published to PyPI as `apiguru-mcp` |\n| `npm/` | The npm bridge, `apiguru-mcp` |\n| `plugin/` + `.claude-plugin/` | The Claude Code plugin and its marketplace entry |\n| `spec/` | `endpoints.json` and the generated `openapi.json` / `llms.txt` |\n\nThe hosted service that serves these endpoints is operated separately and is\nnot part of this repository.\n\n## Licence\n\nSee `LICENSE`.\n",
   "status": "curated"
 }

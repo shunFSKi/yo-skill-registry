@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.pipeworx-io/china-air-quality",
+  "type": "mcp",
+  "name": "China Air Quality",
+  "description": "China Air Quality MCP — nationwide hourly AQI from CNEMC (中国环境监测总站).",
+  "author": "io.github.pipeworx-io",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/pipeworx-io/mcp-china-air-quality",
+    "repo": "pipeworx-io/mcp-china-air-quality"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://gateway.pipeworx.io/china-air-quality/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-07T18:54:53.788105Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# @pipeworx/china-air-quality\n\nReal-time nationwide air quality (空气质量) for China — AQI, pollutant levels and\nconcentrations (PM2.5, PM10, O3, NO2, SO2, CO), quality rating and monitoring-station\ndetail. Keyless.\n\nPart of [Pipeworx](https://pipeworx.io) — an MCP gateway connecting AI agents to 1530+ live data sources.\n\nOf the 20 China-government sources probed 2026-09-07 (`docs/china-vertical-plan.md`\n§2), this was the only one that answered clean JSON with no session cookie, Referer\ntrick or undocumented catalog id. No external demand asked for it in the prior 30\ndays; it is built because it is distinctive (nobody else serves CNEMC over MCP), not\nbecause a question was waiting on it.\n\n## Tools\n\n- `china_air_quality(city)` — a city's current AQI, quality rating, primary\n  pollutant, per-pollutant index level, and averaged station concentrations. Accepts\n  an English city name (\"Beijing\"), a province (\"Guangdong\" resolves to its capital,\n  Guangzhou), or the Chinese name directly (\"北京市\").\n- `china_air_quality_ranking(direction?, n?, pollutant?)` — nationwide ranking of all\n  338 CNEMC-monitored cities by AQI or by one pollutant's index level. `direction:\n  \"bottom\"` (default) surfaces the most polluted; `\"top\"` the cleanest.\n- `china_air_quality_stations(city)` — every individual monitoring station within one\n  city, with its own AQI, concentrations and coordinates — the neighborhood-level view\n  the city-wide summary averages over.\n\n## Source\n\nChina National Environmental Monitoring Centre (中国环境监测总站), the government body\nthat operates China's official air-quality monitoring network:\n\n- `https://air.cnemc.cn:18007/CityData/GetAllCityRealTimeAQIModels` — all 338 cities,\n  refreshed hourly. Carries AQI and a 1-6 index **level** per pollutant, but no raw\n  concentration.\n- `https://air.cnemc.cn:18007/CityData/GetAQIDataPublishLive?cityName=<市名>` —\n  station-level rows for one city, with actual pollutant concentrations (µg/m³, CO in\n  mg/m³). `GetAQIDataPublishLives` (plural) is a dead path — it 404s.\n\n`china_air_quality` merges both calls: city-level AQI/level/quality from the cached\nall-cities feed, and averaged concentrations computed from that city's stations,\nbecause the all-cities endpoint alone never carries a concentration value.\n\nThe all-cities payload (144 KB, hourly) is cached in-isolate for 10 minutes.\n\n## City names — Chinese only on the upstream\n\nCNEMC identifies every city by its Chinese administrative name; \"Beijing\" resolves\nnowhere on the wire. `src/index.ts` bundles a generated table:\n\n- **`CITY_EN_TO_ZH`** — Hanyu Pinyin romanization of all 338 published city names\n  (administrative suffix 市/州/盟/地区/自治州 stripped), with a hand override for the\n  handful whose common English spelling diverges from straight pinyin: Xi'an, Harbin,\n  Urumqi, Lhasa, Hohhot, Ordos, Qiqihar, Hulunbuir.\n- **`PROVINCE_TO_ZH`** — the 31 provinces/autonomous regions/municipalities (English\n  and Chinese name) mapped to their capital city, so \"air quality in Guangdong\"\n  resolves to Guangzhou.\n- Chinese input is always accepted as-is against the 338 published names, with or\n  without the trailing 市/州.\n\nAn unresolvable city name returns `found: false` with a hint rather than an upstream\nerror — CNEMC's own unknown-city response is a silent empty array, which would\notherwise read as \"no pollution data\" instead of \"city not recognized\".\n\n## Known limits\n\n- **Concentrations are a station average, not a single official number.** CNEMC\n  publishes concentrations only at station grain; the city-level summary is this\n  pack's average across that city's reporting stations for the current hour, stated\n  in `pollutant_note` on every response.\n- **A concentration below the sensor floor is excluded, not guessed.** CNEMC reports\n  some readings as `<3` (below detection limit); those are dropped from the average\n  rather than parsed as a wrong number.\n- **MEE monthly city reports are HTML** and out of scope for this pack — see\n  `docs/china-vertical-plan.md` §2 (filed separately as a research task).\n\n## Auth\n\nNone.\n\n## Quick Start\n\nAdd to your MCP client (Claude Desktop, Cursor, Windsurf, etc.):\n\n```json\n{\n  \"mcpServers\": {\n    \"china-air-quality\": {\n      \"url\": \"https://gateway.pipeworx.io/china-air-quality/mcp\"\n    }\n  }\n}\n```\n\n### What this endpoint actually serves\n\n`tools/list` at `https://gateway.pipeworx.io/china-air-quality/mcp` returns the tools in the table\nabove **plus the shared Pipeworx meta-tools** — `ask_pipeworx`,\n`discover_tools`, `search_within`, `remember`/`recall` and the rest of the\ngateway-wide set. So the tool count you see is larger than this table: a\nsingle-pack endpoint currently lists roughly 30 shared tools alongside the\npack's own. The connection's `initialize` response states its exact scope, and\nis the authoritative answer for a given day.\n\nThis is deliberate, not multiplexing by accident. The meta-tools are what let a\nscoped connection answer a question this pack does not cover — via\n`ask_pipeworx`, which routes across the whole catalog — without you adding a\nsecond MCP server. There is currently no way to mount a pack endpoint without\nthem; if the extra schemas cost you more context than the routing is worth,\nconnect to the full gateway once rather than to several pack endpoints.\n\nOr connect to the full Pipeworx gateway to get every pack's tools listed\ndirectly, instead of just this one's:\n\n```json\n{\n  \"mcpServers\": {\n    \"pipeworx\": {\n      \"url\": \"https://gateway.pipeworx.io/mcp\"\n    }\n  }\n}\n```\n\nBoth URLs reach the same gateway and the same 1530+ data sources. The\nonly difference is which pack's tools are listed **directly**; `ask_pipeworx`\nreaches all of them from either one.\n\n## Using with ask_pipeworx\n\nInstead of calling tools directly, you can ask questions in plain English —\nthis works on the pack endpoint above as well as on the full gateway:\n\n```\nask_pipeworx({ question: \"your question about China Air Quality data\" })\n```\n\nThe gateway picks the right tool and fills the arguments automatically.\n\n## More\n\n- [Docs and guides](https://pipeworx.io/docs)\n- [pipeworx.io](https://pipeworx.io)\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

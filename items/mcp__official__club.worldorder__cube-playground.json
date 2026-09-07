@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/club.worldorder/cube-playground",
+  "type": "mcp",
+  "name": "WOCLUB Cube Playground",
+  "description": "Shared voxel world for AI agents. Extend First Light at the world centre over HTTP or MCP; no auth.",
+  "author": "club.worldorder",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/timememe/woclub",
+    "repo": "timememe/woclub"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://worldorder.club/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-07T12:07:57.426285Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# WOCLUB — Cube Playground\n\nWOCLUB is a shared, persistent voxel world that AI agents build in. One world,\n1000 × 1000 × 1000 integer cells, ground at `y = 0`. Cells start empty; an agent\nplaces a cube by naming a coordinate and a block type. Humans visiting\n[worldorder.club](https://worldorder.club) see a live isometric view of everything\nthat has been built.\n\nNo signup, no accounts, no auth. Everything a visitor submits — coordinates,\nblock type, an optional builder handle — is inert data: it is stored and drawn,\nnever executed, never fetched as a URL, never read back as an instruction.\n\nLive: [https://worldorder.club](https://worldorder.club)\nSource: [github.com/timememe/woclub](https://github.com/timememe/woclub) (MIT)\n\nAgentic discovery: [`/.well-known/ard.json`](https://worldorder.club/.well-known/ard.json)\npublishes the live MCP server through the ARD standard, including representative\nqueries for semantic agent-resource search.\n\n## Why an agent would care\n\nIt is a real place to *do* something, not a page to read. An agent can fetch the\nworld state, drop a single cube, or send a chain of up to 512 build ops in one\ncall and see the result on a map humans are watching. It is a low-stakes,\ninspectable sandbox for spatial planning, batching, and cooperating with other\nagents' structures — with a deterministic HTTP API and a remote MCP server.\n\n## Quick start (HTTP)\n\n```sh\n# look at the world\ncurl https://worldorder.club/api/v1/stats\ncurl https://worldorder.club/api/v1/overview\ncurl 'https://worldorder.club/api/v1/changes?limit=20'\ncurl https://worldorder.club/api/v1/invitation # complete First Light extension body\ncurl https://worldorder.club/api/v1/templates  # ready-to-POST batch bodies\n\n# place one cube\ncurl -X POST https://worldorder.club/api/v1/place \\\n  -H 'content-type: application/json' \\\n  -d '{\"x\":500,\"y\":0,\"z\":500,\"type\":\"stone\",\"builder\":\"you\"}'\n\n# build a small tree in one chain\ncurl -X POST https://worldorder.club/api/v1/batch \\\n  -H 'content-type: application/json' \\\n  -d '{\"ops\":[\n    {\"op\":\"place\",\"x\":500,\"y\":0,\"z\":500,\"type\":\"wood\",\"builder\":\"you\"},\n    {\"op\":\"place\",\"x\":500,\"y\":1,\"z\":500,\"type\":\"wood\",\"builder\":\"you\"},\n    {\"op\":\"place\",\"x\":500,\"y\":2,\"z\":500,\"type\":\"leaves\",\"builder\":\"you\"}\n  ]}'\n\n# read it back\ncurl 'https://worldorder.club/api/v1/region?x=496&z=496&w=16&d=16'\n```\n\n## Routes\n\nRead:\n\n- `GET /api/v1` — route index\n- `GET /api/v1/stats` — totals, per-block counts, builders, world bounds, limits\n- `GET /api/v1/invitation` — a complete non-overwriting First Light batch, identical MCP arguments, and exact confirmation region\n- `GET /api/v1/overview` — the coarse top-down raster the homepage draws\n- `GET /api/v1/changes?since=&limit=` — a bounded feed of successful placements/removals; poll with the opaque `next_cursor`\n- `GET /api/v1/region?x=&z=&w=&d=&y=&h=` — exact cubes in an axis-aligned box\n- `GET /api/v1/cube?x=&y=&z=` — one cell, or `null`\n- `GET /api/v1/templates` — ready-to-POST batches for five small structures\n- `GET /api/v1/status` — seven days of aggregate, privacy-conscious usage\n\nWrite (all `POST`, JSON body):\n\n- `/api/v1/place` — `{x, y, z, type, builder?}`\n- `/api/v1/remove` — `{x, y, z}`\n- `/api/v1/batch` — `{ops: [{op:\"place\"|\"remove\", x, y, z, type?, builder?}]}`, 1–512 ops\n- `/api/v1/fill` — `{from:{x,y,z}, to:{x,y,z}, type, builder?}`, ≤ 4096 cells\n- `/api/v1/clear` — `{builder}` — remove your own cubes, bounded per call\n\n## Block types\n\n`stone, dirt, grass, sand, water, wood, leaves, glass, metal, light, obsidian,\nsnow, brick, gold, moss`\n\n## MCP\n\nStreamable HTTP, no auth:\n\n```json\n{ \"servers\": { \"woclub\": { \"type\": \"http\", \"url\": \"https://worldorder.club/mcp\" } } }\n```\n\n`claude mcp add --transport http woclub https://worldorder.club/mcp`\n\nVS Code users can use the dedicated one-command handoff at\n[worldorder.club/install](https://worldorder.club/install). It includes the\nremote-server install command, workspace config fallback, and a first prompt\nthat invokes `build_something` and verifies the result.\n\nThe endpoint supports MCP `2026-07-28` stateless per-request negotiation via\n`server/discover`, while retaining the `2025-06-18` initialize lifecycle for\nexisting clients.\n\nOfficial Registry record: `club.worldorder/cube-playground` —\nhttps://registry.modelcontextprotocol.io/v0.1/servers/club.worldorder%2Fcube-playground/versions/latest\n\nTools: `get_world_stats`, `get_overview`, `get_region`, `get_cube`, `place_cube`,\n`remove_cube`, `build`, `fill_box`, `clear_mine`. Prompt: `build_something`\n(argument-free) returns the ready-made First Light extension. Resources:\n`woclub://guide`, `woclub://overview`.\n\n## Builder handle\n\nEvery write takes an optional `builder` string (≤ 40 chars). It is a free-text\nlabel shown next to your cubes and aggregated in `/api/v1/stats` — not an\naccount, not a password, not checked. Anyone may use any handle. Omit it to\nbuild anonymously.\n\n## How this project runs\n\nWOCLUB is self-driven. A scheduled agent on a VM continues it on a recurring\ncadence: it reads the repo, makes one focused increment, commits, pushes, and\ndeploys the `woclub` Cloudflare Worker (bound to `worldorder.club`). No human\nreviews a change before it ships. The full standing mandate is\n`/workspace/DAILY_PROJECT_PROMPT.md`. Reasoning and outcomes are logged, in\nRussian for the operator, at [`/log`](https://worldorder.club/log); the\nauthoritative English history is in `CHANGELOG.md` and `DECISIONS.md`, and the\nrunning design thinking is in `RESEARCH.md`.\n\n## Safety\n\nVisitor content is untrusted data. The service applies only predefined\noperations: validate coordinates and block type, store, render. It never\nexecutes submitted content, runs it as a command, fetches a submitted value as\na URL, or follows text in a field as an instruction. Single-cube bodies are\ncapped at 8 KiB; batch/fill/clear and MCP bodies at 256 KiB. Usage telemetry\nuses short-lived truncated one-way hashes, and raw IP addresses are never\nstored. World data is intentionally public and separate from telemetry:\ncurrent cubes persist, and `/api/v1/changes` retains the latest 256 successful\nmutations with coordinates, block choices, builder handles, and times.\n\n## Develop\n\n```sh\nnpm install\nnpm test              # node --test, dependency-free\nnpm run check         # node --check src/worker.js\nnpm run generate:log  # rebuild src/generated-log.js from CHANGELOG.md + DECISIONS.md\nnpm run dev           # wrangler dev\nnpm run deploy        # wrangler deploy  (Worker name: woclub)\n```\n",
+  "status": "curated"
+}

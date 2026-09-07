@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.pipeworx-io/china-safe",
+  "type": "mcp",
+  "name": "China Safe",
+  "description": "China SAFE (State Administration of Foreign Exchange) — 国家外汇管理局",
+  "author": "io.github.pipeworx-io",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/pipeworx-io/mcp-china-safe",
+    "repo": "pipeworx-io/mcp-china-safe"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://gateway.pipeworx.io/china-safe/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-07T19:06:52.105208Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# @pipeworx/china-safe\n\nChina's official reserve assets, balance of payments, and external debt —\n外汇储备 (FX reserves), 国际收支 (balance of payments), 外债 (external debt) —\nparsed from the English-language data pages of SAFE, the State Administration\nof Foreign Exchange (国家外汇管理局).\n\nPart of [Pipeworx](https://pipeworx.io) — an MCP gateway connecting AI agents to 1532+ live data sources.\n\n## Tools\n\n- `china_fx_reserves({months})` — monthly official reserve assets: headline\n  FX reserves (外汇储备), IMF reserve position, SDR holdings, gold (value +\n  ounces), other reserve assets, and the total. MONTHLY, published roughly\n  one week after month-end. Verified 2026-09-07: August 2026 was the newest\n  month — FX reserves USD 3,438.325bn, total official reserve assets\n  USD 3,854.885bn — published on 2026-09-07.\n- `china_balance_of_payments({quarters, currency})` — quarterly BOP summary:\n  current account (goods, services, primary/secondary income), capital and\n  financial account (incl. the reserve-assets change), and net errors and\n  omissions. `currency` is `usd` (default), `rmb`, or `sdr`. QUARTERLY, with\n  roughly a 3-month lag after quarter-end — this is the standard BPM6 release\n  cadence, not a stale site. Verified 2026-09-07: latest quarter was 2026Q1,\n  published 2026-06-26.\n- `china_external_debt({quarters})` — quarterly gross external debt position\n  (外债) since 2014Q4: total, by original-contract maturity (short/long-term),\n  and by institutional sector (general government, central bank, other\n  depository corporations, other sectors, direct-investment intercompany\n  lending). Same ~3-month quarterly lag as BOP. Verified 2026-09-07: latest\n  quarter was 2026Q1, published 2026-06-26.\n- `china_safe_releases({limit})` — the REAL publish dates behind the other\n  three tools, read from each source page's own `PubDate` metadata and its\n  attached file's upload timestamp, not the page's permalink. Use this before\n  citing a number from the other tools if freshness matters to the caller.\n\n## Auth\n\nKeyless.\n\n## Data sources\n\n- <https://www.safe.gov.cn/en/ForexReserves/index.html> — official reserve\n  assets, one cumulative .xlsx per calendar year (columns YYYY.01–YYYY.12).\n- <https://www.safe.gov.cn/en/BalanceofPayments/index.html> — one .xlsx with\n  the full BOP time series in annual + quarterly sheets, each in RMB/USD/SDR.\n- <https://www.safe.gov.cn/en/ExternalDebt/index.html> — one .xlsx with the\n  gross external debt position by sector, quarterly since 2014Q4.\n\n### Traps recorded here so nobody re-discovers them\n\n- **The permalink URL is not the publish date.** SAFE republishes each year's\n  reserve table, and the BOP/debt time series, IN PLACE at a URL minted years\n  earlier — e.g. \"Official Reserve Assets (2026)\" lives at\n  `/en/2021/0203/2045.html`, a 2021-dated path, and was still updating live\n  data as of 2026-09-07. Trust the article page's own\n  `<meta name=\"PubDate\">` and the date embedded in the attached file's own\n  path (`/en/file/file/20260907/....xlsx`), never the permalink.\n- **No JSON, no CSV, no rendered HTML table with the numbers in it.** Each\n  article page only *links* an .xlsx (and usually a matching .pdf); the page\n  body is a stub. This pack parses the .xlsx directly with a hand-rolled,\n  dependency-free ZIP+XML reader (`src/xlsx.ts`, ported from the\n  `ema-medicines` pack's reader) — a Worker can't carry a full xlsx library\n  for three files.\n- **The xlsx link's anchor text differs by page.** Reserves pages link with\n  plain anchor text (`<a href=\"...\">xlsx</a>`); BOP/external-debt pages put\n  the full report title as the anchor text and the filename only in a\n  `title=\"...\"` attribute. Match on the `.xlsx` href extension, not the\n  anchor text.\n- **Reserve rows are fixed by position, not by column header repetition.**\n  Each month is a pair of columns (USD, then SDR) but only the USD column\n  carries the \"YYYY.MM\" header text — the SDR column is a merged cell with no\n  header of its own. The six metric rows (FX reserves, IMF position, SDRs,\n  gold value, gold ounces, other reserve assets, total) are at fixed row\n  numbers within the sheet; verified against the live file before shipping\n  (row totals reproduce column sums to the cent).\n- **BOP is a ~280-row BPM6 breakdown; this pack surfaces the 17 summary\n  lines**, not the full sub-account detail (financial-instrument-by-sector\n  breakdowns run four levels deep). Row numbers are looked up dynamically by\n  matching normalized column-A label text, not hardcoded, since the same\n  template is reused across the RMB/USD/SDR sheets.\n- **External debt sector totals equal the sum of their own short+long-term\n  subtotal rows**, and the grand total equals the sum of the five sector\n  totals — checked against the live 2026Q1 figures before shipping\n  (24,120.799 = 3,601.510 + 1,034.221 + 9,886.860 + 6,820.844 + 2,777.364).\n- **Gold ounces are reported in units of 10,000 (万盎司)** — e.g. \"7673万盎司\"\n  is 76,730,000 ounces; this pack converts to `gold_million_oz` directly.\n\n## Quick Start\n\nAdd to your MCP client (Claude Desktop, Cursor, Windsurf, etc.):\n\n```json\n{\n  \"mcpServers\": {\n    \"china-safe\": {\n      \"url\": \"https://gateway.pipeworx.io/china-safe/mcp\"\n    }\n  }\n}\n```\n\n### What this endpoint actually serves\n\n`tools/list` at `https://gateway.pipeworx.io/china-safe/mcp` returns the tools in the table\nabove **plus the shared Pipeworx meta-tools** — `ask_pipeworx`,\n`discover_tools`, `search_within`, `remember`/`recall` and the rest of the\ngateway-wide set. So the tool count you see is larger than this table: a\nsingle-pack endpoint currently lists roughly 30 shared tools alongside the\npack's own. The connection's `initialize` response states its exact scope, and\nis the authoritative answer for a given day.\n\nThis is deliberate, not multiplexing by accident. The meta-tools are what let a\nscoped connection answer a question this pack does not cover — via\n`ask_pipeworx`, which routes across the whole catalog — without you adding a\nsecond MCP server. There is currently no way to mount a pack endpoint without\nthem; if the extra schemas cost you more context than the routing is worth,\nconnect to the full gateway once rather than to several pack endpoints.\n\nOr connect to the full Pipeworx gateway to get every pack's tools listed\ndirectly, instead of just this one's:\n\n```json\n{\n  \"mcpServers\": {\n    \"pipeworx\": {\n      \"url\": \"https://gateway.pipeworx.io/mcp\"\n    }\n  }\n}\n```\n\nBoth URLs reach the same gateway and the same 1532+ data sources. The\nonly difference is which pack's tools are listed **directly**; `ask_pipeworx`\nreaches all of them from either one.\n\n## Using with ask_pipeworx\n\nInstead of calling tools directly, you can ask questions in plain English —\nthis works on the pack endpoint above as well as on the full gateway:\n\n```\nask_pipeworx({ question: \"your question about China Safe data\" })\n```\n\nThe gateway picks the right tool and fills the arguments automatically.\n\n## More\n\n- [Docs and guides](https://pipeworx.io/docs)\n- [pipeworx.io](https://pipeworx.io)\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

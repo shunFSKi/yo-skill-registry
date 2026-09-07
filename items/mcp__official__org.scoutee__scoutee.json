@@ -1,0 +1,61 @@
+{
+  "id": "mcp:official/org.scoutee/scoutee",
+  "type": "mcp",
+  "name": "Scoutee",
+  "description": "Search 200k+ public tenders from Europe and North America (87 official sources, 32 countries).",
+  "author": "org.scoutee",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/qchantel/scoutee-mcp",
+    "repo": "qchantel/scoutee-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://scoutee.org/api/mcp",
+    "env": [
+      {
+        "name": "X-API-Key",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-07T12:53:54.642656Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "<p align=\"center\">\n  <img src=\"logo.png\" alt=\"Scoutee\" width=\"120\" height=\"120\">\n</p>\n\n<h1 align=\"center\">Scoutee MCP server</h1>\n\n<p align=\"center\">\n  Search public tenders across Europe and North America from any MCP client.\n</p>\n\n<p align=\"center\">\n  <a href=\"https://scoutee.org\">scoutee.org</a> ·\n  <a href=\"https://scoutee.org/en/api-docs\">API reference</a> ·\n  <a href=\"https://scoutee.org/pricing\">Pricing</a>\n</p>\n\n---\n\n## What Scoutee is\n\nScoutee is a public procurement monitoring service. Every day it collects the tenders published by\nofficial journals and buyer platforms across Europe (TED and the national portals of 30 countries)\nand North America (SAM.gov, CanadaBuys, SEAO), deduplicates them into one row per notice, and stores\nthem in a single searchable database — **200,000+ notices, 87 sources, 32 countries**.\n\nThis repository is the **documentation** for Scoutee's hosted MCP server. It contains no product\ncode: the server is hosted by Scoutee and you connect to it over HTTPS.\n\n| | |\n|---|---|\n| **Endpoint** | `https://scoutee.org/api/mcp` |\n| **Transport** | Streamable HTTP (stateless, JSON responses). No SSE, no stdio package. |\n| **Auth** | `X-API-Key: sct_...` header (`Authorization: Bearer sct_...` is also accepted) |\n| **Tools** | `search_tenders`, `get_tender` — both read-only |\n| **Quota** | 10,000 searches per hour per key |\n| **Docs** | https://scoutee.org/en/api-docs |\n\n## Getting an API key\n\n1. Create an account at [scoutee.org](https://scoutee.org).\n2. Subscribe to the **Standard** plan ([pricing](https://scoutee.org/pricing)) — the API and the MCP\n   server require a paid workspace.\n3. Open your workspace page, section **API**, and create a key. It looks like `sct_...`.\n4. Keys can be revoked at any time from the same page.\n\n## Setup\n\n### Claude Code\n\n```bash\nclaude mcp add --transport http scoutee https://scoutee.org/api/mcp \\\n  --header \"X-API-Key: sct_your_key_here\"\n```\n\n### Claude Desktop, Cursor, VS Code, Windsurf\n\nAdd this block to the MCP config file of your client (`claude_desktop_config.json`,\n`.cursor/mcp.json`, `.vscode/mcp.json`, `~/.codeium/windsurf/mcp_config.json`). It is also in\n[`mcp-config.json`](mcp-config.json) in this repo.\n\n```json\n{\n  \"mcpServers\": {\n    \"scoutee\": {\n      \"type\": \"http\",\n      \"url\": \"https://scoutee.org/api/mcp\",\n      \"headers\": {\n        \"X-API-Key\": \"sct_your_key_here\"\n      }\n    }\n  }\n}\n```\n\nVS Code's `mcp.json` uses `servers` instead of `mcpServers`, and supports an input prompt for the key:\n\n```json\n{\n  \"inputs\": [\n    { \"id\": \"scoutee-key\", \"type\": \"promptString\", \"description\": \"Scoutee API key\", \"password\": true }\n  ],\n  \"servers\": {\n    \"scoutee\": {\n      \"type\": \"http\",\n      \"url\": \"https://scoutee.org/api/mcp\",\n      \"headers\": { \"X-API-Key\": \"${input:scoutee-key}\" }\n    }\n  }\n}\n```\n\n### Python\n\n```python\nimport asyncio, os\nimport httpx\nfrom mcp.client import Client\nfrom mcp.client.streamable_http import streamable_http_client\n\nasync def main():\n    headers = {\"X-API-Key\": os.environ[\"SCOUTEE_API_KEY\"]}\n    async with httpx.AsyncClient(headers=headers, timeout=60) as http:\n        async with Client(\n            streamable_http_client(\"https://scoutee.org/api/mcp\", http_client=http)\n        ) as client:\n            result = await client.call_tool(\n                \"search_tenders\",\n                {\"q\": \"road maintenance\", \"country\": [\"France\", \"Belgium\"], \"page_size\": 5},\n            )\n            print(result)\n\nasyncio.run(main())\n```\n\n### curl (raw JSON-RPC, useful to check a key)\n\n```bash\ncurl -s https://scoutee.org/api/mcp \\\n  -H \"X-API-Key: $SCOUTEE_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -H \"Accept: application/json, text/event-stream\" \\\n  -d '{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"tools/list\"}'\n```\n\n## Tools\n\n### `search_tenders` — Search public tenders\n\nSearch Scoutee's index of public procurement notices. Returns a page of notices, the total number of\nmatches, a per-country breakdown of the same match set (`by_country`, useful to suggest where else to\nlook) and what the caller's hourly quota has left. Open notices only and newest first unless asked\notherwise; notices published on several portals appear once, the other portals listed in `also_on`.\n**Each search consumes one quota unit.** Read-only.\n\n| Parameter | Type | Default | Description |\n|---|---|---|---|\n| `q` | `string` (≤200) | — | Free text over title, buyer and description. Every word must match the *start* of a word in the notice (`nettoy` finds `nettoyage`); a substring inside a word does not match. Accent- and case-insensitive. |\n| `keyword` | `string[]` | — | Keywords matched as whole words (plural tolerated) in title, buyer or description, plus the cached translations of each keyword on the portals of that language — the way to search across countries without translating anything yourself. Several keywords widen the search (a notice matching any of them is returned). |\n| `country` | `string[]` | — | Countries of the publishing portal, by their English name as Scoutee stores it (`France`, `Belgium`, `Germany`; `Europe` for TED). Several countries add up. Omit to search everywhere — the `by_country` map of any result lists the exact values in use. |\n| `source_id` | `integer` | — | Restrict to a single portal, by its Scoutee source identifier. |\n| `min_value` | `number` | — | Minimum estimated value, in the currency of the notice. Notices without a published value are excluded when this is set. |\n| `max_value` | `number` | — | Maximum estimated value. |\n| `sort` | `\"newest\" \\| \"oldest\" \\| \"deadline\"` | `newest` | `newest` (publication descending), `oldest` (publication ascending) or `deadline` (soonest submission deadline first). |\n| `include_closed` | `boolean` | `false` | Include notices whose consultation is already closed. |\n| `seen_after` | `string` (ISO 8601 date-time) | — | Keep only notices first collected by Scoutee after this instant. The way to poll for what is new since a previous run. |\n| `page` | `integer` ≥1 | `1` | 1-based page number. |\n| `page_size` | `integer` 1–200 | `20` | Notices per page (capped by the plan). Kept modest by default because a notice is a large object; raise it when you need to sweep a whole result set. |\n\nExample result:\n\n```json\n{\n  \"items\": [\n    {\n      \"id\": 398005,\n      \"source_id\": 12,\n      \"source_name\": \"BOAMP\",\n      \"source_country\": \"France\",\n      \"external_id\": \"26-118742\",\n      \"title\": \"Entretien des espaces verts de la commune\",\n      \"buyer\": \"Ville de Rennes\",\n      \"description\": \"Marché de services d'entretien des espaces verts ...\",\n      \"url\": \"https://www.boamp.fr/pages/avis/?q=idweb:26-118742\",\n      \"location\": \"Rennes, Ille-et-Vilaine\",\n      \"procedure\": \"Procédure adaptée\",\n      \"cpv_codes\": [\"77310000\", \"77311000\"],\n      \"estimated_value\": 450000.0,\n      \"currency\": \"EUR\",\n      \"published_at\": \"2026-09-02T08:00:00Z\",\n      \"deadline_at\": \"2026-10-15T12:00:00Z\",\n      \"first_seen_at\": \"2026-09-02T09:12:44Z\",\n      \"last_seen_at\": \"2026-09-07T04:10:03Z\",\n      \"closed_at\": null,\n      \"favorite\": false,\n      \"also_on\": [{ \"source_id\": 1, \"source_name\": \"TED\", \"url\": \"https://ted.europa.eu/...\" }],\n      \"documents_url\": \"https://www.boamp.fr/dce/...\"\n    }\n  ],\n  \"total\": 137,\n  \"page\": 1,\n  \"page_size\": 20,\n  \"pages\": 7,\n  \"by_country\": { \"France\": 98, \"Belgium\": 21, \"Europe\": 18 },\n  \"quota_plan\": \"standard\",\n  \"quota_limit\": 10000,\n  \"quota_remaining\": 9987\n}\n```\n\n### `get_tender` — Read one public tender\n\nOne notice in full, by its Scoutee identifier (the `id` of a search result). Same shape as a search\nresult item. **Consumes no quota.** An identifier pointing at a duplicate answers with the canonical\ncopy of the notice. Read-only.\n\n| Parameter | Type | Required | Description |\n|---|---|---|---|\n| `tender_id` | `integer` | yes | Scoutee identifier of the notice. |\n\nReturns a single tender object, identical in shape to one entry of `items` above.\n\n## Example prompts\n\n- \"Find open tenders about road maintenance in France and Belgium with a deadline after next month.\"\n- \"List the newest IT consulting RFPs above 500,000 EUR in Germany.\"\n- \"Show me the details of tender 398005 and summarise the buyer's requirements.\"\n- \"What has been published in the Netherlands since yesterday about cloud hosting?\"\n\n## Quotas and errors\n\n- **10,000 searches per hour per key.** Every `search_tenders` result carries `quota_plan`,\n  `quota_limit` and `quota_remaining`; `get_tender` does not consume quota.\n- Exceeding the quota returns a tool error with the same message the REST API would return (HTTP 429).\n- A missing, unknown or revoked key returns a tool error asking for `X-API-Key`.\n- Notices are returned in the language they were published in; nothing is translated. `url` always\n  points at the notice on its source portal, which is where a bid is actually filed.\n\n## Registry\n\nThis server is published to the official MCP Registry as `org.scoutee/scoutee`. The manifest is\n[`server.json`](server.json).\n\n## Links\n\n- Website — https://scoutee.org\n- Developer reference (REST + MCP) — https://scoutee.org/en/api-docs (French:\n  https://scoutee.org/fr/documentation-api)\n- Pricing — https://scoutee.org/pricing\n- Contact — contact@scoutee.org\n\n## License\n\nThe contents of this documentation repository are MIT licensed (see [LICENSE](LICENSE)). The Scoutee\nservice itself is a commercial product operated by AUTEUR (France) and is not open source.\n",
+  "status": "curated"
+}

@@ -37,8 +37,8 @@
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-07-16T16:45:09.727351Z",
-    "score": 37
+    "pushed_at": "2026-09-07T13:24:18.866594Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -70,6 +70,6 @@
     "category": "生活",
     "featured": false
   },
-  "readme": null,
+  "readme": "# @framedash/mcp-server\n\nMCP (Model Context Protocol) server for the Framedash game telemetry platform. Provides 12 read-only tools and 4 resources for querying analytics data from LLM-powered tools.\n\n## Setup\n\n### Claude Desktop\n\nAdd to your `claude_desktop_config.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"framedash\": {\n      \"command\": \"npx\",\n      \"args\": [\"@framedash/mcp-server\"],\n      \"env\": {\n        \"FRAMEDASH_API_KEY\": \"fd_xxx\",\n        \"FRAMEDASH_PROJECT_ID\": \"your-project-uuid\"\n      }\n    }\n  }\n}\n```\n\n### VS Code (Claude Extension)\n\nAdd to your VS Code settings:\n\n```json\n{\n  \"claude.mcpServers\": {\n    \"framedash\": {\n      \"command\": \"npx\",\n      \"args\": [\"@framedash/mcp-server\"],\n      \"env\": {\n        \"FRAMEDASH_API_KEY\": \"fd_xxx\",\n        \"FRAMEDASH_PROJECT_ID\": \"your-project-uuid\"\n      }\n    }\n  }\n}\n```\n\n## Environment Variables\n\n| Variable | Required | Description |\n|----------|----------|-------------|\n| `FRAMEDASH_API_KEY` | Yes | API key with `analytics:read` for the aggregate tools; the raw `query` tool additionally requires `data:admin` |\n| `FRAMEDASH_PROJECT_ID` | No | Default project UUID for project-scoped tools |\n| `FRAMEDASH_BASE_URL` | No | API base URL (default: `https://app.framedash.dev`) |\n\nIf `FRAMEDASH_PROJECT_ID` is omitted, project-scoped tools still work but\nrequire an explicit `project_id` argument per call.\n\n## Tools\n\n| Tool | Description |\n|------|-------------|\n| `query` | Execute SQL analytics query (SELECT only, limit default 100) |\n| `get_dashboard` | Project KPI summary (DAU, MAU, sessions, events) |\n| `get_retention` | Cohort retention data |\n| `get_funnel` | Funnel analysis for event steps |\n| `get_insights` | Event insights with grouping |\n| `get_heatmap` | Heatmap grid data for a map |\n| `list_projects` | Show the project bound to the API key |\n| `get_project_status` | Project health overview |\n| `list_maps` | List maps in a project |\n| `list_content` | List content registry entries |\n| `list_alerts` | List alert rules |\n| `get_alert_history` | Alert trigger history |\n\n## Resources\n\n| URI | Description |\n|-----|-------------|\n| `framedash://projects` | Project bound to the API key |\n| `framedash://projects/{projectId}/maps` | Map list with bounds |\n| `framedash://projects/{projectId}/content` | Content registry |\n| `framedash://projects/{projectId}/status` | Project health status |\n\n## Development\n\nRun from the repository root:\n\n```bash\npnpm install\npnpm --filter @framedash/mcp-server... build\npnpm --filter @framedash/mcp-server test\n```\n\nWith pnpm 9, the trailing `...` selects the MCP package plus its workspace\ndependencies, including `@framedash/api-client`, before compiling from a clean\ncheckout.\n\n## License\n\nMIT\n",
   "status": "curated"
 }
