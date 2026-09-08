@@ -1,0 +1,61 @@
+{
+  "id": "mcp:official/io.github.futurebets/placement-api",
+  "type": "mcp",
+  "name": "Placement API",
+  "description": "Buy SEO link placements across every marketplace: verified domains, held prices, one invoice.",
+  "author": "io.github.futurebets",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/futurebets/placementapi",
+    "repo": "futurebets/placementapi"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://api.placementapi.com/mcp",
+    "env": [
+      {
+        "name": "Authorization",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-07T22:59:27.501235Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# Placement API\n\n**Buy SEO link placements across every marketplace from one API or MCP server.**\nNamed, inspectable domains with live prices, independent verification, a survival record for every publisher we have bought from, and one invoice — paid with prepaid credits.\n\n- Website: https://placementapi.com · For agents: https://placementapi.com/agents · API reference: https://placementapi.com/api\n- MCP endpoint: `https://api.placementapi.com/mcp` (streamable HTTP, Bearer API key)\n- OpenAPI: https://api.placementapi.com/openapi.json · Field semantics: https://api.placementapi.com/v1/schema\n- Live market data: https://placementapi.com/data · Prices by type, DR and topic: https://placementapi.com/pricing\n\nThis repository holds the **TypeScript client** (`sdk/`, published to npm as [`placementapi`](https://www.npmjs.com/package/placementapi)) and the MCP registry manifest (`server.json`). The service itself is not open source.\n\n## Connect the MCP server\n\n```bash\n# Claude Code\nclaude mcp add --transport http placement-api https://api.placementapi.com/mcp \\\n  --header \"Authorization: Bearer $PLACEMENT_KEY\"\n```\n\n```json\n// Cursor / Windsurf / any host that takes a JSON config\n{ \"mcpServers\": { \"placement_api\": { \"url\": \"https://api.placementapi.com/mcp\",\n  \"headers\": { \"Authorization\": \"Bearer pk_live_…\" } } } }\n```\n\nClaude.ai / ChatGPT: Settings → Connectors → add custom connector with the URL above and the `Authorization` header.\n\nGet a key at https://app.placementapi.com/dashboard. A **read** key can search, plan and compare; an **order** key can spend credits.\n\n### Tools\n\n| Tool | What it does |\n|---|---|\n| `search_placements` | Search ~550k priced placements deduplicated by domain, with verification, score and price plausibility on every row |\n| `plan_links` | A brief in (links, topic, DR, budget, strategy) → a costed plan of named domains, each with `why`, held at price for four hours |\n| `compare_domain` | Everything about one publisher: listings and spread, verification, web-graph, survival, outcomes, Placement Score, market reference |\n| `target_profile` / `gap_map` | Your page's backlink profile and the competitor links you can reproducibly buy, priced |\n| `keyword_winners` | What the sites that rank for a keyword look like, and what they buy |\n| `place_order` · `submit_content` · `write_it_for_me` | Order at the held price; supply the article, let the publisher write it, or have it written |\n| `list_orders` · `campaign_status` · `order_outcome` | Fulfilment, live checks and observed rank movement (observed, never attributed) |\n| `standing_orders` · `create_standing_order` | Recurring plans; auto-placement can only be enabled from the dashboard |\n| `check_balance` · `cancel_order` | |\n\n## Use the SDK\n\n```bash\nnpm i placementapi\n```\n\n```ts\nimport { PlacementApi } from \"placementapi\";\n\nconst api = new PlacementApi({ apiKey: process.env.PLACEMENT_KEY! });\nconst quote = await api.quote({ links: 5, topic: \"finance\", dr_min: 50, strategy: \"safest\" });\nfor (const l of quote.lines) console.log(l.domain, l.price_credits, l.verification, l.why.join(\" · \"));\n```\n\nSee [`sdk/README.md`](sdk/README.md).\n\n## Things worth knowing\n\n- **Credits are US cents.** Prices on a quote are held for four hours; order with the `quote_id` to pay the held price.\n- **`verification`** says whether a domain's authority is real: `ok`, `suspect` (high link authority with no organic footprint — what a link farm looks like) or `unverified`. `quality_reasons` names which of five tests fired. Method: https://placementapi.com/research/quality-methodology\n- **Suppliers are never identified.** You see counts and spreads, never who. That is a product rule, not a gap.\n- **`why[]`** on every line is the factual basis for the pick, in sentences an agent can repeat.\n\nSupport: hello@placementapi.com · Terms: https://placementapi.com/terms\n",
+  "status": "curated"
+}

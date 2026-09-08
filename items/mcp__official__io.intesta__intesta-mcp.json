@@ -1,0 +1,64 @@
+{
+  "id": "mcp:official/io.intesta/intesta-mcp",
+  "type": "mcp",
+  "name": "Intesta — trust registry lookup",
+  "description": "Check a domain's A0-A4 trust level and verified facts before your agent acts.",
+  "author": "io.intesta",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/agentlabbusiness/intesta-mcp",
+    "repo": "agentlabbusiness/intesta-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "intesta-mcp"
+    ],
+    "env": [
+      {
+        "name": "INTESTA_API_KEY",
+        "required": false,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-07T22:52:22.261325Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "运维",
+    "featured": false
+  },
+  "readme": "# intesta-mcp\n\n<!-- mcp-name: io.intesta/intesta-mcp -->\n\nAn MCP server that lets an AI agent **check who it is dealing with before it acts.**\n\n[Intesta](https://intesta.io) is a trust registry. Every entity has a trust level on the\n**A0→A4 ladder** (A0 claimed · A1 domain-control · A2 payment-verified · A3/A4 higher) and a\nset of facts, each marked `confirmed` (independently verified) or `auto_collected` (scraped\nfrom public sources, **not** verified). This server exposes the registry's public reads as\nMCP tools so an agent can ask *\"can I trust this domain, and what is actually proven?\"* before\nit pays a counterparty, shares data, or follows instructions from an unknown party.\n\nIts ethos is Intesta's own: **refuse, don't guess.** A level is only ever what was proven; an\n`auto_collected` fact is not a verified one. The server reports exactly what the registry says\nand never upgrades either.\n\n## Tools\n\n| Tool | What it answers |\n|---|---|\n| `search_registry(query, limit=10)` | Find an entity by name or domain; each result carries its trust level. |\n| `check_trust(domain)` | The headline: A0..A4 level, whether it's attested, `what_is_proven`, and the proof method (e.g. `dns_txt`). |\n| `get_facts(domain)` | The entity's public facts, each flagged `confirmed` vs `auto_collected`, with its source. |\n| `ask_entity(domain, question)` | A question answered **only** from that entity's registry facts, with a `passport_hash` and, when configured, a registry signature you can verify offline. |\n| `trust_ladder()` | What each of A0..A4 means. |\n\nAll tools are **read-only** and need **no API key** — public registry reads work out of the box.\nAn optional `INTESTA_API_KEY` (`ik_…`) is only needed for metered or private use.\n\n## Install\n\n```jsonc\n// Claude Desktop / any MCP client — mcp config\n{\n  \"mcpServers\": {\n    \"intesta\": { \"command\": \"uvx\", \"args\": [\"intesta-mcp\"] }\n  }\n}\n```\n\nOr run directly:\n\n```bash\nuvx intesta-mcp\n```\n\n## Example\n\n> Agent is about to send funds to `acme-invoicing.com`.\n\n```\ncheck_trust(\"acme-invoicing.com\")\n→ { \"level\": \"A0\", \"attested\": false,\n    \"what_is_proven\": \"listed only; nothing independently verified\" }\n```\n\nA0 and `attested:false` means the domain is unproven — the agent should pause or escalate\n(pair this with [Raposa Aval](https://raposa.group) for a human approval step) rather than\nassume the counterparty is who it claims to be.\n\n## Development\n\n```bash\npython3 -m venv .venv && .venv/bin/pip install -e \".[test]\"\n.venv/bin/python -m pytest -q          # contract tests, no network\n```\n\nMIT · a DC ESCRYPT product · https://intesta.io\n",
+  "status": "curated"
+}

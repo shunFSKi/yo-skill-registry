@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/Agent-Clubhouse/Clubhouse/validate-changes",
+  "type": "skill",
+  "name": "validate-changes",
+  "description": "Run full validation — build, test, and lint — to verify changes before pushing",
+  "author": "Agent-Clubhouse",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/Agent-Clubhouse/Clubhouse/blob/HEAD/.claude/skills/validate-changes/SKILL.md",
+    "repo": "Agent-Clubhouse/Clubhouse",
+    "path": ".claude/skills/validate-changes/SKILL.md"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 7,
+    "pushed_at": "2026-09-08T09:05:23Z",
+    "score": 60,
+    "star_history": [
+      {
+        "d": "2026-09-08",
+        "s": 7
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# Clubhouse\n\nA desktop app for managing AI coding agents across your projects. Clubhouse wraps CLI-based coding agents — Claude Code, GitHub Copilot CLI, OpenCode — in a native Electron shell with a unified interface to spawn, monitor, and orchestrate them across all your projects simultaneously.\n\n## Philosophy\n\nThree ideas shape how Clubhouse is built and how contributions are evaluated:\n\n**Agent-first development.** Agents are first-class contributors. Each durable agent gets its own git worktree, standby branch, and isolated configuration. Agents branch, implement, validate, and open PRs — the same workflow a human follows. The codebase, tooling, and documentation should be equally useful to both human and agent contributors. See the [full principles](PRINCIPLES.md) for details.\n\n**Extreme bias for test coverage.** Every PR must include tests. Unit and component tests run on all three platforms (macOS, Windows, Linux) in CI. End-to-end tests run Playwright against the packaged Electron app on every platform. The Annex dual-instance E2E suite launches two Clubhouse instances and tests real-time remote control over the local network. If a feature is hard to test, that is a design problem, not an excuse to skip tests.\n\n**Opinions belong in plugins, not core.** The core host provides capabilities without assuming how you use them. Opinionated workflows — review flows, auto-organization, approval gates — are plugins that users choose to enable. The plugin API is versioned: new features land in the latest version, older versions are fully supported or cleanly dropped, never quietly broken. See [PRINCIPLES.md](PRINCIPLES.md) for the full extensibility contract.\n\n## Building and Testing Locally\n\n### Prerequisites\n\n- **Node.js 22+** and **npm**\n- **Git**\n- **Platform-specific:**\n  - **macOS:** Xcode Command Line Tools (`xcode-select --install`)\n  - **Windows:** Visual Studio Build Tools with the \"Desktop development with C++\" workload (for native module compilation). The `postinstall` script handles `node-pty` setup automatically.\n  - **Linux:** `build-essential`, `python3`, `dpkg`, `fakeroot`, `rpm` (for packaging). E2E tests require `xvfb` for headless display.\n\n### Setup\n\n```bash\ngit clone https://github.com/Agent-Clubhouse/Clubhouse.git\ncd Clubhouse\nnpm install\nnpm start          # Dev mode with hot reload\n```\n\n### Building\n\n```bash\nnpm run package    # Package the app (no installer)\nnpm run make       # Build distributable installers\n```\n\n| Platform | Output | Location |\n|----------|--------|----------|\n| macOS | `.app`, `.zip`, `.dmg` | `out/make/` |\n| Windows | Squirrel installer (`.exe`, `.nupkg`) | `out/make/squirrel.windows/` |\n| Linux | `.deb`, `.rpm` | `out/make/deb/` and `out/make/rpm/` |\n\n### Testing\n\n```bash\nnpm test                 # All unit + component tests (Vitest)\nnpm run test:unit        # Main process + shared module tests\nnpm run test:components  # React component tests (jsdom)\nnpm run test:e2e         # E2E tests (Playwright, requires packaged app)\nnpm run typecheck        # TypeScript strict-mode type checking\nnpm run lint             # ESLint\nnpm run validate         # Full pipeline: typecheck → test → make → e2e\n```\n\n**Test projects in Vitest:**\n\n| Project | Scope | Environment |\n|---------|-------|-------------|\n| `main` | `src/main/**/*.test.ts` | Node |\n| `renderer` | `src/renderer/**/*.test.{ts,tsx}` | jsdom |\n| `shared` | `src/shared/**/*.test.ts` | Node |\n| `integration` | `test/**/*.test.ts` | Node |\n\n**E2E notes:**\n- E2E tests use Playwright against the packaged Electron app — run `npm run package` first, or use `npm run validate` which does it all.\n- On Linux, E2E tests need a virtual display: `xvfb-run --auto-servernum npx playwright test`\n- Annex dual-instance tests (in `e2e/annex-v2/`) launch two Clubhouse instances and test pairing, remote PTY, and lifecycle over loopback.\n\n### CI\n\nThe `validate.yml` workflow runs on every PR to `main`:\n\n- **Typecheck** — all three platforms\n- **Unit + component tests** — all three platforms\n- **E2E tests** — all three platforms (Linux uses `xvfb-run`)\n- **Annex E2E tests** — all three platforms (separate job for dual-instance tests)\n- **Linux package smoke test** — builds `.deb` and `.rpm`, verifies they exist\n- **API surface check** — runs plugin API version contract tests; flags any PR that modifies `src/shared/plugin-types.ts`\n\n## Architecture\n\n```\nsrc/\n  main/           # Electron main process — services, IPC, orchestrators, MCP bridge\n  renderer/       # React UI — features, stores, plugins, panels\n  preload/        # Context-isolated IPC bridge (window.clubhouse API)\n  shared/         # Types and utilities shared across processes\n```\n\n### Orchestrator system\n\nThe orchestrator layer abstracts CLI-specific logic behind a provider interface. Adding support for a new coding agent CLI means implementing a single `OrchestratorProvider`. Built-in providers: Claude Code, GitHub Copilot CLI, OpenCode.\n\nProviders declare capabilities (headless mode, hooks, session resume, structured output) and Clubhouse adapts its spawn, monitoring, and communication behavior accordingly.\n\n### Clubhouse MCP\n\nThe Clubhouse MCP system gives agents scoped access to interact with other parts of the app via the Model Context Protocol. When an agent is connected to a target — a browser widget, another agent, a terminal, or a group project — Clubhouse injects an MCP server that exposes context-appropriate tools.\n\nTool categories:\n- **Browser tools** — navigate, screenshot, click, evaluate JavaScript in a Canvas browser widget\n- **Agent tools** — send messages, read output, check status of other agents\n- **Group project tools** — broadcast messages and coordinate across multi-agent project groups\n\nBindings are managed dynamically: connect a wire on the Canvas and the agent immediately gains MCP tools scoped to that target.\n\n### Desktop remote control\n\nClubhouse instances on the same local network can pair for remote control. One instance runs as a **satellite** (being controlled), the other as a **controller**. Communication uses mutual TLS with Ed25519 identity and PIN-based pairing. The controller sees the satellite's projects and agents, can type in remote terminals, spawn and kill agents, and handle permission prompts — all peer-to-peer with no cloud dependency.\n\n### Plugin system\n\nPlugins extend Clubhouse with custom tabs, commands, themes, sounds, and agent configuration. The plugin API is permission-gated — plugins declare what they need (files, git, agents, terminal, etc.) and users approve at install time.\n\nCurrent supported API versions: `0.5`, `0.6`, `0.7`, `0.8`. See [PRINCIPLES.md](PRINCIPLES.md) for the versioning contract.\n\nBuilt-in plugins: Hub (split-pane agent workspace), Files (Monaco editor + file browser), Terminal, Canvas (visual wiring workspace), Sessions, Git, Browser, Review, Group Project.\n\n## Tech Stack\n\n| Layer | Technology |\n|-------|------------|\n| Desktop framework | Electron 40 |\n| UI | React 19, Tailwind CSS 4 |\n| State management | Zustand 5 |\n| Code editor | Monaco Editor |\n| Terminal | xterm.js 6 + node-pty |\n| Canvas layout | ELK (elkjs) |\n| Build tooling | Electron Forge, Webpack, TypeScript 5.9 |\n| Testing | Vitest, Playwright |\n\n## Contributing\n\nSee [CONTRIBUTING.md](CONTRIBUTING.md) for setup details, code style, and PR guidelines.\n\n## Principles\n\nSee [PRINCIPLES.md](PRINCIPLES.md) for the full set of principles that guide development — agent-first workflows, test coverage expectations, and the extensibility contract.\n\n## License\n\nMIT — see [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md) for third-party licenses.\n",
+  "status": "curated"
+}

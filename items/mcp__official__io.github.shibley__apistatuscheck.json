@@ -2,7 +2,7 @@
   "id": "mcp:official/io.github.shibley/apistatuscheck",
   "type": "mcp",
   "name": "API Status Check",
-  "description": "Check real-time uptime and incident status for 285 APIs and cloud services.",
+  "description": "Check real-time uptime and incident status for 275+ APIs and cloud services.",
   "author": "io.github.shibley",
   "source": {
     "registry": "mcp-official",
@@ -16,8 +16,8 @@
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-08-03T05:36:49.760973Z",
-    "score": 37
+    "pushed_at": "2026-09-07T21:33:01.078957Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -49,6 +49,6 @@
     "category": "编程",
     "featured": false
   },
-  "readme": null,
+  "readme": "# API Status Check MCP Server\n\nAn MCP (Model Context Protocol) server for checking real-time operational status of 285 cloud services and APIs directly from AI coding assistants.\n\n## Features\n\n| Tool | Description |\n|------|-------------|\n| `check_status` | Check the status of a specific API (e.g. `github`, `openai`, `stripe`) |\n| `list_apis` | List all monitored APIs and their current status |\n| `list_categories` | List available service categories (cloud, payments, etc.) |\n| `check_category` | Check all APIs in a specific category |\n| `check_url` | Check any public URL for availability |\n\n## Supported Services\n\nAWS, GitHub, Stripe, OpenAI, Vercel, Cloudflare, Datadog, PagerDuty, Twilio, Shopify, Slack, Zoom, and 270+ more. Full list at [apistatuscheck.com](https://apistatuscheck.com).\n\n## Quick Start\n\n### Hosted endpoint (recommended — nothing to install)\n\nThe server is also hosted, so the fastest path is the remote Streamable HTTP\nendpoint. This is the same entry the official MCP Registry advertises as\n`io.github.shibley/apistatuscheck`.\n\n```bash\nclaude mcp add --transport http apistatuscheck https://apistatuscheck.com/api/mcp\n```\n\nFor stdio-only clients:\n\n```bash\nnpx -y mcp-remote https://apistatuscheck.com/api/mcp\n```\n\n### Using npx\n\n```bash\nnpx -y apistatuscheck-mcp-server\n```\n\n> **Broken on published version `0.1.0`.** That tarball's `dist/index.js` shipped\n> without a `#!/usr/bin/env node` shebang, so the shim was executed by `sh`\n> instead of Node and the command failed with `command not found`. Fixed in this\n> repo (shebang added, plus an `apistatuscheck-mcp-server` bin alias so the\n> command matches the package name), but the fix is not on npm yet — `0.1.1`\n> needs to be published. Until then, build from source:\n>\n> ```bash\n> git clone https://github.com/shibley/apistatuscheck-mcp-server.git\n> cd apistatuscheck-mcp-server && npm install && npm run build\n> node dist/index.js\n> ```\n\n### Using Docker\n\n```bash\ndocker build -t apistatuscheck-mcp .\ndocker run -i apistatuscheck-mcp\n```\n\n## Configuration\n\n### Claude Desktop\n\nAdd to your `claude_desktop_config.json`. This points at the hosted endpoint —\n**do not** use `\"args\": [\"-y\", \"apistatuscheck-mcp-server\"]`, because the only version\non npm (`0.1.0`) is the broken one described above and fails silently.\n\n```json\n{\n  \"mcpServers\": {\n    \"apistatuscheck\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"mcp-remote\", \"https://apistatuscheck.com/api/mcp\"]\n    }\n  }\n}\n```\n\n### Cursor / Other MCP Clients\n\nSame hosted endpoint via `mcp-remote`:\n\n```json\n{\n  \"mcpServers\": {\n    \"apistatuscheck\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"mcp-remote\", \"https://apistatuscheck.com/api/mcp\"]\n    }\n  }\n}\n```\n\n### Environment Variables\n\n| Variable | Default | Description |\n|----------|---------|-------------|\n| `ASC_BASE_URL` | `https://apistatuscheck.com` | Base URL for the API |\n\n## Local Development\n\n```bash\ngit clone https://github.com/shibley/apistatuscheck-mcp-server.git\ncd apistatuscheck-mcp-server\nnpm install\nnpm run build\nnode dist/index.js\n```\n\n## License\n\nMIT — [Bity LLC](https://apistatuscheck.com)\n",
   "status": "curated"
 }

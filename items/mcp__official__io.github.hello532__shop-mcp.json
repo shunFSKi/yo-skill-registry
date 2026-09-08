@@ -1,0 +1,69 @@
+{
+  "id": "mcp:official/io.github.hello532/shop-mcp",
+  "type": "mcp",
+  "name": "shop-mcp",
+  "description": "Read-only Shopify catalogue and stock for LLM agents. Stdlib only, no dependencies.",
+  "author": "io.github.hello532",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/hello532/shop-mcp",
+    "repo": "hello532/shop-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "shop-mcp"
+    ],
+    "env": [
+      {
+        "name": "SHOPIFY_SHOP_DOMAIN",
+        "required": true,
+        "secret": false
+      },
+      {
+        "name": "SHOPIFY_ADMIN_TOKEN",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-08T01:30:17.946451Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "AI",
+    "featured": false
+  },
+  "readme": "# shop-mcp\n\nA Model Context Protocol server that lets an LLM agent answer questions about a\nShopify store's catalogue and stock — over stdio, from a single file, using\n**only the Python standard library**.\n\nNo MCP SDK. No `requests`. No GraphQL client. `python3 shop_mcp.py` is the whole\ninstall.\n\n```\n$ python3 shop_mcp.py --self-test\nall green: 189 assertions\n```\n\nThat command needs no credentials and no network. It is the point of the repo:\nthe protocol layer and the tool layer are both exercised for real, because the\nShopify transport is replaced at a seam rather than mocked at the boundary.\n\nInstalled from PyPI, the same command reports **183**, and the six-assertion\ndifference is a packaging fact rather than a weaker check:\n\n```\n$ uvx --from shop-mcp shop-mcp --self-test\nall green: 183 assertions\n```\n\n`manifest.json` (5 assertions) and `README.md` (1) are deliberately not shipped\ninto `site-packages` — the manifest's `entry_point` names a bundle path that\ndoes not exist in an installed copy, so packaging it would make a correct\ninstall fail. Both assertions *skip* rather than fail when their file is absent,\nwhich is why the count moves and the verdict does not. Clone the repo to run all\n189.\n\n## Why write the protocol by hand\n\nBecause the failure modes of a stdio MCP server are all invisible locally and\nall fatal in a host. Each one below is a real defect this file is built to not\nhave, and each has an assertion naming it:\n\n- **A diagnostic on stdout.** One stray `print()` corrupts the client's next\n  parse. Nothing looks wrong when you run the server yourself. Every diagnostic\n  here goes to stderr, and a test asserts stdout stays byte-empty across a full\n  session.\n- **Answering a notification.** `notifications/initialized` has no `id`, so a\n  reply to it is a message with no pending request. Strict clients treat that as\n  a protocol violation and drop the connection.\n- **`id: 0` read as a notification.** `if msg.get(\"id\")` is falsy for zero, so a\n  client that numbers requests from zero has its first call silently dropped.\n  Presence, not truthiness.\n- **Tool failures sent as JSON-RPC errors.** A JSON-RPC error is for a malformed\n  *request*. A tool that ran and failed must return a normal result with\n  `isError: true` and the reason as text — otherwise the model never sees the\n  message and cannot correct its own arguments.\n- **Echoing an unknown `protocolVersion`.** If a client asks for a revision the\n  server does not know, agreeing to it leaves both sides believing a spec is in\n  use that neither implements. This falls back to `2025-03-26`, the spec's own\n  default, and says so.\n- **Pretty-printing the reply.** Indented JSON contains newlines, and newline is\n  the frame delimiter. One message becomes several broken ones.\n\n## Tools\n\n| tool | answers |\n|---|---|\n| `search_products` | \"what do we sell that matches X\" — identity and total stock |\n| `get_product` | one product in full, every variant with SKU, price, stock |\n| `check_inventory` | stock for a SKU per location: available, committed, on-hand |\n| `low_stock_report` | variants at or below a threshold, lowest first |\n\nFour tools, chosen because each answers a question a shop owner actually asks. A\nwider surface would be easy and would make the model worse at picking.\n\n## The correctness that is not protocol\n\nThree of the assertions cover mistakes that produce *confidently wrong answers*,\nwhich are worse than errors:\n\n- **An unquoted SKU.** `sku:SH 1` is a different query from `sku:\"SH 1\"`. The\n  first silently matches the wrong variants and reports their stock as if it\n  were yours. SKUs are quoted and internal quotes escaped.\n- **A null quantity read as zero.** Shopify returns `null` for a variant that\n  does not track inventory. Coerced to `0`, it appears in every restock report\n  forever. Untracked and out-of-stock are different facts and stay different.\n- **`scan_exhausted`.** `low_stock_report` scans a bounded number of variants. If\n  the scan hit its limit, \"nothing is low\" is indistinguishable from \"I did not\n  look far enough\" — so the result says which it was, and the model can say so\n  too.\n\nPlus the transport rules any Shopify client needs and most skip: a `THROTTLED`\nGraphQL response is a *200* and must be retried, not read as success; a 401 must\n*not* be retried, because waiting will not fix a bad token; backoff must actually\ngrow.\n\n## Verified, and not verified\n\n**Verified, by the self-test, on every run:** 189 assertions covering the\nhandshake, framing, notification handling, id presence, error mapping, schema\nstrictness, retry and backoff policy, SKU quoting, null-quantity handling,\nthreshold boundaries, and scan exhaustion. Wire shapes were taken from the\nofficial `mcp` Python SDK's `types.py` (`LATEST_PROTOCOL_VERSION`,\n`CallToolResult`, `ServerCapabilities`), not from memory.\n\n**Not verified:** this has never been run against a live Shopify store. There is\nno credential in this repo and no recorded API session. The Shopify Admin\nGraphQL queries are written to the documented schema, and every code path around\nthem is tested against a transport double — but the round trip against a real\nshop is unproven, and the test doubles are my model of Shopify's behaviour, not\nShopify.\n\nThat distinction is the honest one, and it is the same line drawn in\n[`gpt-ads-feed`](https://github.com/hello532/gpt-ads-feed). A README that blurs\nit is asking to be trusted on the wrong thing.\n\n## Assertions that can fail\n\n`mutation_test.sh` injects known defects into *copies* of the source and asserts\n`--self-test` goes red for each, naming which assertion caught it. It also flags\na `NO-OP EDIT` when a search pattern has gone stale — because a mutation that\ndoes not apply tests nothing while looking green, which is the failure mode that\nmakes a suite worse than useless: trusted and empty.\n\nIt found real weaknesses in the suite on its first run, and all three were the\nsame shape: the defect *was* detected, but by an exception rather than by a\nnamed assertion, so the message explained nothing and every assertion after it\nnever ran.\n\nTwo were an unhandled `KeyError: 'result'`, from indexing a reply that the\ndefect had turned into a JSON-RPC error. Fixed by routing result access through\na shape guard, so the same defect now reports `a tool crash returns a result,\nso the loop survives: reply is a JSON-RPC error {'code': -32603, ...}` and the\nthree following assertions each still report their own verdict.\n\nThe third was a bare setup call — `S.Tools(c).search_products(...)`, present\nonly to make the assertion below it meaningful. When the throttle branch was\ndisabled it raised, aborting the test before that assertion ran. Fixed with\n`completes()`, the exact inverse of `raises()`: the defect now reports\n`a 200-with-THROTTLED is survivable, not a hard failure: raised ShopifyError:\nThrottled [THROTTLED]`, naming the rule and keeping the cause.\n\nThree more defects surfaced only when the server was packaged as an `.mcpb`\nbundle and launched the way a host launches it, which no test had ever done:\n\n1. The code read `SHOPIFY_SHOP`; this README and the bundle manifest both told\n   users to export `SHOPIFY_SHOP_DOMAIN`. Anyone following the docs got a\n   permanently unconfigured server. Every one of the 180 assertions passed,\n   because none of them compared the code against the docs.\n2. `tools/list` returned `[]` until credentials existed, so a host saw an empty\n   server and reported it broken — and the readable *no store is configured*\n   message on `tools/call` was unreachable, since nothing was listed to call.\n   The docstring above that code stated the opposite requirement, and the test\n   below it asserted the defect: `eq(tools, [], ...)`. The list never depended\n   on credentials; `descriptors()` touched no instance state at all, and is now\n   a `staticmethod`.\n3. `--self-test` was advertised in the module docstring but crashed inside the\n   bundle, which shipped only the server file. The bundle now ships the suite.\n\nThe first fix then broke the harness in a way worth recording. The new\nassertion failed when `README.md` was absent, and the harness copied only two\nfiles, so it fired inside *every* mutant. The run still printed `17 caught`,\nbut six of those were credited to `README.md is present` instead of their own\nlabels: six real assertions could have been dead with the suite still green.\nA missing README is a packaging fact, not a code defect. The load-bearing\ncomparison now runs against the module docstring, which travels with the\nsource, and the harness copies the README so the cross-check is real.\n\nAll 23 mutations are caught by an assertion that names what broke, and each is\ncredited to its own label.\n\n## Use it\n\nInstalled from PyPI — nothing to clone:\n\n```bash\nexport SHOPIFY_SHOP_DOMAIN=your-shop.myshopify.com\nexport SHOPIFY_ADMIN_TOKEN=shpat_...          # read_products, read_inventory\nuvx shop-mcp                                  # or: pip install shop-mcp && shop-mcp\n```\n\nClaude Desktop / any MCP host:\n\n```json\n{\n  \"mcpServers\": {\n    \"shop\": {\n      \"command\": \"uvx\",\n      \"args\": [\"shop-mcp\"],\n      \"env\": {\n        \"SHOPIFY_SHOP_DOMAIN\": \"your-shop.myshopify.com\",\n        \"SHOPIFY_ADMIN_TOKEN\": \"shpat_...\"\n      }\n    }\n  }\n}\n```\n\nFrom a clone instead, when you want to read the source before running it — which\nis the point of a single dependency-free file, and the only way to get the full\n189-assertion suite:\n\n```bash\npython3 shop_mcp.py --self-test    # 189 here, 183 installed; see above\npython3 shop_mcp.py\n```\n\n```json\n{ \"command\": \"python3\", \"args\": [\"/absolute/path/to/shop_mcp.py\"] }\n```\n\nWith no credentials set it still completes a handshake and serves `tools/list`,\nthen returns `isError` with the missing variable named. A host that cannot read\n`tools/list` reports \"broken server\" and sends you looking in the wrong place.\n\n## If you want one of these for your own data\n\nThis server is the worked example, not a product line. I build the same shape —\na stdio MCP server over whatever you already have, with a self-test suite and\nproof that the suite catches injected defects — as a fixed-price job:\n[hello532.github.io/services.html](https://hello532.github.io/services.html),\nor coolun.337@gmail.com. Issues and PRs here are welcome either way; nothing on\nthis page needs paying for.\n\nMIT.\n\n<!-- mcp-name: io.github.hello532/shop-mcp -->\n",
+  "status": "curated"
+}

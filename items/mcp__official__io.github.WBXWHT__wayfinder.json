@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.WBXWHT/wayfinder",
+  "type": "mcp",
+  "name": "Wayfinder",
+  "description": "Read local AI coding paths, decisions, and branches as an in-host voyage map.",
+  "author": "io.github.WBXWHT",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/WBXWHT/wayfinder",
+    "repo": "WBXWHT/wayfinder"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "https://github.com/WBXWHT/wayfinder/releases/download/v0.3.3/wayfinder-0.3.3.mcpb"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-08T07:44:17.547631Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "生活",
+    "featured": false
+  },
+  "readme": "# Wayfinder\n\nMost work with AI is scattered across one chat after another. Wayfinder records\nthe prompts, attempts, changes, evidence, decisions, and wrong turns locally,\nthen turns them into a branching voyage map you can revisit and reuse.\n\nThe first production capture adapters focus on AI coding. The underlying\nexperience model is designed to extend to other work advanced through\nconversation, including writing, research, and design.\n\n**Early access, v0.3.3.** MIT licensed. No account, telemetry, or separate model\nAPI key is required by Wayfinder.\n\n[Downloads](https://github.com/WBXWHT/wayfinder/releases/tag/v0.3.3) |\n[Install Guide](https://github.com/WBXWHT/wayfinder/blob/main/docs/INSTALL.md) |\n[Privacy](https://github.com/WBXWHT/wayfinder/blob/main/PRIVACY.md) |\n[Publication Status](https://github.com/WBXWHT/wayfinder/blob/main/docs/PUBLISHING.md) |\n[Report a Bug](https://github.com/WBXWHT/wayfinder/issues)\n\n## Where It Lives\n\n| Host | Primary Wayfinder surface |\n| --- | --- |\n| TraeCode / VS Code-compatible IDE | Activity-bar sidebar, with an optional wide in-IDE map |\n| Claude Code / Codex inside a compatible IDE | The same Wayfinder sidebar |\n| MCP Apps-capable clients | An interactive map inside the conversation |\n| Claude Code / Codex terminal workflows | A text tree inside the terminal |\n\nAn external browser is never opened automatically. MCP Apps require a host\nthat supports them; installing a Claude Code plugin does not install anything\ninto Claude Web or Claude Desktop.\n\n## Install\n\nNode.js 22.13+ and Git are required for the Core and capture adapters.\n\n### IDE Sidebar\n\nDownload [wayfinder-0.3.3.vsix](https://github.com/WBXWHT/wayfinder/releases/download/v0.3.3/wayfinder-0.3.3.vsix).\nChoose **Extensions: Install from VSIX**, open the Wayfinder activity-bar icon,\nthen use **Connect AI Tool / 连接 AI 工具** to configure a project adapter.\n\nThe VSIX is self-distributed. A download link is not a claim of approval by the\nVS Code, Open VSX, or TRAE marketplaces.\n\n### Claude Code Plugin\n\nIn Claude Code:\n\n```text\n/plugin marketplace add WBXWHT/wayfinder\n/plugin install wayfinder@wayfinder\n```\n\n### Codex Plugin\n\n```bash\ncodex plugin marketplace add WBXWHT/wayfinder\n```\n\nRestart Codex if needed, open `/plugins`, select the Wayfinder marketplace,\nand install Wayfinder. These are **self-hosted marketplaces**, not listings\nin Anthropic's or OpenAI's curated directories.\n\n### Agent Skill\n\n```bash\nnpx skills add WBXWHT/wayfinder --skill wayfinder\n```\n\nThe skill includes the Core CLI and requests approval before changing project\nHooks. It does not silently install the IDE extension or register an MCP\nserver. Capture adapters are for TraeCode, Claude Code, and Codex only;\nother skill-compatible agents may inspect an existing map.\n\n### Homebrew\n\n```bash\nbrew install WBXWHT/tap/wayfinder\n```\n\n### Scoop\n\n```powershell\nscoop bucket add wayfinder https://github.com/WBXWHT/scoop-wayfinder\nscoop install wayfinder\n```\n\n### npm-Compatible Tarball\n\n```bash\nnpm install -g https://github.com/WBXWHT/wayfinder/releases/download/v0.3.3/wbxwht-wayfinder-0.3.3.tgz\nwayfinder --version\n```\n\nThis installs a public GitHub Release artifact using npm. It is **not**\nan npm Registry listing; `npm install -g @wbxwht/wayfinder` is not yet available.\n\n### Local MCP Bundle\n\nDownload [wayfinder-0.3.3.mcpb](https://github.com/WBXWHT/wayfinder/releases/download/v0.3.3/wayfinder-0.3.3.mcpb)\nand install it through a desktop client's local MCP extension installer. Select\nthe project directory containing existing Wayfinder history. This is a local,\nunsigned MCP bundle, not a Claude Desktop directory listing.\n\nThe same bundle is listed in the\n[official MCP Registry](https://registry.modelcontextprotocol.io/v0.1/servers?search=io.github.WBXWHT/wayfinder)\nas `io.github.WBXWHT/wayfinder`.\nAutomated installers can follow the conservative\n[agent-readable installation guide](https://github.com/WBXWHT/wayfinder/blob/main/llms-install.md).\n\n## Capture And Inspect\n\nFor a CLI installation, run from your project:\n\n```bash\nwayfinder install claude --root .\nwayfinder doctor --root .\nwayfinder map --root .\n```\n\nUse `trae` or `codex` instead of `claude` for those hosts. Choose `all` only\nwhen you need all three adapters. Do not install project Hooks if an enabled\nWayfinder Plugin already supplies the same capture Hooks.\n\n`doctor` checks project configuration, not host trust or Plugin activation.\nAfter installation, complete one ordinary coding turn and check that a new\nnode appears. Map data is stored under `~/.wayfinder`.\n\nRemove a project adapter with `wayfinder uninstall claude --root .`. Remove\nPlugin-supplied Hooks using the host's Plugin manager. Uninstall does not\ndelete voyage history.\n\n## Capabilities And Limits\n\n- Capture prompts, tool actions, replies, file changes, and validation results.\n- Separate task trees, inspect branches, and keep abandoned paths visible.\n- Inspect diffs and restore snapshots in the IDE, with a safety snapshot first.\n- Search current-project history; keep personal notes and explicit verdicts.\n- Host adapters share one data format and one local Shadow Git store.\n- Terminal output is a **text tree**, not an interactive TUI.\n- The MCP map supports viewing, panning, zooming, and node previews. IDE-only\n  restore/diff commands are not exposed through MCP.\n- Claude/Codex adapters have process-level protocol tests; real authenticated\n  client acceptance is still pending. Host versions and trust settings matter.\n- The sidebar and MCP App currently share data semantics, not a single renderer.\n\nWayfinder does not alter the project's Git index, commits, or branches.\nRestores affect captured workspace files only, not databases, remote services,\npackage installations, or AI chat context.\n\nWayfinder has no telemetry or cloud backend. **MCP tool calls return project\ncontent to the calling AI host**, whose privacy rules then apply. See\n[PRIVACY.md](https://github.com/WBXWHT/wayfinder/blob/main/PRIVACY.md)\nbefore exposing confidential projects.\n\n## Development\n\n```bash\nnpm ci\nnpm run check\nnpm run release:build\nnpm run release:verify\n```\n\nChromium UI checks run when a supported Chrome executable is available.\nRelease verification executes the packaged Core in an isolated project and\nchecks actual Hook processes, CLI install/uninstall, stdio MCP, and hashes.\n\nSee [THIRD_PARTY_NOTICES.md](https://github.com/WBXWHT/wayfinder/blob/main/THIRD_PARTY_NOTICES.md)\nfor acknowledgements.\nBundled third-party license texts accompany the release artifacts.\n",
+  "status": "curated"
+}

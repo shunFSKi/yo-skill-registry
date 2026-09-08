@@ -1,8 +1,8 @@
 {
   "id": "mcp:official/com.parseapi/mcp",
   "type": "mcp",
-  "name": "parseAPI",
-  "description": "Official parseAPI MCP. Place, IP, email, phone, weather, currency lookups.",
+  "name": "ParseAPI",
+  "description": "Official ParseAPI MCP. Place, IP, email, phone, weather, currency lookups.",
   "author": "com.parseapi",
   "source": {
     "registry": "mcp-official",
@@ -27,8 +27,8 @@
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-09-05T19:34:22.514397Z",
-    "score": 42
+    "pushed_at": "2026-09-07T23:45:42.660478Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -60,6 +60,6 @@
     "category": "办公",
     "featured": false
   },
-  "readme": null,
+  "readme": "# parseapi-mcp\n\nOfficial ParseAPI MCP server. Look up places, addresses, company numbers, email, phone, weather, currency, timezones, dates and more from your AI agent.\n\n## Hosted\n\nOne URL, nothing to install. Add the server and sign in once in the browser. Free plan works.\n\n```json\n{\n  \"mcpServers\": {\n    \"parseAPI\": { \"url\": \"https://mcp.parseapi.com\" }\n  }\n}\n```\n\n**Cursor:** [Add to Cursor](cursor://anysphere.cursor-deeplink/mcp/install?name=parseAPI&config=eyJ1cmwiOiJodHRwczovL21jcC5wYXJzZWFwaS5jb20ifQ==)\n\nRepo-root `.mcp.json` is keyless on purpose. [cursor.directory](https://cursor.directory/plugins/parseapi) auto-detects it when you submit or refresh the listing.\n\nCI and headless setups skip the browser with a key from [parseapi.com](https://parseapi.com):\n\n```json\n{\n  \"mcpServers\": {\n    \"parseAPI\": {\n      \"url\": \"https://mcp.parseapi.com\",\n      \"headers\": { \"X-API-Key\": \"your-api-key\" }\n    }\n  }\n}\n```\n\n## Local\n\n```json\n{\n  \"mcpServers\": {\n    \"parseAPI\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"parseapi-mcp\"],\n      \"env\": { \"PARSEAPI_KEY\": \"your-api-key\" }\n    }\n  }\n}\n```\n\n## Tools\n\n51 local tools and 50 hosted tools cover all 53 SDK operations. `ip_self` is local only. `timezone` accepts either a timezone ID or coordinates. `date` parses the supplied date, or returns today in UTC when omitted. Every tool returns the JSON the API serves.\n\nTools follow the lookup names: `country_states`, `city_search`, `postal_nearby`, `address`, `address_search`, `company`, `email`, `vat`, `iban`, `npi`, `vin`, `tariff`, `asn`, `mac`, `currency_rate`, and the rest. All search tools take `query`.\n\nExample tool arguments:\n\n| Tool | Arguments |\n|---|---|\n| `asn` | `{\"asn\":\"AS13335\"}` |\n| `mac` | `{\"mac\":\"00:1B:63:84:45:E6\"}` |\n| `country_states` | `{\"code\":\"US\"}` |\n| `address_search` | `{\"query\":\"1600 Pennsylvania\",\"country\":\"US\",\"city\":\"Washington\",\"state\":\"DC\"}` |\n| `company` | `{\"number\":\"552100554\",\"country\":\"FR\"}` |\n| `timezone` | `{\"timezone\":\"America/New_York\",\"at\":\"2026-09-05T09:00:00\",\"to\":\"Asia/Tokyo\"}` |\n| `timezone` | `{\"lat\":40.71,\"lon\":-74.01}` |\n| `date` | `{\"date\":\"03/04/2026\",\"format\":\"dmy\"}` |\n\nAddress lookup returns standardized components and registration status for the US and France. Its `deep` object is currently empty. Company lookup returns validity, registration status and business details when available. `address_search` also accepts `postal` and `ip` to narrow or rank matches. French search needs `country: \"FR\"` and either `postal` or `city`.\n\nOrdinary lookups retry up to twice after a transient failure. Metered lookups and address deep checks default to no retries. Cancelling a tool call cancels the pending SDK request.\n\nErrors come back as JSON with a machine-readable `code`. Branch on `code`, never on message text. A miss is `not_found`. No key is `invalid_api_key`.\n\n## Development\n\n```bash\nnpm install\nnpm run typecheck\nnpm test          # builds and tests with mocked fetch and in-memory MCP\nnpm run smoke     # stdio + http, includes live API authentication checks\nnpm run serve     # http on :8080\n```\n\nOffline tests pin the public tool names and argument schemas in `test/public-api.json`, exercise every operation and query option, and verify errors, retries and cancellation. Review baseline changes as public API changes. Publishing runs typecheck and offline tests first.\n\nMIT licensed.\n",
   "status": "curated"
 }

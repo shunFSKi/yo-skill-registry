@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/com.tripyana/london-chauffeur",
+  "type": "mcp",
+  "name": "Tripyana London Chauffeur",
+  "description": "Fixed London chauffeur prices: airport & cruise transfers, hourly hire, day trips, booking links.",
+  "author": "com.tripyana",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/tripyana/tripyana-mcp",
+    "repo": "tripyana/tripyana-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://mcp.tripyana.com/public"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-07T21:10:28.122833Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Tripyana MCP server — London chauffeur prices for AI agents\n\nA public, read-only [Model Context Protocol](https://modelcontextprotocol.io/) server from [Tripyana](https://tripyana.com/), a London chauffeur company (private hire operator licence PHOP950, Tripyana Ltd, company no. 16308293).\n\nIt lets ChatGPT, Claude, Cursor, Gemini or any MCP client quote **fixed, all-inclusive prices** (GBP per car, never per passenger) for:\n\n- [London airport transfers](https://tripyana.com/london/london-airport-transfer/) — [Heathrow](https://tripyana.com/london/london-airport-transfer/heathrow-airport-transfer-to-hotel/), [Gatwick](https://tripyana.com/london/london-airport-transfer/gatwick-airport-transfer-to-central-london/), [Stansted](https://tripyana.com/london/london-airport-transfer/stansted-to-london-transfer/), [Luton](https://tripyana.com/london/london-airport-transfer/luton-airport-transfer-to-london/) and [Heathrow ↔ Gatwick](https://tripyana.com/london/london-airport-transfer/heathrow-to-gatwick-transfer/)\n- Cruise port transfers — [Heathrow to Southampton](https://tripyana.com/london/london-airport-transfer/heathrow-to-southampton-cruise-transfer/), [Southampton to Heathrow](https://tripyana.com/london/london-airport-transfer/taxi-from-southampton-to-heathrow/) and [Heathrow to Dover](https://tripyana.com/london/london-airport-transfer/heathrow-to-dover-cruise-transfer/)\n- [Hourly chauffeur hire](https://tripyana.com/chauffeur-cost-london/) (4-hour minimum) and [full-day luxury car hire](https://tripyana.com/london/luxury-car-hire-london/) (8 hours)\n- [Private day trips from London](https://tripyana.com/london-day-trips/) — Stonehenge & Bath, the Cotswolds, Windsor, Oxford, Cambridge, Brighton, Canterbury & Dover, Bicester Village and more\n- [Heathrow VIP meet & greet](https://tripyana.com/london/heathrow-vip-meet-greet-fast-track/), [student airport pickup](https://tripyana.com/london/student-airport-pickup/), [executive cars](https://tripyana.com/london/executive-car-service-london/) and [wedding cars](https://tripyana.com/london/wedding-car-hire-london/)\n\n…and to hand the traveller a **pre-filled booking link**. Nothing is booked by the server; payment happens on tripyana.com. No API key, no account.\n\n## Endpoint\n\n```\nhttps://mcp.tripyana.com/public\n```\n\nTransport: Streamable HTTP (stateless JSON-RPC 2.0 over POST). Open the URL in a browser for a human-readable summary.\n\n### Claude Desktop / Claude Code / Cursor / Windsurf\n\n```json\n{ \"mcpServers\": { \"tripyana\": { \"url\": \"https://mcp.tripyana.com/public\" } } }\n```\n\nClaude Code one-liner:\n\n```bash\nclaude mcp add --transport http tripyana https://mcp.tripyana.com/public\n```\n\n## Tools\n\n| Tool | What it returns |\n|---|---|\n| `get_transfer_price` | Fixed one-way fare per vehicle for a route (`heathrow-central-london`, `gatwick-central-london`, `stansted-central-london`, `luton-central-london`, `heathrow-gatwick`, `heathrow-southampton-cruise`, `heathrow-dover-cruise`), the recommended car for the party, and the page to book on |\n| `get_hourly_price` | Hourly (4-hour minimum) and full-day (8-hour) totals per vehicle in London, rules and distance fee outside London, the Manchester day rate |\n| `list_day_trips` | Every private day trip from London with whole-car return prices and links (English or Arabic) |\n| `search_services` | Finds the right Tripyana page for a query, with summary and published prices |\n| `get_booking_link` | Builds a booking-form URL with date, time, passengers, pickup, drop-off and contact details pre-filled |\n| `get_meet_greet_price` | Heathrow VIP Meet & Assist with the Fast Track lane (£350 for two guests, £475 with hotel transfer) and student / unaccompanied-minor pickup at any London airport |\n| `get_company_info` | Licence, address, phone/WhatsApp, languages, what every fare includes, cancellation policy |\n\nResources: `tripyana://llms.txt` (the live catalogue, also at [tripyana.com/llms.txt](https://tripyana.com/llms.txt)) and `tripyana://prices.json`.\n\n## Example\n\n> *\"How much is a chauffeur from Heathrow to a hotel in Mayfair for 5 people with 4 suitcases?\"*\n\n`get_transfer_price {\"route\":\"heathrow-central-london\",\"passengers\":5,\"luggage\":4}` → Mercedes V-Class £145 one way, fixed, meet & greet with a name board, flight tracked, 60 minutes free waiting, free cancellation up to 24 h before pickup — plus the booking page.\n\n## Run it yourself\n\n```bash\ngit clone https://github.com/tripyana/tripyana-mcp && cd tripyana-mcp\nnpm install && npm start          # http://127.0.0.1:8791/mcp\nnpm test                          # smoke test against the local server\n```\n\nEnvironment: `PORT` (8791), `HOST` (127.0.0.1), `PUBLIC_URL`, `LOG_DIR`. The server keeps no customer data; the access log holds timestamp, IP, method and tool name only.\n\n## Prices\n\nPrices come from Tripyana's published price matrix and are refreshed from `llms.txt` hourly. All prices are in GBP, per car, all-inclusive, with no surge pricing. The booking form on tripyana.com is the final word on any fare.\n\n## Contact\n\nTripyana Ltd · Centurion House, London Road, Staines-upon-Thames TW18 4AX · +44 7747 720000 · [WhatsApp](https://wa.me/447747720000) · info@tripyana.com · Service in English and [Arabic](https://tripyana.com/ar/).\n\nMIT licence.\n",
+  "status": "curated"
+}

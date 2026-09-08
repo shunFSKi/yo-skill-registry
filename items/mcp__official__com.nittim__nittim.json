@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/com.nittim/nittim",
+  "type": "mcp",
+  "name": "nittim",
+  "description": "Production-safety audits for AI-generated code, with a fix for every finding.",
+  "author": "com.nittim",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/ilanwolberger/nittim-mcp",
+    "repo": "ilanwolberger/nittim-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://nittim.com/api/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-08T06:45:36.855885Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# nittim MCP\n\n[![Add to Cursor](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/install-mcp?name=nittim&config=eyJ1cmwiOiJodHRwczovL25pdHRpbS5jb20vYXBpL21jcCJ9)\n[![Install in VS Code](https://img.shields.io/badge/VS_Code-Install_nittim-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white)](https://vscode.dev/redirect/mcp/install?name=nittim&config=%7B%22type%22%3A%22http%22%2C%22url%22%3A%22https%3A%2F%2Fnittim.com%2Fapi%2Fmcp%22%7D)\n[![MCP Registry](https://img.shields.io/badge/MCP_Registry-com.nittim%2Fnittim-333?style=flat-square)](https://registry.modelcontextprotocol.io/v0/servers?search=com.nittim/nittim)\n\nnittim audits code before it ships.\n\nConnect over MCP and your agent can:\n\n- Scan a repo or a handful of posted files for committed secrets and known vulnerable dependencies — free, no key needed.\n- List every check nittim runs, in plain English.\n- Read the free self-review checklist (`get_loop`) — free, no key needed.\n- Price a GitHub repo or a set of files before anything runs — free, no upload required.\n- Run a full audit and get back a verdict — Production Ready, Production Ready with Conditions, High Risk, or Not Safe — with security, privacy, reliability, and architecture findings, each paired with a fix.\n- Get a second opinion on any piece of work from an independent judge.\n- Flag a finding that looks wrong, for a person to review.\n\nA paid audit quotes its price before it runs. Nothing is charged until you confirm.\n\n## Try it in 30 seconds\n\nConnect (below), then ask your agent:\n\n> Run nittim's `get_loop` and review this repo against it.\n\nThat reads the free checklist and reviews your code on your own model. Nothing is uploaded and no key is needed. Or ask it to `scan_source` a file for committed secrets and vulnerable dependencies. Also free.\n\n## Connect\n\n**Claude Code**, as a plugin (adds the server and the `nittim-loop` skill):\n\n```\n/plugin marketplace add ilanwolberger/nittim-mcp\n/plugin install nittim@nittim\n```\n\nor just the server:\n\n```\nclaude mcp add --transport http nittim https://nittim.com/api/mcp\n```\n\n**Cursor** or **VS Code**: the buttons at the top, or `nittim` → `https://nittim.com/api/mcp` in your MCP settings.\n\nOr add it to any MCP client as:\n\n```json\n{\n  \"nittim\": {\n    \"type\": \"streamable-http\",\n    \"url\": \"https://nittim.com/api/mcp\"\n  }\n}\n```\n\nThe free tools work right away, no account needed. Paid tools need a key — mint one at [nittim.com/keys](https://nittim.com/keys).\n\n## Skills\n\n`skills/nittim-loop` is a free, local self-review — it walks your assistant\nthrough [nittim's public checklist](https://nittim.com/selfcheck.md) over a\nrepository you own, on your own model, with nothing uploaded. It reads the\nchecklist via the `get_loop` MCP tool when one is connected, or by fetching\n`https://nittim.com/selfcheck.md` directly otherwise.\n\n**Claude Code** — install the plugin (see Connect above), then run\n`/nittim:nittim-loop` inside a project you want reviewed. Or install the skill\non its own, available in every project:\n\n```\nmkdir -p ~/.claude/skills/nittim-loop && curl -fsSL https://nittim.com/skills/nittim-loop/SKILL.md -o ~/.claude/skills/nittim-loop/SKILL.md\n```\n\n**Cursor** — the same checklist as a project rule (`skills/nittim-loop/nittim-loop.mdc`), also served live at `https://nittim.com/skills/nittim-loop/nittim-loop.mdc`:\n\n```\nmkdir -p .cursor/rules && curl -fsSL https://nittim.com/skills/nittim-loop/nittim-loop.mdc -o .cursor/rules/nittim-loop.mdc\n```\n\n**Any other MCP client** — call the `get_loop` tool directly; no install needed.\n\n## Learn more\n\nFull reference, for people and for agents: [nittim.com/agents](https://nittim.com/agents)\n\n---\n\nListed on [Smithery](https://smithery.ai/servers/ilan-wolberger/nittim), [Glama](https://glama.ai/mcp/connectors/com.nittim/nittim), [cursor.directory](https://cursor.directory/plugins/nittim) and the [MCP Registry](https://registry.modelcontextprotocol.io/v0/servers?search=com.nittim/nittim).\n\nThis repository holds the listing manifests for nittim's MCP server, all pointing at the live endpoint above: [Open Plugins](https://agent-plugins.org) (`plugin.json`, `.mcp.json`), the [MCP Registry](https://registry.modelcontextprotocol.io) (`server.json`), a Claude Code plugin and marketplace (`.claude-plugin/`), and the `nittim-loop` skill (`SKILL.md` for Claude Code, `nittim-loop.mdc` for Cursor). It carries no other application code. `scripts/gate.sh` checks the repo's own consistency — manifests agree, both skill copies identical, every URL above resolves — and `hooks/pre-push` runs a secret scan before anything reaches GitHub (`git config core.hooksPath hooks` once per clone).\n",
+  "status": "curated"
+}

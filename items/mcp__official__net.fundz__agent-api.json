@@ -1,0 +1,61 @@
+{
+  "id": "mcp:official/net.fundz/agent-api",
+  "type": "mcp",
+  "name": "Fundz Agent API",
+  "description": "Dated funding and SEC 8-K events, each linked to the filing it came from.",
+  "author": "net.fundz",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/Fund-z/agent-api-docs",
+    "repo": "Fund-z/agent-api-docs"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://api.fundz.net/v1/agent/mcp",
+    "env": [
+      {
+        "name": "X-Fundz-Key",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-08T01:27:52.455089Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# Fundz Agent API — buying signals API for GTM agents\n\n**Every signal links to the filing it came from.**\n\nFundz is a **buying signals API** and **MCP server for sales agents**: dated funding rounds and\nSEC 8-K events, each one carrying the source document. It is a **company event API** rather than a\ncontact database — the **trigger data for AI SDRs** that tells an agent *why now*, with a link a\nhuman can open before anything gets sent.\n\nTwo lanes, both primary-filed:\n\n- **SEC 8-K API** — material events filed with the SEC, linked to the filing on `sec.gov`.\n- **Form D funding data API** — private-offering filings parsed from EDGAR, plus funding\n  announcements, with the offering amount normalised to USD.\n\nNothing is inferred. If Fundz has no dated event for a company in your window, it says so instead\nof guessing — an empty answer is a real answer, and it is the reason the evidence is quotable.\n\n```bash\ncurl -s https://api.fundz.net/v1/agent/why_now \\\n  -H \"X-Fundz-Key: $FUNDZ_KEY\" \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"domain\":\"databricks.com\"}'\n```\n\n```json\n{\n  \"company\": { \"name\": \"Databricks\", \"domain\": \"databricks.com\", \"resolution_confidence\": 1.0 },\n  \"evidence\": [\n    { \"type\": \"funding\", \"date\": \"2026-08-12\",\n      \"summary\": \"Databricks raised $1B Series K.\",\n      \"source_url\": \"https://www.sec.gov/Archives/edgar/data/1587468/.../primary_doc.xml\",\n      \"source_kind\": \"sec_form_d\" }\n  ]\n}\n```\n\n## What it returns\n\nDated evidence with a source URL on every item, the resolved company, and a\n`resolution_confidence` score so you can refuse to act on an uncertain match. Usage comes back in\n`X-Fundz-Units` headers on every response.\n\n## What it does not return\n\n**No contacts. No emails. No phone numbers.** Fundz answers *which companies just did something\nworth calling about*, not who to call. Pair it with your own contact source.\n\nIt is also not a prediction product. `predicted_next` is explicitly experimental — treat `lift` as\na ranking aid, not a validated rate.\n\n## Pricing\n\n| | |\n|---|---|\n| Metered | **$0.06 per unit**, **$25/month minimum** |\n| Platform 50k | **$1,500/month** — 50,000 units included |\n| Platform 150k | **$3,000/month** — 150,000 units included |\n| Platform 400k | **$5,000/month** — 400,000 units included |\n\nUnit costs: `why_now` 1 · `events_for_icp` 1 · `predicted_next` 1 · `watchlist_diff` **0.1 per\ncompany checked**. A 400-company book costs 40 units to diff.\n\n## Quickstart\n\n```bash\nexport FUNDZ_KEY=fundz_ak_live_...                       # 1. your key, from the welcome email\nBASE=https://api.fundz.net/v1/agent                      # 2. base URL\n\ncurl -s $BASE/why_now      -H \"X-Fundz-Key: $FUNDZ_KEY\" \\\n  -H 'Content-Type: application/json' -d '{\"domain\":\"stripe.com\"}'          # 3. one company\n\ncurl -s $BASE/events_for_icp -H \"X-Fundz-Key: $FUNDZ_KEY\" \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"industries\":[\"software\"],\"lookback_days\":30}'                        # 4. an ICP\n\ncurl -s $BASE/watchlist_diff -H \"X-Fundz-Key: $FUNDZ_KEY\" \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"domains\":[\"stripe.com\",\"databricks.com\"],\"since\":\"2026-08-01\"}'      # 5. your book\n```\n\nFull reference: [QUICKSTART.md](QUICKSTART.md) · [openapi/](openapi/)\n\n## MCP\n\nStreamable HTTP at **`https://api.fundz.net/v1/agent/mcp`**. `initialize` and `tools/list` need no\nkey; `tools/call` does.\n\n⛔ That is a subpath, not the REST prefix. `/v1/agent` reads its last path segment as a tool name,\nso an MCP handshake posted there is answered `404 unknown tool 'agent'`.\n\n**Claude Desktop** — `claude_desktop_config.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"fundz\": {\n      \"url\": \"https://api.fundz.net/v1/agent/mcp\",\n      \"headers\": { \"X-Fundz-Key\": \"fundz_ak_live_...\" }\n    }\n  }\n}\n```\n\n**Cursor** — `.cursor/mcp.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"fundz\": {\n      \"url\": \"https://api.fundz.net/v1/agent/mcp\",\n      \"headers\": { \"X-Fundz-Key\": \"fundz_ak_live_...\" }\n    }\n  }\n}\n```\n\nMore: [examples/claude-desktop.md](examples/claude-desktop.md) ·\n[examples/langgraph_agent.py](examples/langgraph_agent.py) ·\n[examples/clay-http-column.md](examples/clay-http-column.md)\n\n## FAQ\n\n### What is a buying signals API?\n\nAn API that returns *events* — a company raised money, filed an 8-K, changed leadership — rather\nthan static firmographics. The event is the reason to reach out, and the date is what makes it\ntimely. Fundz returns the event plus the document it came from.\n\n### How is this different from Crunchbase or PitchBook?\n\nThose are databases you search. This is an API an agent calls per company, per run, and every item\ncomes back with a source URL. Fundz is also priced per unit rather than per seat.\n\n### Can I get contact data from the Fundz API?\n\nNo. Fundz has no contacts, emails, or phone numbers. It tells you which companies just did\nsomething; you bring your own contact source.\n\n### What SEC data does the Form D funding data API cover?\n\nForm D private-offering filings parsed from EDGAR — filing entity, offering amount normalised to\nUSD, state, and a `sec.gov` source URL per record — alongside funding announcements from news.\n\n### Does the SEC 8-K API link to the actual filing?\n\nYes. Every 8-K item carries the `sec.gov` document URL. That is the point: a rep can open the\nfiling before quoting it to a prospect.\n\n### How do I use this as trigger data for AI SDRs?\n\nCall `watchlist_diff` with your account book on a schedule and act only on companies that come\nback changed. It bills 0.1 units per company checked, so a 400-company book costs 40 units — the\nsame whether you send it whole or in chunks.\n\n### Is there an MCP server for sales agents?\n\nYes — this one. Streamable HTTP, four tools, works in Claude Desktop, Cursor, and any client that\nspeaks MCP over HTTP. Discovery (`initialize`, `tools/list`) is keyless so a client can inspect it\nbefore you hand over a credential.\n\n### What happens when there is no event?\n\nYou get an empty `evidence` array and a `last_event` telling you when the most recent one actually\nwas. Fundz does not manufacture a reason to call.\n\n### How large can a watchlist_diff request be?\n\n400 domains per request. The limit is the edge, not the API: bodies over 8,192 bytes are refused\nbefore they reach us.\n\n## Support\n\n[support@fundz.net](mailto:support@fundz.net) · [fundz.net](https://www.fundz.net) ·\nper-company pages at [app.fundz.net/signals](https://app.fundz.net/signals) ·\n[llms.txt](https://app.fundz.net/llms.txt)\n",
+  "status": "curated"
+}
