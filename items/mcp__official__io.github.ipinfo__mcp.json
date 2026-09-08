@@ -1,0 +1,64 @@
+{
+  "id": "mcp:official/io.github.ipinfo/mcp",
+  "type": "mcp",
+  "name": "IPinfo",
+  "description": "Official IPinfo MCP Server - IP intelligence tools for AI assistants",
+  "author": "io.github.ipinfo",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/ipinfo/mcp",
+    "repo": "ipinfo/mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "ipinfo-mcp-server"
+    ],
+    "env": [
+      {
+        "name": "IPINFO_TOKEN",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-08T14:55:01.508055Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "## IPinfo MCP Server\n\nIPinfo API MCP Server for Residential Proxy, Lite, Core, and Plus bundles.\n\n[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/ipinfo/mcp/badge)](https://scorecard.dev/viewer/?uri=github.com/ipinfo/mcp)\n[![smithery badge](https://smithery.ai/badge/ipinfo/mcp-server)](https://smithery.ai/servers/ipinfo/mcp-server)\n\n<!-- mcp-name: io.github.ipinfo/mcp -->\n\n## Development\n\n### Prerequisites\n\n- Python 3.14+\n- [uv](https://docs.astral.sh/uv/)\n\n### Setup\n\n```bash\nuv sync --dev\ncp .env.example .env\n# Add your IPinfo token to .env\n```\n\nGet a free API token at [ipinfo.io/signup](https://ipinfo.io/signup).\n\n### Running the server\n\nThe server supports two transports: stdio (default) and HTTP.\n\n```bash\n# stdio (default, used by MCP clients)\nuv run ipinfo-mcp-server\n\n# HTTP\nIPINFO_TRANSPORT=http IPINFO_HOST=0.0.0.0 IPINFO_PORT=8000 uv run ipinfo-mcp-server\n```\n\n### Environment variables\n\n| Variable                 | Default                 | Description                                            |\n| ------------------------ | ----------------------- | ------------------------------------------------------ |\n| `IPINFO_TOKEN`           |                         | API token                                              |\n| `IPINFO_API_BASE_URL`    | `https://api.ipinfo.io` | Base URL for `api.ipinfo.io` endpoints                 |\n| `IPINFO_LEGACY_BASE_URL` | `https://ipinfo.io`     | Base URL for legacy `ipinfo.io` endpoints (e.g. `/me`) |\n| `IPINFO_CACHE_TTL`       | `3600`                  | Seconds a cached IP result stays fresh                 |\n| `IPINFO_TRANSPORT`       | `stdio`                 | Transport type (`stdio` or `http`)                     |\n| `IPINFO_HOST`            | `0.0.0.0`               | HTTP host (only for `http` transport)                  |\n| `IPINFO_PORT`            | `8000`                  | HTTP port (only for `http` transport)                  |\n\n### Tests\n\n```bash\n# All tests tests\nuv run pytest\n\n# Integration tests (requires IPINFO_TOKEN)\nuv run pytest tests/integration/\n```\n\nIntegration tests hit the real IPinfo API and validate response structure only (no exact value assertions). They require `IPINFO_TOKEN` to be set and are skipped otherwise.\n\n### Type checking\n\n```bash\nuv run pyright\n```\n\n### Linting\n\n```bash\nuv run ruff check .\nuv run ruff format .\n```\n",
+  "status": "curated"
+}

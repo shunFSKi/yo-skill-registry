@@ -1,7 +1,7 @@
 {
   "id": "mcp:official/solutions.inite/inite-diagnostic",
   "type": "mcp",
-  "name": "inite-diagnostic",
+  "name": "INITE Process Diagnostic",
   "description": "Takes a business process apart and says what to automate first. Eight questions free, 43 paid.",
   "author": "solutions.inite",
   "source": {
@@ -11,20 +11,24 @@
   },
   "license": null,
   "install": {
-    "kind": "remote",
-    "remote_url": "https://inite.solutions/api/mcp",
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@inite/diagnostic"
+    ],
     "env": [
       {
-        "name": "Authorization",
-        "required": true,
+        "name": "INITE_DIAGNOSTIC_TOKEN",
+        "required": false,
         "secret": true
       }
     ]
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-09-08T08:12:44.081084Z",
-    "score": 52
+    "pushed_at": "2026-09-08T08:44:52.349952Z",
+    "score": 42
   },
   "security": {
     "score": 100,
@@ -56,6 +60,6 @@
     "category": null,
     "featured": false
   },
-  "readme": "# INITE Diagnostic — a process audit your agent can run\n\nPoint an assistant at a business process and get back what it costs today,\nwhere it breaks first, and what to automate next.\n\n```\n> Our WhatsApp enquiries take until morning to answer. Is that worth fixing?\n\n  start_audit(language: \"en\")        → audit_token: 9f2c…, first question\n  answer_audit(field: \"channels\", value: \"whatsapp, instagram\")\n  answer_audit(field: \"dailyInquiries\", value: \"50-100\")\n  …\n  answer_audit(finish: true)         → findings\n```\n\nIt is the same audit that runs at\n[inite.solutions/en/audit](https://inite.solutions/en/audit).\n\n## Two depths\n\n**Free — eight questions about one process.** Pick the thing your people still\ndo by hand. The interview maps it and says what it costs now and what changes\nif it runs itself. No account needed in the browser; from an agent, the\ninterview and the arithmetic need none either — see\n[Works before you sign in](#works-before-you-sign-in) — and the reading itself\nneeds one.\n\n**Premium — forty-three slots across the whole business**, grouped into\nstrategy, marketing, operations, finance and technology. The interview has a\nbudget of thirty-five questions against those forty-three slots, so it must\nleave some unasked, and choosing which is the part worth having a model for. It\nroutes by the share of each area still open, not by the count, so one expert\ncannot conduct two thirds of the conversation.\n\nThe first eight slots of a premium run are the free eight, unchanged. An audit\nthat upgrades mid-way is not asked them twice.\n\n## Works before you sign in\n\nTwo of the tools run entirely on your machine. No account, no allowance, no\ncall home.\n\n`diagnostic_questions` hands over the interview itself — the eight things a\ndiagnostic has to establish, in the words they are asked in — and your\nassistant conducts it, in the person's own language, with options that look\nlike their industry. `read_answers` then does the arithmetic on what came back.\n\n```\n> Eighty enquiries a day between the two of us, mostly WhatsApp, kept in a spreadsheet.\n\n  read_answers(answers: {...})\n\n  From what you have been told:\n    80 enquiries a day across 2 people — 40 each.\n    12 of them become leads — 15% of what arrives.\n    3 channels enquiries arrive on. The record of them: a spreadsheet.\n\n  That is the arithmetic. What it cannot do is say what to automate first.\n```\n\nThe split falls where the competences do. A model conducts an interview far\nbetter than it divides eighty by two and remembers what the range said, so the\ncaller asks and this counts — and every assumption it had to make is printed\nbeside the result (\"read 50-100 as 75\").\n\nSigning in adds the audit itself: the next question chosen from everything\nalready said, the findings written against them, a run saved under your account\nthat you can come back to, and the forty-three question depth.\n\n## Install\n\n**Claude Desktop, Cursor, or any client that launches a stdio server:**\n\n```json\n{\n  \"mcpServers\": {\n    \"inite-diagnostic\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@inite/diagnostic\"]\n    }\n  }\n}\n```\n\nThen, when you want the audit rather than the arithmetic:\n\n```sh\nnpx @inite/diagnostic login\n```\n\nThat opens a browser, you approve, and the token is stored at\n`~/.config/inite/mcp-diagnostic.json` with owner-only permissions.\nAuthorization code with PKCE over a loopback redirect, the flow RFC 8252\nprescribes for a native app. Nothing is written to the repository and no secret\nships in the package.\n\n**Its own file, not the one `@inite/visibility` writes.** Both tokens are\nissued by the same authorization server and belong to the same person, and\nneither works in the other's place: RFC 8707 binds each one to the `resource`\nit was asked for. Sharing a file would mean the second `login` silently\nreplaced the first one's token with something that 401s. For the same reason\nthis package reads `INITE_DIAGNOSTIC_TOKEN` before `INITE_TOKEN`.\n\n## Tools\n\n| tool | what it does | account |\n|---|---|---|\n| `diagnostic_questions` | The eight fields, in the words they are asked in, for you to interview from | no |\n| `read_answers` | The arithmetic on what you collected, with every assumption stated | no |\n| `start_audit` | Begins the interview, returns the first question and an `audit_token` | yes |\n| `answer_audit` | Records one answer against the field the question named, returns the next question — or the findings when the interview is over | yes |\n| `get_audit` | Depth, what was answered, what was declined, what is still open, and the findings if they exist | yes |\n| `upgrade_audit` | Spends a paid run if the account has one; otherwise returns a checkout link | yes |\n\n`upgrade_audit` deliberately stops short of buying. With nothing paid for on\nthe account it hands back a URL for a person to open. An agent is not given a\nway to spend somebody's money unattended.\n\n### Answers the model does not have\n\n`\"__skip__\"` is a valid answer and a better one than a guess. A guessed answer\nproduces a confident wrong finding, which is worse than a gap the audit can\nname — and the findings say what they could not tell rather than inventing it.\n\n### Fields are a closed list\n\nEvery question names the field it fills, and that name comes from a fixed list.\nThe model chooses which slot to raise next, how to word it and what to offer as\nanswers; it does not choose what the answers are called. This is enforced by\nthe schema rather than checked afterwards — the field is an enum built per call\nfrom what is still missing, so a question about anything else cannot be\nexpressed.\n\nThat constraint exists because the version without it failed in a specific way:\nthe panel stayed empty while the visitor answered, and the lead reached the CRM\nas a wall of JSON under \"Industry: N/A\".\n\nThe full list, generated from the server's own definitions, is in\n[SLOTS.md](SLOTS.md).\n\n## Connect without the package\n\nA client that speaks the MCP authorization flow can talk to the remote server\ndirectly. There are no local tools that way — the two above live in the\npackage — and every call needs a token.\n\n```json\n{\n  \"mcpServers\": {\n    \"inite-diagnostic\": {\n      \"type\": \"http\",\n      \"url\": \"https://inite.solutions/api/mcp\"\n    }\n  }\n}\n```\n\n## Authentication\n\nEvery call to the *remote* server needs a bearer token, and the only thing\navailable without one is how to get a token. The two local tools need nothing.\n\nAn unauthenticated request returns `401` with a `WWW-Authenticate` header\npointing at\n[`/.well-known/oauth-protected-resource`](https://inite.solutions/.well-known/oauth-protected-resource),\nwhich names `auth.inite.ai` as the authorization server. A client that speaks\nthe MCP authorization flow walks that chain on its own: it registers, a human\napproves in a browser, and every run after that belongs to somebody.\n\nAn agent is the same person arriving through a different door, so the quota,\nthe entitlement and the audit rows are the account's own — not a second class\nof user with a separate allowance.\n\n## Registry\n\nPublished as `solutions.inite/inite-diagnostic`. The namespace is proved by an\ned25519 key served at\n[`/.well-known/mcp-registry-auth`](https://inite.solutions/.well-known/mcp-registry-auth).\n\nThe manifest that publishes it lives beside the server itself rather than here,\nso there is one copy of it and no way for the two to disagree. This repository\nis the readable half: what the server is, what it asks, and what it will not do.\n\n## The rest of the family\n\n| server | what it is for |\n|---|---|\n| [`ai.inite/inite-visibility`](https://github.com/inite-ai/inite-visibility) | Whether the answer engines can see a website |\n| `club.inite/inite-club` | Membership, events, the shared workspace |\n| `studio.inite/ideaudit-tools` | The scoring behind an audit allowed to say no |\n| [`io.github.inite-ai/inite-brain-service`](https://github.com/inite-ai/inite-brain-service) | Bitemporal memory for agents |\n\n## License\n\nMIT. See [LICENSE](LICENSE).\n",
+  "readme": null,
   "status": "curated"
 }

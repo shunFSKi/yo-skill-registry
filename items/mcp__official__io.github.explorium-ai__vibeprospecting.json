@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.explorium-ai/vibeprospecting",
+  "type": "mcp",
+  "name": "Vibe Prospecting",
+  "description": "B2B company and contact data for lead lists, enrichment, research, and outreach. OAuth sign-in.",
+  "author": "io.github.explorium-ai",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/explorium-ai/vibeprospecting-mcp",
+    "repo": "explorium-ai/vibeprospecting-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://vibeprospecting.explorium.ai/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-08T12:06:26.963744Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "营销",
+    "featured": false
+  },
+  "readme": "# Vibe Prospecting\n\n<img src=\"logo.png\" alt=\"Vibe Prospecting Logo\" width=\"90\">\n\n**Power your chat with live B2B data — build lead lists, research companies, enrich contacts, and personalize outreach, all from inside your AI assistant.**\n\nVibe Prospecting is a **remote MCP server**. There's nothing to run locally and no API key to manage — you connect over a single URL and sign in through your browser on first use.\n\n> **MCP endpoint:** `https://vibeprospecting.explorium.ai/mcp`\n\n---\n\n## What you can do\n\n- 🔎 **Find companies** by name, domain, industry, size, location, tech stack, and more\n- 👤 **Discover & enrich contacts** — roles, profiles, and buying signals at any company\n- 🏢 **Research firms** — firmographics, technographics, funding, competitors, and challenges\n- 📈 **Analyze & export** — preview a sample instantly, then export the full dataset to CSV when you're ready\n\nYou always see a **sample preview first** (5–10 rows). The full dataset is only processed when you explicitly ask to export — so exploring is fast and credit-friendly.\n\n---\n\n## Installation\n\nPick your tool below. All clients connect to the same remote endpoint and authenticate through your browser (OAuth) on first use.\n\n### Claude Code  ⭐ recommended\n\nOne line — paste it into your terminal:\n\n```bash\nclaude mcp add --transport http vibe-prospecting https://vibeprospecting.explorium.ai/mcp\n```\n\nThen start (or restart) Claude Code and run a prompt that uses it (see [Examples](#examples)). The first call opens your browser to sign in. Verify the connection anytime with:\n\n```bash\nclaude mcp list\n# vibe-prospecting: https://vibeprospecting.explorium.ai/mcp - ✓ Connected\n```\n\n### Cowork & Claude Desktop\n\nAdd it as a custom connector through the UI (no terminal needed):\n\n1. Open **Customize → Connectors** in Chat/Cowork/Code in Claude Desktop \n2. Click the **+** next to *Connectors* and choose **Browse connectors**\n3. Under `Anthropic & Partners` look for **Name:** `Vibe Prospecting` — **URL:** `https://vibeprospecting.explorium.ai/mcp`\n4. Click **+** and then click **Install**, then follow the sign-in prompts to grant access\n\nOnce added, Vibe Prospecting's tools are available to Claude automatically.\n\n### Codex CLI\n\nOne command — Codex detects OAuth automatically and opens your browser to sign in:\n\n```bash\ncodex mcp add vibe-prospecting --url https://vibeprospecting.explorium.ai/mcp\n```\n\nConfirm it's connected with `codex mcp list` (look for `Auth: OAuth`), or start a Codex session and run `/mcp` to see its tools. If you ever need to re-authenticate, run `codex mcp login vibe-prospecting`.\n\n> **No native OAuth in your Codex version?** Use the universal `mcp-remote` bridge instead. Add this block to `~/.codex/config.toml` — it opens the browser for sign-in on first use:\n>\n> ```toml\n> [mcp_servers.vibe-prospecting]\n> command = \"npx\"\n> args = [\"-y\", \"mcp-remote\", \"https://vibeprospecting.explorium.ai/mcp\"]\n> ```\n\n### Gemini CLI\n\nInstall the extension directly from this repository:\n\n```bash\ngemini extensions install https://github.com/explorium-ai/vibeprospecting-mcp\n```\n\nThe extension is loaded and managed automatically by Gemini CLI, and OAuth sign-in is handled on first use. See the [Gemini CLI extensions docs](https://geminicli.com/docs/extensions/) for details.\n\n### Manus\n\nConnect Vibe Prospecting from Manus’s built-in connectors UI (no local server or API key):\n\n1. Open the **connectors** menu (or choose **+ Add connectors**).\n2. Search for **`vibe`**.\n3. Under **Apps**, select **Vibe Prospecting** (“Build B2B lead lists and enrich companies and contacts”).\n4. Confirm the connector details (MCP by Explorium), then click **Try it out** / connect and complete the browser sign-in.\n\nOnce connected, use Vibe Prospecting from a Manus chat with prompts like those in [Examples](#examples).\n\n### Hermes\n\nHermes uses the same remote endpoint, but its CLI needs the server written to config plus an explicit OAuth login. Run these in your terminal:\n\n1. **Register the server** — write **both** keys directly under `mcp_servers:`, which is the namespace `hermes mcp login` (and the runtime) read from:\n\n   ```bash\n   hermes config set mcp_servers.vibe_prospecting.url \"https://vibeprospecting.explorium.ai/mcp\"\n   hermes config set mcp_servers.vibe_prospecting.auth oauth\n   ```\n\n   Don't use `hermes mcp add`: in a non-interactive shell it can fail mid-way and save a **disabled, half-written entry** under `mcp_servers:` — `auth` set but `url` dropped — which then fails at login. Setting both keys yourself avoids it, and if you already hit it, the same two commands repair it. (A `url` showing up elsewhere in config doesn't count — `hermes mcp login` only reads `mcp_servers:`.)\n\n2. **Sign in** — opens your browser to authenticate:\n\n   ```bash\n   hermes mcp login vibe_prospecting\n   ```\n\n   On a **remote, SSH, or Docker** host, the browser can't reach the local callback after you approve — that's expected. Copy the **full URL** from the address bar and paste it back at the Hermes prompt.\n\n3. **Verify & use** — `hermes mcp list` should show `vibe_prospecting` as authenticated. Start a new chat so the `mcp_vibe_prospecting_*` tools load, then try a prompt from [Examples](#examples). To get a CSV, ask Hermes to **\"export and download\"** (exports return a link, not the file itself).\n\n> **Connection drops on the first call?** The default MCP discovery timeout is too short for the OAuth handshake — raise it: `hermes config set mcp_discovery_timeout 10`.\n\n---\n\n## Examples\n\nOnce connected, just ask in plain language:\n\n```\nWho should I contact for a partnership with monday.com? Get anyone who can\npromote a partnership with them, with all the contact details you can find.\n```\n\n```\nWhat are the business challenges of Amazon?\n```\n\n```\nGet the engineering leadership team at Palo Alto Networks.\n```\n\n```\nFind B2B SaaS companies in New York with 50–200 employees, then enrich\nthe decision-makers and export the list to CSV.\n```\n\n---\n\n## Authentication & credits\n\n- **Sign-in:** OAuth through your browser on first use — no API keys to copy or store.\n- **Free to explore:** searching and previewing samples is lightweight. Exporting the full dataset uses credits.\n- **Pricing & credits:** <https://www.vibeprospecting.ai/pricing>\n\n---\n\n## Troubleshooting\n\n- **`Failed to connect` / error `-32000` in Claude Code** — this happens with the old local `uvx vibeprospecting-mcp` (stdio) command. That path is **deprecated**; use the `--transport http` command above instead.\n- **Connector won't connect in Cowork/Desktop** — the server is reached from Anthropic's cloud, so the URL must be publicly reachable. Double-check the URL is exactly `https://vibeprospecting.explorium.ai/mcp`.\n- **Re-authenticate** — in Claude Code run `claude mcp remove vibe-prospecting` then re-add it; in Codex run `codex mcp login vibe-prospecting` again; in Hermes run `hermes mcp login vibe_prospecting` again.\n\n---\n\n## Support & documentation\n\n- [API Documentation](https://docs.vibeprospecting.ai)\n- [Support & Help Center](https://www.vibeprospecting.ai/contact-us)\n- [Vibe Prospecting Homepage](https://www.vibeprospecting.ai)\n\nFor technical support, contact support@vibeprospecting.ai.\n\n## License\n\nThis project is licensed under the Explorium Term of Service. See [Term of Service](https://www.vibeprospecting.ai/terms-of-service) for details.\n",
+  "status": "curated"
+}

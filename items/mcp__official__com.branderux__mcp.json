@@ -2,7 +2,7 @@
   "id": "mcp:official/com.branderux/mcp",
   "type": "mcp",
   "name": "mcp",
-  "description": "Build agentic applications from any MCP client: projects, brand, elements, screens, keys, agent.",
+  "description": "One message in, a full agentic application out: website and MCP app, live. Built from any AI client.",
   "author": "com.branderux",
   "source": {
     "registry": "mcp-official",
@@ -16,8 +16,8 @@
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-09-07T20:47:56.487543Z",
-    "score": 52
+    "pushed_at": "2026-09-08T09:43:44.523684Z",
+    "score": 45
   },
   "security": {
     "score": 100,
@@ -49,6 +49,6 @@
     "category": "AI",
     "featured": false
   },
-  "readme": "# BranderUX MCP\n\n[BranderUX](https://branderux.com) builds agentic applications, in minutes: describe a\nbusiness and a real agent builds its full application, published as a website and an MCP\napp, with every screen generated live, per customer, per question. This server is how any\nMCP client (Claude, ChatGPT, Cursor, VS Code) builds and controls those applications.\n\nThis is the official BranderUX MCP server. It gives an AI agent real control over\nBranderUX projects, brand, custom elements, screens, API keys, plus the verified\nreference docs it needs to integrate the SDK correctly.\n\n**Connect:** `https://mcp.branderux.com/mcp` · **Docs:** https://branderux.com/mcp\n\n```bash\nclaude mcp add --transport http branderux https://mcp.branderux.com/mcp\n```\n\nNo API keys: the first tool call opens your browser for a one-click BranderUX sign-in\n(OAuth 2.1 + PKCE, scoped and revocable). Access is currently limited to beta\naccounts, everyone else lands on the waiting list, and you'll get an email the moment\nyour access opens. While you wait: try a live BranderUX-built app at\n[nova.branderux.app](https://nova.branderux.app).\n\n## Tools\n\n**Knowledge** (no scopes needed, signing in is still required to reach the server):\n`get_started` · `read_doc` · `search_docs` · `get_integration_snippet`\n\n**Projects** (`projects:*`): `whoami` · `list_projects` · `get_project` ·\n`create_project` · `update_brand_settings` · `update_project_settings` · `delete_project`\n\n**Screens** (`projects:write`): `list_screens` · `get_screen` · `put_screen` ·\n`delete_screen`, reads fetch the project aggregate; writes are atomic per-screen\n(row-locked server merge: parallel saves of different screens are safe).\n\n**Custom elements** (`elements:*`): `list_elements` · `get_element` · `list_element_versions` ·\n`create_element` · `publish_element_version` · `preview_element` · `delete_element`, your agent writes the\nTSX; the server pre-flight validates it (compile + sandbox import allowlist + export\ncontract) before publishing. In clients that support MCP Apps, `create_element`,\n`publish_element_version` and `preview_element` render the element LIVE in the panel, \ndemo props applied, clicks showing the exact query they would send.\n\n**API keys** (`keys:manage`): `create_api_key` · `list_api_keys` · `set_key_origins` ·\n`revoke_api_key`\n\n**Hosted agent**: `upsert_agent_config` · `get_agent_config`, give the project\nits own agent: persona, policies (language and clock, login, access, handoff, write consent),\nanswer quality and budgets.\n\n**Business data**: `define_entity` · `list_entities` · `seed_records` ·\n`update_record` · `list_entity_records`, managed records or live store/API feeds; every entity\nbecomes a query tool for the agent (add-only writes by default).\n\n**Connectors**: `set_connector_credential` · `probe_api`, vaulted credentials and a\nprobe so tools are wired against the real API shape.\n\n**Skills**: `upsert_skill` · `list_skills` · `delete_skill`, SKILL.md behavior packs\nthat ride every conversation.\n\n**Home screen**: `set_home_screen`, a designed first paint with live data bindings,\nzero model cost per visit.\n\n**Publish**: `publish_site` · `get_site`, one call and the full application is live:\na website for people, an MCP app for AI agents.\n\n**Playground** (no project needed): `generate_screen`, renders a real branded,\ninteractive screen in the panel with demo data, powered by the same published\n`@brander/mcp-tools` package customers install. Ask for a storefront, analytics\nor order-flow screen to see actual BranderUX output before building anything.\n\nEvery destructive tool requires an explicit `confirm: true`.\n\n## Local development\n\n```bash\nnpm install\nBRANDER_API_BASE=http://localhost:8080/api/v1 npm run dev   # http://localhost:3010/mcp\n```\n\n| Env | Default | Purpose |\n|---|---|---|\n| `BRANDER_API_BASE` | `http://localhost:8080/api/v1` | BranderUX API base |\n| `MCP_RESOURCE_URL` | `http://localhost:3010` | Public URL of this server (OAuth resource id) |\n| `OAUTH_ISSUER_URL` | = `BRANDER_API_BASE` | Authorization server issuer |\n\nThe server is stateless: one MCP server instance per request, bound to the caller's\nbearer. Deploy target is Vercel (`api/mcp.ts` + `api/oauth-protected-resource.ts`).\n\n## License\n\nMIT\n",
+  "readme": null,
   "status": "curated"
 }

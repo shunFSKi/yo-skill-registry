@@ -1,0 +1,69 @@
+{
+  "id": "mcp:official/io.scalably/gsc-mcp",
+  "type": "mcp",
+  "name": "Google Search Console MCP",
+  "description": "Read-only Google Search Console MCP: Search Analytics, sitemaps, URL inspection. 5 tools.",
+  "author": "io.scalably",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/scalably-io/gsc-mcp",
+    "repo": "scalably-io/gsc-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "scalably-gsc-mcp"
+    ],
+    "env": [
+      {
+        "name": "GOOGLE_APPLICATION_CREDENTIALS",
+        "required": true,
+        "secret": false
+      },
+      {
+        "name": "GSC_LOG_LEVEL",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-08T15:52:15.713308Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "数据",
+    "featured": false
+  },
+  "readme": "# Google Search Console MCP\n\nRead-only MCP server for Google Search Console. Five tools cover the read surface: properties, Search Analytics (filters, auto-pagination past the 25,000-row cap, hourly data), sitemaps, URL inspection, batch inspection with throttling. We run this server in production for every SEO client.\n\n<!-- mcp-name: io.scalably/gsc-mcp -->\n\n## Install\n\nClaude Code:\n\n```bash\nclaude mcp add gsc -e GOOGLE_APPLICATION_CREDENTIALS=/path/to/service-account.json -- uvx scalably-gsc-mcp\n```\n\nCodex:\n\n```bash\ncodex mcp add gsc --env GOOGLE_APPLICATION_CREDENTIALS=/path/to/service-account.json -- uvx scalably-gsc-mcp\n```\n\nClaude Desktop: download `gsc-mcp.mcpb` from the latest GitHub release and open it.\n\n## Setup\n\n1. In Google Cloud, create or pick a project and enable the Google Search Console API on it (APIs and Services, Library).\n2. Create a service account in that project and download its JSON key.\n3. Add the service account's email as a user on each Search Console property you want to query (Settings, Users and permissions). Full or restricted permission both work for reading.\n\nNo OAuth consent screen is needed; the server authenticates as the service account with the `webmasters.readonly` scope.\n\n## Tools (5)\n\n| Tool | What it does |\n|---|---|\n| `gsc_list_sites` | List the Search Console properties the service account can read |\n| `gsc_query_search_analytics` | Query Search Analytics with filters, auto-pagination and hourly data |\n| `gsc_list_sitemaps` | List sitemaps for a property or read one sitemap |\n| `gsc_inspect_url` | Inspect one URL's index status |\n| `gsc_batch_inspect_urls` | Inspect many URLs with client-side throttling |\n\n## Configuration\n\n| Variable | Required | Purpose |\n|---|---|---|\n| `GOOGLE_APPLICATION_CREDENTIALS` | yes | Path to a Google service-account JSON file with the Search Console read-only scope; share each property with the service account email |\n| `GSC_LOG_LEVEL` | no | INFO (default) or DEBUG |\n| `GSC_RETRY_BASE_SECONDS` | no | Base delay in seconds for the retry backoff on transient API errors (default 1) |\n| `GSC_WEBMASTERS_BASE`, `GSC_SEARCHCONSOLE_BASE` | no | Override the two Google API base URLs (used by the test suite to point at a local fake; leave unset in normal use) |\n| `GSC_TEST_ACCESS_TOKEN` | no | Test-suite only: a literal bearer token that bypasses the service account. Never set it in normal use |\n\n## Reply shape\n\nEvery tool returns JSON with `status` (`succeeded`, `partial`, `no_op`), `summary`, `result`, `proof`, `warnings`, `recovery`. A `partial` status with `proof.nextStartRow` means: continue from that row.\n\n## Limits\n\n25,000 rows per Search Analytics call (the server auto-paginates past it up to `max_rows`). URL inspection: Google allows 600 per minute and 2,000 per day per property. The server paces batch inspection client-side (default 8 requests per second) and warns when a batch exceeds the daily quota; it does not track daily usage across calls, so keep your own count.\n\n## Verify\n\nEach release lists the package version, the `.mcpb` sha256 and the production commit it was derived from in CHANGELOG.md. CI runs the tests and a clean install of the built wheel on every push.\n\n## Privacy Policy\n\nThis server runs locally, on your machine, under your own credentials. It collects no personal data, contains no telemetry, stores nothing persistently, and talks only to the vendor API it wraps. No third party, including Scalably, receives your data. Contact: hello@scalably.io. Canonical copy: https://scalably.io/connector-privacy.html\n\n## License\n\nMIT. Copyright Scalably.\n",
+  "status": "curated"
+}

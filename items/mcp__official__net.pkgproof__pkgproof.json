@@ -1,0 +1,70 @@
+{
+  "id": "mcp:official/net.pkgproof/pkgproof",
+  "type": "mcp",
+  "name": "pkgproof",
+  "description": "Verify an npm package before you install it: advisories, install scripts, typosquats, provenance.",
+  "author": "net.pkgproof",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/jahija-okan/pkgproof-mcp",
+    "repo": "jahija-okan/pkgproof-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@pkgproof/mcp"
+    ],
+    "env": [
+      {
+        "name": "PKGPROOF_ALGORAND_PRIVATE_KEY",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "PKGPROOF_BASE_PRIVATE_KEY",
+        "required": false,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-08T13:18:37.777278Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# pkgproof-mcp\n\nAn MCP server that verifies an npm package before you install it.\n\nOne tool, `verify_package`. It runs eight checks against\n[pkgproof.net](https://pkgproof.net) covering advisories, install scripts,\ntyposquat and combosquat names, scope, repository provenance and maintainer\nreputation, and answers `safe`, `caution`, `block` or `does_not_exist` with every\nreason labelled as fact or heuristic against its source.\n\n**The first verification each day is free and needs no configuration at all.** No\naccount, no key, no signup. Later calls the same day cost $0.05 in USDC, paid per\ncall over [x402](https://x402.org), and only if you configure a wallet.\n\n## Install\n\nNothing to install or host: your MCP client runs the server itself. Needs Node 22\nor newer.\n\nEvery release from 0.1.1 on is built and signed by CI and carries an npm\n[provenance attestation](https://docs.npmjs.com/generating-provenance-statements)\ntying the tarball to the commit and workflow run that produced it. A tool that\nreports on other packages' provenance should be checkable the same way:\n\n```sh\nnpm audit signatures\n```\n\nThe server is also listed in the [MCP Registry](https://registry.modelcontextprotocol.io)\nas `net.pkgproof/pkgproof`.\n\n## Free, no key\n\nAdd this to your MCP client configuration and you are done:\n\n```json\n{\n\t\"mcpServers\": {\n\t\t\"pkgproof\": {\n\t\t\t\"command\": \"npx\",\n\t\t\t\"args\": [\"-y\", \"@pkgproof/mcp\"]\n\t\t}\n\t}\n}\n```\n\n## The tool\n\n`verify_package`, and nothing else. One call is one verification, so the daily\nallowance means the same thing here as it does over HTTP.\n\n| Argument    | Required | Meaning                                                            |\n| ----------- | -------- | ------------------------------------------------------------------ |\n| `name`      | yes      | Package name, scoped or not: `left-pad`, `@scope/thing`.           |\n| `version`   | no       | Exact version. Omit to verify the package rather than one release. |\n| `ecosystem` | no       | Defaults to `npm`, the only ecosystem this service covers.         |\n\nIt answers twice over: a summary the agent reads, and the service's own JSON\nalongside it in `structuredContent`, under a declared output schema, carrying the\nverdict, every reason with its source, and the time the verdict was computed.\n\nCalls run one at a time. The service allows one verification in flight per payer\nand refuses the second, so an agent walking a dependency list is queued here\nrather than failed.\n\n## Two networks\n\npkgproof settles on two chains, each on its own endpoint. They are not\ninterchangeable: they take different key formats, and only one of them has a free\ntier.\n\n|                         | Algorand Mainnet                                        | Base                                |\n| ----------------------- | ------------------------------------------------------- | ----------------------------------- |\n| Endpoint                | `x402-algo.pkgproof.net`                                | `x402.pkgproof.net`                 |\n| Network                 | `algorand:wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8=` | `eip155:8453`                       |\n| Asset                   | USDC, ASA `31566704`                                    | USDC, `0x8335…2913`                 |\n| Price                   | $0.05 per verification                                  | $0.05 per verification              |\n| Free tier               | no, every call is paid                                  | yes, one verdict per caller per day |\n| Key variable            | `PKGPROOF_ALGORAND_PRIVATE_KEY`                         | `PKGPROOF_BASE_PRIVATE_KEY`         |\n| Key format              | base64 account key                                      | `0x`-prefixed EVM key               |\n| Network fee per payment | none, sponsored                                         | none, sponsored                     |\n| One-time setup          | ~0.3 ALGO, and an opt-in to the asset                   | none, just send USDC                |\n\n**How the server picks.** The free attempt always goes to Base, because it is the\nonly rail that answers an unpaid call. Payments prefer **Algorand**, and fall back\nto Base only when no Algorand key is configured. So a wallet on either chain\nworks, and configuring neither still gets you a verdict a day.\n\n## Paid, with a wallet\n\n> [!WARNING]\n> **Fund a throwaway wallet, never a main one.** The key is stored in plain text\n> in your MCP client's configuration file, which is not an encrypted store, and\n> anything able to read that file can spend the wallet. Put in what you are\n> willing to spend on package verification and nothing more. There is\n> deliberately no spend cap in this server, so the wallet's own balance is the\n> only limit.\n\n### Algorand (preferred)\n\n**Verifications cost the account no ALGO.** The 402 names a fee payer, so the\nfacilitator covers the network fee on every payment and your ALGO balance does\nnot move.\n\n**Setting the account up does cost ALGO, once.** An Algorand account cannot\nreceive an asset until it opts into it, so USDC sent to an account that has not\nopted in will not arrive. Three steps, in this order:\n\n1. Fund the throwaway account with about **0.3 ALGO**. Algorand locks 0.1 as the\n   account's minimum balance, another 0.1 for as long as it holds USDC, and the\n   opt-in transaction itself costs a fee.\n2. **Opt into ASA `31566704`** (USDC on Mainnet). This is a zero-amount transfer\n   from the account to itself; any Algorand wallet will do it.\n3. Send USDC to the account.\n\nThe key is the base64 account key, **not** a 25-word mnemonic.\n\n```json\n{\n\t\"mcpServers\": {\n\t\t\"pkgproof\": {\n\t\t\t\"command\": \"npx\",\n\t\t\t\"args\": [\"-y\", \"@pkgproof/mcp\"],\n\t\t\t\"env\": {\n\t\t\t\t\"PKGPROOF_ALGORAND_PRIVATE_KEY\": \"...\"\n\t\t\t}\n\t\t}\n\t}\n}\n```\n\n### Base\n\nSend USDC on Base to the throwaway wallet's address. You do **not** need ETH:\npayment is an off-chain signature and the facilitator pays the gas.\n\n```json\n{\n\t\"mcpServers\": {\n\t\t\"pkgproof\": {\n\t\t\t\"command\": \"npx\",\n\t\t\t\"args\": [\"-y\", \"@pkgproof/mcp\"],\n\t\t\t\"env\": {\n\t\t\t\t\"PKGPROOF_BASE_PRIVATE_KEY\": \"0x...\"\n\t\t\t}\n\t\t}\n\t}\n}\n```\n\nThe server always tries the free call first, so a configured wallet is only\ncharged once the day's free verification is used up.\n\n## Configuration\n\n| Variable                        | Required | Meaning                                                                                     |\n| ------------------------------- | -------- | ------------------------------------------------------------------------------------------- |\n| `PKGPROOF_ALGORAND_PRIVATE_KEY` | no       | Throwaway Algorand account holding USDC on Mainnet, base64. Preferred for payment when set. |\n| `PKGPROOF_BASE_PRIVATE_KEY`     | no       | Throwaway EVM wallet holding USDC on Base, `0x`-prefixed. Used when no Algorand key is set. |\n\nWith neither set, the server is free-tier only and says so once the day's\nverification is spent.\n\n## Development\n\n```sh\nnpm install\nnpm test           # unit tests, and a real client handshake over an in-memory transport\nnpm run lint       # typecheck, formatting, eslint\nnpm run inspector  # build, then the MCP inspector against the local server\n```\n\nNo test spends anything, and the suite enforces it rather than trusting it: a\ntest that reaches for the network fails, and the run refuses to start at all if a\nwallet key is set in the environment. The payment path is exercised against a\nfabricated 402 and a published test account, so an EIP-3009 authorisation is\nsigned locally and the payload and header are checked without a wallet.\n\n## Links\n\n- Service and docs: <https://pkgproof.net/docs>\n- MCP Registry entry:\n  <https://registry.modelcontextprotocol.io/v0/servers?search=pkgproof>\n- OpenAPI, Base rail: <https://x402.pkgproof.net/openapi.json>\n- OpenAPI, Algorand rail: <https://x402-algo.pkgproof.net/openapi.json>\n\n## License\n\n[Apache-2.0](LICENSE). If you distribute a modified version, section 4(b)\nrequires you to mark the files you changed: a fork of a security tool that still\ncarries this name should not be mistakable for this one.\n",
+  "status": "curated"
+}

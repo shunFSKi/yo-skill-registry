@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.mirzaabubakr/uae-einvoice-mcp",
+  "type": "mcp",
+  "name": "uae-einvoice-mcp",
+  "description": "UAE e-invoicing MCP: TRN/TIN checks, 51-field PINT AE checklist, UBL XML stubs, mandate timeline.",
+  "author": "io.github.mirzaabubakr",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/mirzaabubakr/uae-einvoice-mcp",
+    "repo": "mirzaabubakr/uae-einvoice-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "uae-einvoice-mcp"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-08T15:51:31.58899Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# uae-einvoice-mcp\n\nMCP server for **UAE e-invoicing / PINT AE** — TRN/TIN validation, structural compliance, the **51-field mandatory checklist**, UBL XML stub generation, and mandate timeline helpers.\n\nBuilt with the MCP TypeScript SDK v2 (`@modelcontextprotocol/server`) over **stdio**. Free to run locally; no API keys required for v0.2.\n\n> Informational tooling only — not legal or tax advice, and not a substitute for Accredited Service Provider (ASP) XSD/Schematron validation or live FTA register checks.\n\n## Why this exists\n\nUAE e-invoicing (Peppol + PINT AE) forces ERP and finance teams to get dozens of mandatory fields, TIN vs TRN, and Peppol endpoint IDs right before an ASP will transmit anything. This server gives AI assistants a small, installable toolkit for those checks.\n\n## Tools\n\n| Tool | What it does |\n| --- | --- |\n| `lookup_business_trn` | Validates 15-digit TRN or 10-digit TIN format, UAE `1…` prefix, Peppol AE:TIN check digit, and returns `0235:<TIN>` |\n| `check_invoice_compliance` | Structural checks (parties, totals math, tax breakdown, lines) with errors/warnings/score |\n| `check_pint_ae_fields` | Full **51-field** mandatory matrix: present / missing / invalid / N/A + gaps |\n| `generate_pint_ae_xml` | Builds a UBL 2.1 PINT AE-shaped Invoice/CreditNote XML stub (optional `strict` mode) |\n| `get_einvoicing_requirements` | Mandate phases (large / SME / government), technical baseline, and next actions |\n\n## Requirements\n\n- Node.js **20+**\n\n## Install / run\n\n```bash\nnpm install\nnpm run build\nnpm start\n```\n\nDev (TypeScript directly):\n\n```bash\nnpm run dev\n```\n\nSelf-check (no MCP client needed):\n\n```bash\nnpm run selfcheck\n```\n\n### MCP Inspector\n\n```bash\nnpm run inspector\n```\n\nPaste fixtures from `examples/compliant-invoice.json` or `examples/broken-invoice.json` into the tools.\n\n### Cursor / Claude Desktop (stdio)\n\nPublished package (recommended):\n\n```json\n{\n  \"mcpServers\": {\n    \"uae-einvoice\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"uae-einvoice-mcp\"]\n    }\n  }\n}\n```\n\nLocal checkout:\n\n```json\n{\n  \"mcpServers\": {\n    \"uae-einvoice\": {\n      \"command\": \"node\",\n      \"args\": [\"/absolute/path/to/uae-einvoice-mcp/dist/index.js\"]\n    }\n  }\n}\n```\n\nSee also `.cursor/mcp.json.example`.\n\n## Suggested test flow\n\n1. `check_pint_ae_fields` with `examples/compliant-invoice.json`\n2. `generate_pint_ae_xml` with the same payload (`strict: true` should succeed)\n3. `generate_pint_ae_xml` with `examples/broken-invoice.json` and `strict: true` (should refuse)\n\n## Roadmap\n\n- [x] 51-field checklist + PINT AE XML stub generation\n- [ ] Deeper code-list coverage (UOM, exemption reason codes)\n- [ ] Optional HTTP + API-key transport for hosted / paid tier\n- [x] Publish to npm (`uae-einvoice-mcp@0.2.1`)\n- [ ] List in MCP registry (`mcp-publisher publish`)\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

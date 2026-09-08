@@ -1,0 +1,64 @@
+{
+  "id": "mcp:official/io.github.Cafelatte1/fronyboard",
+  "type": "mcp",
+  "name": "FronyBoard",
+  "description": "Project tracker for AI agents: roadmap, periods, tasks and a validation gate, in one SQLite file",
+  "author": "io.github.Cafelatte1",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/Cafelatte1/FronyBoard",
+    "repo": "Cafelatte1/FronyBoard"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "fronyboard"
+    ],
+    "env": [
+      {
+        "name": "AIRA_DATA_DIR",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-08T12:02:05.818443Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# FronyBoard\n\nAn MCP server that gives AI agents (Claude Code and friends) a first-class project\ntracker.\n\nWhere Jira is an issue tracker for humans behind a web UI, FronyBoard replaces each\npart with something an agent can use natively:\n\n| Jira | FronyBoard |\n|---|---|\n| Database | One SQLite file in a dedicated data directory |\n| Records | JSON documents (roadmap, period) + Markdown |\n| API | MCP tools |\n| Workflow engine | Schema + rule validation, run as a gate before every write |\n| State transition | An MCP tool call (`transition_task`) |\n\nThe schema and operating rules were extracted from a real product's management system\n(31 tasks shipped through it), then generalized.\n\n## Install\n\nRequires [uv](https://docs.astral.sh/uv/). One line registers FronyBoard in Claude Code;\n`uvx` fetches the package from PyPI on first use and caches it:\n\n```powershell\nclaude mcp add FronyBoard -- uvx fronyboard\n```\n\nAny MCP client that can launch a stdio command works the same way — the command is\n`uvx fronyboard`. It is also listed in the\n[MCP Registry](https://registry.modelcontextprotocol.io) as `io.github.Cafelatte1/fronyboard`.\nFrom a clone, point at the checkout instead (this needs `git`):\n\n```powershell\ngit clone https://github.com/Cafelatte1/fronyboard\nclaude mcp add FronyBoard -- uv run --directory <path-to-clone>\\backend fronyboard\n```\n\nThis is the local (stdio) mode: the client starts the server as a child process and\ntalks to it over a pipe. No HTTP, no network, no credentials — `web.py` and\n`fauth.py` are never called. Data is written to `%LOCALAPPDATA%\\Frony\\FronyBoard\\data`\n(`~/.Frony/FronyBoard/data` where `LOCALAPPDATA` is unset); set `AIRA_DATA_DIR` to\nrelocate it. Logs (JSON Lines, one line per MCP tool call plus server events) go to\nthe sibling `logs` folder — `FRONYBOARD_LOG_DIR` overrides; see\n[docs/logging.md](docs/logging.md).\n\nTo share one FronyBoard between several machines, or to use it from the Claude and\nChatGPT apps, run it as an HTTP server instead — see\n[docs/self-hosting.md](docs/self-hosting.md).\n\n## Project setup\n\nConnecting the MCP server gives every session the tools and the general workflow\n(delivered as server instructions). What it cannot know is **which FronyBoard project\na codebase belongs to** — declare that in the codebase itself by adding this section\nto its `CLAUDE.md` (create the file if the project has none):\n\n```markdown\n## FronyBoard\n\nThis project is tracked by FronyBoard (project key: DLY).\nManage tasks through the FronyBoard MCP tools, following the FronyBoard server instructions.\n```\n\nReplace `DLY` with the project's key (register one first with `create_project`).\nThe section is also the opt-in signal: a codebase without it is treated as not\nFronyBoard-managed.\n\n## Model\n\n```\nfronyboard.db\n├── projects   one row per project (key e.g. DLY): the roadmap record —\n│              yearly overview (goal / now / target / checklist) + quarterly milestones\n└── periods    one row per opened period (e.g. 2026Q3): monthly milestones (M1, M2, ...)\n               + tasks ({KEY}-001, ...) + `result` (retrospective, written when the period closes)\n```\n\nA project is two kinds of records — the roadmap, and one record per period. Both are\nJSON documents; the shapes are in [docs/data-model.md](docs/data-model.md).\n\n- **Task ids are a project-global sequence** (`DLY-042`) — they keep counting across\n  periods and are never reused. They are the only link between FronyBoard and a codebase:\n  use them in branch names (`feat/DLY-042/short-desc`) and record the branch on the task.\n- **Reference chain**: `task.month → months[].id`, `period file → roadmap milestone`.\n  Rollups follow this chain — months are the grouping unit.\n- **Statuses** — milestones and months: `planned | active | done`;\n  tasks: `todo | in_progress | done | blocked | cancelled`.\n- **`cancelled` is the soft delete** — there is no hard delete. Cancelling requires a\n  reason, keeps the record (and its id) forever, and hides the task from queries by\n  default (`list_tasks` takes `include_cancelled`). `blocked` = may resume,\n  `cancelled` = will not happen; transitioning a cancelled task restores it.\n- **Carry-over**: a task that outlives its period is not moved — recreate it in the next\n  period under a new id and note the mapping in the closing retrospective.\n- **`after`** on a task lists the tasks it continues from (other projects allowed). It is a\n  pointer, not a lock: `get_task` shows the reverse as `followed_by`, `list_tasks` flags\n  `waiting_on` while predecessors are open, and nothing is ever blocked.\n- **Timestamps** (`meta.created_at` / `updated_at` / `started_at` / `completed_at`) are\n  stamped by the server in naive UTC — `started_at` on the first `in_progress` transition,\n  `completed_at` on `done` (and removed again if the task leaves `done`). Agents never\n  write them.\n- **The `result` field closes a period** — the rest of the file holds only current\n  state, so the \"why it turned out this way\" lives there: judgment and reasons,\n  not counts. Its presence is what marks a period closed.\n\n## Tools\n\n| Area | Tools |\n|---|---|\n| Projects | `create_project`, `update_project`, `list_projects`, `get_roadmap`, `get_status`, `validate` |\n| Roadmap | `set_overview`, `set_check`, `upsert_milestone` |\n| Periods | `open_period`, `close_period`, `get_retrospective` |\n| Planning | `upsert_month`, `create_task`, `update_task`, `transition_task` |\n| Queries | `list_tasks`, `get_task`, `search_tasks`, `recent_activity` |\n\n`update_task` and `transition_task` derive the project from the task id prefix\n(`DLY-042` → `DLY`), so their `key` parameter is optional. Re-calling\n`close_period` on a closed period rewrites its retrospective.\n\nThe two `upsert_*` tools sit at different levels: `upsert_milestone` is a quarter\nin the roadmap, `upsert_month` is one of the three months inside a period that is\nalready open. A task's `month` is a month id (`M1`/`M2`/`M3`), never `YYYY-MM`.\n\nTypical flow:\n\n```\ncreate_project → set_overview → upsert_milestone → open_period\n→ upsert_month / create_task\n→ transition_task in_progress (with branch) → ... → transition_task done\n→ close_period (retrospective)\n```\n\nEvery mutation is validated before anything is written; invalid changes are rejected\nwith the full error list. `close_period` refuses while tasks are still `todo` or\n`in_progress`. Writes are serialized per project, so concurrent clients cannot\ncollide on ids or lose updates.\n\n## Self-hosting\n\nThe same package also runs as an always-on HTTP server (`fronyboard serve`): MCP over\nstreamable HTTP for every machine on your network, a read-only web dashboard for\nhumans, API keys per device, and OAuth for the hosted Claude / ChatGPT apps.\nAuthentication is delegated to [FronyAuth](https://github.com/Cafelatte1/project-auth),\na separate service. None of it is needed for the stdio install above.\n[docs/self-hosting.md](docs/self-hosting.md) covers the setup;\n[docs/operations.md](docs/operations.md) is the day-2 runbook.\n\n## Development\n\n```powershell\nuv run --directory backend pytest      # backend\ncd frontend; npm test                  # dashboard\n```\n\nThe repo is a monorepo. `backend/src/fronyboard/` — `store.py` (SQLite, data root),\n`validation.py` (schema gate), `service.py` (operations), `auth.py` (bearer\nmiddleware) + `fauth.py` (FronyAuth client), `log.py`, `web.py` (JSON API + static\nserving), `server.py` (MCP tool surface + CLI). `frontend/` — the dashboard (React +\nVite), built to static files that the backend serves; its build output\n`frontend/dist` is committed so a server needs no Node toolchain.\n\nMore docs under [docs/](docs/INDEX.md):\n\n- [docs/self-hosting.md](docs/self-hosting.md) — running FronyBoard as a shared server: clients, dashboard, hosted apps, deploy\n- [docs/auth.md](docs/auth.md) — access channels (CLI agents, desktop, dashboard, hosted apps) and how each authenticates\n- [docs/http-api.md](docs/http-api.md) — the FronyBoard JSON API\n- [docs/data-model.md](docs/data-model.md) — field-level schema and validation rules\n- [docs/operations.md](docs/operations.md) — home server runbook\n",
+  "status": "curated"
+}
