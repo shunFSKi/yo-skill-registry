@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/eccenca/documentation.eccenca.com/update-documentation-page",
+  "type": "skill",
+  "name": "update-documentation-page",
+  "description": "Rewrite or update an existing documentation page to match the current product and eccenca documentation style, including screenshots and validation. Use for page updates, rewrites, or fixing review findings.",
+  "author": "eccenca",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/eccenca/documentation.eccenca.com/blob/HEAD/.agents/skills/update-documentation-page/SKILL.md",
+    "repo": "eccenca/documentation.eccenca.com",
+    "path": ".agents/skills/update-documentation-page/SKILL.md"
+  },
+  "license": "CC-BY-SA-4.0",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 5,
+    "pushed_at": "2026-09-09T15:28:52Z",
+    "score": 62,
+    "star_history": [
+      {
+        "d": "2026-09-09",
+        "s": 5
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "写作",
+    "featured": false
+  },
+  "readme": "# [documentation.eccenca.com](https://documentation.eccenca.com)\n\n[![example workflow][build-shield]][github-actions] [![CC BY-SA 4.0][cc-by-sa-shield]][cc-by-sa] [![CC BY-SA 4.0][mkdocs-shield]][mkdocs] [![made-with-Markdown][markdown-shield]](http://commonmark.org)\n\nShared repository of the eccenca Corporate Memory documentation.\n\n| Branch | Deployment |\n| :----- | :--------- |\n| `main` | [https://dev.documentation.eccenca.com](https://dev.documentation.eccenca.com) |\n| `published` | [https://documentation.eccenca.com](https://documentation.eccenca.com) |\n\nIf you consider to contribute to this project, please have a look on [CONTRIBUTING.md](https://github.com/eccenca/documentation.eccenca.com/blob/main/CONTRIBUTING.md)\n\n## Building the site\n\nThe site is built with [Zensical](https://zensical.org), the successor to Material for\nMkDocs. Run `task build` to build into `site/` and `task check` for the full check suite.\n\nFor previewing there are two tasks:\n\n| Task | Live reload | Shows |\n| :--- | :---------- | :---- |\n| `task serve` | yes | the pages as you write them |\n| `task public:preview` | no | the site as it will be published |\n\nUse `serve` while writing prose. It rebuilds into `site/` on every change, which overwrites\nwhat the post-build steps produced, so it loads `glightbox` and the ResizeObserver polyfill\nfrom a CDN instead of from the vendored copies - invisible on screen, and nothing\ndownstream trusts a `site/` left behind that way.\n\n`task public:preview` is the one to run before publishing: it deploys into a throwaway copy\nof the `published` branch, serves that on port 8002 (override with `PORT=…`), and deletes\nthe branch again when you stop it. Because it is `public:deploy` pointed at a scratch\nbranch, what it serves is what publishing produces - versioned URLs, the version selector,\nthe outdated-version banner and the root redirect included.\n\nTwo Material for MkDocs features are **not yet implemented by Zensical** and are\ntherefore missing from the output. They are tracked in `tools/check_zensical_output.py`,\nwhich reports them as `PEND` on every build and prints a banner as soon as one starts\nworking:\n\n| Feature | Zensical backlog | Effect today |\n| :------ | :--------------- | :----------- |\n| Social cards | [#37](https://github.com/zensical/backlog/issues/37) | No `og:image`, so link previews are blank |\n| Revision dates | [#18](https://github.com/zensical/backlog/issues/18) | No \"Last update\" on any page |\n\nEverything else Zensical leaves out is reimplemented here and **guarded as a required\ncheck** - the build fails if any of it regresses:\n\n| Feature | Replaced by |\n| :------ | :---------- |\n| Self-hosted fonts | `docs/assets/fonts.css` plus `theme.font: false` |\n| `tablesort`, `glightbox`, `resize-observer-polyfill` | vendored under `docs/assets/`; `tools/localize_bundle_assets.py` rewrites the CDN URLs Zensical bakes into its JS bundle |\n| Redirects | static stubs under `docs/` |\n| Comment opt-out | `overrides/partials/comments.html` |\n\n### Vendored third-party assets\n\nServing these from our own origin is what keeps visitor IP addresses away from third\nparties - but it also makes us their redistributor, so each copy carries its licence:\n\n| Asset | Version | Licence | Upstream |\n| :---- | :------ | :------ | :------- |\n| `assets/glightbox/glightbox.min.{js,css}` | 3.3.1 | MIT, © 2018 Biati Digital | [glightbox](https://github.com/biati-digital/glightbox) |\n| `assets/resize-observer-polyfill/ResizeObserver.global.js` | 1.5.1 | MIT, © 2016 Denis Rul | [resize-observer-polyfill](https://github.com/que-etc/resize-observer-polyfill) |\n| `assets/tablesort.min.js` | 5.2.1 | MIT, © 2021 Tristen Brown | [tablesort](http://tristen.ca/tablesort/demo/) |\n| `assets/fonts/*.woff2` | - | Apache-2.0 | Roboto and Roboto Mono via Google Fonts |\n\nThe files are byte-identical to their upstream builds except for a prepended `/*! … */`\nlicence banner, which is the notice MIT asks to travel with a copy; the full licence text\nsits next to each one where upstream ships it. Three of the URLs Zensical bakes into its\nbundle are deliberately **not** vendored - mermaid, Ace and Pyodide are unreachable for\nthis corpus, and `localize_bundle_assets.py` fails the build if a page ever starts using\none.\n\nTag listings and the links from each page's tag chips to them are **native** as of\nZensical 0.0.58. The local stand-ins for both - a post-build renderer and a `tags.html`\npartial override - are gone; the Markdown sources still carry Material's own\n`<!-- material/tags -->` markers, which Zensical now expands itself.\n\n`check-zensical-output` keeps guarding the result: it asserts that tag chips link\nsomewhere at all and that every anchor they point at exists on `/tags/`. A slug mismatch\nbetween a chip and its listing would otherwise ship as hundreds of dead links rather than\nfail the build.\n\n`task check:navigation` additionally fails if `nav.yml` no longer matches the `docs/**/.pages`\nfiles, which remain the source of truth for navigation (`task update:navigation` regenerates it).\n\n`task check:yamllint` lints every YAML file in the repository, including the extensionless\n`.pages` navigation sources, against the committed `.yamllint`. That config is committed rather\nthan left to a user-level one so a local run and a CI run apply the same rules - without it CI\nwould fall back to yamllint's stricter upstream defaults.\n\nSee `tasks/handoff.md` for the full migration notes.\n\n## License\n\nCopyright © 2025 [eccenca GmbH](https://eccenca.com)\n\nThis work is licensed under a [Creative Commons Attribution-ShareAlike 4.0 International License][cc-by-sa].\n\n[![CC BY-SA 4.0][cc-by-sa-image]][cc-by-sa]\n\n[github-actions]: https://github.com/eccenca/documentation.eccenca.com/actions\n[build-shield]: https://github.com/eccenca/documentation.eccenca.com/actions/workflows/pages.yml/badge.svg\n[cc-by-sa]: http://creativecommons.org/licenses/by-sa/4.0/\n[cc-by-sa-image]: https://licensebuttons.net/l/by-sa/4.0/88x31.png\n[cc-by-sa-shield]: https://img.shields.io/badge/License-CC%20BY--SA%204.0-lightgrey.svg\n[mkdocs-shield]: https://img.shields.io/badge/Made%20with-mkdocs-brightgreen\n[mkdocs]: https://www.mkdocs.org/\n[markdown-shield]: https://img.shields.io/badge/Made%20with-Markdown-1f425f.svg\n",
+  "status": "curated"
+}

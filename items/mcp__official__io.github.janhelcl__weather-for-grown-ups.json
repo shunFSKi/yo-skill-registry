@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.janhelcl/weather-for-grown-ups",
+  "type": "mcp",
+  "name": "Weather for Grown Ups",
+  "description": "Operational NWP, ensembles, AI weather models, regional forecasts, history, and verification.",
+  "author": "io.github.janhelcl",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/janhelcl/weather-for-grown-ups",
+    "repo": "janhelcl/weather-for-grown-ups"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "weather-for-grown-ups"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-09T17:42:06.062275Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "生活",
+    "featured": false
+  },
+  "readme": "# Weather for Grown Ups\n\n**Weather is the hello-world of agent tools. WFG is for when “temperature tomorrow” stops being enough.**\n\nOne query language for operational NWP: global and regional models, deterministic and ensemble forecasts, physics and AI, current runs and history.\n\n> **Ask the same atmospheric question across models without flattening what makes the models different.**\n\n## 30-second start\n\nRequires Node.js 20+.\n\n```bash\nnpx weather-for-grown-ups catalog --dataset all --search wind --json\n\nnpx weather-for-grown-ups query \\\n  --dataset gfs \\\n  --lat 50.08 --lon 14.43 \\\n  --at 2026-08-24T12:00:00Z \\\n  --vars temperature,wind \\\n  --levels 850,700,500 \\\n  --json\n```\n\nFor repeated use:\n\n```bash\nnpm install -g weather-for-grown-ups\nwfg --help\n```\n\n## The contract\n\nNormal atmospheric access is four orthogonal choices:\n\n```text\ndataset × geometry × time × selection\n```\n\n```json\n{\n  \"dataset\": \"gefs\",\n  \"geometry\": {\n    \"type\": \"point\",\n    \"latitude\": 50.08,\n    \"longitude\": 14.43\n  },\n  \"time\": {\n    \"at\": \"2026-08-30T12:00:00Z\"\n  },\n  \"selection\": {\n    \"variables\": [\"temperature\", \"wind\"],\n    \"pressureLevelsHpa\": [850, 700, 500]\n  },\n  \"ensemble\": {\n    \"quantiles\": [0.1, 0.5, 0.9]\n  }\n}\n```\n\nChange the dataset; keep the question. Unsupported combinations fail rather than being coerced into fake symmetry.\n\n[Read the unified atmospheric API →](docs/UNIFIED_API.md)\n\n## Ask harder questions\n\nStart with the question. Let the agent build the forecast investigation from scratch.\n\n### 01 — Give me the serious forecast\n\n> What does the atmosphere over Prague look like tomorrow afternoon? Cover the surface and vertical structure, compare the main global guidance, and show which parts are robust across the ensembles.\n\n`GFS + IFS → pressure profiles → GEFS + IFS ENS → regional model if useful`\n\n### 02 — Is a front coming?\n\n> Is a frontal passage expected near Prague tomorrow? If so, when does it arrive, what changes through the column, and how consistent are the models?\n\n`GFS + IFS → time evolution → pressure profiles → GEFS + IFS ENS → run comparison`\n\n### 03 — AI vs physics\n\n> How do AIFS and IFS describe the atmosphere over Prague tomorrow? Where do they disagree through time and height, and is that disagreement large relative to their ensemble uncertainty?\n\n`IFS ↔ AIFS → pressure profiles → IFS ENS ↔ AIFS ENS → aligned comparison`\n\n### 04 — Plan a paragliding day\n\n> I’m planning to paraglide around Bassano tomorrow. How does the convective window develop through the day, what do the wind profile and stability look like, and how robust is the picture across ensembles and global/regional guidance?\n\n`profiles → parcel diagnostics → wind through the column → time evolution → ensembles → global + regional models`\n\n### 05 — Verify an old forecast\n\n> What did GFS predict three days ago for Prague today, and how well did that forecast verify?\n\n`archived forecast → analysis / radiosonde → error → lead provenance`\n\n[Explore the investigation gallery →](docs/EXAMPLES.md)\n\n## Models\n\n**GFS · GEFS · AIGFS · AIGEFS · HGEFS · IFS · IFS ENS · AIFS · AIFS ENS · ICON-D2 · ICON-D2-EPS · AROME · PE-AROME · GFS analysis · GEFSv12 reforecast**\n\nCapabilities come from the catalog. Native grids, cadence, domains, members, fields and provenance remain explicit.\n\n```bash\nwfg catalog --dataset all --json\n```\n\n## Agents\n\nWFG exposes the same core through CLI and MCP.\n\n**Shell available → CLI.**  \n**No shell / remote → MCP.**\n\n```bash\nnpx weather-for-grown-ups mcp\n```\n\nAdd the portable [WFG skill](skills/weather-for-grown-ups/SKILL.md), then pick a setup guide: [Codex](docs/agents/codex.md) · [Claude Code](docs/agents/claude-code.md) · [Hermes](docs/agents/hermes.md) · [OpenClaw](docs/agents/openclaw.md) · [other agents](docs/agents/README.md)\n\n## Go deeper\n\n[Examples](docs/EXAMPLES.md) · [Installation](docs/INSTALL.md) · [API contract](docs/UNIFIED_API.md) · [Catalog](docs/CATALOG_SEARCH.md) · [History](docs/HISTORY.md) · [Architecture](docs/ARCHITECTURE.md) · [All docs](docs/README.md)\n\n## License\n\nMIT. See [LICENSE](LICENSE).\n",
+  "status": "curated"
+}

@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/kaimys/obsidian-dispatch/create-ticket",
+  "type": "skill",
+  "name": "create-ticket",
+  "description": "Create a new ticket from a short description — duplicate check, spec from the template with full frontmatter, and the matching tracker task.",
+  "author": "kaimys",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/kaimys/obsidian-dispatch/blob/HEAD/.codex/skills/create-ticket/SKILL.md",
+    "repo": "kaimys/obsidian-dispatch",
+    "path": ".codex/skills/create-ticket/SKILL.md"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 6,
+    "pushed_at": "2026-09-08T19:28:32Z",
+    "score": 63,
+    "star_history": [
+      {
+        "d": "2026-09-09",
+        "s": 6
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "办公",
+    "featured": false
+  },
+  "readme": "![Dispatch](docs/assets/Dispatch-Logo-OCR.png)\n\n*\"Obsidian is the IDE; the LLM is the programmer; the wiki is the codebase.\"*\\\n— Andrej Karpathy, [LLM-Wiki](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)\n\n**Dispatch is a board for Obsidian that gives a small agent-native team a working\nprocess: skills that run through the wiki and the team chat, and a chip on every card\nthat sends an agent at the work.**\n\n![Dispatch Boards](docs/assets/animation.gif)\n\nYour coding agents ship faster than you can decide. **You are now the bottleneck** — what remains of the development cycle is deciding *what* to build, agreeing on it as a team, and reviewing what comes back. Dispatch turns an agent-friendly wiki (à la [Karpathy's LLM wiki pattern](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)) into the cockpit for that human side: tickets are plain notes, boards are live views over their frontmatter, and every card can dispatch a coding agent — Claude Code, Codex, any CLI — into the right repository.\n\n- **Refinement is the new development.** The agent posts a ticket's open questions into your team chat (Slack via MCP), the team answers where it already talks, and the answers flow back into the spec. Every card shows its refinement state as a `? N` badge that burns down to green — green means build-ready.\n- **Release planning is drag & drop.** The Release Plan view groups tickets by target version: live weighted progress per release, velocity-based forecasts that accumulate across versions, linked release notes for everything shipped. Drag a card — the plan is up to date the moment you drop it.\n- **Meetings run themselves around you.** The agenda is prepared from the board; after the call, a NoteTaker transcript (e.g. Google Gemini) becomes an interpreted report in your vault, decisions are folded into the affected tickets automatically, and the action items show up per person on the Meetings and Todos tabs.\n- **Testing works like refinement.** Manual test plans cover only what the automated suites don't; a `✓ N` badge counts the open checks through review and turns green when a ticket is safe to ship.\n- **Agent skills and MCP are the glue.** Chips on the board are one-liners (`/refine US00042`); the workflow logic behind them lives in your code repository — versioned with the code, reviewed like code, shared through git — while MCP connects the agent to your team's Slack, your tracker and your NoteTaker. Each workflow is **one file**, with a thin stub per agent, so Claude Code and Codex run the same process instead of two copies that drift. Wiki, team and codebase become one loop, and the agents run it with you.\n\nUnder the hood, two primitives: **boards** (kanban views driven by note properties — drag & drop writes frontmatter) and **chips** (buttons that launch coding agents with the ticket as context). Configure more than one agent and the chip asks which to run, showing you the exact command before it does. Desktop only — chips and automations spawn local processes.\n\n## Documentation\n\n| Page | What's in it |\n| --- | --- |\n| [Overview](docs/overview.md) | The four boards — Kanban, Release Plan, Meetings, Todos — and how each one behaves |\n| [Wiki structure](docs/wiki-structure.md) | The three layers, an example folder tree to adapt, and where the wiki lives relative to your code |\n| [Page types](docs/page-types.md) | The frontmatter contract: every page, tickets (incl. the freeze rule), ADRs, releases, meetings |\n| [Workflow skills](docs/skills.md) | The skill catalog to adapt — ticket loop, releases, meetings, recurring maintenance |\n| [Installation & configuration](docs/installation.md) | Install, settings, chips and tool commands, run lifecycle, automations, security model |\n\nNew to the idea? Read [Overview](docs/overview.md), then [Wiki structure](docs/wiki-structure.md).\n\n## Quick start\n\n**1. Install.** Open *Settings → Community plugins → Browse*, search for **Dispatch**, install\nand enable it — or go straight to the\n[directory listing](https://community.obsidian.md/plugins/dispatch).\n\n**2. Let an agent set it up.** An unconfigured board says so and offers a\n**Set up with claude** button, which starts [Claude Code](https://claude.com/claude-code) in\nyour vault folder with the right prompt. It shows you the exact command before running\nanything.\n\nThe skill behind that button lives in this repo's plugin marketplace:\n\nClaude Code:\n\n```\n/plugin marketplace add kaimys/obsidian-dispatch\n/plugin install dispatch-setup\n```\n\nCodex:\n\n```\ncodex plugin marketplace add kaimys/obsidian-dispatch\ncodex plugin add dispatch-setup@dispatch\n```\n\nOr, if you would rather have the skill on its own without the plugin, ask Codex to fetch it —\nits bundled `skill-installer` takes a repository path:\n\n```\n$skill-installer install kaimys/obsidian-dispatch plugins/dispatch-setup/skills/dispatch-setup\n```\n\nThe prompt carries those two lines itself, so the button works before you have installed the\nskill. The setup interviews you about your wiki, writes both configuration layers, scaffolds\nticket templates and workflow commands, and verifies the result.\n\nSee [Installation & configuration](docs/installation.md) for the tool command, the per-tool\nprompt prefix, and the Codex hook wiring — including the trust step, which a Codex setup does\nnothing without.\n\nPrefer to do it by hand? Every setting the skill writes is documented in\n[Installation & configuration](docs/installation.md).\n\n## License\n\n[MIT](LICENSE)\n\n\n## Conclusion\n\nDoes the setup work for you? Did you run into problems? Is this plugin usefull for you? \nAny feedback is welcome. Please leave a post on [Github Discussions](https://github.com/kaimys/obsidian-dispatch/discussions). \n\nHappy prompting!\n\nOr in the words of Andrej Karpathy:\n\n\"*... an internal wiki maintained by LLMs, fed by Slack threads, meeting transcripts, project documents, customer calls. Possibly with humans in the loop reviewing updates. The wiki stays current because the LLM does the maintenance that no one on the team wants to do.*\"\\\n— Andrej Karpathy, [LLM-Wiki](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)\n",
+  "status": "curated"
+}

@@ -21,7 +21,7 @@
   "quality": {
     "stars": null,
     "pushed_at": "2026-09-08T17:48:32.180612Z",
-    "score": 52
+    "score": 42
   },
   "security": {
     "score": 100,
@@ -53,6 +53,6 @@
     "category": "设计",
     "featured": false
   },
-  "readme": "# roundcut-mcp\n\nLocal image tools for AI agents, as an [MCP](https://modelcontextprotocol.io) server.\nCircle crop, crop, resize, compress and convert JPG, PNG, WebP and AVIF on your own\nmachine with [sharp](https://sharp.pixelplumbing.com). No network calls, no accounts,\nno upload: the files never leave the disk.\n\nMade by [RoundCut](https://roundcut.app), the free image tools site (29 languages).\n\n## Install\n\nNode 20 or newer.\n\n```bash\nnpx roundcut-mcp\n```\n\n### Claude Desktop / Claude Code\n\n```json\n{\n  \"mcpServers\": {\n    \"roundcut\": { \"command\": \"npx\", \"args\": [\"-y\", \"roundcut-mcp\"] }\n  }\n}\n```\n\nClaude Code: `claude mcp add roundcut -- npx -y roundcut-mcp`\n\n### Cursor, Windsurf, VS Code\n\nSame shape: a stdio server, command `npx`, args `-y roundcut-mcp`.\n\n## Tools\n\n| Tool | What it does |\n|---|---|\n| `image_info` | Format, dimensions, alpha, EXIF orientation. |\n| `circle_crop` | Round profile picture: centered square plus a circular transparent mask. `size`, `format` (png default), `background` for jpeg. |\n| `crop_image` | Pixel box (`left`, `top`, `width`, `height`) or a centered `aspect` such as `1:1`, `4:5`, `16:9`. |\n| `resize_image` | By `width`, `height` or `percent`. Keeps the aspect ratio, never enlarges unless `enlarge: true`. Lanczos3. |\n| `compress_image` | Smaller file, same format. `quality` for jpg/webp/avif (mozjpeg for jpg), lossless recompression for png. |\n| `convert_image` | To `jpeg`, `png`, `webp` or `avif`. Input may also be GIF, TIFF or HEIC. Transparency kept, or flattened onto `background` for jpeg. |\n| `roundcut_web_tools` | Links to the browser tools this server does not run locally: background remover, AI upscaler, batch convert, JPG to PDF. |\n\nEvery tool takes an `input` path and writes next to it by default\n(`photo.jpg` becomes `photo-circle.png`, `photo-resized.jpg`, `photo.webp`), or to `output`.\nResults carry a text summary, a `resource_link` to the file, structured JSON\n(`output`, `format`, `width`, `height`, `bytes`, `inputBytes`) and a small JPEG preview\n(`preview: false` to skip it).\n\nExample, from a chat client with the server attached:\n\n> Make `~/Pictures/me.jpg` a 512 px round avatar as WebP.\n\ncalls `circle_crop` with `{ \"input\": \"~/Pictures/me.jpg\", \"size\": 512, \"format\": \"webp\" }`\nand answers with the file path, the dimensions and the byte count.\n\n## Limits\n\n- Inputs above 80 megapixels are refused, so a stray call cannot allocate gigabytes.\n- EXIF orientation is applied on read; the output is upright and carries no EXIF.\n- jpeg has no alpha: transparent areas are flattened onto `background` (white by default).\n\n## Develop\n\n```bash\nnpm install\nnpm test        # builds, then node --test\n```\n\n`src/engine.ts` is the pure image layer (tested directly). `src/index.ts` adapts it to MCP tools.\n\n## License\n\nMIT. Copyright Araluma.\n",
+  "readme": null,
   "status": "curated"
 }

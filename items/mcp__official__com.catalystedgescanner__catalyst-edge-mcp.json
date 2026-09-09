@@ -2,7 +2,7 @@
   "id": "mcp:official/com.catalystedgescanner/catalyst-edge-mcp",
   "type": "mcp",
   "name": "catalyst-edge-mcp",
-  "description": "Audited SEC catalyst signals for agents — ranked filing intel with a public track record. Free tier.",
+  "description": "Audited SEC catalyst signals for agents — ranked filing intel with a public track record.",
   "author": "com.catalystedgescanner",
   "source": {
     "registry": "mcp-official",
@@ -16,8 +16,8 @@
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-07-05T07:38:39.959904Z",
-    "score": 40
+    "pushed_at": "2026-09-09T16:15:17.405345Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -49,6 +49,6 @@
     "category": null,
     "featured": false
   },
-  "readme": null,
+  "readme": "# Catalyst Edge MCP Server\n\n**Audited SEC catalyst intelligence for AI agents**, over the [Model Context Protocol](https://modelcontextprotocol.io). Every US-market SEC filing with market-moving potential is fetched from EDGAR, scored by 500+ data engines, and ranked before the market opens — and unlike most signal products, the track record is public: every past call is published with its outcome at [catalystedgescanner.com/receipts](https://catalystedgescanner.com/receipts/).\n\n## Use the hosted server (no install)\n\nA hosted instance is live. Point any MCP-capable client at it, or POST JSON-RPC directly:\n\n```bash\ncurl -s https://catalystedgescanner.com/mcp/ \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"tools/list\"}'\n```\n\nCall a tool (no key needed for the free tier):\n\n```bash\ncurl -s https://catalystedgescanner.com/mcp/ \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"jsonrpc\":\"2.0\",\"id\":2,\"method\":\"tools/call\",\"params\":{\"name\":\"get_convergence_picks\",\"arguments\":{\"limit\":3}}}'\n```\n\nPaid tiers use a Bearer token: `Authorization: Bearer <your-key>`.\n\n## Tools\n\n| Tool | Tier | Returns |\n|---|---|---|\n| `get_convergence_picks` | free | today's scored catalyst picks (free: top 3) |\n| `get_track_record` | free | historical hit-rate / alpha of published picks |\n| `get_ticker_signal` | intelligence | full per-ticker signal-layer breakdown |\n| `get_thesis` | intelligence | plain-language thesis (catalysts, risks, bear case) |\n| `get_sector_lean` | intelligence | directional sector lean |\n\n**free** — evaluation tier, no key required. **intelligence** — all tools, full depth; keys via [catalystedgescanner.com/pricing](https://catalystedgescanner.com/pricing/) or catalystedgepro@gmail.com.\n\n## Claude Desktop / Cursor config (stdio, self-hosted)\n\n```json\n{\n  \"mcpServers\": {\n    \"catalyst-edge\": {\n      \"command\": \"python3\",\n      \"args\": [\"/path/to/catalyst_mcp.py\"],\n      \"env\": { \"CATALYST_MCP_KEY\": \"optional-key\" }\n    }\n  }\n}\n```\n\nStdlib Python only — no dependencies. HTTP mode: `CATALYST_MCP_HTTP=1 python3 catalyst_mcp.py` (binds `127.0.0.1:8848`; front with TLS for public use — see `catalyst-mcp.service`). Key→tier mapping lives in `mcp_keys.json` (see `mcp_keys.json.example`).\n\n## Verify\n\n```bash\npython3 smoke_test.py   # exit 0 = handshake + all tools OK\n```\n\n## Data & disclaimers\n\nSources: SEC EDGAR (filings, XBRL, insider activity), US government open data, delayed market prices. Nothing here is financial advice; signals are research with a published, audited track record — hits and misses both. Machine-readable site map: [catalystedgescanner.com/llms.txt](https://catalystedgescanner.com/llms.txt) · OpenAPI: [/openapi.json](https://catalystedgescanner.com/openapi.json).\n\nMIT licensed.\n",
   "status": "curated"
 }

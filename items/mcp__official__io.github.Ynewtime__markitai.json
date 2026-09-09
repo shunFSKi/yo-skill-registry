@@ -1,0 +1,64 @@
+{
+  "id": "mcp:official/io.github.Ynewtime/markitai",
+  "type": "mcp",
+  "name": "markitai",
+  "description": "Convert documents, images and web pages to clean Markdown, for agents: single, URL and batch tools.",
+  "author": "io.github.Ynewtime",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/Ynewtime/markitai",
+    "repo": "Ynewtime/markitai"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "markitai"
+    ],
+    "env": [
+      {
+        "name": "MODEL",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-09T17:49:20.031511Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "写作",
+    "featured": false
+  },
+  "readme": "# Markitai\n\n[![PyPI](https://img.shields.io/pypi/v/markitai)](https://pypi.org/project/markitai/)\n[![Python](https://img.shields.io/pypi/pyversions/markitai)](https://pypi.org/project/markitai/)\n[![CI](https://github.com/Ynewtime/markitai/actions/workflows/ci.yml/badge.svg)](https://github.com/Ynewtime/markitai/actions/workflows/ci.yml)\n[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/Ynewtime/markitai/blob/main/LICENSE)\n\nOpinionated Markdown converter with native LLM enhancement support.\n\n- **Multi-format**: DOCX, PPTX, XLSX, PDF, EPUB, EML, TXT, MD, images (JPG/PNG/WebP), and URLs → clean Markdown; legacy `.doc`/`.ppt` via the `legacy` extra\n- **LLM enhancement**: AI-powered format cleaning, frontmatter metadata, and vision analysis of embedded images via [litellm](https://github.com/BerriAI/litellm), so any provider works (OpenAI, Anthropic, Gemini, local CLIs, and more)\n- **Batch processing**: concurrent conversion with progress display and `--resume` for interrupted jobs\n- **OCR**: scanned PDFs and images via local RapidOCR (optional extra, see below), or `--ocr --llm` to have the vision model read the page images directly (VLM-OCR)\n- **Web fetching**: static HTTP with cache revalidation, or Playwright rendering for JS-heavy pages\n- **Local web workspace**: upload files or folders, submit URLs, configure LLM providers, compare results, retry failures, and revisit conversion history — CLI runs can opt in too, via `--record-history`\n\nDocs: <https://markitai.dev>\n\n## Install\n\n**Recommended: guided installer.** Checks/installs Python and uv, lets you\npick extras, installs the optional Playwright browser,\nfalls back to a mirror when it measures the default index as unreachable, and\nis bilingual (EN/中文):\n\n```bash\n# Linux/macOS\ncurl -fsSL https://markitai.dev/setup.sh | sh\n# Windows (PowerShell)\npowershell -ExecutionPolicy ByPass -c \"irm https://markitai.dev/setup.ps1 | iex\"\n```\n\n**Minimal (uv / pip)**, if you already have Python 3.11-3.13 and just want the package:\n\n```bash\nuv tool install markitai     # isolated environment (recommended)\npipx install markitai        # or pipx\n```\n\nAfter a uv/pip install, do the setup steps the guided installer would have done for you:\n\n```bash\nmarkitai doctor           # check core and optional capabilities\nmarkitai init             # create a config and set up an LLM provider\n```\n\nIf you need Playwright browser rendering, add its package before asking `doctor` to install Chromium:\n\n```bash\nuv tool install \"markitai[browser]\" --force     # uv tool install\n# pipx install \"markitai[browser]\" --force      # pipx alternative\nmarkitai doctor --fix                           # install Chromium\n```\n\nBoth installs provide the `markitai` command **and the shorter `mkai` alias**.\nThey are the same command (`mkai --help` == `markitai --help`). If you already\nhave a different `mkai` on your PATH, use the full `markitai` to avoid ambiguity.\n\n### Extras\n\n| Extra | Enables |\n| --- | --- |\n| `browser` | Playwright rendering for JS-heavy pages |\n| `claude-agent` | Claude Agent SDK as an LLM provider |\n| `copilot` | GitHub Copilot SDK as an LLM provider |\n| `extra-fetch` | curl-cffi HTTP client (better anti-bot compatibility) |\n| `heif` | HEIC/HEIF/AVIF image input |\n| `legacy` | Legacy Office conversion (`.doc`/`.ppt`) via the anydoc Rust backend |\n| `mcp` | Bundled `markitai-mcp` server for AI agents (Model Context Protocol) |\n| `ocr` | Local OCR for scanned PDFs and images (`--ocr`) |\n| `serve` | Local web workspace and REST API |\n| `svg` | SVG rasterization via cairosvg |\n| `all` | Everything above |\n\nThe base install is deliberately lean (~475MB). `ocr` is the one extra that\nadds real weight (~160MB of models and OpenCV), so it is opt-in:\n\n```bash\nuv tool install \"markitai[ocr]\" --force\n```\n\nThe guided installer offers it as a yes/no question (defaulting to yes, and\nremembering a \"no\" for the rest of the run); `markitai doctor` reports OCR as\nan optional capability and prints this command when it is not installed.\n\nLaunch the local web workspace with:\n\n```bash\nuv tool install \"markitai[serve]\" --force\nmarkitai serve\n```\n\n## Quick start\n\n```bash\nmarkitai document.pdf -o out/            # convert a file\nmarkitai https://example.com -o out/     # convert a URL\nmarkitai ./docs -o out/                  # batch convert a directory\nmarkitai doctor                          # check dependencies and configuration\n```\n\nFor LLM enhancement, export any supported provider key — markitai picks the\nmodel up from the environment, no config file needed:\n\n```bash\nexport GEMINI_API_KEY=...                # or OPENAI_/ANTHROPIC_/DEEPSEEK_/OPENROUTER_API_KEY\nmarkitai document.pdf -o out/ --llm      # clean formatting + generated frontmatter\nmarkitai document.pdf --preset rich      # LLM + alt text + descriptions + screenshots\nmarkitai init                            # or configure it interactively, once\n```\n\nSee the [Getting Started guide](https://markitai.dev/guide/getting-started) for LLM configuration, presets, caching, and batch options.\n\n## MCP server\n\nThe MCP server `markitai-mcp` (bundled with markitai, enabled by the `mcp` extra) exposes conversion to AI agents over the Model Context Protocol: `convert_document`, `convert_url`, `batch_convert`, `job_status`. Zero install via `uvx`; large outputs land on disk instead of in the model context. For Claude Code, `claude mcp add markitai -- uvx --from \"markitai[mcp]\" markitai-mcp`; for other clients:\n\n```json\n{\n  \"mcpServers\": {\n    \"markitai\": { \"command\": \"uvx\", \"args\": [\"--from\", \"markitai[mcp]\", \"markitai-mcp\"] }\n  }\n}\n```\n\n`markitai mcp` starts the same server through the CLI itself (`uvx --from \"markitai[mcp]\" markitai mcp`), which is how the [MCP Registry](https://registry.modelcontextprotocol.io) lists it. See the [MCP guide](https://markitai.dev/guide/mcp) for LLM enhancement and batch jobs.\n\n<!-- mcp-name: io.github.Ynewtime/markitai -->\n\n## Comparison\n\nHow markitai compares to three tools people mention in the same breath. No star or download counts — those go stale immediately.\n\n| | **markitai** | markitdown | docling | anydoc |\n| --- | --- | --- | --- | --- |\n| Engine | Python; rule-based conversion + optional LLM pipeline | Python; lightweight rule-based converters + plugins | Python; ML layout/table/VLM document-structure models | Rust; zero-ML parsers |\n| LLM enhancement | Built-in: format cleaning, frontmatter, vision analysis, per-run JSON cost/usage reports | Optional: image captions, transcription, an OCR plugin | VLM for structure (DocTags), not prose cleanup | None |\n| Web pages | 5-strategy fetch cascade, local-first; static runs a from-scratch port of [defuddle](https://github.com/kepano/defuddle)'s readability algorithm before falling back to a browser or 3 remote APIs | Whole-DOM HTML→Markdown, no main-content pass | Downloads a document URL into the same file pipeline | No URL input — local files/bytes only |\n| Scanned docs | Optional local OCR (`markitai[ocr]`, RapidOCR), or `--ocr --llm` to have the vision model read the pages | Optional plugin (LLM-vision or Azure OCR) | Built-in OCR for scanned PDFs/images | None in the OSS library |\n| Positioning | Independent project; CLI + local bilingual (EN/中文) web workspace | Microsoft (AutoGen team); widest ecosystem/plugin adoption | IBM Research origin, now governed by the LF AI & Data Foundation; enterprise RAG building block | Firecrawl open-source; dependency-free, millisecond-scale, 14 formats, Node/Python/WASM bindings |\n\nEach optimizes for a different job: anydoc for dependency-free speed, docling for ML-driven document structure in RAG pipelines, markitdown for ecosystem reach — markitai trades those for a built-in LLM pipeline, live web fetching, and a local UI. Two of them are also dependencies rather than only alternatives: markitdown converts the Office formats, and anydoc handles legacy `.doc`/`.ppt` behind `markitai[legacy]`.\n\n## License\n\nmarkitai's own source code is [MIT](https://github.com/Ynewtime/markitai/blob/main/LICENSE).\n\nThe default installation is not uniformly MIT, because the PDF engine is not.\nThe PyMuPDF packages `pymupdf`, `pymupdf-layout`, and `pymupdf4llm` come from\nArtifex Software and are\ndual-licensed under **AGPL-3.0 or a commercial licence from Artifex**. They are\ncore dependencies — PDF conversion does not work without them.\n\nFor local use — running the CLI on your own machine, or a `markitai serve`\ninstance only you talk to — this changes nothing. AGPL obligations attach when\nyou *redistribute* the combined work or offer it to other people over a network:\nin that case AGPL-3.0 asks you to make the corresponding source available on the\nsame terms, or to buy a [commercial licence from Artifex](https://artifex.com/licensing/)\ninstead.\n\nEverything else in the default install is MIT, Apache-2.0, BSD, or MIT-CMU. CI\nenforces this: `scripts/check_licenses.py` fails the build on any\nnon-commercial or proprietary dependency, and on any AGPL/GPL package outside an\nexplicit allowlist.\n\nFull details, plus attribution for the code markitai ports from\n[defuddle](https://github.com/kepano/defuddle) (MIT) and\n[marker](https://github.com/VikParuchuri/marker) (Apache-2.0), are in\n[NOTICE](https://github.com/Ynewtime/markitai/blob/main/NOTICE).\n",
+  "status": "curated"
+}
