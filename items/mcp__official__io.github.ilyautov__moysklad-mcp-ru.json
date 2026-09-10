@@ -1,0 +1,69 @@
+{
+  "id": "mcp:official/io.github.ilyautov/moysklad-mcp-ru",
+  "type": "mcp",
+  "name": "MoySklad MCP (RU)",
+  "description": "MoySklad JSON API 1.2 in your AI assistant — schema-driven, safety-gated document writes.",
+  "author": "io.github.ilyautov",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/ilyautov/moysklad-mcp-ru",
+    "repo": "ilyautov/moysklad-mcp-ru"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "moysklad-mcp-ru"
+    ],
+    "env": [
+      {
+        "name": "MOYSKLAD_TOKEN",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "MOYSKLAD_ALLOW_WRITE",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-10T12:38:16.698187Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "写作",
+    "featured": false
+  },
+  "readme": "# moysklad-mcp-ru: AI-доступ к МойСклад для Claude Code, Cursor, Codex и Cowork\n\n> 🇬🇧 [English version](README.en.md)\n>\n> **Ведёте учёт в МойСклад — дайте ИИ прямой доступ к вашему аккаунту.** Один\n> MCP-сервер над JSON API 1.2 МойСклад: остатки, товары, заказы, контрагенты,\n> отчёты (прибыль, обороты, деньги) и **запись документов** (приёмки, отгрузки,\n> заказы, счета, возвраты) — напрямую по API, без браузера. Числа приходят из\n> **реального API**, а не выдумываются моделью. **Два гейта на запись** не дают\n> случайно создать или провести документ в боевом учёте. Авто-пагинация,\n> мультикабинет, поиск по-русски. Для Claude Code, Cursor, Codex, Cowork и Claude\n> Desktop.\n\n[![PyPI](https://img.shields.io/pypi/v/moysklad-mcp-ru?label=pypi&color=B5491F)](https://pypi.org/project/moysklad-mcp-ru/)\n[![MCP Registry](https://img.shields.io/badge/MCP-Registry-2D7D4F)](https://registry.modelcontextprotocol.io/)\n[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)\n[![Тулов](https://img.shields.io/badge/%D1%82%D1%83%D0%BB%D0%BE%D0%B2-32-2D7D4F)](#что-внутри)\n[![Тестов](https://img.shields.io/badge/%D1%82%D0%B5%D1%81%D1%82%D0%BE%D0%B2-100-2D7D4F)](https://github.com/ilyautov/moysklad-mcp-ru/actions/workflows/ci.yml)\n[![Сайт](https://img.shields.io/badge/%D1%81%D0%B0%D0%B9%D1%82-aifrontier.tech-9A3E1A)](https://moysklad-mcp-ru.aifrontier.tech)\n[![Звёзды](https://img.shields.io/github/stars/ilyautov/moysklad-mcp-ru?style=flat&label=%D0%B7%D0%B2%D1%91%D0%B7%D0%B4%D1%8B&color=B5491F&logo=github&logoColor=white)](https://github.com/ilyautov/moysklad-mcp-ru/stargazers)\n\n<p align=\"center\">\n  <a href=\"https://moysklad-mcp-ru.aifrontier.tech\">\n    <img src=\"assets/social-preview.png\" alt=\"moysklad-mcp-ru: МойСклад в ИИ-ассистенте. Остатки, заказы, отчёты и запись документов через JSON API 1.2, с гейтом безопасности\" width=\"760\">\n  </a>\n</p>\n\n**Быстрый старт**, без установки в систему:\n\n```bash\nuvx moysklad-mcp-ru\n```\n\nКлиенты, токен и способ «попроси своего ИИ поставить»: в разделе [«Установка»](#установка).\n\n> ⚠️ **alpha.** Помогает с операционкой учёта, но это инструмент, а не замена\n> бухгалтера. Курированное ядро и срез записи выверены боем на тестовом кабинете;\n> импортированные из доки методы — карта для разведки (пути надёжны, тела\n> write-запросов сверяйте по доке или зовите через `ms_call_raw`). Подробности — в\n> разделе «Оговорки».\n\n## Зачем это нужно\n\nУчёт живёт в МойСклад, а ИИ-ассистент обычно бесполезен: либо ходит через браузер\nи спотыкается, либо выдумывает цифры, которые звучат уверенно. `moysklad-mcp-ru`\nдаёт агенту **прямой доступ к JSON API 1.2** вашего аккаунта:\n\n- **Числа из реального API, а не из головы модели.** Остатки, заказы, прибыль,\n  обороты — это ответ МойСклад, с источником и полями.\n- **Запись за двумя гейтами.** Создание документа делает ЧЕРНОВИК; проведение\n  (двигает учёт) — отдельный destructive-шаг с подтверждением. Запись вообще\n  выключена, пока её явно не включить и не направить на тестовый кабинет.\n- **Без браузера.** Прямые HTTPS-вызовы по токену кабинета.\n\nСкажите агенту обычными словами: «покажи остатки», «что пора дозаказать»,\n«создай приёмку на 10 Рога от поставщика» — он подберёт метод или сценарий.\n\n## Что внутри\n\n**Не «один тул на эндпоинт», а 8 generic мета-тулов над каталогом** — полное\nпокрытие API при маленькой поверхности.\n\n```\nваш ИИ-агент\n      │\n      ▼\n 8 мета-тулов  ──►  каталог (endpoints.yaml)  ──►  общий core\n search / describe /                                клиент · safety · ошибки\n call / call_raw /                                  пагинация · реестр\n fetch_all / map / ...                                    │\n + типизированные тулы (ms_get_stock, ms_create_document, …)  ▼\n                                              МойСклад JSON API 1.2 (HTTPS)\n```\n\n**Мета-тулы** (`ms_search_methods`, `ms_describe_method`, `ms_call_method`,\n`ms_call_raw`, `ms_fetch_all`, `ms_map`, + тулы кабинетов).\n\n**Типизированные read-тулы:** `ms_get_stock`, `ms_get_products`, `ms_get_orders`,\n`ms_get_profit`, `ms_get_money`, `ms_get_turnover`, `ms_get_counterparties`,\n`ms_get_stores`, `ms_get_documents` (7 типов), `ms_ping`. Копейки автоматически\nпереводятся в рубли.\n\n**Тулы записи (за двумя гейтами):**\n\n| Тул | Уровень | Назначение |\n|---|---|---|\n| `ms_build_document` | read | Preview ЛЮБОГО типа: резолв ссылок + точное тело, БЕЗ записи. |\n| `ms_create_document` | write | Создать ЛЮБОЙ ролевой тип ЧЕРНОВИКОМ (`applicable:false`). |\n| `ms_build_purchaseorder` / `ms_create_purchaseorder` | read / write | Типизированный заказ поставщику (для совместимости). |\n| `ms_post_document` | destructive | Провести документ (`applicable:true`) — двигает учёт. |\n| `ms_delete_document` | destructive | Удалить документ (уборка). |\n\n7 ролевых типов: `purchaseorder`, `supply`, `demand`, `invoicein`, `invoiceout`,\n`salesreturn`, `purchasereturn`.\n\n**Каталог — schema-driven из официальной доки МойСклад:** 892 метода (курированное\nядро выверено живьём; остальное импортировано из доки). `ms_call_raw` достаёт всё,\nчего ещё нет в каталоге.\n\n## Что можно спросить\n\n```\nпокажи остатки и что пора дозаказать\nвытащи прибыль по товарам за прошлый месяц\nкто из контрагентов должен нам денег\nсоздай черновик приёмки: 10 «Рога» от «ООО Поставщик» по 250 ₽   (на тестовом кабинете)\nпроведи эту приёмку и покажи, как изменился остаток\n```\n\nНе уверены, с чего начать — скажите **«что ты умеешь по моему кабинету»** или\nвызовите `ms_map`.\n\n## Safety model\n\nТокен кабинета двигает остатки и деньги. Каждый метод классифицирован:\n\n- **read** → выполняется сразу;\n- **write** (создать черновик) → требует `confirm_write=true` **И** включённой\n  записи `MOYSKLAD_ALLOW_WRITE=1`;\n- **destructive** (провести / удалить) → ещё и `i_understand_this_modifies_data=true`.\n\n**Два независимых слоя:** (1) процессный guard (`MOYSKLAD_ALLOW_WRITE`, по умолчанию\nВЫКЛ, опц. пин к кабинету `MOYSKLAD_WRITE_CABINETS`) — защита от направления на\nбоевой кабинет; (2) per-call гейт. Guard покрывает и сырые `ms_call_method`/\n`ms_call_raw`, не только типизированные тулы. **0 мутаций, помеченных как read** —\nпроверяется тестом (`test_safety_catalog`) в CI. Создание всегда делает ЧЕРНОВИК;\nпроведение — отдельный шаг.\n\n## Установка\n\nПодробный гайд — в **[QUICKSTART.md](QUICKSTART.md)**. Три пути, один результат:\n\n1. **Проще всего — попроси своего ИИ (без терминала).** Открой Claude / Cowork и\n   скажи: *«установи МойСклад MCP»* — агент проведёт по встроенному `moysklad-mcp-install/`.\n2. **Скачать и кликнуть.** Возьми release-zip, распакуй, двойной клик\n   `install.command` (macOS) / `install.bat` (Windows), вставь токен.\n3. **Технический.** `python3 install.py --client <твой-клиент>` (claude-desktop /\n   claude-code / codex / opencode).\n4. **Для разработчиков.** Пакет на PyPI — запуск без установки: `uvx moysklad-mcp-ru`.\n   Для Claude Desktop — готовый `.mcpb`-бандл из\n   [релиза](https://github.com/ilyautov/moysklad-mcp-ru/releases) (двойной клик,\n   токен вводится в окне настроек). Полный список каналов и как режется релиз —\n   в **[docs/DISTRIBUTION.md](docs/DISTRIBUTION.md)**.\n\nДля путей 1–3 не нужно ни `pip install`, ни правки JSON: зависимости ставятся сами\nпри первом запуске (локальный venv), от тебя — только токен.\n\n**Где взять токен:** МойСклад → Настройки → Пользователи → Токены доступа. Токен\nхранится в `~/.moysklad-mcp/cabinets.json` (локально, chmod 600, никогда в репо\nи не в чат). Поддержка **мультикабинета** — несколько аккаунтов с переключением из\nчата (`ms_add_cabinet` / `ms_use_cabinet`).\n\n**Проверка после установки:** `python3 serve.py ms --selfcheck` → «OK: ms ready, N tools».\n\n## Деньги\n\nВсе суммы в API — в копейках. Read-тулы отдают рубли. На записи\n`convert_money_to_kopecks` переводит цены/суммы рубли→копейки (`price` позиции,\n`sum`, price-объекты). Сырые мета-тулы работают в копейках как есть.\n\n## Выверено боем\n\n- Хост `api.moysklad.ru/api/remap/1.2`, списки в `rows`, offset+limit (макс 1000).\n- Лимит: бакет **45/3с**, окно 3000 мс, тяжёлый отчёт остатков весит 5 единиц.\n- Жёстко: `Accept: application/json;charset=utf-8` ровно (иначе 400 код 1062),\n  `Accept-Encoding: gzip` (иначе 415).\n- **Запись (демо-кабинет):** веер create→read-back→проведение→движение остатков→\n  удаление→откат на всех 6 ролевых типах + purchaseorder. Деньги ×100 верны,\n  supply/salesreturn +, demand/purchasereturn −, счета не двигают, удаление\n  откатывает, возвраты создаются standalone.\n\n## Оговорки (сверяйте с живой докой)\n\n- **Импортированные из доки методы: пути надёжны, тела write — нет.** Считайте их\n  картой разведки: подтверждайте по доке или зовите через `ms_call_raw`.\n  Курированное ядро и срез записи — надёжны.\n- **Кабинет затеняет env:** активный кабинет в `cabinets.json` приоритетнее\n  переменных окружения. Необъяснимый 401 — первым делом проверьте стор.\n- **Запись только на тестовый кабинет.** Не направляйте `MOYSKLAD_ALLOW_WRITE=1` на\n  боевой учёт, пока сами не проверите на тесте.\n\n## Структура\n\n```\ncore/                 ← вендорный движок ilyautov/marketplaces-mcp-ru (MIT, не менялся)\nmoysklad_mcp/         ← специфика МойСклад: server.py, build.py, money.py, refs.py,\n                        write_guard.py, endpoints.yaml(+curated), workflows.yaml, entities.yaml\ntests/                ← 70 офлайн-тестов\nscripts/              ← ingest_moysklad.py (парсер доки), package_release.py\nserve.py              ← лаунчер (авто-venv): python3 serve.py ms [--selfcheck]\ninstall.py + .command/.bat/.sh + moysklad-mcp-install/   ← установка под 4 клиента\n.mcp.json + .claude-plugin/ .codex-plugin/ .cursor-plugin/   ← плагин-манифесты\ndocs/                 ← исследование, аудит, RUNBOOK-и, точки возобновления (dev-доки)\n```\n\n## Лицензия\n\nMIT. Вендорный `core/` — под MIT Ильи Утова, см. [`NOTICE`](NOTICE). Архитектура\n(schema-driven каталог, safety-гейт, единые ошибки, авто-пагинация) переиспользует\nсильнейшие идеи [marketplaces-mcp-ru](https://github.com/ilyautov/marketplaces-mcp-ru).\n\nНашли косяк — заводите issue. Это alpha и открытый код: ставьте, проверяйте на\nсвоих данных, экспериментируйте.\n\n---\n\nmcp-name: io.github.ilyautov/moysklad-mcp-ru\n\n---\n\n## Кто это сделал\n\n[Илья Утов](https://github.com/ilyautov), лаборатория [AI Frontier](https://aifrontier.tech). Как эти инструменты устроены внутри, пишу в [Telegram](https://t.me/gorilla_under_hood) и [LinkedIn](https://www.linkedin.com/in/ilyautov).\n\n**Рядом стоят:**\n\n- [**humanizer-ru**](https://github.com/ilyautov/humanizer-ru): убирает следы нейросети из русского текста\n- [**marketplaces-mcp-ru**](https://github.com/ilyautov/marketplaces-mcp-ru): Wildberries, Ozon, Яндекс Маркет и Авито прямо из агента\n- [**small-business-ru**](https://github.com/ilyautov/small-business-ru): 34 скилла для малого бизнеса, считают налоги и проверяют контрагента по ИНН\n- [**consilium-principis**](https://github.com/ilyautov/consilium-principis): совет мыслителей, где каждая цитата сверяется дословно\n- [**hefest**](https://github.com/ilyautov/hefest): химическая безопасность завода, целиком офлайн\n\nВсе проекты: [github.com/ilyautov](https://github.com/ilyautov). Пригодилось, поставьте звезду: по ней это находят другие.\n",
+  "status": "curated"
+}

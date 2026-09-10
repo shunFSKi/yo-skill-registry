@@ -15,7 +15,7 @@
     "command": "npx",
     "args": [
       "-y",
-      "ghcr.io/wyre-ai/avanan-legacy-mcp:v2.2.1"
+      "ghcr.io/wyre-ai/avanan-legacy-mcp:v2.3.0"
     ],
     "env": [
       {
@@ -47,13 +47,18 @@
         "name": "LOG_LEVEL",
         "required": false,
         "secret": false
+      },
+      {
+        "name": "CONDUIT_S2S_SECRET",
+        "required": false,
+        "secret": true
       }
     ]
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-09-09T17:28:29.307469Z",
-    "score": 52
+    "pushed_at": "2026-09-09T20:33:55.268477Z",
+    "score": 42
   },
   "security": {
     "score": 100,
@@ -85,6 +90,6 @@
     "category": null,
     "featured": false
   },
-  "readme": "# avanan-legacy-mcp\n\nMCP server for the **legacy Avanan SmartAPI** on `smart-api-production-*.avanan.net`:\nMSP tenant management plus per-tenant security (events, entities, exceptions, remediation).\nDistinct from `avanan-mcp`, which targets the Check Point Infinity Portal HEC API.\n\nImplements the [Avanan MSP SmartAPI Reference Guide (22 July 2026)](https://sc1.checkpoint.com/documents/Avanan_MSP_API_Reference/CP_Avanan_MSP_API_Reference_Guide.pdf)\nand the [Avanan SmartAPI Reference Guide (Feb 2024)](https://www.avanan.com/hubfs/MSP/documents/Smart-API-Documentation/master/Avanan_SmartAPI_Reference_Guide.pdf):\n\n| Group | Tools |\n| --- | --- |\n| Diagnostics | `avanan_test_connection` (auth handshake, key scopes, MSP-access probe; run this first), `avanan_list_scopes` |\n| Security events | `avanan_query_events`, `avanan_get_event` |\n| Secured entities | `avanan_search_emails`, `avanan_get_email` |\n| Exceptions | `avanan_list_exceptions`, `avanan_get_exception`, `avanan_add_exception`, `avanan_update_exception`, `avanan_delete_exception` |\n| Remediation | `avanan_quarantine_events`, `avanan_restore_events`, `avanan_quarantine_emails`, `avanan_restore_emails`, `avanan_get_task_status` |\n| Child MSPs | `avanan_list_msp_partners`, `avanan_create_msp_partner`, `avanan_delete_msp_partner` |\n| MSP users | `avanan_list_msp_users`, `avanan_get_msp_user`, `avanan_create_msp_user`, `avanan_update_msp_user`, `avanan_delete_msp_user` |\n| Customer tenants | `avanan_list_tenants`, `avanan_get_tenant`, `avanan_create_tenant`, `avanan_delete_tenant` |\n| Licenses | `avanan_list_licenses`, `avanan_list_addons`, `avanan_assign_license` |\n| Usage | `avanan_get_monthly_usage`, `avanan_get_daily_usage` |\n\n## Features\n\n- **Interactive tenant card (MCP Apps, SEP-1865)**: `avanan_get_tenant` renders as an\n  interactive card in MCP Apps hosts (Claude Desktop/web) showing domain, status,\n  deployment mode, license package, protected users, PoC dates, and add-ons. The card is\n  read-only, neutral by default, and brandable via `window.__BRAND__` injection or\n  `MCP_BRAND_*` env vars (`MCP_BRAND_NAME`, `MCP_BRAND_LOGO_URL`, `MCP_BRAND_PRIMARY_COLOR`,\n  `MCP_BRAND_ACCENT_COLOR`, `MCP_BRAND_BG`, `MCP_BRAND_TEXT`). Plain-JSON behavior is\n  unchanged in other hosts. Rebuild the embedded card HTML after editing `ui/` with\n  `npm run build:ui`.\n\n## Configuration\n\n| Env var | Required | Description |\n| --- | --- | --- |\n| `AVANAN_CLIENT_ID` | yes | MSP API Client ID issued by Avanan Support (sent as `x-av-app-id`). |\n| `AVANAN_CLIENT_SECRET` | yes | MSP API Client Secret. Only ever used to sign requests; never sent on the wire. |\n| `AVANAN_REGION` | no | `us` (default) \\| `eu` \\| `ca` \\| `ap` \\| `euw2` \\| `aps1`. Avanan issues one key per region. |\n| `MCP_TRANSPORT` | no | `stdio` (default) or `http`. |\n| `MCP_HTTP_PORT` | no | HTTP transport port (default 8080). |\n| `LOG_LEVEL` | no | `debug` \\| `info` \\| `warn` \\| `error` (default `info`). |\n\nIn **gateway mode**, credentials are taken per-request from headers:\n`X-Avanan-Client-Id`, `X-Avanan-Client-Secret`, optionally `X-Avanan-Region`.\n\nThe server performs the token handshake itself: it calls `GET /v1.0/auth`, caches the\none-hour JWT per client ID, and refreshes it a minute before expiry.\n\n> [!IMPORTANT]\n> The MSP-management tools need an **MSP** API key generated from the Avanan MSP portal. A\n> key generated inside a customer tenant authenticates successfully, but every `/msp/*`\n> endpoint then answers `403 MSP endpoint, access denied`. The security tools (events,\n> entities, exceptions, remediation) work with either kind of key. `avanan_test_connection`\n> reports which kind you have.\n\nWith an MSP key, the security tools cover every managed customer; pass `scopes` (query\nand search) or `scope` (actions) with values from `avanan_list_scopes` to target one.\n\nParent MSPs can scope list and create calls to a child MSP with the optional `MSPId`\nargument (`msp_ids` on the usage tools), as in Check Point's reference client.\n\n## Authentication details\n\nThe wire format was verified against the live US endpoint in September 2026 and is pinned\nby `tests/client.test.ts`. Two details differ from the reference guide:\n\n- `x-av-date` must **not** end in `Z` (`2026-09-09T16:49:12.123`). The documented\n  `.000Z` form makes the API return HTTP 500.\n- `x-av-sig` is `sha256(base64(reqId + clientId + date + path?query + secret))` as hex.\n  The path is omitted on the `/auth` call only, and the `/auth` response body is the raw\n  JWT rather than JSON.\n\nBoth match Check Point's reference\n[`client.py`](https://www.avanan.com/hubfs/MSP/documents/Smart-API-Documentation/parent_msp/client/client.py).\n\n## Build\n\n```bash\nnpm install\nnpm run build\nnpm start\n```\n\n## Regional endpoints\n\n| Region | Base |\n| --- | --- |\n| `us` | `https://smart-api-production-1-us.avanan.net` |\n| `eu` | `https://smart-api-production-1-eu.avanan.net` |\n| `ca` | `https://smart-api-production-1-ca.avanan.net` |\n| `ap` | `https://smart-api-production-5-ap.avanan.net` |\n| `euw2` (UK) | `https://smart-api-production-1-euw2.avanan.net` |\n| `aps1` (India) | `https://smart-api-production-1-aps1.avanan.net` |\n\nAll endpoints sit under `/v1.0/msp/...`.\n",
+  "readme": null,
   "status": "curated"
 }

@@ -2,7 +2,7 @@
   "id": "mcp:official/org.scoutee/scoutee",
   "type": "mcp",
   "name": "Scoutee",
-  "description": "Search 200k+ public tenders from Europe and North America (87 official sources, 32 countries).",
+  "description": "Search public tenders in Europe and North America, with free previews and source links.",
   "author": "org.scoutee",
   "source": {
     "registry": "mcp-official",
@@ -12,19 +12,12 @@
   "license": null,
   "install": {
     "kind": "remote",
-    "remote_url": "https://scoutee.org/api/mcp",
-    "env": [
-      {
-        "name": "X-API-Key",
-        "required": true,
-        "secret": true
-      }
-    ]
+    "remote_url": "https://scoutee.org/api/mcp/public"
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-09-07T12:53:54.642656Z",
-    "score": 42
+    "pushed_at": "2026-09-10T15:18:39.550118Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -56,6 +49,6 @@
     "category": null,
     "featured": false
   },
-  "readme": null,
+  "readme": "<p align=\"center\"><img src=\"logo.png\" alt=\"Scoutee\" width=\"120\" height=\"120\"></p>\n\n# Scoutee MCP and integration packages\n\nSearch public tenders across Europe and North America, then read and compare notices from your assistant.\nScoutee hosts the search service; this repository contains its generated client configurations, schemas,\nprocurement plugin and n8n workflow.\n\n| Access | Endpoint | Credentials |\n| --- | --- | --- |\n| Public preview | `https://scoutee.org/api/mcp/public` | None |\n| Workspace notices | `https://scoutee.org/api/mcp` | OAuth on every plan, or a workspace key on a paid plan |\n| REST | `https://scoutee.org/api/tenders` | The same OAuth token or workspace key |\n\nMCP uses Streamable HTTP and JSON responses. GET returning 405 is expected; MCP calls use POST. The\nworkspace endpoint challenges unauthenticated initialization with OAuth discovery. Public previews and\nfull workspace data have different quotas and scope; see the generated [contract](contracts/scoutee-integrations.json)\nand [API schema](contracts/scoutee-openapi.json).\n\n## Connect a client\n\n- **Claude.ai / Claude Desktop:** add a custom connector with either endpoint. Select no authentication\n  for public previews, or OAuth for workspace access, then sign in and select your Scoutee workspace.\n- **Claude Code:** `claude mcp add --transport http scoutee https://scoutee.org/api/mcp`, then `/mcp` to sign in.\n- **Cursor:** copy the appropriate `mcpServers` entry from [clients](clients) into your MCP configuration.\n- **VS Code:** use the `servers` shape in `clients/vscode-workspace-mcp.json` or its public variant.\n- **Codex:** `codex mcp add scoutee --url https://scoutee.org/api/mcp`, then `codex mcp login scoutee`.\n  TOML examples are in [clients](clients).\n\nAPI keys belong in the client's credential store, not a shared project file. OAuth works on Free as well\nas paid plans; a paid plan is needed to create/use a workspace API key. The connected workspace's current\nplan and membership apply on every call.\n\n## Tools and packages\n\nPublic preview provides `search_public_tenders` and `get_public_tender`. Workspace access provides\n`search_tenders` and `get_tender`. Both services read tender data. They do not execute Scoutee analyses,\ncreate alerts, access private company memory or submit bids. Use the Scoutee product for those workflows.\n\nThe [Scoutee Procurement plugin](plugins/scoutee-procurement) bundles public MCP and a tender-shortlist\nskill, with Codex and Claude manifests. It helps match notices to business criteria and preserve missing\nvalues, currencies and source links. Installation in a client and publication in a directory are separate.\n\nThe [n8n workflow](n8n/README.md) is inactive by default. Add a workspace credential and destination,\nupsert canonical tender IDs, and acknowledge all writes before committing its checkpoint. Capped or\ninconsistent result windows fail without advancing the cursor. Respect `Retry-After` before retrying.\n\n## Maintenance\n\nThe Scoutee product repository owns the contract. It generates the files here using\n`scripts/generate_integrations.py` and exports them with `scripts/export_integrations.py`.\n`CONTRACT-SOURCE.json` records content hashes. Changes to prices, limits, endpoints and schemas should\noriginate in that contract and pass its regression suite, then be exported here.\n\nThe registry manifest advertises anonymous previews. Workspace OAuth is documented alongside it. A\nmanifest in this repository does not imply that every provider has approved a directory listing.\n\n[Website](https://scoutee.org) · [MCP setup](https://scoutee.org/en/mcp-public-tenders) ·\n[API reference](https://scoutee.org/en/api-docs) · [Pricing](https://scoutee.org/en/pricing) ·\n[Privacy](https://scoutee.org/en/privacy) · [Terms](https://scoutee.org/en/terms)\n",
   "status": "curated"
 }

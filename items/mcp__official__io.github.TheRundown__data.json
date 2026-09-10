@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.TheRundown/data",
+  "type": "mcp",
+  "name": "TheRundown Data MCP",
+  "description": "Read-only TheRundown sports odds/events via six authenticated Product API tools; API key required.",
+  "author": "io.github.TheRundown",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/TheRundown/data-mcp",
+    "repo": "TheRundown/data-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://mcp.therundown.io/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-10T16:46:56.223019Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# Official TheRundown Data MCP\n\n> This is the official TheRundown source repository. `aigeon-ai/therundown` is unofficial.\n\nA local, read-only Model Context Protocol server for TheRundown Product API. It fetches sports, affiliates, market definitions, events, futures, and open main lines using your own API key. It uses the official MCP SDK and Node.js 22+.\n\nThis directory is a runnable source example. The same six tools are also deployed as a hosted, authenticated Streamable HTTP endpoint at `https://mcp.therundown.io/mcp`; there is still no published npm package. The existing `https://docs.therundown.io/mcp` endpoint searches documentation only.\n\nCursor configuration for that server is in the [Documentation MCP repository](https://github.com/TheRundown/documentation-mcp).\n\nThe separate [HTTP adapter](HOSTED.md) implements the hosted endpoint at\n`https://mcp.therundown.io/mcp`. It is excluded from the local ZIP and is\nnever started by `npm start`; the ZIP remains a local, stdio-only install.\n\nThe checked-out source is version **0.2.1**. It adds the `therundown://brief`\nresource, shared first-conversation instructions, and structured error and empty\nresult explanations. The published source ZIP contains the same local runtime.\n\nDownload the [versioned source bundle](https://therundown.io/downloads/therundown-data-mcp-0.2.1.zip), verify its [SHA-256 checksum](https://therundown.io/downloads/therundown-data-mcp-0.2.1.sha256), and extract it. The official ZIP SHA-256 is `71b7339d9f329262e6ff0279ab2ee185c9a06f05f62671b0ec55ac7678a36e74`. The [ZIP manifest](releases/0.2.1/MANIFEST.json) verifies every bundled source file. The ZIP README is generated from [BUNDLE-README.md](BUNDLE-README.md); this repository README also includes repository setup material. From the extracted ZIP directory:\n\n```sh\nnpm ci --ignore-scripts\nnpm test\n```\n\nTo run the checked-out source instead, use Node.js 22+ from this repository:\n\n```sh\nnpm ci --ignore-scripts\nnpm test\n```\n\nFor Claude Desktop's manual local configuration, add this to `claude_desktop_config.json` where supported and restart the client. Use absolute Node 22+ and server paths; this source ZIP is not a `.mcpb` desktop extension:\n\n```json\n{\n  \"mcpServers\": {\n    \"therundown-data\": {\n      \"command\": \"/absolute/path/to/node\",\n      \"args\": [\"/absolute/path/to/therundown-data-mcp-0.2.1/server.mjs\"],\n      \"env\": { \"THERUNDOWN_API_KEY\": \"YOUR_API_KEY\" }\n    }\n  }\n}\n```\n\nFor Cursor, use the global `~/.cursor/mcp.json` and make the key available in the environment that launches Cursor:\n\n```json\n{\n  \"mcpServers\": {\n    \"therundown-data\": {\n      \"type\": \"stdio\",\n      \"command\": \"/absolute/path/to/node\",\n      \"args\": [\"/absolute/path/to/therundown-data-mcp-0.2.1/server.mjs\"],\n      \"env\": { \"THERUNDOWN_API_KEY\": \"${env:THERUNDOWN_API_KEY}\" }\n    }\n  }\n}\n```\n\nClient references: [local MCP servers](https://modelcontextprotocol.io/docs/develop/connect-local-servers), [Cursor](https://cursor.com/docs/mcp).\n\nReplace the path and key locally. Use your client's secret storage or inherited environment when available. Do not commit a filled-in client config. The server reads `THERUNDOWN_API_KEY` from its process environment and sends it only as `X-TheRundown-Key`; keys are never accepted as tool arguments. `stdout` contains only MCP protocol messages. A missing key exits with a generic message on `stderr`.\n\nThe six tools are:\n\n| Tool | What it does | When not to use it for discovery |\n| --- | --- | --- |\n| `list_sports` | Lists current public sport IDs and names. | Do not infer that a sport has events or price coverage from its catalog row. |\n| `list_affiliates` | Lists current public affiliate IDs and names. | Do not use it as proof that a book offers a requested sport or market; retired 27 is excluded. |\n| `list_markets` | Lists market definitions, or date-scoped markets for a sport. | Do not treat definitions as open prices; date-scoped discovery rejects `live`. |\n| `list_events` | Finds dated event summaries and available market IDs for one sport. | Do not select an event from memory or a similarly named result; resolve the exact participant, date, and timezone first. |\n| `get_main_lines` | Fetches open per-affiliate main lines for one exact event ID. | Do not call it before `list_events`, or use it to search for an event; it requires the exact returned ID. |\n| `list_futures` | Lists scoped futures competition boards with public schedule, settlement, and open main-line fields. | Do not use it for ordinary dated event discovery or assume a catalog/settlement status alone proves the board is fully settled. |\n\n`list_markets` keeps catalog discovery and can also discover markets available for one `sport_id` and `date`; date-based discovery rejects `live` because that endpoint does not classify live markets. Event queries always use `main_line=true`, `hide_closed=true`, and `include=all_periods`. `list_futures` is an Ultra+ competition endpoint with scoped defaults `[1141]` and `[19,23]`, opaque cursor pagination, public schedule/settlement fields, and open per-affiliate main lines without line IDs. Defaults for dated event tools remain markets `[1,2,3]` and affiliates `[19,23]`. Pass live markets `[41,42,43]` explicitly. Retired affiliate 27 is rejected and excluded from discovery.\n\n## First conversation\n\n```text\nUse TheRundown to list current sports and affiliates. Find MLB (sport 3).\nFor today's UTC date, list events with market_ids [1,2,3]\nand affiliate_ids [19,23]. Select an event ID from that response and\ncall get_main_lines with the same filters.\nShow the source URL, each book's line value and price updated_at,\nand the returned usage headers. Explain empty results without inventing odds.\n```\n\n`npm test` runs offline. To check actual Product API data, privately set `THERUNDOWN_API_KEY` and run `npm run smoke`. The default checks pre-match `[1,2,3]` for MLB and affiliates `[19,23]`. Free includes delayed pre-match odds and excludes live odds, props/alternates, and history; a source catalog row does not grant access to it.\n\nWith an eligible key, `THERUNDOWN_SMOKE_LIVE=1 npm run smoke` also requests live `[41,42,43]`. `THERUNDOWN_SMOKE_DATE=YYYY-MM-DD` and `THERUNDOWN_SMOKE_SPORT_ID` select the dated scope. For a bounded Ultra+ competition check, set `THERUNDOWN_SMOKE_FUTURES=1` and a sport such as `40` (PGA) or `41` (Formula 1); it requests only market `1141` and affiliates `19,23`. The check has a 60-second deadline, verifies all six tool names, and reports its UTC check time, scope, selected event ID, source URLs, usage, and counts. Require `status: \"ok\"`, six tools, and positive event/main-line counts. Empty data is inconclusive and exits 2. These requests are opt-in and metered.\n\nUsage, API plan delays, and entitlements apply to every request. Catalog, date-market, event, and main-line pages paginate locally, so each page refetches a snapshot and is separately metered. `list_futures` uses the API's upstream opaque cursor and page limit; each cursor page is still a metered request and is only a partial competition listing when `has_more` is true. Results expose safe source URLs, retrieval timestamps, API usage headers, and per-price `updated_at`; a retrieval timestamp is not evidence that a price is fresh.\n\n## Agent brief and errors in 0.2.1\n\nRead `therundown://brief` through MCP resources for the current Build with AI\nrules and first conversation. Initialization returns the same instructions;\nneither operation calls the Product API.\n\nHTTP failures return `status`, `plan`, `missing_entitlement`, `required_plan`,\n`retry_after` (seconds), `remaining_points`, `monthly_remaining_points`, and\n`limit_reason`, alongside the safe source URL, retrieval time, and usage headers.\nFields stay `null` when the API does not supply a recognized value. The server\ndoes not guess the current plan from a denied feature. Raw upstream error bodies\nare never returned, and errors do not trigger automatic retries.\n\nAn empty successful result retains its normal `data` shape and adds `empty`\nwith a code, explanation, and request scope. Dated results report the sport,\ndate, and date-boundary offset (UTC at zero); a page beyond existing results is\nidentified separately from an empty slate. Empty odds do not establish absent\ncoverage.\n\nSee [the setup guide](https://docs.therundown.io/data-mcp), [DESIGN.md](DESIGN.md), [authentication](https://docs.therundown.io/authentication), and [billing](https://docs.therundown.io/rate-limits). Read the [OpenAPI specification](https://docs.therundown.io/openapi.yaml), [sports catalog](https://therundown.io/api/v2/sports), [markets catalog](https://therundown.io/api/v2/markets), [affiliates catalog](https://therundown.io/api/v2/affiliates), [TheRundown llms.txt](https://therundown.io/llms.txt), and [documentation llms.txt](https://docs.therundown.io/llms.txt) for current public contracts and IDs.\n",
+  "status": "curated"
+}

@@ -1,0 +1,61 @@
+{
+  "id": "mcp:official/io.github.hiddenjobs/job-search-mcp",
+  "type": "mcp",
+  "name": "HiddenJobs — Remote Tech Job Search MCP",
+  "description": "Search remote tech jobs, inspect descriptions, compare roles, and retrieve application links.",
+  "author": "io.github.hiddenjobs",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/hiddenjobs/job-search-mcp",
+    "repo": "hiddenjobs/job-search-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://api.hiddenjobs.dev/mcp",
+    "env": [
+      {
+        "name": "Authorization",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-10T15:53:25.330405Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Job Search MCP\n\nFind remote technology jobs with MCP. Connect Claude, Cursor, or any AI agent to search roles, filter opportunities, read full descriptions, compare jobs, and find where to apply over Streamable HTTP.\n\nThe server lets an agent discover relevant roles, read complete job descriptions, compare opportunities, and retrieve the original application URL when the account has the required access subscription.\n\n<p align=\"center\">\n  <img src=\"docs/remote-jobs-mcp-flow.png\" alt=\"Remote Jobs MCP flow: search roles, connect your AI, and find your next role\" width=\"100%\">\n</p>\n\n[Find remote tech jobs](https://hiddenjobs.dev/) · [Read the live MCP documentation](https://hiddenjobs.dev/mcp/docs) · [Read the live REST API docs](https://hiddenjobs.dev/api/docs) · [Browse repository docs](docs/)\n\nNeed direct REST access instead? Use the [Job Search API](https://github.com/hiddenjobs/job-search-api).\n\n## Your job-search copilot\n\nUse natural language to discover roles that match your skills and preferences, then go deeper only when a listing is worth your time:\n\n- Search by role, technology, company, location, schedule, or employment type\n- Read full descriptions and structured job metadata\n- Compare shortlisted roles with an AI assistant\n- Request the original application link when your access allows it\n\n## Hosted server\n\nUse the hosted MCP endpoint:\n\n```text\nhttps://api.hiddenjobs.dev/mcp\n```\n\nCreate an access key from the [developer dashboard](https://hiddenjobs.dev/dashboard), then add the endpoint and the key to your MCP client. The bearer token is forwarded to the job search API and is never replaced with a Supabase credential.\n\n## Capabilities\n\n| Tool | Required scope | Purpose |\n| --- | --- | --- |\n| `search_jobs` | `jobs:read` | Search the remote job board with keywords and filters |\n| `get_job` | `jobs:read` | Read public details and the full description for one role |\n| `open_application_link` | `application-links:read` plus an active subscription | Retrieve the original application URL for one role |\n\nSearch and job-detail responses intentionally omit `url`, `application_url`, and `source_url`. They expose `hasApplicationLink` instead. The original URL is returned only by `open_application_link` after the API checks the key scope and the account subscription.\n\nThere is no auto-apply tool.\n\n## Quick start\n\n### 1. Create an access key\n\nCreate an access key with the `jobs:read` and `application-links:read` scopes. The dashboard shows the full key only once. Store it in your client's secret configuration.\n\n### 2. Configure your MCP client\n\nThe configuration is the same for the hosted server and a self-hosted deployment. Replace the placeholder with your own key without committing it.\n\n```json\n{\n  \"mcpServers\": {\n    \"remote-jobs\": {\n      \"url\": \"https://api.hiddenjobs.dev/mcp\",\n      \"headers\": {\n        \"Authorization\": \"Bearer hj_live_...\"\n      }\n    }\n  }\n}\n```\n\nReady-to-copy examples for common clients are in [`examples/`](examples/).\n\n### 3. Ask your client\n\nTry a request such as:\n\n```text\nFind remote TypeScript jobs in Europe and summarize the three best matches.\n```\n\nThe client should call `search_jobs`, then call `get_job` for the offers it wants to inspect. It should call `open_application_link` only when the user asks to apply and the account has an active subscription.\n\n## Architecture\n\n```mermaid\nflowchart LR\n    Client[MCP client] -->|JSON-RPC over HTTPS\\nBearer access key| MCP[Remote Jobs MCP]\n    MCP -->|Forward bearer token| API[Job Search REST API]\n    API --> Auth{API key and scope}\n    Auth -->|jobs:read| Jobs[(Public job data)]\n    Auth -->|application-links:read| Subscription{Active subscription?}\n    Subscription -->|Yes| Link[Original application URL]\n    Subscription -->|No| Denied[402 subscription_required]\n```\n\nThe MCP adapter is deliberately thin. It handles MCP JSON-RPC messages, validates tool arguments, forwards the incoming bearer token to the REST API, and maps API errors into MCP tool results. Supabase is used by the deployed Edge Function as the runtime and by the underlying job search API. MCP clients never need a Supabase key.\n\n### Public boundary\n\nThis repository contains the MCP protocol adapter and its deployment documentation. It does not contain job data, database schemas, billing logic, customer data, service-role credentials, or the internal implementation of the underlying job search platform.\n\n## Request flow\n\n```mermaid\nsequenceDiagram\n    participant C as MCP client\n    participant M as Remote Jobs MCP\n    participant A as Job Search API\n    participant D as Job data layer\n\n    C->>M: tools/call search_jobs\n    M->>A: GET /v1/jobs + bearer token\n    A->>D: Authenticate key and query public jobs\n    D-->>A: Public job data without source URLs\n    A-->>M: JSON API response\n    M-->>C: MCP tool result\n\n    C->>M: tools/call open_application_link\n    M->>A: POST /v1/jobs/:id/application-link\n    A->>D: Check scope and active subscription\n    D-->>A: Authorized or subscription_required\n    A-->>M: URL or 402 response\n    M-->>C: MCP tool result\n```\n\n## Protocol\n\nThe endpoint accepts MCP JSON-RPC 2.0 messages over HTTP `POST`.\n\n| Method | Description |\n| --- | --- |\n| `initialize` | Negotiates protocol version and server capabilities |\n| `ping` | Lightweight liveness request |\n| `tools/list` | Lists the three available tools |\n| `tools/call` | Executes a tool |\n| `notifications/*` | Accepted with HTTP `202` and no response body |\n\nThe current protocol version is `2025-06-18`. See [`docs/protocol.md`](docs/protocol.md) for request and response examples.\n\n## Self-host with Supabase Edge Functions\n\nThe repository contains the deployable function at [`supabase/functions/hidden-jobs-mcp/index.ts`](supabase/functions/hidden-jobs-mcp/index.ts).\n\n### Requirements\n\n- A Supabase project\n- Supabase CLI\n- Deno 2 for local checks\n- An access key for client requests\n\n### Deploy\n\n```bash\nsupabase login\nsupabase link --project-ref <your-project-ref>\nsupabase functions deploy hidden-jobs-mcp --no-verify-jwt\nsupabase secrets set HIDDEN_JOBS_API_URL=https://api.hiddenjobs.dev/v1\n```\n\n`--no-verify-jwt` is intentional. The function authenticates the job-search API bearer token itself, so Supabase must pass the request through instead of requiring a Supabase Auth JWT. The deployed Supabase runtime provides `SUPABASE_URL`. Set `SUPABASE_ANON_KEY` as a function secret only when your API deployment requires the upstream `apikey` header.\n\nDetailed deployment notes, environment variables, and a custom API origin are in [`docs/deployment.md`](docs/deployment.md).\n\n### Run locally\n\n```bash\nHIDDEN_JOBS_API_URL=https://api.hiddenjobs.dev/v1 SUPABASE_ANON_KEY=<supabase-anon-key> deno task start\n```\n\nThe local server listens on Deno's default port. Set `HIDDEN_JOBS_MCP_URL` to the local URL when running the smoke test.\n\n## Test and validate\n\nRun the static checks:\n\n```bash\ndeno task fmt\ndeno task check\n```\n\nRun the authenticated smoke test against the hosted or local server:\n\n```bash\nHIDDEN_JOBS_API_KEY=hj_live_... deno task smoke\n```\n\nThe smoke test checks initialization, tool discovery, job search, and job detail without printing the API key or job application URLs. It does not call `open_application_link` unless `CHECK_APPLICATION_LINK=true` is set.\n\n## Security model\n\n- Treat an API key like a password\n- Never commit a key, put it in a README, or paste it into an issue\n- Store the key in the MCP client's secret store or an environment variable\n- Rotate a key immediately if it is exposed\n- Keep `SUPABASE_ANON_KEY` on the server side\n- Never use a service-role key in an MCP client\n- Search and job detail do not disclose original application URLs\n- Application links are checked again on every request\n\nSee [`SECURITY.md`](SECURITY.md) for reporting and operational guidance.\n\n## Repository layout\n\n```text\n.\n├── README.md\n├── SECURITY.md\n├── deno.json\n├── docs/\n│   ├── client-configuration.md\n│   ├── deployment.md\n│   ├── remote-jobs-mcp-flow.png\n│   ├── protocol.md\n│   └── tool-reference.md\n├── examples/\n├── scripts/\n│   └── smoke-test.ts\n└── supabase/\n    ├── config.toml\n    └── functions/\n        ├── _shared/cors.ts\n        └── hidden-jobs-mcp/index.ts\n```\n\n## License\n\nMIT. See [`LICENSE`](LICENSE).\n",
+  "status": "curated"
+}

@@ -16,8 +16,8 @@
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-08-13T10:03:48.705745Z",
-    "score": 42
+    "pushed_at": "2026-09-10T18:12:26.13309Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -49,6 +49,6 @@
     "category": "金融",
     "featured": false
   },
-  "readme": null,
+  "readme": "# Churnkey SDK\n\nA production-ready cancel flow for React. Open source. Optionally connects to [Churnkey](https://churnkey.co) for analytics and AI-powered retention.\n\n## Packages\n\n| Package | Description |\n| --- | --- |\n| [`@churnkey/react`](./packages/react) | The cancel flow. Drop-in component, headless hook, or core state machine. React 18 and 19. |\n| [`@churnkey/node`](./packages/node) | Server-side token generation. Only needed if Churnkey is handling billing actions for you, or if you're using the hosted embed. |\n| [`@churnkey/mcp`](./packages/mcp) | Model Context Protocol server. Lets Claude, Cursor, and other AI agents query your Churnkey data (sessions, analytics, DSR) using a Data API key. |\n\n## Quick start\n\n```bash\nnpm install @churnkey/react\n```\n\n```tsx\nimport { CancelFlow } from '@churnkey/react'\nimport '@churnkey/react/styles.css'\n\n<CancelFlow\n  steps={[\n    {\n      type: 'survey',\n      title: 'Why are you leaving?',\n      reasons: [\n        {\n          id: 'expensive',\n          label: 'Too expensive',\n          offer: { type: 'discount', couponId: 'STRIPE_SAVE20', percentOff: 20, durationInMonths: 3 },\n        },\n        { id: 'not-using', label: 'Not using it enough', offer: { type: 'pause', months: 2 } },\n        { id: 'missing', label: 'Missing features' },\n      ],\n    },\n    { type: 'feedback', title: 'Anything else?' },\n    { type: 'confirm' },\n  ]}\n  handleDiscount={async (offer) => myBilling.applyCoupon(offer.couponId)}\n  handlePause={async (offer) => myBilling.pause({ months: offer.months })}\n  handleCancel={async () => myBilling.cancel()}\n  onClose={() => setOpen(false)}\n/>\n```\n\n## Documentation and resources\n\n- [`@churnkey/react`](./packages/react/README.md) — full API reference, customization, headless usage, custom step types\n- [`@churnkey/node`](./packages/node/README.md) — `createToken` and `authHash`\n- [`@churnkey/mcp`](./packages/mcp/README.md) — MCP server for Claude / Cursor / Claude Desktop\n- [Create a free Churnkey account](https://app.churnkey.co/register?intent=sdk) — get an `appId` for analytics\n- [churnkey.co](https://churnkey.co) — dashboard, hosted embed, AI retention features\n\n## Repo layout\n\n```\nsdk/\n├── packages/\n│   ├── react/      @churnkey/react\n│   ├── node/       @churnkey/node\n│   └── mcp/        @churnkey/mcp\n├── apps/\n│   └── playground/ internal dev playground\n└── scripts/        release + tooling helpers\n```\n\n## Local development\n\n```bash\npnpm install\npnpm --filter @churnkey/react build\npnpm --filter @churnkey/react test\n```\n\nTo work against the playground:\n\n```bash\npnpm --filter @churnkey/react dev    # rebuilds on change\npnpm --filter @churnkey/playground dev   # runs the playground app\n```\n\n## License\n\nMIT\n",
   "status": "curated"
 }

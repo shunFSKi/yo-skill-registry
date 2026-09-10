@@ -1,0 +1,75 @@
+{
+  "id": "mcp:official/io.github.js713-lab/sonicmatch-mcp",
+  "type": "mcp",
+  "name": "Sonicmatch",
+  "description": "Analyze video mood and pace, then recommend license-safe BGM with a mix spec.",
+  "author": "io.github.js713-lab",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/js713-lab/sonic-match-mcp",
+    "repo": "js713-lab/sonic-match-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "https://github.com/js713-lab/sonic-match-mcp/releases/download/v0.2.0/sonicmatch-mcp-0.2.0.mcpb"
+    ],
+    "env": [
+      {
+        "name": "GEMINI_API_KEY",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "JAMENDO_CLIENT_ID",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "FREESOUND_API_KEY",
+        "required": false,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-10T16:39:50.779612Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "设计",
+    "featured": false
+  },
+  "readme": "# sonicmatch-mcp\n\n<!-- mcp-name: io.github.js713-lab/sonicmatch-mcp -->\n\nOpen-source **MCP server** that recommends **license-safe background music** the way Instagram Stories / Reels *feel*: drop footage, get a shortlist that already matches energy, then pick a 15s hook.\n\nSource: [js713-lab/sonic-match-mcp](https://github.com/js713-lab/sonic-match-mcp). The installable package and CLI are named `sonicmatch-mcp`.\n\nThis is **infrastructure for editors and agents**, not another music chatbot.\n\n```\nVideo or URL in\n  → scene / mood / pace / speech analysis\n  → license-safe BGM shortlist\n  + beat/cut hints\n  + optional mix preview\n```\n\nDo **not** treat this as “script in → YouTube Music search out.” That already exists (`mcp-bgm-recommender`). Sonicmatch watches the **video**.\n\n| You own | You do not own |\n|---|---|\n| Local file / public URL ingest | Platform music licenses |\n| Mood, energy curve, speech vs silence, scene cuts | Meta/TikTok “trending audio” graph |\n| CC / royalty-free catalogs + optional paid adapters | Spotify / IG official libraries |\n| Ranked tracks, preview URLs, mix spec, ffmpeg | Auto-publish to Instagram |\n\n**North star:** `ingest_video` → `analyze_video_music` → `recommend_bgm` → `preview_mix` → `export_mix_spec`\n\n## License warning (read this)\n\n- The **code** is MIT.\n- **Every track has its own license.** It is printed on every recommendation.\n- Nothing here is an official Instagram sticker, TikTok Commercial Music Library track, or YouTube Audio Library API result.\n- Do not recommend commercial pop unless the adapter is explicitly a **user-owned licensed library**.\n- CC-BY still needs attribution. CC-BY-NC is **not** ok for ads / shops. Content ID can still hit you if you point at the wrong source.\n\n## Quick start\n\nRequires Python 3.10+ and `ffmpeg` / `ffprobe` on PATH. `yt-dlp` is optional and **off by default** (`SONICMATCH_ALLOW_YTDLP=0`) because platform extractors break and may violate ToS. Prefer a local file.\n\n```bash\npip install git+https://github.com/js713-lab/sonic-match-mcp.git\n\n# or from a clone\ngit clone https://github.com/js713-lab/sonic-match-mcp.git\ncd sonic-match-mcp\npython3 -m venv .venv\nsource .venv/bin/activate\npip install -e \".[dev]\"\ncp .env.example .env   # optional keys\n\n# stdio (Claude Desktop / Cursor)\nsonicmatch-mcp\n\n# streamable HTTP (web editors)\nsonicmatch-mcp --http --port 8765\n```\n\nWith [uv](https://github.com/astral-sh/uv):\n\n```bash\nuv venv && uv pip install -e \".[dev]\"\nuv run sonicmatch-mcp\n```\n\nv0.2 works **offline-ish** with the checked-in seed catalog. Gemini, Jamendo, and Freesound are optional and degrade with a note in the tool response.\n\n```bash\n# tests (generates tiny color mp4s with ffmpeg)\npytest\n```\n\n### Example agent prompt\n\n> I dropped `./clip.mp4`. Analyze it for an Instagram Reel and recommend 5 instrumental BGMs. Then mix the top pick with ducking and give me the ffmpeg command.\n\n## Claude Desktop\n\n`claude_desktop_config.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"sonicmatch\": {\n      \"command\": \"/absolute/path/to/sonicmatch-mcp/.venv/bin/sonicmatch-mcp\",\n      \"args\": [],\n      \"env\": {\n        \"GEMINI_API_KEY\": \"\",\n        \"JAMENDO_CLIENT_ID\": \"\",\n        \"FREESOUND_API_KEY\": \"\"\n      }\n    }\n  }\n}\n```\n\n## Cursor\n\n`.cursor/mcp.json` (project) or `~/.cursor/mcp.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"sonicmatch\": {\n      \"command\": \"uv\",\n      \"args\": [\"--directory\", \"/absolute/path/to/sonicmatch-mcp\", \"run\", \"sonicmatch-mcp\"]\n    }\n  }\n}\n```\n\nCopy-paste configs live in `examples/claude_desktop.mcp.json` and `examples/cursor.mcp.json`. User-owned Epidemic/Artlist JSON shape: `examples/user_library.example.json`. Registry metadata: `server.json`.\n\nHTTP editors can point at `http://127.0.0.1:8765/mcp` after `sonicmatch-mcp --http`.\n\n## Architecture\n\n```mermaid\nflowchart TB\n  subgraph mcp [MCP Server - FastMCP / Python - stdio + HTTP]\n    tools[ingest_video / analyze_video_music / recommend_bgm / preview_mix / export_mix_spec / suggest_cuts]\n  end\n  tools --> ingest\n  tools --> brain\n  tools --> hub\n  tools --> mixer\n  ingest[Ingestor<br/>yt-dlp · ffmpeg · ffprobe · URL/file]\n  brain[Video Brain<br/>Gemini / local VL · librosa · PySceneDetect · Whisper]\n  hub[Music Hub<br/>seed CC · Jamendo · Freesound · user library · generate]\n  mixer[Mixer<br/>ffmpeg · ducking · loop/trim · EDL cuts]\n  hub --> index[Track index<br/>tags + license + embeddings · SQLite · optional LanceDB]\n```\n\nHard rule: **never send raw multi-MB video through the MCP payload.** Store locally, pass an `asset_id`. Loopback, `file://`, and private IPs are rejected (SSRF).\n\n## MCP tools\n\n| Tool | Input | Output |\n|---|---|---|\n| `status` | — | ffmpeg / keys / seed count |\n| `ingest_video` | local path or HTTPS URL, `max_seconds=180` | `asset_id`, duration, probe, keyframe paths. Platform URLs need `SONICMATCH_ALLOW_YTDLP=1` |\n| `analyze_video_music` | `asset_id` + platform + notes | VideoSonic profile |\n| `recommend_bgm` | profile or `asset_id` + prefs + `brand_kit` | 3–7 ranked tracks + reasons + license + hook in/out |\n| `search_music` | free text / bpm / mood | catalog hits |\n| `get_track` | id | metadata + license + urls |\n| `preview_mix` | `asset_id` + `track_id` + ducking | preview files + ffmpeg recipe + mix spec |\n| `export_mix_spec` | `asset_id` + `track_id` + `render?` | mix spec + ffmpeg + attribution (no render unless asked) |\n| `suggest_cuts` | `asset_id` + optional bpm/track | beat grid, snapped scene cuts, EDL, intro/peak/outro |\n| `generate_bed` | prompt / bpm / duration + `i_understand_not_commercially_cleared=true` | `source=generated` track (not catalog-cleared; excluded from auto recs) |\n| `save_brand_kit` | BPM / moods / no-vocals | persisted kit name for `recommend_bgm(brand_kit=…)` |\n| `analyze_batch` | list of paths/URLs (max 20) | mood cluster + shared mini-playlist |\n\nAlso ships a prompt template: **“Score this video like an IG music sticker.”**\n\n### Product rules (Instagram-like, not Instagram)\n\n- Prefer **instrumental** when `speech_coverage > 0.25`\n- Recommend a **hook window**, not the whole song\n- Show **why** (`cuts at 0.8s average, 112 BPM, warm gold hour`)\n- Always return **license + attribution text**\n- 3–7 tracks, not 40\n- User can override mood / genre / no-lyrics / platform / energy\n- Never claim “cleared for Instagram official sticker” unless it actually is\n\n## VideoSonic profile\n\nAnalysis returns structured JSON, not a paragraph:\n\n```json\n{\n  \"duration_sec\": 18.4,\n  \"aspect\": \"9:16\",\n  \"content_type\": \"lifestyle\",\n  \"has_speech\": true,\n  \"speech_coverage\": 0.62,\n  \"existing_music\": false,\n  \"overall_mood\": [\"warm\", \"playful\"],\n  \"energy_mean\": 0.62,\n  \"energy_curve\": [{\"t\": 0, \"energy\": 0.3}, {\"t\": 4, \"energy\": 0.8}],\n  \"pacing\": \"fast-cut\",\n  \"scenes\": [{\"start\": 0, \"end\": 3.2, \"description\": \"cafe exterior\", \"energy\": 0.4}],\n  \"hook_window\": [9.0, 15.0],\n  \"suggested_bpm\": [95, 118],\n  \"avoid\": [\"dark cinematic drone\", \"aggressive trap\", \"lyrics-dense\"],\n  \"search_queries\": [\"warm acoustic pop instrumental cafe\"],\n  \"platform_hint\": \"instagram_reel\",\n  \"analyzer\": \"local\"\n}\n```\n\n- **Primary:** Gemini video understanding when `GEMINI_API_KEY` is set.\n- **Fallback:** ffmpeg scene cuts + WAV energy / silence / ZCR heuristics. Optional `faster-whisper`, `scenedetect`, `librosa` if installed (`pip install 'sonicmatch-mcp[local-vl]'`).\n\n## Music hub\n\nPluggable, license-first. v0 ships:\n\n| Adapter | When | License reality |\n|---|---|---|\n| **Seed catalog** (`data/seed_tracks.json`) | always | CC0 / CC-BY you control |\n| **Jamendo** | `JAMENDO_CLIENT_ID` | CC, check commercial |\n| **Freesound** | `FREESOUND_API_KEY` | CC, good for beds/loops not songs |\n| **User library JSON** | `SONICMATCH_LIBRARY_PATH` / `EPIDEMIC_LIBRARY_PATH` / `ARTLIST_LIBRARY_PATH` | **you** already licensed it; we do not scrape paid sites |\n| **Generate** | `generate_bed` | always `source=generated`; local sine demo unless you swap a real model |\n\nRanking (weighted): mood/energy → instrumental if speech → duration/loop → BPM vs cut rate → license fit → tag embedding cosine → user constraints.\n\nTracks are indexed in SQLite (`~/.cache/sonicmatch-mcp/db/tracks.sqlite`) with a 24-d tag embedding. If `lancedb` is installed (`pip install 'sonicmatch-mcp[embeddings]'`), vectors are also upserted there.\n\nSeed tracks have no remote audio files on purpose (you should host files you actually have the rights to). `preview_mix` synthesizes a CC0 demo bed so the mixer still runs offline. `generate_bed` is a catalog-miss fallback and is **not** cleared for ads.\n\n## Docker\n\n```bash\ndocker build -t sonicmatch-mcp .\ndocker run --rm -p 8765:8765 -v sonic-cache:/data/cache sonicmatch-mcp\n```\n\n## Roadmap\n\n- [x] Freesound adapter (loops / beds)\n- [x] Tag embeddings in SQLite (+ optional LanceDB extra)\n- [x] Epidemic Sound / Artlist as **user-owned JSON** plugins (no scrape)\n- [x] Beat-grid vs scene-cut suggestions (EDL-ish `suggest_cuts`)\n- [x] MCP registry listing (`server.json`)\n- [x] Generate tool, marked `source=generated` (local demo; swap a real model at your own legal risk)\n- [ ] Real CLAP audio embeddings\n- [x] Official MCP registry listing via GitHub Release MCPB (see [PUBLISH.md](PUBLISH.md))\n- [ ] PyPI release\n- [ ] Beat-grid auto-recut of the video itself (not just EDL hints)\n\n## Why this can be a good open-source project\n\n**Yes if** you nail: (1) video-native analysis, (2) license honesty on every row, (3) editor-shaped output (hook in/out, ducking, mix spec).\n\n**No if** you only wrap YouTube Music search. That is a weekend clone and a copyright magnet.\n\nDay-1 risk gates (enforced in code, not slogans):\n\n| Risk | Gate |\n|---|---|\n| **Content ID** | Every rec/search/get_track includes `content_id_warning`. CC/RF is never \"Content-ID-safe\". `content_id_risk` is `unknown` or `likely`, never `cleared`. |\n| **yt-dlp ToS / broken extractors** | Platform URL ingest is off unless `SONICMATCH_ALLOW_YTDLP=1`. Failures map to `YTDLP_EXTRACTOR` and tell you to pass a local file. |\n| **Upload size / SSRF** | HTTPS-only remote ingest, no `file://` / loopback / private IPs, `SONICMATCH_MAX_DOWNLOAD_MB` (default 200) on files, HTTP, and yt-dlp `--max-filesize`. |\n| **“Trending” is a closed Meta graph** | Queries for trending/viral/IG audio/TikTok sound return empty + `TRENDING_UNAVAILABLE`. `recommend_bgm` always sets `trending_available=false`. |\n| **Generation-model commercial terms** | `generate_bed` refuses unless `i_understand_not_commercially_cleared=true`. Generated tracks are excluded from auto `recommend_bgm`. |\n\n## Use cases\n\nIG Reel / Story · Shopee product clip · YouTube Shorts agent · CapCut/Premiere companion · campus recap · podcast clipper · travel-vlog batch · brand-kit lock (BPM + no vocals) · silent-film / accessibility · multi-agent studio.\n",
+  "status": "curated"
+}

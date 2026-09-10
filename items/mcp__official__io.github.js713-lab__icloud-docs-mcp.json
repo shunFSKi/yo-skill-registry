@@ -1,0 +1,70 @@
+{
+  "id": "mcp:official/io.github.js713-lab/icloud-docs-mcp",
+  "type": "mcp",
+  "name": "iCloud Drive Docs",
+  "description": "Read-only MCP server for listing, searching, downloading, and reading iCloud Drive documents.",
+  "author": "io.github.js713-lab",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/js713-lab/icloud4u-mcp",
+    "repo": "js713-lab/icloud4u-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "https://github.com/js713-lab/icloud4u-mcp/releases/download/v0.1.0/icloud-docs-mcp-0.1.0.mcpb"
+    ],
+    "env": [
+      {
+        "name": "ICLOUD_USERNAME",
+        "required": true,
+        "secret": false
+      },
+      {
+        "name": "ICLOUD_ROOT",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-10T16:39:48.823546Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "写作",
+    "featured": false
+  },
+  "readme": "# icloud-docs-mcp\n\n<!-- mcp-name: io.github.js713-lab/icloud-docs-mcp -->\n\nRead-only [Model Context Protocol](https://modelcontextprotocol.io/) server for **iCloud Drive**.\n\nSource: [js713-lab/icloud4u-mcp](https://github.com/js713-lab/icloud4u-mcp). The installable package and CLI are named `icloud-docs-mcp`.\n\nIt lists a folder, searches by filename, downloads files, and extracts text from common documents. There is no default Apple ID, no bundled documents, and no company-specific search logic.\n\nApple does not publish a third-party iCloud Drive API. This server uses the unofficial [`pyicloud`](https://github.com/picklepete/pyicloud) library. Apple can change endpoints without notice.\n\n## What it is not\n\n- Not Mail, Calendar, Contacts, or Notes\n- Not a hosted / HTTP MCP (it runs locally over stdio)\n- Not a 2FA prompt inside the model session\n- Not upload, rename, or delete\n\n## Disclaimer\n\nThis is not an Apple product. Apple does not publish a third-party iCloud Drive API. The unofficial client can break when Apple changes endpoints, and using it may conflict with Apple's terms. Use it at your own risk, locally, on an account you control.\n\nDo not expose this server on the network. Cookiejar files are login credentials: never commit them, never paste them into issues, and never check in `.env`. See [SECURITY.md](SECURITY.md).\n\nThe `status` tool returns the configured Apple ID and local cache paths so a client can tell whether login succeeded. It never returns a password.\n\n## Install\n\nPython 3.10+\n\nFrom this repository:\n\n```bash\ngit clone https://github.com/js713-lab/icloud4u-mcp.git\ncd icloud4u-mcp\npython3 -m venv .venv\nsource .venv/bin/activate\npip install -e .\n```\n\nInstall from GitHub:\n\n```bash\npip install git+https://github.com/js713-lab/icloud4u-mcp.git\n```\n\nOr, once the package is on PyPI:\n\n```bash\npip install icloud-docs-mcp\n```\n\nCopy `.env.example` to `.env` and set `ICLOUD_USERNAME` to your Apple ID. `.env` is gitignored.\n\n```bash\ncp .env.example .env\n```\n\n## Login (required once)\n\nThe MCP process will not wait for a 2FA code. Log in in a real terminal:\n\n```bash\nexport ICLOUD_USERNAME='you@example.com'\nicloud-docs-mcp login\n```\n\nYou will be prompted for the password and, if Apple asks, a 6-digit device code. A trusted cookiejar is stored under:\n\n```\n$XDG_DATA_HOME/icloud-docs-mcp/<sanitized-username>/\n```\n\n(`~/.local/share/icloud-docs-mcp/...` if `XDG_DATA_HOME` is unset.)\n\nIf a tool returns `NEED_LOGIN` or `NEED_2FA`, run `icloud-docs-mcp login` again, then retry.\n\n```bash\nicloud-docs-mcp status\n```\n\n## Tools\n\n| Tool | Purpose |\n|------|---------|\n| `status` | Session health. Returns the Apple ID and cache paths, never a password. |\n| `list_folder` | One directory. Empty path is Drive root (or `ICLOUD_ROOT`). |\n| `search` | Filename/path query, optional `ext`, capped results. |\n| `download` | Copy Drive files to the local cache. Returns paths, not bytes. |\n| `read_text` | Download if needed; extract text from pdf, docx, xlsx, txt, csv. |\n\nSearch and `read_text` are capped so MCP clients with a small result limit are not flooded.\n\n## Environment\n\n| Variable | Required | Meaning |\n|----------|----------|---------|\n| `ICLOUD_USERNAME` | yes | Apple ID. No default. |\n| `ICLOUD_PASSWORD` | no | Login CLI prompts if unset. Avoid putting this in the MCP env. |\n| `ICLOUD_SESSION_DIR` | no | Cookiejar directory override. |\n| `ICLOUD_DOWNLOAD_DIR` | no | Local download cache. |\n| `ICLOUD_ROOT` | no | Drive folder prefix; all tools are scoped under it. |\n\n## MCP clients\n\nDefault command (no args) speaks MCP on stdio:\n\n```bash\nicloud-docs-mcp\n```\n\n### Grok\n\n```toml\n[mcp_servers.icloud_docs]\ncommand = \"icloud-docs-mcp\"\nenv = { ICLOUD_USERNAME = \"${ICLOUD_USERNAME}\" }\nstartup_timeout_sec = 45\ntool_timeout_sec = 180\ntool_timeouts = { search = 180, download = 300, read_text = 180 }\n```\n\n### Claude Desktop / Cursor\n\n```json\n{\n  \"mcpServers\": {\n    \"icloud-docs\": {\n      \"command\": \"icloud-docs-mcp\",\n      \"env\": {\n        \"ICLOUD_USERNAME\": \"<your-apple-id>\"\n      }\n    }\n  }\n}\n```\n\nUse an absolute path to the venv binary if the client does not inherit your `PATH`.\n\nGrok can also load `.mcp.json` from this repo:\n\n```bash\ngrok plugin install js713-lab/icloud4u-mcp --trust\n```\n\nThat only starts the server. You still need `pip install icloud-docs-mcp` (or `pip install -e .`) and `icloud-docs-mcp login` on the machine.\n\nTo publish a release to PyPI and the official MCP Registry, see [PUBLISH.md](PUBLISH.md).\n\n## Development\n\n```bash\npip install -e \".[dev]\"\npytest\n```\n\nTests mock Apple. CI must never log into iCloud. See [CONTRIBUTING.md](CONTRIBUTING.md).\n\n## License\n\nMIT. Security reports: [SECURITY.md](SECURITY.md).\n",
+  "status": "curated"
+}

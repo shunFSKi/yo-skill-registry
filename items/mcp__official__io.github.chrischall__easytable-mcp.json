@@ -27,8 +27,8 @@
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-09-04T22:22:40.740964Z",
-    "score": 42
+    "pushed_at": "2026-09-10T17:53:38.607361Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -60,6 +60,6 @@
     "category": "生活",
     "featured": false
   },
-  "readme": null,
+  "readme": "# easytable-mcp\n\nAn MCP server for **easyTable** restaurant reservations. easyTable is a\nrestaurant table-booking system with a public per-restaurant widget at\n`https://book.easytable.com/book/?id=<restaurantId>`.\n\nEvery request rides the user's own signed-in, Cloudflare-cleared\n`book.easytable.com` browser tab via the\n[`@fetchproxy/server`](https://github.com/chrischall/fetchproxy) bridge — the\nsite blocks server-side requests, and there is no login (the restaurant is\nidentified by its `id`).\n\n> This project was developed and is maintained by AI (Claude Code). Use at your\n> own discretion.\n\n## Tools\n\n| Tool | Kind |\n| --- | --- |\n| `easytable_list_types` | read — bookable areas/types for a restaurant |\n| `easytable_list_dates` | read — bookable dates for an area + party size |\n| `easytable_list_times` | read — available time slots |\n| `easytable_find_bookings` | read — look up bookings by phone number |\n| `easytable_create_booking` | write (confirm-gated) — make a reservation |\n| `easytable_modify_booking` | write (confirm-gated) — change a reservation |\n| `easytable_cancel_booking` | write (confirm-gated) — cancel a reservation |\n| `easytable_healthcheck` | read — bridge connection status |\n\nWrites are `confirm`-gated: without `confirm: true` they return a dry-run\npreview and make no network call.\n\n## Setup\n\n1. Install the [fetchproxy](https://github.com/chrischall/fetchproxy) browser\n   extension.\n2. Open a booking widget in Chrome: `https://book.easytable.com/book/?id=<id>`\n   and let it finish loading.\n3. The first tool call prints a one-time pair code to approve in the extension.\n\n`create` and `modify` additionally read the widget's Cloudflare Turnstile token\nfrom the loaded confirm step, so a booking-widget tab must be open when you\nconfirm one.\n\n## Development\n\n```sh\nnpm install\nnpm run build\nnpm test\n```\n\nSee `docs/EASYTABLE-API.md` for the reverse-engineered request/response shapes\nand `CLAUDE.md` for architecture notes.\n\n## License\n\nMIT\n",
   "status": "curated"
 }

@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/sh.clearly/clearly",
+  "type": "mcp",
+  "name": "Clearly",
+  "description": "Your workspace as agent tools — docs, canvases, slides, sheets, projects, tickets, and a shell.",
+  "author": "sh.clearly",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/clearly-sh/clearly",
+    "repo": "clearly-sh/clearly"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://relay.clearly.sh/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-10T16:20:08.496436Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "办公",
+    "featured": false
+  },
+  "readme": "# Clearly\n\n**Your workspace, addressable by agents.** Documents, canvases, slides, sheets, projects and\ntickets — reachable over [MCP](https://modelcontextprotocol.io) from any client, and from a\nterminal.\n\n- **Website** — [clearly.sh](https://clearly.sh)\n- **MCP docs** — [clearly.sh/docs/mcp](https://clearly.sh/docs/mcp)\n- **MCP Registry** — [`sh.clearly/clearly`](https://registry.modelcontextprotocol.io/v0.1/servers?search=sh.clearly)\n\n> **This repository has no source code.** It is the public home for **issues, release notes and\n> security reports**. Clearly is a hosted service; the server runs on our infrastructure and the\n> CLI is distributed as a build. If you are looking for a place to file a bug or ask what changed\n> in a release, you are in the right place.\n\n---\n\n## MCP\n\nClearly is an MCP **server**, not a plugin — your agent connects out to it.\n\n```\nhttps://relay.clearly.sh/mcp\n```\n\nAuthentication is OAuth 2.1 with dynamic client registration ([RFC 7591](https://datatracker.ietf.org/doc/html/rfc7591)),\nso most clients need nothing but the URL. Sign-in asks which **workspace** and which **agent** the\nconnection acts as.\n\n### Claude Code\n\n```bash\nclaude mcp add --transport http clearly https://relay.clearly.sh/mcp\nclaude mcp login clearly\n```\n\nThere is also a [Claude Code plugin](https://github.com/clearly-sh/clearly-plugin) that bundles the\nconnector with a set of skills.\n\n### Other clients\n\nAny client that speaks streamable HTTP MCP can connect to the same URL. Configuration differs —\nClaude Desktop and Cursor use `mcpServers`, **VS Code uses `servers` with `\"type\": \"http\"`**, and\nCodex reads its bearer from an environment variable. The\n[MCP docs](https://clearly.sh/docs/mcp) carry a snippet per client.\n\n### Holding more than one workspace or agent at once\n\nA client stores **one credential per server entry**, so two workspaces behind a single entry\ncollide. Two extra path forms exist for that reason — each is a distinct credential key:\n\n| URL | Means |\n|---|---|\n| `/mcp` | the workspace and agent chosen at sign-in |\n| `/mcp/w/<workspaceId>` | pinned to one workspace |\n| `/mcp/w/<workspaceId>/a/<agentId>` | pinned to one workspace **and** one agent |\n\nThe agent segment is **addressing, never authority** — the server refuses it unless it matches the\ntoken's own agent.\n\n### Protocol\n\nStreamable HTTP. The server negotiates and echoes the client's requested protocol revision, and\nsupports `2025-06-18`, `2025-03-26` and `2024-11-05`.\n\n---\n\n## CLI\n\n```bash\ncurl -fsSL https://clearly.sh/install.sh | sh\n```\n\nThe installer writes `beehaven` to `~/.local/bin` (override with `BEEHAVEN_BIN_DIR`).\n\nRead it before you run it — [`install.sh`](https://clearly.sh/install.sh) is a plain shell script.\nBeing precise about what it does, since piping to a shell deserves that: it downloads a release\ntarball from `downloads.clearly.sh` over HTTPS and runs `npm install` inside it to build the native\ndependencies (`better-sqlite3`, `node-pty`) for your platform. **It does not verify a signature or\na checksum today** — your trust is in TLS and in us. Node 20+ is required and the script checks\nfor it first.\n\n```bash\nbeehaven login                       # authenticate\nbeehaven connect home                # pick a workspace\nbeehaven ls ~                        # your documents, as files\nbeehaven grep -ril pricing ~         # search them\nbeehaven call <action> '{...}'       # any workspace action\nbeehaven status                      # connection + auth state\n```\n\n`beehaven --help` lists the rest.\n\n---\n\n## Reporting things\n\n- **Bugs and feature requests** — [open an issue](https://github.com/clearly-sh/clearly/issues/new/choose).\n- **Security** — please do **not** open a public issue. See [SECURITY.md](SECURITY.md).\n\nWhen filing an MCP issue, `beehaven status` and the output of the failing `initialize` are the two\nmost useful things to include. The server reports its build in `serverInfo.version`\n(`0.3.1+<commit>`), which tells us exactly what you were talking to.\n\n---\n\n## Licence\n\n[MIT](LICENSE) for the contents of this repository. The Clearly service itself is governed by its\n[terms](https://clearly.sh/terms).\n",
+  "status": "curated"
+}

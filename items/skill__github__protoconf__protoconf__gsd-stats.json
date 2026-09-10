@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/protoconf/protoconf/gsd-stats",
+  "type": "skill",
+  "name": "gsd-stats",
+  "description": "Display project statistics — phases, plans, requirements, git metrics, and timeline",
+  "author": "protoconf",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/protoconf/protoconf/blob/HEAD/.codebuddy/skills/gsd-stats/SKILL.md",
+    "repo": "protoconf/protoconf",
+    "path": ".codebuddy/skills/gsd-stats/SKILL.md"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 198,
+    "pushed_at": "2026-09-10T04:51:16Z",
+    "score": 73,
+    "star_history": [
+      {
+        "d": "2026-09-10",
+        "s": 198
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "数据",
+    "featured": false
+  },
+  "readme": "<div align=\"center\"><h1>Protoconf</h1></div>\n<div align=\"center\">\n  <img alt=\"logo\" src=\"https://protoconf.github.io/protoconf/assets/protoconf_new.svg\" height=\"128\">\n</div>\n<div align=\"center\">\n<h4>codify configuration, instant delivery</h4>\n</div>\n\n<div align=\"center\">\n  <h3>\n    <a href=\"#quick-start\">\n      Quick start\n    </a>\n    <span> | </span>\n    <a href=\"#production-setup\">\n      Production setup\n    </a>\n    <span> | </span>\n    <a href=\"#build-from-source\">\n      Build from source\n    </a>\n    <span> | </span>\n    <a href=\"https://protoconf.github.io/protoconf\">\n      Documentation\n    </a>\n    <span> | </span>\n    <a href=\"https://lior2b.github.io/temp/\">\n      Web IDE\n    </a>\n  </h3>\n</div>\n\n![Test](https://github.com/protoconf/protoconf/workflows/Check/badge.svg)\n![Release](https://github.com/protoconf/protoconf/workflows/goreleaser/badge.svg)\n\n\n## Introduction\n\nModern services are comprised of many dynamic variables, that need to be changed regularly. Today, the process is unstructured and error prone. From ML model variables, kill switches, gradual rollout configuration, A/B experiment configuration and more - developers want their code to allow to be configured to the finer details.\n\n**Protoconf is a modern approach to software configuration**, inspired by [Facebook's Configerator](https://research.fb.com/publications/holistic-configuration-management-at-facebook/).\n\nUsing Protoconf enables:\n\n- **Code review for configuration changes**\n  Enables the battle tested flow of pull-request & code-review. Configuration auditing out of the box (who did what, when?). The repository is the source of truth for the configuration deployed to production.\n- **No service restart required to pick up changes**\n  Instant delivery of configuration updates. Encourages writing software that doesn't know downtime.\n- **Clear representation of complex configuration**\n  Write configuration in Starlark (a Python dialect), no more copying & pasting from huge JSON files.\n- **Automated validation**\n  Config follows a fully-typed (Protobuf) schema. This allows writing validation code in Starlark, to verify your configuration before it is committed.\n\n#### Configuration update flow\n\n<div align=\"center\">\n  <img src=\"https://lior2b.github.io/temp/protoconf_flow.png\">\n</div>\n\n#### How this looks from the service's eyes\n\nThis is roughly how configuration is consumed by a service. This paradigm encourages you to write software that can reconfigure itself in runtime rather than require a restart:\n\n<div align=\"center\">\n  <img src=\"https://lior2b.github.io/temp/protoconf_api.png\" width=\"400\">\n</div>\n\nAs Protoconf uses Protobuf and gRPC, it supports delivering configuration to [all major languages](https://github.com/protocolbuffers/protobuf/blob/master/docs/third_party.md). See also: [Protobuf overview](https://developers.google.com/protocol-buffers/docs/overview).\n\n## Quick start\n\nStep by step instructions to start developing with Protoconf, with an example from an imaginary Python web crawler service. See full example under `examples/`.\n\n1. Install the `protoconf` binary (see [build from source](#build-from-source))\n\n2. Write a Protobuf schema under `protoconf/src/`(syntax guide https://developers.google.com/protocol-buffers/docs/proto3)\n\n   1. For example: `protoconf/src/crawler/crawler.proto`\n\n   ```protobuf\n   syntax = \"proto3\";\n\n   message Crawler {\n     string user_agent = 1;\n     int32 http_timeout = 2;\n     bool follow_redirects = 3;\n   }\n\n   message CrawlerService {\n     repeated Crawler crawlers = 1;\n     enum AdminPermission {\n       READ_WRITE = 0;\n       GOD_MODE = 1;\n     }\n     map<string, AdminPermission> admins = 2;\n     int32 log_level = 3;\n   }\n   ```\n\n   2. Pro tip: adding fields to an existing schema? Don't worry, Protobuf is backward and forward compatible (https://en.wikipedia.org/wiki/Protocol_Buffers)\n\n3. Write validators _(optional)_\n\n   1. Write a Starlark file alongside the `.proto` file, with a `.proto-validator` suffix\n   2. For example: `protoconf/src/crawler/crawler.proto-validator`\n\n   ```python\n   load(\"crawler.proto\", \"Crawler\", \"CrawlerService\")\n\n   def test_crawlers_not_empty(cs):\n       if len(cs.crawlers) < 1:\n           fail(\"Crawlers can't be empty\")\n\n   add_validator(CrawlerService, test_crawlers_not_empty)\n\n   def test_http_timeout(c):\n       MIN_TIMEOUT = 10\n       if c.http_timeout < MIN_TIMEOUT:\n           fail(\"Crawler HTTP timeout must be at least %d, got %d\" % (MIN_TIMEOUT, c.http_timeout))\n\n   add_validator(Crawler, test_http_timeout)\n   ```\n\n4. Write a config\n\n   1. A Starlark `.pconf` file. Your code can be modular, export functions (ideally in `.pinc` files), and build a complete custom stack for your configuration needs.\n   2. For example: `protoconf/src/crawler/text_crawler.pconf`\n\n      ```python\n      load(\"crawler.proto\", \"Crawler\", \"CrawlerService\")\n\n      def default_crawler():\n          return Crawler(user_agent=\"Linux\", http_timeout=30)\n\n      def main():\n          crawlers = []\n\n          for i in range(3):\n              crawler = default_crawler()\n              crawler.http_timeout = 30 + 30*i\n                  if i == 0:\n                      crawler.follow_redirects = True\n              crawlers.append(crawler)\n\n          admins = {'superuser': CrawlerService.AdminPermission.GOD_MODE}\n          return CrawlerService(crawlers=crawlers, admins=admins, log_level=2)\n      ```\n\n   3. Compile with `protoconf compile`, this will create a materialized config file under `protoconf/materialized_configs/`\n   4. For example: `protoconf compile protoconf/ crawler/text/crawler` will create `protoconf/materialized_config/crawler/text_crawler.materialized_JSON`\n\n   ```json\n   {\n     \"protoFile\": \"crawler/crawler.proto\",\n     \"value\": {\n       \"@type\": \"https://CrawlerService\",\n       \"admins\": {\n         \"superuser\": \"GOD_MODE\"\n       },\n       \"crawlers\": [\n         {\n           \"userAgent\": \"Linux\",\n           \"httpTimeout\": 30,\n           \"followRedirects\": true\n         },\n         {\n           \"userAgent\": \"Linux\",\n           \"httpTimeout\": 60\n         },\n         {\n           \"userAgent\": \"Linux\",\n           \"httpTimeout\": 90\n         }\n       ],\n       \"logLevel\": 2\n     }\n   }\n   ```\n\n5. Run the Protoconf agent in dev mode\n   ```bash\n   protoconf agent protoconf/\n   ```\n6. Prepare your application to work with Protobuf configs coming from Protoconf\n\n   1. Compile your `.proto` schema, this will generate an object to work with.\n      For Python you can use `grpcio-tools`, for example:\n\n      ```bash\n      pip3 install grpcio-tools\n      python3 -m grpc_tools.protoc --python_out=. -I../protoconf/src ../protoconf/src/crawler/crawler.proto\n      ```\n\n      Other languages can use the `protoc` binary (https://developers.google.com/protocol-buffers/docs/tutorials).\n\n   2. Install the Protoconf Python library:\n\n   ```bash\n   pip3 install -r python/requirements.txt python/\n   ```\n\n   3. In your code, setup a connection to Protoconf and get the config. See full example under `examples/`. The code mainly consists of:\n\n   ```python\n   from protoconf import ProtoconfSync\n   from crawler.crawler_pb2 import CrawlerService\n\n   protoconf = ProtoconfSync()\n   crawler_service = protoconf.get_and_subscribe(\"crawler/text_crawler\", CrawlerService, got_config)\n   print(\"config:\", crawler_service)\n\n   def got_config(new_crawler_service):\n       print(\"got a new config:\", new_crawler_service)\n   ```\n\n7. Commit all changes under `protoconf/` (including the `.materialized_JSON` files)\n\n## What `protoconf compile` validates\n\n`protoconf compile` parses and links only the `.proto` files a config\ntransitively loads. Protos under `src/` that no config reaches are not\nparsed, and errors in them — a syntax mistake, a broken reference — are not\nreported at compile time.\n\nThis is deliberate, not an oversight: compile cost is proportional to what\nthe config actually demands, not to how many protos happen to live in the\nrepository. On a 799-proto reference corpus this took startup from 6.97s to\nunder 200ms.\n\nThe error still surfaces — the first time a config loads that proto.\n\nFor whole-tree validation across every proto in your repository, run\n`buf lint` against your own config repository, as a step in your own CI.\nProtoconf does not do this for you: this repository's own CI runs\n`buf breaking` and does not run `buf lint`, and this repository's `buf.yaml`\ncovers protoconf's own protos, not a downstream config repository. Nothing\nin protoconf runs whole-tree validation on an operator's behalf.\n\n## Production setup\n\n1. Run your preferred key-value store (e.g. Consul)\n2. Run the Protoconf agent: `protoconf agent`\n3. Setup a commit hook in your repository server (e.g. Github) that runs `protoconf update` on changed `.materialized_JSON` files\n\n## Build from source\n\n1. Clone Protoconf: `git clone https://github.com/protoconf/protoconf.git`\n2. Build the binary: `cd protoconf && go install ./cmd/protoconf`\n3. Ensure that GOPATH/bin is in your path\n\n\n## Trying the example\n\n1. Make sure Consul is listening locally on default port (you can achieve this with `consul agent -dev`)\n2. Run the agent: `bazel run protoconf agent`\n3. Compile the Protoconf config: `bazel run protoconf compile \"$(pwd)/examples/protoconf\" crawler/text_crawler.pconf`\n4. Insert the Protoconf config to Consul: `bazel run protoconf insert \"$(pwd)/examples/protoconf\" crawler/text_crawler.materialized_JSON`\n5. Run the Go client: `bazel run //examples/grpc_clients/go_client`, the client will get the config from the agent and will listen to changes\n6. Change the config file at `examples/protoconf/src/crawler/text_crawler.pconf`\n7. Repeat steps 4 & 5 to recompile and re-insert the config, observe the client got the updated config\n\n",
+  "status": "curated"
+}

@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/ru.posylai/email",
+  "type": "mcp",
+  "name": "Posylai — AI Email Builder",
+  "description": "Build responsive HTML email campaigns from any brand website: design, QA, export.",
+  "author": "ru.posylai",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/crmlove/posylai-mcp",
+    "repo": "crmlove/posylai-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://mcp.posylai.ru/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-10T15:14:23.426949Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "办公",
+    "featured": false
+  },
+  "readme": "# Posylai MCP — AI Email Builder\n\nBuild production-ready HTML email campaigns from any brand website.\n\nPosylai MCP lets Claude, Cursor, Codex and other MCP-compatible agents analyze a\nbrand website, build an email design system from it, assemble responsive\ncampaigns, QA the rendering and export production HTML.\n\n**Remote MCP endpoint**\n\n```\nhttps://mcp.posylai.ru/mcp\n```\n\nTransport: streamable HTTP. Authentication: personal bearer token.\n\n---\n\n## What it does\n\nMost email tooling starts from a blank template. Posylai starts from the brand's\nown website: it reads the real markup — typography, palette, spacing rhythm,\nbutton shapes, image treatment — and turns it into a reusable master template.\nCampaigns are then assembled from that template's blocks, so every email looks\nlike the brand instead of like a generic newsletter.\n\nThe rendered result is checked before it is handed back: mobile column, alt\ntexts, unsubscribe link, message weight, appearance across mail clients.\n\nTypical timings on our pipeline: ~15 minutes to build a master template from a\nsite, ~10 minutes per campaign after that.\n\n## Getting a token\n\n1. Register at <https://posylai.ru/login.html#reg> — the password is emailed to you.\n2. Sign in to <https://posylai.ru/account/>.\n3. Issue an MCP token there.\n\nTokens are per user, not per server: the endpoint answers nothing without a\nvalid one, and revoking a token in the dashboard takes effect immediately\nwithout affecting anyone else.\n\nThe first template is free.\n\n## Client configuration\n\n### Claude Code\n\n```bash\nclaude mcp add --transport http posylai https://mcp.posylai.ru/mcp \\\n  --header \"Authorization: Bearer YOUR_TOKEN\"\n```\n\n### Claude Desktop, Cursor, VS Code, Codex, Windsurf\n\n```json\n{\n  \"mcpServers\": {\n    \"posylai\": {\n      \"type\": \"http\",\n      \"url\": \"https://mcp.posylai.ru/mcp\",\n      \"headers\": {\n        \"Authorization\": \"Bearer YOUR_TOKEN\"\n      }\n    }\n  }\n}\n```\n\nPer-client file locations are in [`examples/`](examples/).\n\nAny client that speaks streamable HTTP MCP with a bearer header will work; there\nis nothing client-specific in the server.\n\n## Typical flow\n\n| Step | Tool | What happens |\n|---|---|---|\n| 1 | `unified_brands` | List brands already set up |\n| 2 | `unified_brand_design_code` | Extract the visual language from a website |\n| 3 | `unified_brand_sketch` | Draft a master template prototype |\n| 4 | `unified_brand_create` | Create the brand from the prototype |\n| 5 | `unified_plan_start` | Assemble a campaign from a brief |\n| 6 | `unified_job_status` | Poll until it is ready |\n| 7 | `unified_render` | Render the email to images |\n| 8 | `unified_gate` | Pre-send checks |\n| 9 | `unified_export` | Take the production HTML |\n\nStatus tools report progress, so an agent never has to wait blind.\n\n## Tools — 29 total\n\n**Brand and style (9)**\n`unified_brands` · `unified_design_system` · `unified_brand_questionnaire` ·\n`unified_brand_design_code` · `unified_brand_sketch` ·\n`unified_brand_sketch_status` · `unified_brand_sketch_edit` ·\n`unified_brand_brief_submit` · `unified_brand_create`\n\n**Campaign build (6)**\n`unified_masters` · `unified_plan_start` · `unified_job_status` ·\n`unified_apply_dc` · `unified_render` · `unified_rerender`\n\n**Quality checks (4)**\n`unified_qa_report` · `unified_qa_run` · `unified_gate` · `unified_section_images`\n\n**Edits (9)**\n`unified_slot_set` · `unified_section_get` · `unified_section_put` ·\n`unified_section_update` · `unified_fix_finding` · `unified_section_disable` ·\n`unified_upload_asset` · `unified_dc_get` · `unified_dc_put`\n\n**Export (1)**\n`unified_export`\n\n## What it does not do\n\nWorth stating plainly so an agent does not plan around it:\n\n- **It does not send campaigns to a list.** It returns HTML; sending happens\n  through your ESP — Unisender, Sendsay, Mindbox, Mailganer or any other.\n- **It does not store subscribers** and does not segment them.\n- **It does not invent a visual identity.** The style is taken from the brand's\n  site or brand book, not made up.\n\n## Discovery\n\nMachine-readable manifest, open without a token:\n\n```\nhttps://mcp.posylai.ru/.well-known/mcp.json\n```\n\nHuman documentation: <https://posylai.ru/mcp/>\n\n## Support\n\n<hello@crmlove.ru>\n\n---\n\n## По-русски\n\n**Posylai MCP** даёт ИИ-агентам 29 инструментов для сборки email-писем по адресу\nсайта бренда: снять фирменный стиль, собрать мастер-шаблон, сформировать письмо\nпо заданию, проверить вёрстку и забрать готовый HTML.\n\nАдрес сервера — `https://mcp.posylai.ru/mcp`, транспорт streamable HTTP,\nавторизация личным токеном. Токен выпускается в\n[личном кабинете](https://posylai.ru/account/) после\n[регистрации](https://posylai.ru/login.html#reg); первый шаблон бесплатный.\n\nТокен привязан к учётной записи: без действующего токена сервер не отвечает.\nОтозвать его можно в кабинете, старый перестаёт работать сразу.\n\nСервер не рассылает письма по базе и не хранит подписчиков — он отдаёт готовый\nHTML, а отправка идёт через ваш сервис рассылок. Подробная документация\nна русском: <https://posylai.ru/mcp/>\n\n## License\n\nMIT — see [LICENSE](LICENSE).\n\nThis repository contains the public manifest, documentation and client\nconfiguration examples. The server itself is a hosted service.\n",
+  "status": "curated"
+}
