@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.leantrading/leantrading-mcp",
+  "type": "mcp",
+  "name": "LeanTrading MCP",
+  "description": "OAuth LeanTrading tools for eligible Pro, Elite, Blueprint, and Admin users.",
+  "author": "io.leantrading",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/LeanTrading/leantrading-mcp",
+    "repo": "LeanTrading/leantrading-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://www.leantrading.io/api/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-11T07:35:36.084036Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "金融",
+    "featured": false
+  },
+  "readme": "# LeanTrading MCP\n\nConnect Cursor, Claude, and other MCP clients to the hosted LeanTrading\nassistant surface through OAuth 2.1/PKCE.\n\n## Hosted server\n\n```text\nhttps://www.leantrading.io/api/mcp\n```\n\nThe server requires a LeanTrading OAuth connection and an eligible paid\nPro/Elite/Blueprint/Admin account. Product Tester, Explorer, and free accounts\nare not granted hosted MCP access.\n\n## Installation\n\nThis repository contains the marketplace metadata and Cursor plugin wrapper.\nIt does not contain credentials and does not require a manually copied\nSupabase session JWT.\n\nThe default OAuth request is read-only. Chart, write, and execute capabilities\nmust be explicitly requested by the client and remain subject to LeanTrading\nscope checks and confirmation boundaries.\n\n## Safety boundaries\n\n- OAuth authorization uses PKCE with the S256 method.\n- Access and refresh tokens are not stored in plaintext by the server.\n- Entitlements are checked again on every hosted MCP call.\n- Webhook secrets are redacted and are not returned by the MCP tools.\n- Silent broker order placement is not exposed as an MCP operation.\n- Chart and alert mutations require stronger scopes and confirmation flows.\n\nMarketplace listing is not a security certification. Review the source,\nrequested scopes, and the LeanTrading privacy/security notices before\nconnecting an account.\n\n## Repository packaging\n\nThis directory is the export bundle for the public\n`LeanTrading/leantrading-mcp` repository. It contains metadata and a thin\nwrapper for the hosted service; it does not contain the private server source.\n\nBefore submitting it to a marketplace:\n\n1. Keep the repository public and limited to this bundle.\n2. Keep the repository URL in `server.json` and `plugin.json` synchronized.\n3. Keep the hosted endpoint and version in all metadata synchronized with the\n   deployed server.\n4. Publish the approved data-retention and deletion policy before final\n   marketplace submission.\n\n## Privacy note\n\nMCP requests can expose the user's requested LeanTrading system context,\nintelligence, risk-preview, advisory, and charting data to the connected\nclient. Hosted MCP calls are audited using server-side metadata such as user,\nclient, event, tool, status, and structured metadata; raw tool arguments are\nnot stored. This metadata is retained only as long as necessary to provide the\nservice, protect it, and comply with legal obligations, then deleted or\nanonymized when no longer needed. Account deletion remains subject to short\nbackup cycles and statutory retention duties.\n\nMCP hosting and database/authentication subprocessors include Vercel and\nSupabase. Data-protection requests can be sent to `info@leantrading.de`.\n",
+  "status": "curated"
+}

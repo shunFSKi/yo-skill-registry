@@ -17,7 +17,7 @@
   "quality": {
     "stars": null,
     "pushed_at": "2026-09-10T12:31:10.152793Z",
-    "score": 52
+    "score": 42
   },
   "security": {
     "score": 100,
@@ -49,6 +49,6 @@
     "category": null,
     "featured": false
   },
-  "readme": "# frankfurter-mcp\n\nOfficial [Model Context Protocol](https://modelcontextprotocol.io) server for the\n[Frankfurter](https://frankfurter.dev) exchange-rate API. A thin, stateless proxy\nover Frankfurter's v2 blended multi-source reference rates.\n\n## Tools\n\n- **`convert`** — the primary tool. Convert an amount between two currencies;\n  returns a money object `{ amount, currency }` rounded to the target's minor\n  units. Pass `date` for a historical rate, `provider` for one institution's\n  published rate (e.g. `UST`, the U.S. Treasury's quarterly reporting rate).\n- **`get_rates`** — blended reference rates for the latest day or a single\n  `date`. Optional `base`, `quotes` and `provider`. The raw-rate companion to\n  `convert`; with `provider` and the provider's own base, the digits are as\n  published, with the date they took effect.\n- **`list_currencies`** — supported ISO 4217 codes and names as `{ code: name }`.\n- **`list_providers`** — the institutions relayed, with key, rate type,\n  frequency and coverage dates, to pick a `provider`.\n\nFor time series, historical ranges, or bulk queries, use the REST API at\n`https://api.frankfurter.dev/v2` directly.\n\nRates are daily reference rates, not real-time trading rates. Not financial advice.\n\n## Run\n\n```bash\nnpm install\nnpm run build\nnpm start            # listens on :3000, POST /\n```\n\nDocker:\n\n```bash\ndocker build -t frankfurter-mcp . && docker run -p 3000:3000 frankfurter-mcp\ndocker run -p 3000:3000 ghcr.io/lineofflight/frankfurter-mcp:latest\n```\n\nThe prebuilt `ghcr.io/lineofflight/frankfurter-mcp:latest` image is published\non each release; building from source also works.\n\nPoint any MCP client at `http://<host>:3000/` (Streamable HTTP). The hosted\nserver is at `https://mcp.frankfurter.dev/`.\n\n## Configuration\n\n- `PORT` — HTTP port (default `3000`).\n- `FRANKFURTER_API_URL` — upstream API base (default `https://api.frankfurter.dev`).\n  Set this to a self-hosted Frankfurter instance if desired. The value must be a\n  host root: any path prefix in it is discarded (e.g. `https://example.com/api`\n  resolves to `https://example.com/v2/rates`), so a self-hosted instance must be\n  reachable at the host root.\n\n## Development\n\n```bash\nnpm test       # vitest\nnpm run lint   # biome\n```\n\n## License\n\nMIT\n",
+  "readme": null,
   "status": "curated"
 }

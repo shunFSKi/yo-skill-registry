@@ -1,0 +1,69 @@
+{
+  "id": "mcp:official/io.github.apollion69/mcp-portal",
+  "type": "mcp",
+  "name": "mcp-portal",
+  "description": "Cursor CLI delegation for verified bulk reads and reference-driven code generation.",
+  "author": "io.github.apollion69",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/apollion69/mcp-portal",
+    "repo": "apollion69/mcp-portal"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "mcp-portal"
+    ],
+    "env": [
+      {
+        "name": "MCP_PORTAL_HOME",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "MCP_PORTAL_CLI",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-11T11:33:01.613597Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# mcp-portal\n\n<!-- mcp-name: io.github.apollion69/mcp-portal -->\n\n[![CI](https://github.com/apollion69/mcp-portal/actions/workflows/ci.yml/badge.svg)](https://github.com/apollion69/mcp-portal/actions/workflows/ci.yml) [![PyPI](https://img.shields.io/pypi/v/mcp-portal.svg)](https://pypi.org/project/mcp-portal/)\n\n**mcp-portal** is a stdio [Model Context Protocol](https://modelcontextprotocol.io/) server that lets a frontier agent (Claude Code, Codex, Cursor, or any MCP host) delegate two jobs to the **Cursor CLI on its own quota**: bounded **`bulk_read`** (read explicitly selected files, answer with verified quotes) and **`code_write`** (generate boilerplate from a reference file + spec; the **server** writes the target file). Python stdlib only—no Node runtime and no MCP SDK dependency.\n\nOn 2026-09-08, `composer-2.5-fast` generated roughly **5× faster** than a frontier model on the same brief (line-rate measurement). Cursor quota is separate from the host model's.\n\n## Quick start\n\n```bash\nuvx mcp-portal\n```\n\nAlso available as `pipx install mcp-portal` / `pip install mcp-portal`, and listed in the\n[MCP Registry](https://registry.modelcontextprotocol.io/) as `io.github.apollion69/mcp-portal`.\nTo run the development head instead of the release:\n\n```bash\nuvx --from git+https://github.com/apollion69/mcp-portal mcp-portal\n```\n\nRequirements: Python 3.10+, the [Cursor CLI](https://cursor.com/docs/cli) (`cursor-agent`) installed and logged in.\n\nDoctor (CLI inventory, no model call):\n\n```bash\nmcp-portal-doctor\n```\n\n## Configure per host\n\n### Claude Code\n\n```bash\nclaude mcp add --scope user mcp-portal -- uvx mcp-portal\n```\n\n### Codex (`~/.codex/config.toml`)\n\n```toml\n[mcp_servers.mcp-portal]\ncommand = \"uvx\"\nargs = [\"mcp-portal\"]\ntool_timeout_sec = 150\n```\n\n### Cursor (`~/.cursor/mcp.json`)\n\n```json\n{\n  \"mcpServers\": {\n    \"mcp-portal\": {\n      \"command\": \"uvx\",\n      \"args\": [\"mcp-portal\"]\n    }\n  }\n}\n```\n\n### VS Code (`.vscode/mcp.json`, `servers` key)\n\n```json\n{\n  \"servers\": {\n    \"mcp-portal\": {\n      \"type\": \"stdio\",\n      \"command\": \"uvx\",\n      \"args\": [\"mcp-portal\"]\n    }\n  }\n}\n```\n\n### Generic `mcpServers` JSON\n\n```json\n{\n  \"mcpServers\": {\n    \"mcp-portal\": {\n      \"command\": \"uvx\",\n      \"args\": [\"mcp-portal\"]\n    }\n  }\n}\n```\n\nEnvironment (optional):\n\n| Variable | Purpose |\n|----------|---------|\n| `MCP_PORTAL_HOME` | Cache, receipts, evidence (default `~/.cache/mcp-portal`) |\n| `MCP_PORTAL_CLI` | Path to `cursor-agent` / `agent` |\n\n## Tools\n\n### `bulk_read`\n\n| Argument | Required | Description |\n|----------|----------|-------------|\n| `paths` | yes | 1–16 file paths (relative to `root` or absolute) |\n| `question` | yes | Question answered only from those files |\n| `root` | no | Common root; default = longest common parent of `paths` |\n| `model` | no | Override model; policy applies when omitted |\n\nReturns `status`, `run_id`, `answer.findings[]` (`file`, `start`, `end`, `quote`, `fact`), `gaps[]`, `metrics`, `model_decision`.\n\n### `code_write`\n\n| Argument | Required | Description |\n|----------|----------|-------------|\n| `spec` | yes | What to generate |\n| `reference_path` | yes | Style/context reference file |\n| `target_path` | no | If set, server writes this path |\n| `model` | no | Override model |\n\nReturns generated `code`, optional `bytes_written`, `run_id`, `metrics`.\n\n### `status`\n\nNo arguments. Returns CLI path, auth hint, default model, policy summary, cache location, receipt counters.\n\n## Model policy\n\nShipped in `model-policy.json` (package data). Defaults:\n\n- Prefer Cursor-native models (`composer-2.5`, then `cursor-grok-*`)\n- Strip `-fast` suffixes (never auto-select fast variants)\n- Other vendors only when **explicitly** requested and listed by `cursor-agent --list-models`\n\nOverride by editing `model-policy.json` in the installed package or setting policy fields via a custom file at `MCP_PORTAL_HOME` (future) — today, replace the package file or patch `preferred` in your fork. Each tool result includes `model_decision.reason` (`default_preferred`, `fast_suffix_stripped`, `cursor_native_explicit`, `explicit_other_vendor`, `requested_unavailable_fallback`).\n\n## How it works\n\n1. **Authorize** — Server reads only listed paths; blocks credential-like paths and secret patterns.\n2. **Manifest** — Request JSON includes per-file SHA-256 hashes.\n3. **Isolate** — Cursor CLI runs with fresh `CURSOR_CONFIG_DIR`, deny-all permissions, `--mode ask`, sandbox enabled.\n4. **Verify** — Every `quote` in `bulk_read` answers must appear verbatim in the cited line range; bad citations are dropped or fail closed.\n5. **Evidence** — Per-run directory under `MCP_PORTAL_HOME/runs/<run_id>/` with manifest (hashes, metrics; not full source).\n6. **Budgets** — 16 files, 128 KiB combined input, 90s timeout, bounded stdio frames.\n\n## Windows\n\nOn Windows, the delegate uses a **local** Cursor CLI run when either:\n\n- `MCP_PORTAL_CLI` points at an executable (including test stubs), or\n- `cursor-agent` / `agent` is found on `PATH` and is a real file.\n\nOtherwise it falls back to the **`wsl.exe` bridge** into Ubuntu/WSL (`python3 -m mcp_portal.delegate --worker`). Force either mode with `MCP_PORTAL_BACKEND=local` or `MCP_PORTAL_BACKEND=wsl`.\n\n- MCP config can use native `uvx mcp-portal` when the CLI is on PATH, or `wsl.exe` + `uvx mcp-portal` when it is not\n- Helpers in `clients/windows/` (`delegate.ps1`, `parse_read.ps1`)\n- `MCP_PORTAL_WORKER` overrides the default WSL worker command\n- `MCP_PORTAL_WSL_CD` sets the WSL working directory (default `~`)\n\n## Optional Claude Code routing hook\n\nInstall read gate + skill (generic, transactional):\n\n```bash\npython3 -m mcp_portal.install_router prepare --client claude --python python3 \\\n  --state-root ~/.cache/mcp-portal/router-tx --shell bash --command-shell bash\n# then apply with the printed transaction id\n```\n\nSee `docs/skills/cursor-bulk-reader/SKILL.md` for agent-facing guidance. The router blocks or warns on large full-file reads (>350 lines or >128 KiB) and points agents at `bulk_read`.\n\nRepo-level MCP registration helper:\n\n```bash\npython3 -m mcp_portal.install plan\npython3 -m mcp_portal.install apply --target claude-mcp\n```\n\n## Security\n\nSee [SECURITY.md](SECURITY.md). Summary: you choose which files leave the machine; the CLI runs read-only with tools denied; quotes are verified server-side. Not a substitute for secret hygiene.\n\n## Related projects\n\nSeveral **Node-based** bridges expose Cursor via MCP (different tradeoffs: SDK/Node stack, varying isolation and verification):\n\n- [lipey1/cursor-agent-mcp](https://github.com/lipey1/cursor-agent-mcp)\n- [andreilungeanu/cursor-delegate-mcp](https://github.com/andreilungeanu/cursor-delegate-mcp)\n- [sailay1996/cursor-agent-mcp](https://github.com/sailay1996/cursor-agent-mcp)\n- [ai-nuke/cursor-agent-mcp](https://github.com/ai-nuke/cursor-agent-mcp)\n- [JaimeJunr/cursor-mcp-bridge](https://github.com/JaimeJunr/cursor-mcp-bridge)\n\n**mcp-portal** focuses on stdlib Python, hash-pinned manifests, quote verification, server-side writes for `code_write`, model policy, and WSL-first Windows support.\n\n## License\n\nMIT — see [LICENSE](LICENSE).\n",
+  "status": "curated"
+}

@@ -1,0 +1,57 @@
+{
+  "id": "mcp:official/ai.arsentev/contextburn",
+  "type": "mcp",
+  "name": "contextburn",
+  "description": "Run efficiency for coding agents: share of paid tokens that became output, not context re-reading.",
+  "author": "ai.arsentev",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/arsentev-ai/contextburn",
+    "repo": "arsentev-ai/contextburn"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "contextburn"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-11T18:05:08.42567Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "<p align=\"center\">\n  <img src=\"https://raw.githubusercontent.com/arsentev-ai/contextburn/main/assets/readme/hero.svg\" width=\"100%\" alt=\"contextburn: real output over 24 hours — useful work 0.18% of tokens, context re-reading 98.4%, cost-weighted useful work 6.7%, one useful token costs 555 paid tokens\">\n</p>\n\n<p align=\"center\"><a href=\"https://doi.org/10.5281/zenodo.22712985\"><img src=\"https://zenodo.org/badge/DOI/10.5281/zenodo.22712985.svg\" alt=\"DOI 10.5281/zenodo.22712985\"></a></p>\n\n**contextburn** reads the transcripts Claude Code already writes on your machine and tells you what\nshare of the tokens you paid for became model output — and how much was the agent re-reading\ncontext it had already sent.\n\nToken counters answer *\"how much did I spend?\"*. This answers *\"how much of it was work?\"* — a\nnormalised share, so it can be compared across sessions, models and ways of working.\n\n## Try it\n\n```bash\ncp bin/contextburn ~/bin/contextburn && chmod +x ~/bin/contextburn   # python3 only, no dependencies\ncontextburn detail 24\n```\n\n## Why two numbers\n\n<p align=\"center\">\n  <img src=\"https://raw.githubusercontent.com/arsentev-ai/contextburn/main/assets/readme/two-numbers.svg\" width=\"100%\" alt=\"Same 12 tasks, one long session versus twelve short, 3 runs each: token efficiency 1.11% vs 1.12%, no difference; cost-weighted efficiency 31.6% vs 24.6%, seven points apart\">\n</p>\n\n- **By tokens** the share barely moves. Every agent step resends the accumulated context, so\n  re-reading dominates whatever you do — it describes the agent.\n- **Cost-weighted** the share does move, because cached reads are priced far below fresh input and\n  output. It depends on how you run sessions — it describes you.\n\nThe comparison above comes from a controlled experiment with its dataset and analysis scripts:\n[Clear Every Third Task: A Measured U-Curve in the Context Economy of Coding Agents](https://doi.org/10.5281/zenodo.22699668).\n\n## How it counts\n\n- Reads local Claude Code transcripts (`~/.claude/projects/**/*.jsonl`). **Nothing leaves the\n  machine — no network calls at all.**\n- Deduplicates usage records by message id and keeps the element-wise maximum. A streaming runtime\n  writes an early snapshot and a final record for the same call: counting both double-counts it,\n  keeping only the first halves the output.\n- Weights the cost share with per-model prices kept at the top of `bin/contextburn`. Update them\n  there when they change.\n\n## Commands\n\n| command | what it shows |\n|---|---|\n| `contextburn` | what is burning tokens right now |\n| `contextburn detail [hours]` | run efficiency, sessions, and what specifically inflated the context |\n| `contextburn window` | the current 5-hour subscription window |\n| `contextburn --json` | machine-readable state (used by the menu-bar app) |\n| `contextburn --probe <hours>` | raw JSON dump of the parsed sessions |\n| `contextburn --efficiency [hours]` | run efficiency as JSON |\n| `contextburn mcp` | start the MCP server |\n\n### Configuration\n\n| setting | default | meaning |\n|---|---|---|\n| `CONTEXTBURN_LANG` or `~/.config/contextburn/lang` | `en` | interface language: `en` or `ru` |\n| `CONTEXTBURN_DAY_START` | `6` | hour your day starts — the daily total resets here |\n| `CONTEXTBURN_WARN` | `30000000` | tokens/hour that turns the menu-bar counter yellow |\n| `CONTEXTBURN_ALARM` | `90000000` | tokens/hour that turns it red |\n\nThe language file exists because the menu-bar app is launched from Finder, where environment\nvariables never reach it: `echo ru > ~/.config/contextburn/lang` switches both the app and the CLI.\n\n## MCP server\n\nLet the agent read its own run efficiency mid-session. The package ships a dependency-free MCP\nserver (stdio) with two tools: `run_efficiency` returns the shares as structured data, and\n`spend_breakdown` returns the full report.\n\n```bash\nclaude mcp add contextburn -- uvx contextburn mcp\n```\n\nOr install it as a Claude Code plugin, which registers the same server:\n\n```text\n/plugin marketplace add arsentev-ai/contextburn\n/plugin install contextburn@contextburn\n```\n\n<!-- mcp-name: ai.arsentev/contextburn -->\n<!-- mcp-name: io.github.arsentev-ai/contextburn -->\n\n## Menu-bar app (macOS)\n\n`app/main.swift` is a small status-bar app. It polls `contextburn --json` once a minute and shows the\ncurrent burn rate with an hourly graph; click a bar to see that hour's breakdown.\n\n```bash\nswiftc -O -o ContextBurn app/main.swift\n```\n\nSet `CONTEXTBURN_BIN=/path/to/contextburn` if the CLI is not in `~/bin` or the usual Homebrew paths.\n\n## Limits\n\n- Claude Code transcripts only, for now.\n- The cost-weighted share is only as current as the price table in `bin/contextburn`.\n\n## Citing\n\nSoftware DOI (all versions): [10.5281/zenodo.22712985](https://doi.org/10.5281/zenodo.22712985). GitHub's **\"Cite this repository\"** button gives the\nreference; metadata is in [`CITATION.cff`](CITATION.cff).\n\n## Author\n\nEvgenii Arsentev — [arsentev.ai](https://arsentev.ai) ·\nORCID [0000-0002-9120-7298](https://orcid.org/0000-0002-9120-7298)\n\nThis project was published as `tokmon` on its first day and renamed to avoid confusion with\nunrelated tools of that name; `TOKMON_*` environment variables still work.\n\n## License\n\nMIT — see [LICENSE](LICENSE).\n",
+  "status": "curated"
+}

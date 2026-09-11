@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.ilopezluna/factura-luz",
+  "type": "mcp",
+  "name": "factura-luz",
+  "description": "Lee y explica facturas de la luz españolas (QR de la CNMC). Todo en local.",
+  "author": "io.github.ilopezluna",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/ilopezluna/entiende-tu-factura",
+    "repo": "ilopezluna/entiende-tu-factura"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "factura-luz-mcp"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-11T15:00:32.130689Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Entiende tu factura\n\nAplicación **100% cliente** (sin backend) que explica tu factura de la luz. Sube tu\nfactura (PDF o imagen), el navegador lee el código QR de la CNMC y te muestra un\ndesglose claro de lo que estás pagando: potencia, energía, impuestos y contrato.\n\n👉 **Pruébala en vivo: [entiende-tu-factura](https://ilopezluna.github.io/entiende-tu-factura/)**\n\n> **Privacidad:** todo el procesamiento ocurre en tu navegador. Tu factura nunca\n> se envía a ningún servidor.\n\n## Stack\n\n- **React 19 + Vite + TypeScript**\n- **Tailwind CSS v4**\n- Extracción de QR/PDF con `jsqr` + `pdfjs-dist`\n- Tests con **Vitest**\n\n## Para agentes\n\nSi prefieres que sea tu agente quien lea la factura, hay un servidor MCP que expone la\nmisma lógica: [`factura-luz-mcp`](mcp/README.md). Se ejecuta en local, así que la factura\ntampoco sale de tu ordenador.\n\n```bash\nclaude plugin marketplace add ilopezluna/entiende-tu-factura\nclaude plugin install factura-luz@entiende-tu-factura\n```\n\nO, si prefieres solo el servidor MCP sin el comando `/entender`:\n\n```bash\nclaude mcp add factura-luz -- npx -y factura-luz-mcp\n```\n\n## Más servicios\n\nSi quieres comparar ofertas y ahorrar en tu factura, visita\n**[InvoiceDown](https://www.invoicedown.com/)**.\n\n## Requisitos\n\n- Node.js (ver [`.nvmrc`](.nvmrc) → 22.20.0)\n\n## Desarrollo\n\n```bash\nnpm install\nnpm run dev        # http://localhost:5173\n```\n\n## Scripts\n\n| Script              | Descripción                                 |\n| ------------------- | ------------------------------------------- |\n| `npm run dev`       | Servidor de desarrollo (Vite)               |\n| `npm run build`     | Typecheck + build de producción a `dist/`   |\n| `npm run preview`   | Sirve el build de producción                |\n| `npm test`          | Tests (Vitest)                              |\n| `npm run typecheck` | Comprobación de tipos sin emitir            |\n| `npm run format`    | Formatea con Prettier                       |\n| `npm run validate`  | `format:check` + `typecheck` + `test` + MCP |\n| `npm run build:mcp` | Compila el servidor MCP a `mcp/dist`        |\n| `npm run test:mcp`  | Typecheck + tests del servidor MCP          |\n\n## Estructura\n\n```\nsrc/\n├── lib/cnmc/          # Extracción y cálculo (lógica CNMC propia)\n│   ├── extraction/    # scan/pdf (agnósticos) + extractor (navegador) + validadores\n│   ├── parsing/       # parseo de parámetros del QR\n│   ├── types/         # QrParameters + enums\n│   ├── content/       # vocabulario y explicaciones en español\n│   ├── format/        # formateo de números en es-ES\n│   ├── utils/         # cálculo de costes y análisis de potencia\n│   └── __tests__/     # tests de lógica pura\n├── styles/            # Tailwind v4 + design tokens\n├── App.tsx\n└── main.tsx\nmcp/                   # servidor MCP (paquete npm factura-luz-mcp)\n```\n\n`src/lib/cnmc/` es compartido: la web y el servidor MCP calculan con el mismo código.\nSolo `extraction/extractor.ts` depende del navegador; `extraction/scan.ts` y\n`extraction/pdf.ts` no tocan el DOM y se reutilizan en Node.\n\n## Despliegue\n\nPush a `main` despliega automáticamente a GitHub Pages\n([`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)), disponible en\n**https://ilopezluna.github.io/entiende-tu-factura/**. El `base` de Vite es\nrelativo (`./`), por lo que funciona tanto en `usuario.github.io/<repo>/` como en un\ndominio propio.\n",
+  "status": "curated"
+}

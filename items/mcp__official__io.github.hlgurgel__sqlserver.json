@@ -1,0 +1,64 @@
+{
+  "id": "mcp:official/io.github.hlgurgel/sqlserver",
+  "type": "mcp",
+  "name": "SQL Server",
+  "description": "Servidor MCP para SQL Server com controle de permissões e modo somente-leitura",
+  "author": "io.github.hlgurgel",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/hlgurgel/mcp-sqlserver",
+    "repo": "hlgurgel/mcp-sqlserver"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "sqlserver-mcp-tools"
+    ],
+    "env": [
+      {
+        "name": "MSSQL_CONNECTION_STRING",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-11T14:14:39.7001Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# mcp-sqlserver\n\n[![PyPI version](https://img.shields.io/pypi/v/sqlserver-mcp-tools.svg)](https://pypi.org/project/sqlserver-mcp-tools/)\n[![License: MIT](https://img.shields.io/github/license/hlgurgel/mcp-sqlserver.svg)](https://github.com/hlgurgel/mcp-sqlserver/blob/main/LICENSE)\n[![Python versions](https://img.shields.io/pypi/pyversions/sqlserver-mcp-tools.svg)](https://pypi.org/project/sqlserver-mcp-tools/)\n\n<!-- mcp-name: io.github.hlgurgel/sqlserver -->\n\nServidor MCP (Model Context Protocol) para SQL Server, com controle de permissões\ne modo somente-leitura por padrão. Permite que agentes de IA (Claude, opencode e\noutros clientes MCP) consultem e administrem bancos SQL Server de forma segura.\n\n## Segurança\n\n- **Credenciais nunca expostas ao LLM** — a string de conexão é lida do ambiente\n  e nunca aparece nas respostas nem nos logs.\n- **Somente leitura por padrão** — a ferramenta `consulta` bloqueia DDL/DML\n  (INSERT, UPDATE, DELETE, DROP, etc.).\n- **Escrita sob demanda** — ferramentas de escrita (`executar_update`, `executar_ddl`,\n  etc.) só são expostas quando o usuário da conexão possui permissão de escrita\n  (roles `sysadmin`, `db_owner`, `db_datawriter` ou `db_ddladmin`), e exigem\n  confirmação explícita antes de cada execução.\n\n## Pré-requisitos\n\n- Python 3.10+\n- Driver **ODBC Driver 18 for SQL Server**:\n  - macOS: `brew install msodbcsql18`\n  - Windows/Linux: instale o driver correspondente da Microsoft\n\n## Instalação\n\nVia PyPI:\n\n```bash\npip install sqlserver-mcp-tools\n```\n\nOu, sem instalar nada (executa direto do PyPI com cache):\n\n```bash\nuvx --from sqlserver-mcp-tools mcp-sqlserver\n```\n\n## Configuração\n\nO servidor lê a string de conexão das seguintes fontes, em ordem de prioridade:\n\n1. Variável de ambiente `MSSQL_CONNECTION_STRING`\n2. Variável de ambiente `MSSQL_ENV_FILE` apontando para um arquivo `.env`\n3. Arquivo `.env` no diretório de trabalho (ou na raiz do projeto)\n\nExemplo de string de conexão:\n\n```\nDRIVER={ODBC Driver 18 for SQL Server};SERVER=localhost,1433;DATABASE=seu_banco;UID=seu_usuario;PWD=sua_senha;TrustServerCertificate=yes\n```\n\n## Uso com clientes MCP\n\n### Claude Desktop\n\nAdicione ao `claude_desktop_config.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"mcp-sqlserver\": {\n      \"command\": \"uvx\",\n      \"args\": [\"--from\", \"sqlserver-mcp-tools\", \"mcp-sqlserver\"],\n      \"env\": {\n        \"MSSQL_CONNECTION_STRING\": \"DRIVER={ODBC Driver 18 for SQL Server};SERVER=...;DATABASE=...;UID=...;PWD=...;TrustServerCertificate=yes\"\n      }\n    }\n  }\n}\n```\n\nSe instalou via `pip install`, pode usar o entry point diretamente:\n\n```json\n{\n  \"mcpServers\": {\n    \"mcp-sqlserver\": {\n      \"command\": \"mcp-sqlserver\",\n      \"env\": {\n        \"MSSQL_CONNECTION_STRING\": \"DRIVER={ODBC Driver 18 for SQL Server};SERVER=...;DATABASE=...;UID=...;PWD=...;TrustServerCertificate=yes\"\n      }\n    }\n  }\n}\n```\n\n### OpenCode\n\nNo `opencode.json` do projeto:\n\n```json\n{\n  \"mcp\": {\n    \"sqlserver\": {\n      \"type\": \"local\",\n      \"command\": [\"mcp-sqlserver\"],\n      \"environment\": {\n        \"MSSQL_CONNECTION_STRING\": \"DRIVER={ODBC Driver 18 for SQL Server};SERVER=...;DATABASE=...;UID=...;PWD=...;TrustServerCertificate=yes\"\n      }\n    }\n  }\n}\n```\n\nAlternativa: apontar para um arquivo `.env` local, mantendo a senha fora do JSON:\n\n```json\n{\n  \"mcp\": {\n    \"sqlserver\": {\n      \"type\": \"local\",\n      \"command\": [\"mcp-sqlserver\"],\n      \"environment\": {\n        \"MSSQL_ENV_FILE\": \"/caminho/para/seu/.env\"\n      }\n    }\n  }\n}\n```\n\n## Servidor HTTP (Streamable HTTP)\n\nAlém do modo local (stdio), o servidor pode ser executado como um **MCP remoto**\nvia Streamable HTTP, expondo o endpoint `/mcp`. Instale com o extra `server`:\n\n```bash\npip install 'sqlserver-mcp-tools[server]'\n```\n\nInicie o servidor:\n\n```bash\nMSSQL_CONNECTION_STRING=\"DRIVER={ODBC Driver 18 for SQL Server};SERVER=...;DATABASE=...;UID=...;PWD=...;TrustServerCertificate=yes\" \\\n  mcp-sqlserver-http\n```\n\nOpcionalmente, ajuste host/porta com `MCP_HOST` (padrão `0.0.0.0`) e `MCP_PORT`\n(padrão `8090`). O endpoint MCP fica em `http://<host>:<porta>/mcp`.\n\nPara consumir remotamente no opencode:\n\n```json\n{\n  \"mcp\": {\n    \"sqlserver\": {\n      \"type\": \"remote\",\n      \"url\": \"http://10.177.51.228:8090/mcp\"\n    }\n  }\n}\n```\n\n## Ferramentas disponíveis\n\nSomente leitura (sempre disponíveis):\n\n| Ferramenta | Descrição |\n|---|---|\n| `consulta` | Executa SELECT (somente leitura, bloqueia DDL/DML) |\n| `listar_bancos` | Lista os bancos de dados acessíveis |\n| `listar_tabelas` | Lista tabelas e views de um banco |\n| `descrever_tabela` | Estrutura de uma tabela (colunas, tipos, PK) |\n| `listar_indices` | Índices de uma tabela |\n| `listar_procedures` | Lista stored procedures |\n| `ler_procedure` | Código-fonte de uma procedure |\n| `listar_funcoes` | Lista funções (scalar e table-valued) |\n| `ler_funcao` | Código-fonte de uma função |\n| `listar_constraints` | Constraints de uma tabela (PK, FK, UNIQUE, CHECK, DEFAULT) |\n| `estatisticas_tabela` | Estatísticas (linhas, tamanho, uso de dados) |\n| `plano_execucao` | Plano de execução estimado (sem executar) |\n| `status_jobs` | Status da última execução de jobs do SQL Agent |\n\nEscrita (só com permissão de escrita na conexão):\n\n| Ferramenta | Descrição |\n|---|---|\n| `executar_procedure` | Executa uma stored procedure |\n| `executar_update` | Executa UPDATE (exige WHERE) |\n| `criar_indice` | Cria índice |\n| `alterar_procedure` | Altera procedure com backup automático |\n| `executar_ddl` | Executa DDL com backup do script de reversão |\n\n## Licença\n\nMIT\n",
+  "status": "curated"
+}

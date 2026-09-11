@@ -1,0 +1,57 @@
+{
+  "id": "mcp:official/io.github.AnglerfishChess/chess-esca-mcp",
+  "type": "mcp",
+  "name": "Chess Esca",
+  "description": "Read chess positions by the rules: legality with its evidence, draws, facts, openings, PGN",
+  "author": "io.github.AnglerfishChess",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/AnglerfishChess/esca",
+    "repo": "AnglerfishChess/esca"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "chess-esca-mcp"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-11T16:28:02.949907Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "设计",
+    "featured": false
+  },
+  "readme": "# esca\n\n[![crates.io](https://img.shields.io/crates/v/esca)](https://crates.io/crates/esca)\n[![docs.rs](https://img.shields.io/docsrs/esca)](https://docs.rs/esca)\n[![PyPI](https://img.shields.io/pypi/v/esca)](https://pypi.org/project/esca/)\n[![Python](https://img.shields.io/pypi/pyversions/esca)](https://pypi.org/project/esca/)\n[![CI](https://github.com/AnglerfishChess/esca/actions/workflows/ci.yml/badge.svg)](https://github.com/AnglerfishChess/esca/actions/workflows/ci.yml)\n[![MIT](https://img.shields.io/badge/license-MIT-blue)](https://github.com/AnglerfishChess/esca/blob/main/LICENSE)\n\n*Esca is the anglerfish's lure — the light that shows what is really on the board.*\n\nRust/Python MIT chess library: rules, facts, explanations, PGN, opening books and names, UCI client, and an MCP server over it; one API, Chess960 throughout.\n\n`Position` is placement and state and nothing else. Rules live in `Variant` implementations —\n`Classic` and `Chess960` — so a position answers a rules question by taking the variant that\ndefines it, and a new variant is a new implementation and nothing else. A `Game` pairs a variant\nwith the moves played, which is what repetition and claimable draws need. `Facts` answers what is\ntrue about one position — 221 named facts in 14 groups — and `annotated_moves()` answers what each\nof its legal moves does, with 27 more. Every fact is typed, named after what a player would call\nit, and told about White and Black by name.\n\n## Rust\n\n```toml\n[dependencies]\nesca = \"0.4\"\n```\n\n```rust\nuse esca::{Colour, Game, classic};\n\nlet mut game = Game::new(classic());   // Chess960 rules: `esca::chess960()`\ngame.play_san(\"e4\").unwrap();\ngame.play_uci(\"e7e5\").unwrap();\nprintln!(\"{}\", game.position().fen());\n\nlet facts = game.facts();\nprintln!(\"{}\", facts.tactics.legal_move_count.white);\nprintln!(\"{:?}\", facts.pawns.passed.of(Colour::Black).files());\nprintln!(\"{}\", facts.summary());\n```\n\nCargo features, none on by default: `lichess` (streaming reader for the Lichess evaluation\ndump), `pgn` (reading and writing games as PGN), `polyglot` (opening books), `openings` (the\nbundled ECO catalogue), `serde` (the one JSON form of the facts, and the JSON Schema for it),\n`tensors` (a run of positions as one typed array per fact) and `python` (the PyO3 module the\nwheel is built from). `Position::polyglot_key` needs no feature.\n\n## Python\n\n```sh\npip install esca\n```\n\n```python\nimport esca\n\ngame = esca.Game()  # Chess960 rules: esca.Game(variant=esca.CHESS960)\ngame.play_san(\"e4\")\ngame.play(\"e7e5\")\nprint(game.position.fen)\n\nfacts = game.facts()\nprint(facts.tactics.legal_move_count.white)\nprint(list(facts.pawns.passed.black.files))\nprint(facts.to_dict()[\"material\"])  # every group in the one JSON form\n```\n\nWheels are abi3 for Python 3.12 and up. `pip install esca[tensors]` adds NumPy and\n`esca.tensors`, which turns a run of positions into one typed array per fact.\n\n## Examples\n\nThree short programs a side, reading the same `examples/games.pgn`, in\n[`examples/`](https://github.com/AnglerfishChess/esca/tree/main/examples) and\n[`python/examples/`](https://github.com/AnglerfishChess/esca/tree/main/python/examples):\n\n- `pgn_report` / `read_games.py` — per game of a PGN file: opening, final position, ending, passers.\n- `why_illegal` / `legal_moves.py` — every legal move and what it does, then why one other is not.\n- `engine_game` / `engine_game.py` — a UCI engine against itself, its ending as English, JSON and\n  arrays. Takes the engine's path; without one it says so and stops.\n\n## What it covers\n\n- Classic chess and Chess960, behind one `Variant` trait.\n- FEN and EPD, reading `KQkq` and the `AHah` of X-FEN and Shredder-FEN alike, and writing `KQkq`\n  whenever the rook files allow it.\n- Legal move generation into a `MoveList` that never allocates.\n- UCI move text in either castling spelling, and SAN with the disambiguation it needs.\n- Checkmate, stalemate, insufficient material, the fifty- and seventy-five-move rules, and\n  threefold and fivefold repetition.\n- `Facts`: fourteen groups of cheap facts about one position — the board itself, game state,\n  history, material, pawns, pieces, king, mobility, attacks, exchanges, threats, one-ply tactics,\n  endgame and the attack maps side by side — and `MoveFacts` for every legal move, from\n  `annotated_moves()`. Every value that differs between the two sides is a `ByColour`, read as\n  `.white`, `.black` or `.of(colour)`.\n- A catalogue of those facts as data — name, type, dtype, shape and meaning — which\n  `docs/features.md`, `docs/facts.schema.json`, the Python type stubs and the tensor layout are\n  all generated from, and which the MCP server serves.\n- One JSON form for the facts, written by Rust's `serde::Serialize` and by Python's `to_dict()`,\n  byte for byte the same and described by `docs/facts.schema.json`.\n- A typed tensor export: one array per fact, batch first, each keeping the width and sign it was\n  declared with — nothing scaled, normalised or cast to a float — expanded or bit-packed, and\n  written as safetensors.\n- Polyglot opening books: the format's own key on every `Position`, books read, drawn from and\n  built, and an ECO code and name for some 3,800 named positions.\n- Named endings with theory verdicts and technique names, and a one-line English `describe()`\n  beside every value the explanations layer answers with.\n\n## MCP server\n\n`mcp/` is a second distribution from this repository: `chess-esca-mcp`, an MCP server that hands\nesca's answers to an LLM as JSON — the whole state of a position, whether a move is legal and\nevery reason it is not, the named facts, the ECO name, opening-book moves, and PGN read and\nwritten. It carries no engine and does no search. It runs as `uvx chess-esca-mcp`, is versioned\nwith the library and pins the matching `esca`, and is documented in\n[`mcp/README.md`](https://github.com/AnglerfishChess/esca/blob/main/mcp/README.md).\n\n## Documentation\n\n- [`docs/esca-api.md`](https://github.com/AnglerfishChess/esca/blob/main/docs/esca-api.md) —\n  the API in both languages; §11 is the whole Python surface.\n- [`docs/features.md`](https://github.com/AnglerfishChess/esca/blob/main/docs/features.md) —\n  every fact, its type and its meaning, group by group.\n- [`docs/esca-vocabulary.md`](https://github.com/AnglerfishChess/esca/blob/main/docs/esca-vocabulary.md) —\n  the terms the API and the facts are named after.\n\n## Related projects\n\n- [AnglerfishChess/anglerfish](https://github.com/AnglerfishChess/anglerfish) — the chess engine\n  that plays from a learned evaluation, and the Python trainer that produces it. Both are built on\n  esca; the trainer turns its facts into the rows a net eats.\n- [AnglerfishChess/uci-test-suite](https://github.com/AnglerfishChess/uci-test-suite) — a\n  conformance suite that checks a program is a valid UCI engine, whatever its strength. It talks to\n  the engine under test through esca's UCI client.\n- [AnglerfishChess/chess-uci-mcp](https://github.com/AnglerfishChess/chess-uci-mcp) — an MCP server\n  that drives UCI engines from an LLM, so an esca position can be handed to Stockfish for a number\n  and a line to go with the facts esca reads off it.\n- [AnglerfishChess/plugins](https://github.com/AnglerfishChess/plugins) — the agent-plugin\n  marketplace, where `chess-esca-mcp` ships with a skill that teaches an agent which of its tools\n  answers which question.\n\n## License\n\nMIT — see [LICENSE](https://github.com/AnglerfishChess/esca/blob/main/LICENSE).\n\n## Acknowledgements\n\n- [cozy-chess](https://github.com/analog-hors/cozy-chess) (MIT) — the move generator esca\n  stands on.\n- [Lichess](https://lichess.org) — the evaluation dump the `lichess` reader streams, the game\n  database, and [lichess-org/chess-openings](https://github.com/lichess-org/chess-openings),\n  whose opening names the `openings` feature bundles (CC0 1.0 Universal Public Domain\n  Dedication).\n- The Polyglot opening-book format and its key scheme, by Fabien Letouzey; the key constants\n  are those published in [polyglot-book-rs](https://crates.io/crates/polyglot-book-rs)\n  (MIT OR Apache-2.0).\n- [Stockfish](https://stockfishchess.org) and [Leela Chess Zero](https://lczero.org), the\n  engines the UCI client is tested against.\n",
+  "status": "curated"
+}

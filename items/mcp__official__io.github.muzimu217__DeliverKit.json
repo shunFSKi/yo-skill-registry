@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.muzimu217/DeliverKit",
+  "type": "mcp",
+  "name": "DeliverKit",
+  "description": "Plan and verify multi-ecosystem packaging (Linux, Windows, macOS, HarmonyOS) for AI agents.",
+  "author": "io.github.muzimu217",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/muzimu217/DeliverKit",
+    "repo": "muzimu217/DeliverKit"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "deliverkit-mcp"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-11T16:50:51.514364Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "运维",
+    "featured": false
+  },
+  "readme": "# DeliverKit\n\n[![CI](https://github.com/muzimu217/DeliverKit/actions/workflows/test.yml/badge.svg)](https://github.com/muzimu217/DeliverKit/actions/workflows/test.yml)\n[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)\n[![MCP](https://img.shields.io/badge/MCP-stdio-blue)](https://modelcontextprotocol.io)\n[![Node](https://img.shields.io/badge/node-%3E%3D18-green)](package.json)\n\n> **AI 交付大脑**：给 Agent 用的全生态交付编排工具。\n\nDeliverKit 不是一个\"把 Linux 软件塞进 Windows 跑\"的兼容层，而是一个给 AI（Agent）使用的**交付大脑**：它把各生态（Linux / Windows / 苹果 / 鸿蒙）的打包、签名、上架知识变成 AI 能读懂、能执行、能验证的能力，让 AI 理解用户需求后，规划出一条**合法合规的交付链路**，把已经开发好的产品送达每一个生态。\n\n## 30 秒上手\n\n```bash\nnpx -y --package=deliverkit-mcp -- deliverkit doctor            # 先看本机现在能交付哪些目标，缺什么、怎么补\nnpx -y --package=deliverkit-mcp -- deliverkit inspect .         # 识别项目语言与入口\nnpx -y --package=deliverkit-mcp -- deliverkit plan . --goals deb,rpm   # 生成可评审的 Forge.md 交付契约\nnpx -y --package=deliverkit-mcp -- deliverkit pack-deb . --plan Forge.md   # 构建 + 干净容器安装运行验证（需 Docker）\n```\n\n`doctor` 会把「这台机器现在能产出哪些包」摊开讲清楚——不能产出的目标不是缺陷，而是各生态用签名和官方工具链锁定了产出位置，DeliverKit 的做法是把它们规划到正确的 runner 上，而不是在本机伪造产物。\n\n失败时不会只丢一个日志路径给你：错误结果里带 `log_excerpt`（日志尾部片段）、`suggested_fix` 和 `next_actions`，Agent 和人都能直接看到原因与下一步。\n\n\n## 它解决什么问题\n\n\"一次开发、各生态安装包自动产出\"之所以难，不是因为没人想做，而是各生态官方用**代码签名 + 官方工具链 + 官方账号**把这条路锁死了：\n\n| 生态 | 产出安装包的硬约束 |\n|---|---|\n| 苹果（macOS/iOS） | 签名与公证只能在 **macOS + Xcode + Apple 开发者账号**上完成 |\n| Windows | 代码签名需要 **Windows 代码签名证书** |\n| 鸿蒙 | 需要 **华为 DevEco 工具链 + AGC 签名** |\n| Linux（deb/rpm/AppImage） | 唯一能在一台机器上多目标产出，无强制签名门槛 |\n\n所以 DeliverKit **不假装一台机器产出全生态**——它懂得\"每个安装包该在哪、用什么合法方式产出、怎么验证它真的能装能跑\"，并指挥 AI 在正确的环境（本地 / CI 对应平台 runner / 云构建）里完成。这就绕开了各生态的硬约束，而不是去翻墙。\n\n## 当前能力（v0.3.1 · 可安装 MCP + Agent Skill + Linux 三目标闭环）\n\nDeliverKit 通过 MCP（stdio）暴露规划、编排与构建工具：\n\n- **`inspect_project`** —— 识别项目语言、入口与已有打包配置，给出跨生态交付目标建议。识别失败或识别错误时，可传入 `language`（python/javascript/typescript/go/arkts）与 `entrypoints` 手动指定，结果直接进入 Forge.md 契约，不再死路。\n- **`generate_packaging_plan`** —— 生成一份可评审的 `Forge.md` 交付契约（目标生态 / 产物 / 决策依据 / 风险）。\n- **`get_ecosystem_knowledge`** —— 读取已注册生态的结构化打包、签名、分发与验证规则。\n- **`pack_deb`** —— 按 `Forge.md` 在隔离 Ubuntu 容器中构建 `.deb`，并在新容器执行安装和运行验证。\n- **`pack_rpm`** —— 按 `Forge.md` 在隔离 Rocky Linux 容器中构建 `.rpm`，并在新容器执行安装和运行验证。\n- **`pack_appimage`** —— 按 `Forge.md` 在隔离 Ubuntu x86_64 容器中构建 AppImage，并执行 extract-and-run/AppRun 验证。\n- **`generate_ci_workflow`** —— 按 `Forge.md` 生成 GitHub Actions 多平台工作流；Windows/Apple 证书只通过 secrets 注入，HarmonyOS job 要求 Linux self-hosted DevEco runner。\n- **`pack_windows_msi`** —— 在 Windows runner 使用 WiX 构建 MSI，执行 Authenticode 签名与静默安装/卸载验证。\n- **`pack_macos`** —— 在 macOS runner 使用 codesign/hdiutil 构建 DMG，或使用 productbuild/productsign 构建 PKG，执行 notarytool 公证、spctl 与 stapler 验证。\n- **`pack_harmonyos`** —— 在 Linux/Windows DevEco runner 使用 hvigorw 构建 HAP/APP，并用 hdc 安装验证。\n- **`generate_release_manifest`** —— 汇总各平台 JSON 结果、SHA256 与验证证据，生成统一 `ReleaseManifest.json`。\n\n三个 Linux 构建工具都需要可用 Docker 守护进程。`npm run test:e2e:linux` 已用\nPython Flask、TypeScript 和 Go 标准库 HTTP 三个真实 fixture 复现同一份多目标\n`Forge.md`，完成 deb/rpm/AppImage 的构建、安装与运行验证，并生成 `verified`\n状态的 Release Manifest；仓库 CI 也会在\nUbuntu 22.04 与 24.04 runner 上重复该 matrix 并上传 JSON 证据，其他 Linux 主机复核仍建议继续执行。\n\n所有平台构建类工具都遵守两条铁律：\n\n1. **计划先行**（Plan-before-build）：无 `Forge.md` 契约不构建。\n2. **真实验证**（Real verification）：不只看退出码，要验证产物装得上、跑得起来、签名有效。\n\n失败时的可行动性也被当作契约的一部分：Docker 不可用会区分「没装 / 守护进程没起 / 权限不足 / 探测超时」并给出各自的修复动作；构建超时不会伪装成普通构建失败；每次失败都带日志尾部片段与下一步命令；`Forge.md` 的 `source_dir` 比对容忍符号链接差异（如 macOS 的 `/tmp` 与 `/private/tmp`），真不一致时报错会列出两个路径各自的值。\n\nCLI 侧同样支持手动指定（可重复 `--entry`）：\n\n```bash\nnpx -y --package=deliverkit-mcp -- deliverkit plan . --goals deb --language python --entry server.rb\n```\n\n## 接入\n\n### 站点（MCP 转化入口）\n\n仓库附带可直接部署的静态站点：[site/index.html](site/index.html)。首屏是 MCP 安装命令与「10 分钟跑通 Linux」首次任务，生态知识与平台前置指南作为次级入口，Agent Skill 见 [skills/deliverkit-mcp/SKILL.md](skills/deliverkit-mcp/SKILL.md)。\n\n```bash\nnpx serve site\n```\n\n站点不收集任何用户数据（无表单、无统计脚本、无 cookie），也不包含任何账号、证书或私钥；部署与内容边界见 [site/README.md](site/README.md)。\n\nMCP（stdio）：\n\n```json\n{\n  \"mcpServers\": {\n    \"deliverkit\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"deliverkit-mcp\"]\n    }\n  }\n}\n```\n\nCLI：\n\n```bash\ndeliverkit doctor                      # 自检本机可交付目标，缺什么、怎么补\ndeliverkit inspect .                   # 识别项目与交付目标建议\ndeliverkit plan . --goals deb,rpm      # 生成 Forge.md 交付契约\ndeliverkit pack-deb . --plan Forge.md  # 构建并验证 deb（需要 Docker）\ndeliverkit pack-rpm . --plan Forge.md  # 构建并验证 rpm（需要 Docker）\ndeliverkit pack-appimage . --plan Forge.md  # 构建并验证 AppImage（需要 Docker）\ndeliverkit generate-ci-workflow . --plan Forge.md  # 生成多平台 GitHub Actions 工作流\ndeliverkit pack-windows-msi . --plan Forge.md  # 仅 Windows runner 可执行，要求签名 secrets\ndeliverkit pack-macos . --plan Forge.md  # 仅 macOS runner 可执行，按 Forge.md 构建 DMG/PKG\ndeliverkit pack-harmonyos . --plan Forge.md  # 仅 DevEco runner 可执行，要求 AGC secrets/设备\ndeliverkit generate-release-manifest . --plan Forge.md --results .deliverkit/results\n```\n\nCLI 默认输出人类可读摘要（产物、验证项、失败原因、下一步）；任何命令加 `--json` 得到与 MCP 一致的结构化结果，供脚本和 Agent 消费。\n\n## 参与\n\n- 提 issue：[bug 报告 / 生态支持请求](https://github.com/muzimu217/DeliverKit/issues/new/choose)\n- 提 PR 前请读 [CONTRIBUTING.md](CONTRIBUTING.md)（含「新增生态知识包」与「新增 pack_* 工具」的检查清单）\n- 安全问题请按 [SECURITY.md](SECURITY.md) 私下反馈，不要开公开 issue\n- 讨论与提问：[GitHub Discussions](https://github.com/muzimu217/DeliverKit/discussions)（Q&A 24 小时内回应）\n- **用 DeliverKit 打出了装得上、跑得起来的包？** 提交[成功交付反馈](https://github.com/muzimu217/DeliverKit/issues/new?assignees=&labels=success-story&template=success-story.yml)——真实成功交付是本项目的北极星指标，比 star 重要；没有你的明确同意，案例只用于内部计数，不对外宣传。\n\n## 路线图\n\n见 [docs/ROADMAP.md](docs/ROADMAP.md)。简要：\n\n- **A** — 契约层 + 生态知识包 schema（已完成）\n- **B** — Linux 多发行版可验证交付（本地三项目 matrix 门槛已复现，CI/跨主机复核建议继续）\n- **C** — 编排层 + CI 矩阵，Windows MSI（实现中，真实签名门槛待 CI 验证）\n- **D** — 苹果生态（实现中，签名/公证门槛待 macOS CI 验证）\n- **E** — 鸿蒙正式化 + 统一交付报告（实现中，AGC/设备门槛待验证）\n\n## 起源\n\nDeliverKit 的 MCP 协议层与\"计划先行 / 真实验证\"两条铁律继承自 [ForgeKit](https://github.com/CDUESTC-OpenAtom-Open-Source-Club/ForgeKit)（一个专注 Docker 构建诊断的项目）。两者定位不同、各自独立演进：ForgeKit 往窄里做诊断，DeliverKit 往宽里做多生态交付。\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

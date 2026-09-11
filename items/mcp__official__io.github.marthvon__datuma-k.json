@@ -1,0 +1,65 @@
+{
+  "id": "mcp:official/io.github.marthvon/datuma-k",
+  "type": "mcp",
+  "name": "datuma_k",
+  "description": "Query, validate, preview, and generate source from *.dtct data contracts and *.ngin templates.",
+  "author": "io.github.marthvon",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/marthvon/datuma_k",
+    "repo": "marthvon/datuma_k"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@marthvon/datuma-k-mcp"
+    ],
+    "env": [
+      {
+        "name": "DATUMA_K",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-11T09:08:59.542147Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# datuma_k\n\nA data contract (`*.dtct`) plus templates (`*.ngin`) that generate source. Declare the shape once; each platform gets its own types, validation, and UI instead of copying fields by hand.\n\nAn API backend and a React client both need the same records: capacity 1–500, `starts_at` a datetime, title required. Without a shared contract those rules are rewritten in Pydantic, Zod, forms, and serializers, and they drift. datuma_k keeps the shape in `*.dtct`. Shared attributes (`min`, `max`, `local`, `required`) mean the same thing everywhere. ngin turns them into *different* code on purpose: Pydantic `Field(ge=, le=)` on Python, Zod `.min().max()` on TypeScript.\n\n**Guide:** [guide/README.md](guide/README.md) — getting started, contracts, templates, the scripting language, `dk` queries, and generation.\n\n## Install\n\nThe command is `datuma_k`. The package name is `datuma-k`. The Homebrew tap and Scoop bucket use `datuma_k` (underscore) — `brew tap marthvon/datuma-k` clones a repo that does not exist.\n\nMore detail: [guide/getting-started.md](guide/getting-started.md).\n\n**macOS (and Linux with Homebrew)** — Homebrew 6 ignores untrusted taps, so `brew install datuma-k` after a bare `brew tap` will not find it:\n\n```bash\nbrew install marthvon/datuma_k/datuma-k\n```\n\nIf that still fails after an earlier `brew tap`, run `brew untap marthvon/datuma_k` first.\n\n**Fedora**\n\n```bash\nsudo dnf copr enable marthvon/datuma-k\nsudo dnf install datuma-k\n```\n\n**Debian / Ubuntu** — no apt repo:\n\n```bash\n# x86_64\ncurl -fsSL -o /tmp/datuma-k.deb https://github.com/marthvon/datuma_k/releases/download/v1.0.0/datuma-k_1.0.0_amd64.deb && sudo apt install /tmp/datuma-k.deb && rm -f /tmp/datuma-k.deb\n\n# arm64\ncurl -fsSL -o /tmp/datuma-k.deb https://github.com/marthvon/datuma_k/releases/download/v1.0.0/datuma-k_1.0.0_arm64.deb && sudo apt install /tmp/datuma-k.deb && rm -f /tmp/datuma-k.deb\n```\n\n**Alpine** — musl `.apk` (unsigned). On Docker Alpine, install `curl` first; skip `sudo` if you are root. If a previous glibc apk is installed, `apk del datuma-k` first.\n\n```sh\napk add --no-cache curl\ncurl -fsSL -o /tmp/datuma-k.apk https://github.com/marthvon/datuma_k/releases/download/v1.0.0/datuma-k_1.0.0_x86_64.apk && apk add --allow-untrusted /tmp/datuma-k.apk && rm -f /tmp/datuma-k.apk\n```\n\naarch64: `datuma-k_1.0.0_aarch64.apk`. The command is `datuma_k`.\n\n**Windows**\n\n```powershell\nscoop bucket add datuma_k https://github.com/marthvon/scoop-datuma_k\nscoop install datuma-k\n```\n\n**Direct binary** — download a binary or `.rpm` from the same release page, rename to `datuma_k` (or `datuma_k.exe` on Windows), and put it on `PATH`. On Fedora without Copr: `sudo dnf install ./datuma-k-*-1.x86_64.rpm`.\n\n**From source:** `cargo build --release` → `target/release/datuma_k`.\n\n## Quick start\n\n```bash\ndatuma_k start myapp\ncd myapp\n```\n\n`start` creates `data/`, `engine/`, `definition/`, a `.env`, `data/keywords.md`, and a starter `definition/cases.def.ngin`. The `.env` is:\n\n```\nROOT_DIRECTORY=.\nDTCT_DIRECTORY=data\nNGIN_DIRECTORY=engine\nDEF_DIRECTORY=definition\n```\n\nAdd `*.dtct` under `data/`, `*.ngin` under `engine/`, and extra `*.def.ngin` under `definition/` as needed. Document every contract name in `data/keywords.md`. Then generate from **this** project directory (not `$HOME` or `/` — if a command asks, type `yes`):\n\n```bash\ndatuma_k run\n```\n\n## Commands\n\n```\ndatuma_k start <project-name>\ndatuma_k check\ndatuma_k catalog [--trait NAME] [--model NAME] [--field NAME] [--attribute NAME] [--type NAME]\ndatuma_k preview\ndatuma_k run\n```\n\n`start` takes a single directory name (no `/` or `\\`). `check`, `catalog`, and `preview` print JSON and do not write generated files. `catalog` filters match `dk` include filters. `run` commits planned files through dkcache.\n\n`check` also requires `data/keywords.md`: every model, trait, type, attribute, and field name needs a table row with `kind`, `description`, `purpose`, and `platforms` (`api_server`, `web_frontend`, `mobile_frontend`). See [`mcp/resources/keywords.md`](mcp/resources/keywords.md).\n\nAgents: install the MCP in [`mcp/`](mcp/README.md) instead of wrapping these commands by hand.\n\n## What `run` does\n\n1. Load directory paths from `.env` (`ROOT_DIRECTORY`, `DTCT_DIRECTORY`, `NGIN_DIRECTORY`, `DEF_DIRECTORY`).\n2. Parse every `*.dtct`, `*.def.ngin`, and `*.ngin` under those trees.\n3. Plan generated files from the templates.\n4. Commit them through **dkcache**.\n\nA `.dkcache` file sits next to generated output. Text **between** generated spans is kept across runs. Edits **inside** a generated snippet are overwritten the next time you run.\n\n## Example\n\n[`tests/example`](tests/example) is a FastAPI + Vite React app generated from one contract (`Event` and `Venue`). How to generate and start those servers: [`tests/example/README.md`](tests/example/README.md).\n\n`cargo test` regenerates the example and checks the emitted files. It does not start uvicorn or npm.\n\n## Developers\n\n| Crate area | Role |\n| --- | --- |\n| `src/core` | Language, parser, interpreter |\n| `src/dtct` | Data contracts (`*.dtct`) |\n| `src/ngin` | Templates (`*.ngin`, `*.def.ngin`) |\n| `src/dkcache` | Reconcile and commit generated files |\n| `src/project` | Load, plan, catalog, check, preview |\n\n```bash\ncargo test\n```\n\nParser internals and module notes: [`docs/README.md`](docs/README.md).\n\nMCP (stdio, calls this binary): [`mcp/README.md`](mcp/README.md).\n\n## License\n\nCopyright (C) 2026 mamertvonn\n\ndatuma_k (the engine, MCP, grammars, and helpers shipped with this repository) is licensed under the GNU Affero General Public License v3.0. See [`LICENSE.md`](LICENSE.md).\n\nYour own `*.dtct` and `*.ngin` files, and the source `datuma_k run` generates from them, are yours. AGPL does not apply to that output just because you used the binary.\n\nDistributing a modified datuma_k, including offering it as a network service, must stay under AGPL.\n",
+  "status": "curated"
+}

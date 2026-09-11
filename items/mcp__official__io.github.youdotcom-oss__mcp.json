@@ -6,8 +6,8 @@
   "author": "io.github.youdotcom-oss",
   "source": {
     "registry": "mcp-official",
-    "url": "https://github.com/youdotcom-oss/dx-toolkit",
-    "repo": "youdotcom-oss/dx-toolkit"
+    "url": "https://github.com/youdotcom-oss/mcp",
+    "repo": "youdotcom-oss/mcp"
   },
   "license": null,
   "install": {
@@ -37,8 +37,8 @@
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-07-23T09:11:35.051852Z",
-    "score": 37
+    "pushed_at": "2026-09-11T13:57:48.907512Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -70,6 +70,6 @@
     "category": "编程",
     "featured": false
   },
-  "readme": null,
+  "readme": "# @youdotcom-oss/mcp\n\nBin-only STDIO bridge for the hosted You.com MCP server at `https://api.you.com/mcp`.\n\nThis package does not register tools locally and does not contain REST tool logic. Its only job is to proxy STDIO MCP traffic to the hosted remote server.\n\n## Quick start\n\n```jsonc\n// Add this to your MCP client config (Claude Desktop, Cursor, Windsurf, etc.)\n// Free tier — no API key, no signup.\n{\n  \"mcpServers\": {\n    \"you\": {\n      \"command\": \"npx\",\n      \"args\": [\"@youdotcom-oss/mcp\"],\n      \"env\": { \"YDC_PROFILE\": \"free\" }\n    }\n  }\n}\n```\n\nIf your client supports remote MCP, point it at `https://api.you.com/mcp?profile=free` directly — no local process needed.\n\n### Claude Desktop\n\nEdit `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\\Claude\\claude_desktop_config.json` (Windows):\n\n```jsonc\n{\n  \"mcpServers\": {\n    \"you\": {\n      \"command\": \"npx\",\n      \"args\": [\"@youdotcom-oss/mcp\"],\n      \"env\": { \"YDC_PROFILE\": \"free\" }\n    }\n  }\n}\n```\n\nAuthenticated (all default tools):\n\n```jsonc\n{\n  \"mcpServers\": {\n    \"you\": {\n      \"command\": \"npx\",\n      \"args\": [\"@youdotcom-oss/mcp\"],\n      \"env\": { \"YDC_API_KEY\": \"<your-key>\" }\n    }\n  }\n}\n```\n\n### Claude Code\n\n```bash\n# Free tier\nclaude mcp add you -e YDC_PROFILE=free -- npx @youdotcom-oss/mcp\n\n# Authenticated\nclaude mcp add you -e YDC_API_KEY=<your-key> -- npx @youdotcom-oss/mcp\n```\n\n### Cursor\n\nAdd to `~/.cursor/mcp.json` (or `.cursor/mcp.json` in a project):\n\n```jsonc\n{\n  \"mcpServers\": {\n    \"you\": {\n      \"command\": \"npx\",\n      \"args\": [\"@youdotcom-oss/mcp\"],\n      \"env\": { \"YDC_PROFILE\": \"free\" }\n    }\n  }\n}\n```\n\n### Windsurf\n\nAdd to `~/.codeium/windsurf/mcp_config.json`:\n\n```jsonc\n{\n  \"mcpServers\": {\n    \"you\": {\n      \"command\": \"npx\",\n      \"args\": [\"@youdotcom-oss/mcp\"],\n      \"env\": { \"YDC_PROFILE\": \"free\" }\n    }\n  }\n}\n```\n\n### VS Code\n\nAdd to your user or workspace `mcp.json`:\n\n```jsonc\n{\n  \"servers\": {\n    \"you\": {\n      \"command\": \"npx\",\n      \"args\": [\"@youdotcom-oss/mcp\"],\n      \"env\": { \"YDC_PROFILE\": \"free\" }\n    }\n  }\n}\n```\n\n### Any MCP client (remote)\n\nIf your client speaks streamable HTTP, skip the local bridge:\n\n```\nhttps://api.you.com/mcp?profile=free\n```\n\nAuthenticated:\n\n```\nhttps://api.you.com/mcp\nAuthorization: Bearer <your-key>\n```\n\n## Install\n\n```bash\nbun add @youdotcom-oss/mcp\n```\n\nOr run it directly:\n\n```bash\nnpx @youdotcom-oss/mcp\n```\n\n## Environment\n\n- `YDC_API_KEY`\n  Optional. Sent as `Authorization: Bearer <key>`.\n- `YDC_PROFILE`\n  Optional. When set to `free`, routes the bridge to `https://api.you.com/mcp?profile=free`.\n- `YDC_ALLOWED_TOOLS`\n  Optional. Comma-separated hosted tool ids to expose through `https://api.you.com/mcp?tools=...`.\n\n`YDC_PROFILE` takes precedence over `YDC_ALLOWED_TOOLS`.\n\n## Tool exposure\n\nThe default hosted MCP URL exposes four tools:\n\n- `you-search`\n- `you-contents`\n- `you-balance`\n- `you-discover`\n\nTwo additional tools are available on request:\n\n- `you-finance`\n- `you-research`\n\nRequest additional tools explicitly with `tools`. `tools` scopes the visible tool set.\n\nToday, `profile=free` is a search-only mode. It overrides `tools` and exposes only `you-search`.\n\nExamples:\n\n- Default tool set: `https://api.you.com/mcp`\n- Finance only: `https://api.you.com/mcp?tools=you-finance`\n- Search plus finance: `https://api.you.com/mcp?tools=you-search,you-finance`\n- Research only: `https://api.you.com/mcp?tools=you-research`\n- Free search profile: `https://api.you.com/mcp?profile=free`\n\n## Links\n\n- API keys: [you.com/platform/api-keys](https://you.com/platform/api-keys)\n- Platform docs: [documentation.you.com](https://documentation.you.com)\n- MCP registry listing: [`io.github.youdotcom-oss/mcp`](https://registry.modelcontextprotocol.io/?q=io.github.youdotcom-oss%2Fmcp)\n- Issues: [github.com/youdotcom-oss/mcp/issues](https://github.com/youdotcom-oss/mcp/issues)\n- Support: support@you.com\n\n## Contributing\n\nDevelopment setup and code conventions live in [AGENTS.md](./AGENTS.md); contribution flow and PR conventions live in [CONTRIBUTING.md](./CONTRIBUTING.md). Issues and PRs welcome.\n\n## License\n\nMIT — see [LICENSE](./LICENSE).\n",
   "status": "curated"
 }

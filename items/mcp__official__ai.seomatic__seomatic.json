@@ -6,8 +6,8 @@
   "author": "ai.seomatic",
   "source": {
     "registry": "mcp-official",
-    "url": "https://app.seomatic.ai/api/mcp",
-    "repo": null
+    "url": "https://github.com/Minh42/seomatic-mcp",
+    "repo": "Minh42/seomatic-mcp"
   },
   "license": null,
   "install": {
@@ -16,8 +16,8 @@
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-08-31T20:14:27.400899Z",
-    "score": 42
+    "pushed_at": "2026-09-11T15:28:24.97688Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -49,6 +49,6 @@
     "category": "营销",
     "featured": false
   },
-  "readme": null,
+  "readme": "# SEOmatic MCP Server\n\nSEO agent for your own website, as a **hosted (remote) MCP server**. Connect it\nand your AI agent can read your real SEO data and stage fixes that always wait\nfor your approval.\n\n- **Endpoint:** `https://app.seomatic.ai/api/mcp` (Streamable HTTP)\n- **Auth:** OAuth 2.1 (interactive clients) or a `Bearer` API key (headless)\n- **Docs:** https://seomatic.ai/developers/mcp\n\nThere is nothing to clone, build, or run: this repository documents how to\nconnect to the hosted server.\n\n## What you can ask\n\n- Which keywords am I close to ranking on page 1 for?\n- Which pages are losing traffic, and why?\n- What backlinks did I gain this month? Who links to my competitors but not me?\n- Does ChatGPT mention my site when people ask about my topic?\n- Are my Google Ads and SEO fighting over the same keywords?\n\nOn a paid SEOmatic plan, the agent can also **stage** SEO fix tasks, content\ncampaigns, and article drafts. Nothing touches your site until a human\napproves it in SEOmatic, and every change shows before-and-after results.\n\n## Tools\n\n14 consolidated tools, each annotated (read-only vs staging) and scoped to the\nconnected workspace: `gsc_performance`, `gsc_insights`, `gsc_indexing`,\n`keyword_research`, `keyword_clusters`, `backlink_profile`, `serp_competitors`,\n`traffic_analytics`, `local_presence`, `site_pages`, `dataset_library`,\n`strategy_insights`, `task_manage`, `campaign_manage`. The roster you see\ndepends on your plan and connected data sources. Full reference:\nhttps://seomatic.ai/developers/mcp\n\n## Install in Cline\n\n1. Create a SEOmatic account at https://app.seomatic.ai (free tier works) and\n   mint an API key: **Settings -> API Keys -> Create key**. Copy the\n   `smk_live_...` value.\n2. Add this to your Cline MCP settings file (`cline_mcp_settings.json`):\n\n```json\n{\n  \"mcpServers\": {\n    \"seomatic\": {\n      \"url\": \"https://app.seomatic.ai/api/mcp\",\n      \"type\": \"streamableHttp\",\n      \"headers\": {\n        \"Authorization\": \"Bearer smk_live_YOUR_KEY_HERE\"\n      }\n    }\n  }\n}\n```\n\n3. Ask Cline something like: \"What are my striking-distance queries? Use\n   SEOmatic.\" Tools are already scoped to your connected site, so no domain\n   parameter is ever needed.\n\n## Install in other clients\n\n- **Claude (web/desktop):** Settings -> Connectors -> Add custom connector ->\n  URL `https://app.seomatic.ai/api/mcp` (OAuth, no key needed)\n- **Claude Code:** `claude mcp add --transport http seomatic https://app.seomatic.ai/api/mcp`\n- **Cursor:** add `{\"mcpServers\": {\"seomatic\": {\"url\": \"https://app.seomatic.ai/api/mcp\"}}}` to `mcp.json`\n- **Grok Bot (x.ai/bot):** always-on SEO teammate with weekly routines - full\n  template in [grok-bot/](./grok-bot/)\n\n## Free vs paid\n\nThe free tier includes the insight tools with a monthly question quota shared\nwith SEOmatic chat. Acting tools (staging tasks, campaigns, articles) need a\npaid plan and always keep the human-approval gate.\n\n## The SEO Audit skill\n\n`skills/seomatic-seo-audit/` is an Agent Skill that turns the connector into\na guided, senior-SEO-grade audit: baseline, CTR mismatches, striking-distance\nkeywords, decay diagnosis with competitors, indexation, backlinks, AI\nvisibility, and a verdict-first report ranked by business impact. Every claim\ncomes from your data; acting is always approval-gated.\n\n**Install in Claude Code:**\n\n```bash\ngit clone https://github.com/Minh42/seomatic-mcp.git\nmkdir -p ~/.claude/skills\ncp -r seomatic-mcp/skills/seomatic-seo-audit ~/.claude/skills/\n```\n\nThen in any session with the SEOmatic connector active, just ask:\n\"Run a full SEO audit of my site.\" The skill is also on\n[Smithery](https://smithery.ai/skills).\n\n## Support\n\n- Docs: https://seomatic.ai/developers/mcp\n- Site: https://seomatic.ai\n",
   "status": "curated"
 }

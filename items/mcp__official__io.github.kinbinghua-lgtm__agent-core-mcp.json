@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.kinbinghua-lgtm/agent-core-mcp",
+  "type": "mcp",
+  "name": "Agent Core",
+  "description": "Deterministic computation tools for AI agents. Zero dependencies, no network, read-only.",
+  "author": "io.github.kinbinghua-lgtm",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/kinbinghua-lgtm/agent-core-mcp",
+    "repo": "kinbinghua-lgtm/agent-core-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "agent-core-mcp"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-11T10:35:21.04619Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# agent-core-mcp\n\n**Deterministic computation tools for AI agents.** Exact diffing, hashing, JSON querying, calendar arithmetic, regex extraction under a hard execution deadline, CSV parsing, similarity scoring and unit/base conversion — as an MCP server.\n\n**Zero dependencies. No network. Read-only.**\n\n---\n\n## Why this exists\n\nLanguage models are excellent at generating language and unreliable at **exact, reproducible mechanical computation**. That is not a capability gap — it is an architectural property. Asking a probabilistic system to count, diff, hash or do calendar math guarantees a certain rate of confident wrong answers.\n\nThis server moves those operations out of the model and into a deterministic engine.\n\n**The result is not a better guess. It is a different category of answer: one that is exact and reproducible.**\n\nThere is a second reason, specific to the MCP ecosystem. The most-reported problems with published servers are credential exfiltration, undisclosed shell execution, dependency trees carrying known CVEs, and servers that hang the client. A server with no network, no credentials, no execution surface, and a bounding deadline on every operation cannot exhibit any of them.\n\n## Guarantees\n\n| Guarantee | Meaning |\n|---|---|\n| **Zero dependencies** | No `node_modules`. Nothing to audit, nothing to go stale, nothing to break. |\n| **No network access** | Nothing here calls out. Not one request, ever. |\n| **No credentials** | Reads no tokens, no API keys, no environment variables. |\n| **Read-only** | No file writes, no shell execution, no state. Stateless per call. |\n| **Deterministic** | Identical input produces byte-identical output. |\n| **Bounded** | Every loop and result set is capped. Regex execution runs in a worker thread that is terminated on deadline, so no pattern can hang the client. |\n\nThe server publishes these as a machine-readable `contract` resource (`agent-core://contract`), so a client can verify what it is installing rather than trusting this file.\n\n## Install\n\n```bash\nnpx agent-core-mcp\n```\n\nNo install step is required to run it. Requires Node.js 18 or newer.\n\nAvailable from:\n\n- **npm** — [`agent-core-mcp`](https://www.npmjs.com/package/agent-core-mcp)\n- **Official MCP registry** — `io.github.kinbinghua-lgtm/agent-core-mcp`\n- **Source** — [github.com/kinbinghua-lgtm/agent-core-mcp](https://github.com/kinbinghua-lgtm/agent-core-mcp)\n\n## Configure\n\n### Claude Code\n\nThis repository ships a `.mcp.json`, so cloning it is enough:\n\n```bash\ngit clone https://github.com/kinbinghua-lgtm/agent-core-mcp\ncd agent-core-mcp\nclaude   # the agent-core server is discovered automatically\n```\n\nOr add it to any project:\n\n```json\n{\n  \"mcpServers\": {\n    \"agent-core\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"agent-core-mcp\"]\n    }\n  }\n}\n```\n\n### Claude Desktop, Cursor, VS Code, Windsurf, Continue, Zed\n\nSame block, in that client's MCP configuration file. No API keys. No environment variables. Nothing to sign up for.\n\n## Tools\n\n| Tool | What it does | Why the model shouldn't do it itself |\n|---|---|---|\n| `diff_text` | Exact line diff (LCS) with line numbers and added/removed counts | Requires exact sequence alignment; refuses oversized input rather than hanging |\n| `hash` | sha256 / sha512 / sha1 / md5 / HMAC, hex + base64 + UTF-8 byte length | Cannot be computed by inspection |\n| `json_validate` | Validity plus the parser message **and computed line/column** | Pinpointing the error by eye is error-prone |\n| `json_query` | Path access like `a.b[0].c`; separates *absent* from *present-but-null* | Conflating those two silently causes real bugs |\n| `json_pick` | Resolve many paths in one call | Cheaper than N round trips |\n| `text_stats` | Code points, UTF-8 bytes, lines, words, sentences, paragraphs, unique words, top words | Counting is precisely what probabilistic generation gets wrong |\n| `date_calc` | Interval in days/weeks/months/years/hours/minutes/seconds/**businessDays** | True calendar months, not 30-day approximations |\n| `date_add` | Offset a date, calendar-correct | Month-end and leap-year handling |\n| `regex_extract` | All matches with indices, numbered and named groups, **under a hard deadline** | A catastrophic pattern is terminated instead of hanging |\n| `regex_analyze` | Static ReDoS risk assessment of a pattern | Nested quantifiers, overlapping alternation, backreferences |\n| `fuzzy_match` | Rank candidates by Sorensen-Dice similarity | Deterministic scoring instead of vibes |\n| `similarity` | Single similarity score, 0..1 | — |\n| `parse_table` | RFC 4180 CSV/TSV with quotes, escapes, embedded newlines; delimiter auto-detection | Naive comma-splitting breaks on any real CSV |\n| `convert` | Length, mass, time, data size; rejects cross-family conversions | Unit errors are silent and catastrophic |\n| `base_convert` | Bases 2-36 with **arbitrary precision** | Values above 2^53 lose precision in naive conversion |\n\n## The ReDoS deadline\n\n`regex_extract` accepts an optional `budgetMs` (default 1000, maximum 10000). Execution happens in a worker thread that is **terminated** when the deadline expires.\n\nThis is not a nicety. Node's regex engine cannot be interrupted, so a pattern with catastrophic backtracking blocks the main thread indefinitely. Measured growth for `(a+)+$` against `'a'.repeat(n) + '!'`:\n\n| n | time |\n|---|---|\n| 20 | 18 ms |\n| 22 | 70 ms |\n| 24 | 276 ms |\n| 26 | 1108 ms |\n\nRoughly 4x per two additional characters. At n=40 it does not return. In an MCP server, which runs on the client's main thread, this freezes the user's editor. Process isolation plus termination is the only real boundary.\n\nOn expiry the response says so, and tells the caller how to fix the pattern:\n\n```json\n{\n  \"timedOut\": true,\n  \"budgetMs\": 300,\n  \"safety\": {\n    \"risk\": \"high\",\n    \"reasons\": [\"nested quantifier inside a repeated group — classic exponential backtracking\"]\n  },\n  \"advice\": \"Pattern execution exceeded 300ms and was terminated. ... Rewrite it to remove ambiguity — typically by replacing a nested quantifier such as (a+)+ with an unambiguous form such as a+ ...\"\n}\n```\n\n## Argument validation\n\nEvery call is validated against the tool's own JSON Schema before dispatch: required fields, primitive types, enum membership, numeric bounds and unknown properties. A malformed call returns a specific error instead of a confident wrong answer.\n\nThis matters because clients do not reliably honour schemas. A server that silently proceeds on a malformed call is worse than one that refuses it.\n\n## Examples\n\n**Exact diff**\n\n```json\n{ \"a\": \"line one\\nline two\", \"b\": \"line one\\nline 2\" }\n```\n→ `{ \"added\": 1, \"removed\": 1, \"lines\": [ { \"op\": \"equal\", \"aLine\": 1, \"bLine\": 1 }, ... ] }`\n\n**Big-integer conversion that stays exact**\n\n```json\n{ \"value\": \"9007199254740993\", \"fromBase\": 10, \"toBase\": 16 }\n```\n→ `{ \"result\": \"20000000000001\", \"decimal\": \"9007199254740993\" }`\n\n**Business days between two dates**\n\n```json\n{ \"from\": \"2026-01-05\", \"to\": \"2026-01-12\", \"unit\": \"businessDays\" }\n```\n→ `{ \"value\": 5 }`\n\n**Check a pattern before running it**\n\n```json\n{ \"pattern\": \"(a+)+$\" }\n```\n→ `{ \"risk\": \"high\", \"reasons\": [\"nested quantifier inside a repeated group — classic exponential backtracking\"] }`\n\n**Absent versus null**\n\n```json\n{ \"json\": \"{\\\"a\\\":null}\", \"path\": \"a\" }\n```\n→ `{ \"resolved\": true, \"found\": false, \"value\": null, \"type\": \"null\" }`\n\n## Design notes\n\n**Why stdio and not HTTP?** A stdio server has no listening socket: no attack surface, no port to expose, no auth to get wrong, no data leaving the machine. For pure computation, HTTP would add risk and buy nothing.\n\n**Why no caching?** Every call is stateless. Caching would introduce state, invalidation bugs and a place for data to persist. The operations are cheap enough that this is not a tradeoff.\n\n**Why refuse oversized input?** An MCP server that hangs takes the client session with it. Refusing with an actionable message is strictly better than exhausting memory.\n\n**Why no dependencies at all?** Every dependency is an ongoing obligation: updates, advisories, supply-chain risk, and one more reason the server might stop working. The Node standard library covers everything here.\n\n## Development\n\n```bash\nnode server.cjs              # speaks MCP over stdio\nnode selftest.mjs            # engine verification, 35 assertions\nnode protocol-test.cjs       # protocol verification, 88 assertions\nnpm test                     # both suites\n```\n\nBoth suites run on plain Node with no install step.\n\n`selftest.mjs` checks hashing against published constants, big-integer round trips past 2^53, RFC 4180 quoting edge cases, Unicode word segmentation and calendar arithmetic. `protocol-test.cjs` drives the real handler through a fake transport and covers the handshake, version negotiation, every tool, argument validation, the ReDoS deadline, malformed frames, split frames, batches, concurrent request correlation and determinism.\n\nTwo bugs found by these suites, both retained as regression tests:\n\n- **A ReDoS in the word-segmentation regex.** The original `textStats` pattern was `[\\p{L}\\p{N}][\\p{L}\\p{N}'’-]*` — two adjacent, overlapping character classes. On a long letter run followed by a non-match it backtracked exponentially and hung the process. The analyzer shipped in this package did not catch it, because it statically inspects the pattern it is *given* and cannot see patterns written by hand in the source. The execution deadline above exists because of this.\n- **Schema validation was absent.** Missing required arguments were silently treated as absent values, so a caller that forgot `path` received `missing-key` instead of an error. Client-side schemas are not enforcement.\n\n## License\n\nMIT — see [LICENSE](LICENSE).\n",
+  "status": "curated"
+}

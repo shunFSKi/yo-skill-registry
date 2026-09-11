@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/com.cardcenteringtool/card-prices",
+  "type": "mcp",
+  "name": "Midpoint Card Prices",
+  "description": "Trading card prices and grading ROI for 1.5M+ Pokémon, Magic, Yu-Gi-Oh! and sports cards. Read-only.",
+  "author": "com.cardcenteringtool",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/kolourr/midpoint-mcp",
+    "repo": "kolourr/midpoint-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://mcp.cardcenteringtool.com/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-11T16:56:37.91378Z",
+    "score": 55
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "生活",
+    "featured": false
+  },
+  "readme": "# Midpoint MCP server\n\nTrading-card market prices and grading ROI as [Model Context Protocol](https://modelcontextprotocol.io)\ntools. Read-only, no account, no API key. Powers the **Midpoint Card Prices** plugin in ChatGPT and works\nwith Claude, Claude Code, Cursor and any MCP client.\n\n- **Endpoint:** `https://mcp.cardcenteringtool.com/mcp` (Streamable HTTP)\n- **Docs and connect instructions:** <https://www.cardcenteringtool.com/mcp>\n- **Official MCP Registry:** `com.cardcenteringtool/card-prices` (<https://registry.modelcontextprotocol.io/v0.1/servers?search=com.cardcenteringtool>)\n- **Data:** 1.5M+ Pokémon, Magic, Yu-Gi-Oh!, One Piece, Lorcana, Gundam, sports and entertainment cards; USD\n  market values from real sold listings, refreshed daily. Same data as <https://www.cardcenteringtool.com/prices>.\n\n## What you can ask\n\nPlain questions in a collector's words. The assistant picks the tool, finds the card and answers with\nprices, the capture date and a link to the card page.\n\n- *\"What is a PSA 10 Base Set Charizard worth?\"* · *\"Is my Umbreon VMAX alt art worth grading?\"*\n- *\"1986 Fleer Michael Jordan raw and PSA 10 price\"* · *\"Luka Doncic Prizm Silver rookie value\"*\n- *\"1952 Topps Mickey Mantle PSA 10 price history\"* · *\"Is my Shohei Ohtani rookie worth grading?\"*\n- *\"Alpha Black Lotus price\"* · *\"LOB-001 Blue-Eyes White Dragon 1st edition\"* · *\"OP-01 Manga Luffy\"*\n- *\"Which Pokémon cards jumped the most this month?\"* · *\"Which rising cards actually sell?\"*\n- *\"Most valuable cards in Evolving Skies\"* · *\"Best basketball cards to grade\"*\n\nEvery answer can include raw prices by condition (NM/LP/MP/HP), the graded ladder for PSA, CGC, BGS, SGC\nand TAG, the PSA 9 and PSA 10 premium over raw, net profit after $25/$50/$150 fees, expected value by gem\nrate, the break-even gem rate, 7–180 days of price history, 30-day movers, liquid movers, best cards to\ngrade, and priced set checklists.\n\nCoverage: Pokémon, Magic: The Gathering, Yu-Gi-Oh!, One Piece, Disney Lorcana, Riftbound, Gundam, Dragon\nBall, Digimon; baseball, basketball, football, hockey, soccer, wrestling, UFC, racing, tennis, golf, boxing;\nMarvel, Star Wars, Garbage Pail Kids and other entertainment and TCG sets.\n\n## Installation\n\nRemote server, nothing to install. Add it to any MCP client that supports HTTP servers:\n\n```json\n{\n  \"mcpServers\": {\n    \"midpoint\": {\n      \"url\": \"https://mcp.cardcenteringtool.com/mcp\"\n    }\n  }\n}\n```\n\nClients that only speak stdio (Claude Desktop, some IDE plugins) can bridge with `mcp-remote`:\n\n```json\n{\n  \"mcpServers\": {\n    \"midpoint\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"mcp-remote\", \"https://mcp.cardcenteringtool.com/mcp\"]\n    }\n  }\n}\n```\n\n- **ChatGPT:** install *Midpoint Card Prices* from the plugin directory, or in Developer Mode add a\n  connector with the endpoint.\n- **Claude (web, desktop, mobile):** Customize → Connectors → Add custom connector → paste the endpoint.\n- **Claude Code:** `claude mcp add --transport http midpoint https://mcp.cardcenteringtool.com/mcp`\n- **Cursor / Windsurf / others:** paste the JSON above into the client's MCP settings.\n- **MCP Inspector:** `npx @modelcontextprotocol/inspector` and connect to the endpoint.\n\nNo authentication. Streamable HTTP transport. Rate limited per client IP.\n\n## Tools\n\n### search_cards\n\nFind cards by name, set, number or year and return raw and PSA 10 USD prices with the card id.\n\n**Inputs:** `query`, `game?`, `set_id?`, `limit?`\n\n### get_card_prices\n\nFull price ladder for one card: raw by condition (NM/LP/MP/HP) and graded prices for PSA, CGC, BGS, SGC and TAG by grade.\n\n**Inputs:** `card_id`\n\n### grading_roi\n\nIs this card worth grading? Raw vs PSA 9 vs PSA 10, gem premium, net profit after $25/$50/$150 fees, expected value by gem rate, break-even gem rate, which company pays most, and a plain verdict.\n\n**Inputs:** `card_id`, `grading_fee_usd?`\n\n### get_price_history\n\nDated market values over 7 to 180 days for the raw series or a PSA grade.\n\n**Inputs:** `card_id`, `days?`, `grade?`\n\n### best_cards_to_grade\n\nCards with the biggest expected net profit from grading in a game or set (half PSA 10, half PSA 9, minus raw and the fee; both graded prices required).\n\n**Inputs:** `game`, `set_slug?`, `grading_fee_usd?`, `limit?`\n\n### trending_cards\n\nBiggest 30-day gainers or drops, one game or all.\n\n**Inputs:** `game?`, `direction?`, `min_market_usd?`, `limit?`\n\n### liquid_movers\n\nRising cards with real sales volume (25+ sales a year).\n\n**Inputs:** `game?`, `limit?`\n\n### list_sets\n\nSets and expansions for a game, newest first, with ids.\n\n**Inputs:** `game`, `query?`, `limit?`\n\n### get_set_cards\n\nPriced checklist or most valuable cards in a set.\n\n**Inputs:** `game`, `set_id`, `sort?`, `limit?`\n\nEvery tool is read-only (`readOnlyHint: true`, `destructiveHint: false`, `openWorldHint: false`), returns\n`structuredContent` with an output schema, and links back to the matching page on cardcenteringtool.com.\nCard ids are the public URL keys (`swsh7-215`, `pricecharting-1821843`).\n\nGame keys: `pokemon magicthegathering yugioh onepiece lorcana riftbound gundam dragonball digimon baseball\nbasketball football hockey soccer wrestling ufc racing tennis golf boxing marvel starwars gpk entertainment\nothertcg`.\n\n## Data handling\n\nRequests carry only the tool arguments (card names, ids, filters) and the caller's IP for rate limiting.\nPrivacy policy: <https://www.cardcenteringtool.com/privacy>. Support:\n<https://www.cardcenteringtool.com/contact>.\n",
+  "status": "curated"
+}
