@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/Agent-Clubhouse/Goobers/reviewer2",
+  "type": "skill",
+  "name": "reviewer2",
+  "description": "Skill package for the reviewer2 goober in the example gaggle. Replace this with what the skill actually equips the goober to do.",
+  "author": "Agent-Clubhouse",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/Agent-Clubhouse/Goobers/blob/HEAD/cmd/goobers/testdata/scaffold/SKILL.md.golden",
+    "repo": "Agent-Clubhouse/Goobers",
+    "path": "cmd/goobers/testdata/scaffold/SKILL.md.golden"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 6,
+    "pushed_at": "2026-09-12T18:35:00Z",
+    "score": 63,
+    "star_history": [
+      {
+        "d": "2026-09-12",
+        "s": 6
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "<h1><img src=\"https://raw.githubusercontent.com/Agent-Clubhouse/Goobers/main/portal/public/goober-mascot-fallback.webp\" alt=\"Purple Goober mascot\" width=\"72\"> Goobers</h1>\n\n[![Website](https://img.shields.io/badge/website-goobers.dev-6d28d9)](https://goobers.dev)\n[![CI](https://github.com/Agent-Clubhouse/Goobers/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Agent-Clubhouse/Goobers/actions/workflows/ci.yml)\n[![Vulnerability Scan](https://github.com/Agent-Clubhouse/Goobers/actions/workflows/vulnerability-scan.yml/badge.svg)](https://github.com/Agent-Clubhouse/Goobers/actions/workflows/vulnerability-scan.yml)\n[![Release](https://github.com/Agent-Clubhouse/Goobers/actions/workflows/release.yml/badge.svg)](https://github.com/Agent-Clubhouse/Goobers/actions/workflows/release.yml)\n[![Latest release](https://img.shields.io/github/v/release/Agent-Clubhouse/Goobers)](https://github.com/Agent-Clubhouse/Goobers/releases/latest)\n[![Go version](https://img.shields.io/github/go-mod/go-version/Agent-Clubhouse/Goobers)](go.mod)\n\n**Goobers is an open, self-hosted platform for running an AI workforce against\nyour repositories and backlog.** Instead of giving one agent an open-ended\nprompt, you define a team of roles (a *gaggle*) and the workflow, permissions,\nchecks, retry limits, and human handoffs that govern its work.\n\n## Contents\n\n- [What is Goobers?](#what-is-goobers)\n- [How it works](#how-it-works)\n- [Install](#install)\n- [Quick start](#quick-start)\n- [Documentation](#documentation)\n- [Shell completion](#shell-completion)\n- [Development and contributing](#development-and-contributing)\n\n## What is Goobers?\n\nGoobers is for a solo builder who wants dependable issue-to-PR automation, a\nteam that wants agents to work within its existing review and CI policy, or an\norganization that wants the same workforce definitions to remain useful as its\nexecution infrastructure grows.\n\nThe shipped runner is one Go binary that runs on one machine. Cloud-scale\norchestration is an explicit design goal, not a current product claim. The\nconfiguration and run contract are designed to stay constant as execution\nscales, so the workforce does not need to be redefined for a different runtime.\n\nThe core concepts are:\n\n- A **goober** is a role-specialized AI worker with declared instructions,\n  skills, tools, and capabilities.\n- A **workflow** is a validated state machine of deterministic and agentic\n  stages, gates, retries, budgets, and human handoffs.\n- A **gaggle** is an isolated workforce and its workflows, connected to one\n  project and backlog.\n- An **instance** hosts one or more gaggles and owns their shared runtime state,\n  claims, journals, workspaces, and telemetry.\n\nSee [How Goobers works](docs/concepts/README.md) for the complete trust and\nconfiguration model.\n\n## How it works\n\nA Goobers workflow declares what may happen next instead of asking an agent to\ncontrol the run. Deterministic stages query backlogs, claim work, run checks,\npoll CI, and create pull requests. Agentic stages invoke a named goober under\nexplicitly granted capabilities. Gates can approve a transition, send work\nthrough a bounded repair loop, pause for a human, or escalate.\n\nThis keeps the model useful without making it the control plane:\n\n- a lease-based [claim ledger](internal/localscheduler/claim.go) prevents two\n  runs from silently taking the same backlog item;\n- each run pins its workflow definition and records an\n  [append-only, content-digested journal](internal/journal/doc.go); and\n- isolated worktrees, deterministic checks, review gates, and repository policy\n  control whether an agent-authored change can advance.\n\nThe shipped\n[`implementation` workflow](reference-workflows/gaggles/goobers/workflows/implementation.yaml)\nshows the complete path: claim one approved issue, implement in an isolated\nworktree, route review and local-CI failures through bounded repasses, then push\nthe branch and open a pull request.\n\n### Configuration is GitOps\n\nGoobers treats workforce definitions as desired state. Keep `manifest.yaml`,\ngaggles, goobers, instructions, and workflows in a protected configuration\nrepository. An instance tracks a configured branch, validates new revisions,\nand atomically reloads valid definitions. Invalid revisions are rejected while\nthe last-known-good configuration continues running.\n\nAgents can propose configuration changes, but normal repository governance\ndecides whether those changes become active. See the\n[architecture of record](docs/ARCHITECTURE.md) for the full design and current\ndeployment boundaries.\n\n## Install\n\nInstall the latest stable release on Linux or macOS:\n\n```sh\nVERSION=\"$(curl -fsSL https://api.github.com/repos/Agent-Clubhouse/Goobers/releases/latest |\n  awk -F '\"' '/tag_name/ { print $4; exit }')\"\n/bin/sh -c \"$(curl -fsSL \"https://github.com/Agent-Clubhouse/Goobers/releases/download/${VERSION}/install.sh\")\" \\\n  -- \"$VERSION\"\n```\n\nThe installer verifies the downloaded archive against the release checksum and\nplaces `goobers` in `$HOME/.local/bin`. See\n[Release installation and verification](docs/guides/releases.md) for\nprerequisites, version pinning, install-directory overrides, pre-releases, and\nthe Windows path.\n\n## Quick start\n\nTour the full workflow locally without credentials or network writes:\n\n```sh\ngoobers init --demo ./demo-instance\ngoobers run demo ./demo-instance\n```\n\nWhen you are ready to configure an existing GitHub or Azure DevOps repository,\nstart the guided browser setup:\n\n```sh\ngoobers init --guided\n```\n\nThe guided flow inspects the repository, derives what it can, adapts the\ncanonical workflows, prepares required repository metadata, and validates the\nresulting instance. It does not execute a workflow.\n\nFollow the [quickstart tutorial](docs/guides/quickstart.md) for the complete\nlearning path. For manual or agent-assisted setup, use\n[Onboard an arbitrary repository](docs/guides/arbitrary-repo-onboarding.md) or\nthe release-matched [Getting Started skill](skills/goobers-getting-started/SKILL.md).\n\n## Documentation\n\n| Goal | Start here |\n| --- | --- |\n| Understand the product model | [Concepts](docs/concepts/README.md) |\n| Learn with a credential-free workflow | [Quickstart tutorial](docs/guides/quickstart.md) |\n| Learn to author, test, and debug workflow YAML | [Workflow authoring tutorial](docs/guides/learn-workflow-authoring.md) |\n| Configure a real repository | [Arbitrary repository onboarding](docs/guides/arbitrary-repo-onboarding.md) |\n| Install on a specific host | [Linux](docs/guides/quickstart-linux.md), [macOS](docs/guides/quickstart-macos.md), or [Windows](docs/guides/quickstart-windows.md) |\n| Operate an instance | [Daemon supervision](docs/guides/supervision.md) |\n| Author workflows and configuration | [Workflow primitive reference](docs/reference/workflow-primitives/README.md), [Agent toolkit](agent-toolkit/README.md), and [DSL authoring](docs/guides/dsl-authoring-skill.md) |\n| Look up commands | [CLI reference](docs/cli/README.md) |\n| Understand implementation and deployment boundaries | [Architecture](docs/ARCHITECTURE.md) |\n| Explore the website and animated introduction | [goobers.dev](https://goobers.dev) |\n\nThe [historical product vision](docs/VISION.md) and some design documents\ndescribe future direction. The overview above describes behavior shipped in\nthis tree.\n\n## Shell completion\n\n```sh\nsource <(goobers completion bash)  # bash\nsource <(goobers completion zsh)   # zsh\ngoobers completion fish | source  # fish\ngoobers completion powershell | Out-String | Invoke-Expression  # PowerShell\n```\n\n## Development and contributing\n\nSee [DEVELOPMENT.md](DEVELOPMENT.md) for the repository layout, build and\nvalidation commands, binaries, and portal development notes.\n\nContributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for the\nworkflow, [SECURITY.md](SECURITY.md) for vulnerability disclosure, and the\n[Code of Conduct](CODE_OF_CONDUCT.md).\n\nLicensed under the [MIT License](LICENSE).\n",
+  "status": "curated"
+}

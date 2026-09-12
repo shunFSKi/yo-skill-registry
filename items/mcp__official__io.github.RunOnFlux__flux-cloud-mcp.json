@@ -1,0 +1,70 @@
+{
+  "id": "mcp:official/io.github.RunOnFlux/flux-cloud-mcp",
+  "type": "mcp",
+  "name": "Flux Cloud",
+  "description": "Deploy, pay for and manage apps on Flux Cloud, the decentralized cloud. Prices in USD.",
+  "author": "io.github.RunOnFlux",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/RunOnFlux/flux-cloud-mcp",
+    "repo": "RunOnFlux/flux-cloud-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@runonflux/flux-cloud-mcp"
+    ],
+    "env": [
+      {
+        "name": "FLUX_ID_PRIVATE_KEY",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "FLUX_PAYMENT_PRIVATE_KEY",
+        "required": false,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-12T10:44:13.606692Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# Flux Cloud MCP server\n\nAn [MCP](https://modelcontextprotocol.io) server that lets any AI agent use\n[Flux Cloud](https://runonflux.com), the decentralized cloud: quote an app in\nUS dollars, deploy it, pay for it, watch it come up, read its logs, update it,\nand cancel it. Works with Claude Code, Claude Desktop, Cursor, Windsurf,\nOpenCode and every other MCP host.\n\nThere is no account. Two keys are the whole identity:\n\n| Key                        | Address               | Role                                                                 |\n| -------------------------- | --------------------- | -------------------------------------------------------------------- |\n| `FLUX_ID_PRIVATE_KEY`      | Flux ID, `1...`       | Owns apps. Signs specifications and API sessions. Never holds funds. |\n| `FLUX_PAYMENT_PRIVATE_KEY` | Flux address, `t1...` | Holds FLUX and pays deployment fees on-chain.                        |\n\nThe server generates a pair for you (`flux_generate_keys`); fund the payment\naddress with FLUX and deploy.\n\n## Pricing policy\n\nEvery price this server shows is the **Flux Cloud USD price**, the same one\n[home.runonflux.io](https://home.runonflux.io) charges, converted to FLUX at the\nlive market rate with the 5 percent pay-in-FLUX discount. Quotes come from the\nnetwork itself (`/apps/calculatefiatandfluxprice`), so they include the $0.99\nminimum, hardware and term discounts, and update credits.\n\nThe blockchain's own acceptance threshold is several times lower. It is never\nshown as a price; it is only checked as a guard before a payment is broadcast.\n\n## Install\n\n```bash\nnpm install -g @runonflux/flux-cloud-mcp     # or: yarn global add @runonflux/flux-cloud-mcp\n```\n\nOr run it without installing: `npx @runonflux/flux-cloud-mcp`.\n\n### Claude Code\n\n```bash\nclaude mcp add flux-cloud -s user \\\n  -e FLUX_ID_PRIVATE_KEY=<wif> -e FLUX_PAYMENT_PRIVATE_KEY=<wif> \\\n  -- npx -y @runonflux/flux-cloud-mcp\n```\n\n### Claude Desktop, Cursor, Windsurf (JSON config)\n\n```json\n{\n  \"mcpServers\": {\n    \"flux-cloud\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@runonflux/flux-cloud-mcp\"],\n      \"env\": {\n        \"FLUX_ID_PRIVATE_KEY\": \"<wif of the Flux ID>\",\n        \"FLUX_PAYMENT_PRIVATE_KEY\": \"<wif of the payment address>\"\n      }\n    }\n  }\n}\n```\n\nKeys are optional. Without them every read-only tool works, and\n`flux_generate_keys` will create a pair to put into the config.\n\n### OpenCode\n\n```json\n{\n  \"mcp\": {\n    \"flux-cloud\": {\n      \"type\": \"local\",\n      \"command\": [\"npx\", \"-y\", \"@runonflux/flux-cloud-mcp\"],\n      \"environment\": {\n        \"FLUX_ID_PRIVATE_KEY\": \"<wif>\",\n        \"FLUX_PAYMENT_PRIVATE_KEY\": \"<wif>\"\n      }\n    }\n  }\n}\n```\n\n## Tools\n\n| Tool                    | What it does                                                             | Spends FLUX    |\n| ----------------------- | ------------------------------------------------------------------------ | -------------- |\n| `flux_get_identity`     | Flux ID, payment address, balance in FLUX and USD                        | no             |\n| `flux_generate_keys`    | New Flux ID + payment key pair with setup instructions                   | no             |\n| `flux_get_pricing`      | USD rate card, FLUX/USD rate, discounts, reference sizes                 | no             |\n| `flux_build_spec`       | Simple description (image, ports, cpu/ram/hdd, months) to a full v8 spec | no             |\n| `flux_validate_spec`    | Local rules plus verification on a FluxOS node                           | no             |\n| `flux_quote_app`        | USD price and FLUX to pay, for a registration or an update               | no             |\n| `flux_deploy_app`       | Plan (default) or, with `confirm=true`, sign, broadcast and pay          | with `confirm` |\n| `flux_wait_for_app`     | Poll until accepted and instances run; returns URLs                      | no             |\n| `flux_get_app`          | Any app's spec, expiry, instances, URLs                                  | no             |\n| `flux_list_my_apps`     | Apps owned by the Flux ID, with instance counts and days left            | no             |\n| `flux_get_app_logs`     | Container logs from a running instance (owner only)                      | no             |\n| `flux_get_app_stats`    | Live CPU/memory/network of an instance (owner only)                      | no             |\n| `flux_control_app`      | Restart, redeploy or remove instances, per node or globally              | no             |\n| `flux_cancel_app`       | End an app early by shortening its term                                  | with `confirm` |\n| `flux_get_network_info` | Node counts, height, FLUX/USD, deployment address                        | no             |\n\nResources `flux://guide/overview`, `flux://guide/spec-format`,\n`flux://guide/pricing` and `flux://guide/gotchas` give the agent the domain\nknowledge; the `deploy_on_flux` prompt walks it through a deployment.\n\n## A typical session\n\n```\n> deploy nginx on flux, 3 instances, one month\n\nflux_get_identity      -> Flux ID 1Ab..., payer t1Cd..., 996.98 FLUX ($48.74)\nflux_build_spec        -> v8 spec, port 39978 -> 80, r:/data, valid\nflux_quote_app         -> $0.99 for 1 month, pay 19.24 FLUX (5% FLUX discount)\n   user agrees\nflux_deploy_app confirm=true\n                       -> message hash 8d2f..., paid 19.24 FLUX, txid 0c41...\nflux_wait_for_app      -> accepted at height 2941560, 3/3 instances running\n                          https://myapp.app.runonflux.io\n```\n\n## How a deployment works\n\n1. The spec is verified through `api.runonflux.io` exactly as it will be at\n   registration (image reachable, architecture, ports, name free). If the\n   balancer refuses, a few healthy nodes are probed and tried in turn.\n2. The network quotes the USD price; the server checks the payer's balance.\n3. With `confirm=true` the Flux ID signs the spec, the same endpoint\n   broadcasts it to the network and returns a 64-character message hash.\n4. The payment address sends the quoted FLUX to the network deployment\n   address with the hash in an OP_RETURN output. Right before signing, the\n   amount is re-checked against a freshly fetched price table, because an\n   underpaid message is dropped silently and the FLUX is not refunded.\n5. Nodes pair the confirmed payment with the message and publish the app.\n   Instances then spawn and pull the image.\n\nUpdates use the same tool: an existing app of the same owner gets a\n`fluxappupdate` message and the network credits the unused part of the old\nterm. Private (enterprise) apps are supported through the `enterprise`\nargument: components are encrypted for the network and only ArcaneOS nodes\ncan run them.\n\n## Hosted server: mcp.runonflux.com\n\nThe same server also runs on Flux Cloud itself, over Streamable HTTP, for\nhosts that cannot start a local process (claude.ai connectors, ChatGPT,\nbrowser and mobile agents). Add it as a remote MCP server:\n\n```\nhttps://mcp.runonflux.com/mcp   (also https://mcp.runonflux.io/mcp)\n```\n\nThe hosted server holds no keys. Read-only tools need none. Tools that sign\nor pay take `fluxIdPrivateKey` and `paymentPrivateKey` as call arguments,\nused in memory for that call and never logged or stored. The server's\ninstructions tell agents to create a dedicated pair with `flux_generate_keys`\nand to have the user fund only what a deployment needs, rather than asking\nfor the keys of a wallet used elsewhere. Anything typed into a chat passes\nthrough the AI vendor and the host's history, so treat such a pair as\ndisposable and keep its balance small. For larger budgets, run the local\nserver, where keys never leave your machine.\n\nRun your own copy with Docker:\n\n```bash\ndocker run -p 3000:3000 runonflux/flux-cloud-mcp\n```\n\nIt is stateless, so any number of instances can sit behind one load balancer.\n`GET /healthz` reports liveness. The Flux app specification that runs the\npublic instance is in `deploy/cloudmcp.json`.\n\n## Configuration\n\n| Variable                   | Default                                            | Purpose                                       |\n| -------------------------- | -------------------------------------------------- | --------------------------------------------- |\n| `FLUX_ID_PRIVATE_KEY`      |                                                    | WIF of the Flux ID (owner)                    |\n| `FLUX_PAYMENT_PRIVATE_KEY` |                                                    | WIF of the paying address                     |\n| `FLUX_API_URL`             | `https://api.runonflux.io`                         | Load-balanced FluxOS API for reads and quotes |\n| `FLUX_NODE_URL`            | auto                                               | Pin one FluxOS node for registrations         |\n| `FLUX_EXPLORER_URLS`       | `explorer.runonflux.io,flux-explorer.sspwallet.io` | Insight explorers for UTXOs and broadcast     |\n| `FLUX_STATS_URL`           | `https://stats.runonflux.io`                       | USD rate card                                 |\n| `FLUX_RATES_URL`           | `https://viprates.runonflux.io`                    | FLUX market rate                              |\n\n## Security notes\n\n- Private keys stay in the server process. No tool ever returns a configured\n  key; `flux_generate_keys` returns only the keys it just created.\n- Nothing is spent unless a tool is called with `confirm=true`. Hosts that\n  ask before tool calls will show the USD amount in the arguments' context.\n- FluxOS sessions are self-issued signed phrases valid for a few hours; no\n  password or token is stored anywhere.\n- Use a dedicated payment address holding only what you intend to spend.\n\n## Development\n\n```bash\nyarn install\nyarn type-check && yarn lint && yarn format:check && yarn build && yarn test\nyarn test:live      # differential test of the USD estimator against the network\n```\n\nThe USD estimator, the specification formatter and the consensus guard mirror\nthe FluxOS code (`appSpecHelpers.js`, `appUtilities.js`, `messageVerifier.js`)\nand the live test checks the estimator against the network on every run.\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

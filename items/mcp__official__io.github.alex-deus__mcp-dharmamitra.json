@@ -1,0 +1,64 @@
+{
+  "id": "mcp:official/io.github.alex-deus/mcp-dharmamitra",
+  "type": "mcp",
+  "name": "mcp-dharmamitra",
+  "description": "Dharmamitra OCR for Tibetan / Sanskrit / Devanagari images; writes extracted text to a file.",
+  "author": "io.github.alex-deus",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/alex-deus/mcp-dharmamitra",
+    "repo": "alex-deus/mcp-dharmamitra"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "mcp-dharmamitra"
+    ],
+    "env": [
+      {
+        "name": "DHARMAMITRA_COOKIE",
+        "required": false,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-12T15:27:23.109082Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "写作",
+    "featured": false
+  },
+  "readme": "# mcp-dharmamitra\n\n<!-- mcp-name: io.github.alex-deus/mcp-dharmamitra -->\n\nMCP server that runs OCR on an image via the public\n[Dharmamitra](https://dharmamitra.org) OCR endpoint and writes the extracted\ntext to a local file. Optimised for Tibetan / Sanskrit / Devanagari input.\n\n## Tool\n\n### `ocr_image`\n\n| Argument | Type | Default | Notes |\n| --- | --- | --- | --- |\n| `image_path` | `str` | — | Absolute path to a local image (png/jpg/…). |\n| `output_path` | `str` | — | File to write UTF-8 text into. Parent dirs are created. |\n| `transliterate_devanagari_to_iast` | `bool` | `false` | Passed to the API. |\n| `transliterate_tibetan_to_wylie` | `bool` | `false` | Passed to the API. |\n| `instruction` | `str` | `\"\"` | Optional model instruction. |\n| `model` | `str` | `\"auto\"` | OCR model id. |\n| `poll_interval_seconds` | `float` | `2.0` | Delay between status polls. |\n| `timeout_seconds` | `float` | `300.0` | Overall polling deadline. |\n\nReturns a small JSON summary — the extracted text is written to `output_path`,\nnot returned to the client.\n\n```json\n{\n  \"job_id\": \"b8b26984b3ca49199c28303cad6a144d\",\n  \"output_path\": \"/abs/path/out.txt\",\n  \"pages\": 1,\n  \"processing_time_seconds\": 3.957,\n  \"chars\": 1234\n}\n```\n\n## Install from the MCP registry\n\nListed as [`io.github.alex-deus/mcp-dharmamitra`](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.alex-deus/mcp-dharmamitra)\non the official Model Context Protocol registry. The package ships to PyPI as\n[`mcp-dharmamitra`](https://pypi.org/project/mcp-dharmamitra/) and is meant to\nbe run with `uvx` — no clone, no manual install.\n\n`~/Library/Application Support/Claude/claude_desktop_config.json` (or the\nequivalent `mcp` block in Claude Code):\n\n```json\n{\n  \"mcpServers\": {\n    \"dharmamitra\": {\n      \"command\": \"uvx\",\n      \"args\": [\"mcp-dharmamitra\"],\n      \"env\": {\"DHARMAMITRA_COOKIE\": \"\"}\n    }\n  }\n}\n```\n\nOr via the Claude Code CLI:\n\n```bash\nclaude mcp add dharmamitra -e DHARMAMITRA_COOKIE=\"\" -- uvx mcp-dharmamitra\n```\n\nPin a specific version with `uvx mcp-dharmamitra@0.1.0`.\n\n## Install from source\n\n```bash\nuv sync                           # or: pip install -e '.[dev]'\n```\n\nRun locally with the MCP inspector:\n\n```bash\nuv run mcp dev src/mcp_dharmamitra/server.py\n```\n\nRun tests:\n\n```bash\nuv run pytest\n```\n\nFor a source checkout the Claude Desktop entry uses the local path:\n\n```json\n{\n  \"mcpServers\": {\n    \"dharmamitra\": {\n      \"command\": \"uv\",\n      \"args\": [\"--directory\", \"/path/mcp-dharmamitra\", \"run\", \"mcp-dharmamitra\"],\n      \"env\": {\"DHARMAMITRA_COOKIE\": \"\"}\n    }\n  }\n}\n```\n\n## Docker\n\nBuild the image:\n\n```bash\ndocker build -t mcp-dharmamitra:latest .\n```\n\nMCP talks over stdio, so the container must be run with `-i` (no `-t`). Mount\na host directory that holds the input images — the tool arguments\n(`image_path`, `output_path`) are paths **inside the container**.\n\nSmoke-test the entrypoint:\n\n```bash\ndocker run --rm --entrypoint python mcp-dharmamitra:latest \\\n  -c \"from mcp_dharmamitra.server import mcp; print(mcp.name)\"\n```\n\n### Wire the container into Claude Desktop / Claude Code\n\nReplace `/path/mcp-dharmamitra` with any host\ndirectory you want the tool to be able to read/write. Files inside it will be\nvisible under `/data` in the container.\n\n```json\n{\n  \"mcpServers\": {\n    \"dharmamitra\": {\n      \"command\": \"docker\",\n      \"args\": [\n        \"run\", \"-i\", \"--rm\",\n        \"-v\", \"/path/mcp-dharmamitra/data:/data\",\n        \"-e\", \"DHARMAMITRA_COOKIE\",\n        \"mcp-dharmamitra:latest\"\n      ],\n      \"env\": {\n        \"DHARMAMITRA_COOKIE\": \"\"\n      }\n    }\n  }\n}\n```\n\nOr the same via CLI:\n\n```bash\nclaude mcp add dharmamitra \\\n  --scope project \\\n  -e DHARMAMITRA_COOKIE=\"\" \\\n  -- docker run -i --rm \\\n       -v /path/mcp-dharmamitra/data:/data \\\n       -e DHARMAMITRA_COOKIE \\\n       mcp-dharmamitra:latest\n```\n\nWhen calling the tool, pass container paths. Example — image at\n`<host>/tmp/text.png` → `/data/text.png`:\n\n```json\n{\n  \"image_path\": \"/data/text.png\",\n  \"output_path\": \"/data/text.txt\"\n}\n```\n\nThe resulting `text.txt` appears in the mounted host directory.\n\n## Cloudflare / `cf_clearance`\n\nThe endpoint sits behind Cloudflare. Most requests go through without any\ncookie. If you start getting `403`, grab a fresh `cf_clearance` value from a\nlogged-in browser session on `dharmamitra.org` and export it:\n\n```bash\nexport DHARMAMITRA_COOKIE='cf_clearance value here'\n```\n\nThe server will attach it as a cookie on every request. Do not hardcode it —\nCloudflare rotates the value.\n",
+  "status": "curated"
+}

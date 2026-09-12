@@ -1,0 +1,65 @@
+{
+  "id": "mcp:official/io.github.iamalanlui/apipay",
+  "type": "mcp",
+  "name": "apipay",
+  "description": "Prepaid balance for AI agents: one token, 1,500+ tools, caps, kill switch, signed receipts.",
+  "author": "io.github.iamalanlui",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/iamalanlui/apifare-providers",
+    "repo": "iamalanlui/apifare-providers"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "apifare-mcp"
+    ],
+    "env": [
+      {
+        "name": "APIPAY_TOKEN",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-12T15:50:03.60046Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# apifare-providers\n\nThe open provider registry (APIFARE WO Part B4): community-submitted\nprovider manifests for the apifare gateway. The GATEWAY stays closed\nuntil the Verdict Gate; this repo opens only the MANIFEST format.\n\n## Manifest format (v1)\nOne JSON file per provider under `providers/`:\n```json\n{\n  \"slug\": \"example\",\n  \"name\": \"Example API\",\n  \"baseUrl\": \"https://api.example.com\",\n  \"auth\": { \"kind\": \"bearer\" },\n  \"pricing\": { \"kind\": \"per-request\", \"credits\": 0.3 },\n  \"keySource\": \"MASTER | VAULT\",\n  \"legalityNote\": \"REQUIRED — path to a legality/<slug>.md in this repo analyzing resale terms\",\n  \"docs\": \"https://docs.example.com\"\n}\n```\nauth kinds: bearer | basic | header{header,prefix?} | query{param} —\nmirrors the gateway proxy registry. pricing kinds: per-request |\napify-run | none{requestCapPerDay}.\n\n## Rules (PR template + CI enforce)\n1. `legalityNote` file is REQUIRED — no manifest merges without a\n   written resale/terms analysis.\n2. Prices follow pricing v2: the listed number IS the billed number.\n3. MASTER submissions need the provider's written resale permission\n   linked; VAULT submissions don't (user's own key).\n4. CI gate: schema validation + legality-file presence + no secrets.\n5. Merge ≠ deployment: the apifare team imports merged manifests into\n   the gateway registry on its own review cadence.\n",
+  "status": "curated"
+}

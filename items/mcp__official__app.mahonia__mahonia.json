@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/app.mahonia/mahonia",
+  "type": "mcp",
+  "name": "Mahonia",
+  "description": "Read and edit Mahonia backpacking gear lists via share and edit links; no account needed.",
+  "author": "app.mahonia",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/ryankiley/mahonia",
+    "repo": "ryankiley/mahonia"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://mahonia.app/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-12T16:21:24.471305Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Mahonia\n\nA gear-list and pack-weight tracker for hikers. Make a packing list, see what it weighs,\nshare it.\n\nLists need no sign-up: one is yours the moment you start typing, held by a private\nunguessable link. The **gear vault** is the one part that asks for an account, because\n\"the gear I own\" has to follow you across devices rather than living in one browser.\n\n## What it does\n\n- **Weigh a pack.** Base, worn and consumable totals, with the worn split (three pairs of\n  socks, one on your feet) and a carried figure. Weights are optional — a list with none\n  keeps its totals quiet.\n- **A curated gear catalog** behind the autocomplete, cited and correctable, with every\n  value overridable per row.\n- **Per-row units.** Type `32.5 oz` on a gram list and that row keeps ounces while the\n  total stays in grams.\n- **Calories** on consumables, totalled for the list.\n- **Trip dates**, as calendar dates — no time, no timezone, so a trip doesn't shift when\n  you fly.\n- **Share two ways:** a read-only link, and an edit link for co-planning. Either can be\n  replaced if it gets out.\n- **Packing mode** — the same list as a checklist, for the night before.\n- **A gear vault** that fills itself as you build, so your kit is one pick away next time.\n- **Import** from LighterPack (share link or CSV) or a JSON backup; **export** as CSV,\n  JSON or Markdown.\n- **Recovery points**, so an accidental delete is undoable well after the toast.\n\n## Run locally\n\nRequires **Node 24** (the pinned version — see `.nvmrc`).\n\n```bash\nnpm install\nnpm run seed   # load the gear catalog into a local database\nnpm run dev    # http://localhost:3000\n```\n\nWith no environment variables set, the app runs fully on your machine against a local\n[PGlite](https://github.com/electric-sql/pglite) database. Copy `.env.example` to `.env` to\npoint at a real Postgres ([Neon](https://neon.tech)) and Redis ([Upstash](https://upstash.com))\nfor a production deploy.\n\nAnything that would leave the machine degrades to the console instead of being skipped, so\na fresh checkout is a working app rather than a broken one:\n\n| Unset variable | What happens locally |\n| --- | --- |\n| `RESEND_API_KEY` | Sign-in links print to the server console instead of being emailed. |\n| `GITHUB_FEEDBACK_TOKEN` / `_REPO` | \"Send feedback\" (in the editor's actions menu) prints to the console and reports back that it wasn't filed. |\n\nBoth fail **loudly in production** rather than quietly accepting input that goes nowhere.\n\n## Stack\n\n[Nuxt 4](https://nuxt.com) · Vue 3 · TypeScript · [Drizzle ORM](https://orm.drizzle.team) ·\ndeployed on [Vercel](https://vercel.com).\n\n## MCP connector\n\nThe app serves a remote MCP server at `/mcp`, so an AI assistant can be handed\n`https://mahonia.app/mcp` as a connector with nothing to install and no sign-in. Seven\ntools: read a shared list as data or Markdown, search the catalog, fetch one product's\nvariants, and, holding an edit link, make a list, add rows and set the trip's dates and\ntrail. A share code is the read capability and the edit link's fragment token the write\none, hashed on arrival and passed only as a tool argument, so nothing new is trusted. The\ntransport is stateless JSON-RPC over POST (MCP revisions 2025-06-18 and 2025-11-25, no\nsessions, no event stream, GET answers 405), hand-rolled in `server/routes/mcp.post.ts`\nwith the tools in `server/utils/mcp.ts`; both files carry the reasoning. My Gear is\ndeliberately out of reach: it would need an account token, which is a separate decision.\n\nAdd it to a client:\n\n[![Install in Cursor](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/install-mcp?name=mahonia&config=eyJ1cmwiOiJodHRwczovL21haG9uaWEuYXBwL21jcCJ9)\n[![Install in VS Code](https://img.shields.io/badge/VS_Code-Install_Server-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=mahonia&config=%7B%22type%22%3A%22http%22%2C%22url%22%3A%22https%3A%2F%2Fmahonia.app%2Fmcp%22%7D)\n\n- **Claude** (claude.ai, Desktop, mobile): [add Mahonia as a connector](https://claude.ai/customize/connectors?modal=add-custom-connector&connectorName=Mahonia&connectorUrl=https%3A%2F%2Fmahonia.app%2Fmcp)\n  and choose \"No sign-in\". Connectors added there are available in Claude Code too.\n- **Claude Code:** `claude mcp add --transport http --scope user mahonia https://mahonia.app/mcp`\n- **Gemini CLI:** `gemini mcp add --transport http mahonia https://mahonia.app/mcp`\n- **ChatGPT:** Settings, Developer mode, add `https://mahonia.app/mcp` with \"No Authentication\".\n- **Anything that reads an `mcp.json`:** `{\"mcpServers\":{\"mahonia\":{\"url\":\"https://mahonia.app/mcp\"}}}`\n- **A client that only speaks stdio:** bridge with `npx mcp-remote https://mahonia.app/mcp`.\n\nThe server is listed in the [official MCP registry](https://registry.modelcontextprotocol.io)\nas `app.mahonia/mahonia`; [`server.json`](server.json) is the listing, published with\n`mcp-publisher` under the domain's DNS proof.\n\n## Changelog\n\nThe changelog is [GitHub Releases](https://github.com/ryankiley/mahonia/releases): one release\nper day that ships something, tagged by date (`v2026.09.12`), cut by a workflow from the entries\nbelow. When a change is user-facing, add a plain one-sentence entry as part of the same PR:\n\n```bash\nnpm run changelog -- --added \"Sort folders by weight.\"\nnpm run changelog -- --fixed \"…\" --changed \"…\"\n```\n\nEntries are grouped Added / Changed / Fixed and describe the observable change, not the\nimplementation.\n\nEach run writes its own file under `content/changelog.d/`, so entries from PRs open at the\nsame time never collide — [`content/changelog.json`](content/changelog.json) is the settled\narchive, and `npm run changelog:compact` folds fragments into it now and then. Once a day is\nover (Pacific), `.github/workflows/releases.yml` turns it into a release; a late entry updates\nits day's notes.\n\nA PR comment reminds any user-facing PR that's missing an entry — but nothing auto-fills it,\nso the entry is always hand-written (plain, curated prose). If a PR merges\nwithout one, that day's release just omits the change until it's backfilled. For non-user-facing work,\nprefix the PR title (`refactor:`, `chore:`, `ci:`, `test:`, `docs:`, `perf:`) or label it\n**`skip-changelog`**.\n\n## License\n\nCode is [MIT](LICENSE). The gear catalog data under `seed/` is licensed separately — see\n[`seed/LICENSE.md`](seed/LICENSE.md).\n\nThird-party notices for the libraries bundled into the client are in\n[`public/licenses.txt`](public/licenses.txt), served at `/licenses.txt`. The file exists\nbecause Mahonia bundles its dependencies instead of loading them from a CDN (a CDN\n`<script>` could read a list's edit token out of `location.hash`), which makes serving the\nsite a redistribution of that code — and the minifier strips the banner comments those\nlibraries ship their copyright in. Add an entry when a dependency's code starts reaching\nthe browser; server-only packages aren't redistributed and aren't listed.\n",
+  "status": "curated"
+}

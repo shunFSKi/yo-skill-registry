@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.imrane2019/alphabotpro",
+  "type": "mcp",
+  "name": "AlphaBotPro Trading API",
+  "description": "Live XAUUSD/BTCUSD trading signals, priced in USD, payable by AI agents via crypto (x402).",
+  "author": "io.github.imrane2019",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/imrane2019/mcp-x402-example",
+    "repo": "imrane2019/mcp-x402-example"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://mcp.alphabotpro.cloud/v1/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-12T15:47:15.797475Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "金融",
+    "featured": false
+  },
+  "readme": "# AlphaBotPro MCP + x402 Example\n\nA minimal, runnable example showing an AI agent **discovering, paying for, and\nunlocking** live trading data over [MCP](https://modelcontextprotocol.io)\nusing the [x402](https://www.x402.org/) machine-payment pattern — no human,\nno dashboard, no checkout form.\n\nThis talks to the real, live AlphaBotPro MCP server. Nothing here is a mock.\n\n## What it demonstrates\n\n1. **`initialize`** — standard MCP JSON-RPC handshake\n2. **`tools/list`** — discover the available tools\n3. **`get_catalog`** — a public tool: prices and sample payloads, no auth\n4. **`get_signals`** without a key — a clean, structured `payment_required`\n   error (the x402 pattern) instead of a silent failure\n5. **`purchase_access`** — request a crypto invoice (USDT/USDC on TRON,\n   Polygon or Base) for a paid tier\n6. **`check_payment`** — poll until the invoice settles, then receive a\n   scoped API key\n7. **`get_signals`** again, now authenticated\n\n## Run it\n\n```bash\nnode example.mjs\n```\n\nNo dependencies, no API key required to run steps 1–5 (only step 6/7 need a\nreal payment to complete — the script prints the payment instructions and\nexits there unless you pass `--pay`, which is left as a manual step since it\nrequires a funded wallet).\n\n## Server details\n\n- MCP endpoint: `https://mcp.alphabotpro.cloud/v1/mcp` (JSON-RPC 2.0 over HTTPS, stateless)\n- Manifest: [`.well-known/mcp/server-card.json`](https://alphabotpro.cloud/.well-known/mcp/server-card.json)\n- Plugin manifest: [`.well-known/ai-plugin.json`](https://alphabotpro.cloud/.well-known/ai-plugin.json)\n- REST + OpenAPI: [`openapi.json`](https://alphabotpro.cloud/openapi.json) · [docs](https://alphabotpro.cloud/api/docs)\n- Pricing/catalog (human-readable): https://alphabotpro.cloud/api-mcp\n\n## Why this exists\n\nMost \"AI-ready\" APIs still assume a human signs up, enters a card number, and\npastes a key into a config file. That breaks the moment the buyer is an\nautonomous agent. This server lets an agent discover the price, pay in\nstablecoins, and start pulling data — all inside one continuous session.\n\nFull write-up: https://alphabotpro.cloud/blog/post/how-ai-agents-pay-for-data-with-crypto-x402-mcp-example\n\n## Disclaimer\n\nTrading signals returned by this API are informational tools, not financial\nadvice, and not a guarantee of profit. Trading carries risk of loss.\nAlphaBotPro is not affiliated with the Model Context Protocol project or the\nx402 project — this repo is an independent example of using both.\n\n## License\n\nMIT — see [LICENSE](./LICENSE).\n",
+  "status": "curated"
+}

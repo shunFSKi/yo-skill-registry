@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.LemmaLemming/disk-inventory-mcp",
+  "type": "mcp",
+  "name": "Disk Inventory MCP",
+  "description": "Read-only macOS disk analysis with bounded scans, size queries, and extension breakdowns.",
+  "author": "io.github.LemmaLemming",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/LemmaLemming/disk-inventory-mcp",
+    "repo": "LemmaLemming/disk-inventory-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "https://github.com/LemmaLemming/disk-inventory-mcp/releases/download/v0.1.0/disk-inventory-mcp-0.1.0.mcpb"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-12T09:25:08.72805Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Disk Inventory MCP\n\nA local, read-only disk analyzer for macOS, with a CLI and an MCP server in one native executable. Find large files and folders, inspect file-extension breakdowns, and see exactly where a scan was incomplete.\n\n**v0.1.0 is a read-only preview.** It has no deletion, Trash, cleanup execution, or content-reading tools. Requires macOS 13 or later. No runtime dependencies beyond macOS frameworks.\n\n## Install\n\nRecommended: install from the project's Homebrew tap (builds from source; requires Xcode Command Line Tools with Swift 5.9 or later):\n\n```sh\nbrew install LemmaLemming/tap/disk-inventory-mcp\ndisk-inventory --version\n```\n\n[GitHub Releases](https://github.com/LemmaLemming/disk-inventory-mcp/releases) also provides a universal Intel/Apple Silicon `.tar.gz`, an MCP bundle (`.mcpb`), corresponding source, and `SHA256SUMS`. Downloadable binaries are ad-hoc signed, **not Developer ID signed or Apple notarized**. Homebrew builds from source. MCP bundle import depends on client support and may be subject to macOS security checks.\n\n## CLI\n\n```sh\ndisk-inventory scan ~/Downloads\ndisk-inventory scan ~/Downloads --json\ndisk-inventory scan ~/Downloads --json --limit 50 --max-entries 200000 --max-seconds 60\n```\n\nJSON output includes `summary`, `top_children`, and `file_types`. Byte counts are decimal strings to preserve 64-bit precision. Top children are immediate children of the root; directory totals include their descendants. CLI exit codes: `0` complete, `2` invalid invocation, `3` incomplete (JSON remains usable).\n\n## MCP setup\n\nConfigure any MCP client that launches local stdio servers. Replace the example paths with absolute paths on your computer; use `command -v disk-inventory` to find the installed executable. The example below uses the usual Apple Silicon Homebrew location:\n\n```json\n{\n  \"mcpServers\": {\n    \"disk-inventory\": {\n      \"command\": \"/opt/homebrew/bin/disk-inventory\",\n      \"args\": [\"mcp\", \"--root\", \"/Users/YOU/Downloads\"]\n    }\n  }\n}\n```\n\nAdd more `--root`, `PATH` pairs to grant additional directories. The server refuses to launch without an explicit root and rejects scan paths outside those roots, including symlink escapes. An MCPB-compatible client can instead import the release bundle and prompt for one allowed directory.\n\nExample prompts:\n\n- “Show the largest folders in my Downloads directory and tell me whether the scan missed anything.”\n- “Within that scan, find the largest `.zip` files.”\n- “Break down the observed files by extension and explain the difference between logical and allocated bytes.”\n\n| Tool | Purpose |\n|---|---|\n| `list_roots` | Show directories granted at launch |\n| `scan_start` | Start a bounded background metadata scan; return a scan ID |\n| `scan_status` | Progress, final totals, skipped paths, and accounting caveats |\n| `scan_cancel` | Cooperatively stop the active scan |\n| `query_usage` | Sort/filter results, paginate, or drill into a directory ID |\n| `file_types` | Paginated file-extension groups |\n\nThe server implements newline-delimited JSON-RPC over stdio, initialization, ping, and tools. It negotiates protocol versions `2025-11-25`, `2025-06-18`, and `2025-03-26`. Tool results include both structured JSON and serialized text. Scan jobs are application-level IDs; this release does not advertise the optional MCP Tasks capability. Poll status at sensible intervals (for example once per second).\n\n## Accounting and limits\n\n- Default budget: 100,000 entries and 30 seconds. Maximum per scan: 500,000 entries and 300 seconds. Directory traversal depth is capped at 128. Time and cancellation checks occur between filesystem calls; an OS call blocked on a filesystem can delay either.\n- One active scan and the two latest finished scans are retained in memory. Starting further scans evicts older finished results. Restarting the process discards all scans. There is no persistent database or scan comparison yet.\n- Queries return at most 200 entries per page. The root has ID `0`. IDs are meaningful only within their scan. `parent_id` returns immediate children; omitting it considers all descendants. Avoid summing directory totals with their children.\n- Logical bytes count each observed regular-file or symlink path. Allocated bytes use `st_blocks * 512`, with device/inode deduplication for hard links. Shared hard-link storage is assigned to the first encountered path, so per-folder attribution can vary with enumeration order.\n- Directory metadata is excluded. APFS clones and snapshot-retained blocks are not deduplicated; allocated bytes are **not** reclaimable bytes. Nothing here establishes that a file is safe to delete.\n- Descendant symlinks are measured without following them. Other filesystems are skipped and reported. The root path is canonicalized at launch; traversal opens components without following symlinks. Disk Inventory X's special firmlink traversal is not copied into this implementation.\n- Permission errors, vanished entries, limits, mount boundaries, and invalid UTF-8 names set `complete=false`. Totals then describe only observed data. Up to 100 issue details are returned, with a full issue count. Entries can report zero observed bytes and `complete=false`; that does **not** mean empty.\n- Scans are live observations, not atomic filesystem snapshots. Contents and directories may change during traversal. The tool does not request elevated privileges or bypass macOS privacy protections.\n- File types are inferred only from filename extensions, not content or application ownership. The scanner makes no file-content reads; browsing cloud-provider directories can still involve provider metadata activity.\n\n## Privacy\n\nThe executable makes no network requests, contains no telemetry, and writes no scan cache. It returns paths, sizes, and error details to the invoking CLI or MCP client. That client may send tool results to its model provider or retain logs according to its own settings. Treat filenames as untrusted data. Keep granted roots limited to what you intend to analyze.\n\n## Development\n\n```sh\nswift build -c release\nDISK_INVENTORY_BIN=\"$PWD/.build/release/disk-inventory\" python3 tests/integration.py\nbash scripts/package.sh\n```\n\nThe integration tests use generated temporary fixtures: regular files, hard links, sparse files, symlink loops/escapes, unreadable directories, hostile filenames, pagination, cancellation, CLI exit codes, and MCP protocol errors. They do not scan personal directories. Optional interoperability tests use the official Python MCP SDK; see [tests/sdk_interop.py](tests/sdk_interop.py).\n\n## License and provenance\n\nGPL-3.0-or-later; see [LICENSE](LICENSE). This is a new Swift implementation informed by the assessment of [Tjark Derlien's Disk Inventory X](https://gitlab.com/tderlien/disk-inventory-x) and [TreeMapView](https://gitlab.com/tderlien/treemapview-framework). It does not bundle their Objective-C source, artwork, TreeMapView, Omni frameworks, or CocoaTech components, and is not an official release of Disk Inventory X. The GPL license text is reproduced from the public Disk Inventory X checkout. Original upstream ownership and notices remain in their respective repositories.\n\nPlanned follow-ups: persistent scan comparisons, evidence-based cleanup previews, then separately reviewed cleanup execution. These are not features of v0.1.0.\n",
+  "status": "curated"
+}

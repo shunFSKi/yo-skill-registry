@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.ezpzfile/ezpzfile",
+  "type": "mcp",
+  "name": "ezpzfile",
+  "description": "Local file tools for agents: documents, PDFs, images, QR codes. Nothing is uploaded.",
+  "author": "io.github.ezpzfile",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/ezpzfile/ezpzfile-mcp",
+    "repo": "ezpzfile/ezpzfile-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "ezpzfile-mcp"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-12T11:56:31.309553Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "写作",
+    "featured": false
+  },
+  "readme": "# ezpzfile-mcp\n\nFile tools for AI agents. Read and convert documents (DOCX, PDF, HWP, HWPX, EML),\nedit PDFs, resize and clean images, cut out backgrounds, make QR codes. Everything\nruns on your machine and no file is ever uploaded.\n\n```bash\nclaude mcp add ezpzfile -- npx -y ezpzfile-mcp\n```\n\n[npm](https://www.npmjs.com/package/ezpzfile-mcp) · [ezpzfile.com/mcp](https://ezpzfile.com/mcp) · Node 22.13 or newer\n\n## What it saves\n\nThe same four files were placed in two sessions and the same task sentence was\nhanded to the same model. One side could only use this server. The other had no\ndedicated tools and was free to use the shell and Node.\n\n| | Without tools | With ezpzfile-mcp |\n|---|---|---|\n| Cost | $0.28 | **$0.13** |\n| Wall time | 9:06 | **0:39** |\n| Tasks finished | 2 / 4 | **4 / 4** |\n| Tool calls | 20 | **10** |\n| Tokens | 510,607 | **184,605** |\n\nThat is 53% less cost and 93% less time. Tokens and cost are not estimates; they\nare the per-message figures the sessions recorded, added up. Measured 2026-09-12.\n\nThe bare session never started two of the tasks. It spent the clock hunting for and\ninstalling libraries for the two Korean documents. Read the gap as a floor, not a\nceiling: had it been made to finish all 4, the difference would be wider.\n\n![Benchmark](./mcp/docs/benchmark.png)\n\n## The tools\n\nSix of them, not twenty five. Tool definitions sit in the model's context for every\nconversation, so related jobs share one tool and an argument picks between them.\n[`mcp/README.md`](./mcp/README.md) has the full list and every argument.\n\n| Tool | What it does |\n|---|---|\n| `doc_read` | Text out of DOCX, PDF, HWP, HWPX and EML, tables included |\n| `doc_convert` | Documents to PDF, PDF pages to images, sheets to CSV or JSON, Korean formats to each other |\n| `pdf_edit` | Merge, extract, delete, rotate, reorder, split, compress, protect, unlock |\n| `pdf_info` | Page count, page sizes, encryption, metadata |\n| `image_edit` | Resize, compress, convert, strip EXIF and GPS, cut out the background |\n| `qr_make` | A link or some text as a PNG or SVG |\n\n## Layout\n\n| Path | What it is |\n|---|---|\n| [`mcp/`](./mcp) | The package: server, tools, build |\n| `src/lib/` | Code shared with [ezpzfile.com](https://ezpzfile.com) |\n| `public/vendor/` | The HWP engine and the fonts embedded into generated PDFs |\n\n```bash\ncd mcp\nnpm install\nnpm run build      # writes mcp/dist/index.js and mcp/vendor/\nnode test/protocol.mjs /path/to/samples\n```\n\n`sharp` and `@napi-rs/canvas` are native, so they are built for your platform on\ninstall. Background removal downloads a 4.4MB model and a 14MB runtime the first\ntime you ask for a cut-out, then caches them under `~/.cache/ezpzfile-mcp`. That is\nthe only thing here that touches the network, and it uploads nothing.\n\n## A note on this repository\n\nThis is a read-only export. The working copy lives in a private monorepo alongside\nthe website, and this repository is regenerated from it on each release. Please open\nissues rather than pull requests.\n\nMIT licensed, see [LICENSE](./LICENSE).\n",
+  "status": "curated"
+}

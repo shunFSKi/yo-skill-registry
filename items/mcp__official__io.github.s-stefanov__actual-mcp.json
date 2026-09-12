@@ -1,0 +1,90 @@
+{
+  "id": "mcp:official/io.github.s-stefanov/actual-mcp",
+  "type": "mcp",
+  "name": "Actual Budget MCP Server",
+  "description": "MCP server exposing Actual Budget accounts, transactions, budgets and reporting to LLM assistants.",
+  "author": "io.github.s-stefanov",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/s-stefanov/actual-mcp",
+    "repo": "s-stefanov/actual-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "actual-mcp"
+    ],
+    "env": [
+      {
+        "name": "ACTUAL_SERVER_URL",
+        "required": true,
+        "secret": false
+      },
+      {
+        "name": "ACTUAL_PASSWORD",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "ACTUAL_BUDGET_SYNC_ID",
+        "required": true,
+        "secret": false
+      },
+      {
+        "name": "ACTUAL_DATA_DIR",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "ACTUAL_BUDGET_ENCRYPTION_PASSWORD",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "ACTUAL_SYNC_TTL_MS",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-12T10:55:17.664065Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "AI",
+    "featured": false
+  },
+  "readme": "# Actual Budget MCP Server\n\nMCP server for integrating Actual Budget with Claude and other LLM assistants.\n\n## Overview\n\nThe Actual Budget MCP Server allows you to interact with your personal financial data from [Actual Budget](https://actualbudget.com/) using natural language through LLMs. It exposes your accounts, transactions, and financial metrics through the Model Context Protocol (MCP).\n\n## Features\n\n### Resources\n\n- **Account Listings** - Browse all your accounts with their balances\n- **Account Details** - View detailed information about specific accounts\n- **Transaction History** - Access transaction data with complete details\n\n### Tools\n\n#### Transaction & Account Management\n\n- **`get-transactions`** - Retrieve and filter transactions by account, date, amount, category, or payee\n- **`create-transaction`** - Create a new transaction in an account with optional category, payee, and notes\n- **`update-transaction`** - Update an existing transaction with new category, payee, notes, or amount\n- **`get-accounts`** - Retrieve a list of all accounts with their current balance and ID\n- **`balance-history`** - View account balance changes over time\n\n#### Reporting & Analytics\n\n- **`spending-by-category`** - Generate spending breakdowns categorized by type\n- **`monthly-summary`** - Get monthly income, expenses, and savings metrics\n- **`budget-vs-actual`** - Compare budgeted amounts against actual spending per category\n- **`net-worth`** - Track assets, liabilities, and net worth across all accounts over time\n- **`category-trends`** - See how spending in each category moves month over month, with trend direction\n- **`spending-by-payee`** - Rank payees by how much was spent with (or received from) each one\n- **`cash-flow`** - Report income, expenses, and net cash flow per month or week\n\n> The five tools above return JSON rather than markdown, so amounts stay machine-readable. Every amount is an integer number of cents, and each response carries an `amountsIn` field describing the sign conventions it uses.\n\n#### Custom Reports & Dashboards\n\n- **`get-custom-reports`** - Retrieve every saved custom report from the Reports section\n- **`create-custom-report`** - Create a saved custom report\n- **`update-custom-report`** - Update fields on a saved custom report, leaving the rest unchanged\n- **`delete-custom-report`** - Delete a saved custom report\n- **`get-dashboards`** - Retrieve every dashboard page and the widgets laid out on it\n- **`add-dashboard-widget`** - Add a widget to a dashboard page\n- **`update-dashboard-widget`** - Update a widget's configuration, position, or size\n- **`remove-dashboard-widget`** - Remove a widget from its page\n- **`organize-dashboard`** - Reposition and resize several widgets at once\n- **`create-dashboard-page`** / **`rename-dashboard-page`** / **`delete-dashboard-page`** - Manage dashboard pages\n\n#### Categories\n\n- **`get-grouped-categories`** - Retrieve a list of all category groups with their categories\n- **`create-category`** - Create a new category within a category group\n- **`update-category`** - Update an existing category's name or group\n- **`delete-category`** - Delete a category\n- **`create-category-group`** - Create a new category group\n- **`update-category-group`** - Update a category group's name\n- **`delete-category-group`** - Delete a category group\n\n#### Payees\n\n- **`get-payees`** - Retrieve a list of all payees with their details\n- **`create-payee`** - Create a new payee\n- **`update-payee`** - Update an existing payee's details\n- **`delete-payee`** - Delete a payee\n\n#### Rules\n\n- **`get-rules`** - Retrieve a list of all transaction rules\n- **`create-rule`** - Create a new transaction rule with conditions and actions\n- **`update-rule`** - Update an existing transaction rule\n- **`delete-rule`** - Delete a transaction rule\n\n### Prompts\n\n- **`financial-insights`** - Generate insights and recommendations based on your financial data\n- **`budget-review`** - Analyze your budget compliance and suggest adjustments\n\n## Installation\n\n### Prerequisites\n\n- [Node.js](https://nodejs.org/) (v16 or higher)\n- [Actual Budget](https://actualbudget.com/) installed and configured\n- [Claude Desktop](https://claude.ai/download) or another MCP-compatible client\n- [Docker Desktop](https://www.docker.com/products/docker-desktop) (optional)\n\n### Remote access\n\nPull the latest docker image:\n\n```\ndocker pull sstefanov/actual-mcp:latest\n```\n\n### Local setup\n\n1. Clone the repository:\n\n```bash\ngit clone https://github.com/s-stefanov/actual-mcp.git\ncd actual-mcp\n```\n\n2. Install dependencies:\n\n```bash\nnpm install\n```\n\n3. Build the server:\n\n```bash\nnpm run build\n```\n\n4. Build the local docker image (optional):\n\n```bash\ndocker build -t <local-image-name> .\n```\n\n5. Configure environment variables (optional):\n\n```bash\n# Path to your Actual Budget data directory (default: ~/.actual)\nexport ACTUAL_DATA_DIR=\"/path/to/your/actual/data\"\n\n# If using a remote Actual server\nexport ACTUAL_SERVER_URL=\"https://your-actual-server.com\"\nexport ACTUAL_PASSWORD=\"your-password\"\n\n# Specific budget to use (optional)\nexport ACTUAL_BUDGET_SYNC_ID=\"your-budget-id\"\n\n# How long downloaded data stays fresh before the server re-syncs, in ms\n# (default: 60000). Use 0 to sync before every call, or -1 to never sync.\nexport ACTUAL_SYNC_TTL_MS=\"60000\"\n```\n\nOptional: separate encryption budget password\n\nIf your Actual setup requires a different password to unlock the local/encrypted budget data than the server authentication password, you can set `ACTUAL_BUDGET_ENCRYPTION_PASSWORD` in addition to `ACTUAL_PASSWORD`.\n\n```bash\n# If server auth and encryption/unlock use different passwords\nexport ACTUAL_BUDGET_ENCRYPTION_PASSWORD=\"your-encryption-password\"\n```\n\n## Usage with Claude Desktop\n\nTo use this server with Claude Desktop, add it to your Claude configuration:\n\nOn MacOS:\n\n```bash\ncode ~/Library/Application\\ Support/Claude/claude_desktop_config.json\n```\n\nOn Windows:\n\n```bash\ncode %APPDATA%\\Claude\\claude_desktop_config.json\n```\n\nAdd the following to your configuration...\n\n### a. Using Node.js (npx version):\n\n```json\n{\n  \"mcpServers\": {\n    \"actualBudget\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"actual-mcp\", \"--enable-write\"],\n      \"env\": {\n        \"ACTUAL_DATA_DIR\": \"path/to/your/data\",\n        \"ACTUAL_PASSWORD\": \"your-password\",\n        \"ACTUAL_SERVER_URL\": \"http://your-actual-server.com\",\n        \"ACTUAL_BUDGET_SYNC_ID\": \"your-budget-id\"\n      }\n    }\n  }\n}\n\n### a. Using Node.js (local only):\n\n```json\n{\n  \"mcpServers\": {\n    \"actualBudget\": {\n      \"command\": \"node\",\n      \"args\": [\"/path/to/your/clone/build/index.js\", \"--enable-write\"],\n      \"env\": {\n        \"ACTUAL_DATA_DIR\": \"path/to/your/data\",\n        \"ACTUAL_PASSWORD\": \"your-password\",\n        \"ACTUAL_SERVER_URL\": \"http://your-actual-server.com\",\n        \"ACTUAL_BUDGET_SYNC_ID\": \"your-budget-id\"\n      }\n    }\n  }\n}\n```\n\n### b. Using Docker (local or remote images):\n\n```json\n{\n  \"mcpServers\": {\n    \"actualBudget\": {\n      \"command\": \"docker\",\n      \"args\": [\n        \"run\",\n        \"-i\",\n        \"--rm\",\n        \"-v\",\n        \"/path/to/your/data:/data\",\n        \"-e\",\n        \"ACTUAL_PASSWORD=your-password\",\n        \"-e\",\n        \"ACTUAL_SERVER_URL=https://your-actual-server.com\",\n        \"-e\",\n        \"ACTUAL_BUDGET_SYNC_ID=your-budget-id\",\n        \"sstefanov/actual-mcp:latest\",\n        \"--enable-write\"\n      ]\n    }\n  }\n}\n```\n\nAfter saving the configuration, restart Claude Desktop.\n\n> 💡 `ACTUAL_DATA_DIR` is optional if you're using `ACTUAL_SERVER_URL`.\n\n> 💡 Use `--enable-write` to enable write-access tools.\n\n## Running an SSE Server\n\nTo expose the server over a port using Docker:\n\n```bash\ndocker run -i --rm \\\n  -p 3000:3000 \\\n  -v \"/path/to/your/data:/data\" \\\n  -e ACTUAL_PASSWORD=\"your-password\" \\\n  -e ACTUAL_SERVER_URL=\"http://your-actual-server.com\" \\\n  -e ACTUAL_BUDGET_SYNC_ID=\"your-budget-id\" \\\n  -e BEARER_TOKEN=\"your-bearer-token\" \\\n  sstefanov/actual-mcp:latest \\\n  --sse --enable-write --enable-bearer\n```\n\n> ⚠️ Important: When using --enable-bearer, the BEARER_TOKEN environment variable must be set.  \n> 🔒 This is highly recommended if you're exposing your server via a public URL.\n\n## Example Queries\n\nOnce connected, you can ask Claude questions like:\n\n- \"What's my current account balance?\"\n- \"Show me my spending by category last month\"\n- \"How much did I spend on groceries in January?\"\n- \"What's my savings rate over the past 3 months?\"\n- \"Which categories am I overspending on this month?\"\n- \"How has my net worth changed over the past year?\"\n- \"Which payees do I spend the most with?\"\n- \"Is my grocery spending trending up or down?\"\n- \"Analyze my budget and suggest areas to improve\"\n- \"What custom reports do I have?\"\n- \"Add a net worth widget to my Spending Plan dashboard\"\n- \"Rearrange my dashboard so the cash flow card is full width at the top\"\n\n## Usage with Codex CLI\n\nExample Codex configuration:\n\nIn `~/.codex/config.toml`:\n```toml\n[mcp_servers.actual-budget]\nurl = \"http://localhost:3000\"\n```\n\nPoint Codex at the same port you pass to `npm start -- --sse --port <PORT>`.\n\n## Development\n\nFor development with auto-rebuild:\n\n```bash\nnpm run watch\n```\n\n### Testing the connection to Actual\n\nTo verify the server can connect to your Actual Budget data:\n\n```bash\nnode build/index.js --test-resources\n```\n\n### Debugging\n\nSince MCP servers communicate over stdio, debugging can be challenging. You can use the [MCP Inspector](https://github.com/modelcontextprotocol/inspector):\n\n```bash\nnpx @modelcontextprotocol/inspector node build/index.js\n```\n\n### E2E validation gate\n\nThe end-to-end test suite (`vitest.e2e.config.ts`) spins up a real Actual Budget server in a Docker container (via Testcontainers), seeds a budget, and drives it through a real MCP client over stdio to verify accounts, transactions, categories, payees, rules, and imports actually persist. It requires Docker to be running locally.\n\nIn CI, the `e2e-test` job in `.github/workflows/pr-validation.yml` only runs on release-please PRs (branch prefix `release-please--`) or when a PR is given the `run-e2e` label — it does not run on every PR by default, since it needs Docker and takes longer than the standard checks.\n\nTo run it locally:\n\n```bash\nnpm run build && npm run test:e2e\n```\n\nDocker must be installed and running; the test suite pulls and starts the Actual server image automatically.\n\n## Project Structure\n\n- `index.ts` - Main server implementation\n- `types.ts` - Type definitions for API responses and parameters\n- `prompts.ts` - Prompt templates for LLM interactions\n- `utils.ts` - Helper functions for date formatting and more\n\n## Registry & Discovery\n\n`actual-mcp` is published to the [official MCP Registry](https://registry.modelcontextprotocol.io)\nas `io.github.s-stefanov/actual-mcp`. Registry metadata lives in\n[`server.json`](./server.json) and is published automatically on each release\n(see `.github/workflows/release-please.yml`).\n\nIt advertises two transports on the npm package — `stdio` (default) and\n`streamable-http` (via the `--sse` flag). (A Docker image is also published,\nbut is not yet listed as a registry package.)\n\nPost-release directory listings are tracked in\n[`docs/mcp-registry-checklist.md`](./docs/mcp-registry-checklist.md).\n\n## License\n\nMIT\n\n## Contributing\n\nContributions are welcome! Please feel free to submit a Pull Request.\n",
+  "status": "curated"
+}

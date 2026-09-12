@@ -1,0 +1,99 @@
+{
+  "id": "mcp:official/io.github.Abktya/universal-host-manager-mcp",
+  "type": "mcp",
+  "name": "universal-host-manager-mcp",
+  "description": "Cross-platform FastMCP server for authenticated remote Linux/macOS host administration",
+  "author": "io.github.Abktya",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/Abktya/universal-host-manager-mcp",
+    "repo": "Abktya/universal-host-manager-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "universal-host-manager-mcp"
+    ],
+    "env": [
+      {
+        "name": "HOST",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "PORT",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "MCP_WORKSPACE_DIR",
+        "required": true,
+        "secret": false
+      },
+      {
+        "name": "AUTH0_DOMAIN",
+        "required": true,
+        "secret": false
+      },
+      {
+        "name": "AUTH0_CLIENT_ID",
+        "required": true,
+        "secret": false
+      },
+      {
+        "name": "AUTH0_CLIENT_SECRET",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "AUTH0_AUDIENCE",
+        "required": true,
+        "secret": false
+      },
+      {
+        "name": "ALLOW_INSECURE_NO_AUTH",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-12T10:48:27.731784Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "运维",
+    "featured": false
+  },
+  "readme": "# Universal Host Manager MCP\n<!-- mcp-name: io.github.Abktya/universal-host-manager-mcp -->\n\nA cross-platform [Model Context Protocol](https://modelcontextprotocol.io/) server for administering a Linux or macOS host through MCP clients such as ChatGPT and Claude.\n\n[![Abktya/universal-host-manager-mcp MCP server](https://glama.ai/mcp/servers/Abktya/universal-host-manager-mcp/badges/score.svg)](https://glama.ai/mcp/servers/Abktya/universal-host-manager-mcp)\n\nIt uses [FastMCP](https://gofastmcp.com/) Streamable HTTP transport, Auth0 OAuth, bounded file tools, output limits and command timeouts.\n\n> [!CAUTION]\n> This project exposes arbitrary shell execution. Authentication decides who may use it; it does not make commands harmless. Read [SECURITY.md](SECURITY.md) before deploying it.\n\n## Features\n\n- Linux and macOS support\n- Streamable HTTP endpoint\n- Auth0 OAuth integration\n- File reads, writes and directory listings constrained to `MCP_WORKSPACE_DIR`\n- Configurable command timeouts and output truncation\n- File-size limits and decoding fallback\n- Fail-closed startup when authentication is not configured\n- Example systemd and launchd services\n\n## Tools\n\n| Tool | Parameters | Purpose |\n| --- | --- | --- |\n| `run_command` | `command: str`, `timeout: int` | Runs an arbitrary shell command with the workspace as its working directory |\n| `read_file` | `path: str` | Reads a text file inside the workspace |\n| `write_file` | `path: str`, `content: str` | Writes UTF-8 text inside the workspace |\n| `list_dir` | `path: str = \".\"` | Lists a directory inside the workspace |\n| `system_metrics` | none | Reports disk, memory and top-process information |\n\nThe workspace boundary applies to the file tools. It does **not** sandbox `run_command`; commands retain all permissions of the service's OS user.\n\n## Requirements\n\n- Python 3.10+\n- Linux or macOS\n- Auth0 account for remote use\n- HTTPS endpoint for remote MCP clients\n\n## Install\n\n### PyPI (recommended)\n\n```bash\npip install universal-host-manager-mcp\n```\n\n### uv / pipx\n\nWithout polluting a project environment:\n\n```bash\nuvx universal-host-manager-mcp\n```\n\n### From source (for development)\n\n```bash\ngit clone https://github.com/Abktya/universal-host-manager-mcp.git\ncd universal-host-manager-mcp\npython3 -m venv .venv\nsource .venv/bin/activate\npip install -e .\ncp .env.example .env\n```\n\n### Configure\n\nCreate a `.env` file (copy `.env.example` if you installed from source) with an explicitly restricted workspace:\n\n```dotenv\nHOST=127.0.0.1\nPORT=8765\nMCP_BASE_URL=https://mcp.example.com\nMCP_WORKSPACE_DIR=/home/youruser/workspace\n\nAUTH0_DOMAIN=your-tenant.eu.auth0.com\nAUTH0_CLIENT_ID=replace_me\nAUTH0_CLIENT_SECRET=replace_me\nAUTH0_AUDIENCE=https://mcp.example.com/\n```\n\nNever commit `.env`.\n\n## Auth0 setup\n\nThis project uses FastMCP's `Auth0Provider` fixed-client OAuth integration.\n\n1. In Auth0, create an API.\n2. Use your public MCP URL as its identifier/audience, for example `https://mcp.example.com/`.\n3. Create a Regular Web Application.\n4. Put its domain, client ID and client secret in `.env`.\n5. Add only the callback URLs required by your MCP clients to the Auth0 application's allowed callback URLs.\n6. Set the application's allowed web origins and logout URLs as required by your clients.\n7. Keep RS256 signing enabled.\n\nFastMCP also supports an Auth0 MCP-native/DCR path through `Auth0MCPProvider`. This repository currently uses the manually managed, fixed-client `Auth0Provider` path.\n\n## Run\n\n```bash\nuniversal-host-manager-mcp\n```\n\n(Running from a source checkout with the `.venv` activated works the same way — the console script is installed by `pip install -e .`.)\n\nWith the default port, the Streamable HTTP endpoint is:\n\n```text\nhttp://127.0.0.1:8765/mcp\n```\n\nFor an intentional local-only test without Auth0:\n\n```bash\nALLOW_INSECURE_NO_AUTH=true universal-host-manager-mcp\n```\n\nDo not use insecure mode on a publicly reachable endpoint.\n\n## Cloudflare Tunnel\n\nInstall `cloudflared`, authenticate it and create a named tunnel:\n\n```bash\ncloudflared tunnel login\ncloudflared tunnel create universal-host-manager-mcp\ncloudflared tunnel route dns universal-host-manager-mcp mcp.example.com\n```\n\nCreate `~/.cloudflared/config.yml`:\n\n```yaml\ntunnel: YOUR_TUNNEL_ID\ncredentials-file: /home/youruser/.cloudflared/YOUR_TUNNEL_ID.json\n\ningress:\n  - hostname: mcp.example.com\n    service: http://127.0.0.1:8765\n  - service: http_status:404\n```\n\nValidate and run it:\n\n```bash\ncloudflared tunnel ingress validate\ncloudflared tunnel run universal-host-manager-mcp\n```\n\nYour remote MCP URL will be:\n\n```text\nhttps://mcp.example.com/mcp\n```\n\nSet `MCP_BASE_URL=https://mcp.example.com`; do not include `/mcp` in `MCP_BASE_URL`.\n\n## AWS EC2 Deployment\n\nThese steps deploy the server on an EC2 instance and expose it safely to remote MCP clients.\n\n### 1. Launch the instance\n\n- AMI: Ubuntu 24.04 LTS (the commands below are for Ubuntu/`apt`; on Amazon Linux 2023 use `sudo dnf install -y python3-pip` instead)\n- Instance type: `t3.micro`/`t3.small` is enough for typical management workloads\n- Security group: allow inbound **SSH (22)** from your own IP only. No other inbound port is required if you use the Cloudflare Tunnel option below.\n\n### 2. Install the server\n\nSSH into the instance, then install from PyPI:\n\n```bash\nsudo apt update && sudo apt install -y python3-pip python3-venv\npython3 -m venv ~/uhm-venv\nsource ~/uhm-venv/bin/activate\npip install universal-host-manager-mcp\n```\n\n### 3. Configure\n\n```bash\nmkdir -p ~/workspace\ncat > ~/.env << 'EOF'\nHOST=127.0.0.1\nPORT=8765\nMCP_BASE_URL=https://mcp.example.com\nMCP_WORKSPACE_DIR=/home/ubuntu/workspace\n\nAUTH0_DOMAIN=your-tenant.eu.auth0.com\nAUTH0_CLIENT_ID=replace_me\nAUTH0_CLIENT_SECRET=replace_me\nAUTH0_AUDIENCE=https://mcp.example.com/\nEOF\nchmod 600 ~/.env\n```\n\nKeep `HOST=127.0.0.1`. The server should never listen directly on the instance's public interface — internet exposure is handled entirely by the tunnel or load balancer described below, not by opening the instance's own port.\n\n### 4. Networking: get an HTTPS URL to the instance\n\nAuth0 OAuth requires HTTPS. Pick one option:\n\n**Option A — Cloudflare Tunnel (recommended, no inbound port needed)**\n\nRun the steps from the [Cloudflare Tunnel](#cloudflare-tunnel) section above, from the EC2 instance. Because the tunnel is an outbound-only connection, you don't need to open any inbound port beyond SSH, don't need an Elastic IP, and the instance can even sit in a private subnet behind a NAT gateway.\n\n**Option B — Application Load Balancer with an ACM certificate**\n\n- Request an ACM certificate for your domain and attach it to an ALB\n- Create an HTTPS (443) listener on the ALB forwarding to the instance's `PORT`\n- Security group on the instance: allow inbound `PORT` **only from the ALB's security group**, never from `0.0.0.0/0`\n- Point your DNS at the ALB and set `MCP_BASE_URL` to that hostname\n\n### 5. Run as a systemd service\n\nReuse the included unit (see [Background service](#background-service) below):\n\n```bash\nsudo cp examples/mcp-manager.service /etc/systemd/system/\n# edit User=, WorkingDirectory=, EnvironmentFile= and ExecStart= to point at\n# ~/uhm-venv/bin/universal-host-manager-mcp and ~/.env\nsudo systemctl daemon-reload\nsudo systemctl enable --now mcp-manager\nsudo systemctl status mcp-manager --no-pager\n```\n\n### 6. Elastic IP\n\nNot required for either networking option. The Cloudflare Tunnel connects outbound regardless of the instance's address, and an ALB registers targets by instance ID or private IP, so it doesn't need one either. Only add an Elastic IP if something else in your setup depends on a fixed public IP for this instance.\n\n## ChatGPT and Claude\n\nAdd the public Streamable HTTP URL to the client's MCP/connector configuration:\n\n```text\nhttps://mcp.example.com/mcp\n```\n\nComplete the Auth0 sign-in when the client opens the authorization flow. The exact settings screens and supported connector options can change, so follow the current client documentation rather than using legacy SSE instructions.\n\nMultiple clients can connect to the same running HTTP server. Each client authenticates independently; no separate server process or port is required.\n\n## Background service\n\n### Linux systemd\n\nCopy and edit the included unit:\n\n```bash\nsudo cp examples/mcp-manager.service /etc/systemd/system/\nsudo systemctl daemon-reload\nsudo systemctl enable --now mcp-manager\nsudo systemctl status mcp-manager --no-pager\n```\n\nThe example uses systemd hardening directives. Adjust `ReadWritePaths`, `ProtectHome`, the user, paths and permissions to match the resources the MCP server genuinely needs.\n\n### macOS launchd\n\nEdit paths in `examples/com.user.mcpmanager.plist`, then:\n\n```bash\ncp examples/com.user.mcpmanager.plist ~/Library/LaunchAgents/\nlaunchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.user.mcpmanager.plist\nlaunchctl kickstart -k gui/$(id -u)/com.user.mcpmanager\n```\n\n## Configuration\n\n| Variable | Default | Description |\n| --- | --- | --- |\n| `HOST` | `127.0.0.1` | Listen address |\n| `PORT` | `8765` | Listen port |\n| `MCP_BASE_URL` | local URL | Public OAuth base URL, without `/mcp` |\n| `MCP_WORKSPACE_DIR` | user home | Boundary for file tools and command working directory |\n| `MAX_OUTPUT_CHARS` | `64000` | Maximum returned tool-output characters |\n| `DEFAULT_CMD_TIMEOUT` | `300` | Default command timeout in seconds |\n| `MAX_CMD_TIMEOUT` | `1800` | Maximum accepted command timeout |\n| `MAX_READ_BYTES` | `5000000` | Maximum file size read by `read_file` |\n| `MAX_WRITE_BYTES` | `5000000` | Maximum content size written by `write_file` |\n| `LOG_LEVEL` | `INFO` | Python log level |\n| `ALLOW_INSECURE_NO_AUTH` | `false` | Explicit local-development authentication bypass |\n\n## Download\n\nClone with Git:\n\n```bash\ngit clone https://github.com/Abktya/universal-host-manager-mcp.git\n```\n\nOr use **Code → Download ZIP** on GitHub.\n\n## License\n\n[MIT](LICENSE)\n",
+  "status": "curated"
+}

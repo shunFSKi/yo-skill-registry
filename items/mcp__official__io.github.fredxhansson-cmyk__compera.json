@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.fredxhansson-cmyk/compera",
+  "type": "mcp",
+  "name": "Compera",
+  "description": "Live Swedish price & service comparison (products, broadband, mobile, electricity, loans)",
+  "author": "io.github.fredxhansson-cmyk",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/fredxhansson-cmyk/compera-mcp",
+    "repo": "fredxhansson-cmyk/compera-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://compera.se/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-12T16:29:07.138872Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Compera MCP Server\n\n**Live Swedish price & service comparison as callable tools for AI agents.**\n\nCompera ([compera.se](https://compera.se)) is an independent Swedish comparison service for\nboth products and services. This MCP server exposes Compera's **daily-fresh data as tools** so\nAI assistants (ChatGPT, Claude, Perplexity, …) can answer \"cheapest/best X in Sweden\" in real\ntime and cite the source.\n\n- **Endpoint:** `https://compera.se/mcp` (Streamable HTTP, JSON-RPC 2.0)\n- **Official MCP Registry:** `io.github.fredxhansson-cmyk/compera`\n- **Docs / landing:** https://compera.se/for-ai\n- **Machine-readable map:** https://compera.se/llms.txt\n- **License:** MIT\n\n## Tools\n\n| Tool | Description |\n|------|-------------|\n| `search_products` | Search the product catalog for the cheapest price + number of stores. |\n| `product_offers` | All store prices for a single product (cheapest / in-stock first). |\n| `compare_category` | Top providers in a Swedish service category (broadband, mobile, electricity, insurance, loans). |\n| `compare_pair` | Head-to-head comparison of two providers in a category. |\n| `electricity_price` | Daily Swedish electricity spot price per zone SE1–SE4 (Nord Pool). |\n| `lowest_loan_rate` | Lowest effective consumer loan rate in Sweden right now. |\n| `price_spread` | How much the same product's price differs between Swedish stores. |\n| `deals_now` | Current deals/discounts across categories. |\n| `list_categories` | List all comparable service categories. |\n\nEvery tool returns text with a source line back to compera.se.\n\n## Connect\n\nAdd a custom connector in Claude or ChatGPT with the URL:\n\n```\nhttps://compera.se/mcp\n```\n\nOr test with the MCP Inspector:\n\n```bash\nnpx @modelcontextprotocol/inspector\n# connect to https://compera.se/mcp\n```\n\n## Example (raw JSON-RPC)\n\n```bash\ncurl -s https://compera.se/mcp \\\n  -H 'content-type: application/json' \\\n  -d '{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"tools/call\",\"params\":{\"name\":\"electricity_price\"}}'\n```\n\n---\n\nBuilt by [Compera](https://compera.se). Data is updated daily and presented neutrally with source attribution.\n",
+  "status": "curated"
+}

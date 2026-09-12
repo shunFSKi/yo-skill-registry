@@ -1,0 +1,61 @@
+{
+  "id": "mcp:official/io.github.Fluenta-Team/fluenta",
+  "type": "mcp",
+  "name": "fluenta",
+  "description": "Score business ideas on six live market signals. Launch Readiness Score (LRS) for AI agents.",
+  "author": "io.github.Fluenta-Team",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/Fluenta-Team/fluenta-mcp",
+    "repo": "Fluenta-Team/fluenta-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://fluenta.space/backend/api/v1/mcp",
+    "env": [
+      {
+        "name": "Authorization",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-12T14:31:43.51675Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Fluenta MCP server\n\nRemote MCP server that scores business ideas on six live market signals. Run an Idea X-Ray from Claude, Cursor or any MCP client and get a Launch Readiness Score (LRS) across demand, pain, competition, monetisation, timing and distribution, plus search over thousands of already-scored ideas.\n\n- Endpoint: `https://fluenta.space/backend/api/v1/mcp` (Streamable HTTP, JSON-RPC 2.0)\n- Docs: [fluenta.space/docs/api-and-mcp](https://fluenta.space/docs/api-and-mcp)\n- OpenAPI: [openapi.json](https://fluenta.space/backend/api/v1/ext/openapi.json)\n- Website: [fluenta.space](https://fluenta.space)\n\nThis repository holds the registry manifest (`server.json`) and the integration notes. The server itself is hosted by Fluenta; there is nothing to install or run locally.\n\n## Tools\n\n| Tool | What it does |\n|---|---|\n| `fluenta_idea_x-ray_sandbox` | Instant preview of an idea's Launch Readiness Score (LRS). No credits, no writes. Use it as the default first look. |\n| `fluenta_idea_x-ray` | The full X-Ray. Scores the idea on six live signals. Returns `xray_submitted` while queued and `xray_result` when complete. |\n| `fluenta_search_ideas`, `fluenta_get_idea`, `fluenta_compare_ideas` | Search and compare the scored-ideas database. |\n| `fluenta_list_collections`, `fluenta_get_pipeline`, `fluenta_add_to_pipeline`, `fluenta_remove_from_pipeline` | Manage your idea pipeline. |\n| `fluenta_list_analyses`, `fluenta_list_xray_runs`, `fluenta_download_report` | History and reports. |\n| `fluenta_get_account`, `fluenta_get_usage` | Account state and usage. |\n\n## Authentication\n\nCreate an API key in your Fluenta account ([Settings, API keys](https://fluenta.space/app/settings/api-keys)). Two scopes:\n\n- `read`: search ideas, read analyses, list collections, read pipeline and usage.\n- `read_write`: everything in `read`, plus submit X-Ray analyses and add or remove pipeline bookmarks.\n\nSend the key as `Authorization: Bearer YOUR_FLUENTA_API_KEY`.\n\n## Claude Desktop\n\nAdd to `claude_desktop_config.json` and restart Claude:\n\n```json\n{\n  \"mcpServers\": {\n    \"fluenta\": {\n      \"type\": \"http\",\n      \"url\": \"https://fluenta.space/backend/api/v1/mcp\",\n      \"headers\": { \"Authorization\": \"Bearer YOUR_FLUENTA_API_KEY\" }\n    }\n  }\n}\n```\n\nConfig location: `~/Library/Application Support/Claude/` on macOS, `%APPDATA%\\Claude\\` on Windows.\n\n## Cursor\n\nSame JSON in `~/.cursor/mcp.json`, or use the one-click install button on the [docs page](https://fluenta.space/docs/api-and-mcp).\n\n## Claude Code\n\n```bash\nclaude mcp add --transport http fluenta https://fluenta.space/backend/api/v1/mcp --header \"Authorization: Bearer YOUR_FLUENTA_API_KEY\"\n```\n\n## Example prompts\n\n- \"Run a sandbox X-Ray on: a subscription service for restaurant menu translation.\"\n- \"Search Fluenta for scored ideas about AI bookkeeping and compare the top three.\"\n- \"Add the best result to my pipeline.\"\n\n## Errors and limits\n\nStandard HTTP codes. 401 is a bad or revoked key, 402 is out of credits or key limit exceeded, 403 is the wrong scope for the action, 429 is rate limited (respect `Retry-After`). The response envelope on failure is `{ \"success\": false, \"error\": { ... } }`.\n\n## Registry\n\nPublished to the official MCP Registry as `io.github.Fluenta-Team/fluenta` from the `server.json` in this repository.\n\n## Licence\n\nMIT for the contents of this repository. Use of the hosted service is governed by the [Fluenta Terms of Service](https://fluenta.space/terms-of-service).\n",
+  "status": "curated"
+}

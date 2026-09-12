@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/Sophomoresty/turnstile-bypass/turnstile-bypass",
+  "type": "skill",
+  "name": "turnstile-bypass",
+  "description": "Use for Cloudflare Turnstile widgets and 请稍候 / Just a moment interstitials. install.py then solve.py --url <page>.",
+  "author": "Sophomoresty",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/Sophomoresty/turnstile-bypass/blob/HEAD/SKILL.md",
+    "repo": "Sophomoresty/turnstile-bypass",
+    "path": "SKILL.md"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 447,
+    "pushed_at": "2026-09-07T20:26:10Z",
+    "score": 79,
+    "star_history": [
+      {
+        "d": "2026-09-12",
+        "s": 447
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# turnstile-bypass\n\nSelf-contained Cloudflare challenge helper for macOS, Windows, and Linux.\n\nIt drives headed Chrome to pass the two CF layers people usually call “the shield”:\n\n1. **Turnstile widget** on a site page (e.g. `aipaycards.com/login`) → JSON `token`\n2. **Interstitial waiting room** (`请稍候…` / Just a moment, e.g. **grok.com**) → `cf_clearance` and the real origin\n\n`curl https://grok.com/` is **403** + `cf-mitigated: challenge`. After `solve.py --url https://grok.com/ --fresh`, the same Chrome tab is the Grok app with a `cf_clearance` cookie.\n\nIt does **not** pass IP bans (1020), rate limits (1015), or Bot Fight when this Chrome is already rejected.\n\nA new agent should follow **Install** then **Use**. Nothing else is required.\n\n## Install\n\nNeeds: Python 3.10+, Google Chrome or Chromium.\n\n```bash\ngit clone https://github.com/Sophomoresty/turnstile-bypass.git\ncd turnstile-bypass\npython3 scripts/install.py\n```\n\n`install.py` creates `.venv` in this repo, installs `requirements.txt` (DrissionPage), packs `assets/turnstilePatch.zip`, and runs `scripts/preflight.py`.\n\nYou want:\n\n```json\n{ \"ok\": true, \"methods\": { \"drissionpage\": true } }\n```\n\n| OS | If Chrome is not found |\n|---|---|\n| macOS | Install Google Chrome, or `export CHROME_PATH=\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\"` |\n| Windows | `set CHROME_PATH=C:\\Path\\to\\chrome.exe` |\n| Linux | `sudo apt-get install -y google-chrome-stable` or `chromium` |\n| Linux, no desktop | `sudo apt-get install -y xvfb` then prefix commands with `xvfb-run -a` |\n\nManual install (same result):\n\n```bash\npython3 -m venv .venv\n.venv/bin/python -m pip install -r requirements.txt   # Windows: .venv\\Scripts\\python.exe\npython3 scripts/pack_extension.py\npython3 scripts/preflight.py\n```\n\n## Use\n\n```bash\npython3 scripts/solve.py --url \"https://aipaycards.com/login\"\npython3 scripts/solve.py --url \"https://grok.com/\" --fresh\n```\n\nStdout is one JSON object.\n\n- Widget success: `\"ok\": true` and `token` longer than 20 characters. Use it immediately (~300s TTL).\n- Waiting-room success (grok.com): `\"ok\": true` and `kind` is `cf_clearance` or `cf_passed`, with `clearanceLen` > 20. The tab is the real site.\n- Failure: `\"ok\": false` and `error`. Do not invent a token.\n\nForce a lane:\n\n```bash\npython3 scripts/solve.py --lane drission --url \"https://example.com/login\"\npython3 scripts/solve.py --lane ab --url \"https://example.com/login\"\n```\n\nLinux without GUI:\n\n```bash\nxvfb-run -a python3 scripts/solve.py --url \"https://example.com/login\"\n```\n\nDefault lane: **DrissionPage + packaged extension** after `install.py`. If `agent-browser-cli` and Node are already on `PATH`, `solve.py` prefers that faster lane (`TURNSTILE_PREFER_AB=0` to force Drission).\n\n`--lane ab` is optional and faster only if `agent-browser-cli` + Node are already installed **and** that Chrome already has this extension. Iframe clicks must use Chrome CDP (default port **19221**), never the shim **19222**.\n\nYesCaptcha (last resort): `YESCAPTCHA_CLIENT_KEY` and\n\n```bash\npython3 scripts/solve.py --lane yescaptcha --url \"https://example.com\" --sitekey \"0x...\"\n```\n\n## Chrome extension\n\nSource of truth: **`assets/turnstilePatch/`** (load unpacked).\n\nPacked copy: **`assets/turnstilePatch.zip`** (same two files). Rebuild with `python3 scripts/pack_extension.py`.\n\nThe extension is Manifest V3, `world: MAIN`, `all_frames`, matches `https://challenges.cloudflare.com/*` only. It patches `MouseEvent.screenX/Y` because Chrome CDP clicks set screen coords equal to client coords ([chromium 40280325](https://issues.chromium.org/issues/40280325)), which Turnstile treats as a bot.\n\n**Load unpacked (manual Chrome):** `chrome://extensions` → Developer mode → Load unpacked → select `assets/turnstilePatch/`.\n\nDrissionPage does this for you via `add_extension`. You do not need to click that UI for the default `solve.py` path.\n\n## What it is not\n\n| In scope | Out of scope |\n|---|---|\n| Turnstile widget on the origin page | Cloudflare **1020** / **1015** / WAF block |\n| Interstitial “请稍候…” / Just a moment (JS or managed challenge) | Bot Fight when this Chrome is already banned |\n| `cf_clearance` + origin HTML | hCaptcha, reCAPTCHA, headless Chrome |\n\n## Verified\n\nmacOS, Chrome 152, agent-browser, CDP **19221**.\n\n| Target | What | Result | Time |\n|---|---|---|---|\n| https://demo.turnstile.workers.dev/ | dummy Turnstile | tokenLen 21 | 3.46s |\n| `examples/interactive-dummy.html` | dummy interactive | tokenLen 21 | 7.46s |\n| https://aipaycards.com/login | production Turnstile | tokenLen **816**, 3/3 | 8–11s |\n| https://grok.com/ | interstitial (`cf-mitigated: challenge`) | `kind=cf_clearance`, clearanceLen **533–597**, origin title Grok | ~9s (`--fresh`) |\n\n`curl` to grok.com without this Chrome is **403** + `cf-mitigated: challenge`. After solve, the same tab is the Grok app. Interstitial path focuses the tab (`Page.bringToFront`) and clicks the CF iframe; waiting-room JS often refuses to finish if `document.visibilityState` is `hidden`.\n\n```bash\npython3 scripts/solve.py --url \"https://grok.com/\" --fresh\npython3 scripts/e2e.py\n```\n\n## Layout\n\n```\nAGENTS.md                 # short runbook for coding agents\nREADME.md                 # this file\nLICENSE\nrequirements.txt          # DrissionPage\nassets/turnstilePatch/    # unpacked MV3 extension\nassets/turnstilePatch.zip # same, zipped\nexamples/interactive-dummy.html\nscripts/install.py            # venv + deps + pack + preflight\nscripts/e2e.py                # live two-page check; exit 0 only on success\nscripts/preflight.py\nscripts/solve.py          # entry\nscripts/solve_turnstile.py\nscripts/pack_extension.py\nscripts/solve_agent_browser.py\nscripts/camoufox_turnstile.py\nscripts/solve_yescaptcha.py\nscripts/proxy_auth_extension.py\nscripts/runtime.py\n```\n\n## Limits\n\n- Headed Chrome only. Interstitial needs the tab visible (`Page.bringToFront`).\n- Datacenter IPs often fail; one residential-proxy retry, then stop.\n- Do not cache tokens across sessions.\n- Not 1020/1015/WAF block, not a fingerprint browser.\n\n本项目的开发 agent 能力由 [GenericAgent](https://github.com/lsdefine/GenericAgent) 提供。\n\n### 🚩 友情链接\n\n[![GenericAgent](https://img.shields.io/badge/Agent_Framework-GenericAgent-orange?style=for-the-badge&logo=github)](https://github.com/lsdefine/GenericAgent)\n[![LinuxDo](https://img.shields.io/badge/社区-LinuxDo-blue?style=for-the-badge)](https://linux.do/)\n\n## License\n\nMIT. See `LICENSE`.\n",
+  "status": "curated"
+}

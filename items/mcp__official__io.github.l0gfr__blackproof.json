@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.l0gfr/blackproof",
+  "type": "mcp",
+  "name": "BLACKPROOF Local MCP",
+  "description": "Local read-only cyber evidence integrity checks and aggregate comparison (alpha).",
+  "author": "io.github.l0gfr",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/l0gfr/BLACKPROOF-AGPL",
+    "repo": "l0gfr/BLACKPROOF-AGPL"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "https://github.com/l0gfr/BLACKPROOF-AGPL/releases/download/mcp-v0.1.0/blackproof-local-mcp-0.1.0.mcpb"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-12T15:47:31.719048Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# BLACKPROOF\n\nBLACKPROOF is a free, open-source, local-first cyber evidence app under AGPL-3.0-only.\nCreate, import, encrypt, export and verify dossiers directly in your browser.\nNo account, activation key or application server is required.\nUse it to prepare cyber reviews, internal audits and supplier questionnaires.\nBring your own review checklist, document answers, evidence references and\nreservations, then track the remaining preparation work. Source documents and\naudit conclusions still require human assessment; this is not a system scanner\nor an automated certification service.\n\nCore flow:\n\nquestionnaire ou grille d'audit → réponses et références → preuves attendues → points à corriger → dossier interne → export relu facultatif.\n\n## Project structure\n\n- `apps/web` — public website and local-first app\n- `apps/web/src/content/analyses` (sourced Markdown analyses and publication drafts)\n- `packages/core` — ProofGraph, ProofDebt, ProofPack logic\n- `packages/verifier` — standalone Delivery verifier CLI/SDK\n- `packages/mcp` — local, read-only MCP server for minimized verification and comparison\n- `tests/e2e` — Chromium tests for the local-first editor and verification flows\n- `scripts` — schema generation, security checks and deployment tooling\n- `docs` — project context and technical documentation\n\n## Development\n\nRequirements: Node.js 22.23.2 (see `.nvmrc`) and pnpm 10.34.5.\n\n```sh\npnpm install --frozen-lockfile\npnpm dev\n```\n\nThe authoritative local gate is:\n\n```sh\npnpm verify:all\n```\n\n`pnpm verify:all` runs schema drift checks, TypeScript/Astro/Svelte validation,\nunit tests, the static build, CSP generation, local-only artifact checks, the dependency\nand repository security audits, and the Chromium end-to-end tests.\n\n## Local-first boundary\n\nQuestionnaires, ProofPacks and Delivery snapshots are processed on the user's device;\nsaved dossiers are encrypted in browser IndexedDB. No server upload is implemented\nor permitted for import, creation, editing, backup or verification. Downloading an\nexport saves a local file; users transmit it separately, outside BLACKPROOF.\nSee `docs/LOCAL_FIRST_STORAGE.md` and `docs/SECURITY_MODEL.md` before changing a\nstorage, export or destructive operation.\n\n## Local MCP for enterprise agents\n\nUse the local MCP server to check a selected ProofPack before transmission,\ncompare two review snapshots through aggregate changes, and obtain public\npreparation checklists for cyber reviews, internal audits and questionnaires.\nIt does not expose answers, evidence references or files to the agent.\nIt runs over stdio on the user's device, not on the public website.\n\nSee [installation, tools, fictional walkthrough and security limits](docs/MCP_LOCAL.md).\nPrivate mode requires an end-to-end local client/model. A local transport alone\ncannot stop a host from forwarding results to a remote model.\n\n## Editorial analyses\n\nThe `/analyses` section is generated from a validated Astro content collection.\nDrafts are excluded from public routes, RSS and the sitemap. The complete authoring\nand verification workflow is documented in `docs/EDITORIAL_ANALYSES.md`.\n\n## Licence and contributions\n\nThe original software, documentation, schemas and standalone verifier are\nlicensed under GNU AGPL version 3 only. See `LICENSE` and `NOTICE`.\nThird-party dependencies retain their own licences in `THIRD_PARTY_NOTICES.md`.\nContributions are welcome: see `CONTRIBUTING.md`. Project names and logos are\ncovered separately by `TRADEMARKS.md`.\n\nSource: https://github.com/l0gfr/BLACKPROOF-AGPL\n\n## Self-hosting\n\n`pnpm build` produces the static site in `apps/web/dist/`. Serve it over HTTPS\n(or localhost for development), with the CSP and security headers described in\n`docs/DEPLOY_APACHE.md`. Publish the corresponding source of your version and\nkeep the licence/source link visible.\n\nThe application stores dossiers locally in browser IndexedDB. Back up encrypted\ndossiers before changing hostname or browser profile: browser storage is scoped\nto an origin and is not synchronized by the host.\n\nThe hosted public status registry is retired. Local verification and detached\nsignatures remain available. A historical or unavailable registry must never be\ninterpreted as proof that a Delivery is currently active.\n",
+  "status": "curated"
+}

@@ -1,0 +1,61 @@
+{
+  "id": "mcp:official/io.github.crosstabs/likerts",
+  "type": "mcp",
+  "name": "Likerts",
+  "description": "Manage open-source in-product surveys, collections, responses and exports with scoped access.",
+  "author": "io.github.crosstabs",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/crosstabs/likerts",
+    "repo": "crosstabs/likerts"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://likerts-mcp.onrender.com/mcp/{workspaceId}",
+    "env": [
+      {
+        "name": "Authorization",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-12T13:50:50.433941Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Likerts\n\nLikerts is a free, open-source backend for surveys embedded in your own web and mobile products. It provides one typed platform through HTTP, MCP and a Rust CLI, with SDKs for Web, React Native, iOS, Android and Flutter.\n\n[Download the community release](https://github.com/crosstabs/likerts/releases/tag/community-v0.1.0) · [Installation guide](docs/releases.md) · [Contribute](CONTRIBUTING.md)\n\nLikerts does not host respondent links or send invitations. Your application decides when a survey appears and supplies the customer context. Likerts validates the published schema, stores the response, returns an idempotent receipt and makes the data available through scoped reads, exports and signed callbacks.\n\nThere are no response credits, paid plans, license keys or application-level response quotas. Accepted-response counts are observability data only. Operators still configure request rates, payload bounds, storage capacity and concurrency to protect their infrastructure.\n\n## What is included\n\n- Nine question types: single choice, multiple choice, scale, text, number, date, ranking, matrix and constant sum\n- NPS and yes/no presets, conditional visibility, pages and branching\n- Immutable published survey versions and collection credentials\n- PostgreSQL row-level security for workspace isolation\n- Scoped service credentials and OAuth grants\n- Stable response pagination, bounded exports, retention and erasure\n- Signed response webhooks\n- API, MCP and CLI operation parity\n- Five client SDKs with encrypted offline queue adapters\n\n## Try a real embedded survey\n\nClone the repository, then run:\n\n```bash\ngit clone https://github.com/crosstabs/likerts.git\ncd likerts\nbash scripts/run-feedback-demo.sh\n```\n\nOpen `http://127.0.0.1:4310`. Answer the survey, then retrieve the matching response and metadata in the operator view. The example uses the real Web SDK, Rust API and CLI. It requires Rust stable, Node.js 22+ and Bash; temporary memory storage clears when you stop it.\n\n[![Watch the real embedded survey walkthrough](control-plane/public/media/embedded-feedback-poster.png)](https://likerts.com/media/embedded-feedback-demo.webm)\n\n[Watch the 40-second walkthrough](https://likerts.com/media/embedded-feedback-demo.webm) · [Example source and instructions](examples/embedded-feedback/README.md) · [Versioned downloads and installation](docs/releases.md)\n\n## Run the API locally\n\nYou need Git, Rust stable, Node.js 22+, Bash and `jq`. The memory store is intended for a disposable local loop; PostgreSQL is required for durable deployments.\n\n```bash\ngit clone https://github.com/crosstabs/likerts.git\ncd likerts\nsource scripts/dev-env.sh\nexport LIKERTS_DEV_TOKENS='{\"local-demo-management-token\":\"demo\"}'\nexport LIKERTS_ALLOW_MEMORY=1\nexport LIKERTS_ADMISSION_MODE=disabled\ncargo run --manifest-path backend/Cargo.toml --locked\n```\n\nThe API listens on `http://127.0.0.1:8080`. In another terminal:\n\n```bash\nsource scripts/dev-env.sh\nexport LIKERTS_API_URL=http://127.0.0.1:8080\nexport LIKERTS_TOKEN=local-demo-management-token\ncargo run --manifest-path tools/cli/Cargo.toml --locked -- capabilities\nbash scripts/first-response.sh\n```\n\nThe script creates and publishes a survey, creates a collection, submits one response twice with the same idempotency key, verifies one stored response, and prints the receipt. The [capability reference](contracts/CAPABILITIES.md) documents every API, MCP and CLI operation. [Tool setup](tools/README.md) covers the CLI and MCP server.\n\nFor PostgreSQL, set `DATABASE_URL` and use a migration-capable local account with `LIKERTS_RUN_MIGRATIONS=1`. Production should run migrations separately and connect the API with the restricted runtime role in `backend/provision-runtime.sql`.\n\n## Verify\n\n```bash\nbash scripts/check.sh\nbash scripts/check-postgres.sh\nbash scripts/check-all-sdks.sh\n```\n\nThe checks cover domain validation, interface parity, tenant isolation, durable idempotency, response lifecycle and all five SDK implementations.\n\n## Repository map\n\n| Directory | Responsibility |\n| --- | --- |\n| `backend/` | Rust API, domain validation, PostgreSQL repositories and migrations |\n| `contracts/` | OpenAPI, survey schemas and cross-platform fixtures |\n| `tools/mcp/` | Typed MCP adapter |\n| `tools/cli/` | Rust CLI |\n| `sdks/` | Web, React Native, iOS, Android and Flutter SDKs |\n| `control-plane/` | Public site, documentation and optional hosted workspace UI |\n| `infrastructure/` | Render, recovery, export and webhook deployment assets |\n\n## Security model\n\nA collection credential can fetch one immutable collection and submit responses to it. Management credentials are workspace-bound and explicitly scoped. PostgreSQL row-level security enforces tenant boundaries beneath the application layer. Browser origins are policy controls and do not replace authentication.\n\nNever put a management credential in a browser or mobile app. Treat metadata as untrusted input and avoid sending secrets or unnecessary personal data. See [SECURITY.md](SECURITY.md) for reporting and deployment guidance.\n\n## License\n\nLikerts is available under the [MIT License](LICENSE).\n\n## Contribute\n\nStart with the [contribution guide](CONTRIBUTING.md) and [community roadmap](docs/community/ROADMAP.md). Pick a [good first issue](https://github.com/crosstabs/likerts/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22good%20first%20issue%22), explore [help wanted tasks](https://github.com/crosstabs/likerts/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22help%20wanted%22), or describe your integration in [Discussions](https://github.com/crosstabs/likerts/discussions).\n\nBug reports, documentation fixes and reproducible integration examples are useful contributions. Each area has focused checks so you can contribute without installing every mobile toolchain. See our [code of conduct](CODE_OF_CONDUCT.md) and [maintainer process](docs/community/MAINTAINERS.md).\n",
+  "status": "curated"
+}

@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.fxckcode/tauri-docs-mcp",
+  "type": "mcp",
+  "name": "Tauri Documentation MCP",
+  "description": "Read-only MCP server for official Tauri 2 documentation snapshots.",
+  "author": "io.github.fxckcode",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/fxckcode/tauri-docs-mcp",
+    "repo": "fxckcode/tauri-docs-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "tauri-docs-mcp"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-12T15:54:33.349737Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "写作",
+    "featured": false
+  },
+  "readme": "# tauri-docs-mcp\n\n[![npm version](https://img.shields.io/npm/v/tauri-docs-mcp)](https://www.npmjs.com/package/tauri-docs-mcp)\n\nA read-only Model Context Protocol (MCP) server for resolving and querying a\nchecked-in snapshot of official Tauri 2 documentation.\n\n## Requirements\n\n- Node.js 20.19 or newer (supported Node LTS)\n- npm 10 or newer\n\nThe committed `package-lock.json` is authoritative. Use `npm install` for\nlocal development and dependency changes; CI and reproducible installs use\n`npm ci`. Lockfile changes must be committed with dependency changes.\n\n## Install and run\n\nInstall the published package:\n\n```bash\nnpm install --global tauri-docs-mcp\n```\n\nOr install it in a project and invoke the binary from `node_modules/.bin`:\n\n```bash\nnpm install tauri-docs-mcp\nnpx tauri-docs-mcp\n```\n\nBuild from a checkout, then run the compiled stdio server:\n\n```bash\nnpm install\nnpm run build\nnode dist/src/index.js\n```\n\nConfigure an MCP client to launch the installed binary over stdio:\n\n```json\n{\n  \"mcpServers\": {\n    \"tauri-docs\": {\n      \"command\": \"tauri-docs-mcp\"\n    }\n  }\n}\n```\n\nPortable configurations for generic MCP clients, Claude Desktop, Cursor, and\nVS Code are in [`examples/mcp/`](examples/mcp/). They pin the package version\nand use stdio only. Installable agent guidance is in\n[`skills/tauri-docs-mcp/SKILL.md`](skills/tauri-docs-mcp/SKILL.md).\n\nThe server writes MCP JSON-RPC messages only to stdout. It does not start an\nHTTP listener. Diagnostics are disabled by default; opt in with\n`TAURI_DOCS_MCP_DIAGNOSTICS=1` and they are written to stderr as event names\nonly (never request arguments, corpus content, secrets, or PII).\n\n## Tool contract\n\nThe server exposes two stable tools and one backwards-compatible legacy tool.\n\n### `resolve_tauri_docs`\n\nResolve the default snapshot or an explicit identifier:\n\n```json\n{}\n```\n\n```json\n{ \"identifier\": \"tauri@2\" }\n```\n\nSupported identifiers are `tauri`, `tauri@2`, and the immutable snapshot ID\n`tauri-2@58194ceb69424c4332b2780b196ced3a6fffb32b`. Resolution is deterministic\nand returns snapshot, source revision, generated-at, version, and entry-count\nmetadata. Unsupported identifiers return `UNSUPPORTED_SNAPSHOT`.\n\n### `query_tauri_docs`\n\nQuery content from the default or selected snapshot:\n\n```json\n{ \"query\": \"capabilities\", \"snapshot\": \"tauri@2\", \"limit\": 3 }\n```\n\n`query` is required and must contain 1–200 non-whitespace characters and at\nmost 16 whitespace-separated terms. `snapshot` is optional and accepts the\nresolver identifiers. `limit` is an optional integer from 1–10 (default 5).\nResults are bounded, deterministic,\nand include title, heading, section, canonical URL, content, corpus snapshot,\nsource revision, Tauri version, and `versionSensitive`. Empty matches return\n`results: []`, not an application error. Inputs reject unknown fields.\n\nBoth tools are read-only and idempotent. They read only the checked-in corpus;\nthere is no live fetching or arbitrary URL access.\n\n### Resource and lifecycle bounds\n\nThe shared tool contract enforces a 200-character query, 16 terms, 10 results,\n1,200-character snippets, 8 KiB corpus entries, and 32 KiB serialized tool\nresponses. The stdio frame buffer is capped at 64 KiB. EOF, transport errors,\nSIGINT, and SIGTERM share an idempotent shutdown path with a one-second cleanup\nbound; in-flight work is allowed to settle or is abandoned at that bound.\n\n### `search_tauri_docs` (compatibility)\n\nExisting clients can continue to call:\n\n```json\n{ \"query\": \"capabilities\", \"limit\": 3 }\n```\n\nIt remains supported with its existing response shape and limits. New clients\nshould use `resolve_tauri_docs` followed by `query_tauri_docs`.\n\nApplication errors are returned with stable discriminated codes such as\n`INVALID_INPUT`, `INVALID_QUERY`, `INVALID_LIMIT`, and\n`UNSUPPORTED_SNAPSHOT`; protocol errors remain MCP protocol errors.\n\n## Product boundary\n\nThis package is intentionally:\n\n- read-only;\n- stdio-only;\n- limited to its checked-in corpus; and\n- constrained to official Tauri 2 sources under `https://v2.tauri.app/`.\n\nIt never fetches user-controlled URLs, writes files, executes arbitrary code,\ncontrols a Tauri runtime, provides hosted HTTP, authenticates users, or emits\ntelemetry. See [docs/architecture.md](docs/architecture.md) for the module\nseams.\n\n## Development commands\n\n```bash\nnpm install          # install from package-lock.json\nnpm run typecheck    # TypeScript validation\nnpm run build        # compile runtime files to dist/\nnpm test             # run the full Vitest suite\nnpm run lint         # ESLint\nnpm run format       # format tracked source and documentation\nnpm run format:check # verify formatting without writing\nnpm pack --dry-run   # inspect the publish allowlist\nnpm run package:smoke -- /path/to/tauri-docs-mcp-0.1.0.tgz # test a packed install\n```\n\nThe pull-request workflow runs the same commands from a clean checkout. To\nreproduce its package step locally, create a tarball and pass its path to the\nsmoke test:\n\n```bash\nmkdir -p .tmp/package\nTARBALL=$(npm pack --json --pack-destination .tmp/package | node -e \"let s=''; process.stdin.on('data', d => s += d).on('end', () => process.stdout.write(JSON.parse(s)[0].filename))\")\nnpm run package:smoke -- \".tmp/package/$TARBALL\"\nrm -rf .tmp\n```\n\nSee [CONTRIBUTING.md](CONTRIBUTING.md) for contribution rules and\n[SUPPORT.md](SUPPORT.md) for supported use cases. Report vulnerabilities\nprivately as described in [SECURITY.md](SECURITY.md).\n\n## Releases and registry\n\nThe release workflow runs from a version tag and checks package, immutable\ncorpus metadata, registry metadata, and the pack allowlist before publishing.\nnpm publishing uses provenance/trusted publishing where enabled, then runs a\nfresh published-package smoke gate. Official MCP Registry publication is a\nseparately protected environment chained after the successful npm job. No\nrelease is published from pull requests. See [CHANGELOG.md](CHANGELOG.md) for\nthe release and MCP contract-change process.\n\n## Corpus maintenance\n\nThe runtime reads only the checked-in generated snapshot under `corpus/`; it\nnever fetches documentation URLs. The approved manifest records canonical URLs,\nsection hierarchy, Tauri version, source revision/freshness metadata, and a\nSHA-256 hash for each concise excerpt. The source revision is immutable, so a\nfuture snapshot must use a new `tauri-2@<revision>` directory.\n\nAfter an approved source review, regenerate and validate deterministically:\n\n```bash\nnpm run ingest:docs\nnpm run validate:corpus\n```\n\n`validate:corpus` fails if the manifest is unsafe or incomplete, if content\nhashes drift, or if the generated artifact differs from its manifest. Source\nand license attribution is preserved in [corpus/NOTICES.md](corpus/NOTICES.md).\n\n## Sources\n\n- [MCP transport concepts](https://modelcontextprotocol.io/docs/concepts/transports)\n- [MCP TypeScript SDK](https://github.com/modelcontextprotocol/typescript-sdk)\n- [Official Tauri 2 documentation](https://v2.tauri.app/)\n",
+  "status": "curated"
+}
