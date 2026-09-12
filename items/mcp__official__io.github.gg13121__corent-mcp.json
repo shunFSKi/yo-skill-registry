@@ -2,7 +2,7 @@
   "id": "mcp:official/io.github.gg13121/corent-mcp",
   "type": "mcp",
   "name": "Corent",
-  "description": "Generate images and videos via the Corent API — auto model routing with provider fallback.",
+  "description": "Generate images, videos, voice, and text via the Corent API. Auto model routing with fallback.",
   "author": "io.github.gg13121",
   "source": {
     "registry": "mcp-official",
@@ -27,8 +27,8 @@
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-07-18T15:11:11.847117Z",
-    "score": 37
+    "pushed_at": "2026-09-12T04:04:14.883526Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -60,6 +60,6 @@
     "category": "设计",
     "featured": false
   },
-  "readme": null,
+  "readme": "# Corent MCP Server\n\nGive any AI agent the ability to generate images and videos through the [Corent](https://corent.tech) API — one key, automatic model routing, provider fallback built in.\n\n## Tools\n\n| Tool | What it does |\n|---|---|\n| `plan` | Describe a request in plain language; Corent returns the plan (image vs video, tier, settings) + cost estimate, without generating |\n| `create` | Describe what you want + a spend ceiling; Corent decides everything and generates it (the \"zero decisions\" path) |\n| `generate_image` | Text → image, synchronous, returns a permanent URL |\n| `generate_video` | Text (or image) → video, async job |\n| `get_job` | Poll a job until completed |\n| `get_balance` | Remaining account balance |\n| `get_status` | Live tier health |\n\nThe **`plan`** and **`create`** tools are the agent-native path: an agent says\nwhat it wants (\"a 10s vertical clip of a sunrise for TikTok\") and Corent picks\nimage-vs-video, the tier, aspect ratio, and duration — the agent never manages\nmodels. `create` enforces a per-call spend ceiling so an autonomous agent can't\noverspend.\n\n## Setup\n\nGet an API key at [corent.tech](https://corent.tech), then add to your MCP client config:\n\n```json\n{\n  \"mcpServers\": {\n    \"corent\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"corent-mcp\"],\n      \"env\": { \"CORENT_API_KEY\": \"co_live_...\" }\n    }\n  }\n}\n```\n\nFor Claude Code: `claude mcp add corent -e CORENT_API_KEY=co_live_... -- npx -y corent-mcp`\n\n### Hosted server (no install)\n\nThe hosted server at `https://mcp.corent.tech/mcp` uses the Streamable HTTP\ntransport. Pass your API key in the **Authorization header** — this is the way\nto authenticate:\n\n```json\n{\n  \"mcpServers\": {\n    \"corent\": {\n      \"url\": \"https://mcp.corent.tech/mcp\",\n      \"headers\": { \"Authorization\": \"Bearer co_live_...\" }\n    }\n  }\n}\n```\n\n`X-Corent-Api-Key: co_live_...` is accepted as an equivalent header.\n\n> **Smithery note:** for compatibility with Smithery, the hosted server also\n> accepts the key via query parameters (`?corent_api_key=...` or Smithery's\n> base64 `?config=`). Avoid this form anywhere else — URLs can be logged by\n> proxies, gateways, and access logs, which would expose your key. Prefer the\n> Authorization header.\n\n## Development\n\n```sh\nnpm install\nnpm run build\nCORENT_API_KEY=... node dist/index.js\n```\n",
   "status": "curated"
 }

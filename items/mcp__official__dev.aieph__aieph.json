@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/dev.aieph/aieph",
+  "type": "mcp",
+  "name": "aieph",
+  "description": "Shared knowledge cache for AI coding agents — reuse an answer once it exists.",
+  "author": "dev.aieph",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/tryaieph/aieph",
+    "repo": "tryaieph/aieph"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://aieph.dev/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-12T07:23:22.836719Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# aieph\n\n*your fix, everyone's gain*\n\naieph is a shared answer cache for AI coding assistants.\n\nWhen an AI coding assistant is about to search the web, a small hook can quietly\nask: *\"Does someone already have the answer?\"*\n\nIf the answer is already in the shared cache, aieph can return it right away —\navoiding another trip to the web. If there is no answer, aieph simply gets out\nof the way.\n\nMISS, timeout, or error? Nothing breaks. The original request continues as\nusual. That is the whole idea.\n\nYour fix can become everyone's gain.\n\n## Why a shared cache?\n\nAI coding assistants often look up the same kinds of things:\n\n- a familiar error message\n- a library's behavior\n- a configuration detail\n- a solution someone has already found\n\nThe first person does the searching. The next person doesn't necessarily need\nto. aieph gives those answers a place to be shared, and as more people use it,\nthe cache can gradually become more useful.\n\nIt's still early, so a cache hit is not guaranteed. Sometimes aieph simply won't\nhave the answer yet — and that's perfectly fine.\n\n## How it feels\n\n```text\nAI assistant\n     │\n     │  \"I'm about to search...\"\n     ▼\n   aieph\n     │\n     ├── HIT  → answer is already here\n     │\n     └── MISS / timeout / error\n              │\n              ▼\n          original search\n```\n\naieph is designed to stay out of the way. There is no need to change how you\nwork when the cache doesn't have something useful.\n\n## Getting started with Claude Code\n\nClaude Code can use aieph with a single `PreToolUse` hook for `WebSearch` and\n`WebFetch`. A small setup looks like this:\n\n```bash\ngit clone https://github.com/tryaieph/aieph.git\n```\n\nThen, in `~/.claude/settings.json`, the relevant hook can look like:\n\n```json\n{\n  \"hooks\": {\n    \"PreToolUse\": [\n      {\n        \"matcher\": \"WebSearch|WebFetch\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"node /path/to/aieph/hook/aieph-cache.mjs\"\n          }\n        ]\n      }\n    ]\n  }\n}\n```\n\nThat's it.\n\nRequirements: Node.js 18+. No account or API key is required.\n\nOptional environment variables:\n\n```text\nAIEPH_API_BASE\nLOOKUP_TIMEOUT_MS\n```\n\nCursor support is being prepared.\n\n## Removing aieph\n\nIf aieph is no longer useful for you, removing the `PreToolUse` block is enough\nto return to the original setup.\n\n## What gets sent?\n\naieph is intentionally simple and transparent. Only the search query text is\nsent for matching. Nothing else is sent. There is no account to create and no\npersonal profile to maintain. When there is no matching answer, the request\npasses through normally.\n\n## Local shared memory\n\naieph also includes a small local-only memory CLI in [`cli/`](cli/). It is\nseparate from the shared answer cache. The idea is simple: write a fact once,\nand let connected assistants remember it later. This memory stays completely\nlocal.\n\n## Early days, honest expectations\n\naieph is still growing. The shared cache is young, so there will be plenty of\nmoments when it doesn't have an answer yet. That's intentional: aieph never\nneeds to be perfect to be useful. A miss should feel exactly like there was no\ncache at all.\n\nOver time, every useful answer someone discovers has the potential to help the\nnext person.\n\n*your fix, everyone's gain.*\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

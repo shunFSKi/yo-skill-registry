@@ -1,0 +1,80 @@
+{
+  "id": "mcp:official/io.github.rje1974/interbanking",
+  "type": "mcp",
+  "name": "interbanking",
+  "description": "Saldos y movimientos bancarios de Interbanking (Argentina). Solo lectura.",
+  "author": "io.github.rje1974",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/rje1974/interbanking-mcp",
+    "repo": "rje1974/interbanking-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "interbanking-mcp"
+    ],
+    "env": [
+      {
+        "name": "IB_CLIENT_ID",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "IB_CLIENT_SECRET",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "IB_REDIRECT_URL",
+        "required": true,
+        "secret": false
+      },
+      {
+        "name": "IB_CUSTOMER_ID",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-12T01:21:31.061633Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "金融",
+    "featured": false
+  },
+  "readme": "# interbanking-mcp\n\nServidor MCP para consultar tus cuentas de **Interbanking** (Argentina) desde un agente:\nsaldos, saldos históricos y movimientos, en castellano y sin escribir código.\n\n**Es de solo lectura.** No hay ninguna herramienta que mueva plata, y eso no es una\nconvención sino una decisión de diseño: la función genérica del cliente —la que acepta\ncualquier método HTTP— queda deliberadamente afuera del servidor.\n\n## Instalación\n\nNo hace falta instalar nada: se descarga solo al arrancar.\n\n### Claude Code\n\n```bash\nclaude mcp add interbanking \\\n  --env IB_CLIENT_ID=tu_client_id \\\n  --env IB_CLIENT_SECRET=tu_client_secret \\\n  --env IB_REDIRECT_URL=https://localhost \\\n  --env IB_CUSTOMER_ID=tu_customer_id \\\n  -- npx -y interbanking-mcp\n```\n\n### Claude Desktop u otro cliente con archivo de configuración\n\n```json\n{\n  \"mcpServers\": {\n    \"interbanking\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"interbanking-mcp\"],\n      \"env\": {\n        \"IB_CLIENT_ID\": \"tu_client_id\",\n        \"IB_CLIENT_SECRET\": \"tu_client_secret\",\n        \"IB_REDIRECT_URL\": \"https://localhost\",\n        \"IB_CUSTOMER_ID\": \"tu_customer_id\"\n      }\n    }\n  }\n}\n```\n\nLas credenciales salen del [portal de desarrolladores de\nInterbanking](https://developers.interbanking.com.ar/api/prod/). Cómo obtenerlas, paso a\npaso, está en [interbanking-api-ejemplo](https://github.com/rje1974/interbanking-api-ejemplo#registro-en-el-portal-de-desarrolladores).\n\n> **Ojo con dónde quedan las credenciales.** Ese archivo de configuración es texto plano\n> en tu disco. Antes de pegarlas ahí, leé [gestión de\n> tokens](https://github.com/rje1974/interbanking-api-ejemplo#gestión-de-tokens-y-credenciales).\n\n## Herramientas\n\n| Herramienta | Qué hace |\n|---|---|\n| `listar_cuentas` | Las cuentas disponibles con banco, tipo, moneda y número |\n| `saldos` | Saldos actuales: contable y operativo. Rango opcional de hasta 64 días |\n| `saldos_historicos` | Saldos día por día en rangos largos; parte el rango solo |\n| `movimientos` | Movimientos de todas las cuentas, con totales de créditos y débitos |\n\nUna vez configurado, se le habla en castellano:\n\n- *\"¿Cuánto tengo en cada cuenta?\"*\n- *\"Mostrame los movimientos de septiembre\"*\n- *\"¿Cómo evolucionó el saldo del Galicia desde enero?\"*\n- *\"¿Qué transferencias entraron la semana pasada?\"*\n\n### Sobre el volumen de datos\n\n`movimientos` y `saldos_historicos` devuelven un **resumen** por defecto: totales por\ncuenta y los 25 movimientos más recientes. Un rango de un año son miles de registros, y\nvolcarlos enteros llena la ventana de contexto del agente sin que nadie gane nada. Para\nver todo, pedirle *\"con detalle\"*, y mejor sobre rangos cortos.\n\n## Qué hay abajo\n\nUsa [`interbanking-client`](https://www.npmjs.com/package/interbanking-client), que\nresuelve los quirks del portal: los parámetros del token van en la query string y no en\nel body, el header `service` tiene que incluir `https://`, `customer-id` va como query\nparameter, y movimientos usa una URL base distinta a saldos. Todos están documentados en\n[interbanking-api-ejemplo](https://github.com/rje1974/interbanking-api-ejemplo).\n\n## Desarrollo\n\n```bash\nnpm install\nnpm run check\nnpm test\n```\n\nPara probarlo a mano:\n\n```bash\nnpx @modelcontextprotocol/inspector node server.js\n```\n\n## Licencia\n\nMIT\n",
+  "status": "curated"
+}

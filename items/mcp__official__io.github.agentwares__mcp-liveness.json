@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.agentwares/mcp-liveness",
+  "type": "mcp",
+  "name": "mcp-liveness",
+  "description": "Whether a stock client can actually use an MCP server from the registry. Free, no key.",
+  "author": "io.github.agentwares",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/agentwares/servers",
+    "repo": "agentwares/servers"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://agentwares-mcp-liveness.vercel.app/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-12T01:01:07.782801Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# agentwares servers\n\nThe hosted MCP servers behind [agentwares](https://agentwares.vercel.app). One directory per service:\nwhat it does, the endpoint, how to authenticate, a call you can paste into a terminal, a client\nconfig, and a reference for every tool it serves.\n\n| Service                                                     | What it does                                                                                                                                                                                                                                                             | MCP endpoint                                       |\n| ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------- |\n| [agentcheck](agentcheck/)                                   | Drift and regression monitoring for production AI agents and MCP servers. Uptime-style checks, a public status page, a badge and `trust.json` are free; paid tiers re-run your suite when a model changes, replay production traces nightly and run an adversarial pack. | `https://agentwares-agentcheck.vercel.app/api/mcp` |\n| [agentguard cloud](agentguard-cloud/)                       | The hosted control plane for agentguard, the MCP policy proxy: spend caps, approvals for destructive tools, a kill switch, dry-run diffs, a loop breaker and a hash-chained audit log.                                                                                   | `https://agentwares-agentguard.vercel.app/api/mcp` |\n| [Real estate deal memo](deal-memo/)                         | One US street address in; owner record, automated value estimate, rent estimate, comps, cap rate, cash-on-cash, DSCR, red flags and a one-paragraph memo out.                                                                                                            | `https://agentwares-deal-memo.vercel.app/api/mcp`  |\n| [Readiness scorer](readiness-scorer/)                       | Give it a signup URL you own; a headless browser agent tries to sign up the way an AI agent would, and publishes a 0–100 score, the evidence behind every point, a fix list and a badge. Free.                                                                           | `https://agentwares-readiness.vercel.app/api/mcp`  |\n| [Agent access index](agent-access-index/)                   | Ask whether an honestly identified agent may fetch a URL, and why: the verdict, the exact robots.txt line that decided it, what each named AI crawler is told, and the payment rail when access is for sale. Free, no key.                                               | `https://agentwares-access-index.vercel.app/mcp`   |\n| [MCP liveness](mcp-liveness/)                               | Given a server's name in the official MCP registry, whether a stock client can actually use it: does it answer, does it want a credential, can an agent obtain one, or is the listing pointing at nothing. Free, no key.                                                 | `https://agentwares-mcp-liveness.vercel.app/mcp`   |\n| [Stablecoin reserve attestations](stablecoin-attestations/) | Stablecoin issuer reserve attestations as JSON: total reserves, composition by asset category, attestor, on-chain supply and the reserve ratio.                                                                                                                          | `https://agentwares-stablecoin.vercel.app/mcp`     |\n\n## These are hosted services\n\nThere is no product source in this repository. Each directory documents a service we run, and each\n`server.json` here is the entry published to the\n[official MCP registry](https://registry.modelcontextprotocol.io) under `io.github.agentwares/*`.\nThe workflow in [`.github/workflows/publish-mcp-registry.yml`](.github/workflows/publish-mcp-registry.yml)\npublishes them from this repository with GitHub OIDC — no tokens — which is why every listing's\n`repository` link points here.\n\nThe implementations live in a private monorepo, because that repository also carries the commercial\nmaterial for the portfolio. What is open source is open source in full, with its own repo, its own\nissues and a normal `git clone && pnpm install && pnpm test`:\n\n| Repository                                                              | What                                                                                                              |\n| ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |\n| [agentwares/agentguard](https://github.com/agentwares/agentguard)       | the MCP policy proxy: engine, SDK, CLI and the permission-diff GitHub Action                                      |\n| [agentwares/overnight-kit](https://github.com/agentwares/overnight-kit) | run a sequence of Claude Code prompts against a repo while you sleep                                              |\n| [agentwares/agentsmd-lint](https://github.com/agentwares/agentsmd-lint) | lint AGENTS.md / CLAUDE.md / .cursorrules against the repo they describe                                          |\n| [agentwares/libs](https://github.com/agentwares/libs)                   | the shared libraries: `@agentwares/mcp-kit`, `@agentwares/notify`, `@agentwares/x402`, `@agentwares/web-bot-auth` |\n\n## Issues\n\nOpen an issue **in this repository** for anything about a hosted service: a wrong answer, a dead\nendpoint, a tool description that misled your agent, a rate limit that is in your way, a capability\nyou need. Bugs in the open-source clients belong in their own repositories above.\n\nEvery file here is generated from the monorepo and from the live services, so a documentation pull\nrequest would be overwritten on the next sync — please open an issue instead and it will be fixed at\nthe source.\n\n## Machine-readable\n\nEach service serves its own `llms.txt` and, where it charges, `pricing.json`. The copies in this\nrepository are snapshots from the last sync; **the live URL is authoritative**.\n\n| Service                                                     | llms.txt                                            | pricing.json                                          |\n| ----------------------------------------------------------- | --------------------------------------------------- | ----------------------------------------------------- |\n| [agentcheck](agentcheck/)                                   | https://agentwares-agentcheck.vercel.app/llms.txt   | https://agentwares-agentcheck.vercel.app/pricing.json |\n| [agentguard cloud](agentguard-cloud/)                       | https://agentwares-agentguard.vercel.app/llms.txt   | https://agentwares-agentguard.vercel.app/pricing.json |\n| [Real estate deal memo](deal-memo/)                         | https://agentwares-deal-memo.vercel.app/llms.txt    | https://agentwares-deal-memo.vercel.app/pricing.json  |\n| [Readiness scorer](readiness-scorer/)                       | https://agentwares-readiness.vercel.app/llms.txt    | — (free)                                              |\n| [Agent access index](agent-access-index/)                   | https://agentwares-access-index.vercel.app/llms.txt | — (free)                                              |\n| [MCP liveness](mcp-liveness/)                               | https://agentwares-mcp-liveness.vercel.app/llms.txt | — (free)                                              |\n| [Stablecoin reserve attestations](stablecoin-attestations/) | https://agentwares-stablecoin.vercel.app/llms.txt   | https://agentwares-stablecoin.vercel.app/pricing.json |\n\nMIT © agentwares contributors. This repository is documentation, and the licence covers it.\n",
+  "status": "curated"
+}

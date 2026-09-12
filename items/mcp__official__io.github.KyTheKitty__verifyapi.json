@@ -6,8 +6,8 @@
   "author": "io.github.KyTheKitty",
   "source": {
     "registry": "mcp-official",
-    "url": "https://github.com/KyTheKitty/verifyapi",
-    "repo": "KyTheKitty/verifyapi"
+    "url": "https://github.com/KyTheKitty/verifyapi-mcp",
+    "repo": "KyTheKitty/verifyapi-mcp"
   },
   "license": null,
   "install": {
@@ -32,8 +32,8 @@
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-09-09T02:25:55.308086Z",
-    "score": 42
+    "pushed_at": "2026-09-12T01:08:36.700991Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -65,6 +65,6 @@
     "category": null,
     "featured": false
   },
-  "readme": null,
+  "readme": "# VerifyAPI MCP Server\n\n> **Fact-check any claim before you act on it.** One tool. Live web sources. Cryptographically signed receipts.\n\n**What it does:** VerifyAPI is a Model Context Protocol server that verifies factual claims against live web sources and returns a citable verdict — including the source URL, published date, a verbatim quote, and an Ed25519-signed receipt so downstream systems can prove the check actually happened.\n\n**When to use it:** Any time your agent is about to act on a factual claim it can't cite. Prices, dates, versions, quotes, statistics, product specs, event outcomes. If getting it wrong would cost time, money, or trust — verify first.\n\n## Quick install (Claude Desktop / Cursor / Cline / any MCP client)\n\n```json\n{\n  \"mcpServers\": {\n    \"verifyapi\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@verify-api/mcp@latest\"],\n      \"env\": {\n        \"VERIFYAPI_API_KEY\": \"csk_live_...\"\n      }\n    }\n  }\n}\n```\n\n**No API key?** Leave `VERIFYAPI_API_KEY` unset for the free trial (limited to 3 calls per IP per 24h, signed receipts included). Get a free key at https://verify-api.dev/signup — no credit card required.\n\n## The one tool: `verify_claim`\n\n**Input:**\n```json\n{\n  \"claim\": \"Python 3.13 was released in October 2024.\"\n}\n```\n\n**Output:**\n```json\n{\n  \"verdict\": \"supported\",\n  \"confidence\": 0.99,\n  \"source_url\": \"https://docs.python.org/3/whatsnew/3.13.html\",\n  \"exact_quote\": \"Python 3.13 was released on October 7, 2024.\",\n  \"reasoning\": \"Multiple authoritative sources confirm...\",\n  \"receipt\": {\n    \"jws\": \"eyJhbGci...\",\n    \"kid\": \"pQAd73zRp9Xq9Y5U\"\n  }\n}\n```\n\nVerdicts: `supported`, `contradicted`, `unverifiable`. Every supported/contradicted verdict comes with a JWS receipt signed by keys served at https://api.verify-api.dev/.well-known/jwks.json.\n\n## Why signed receipts?\n\nBecause \"the AI checked\" is not the same as \"the AI verified.\" A signed receipt lets a downstream system — compliance auditor, user, another agent, a smart contract — cryptographically prove that a specific claim was verified against a specific source at a specific time by VerifyAPI's known public key. It's the difference between saying \"trust me\" and handing over a notarized document.\n\n## Pricing\n\n- **Free trial**: no signup, no card. Limited to 3 calls per IP per 24h. Includes signed receipts.\n- **With API key**: $0.02 per verified claim. Unverifiable / out-of-scope calls are free (you don't pay for \"I couldn't find enough evidence\").\n- **Freshness tiers**: standard verification $0.02, real-time (fresh-fetch) $0.05.\n- **Auto top-up**: save a card, set a threshold, keep flowing. `POST /v1/balance/autorefill`.\n\n## Example use cases\n\n**LangChain / LlamaIndex agents**: wrap `verify_claim` as a Tool. Have your agent call it before returning any factual answer.\n\n**Cursor / Cline coding agents**: verify version numbers, API existence, deprecation status before writing imports.\n\n**Claude Desktop workflows**: \"Verify this quote is real before I put it in the deck.\"\n\n**Multi-agent systems**: pass receipts between agents to prove groundedness up the chain.\n\n**Compliance-sensitive automation**: keep the JWS receipts as audit trail for every factual decision the agent made.\n\n## Environment variables\n\n| Variable | Required | Default | Description |\n|---|---|---|---|\n| `VERIFYAPI_API_KEY` | No | (unset = trial) | Your VerifyAPI key (`csk_live_...`). Get one free at https://verify-api.dev/signup |\n| `VERIFYAPI_BASE_URL` | No | `https://api.verify-api.dev` | Override the API base URL. Useful for self-hosting or testing. |\n\n## Programmatic API (skip MCP, call directly)\n\n```bash\ncurl -X POST https://api.verify-api.dev/v1/verify \\\n  -H \"Authorization: Bearer csk_live_...\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"claim\": \"Bitcoin ETFs were approved by the SEC in January 2024.\"}'\n```\n\nFull OpenAPI spec: https://api.verify-api.dev/openapi.json\n\nx402 payment support built in — see https://verify-api.dev/agents.txt for the agent-native discovery manifest.\n\n## Links\n\n- **Website**: https://verify-api.dev\n- **API docs**: https://verify-api.dev/docs\n- **Signup (free, no card)**: https://verify-api.dev/signup\n- **npm**: https://www.npmjs.com/package/@verify-api/mcp\n- **MCP Registry**: https://registry.modelcontextprotocol.io/v0/servers/io.github.KyTheKitty/verifyapi\n- **MCP source**: https://github.com/KyTheKitty/verifyapi-mcp\n- **Backend source** (Fastify service, Terraform, receipts pipeline): https://github.com/KyTheKitty/verifyapi\n\n## Built by\n\n[Circuit Savers LLC](https://circuit-savers.com) — Wausau, Wisconsin.\n\n## License\n\nMIT\n",
   "status": "curated"
 }

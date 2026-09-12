@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.techreone/xknow-mcp",
+  "type": "mcp",
+  "name": "XKnow Knowledge Base",
+  "description": "Search and explore source-backed SEO, SaaS, and LLM-wiki knowledge from the XKnow knowledge base.",
+  "author": "io.github.techreone",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/techreone/xknow-mcp",
+    "repo": "techreone/xknow-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "xknow-mcp"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-12T01:49:42.543709Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "AI",
+    "featured": false
+  },
+  "readme": "# xknow-mcp\n\n[![npm](https://img.shields.io/npm/v/xknow-mcp.svg)](https://www.npmjs.com/package/xknow-mcp)\n[![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)\n[![MCP](https://img.shields.io/badge/MCP-server-8A2BE2)](https://modelcontextprotocol.io)\n\nAn MCP server for the **[XKnow Knowledge Base](https://xknow.org/mcp)** — a curated,\ncross-linked body of **SEO, SaaS, and LLM-wiki** knowledge. Give any MCP-capable agent\n(Claude, Cursor, Cline, opencode, and others) the ability to **search and cite** it.\n\n- **Local and private.** Runs on your machine over stdio. No server, no account, no API key.\n- **Static data.** The free layer is a snapshot of the public XKnow guides, bundled with the\n  package. Nothing is fetched at query time.\n- **Graph-aware.** Beyond keyword search, `explore_concept` walks the cross-links between\n  notes, so an agent can follow a topic instead of getting a flat list.\n\n## Quick start\n\nAdd it to your MCP client.\n\n**Claude Desktop** (`claude_desktop_config.json`), **Cursor**, **Cline**, and most clients:\n\n```json\n{\n  \"mcpServers\": {\n    \"xknow\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"xknow-mcp\"]\n    }\n  }\n}\n```\n\n**Claude Code**\n\n```bash\nclaude mcp add xknow -- npx -y xknow-mcp\n```\n\n**opencode** (`opencode.json`)\n\n```json\n{\n  \"mcp\": {\n    \"xknow\": { \"type\": \"local\", \"command\": [\"npx\", \"-y\", \"xknow-mcp\"], \"enabled\": true }\n  }\n}\n```\n\nThen ask your agent something like:\n\n> \"Use the xknow tools to explain keyword difficulty and cite the source.\"\n> \"Search XKnow for SaaS pricing models and summarise the trade-offs.\"\n\n## Tools\n\n| Tool | What it does |\n| --- | --- |\n| `search_knowledge` | Ranked search over the knowledge base. Returns titles, snippets, and URLs. |\n| `get_page` | Full text of one note by title or slug (preserves `[[wikilinks]]`). |\n| `explore_concept` | A note plus its outbound links and backlinks — walks the knowledge graph. |\n| `list_topics` | Lists every note grouped by section (`seo`, `saas`, `blog`). |\n| `lint_rules` | The XKnow SEO/SaaS content self-check rubric — each rule with priority (P0–P3), reasoning, fix, and the knowledge-base notes that back it. |\n| `cite` | Returns the canonical citation (title, description, URL) for a note. |\n\n## Two knowledge layers\n\n| Layer | Content | How |\n| --- | --- | --- |\n| **Free** (default) | The 57 public XKnow guides and blog posts | Bundled snapshot — just `npx -y xknow-mcp` |\n| **Full vault** | Your purchased XKnow Knowledge Base (500+ linked notes) | `npx -y xknow-mcp --vault /path/to/SEO-SaaS-Vault` |\n\nThe full-vault mode reads a local folder of Markdown notes, so your purchased copy never\nleaves your machine. Set it once with the `XKNOW_VAULT` environment variable if you prefer:\n\n```bash\nexport XKNOW_VAULT=\"/path/to/SEO-SaaS-Vault\"\nnpx -y xknow-mcp\n```\n\n## How it works\n\n`xknow-mcp` is a Node.js stdio server. The free layer is a static JSON snapshot generated\nfrom the public site and bundled in the package (`data/knowledge.json`); search is a small,\ndependency-free ranking pass over the bundled notes. Vault mode parses Markdown notes from\na local folder on the fly. No network calls, no vector database, no telemetry.\n\n## Development\n\n```bash\nnpm install\nnpm run build:data   # refresh data/knowledge.json from https://xknow.org/mcp/knowledge.json\nnpm run build        # tsc\nnpm run smoke        # exercise every tool over a real stdio connection\n\n# also test against a local vault\nSMOKE_VAULT=/path/to/SEO-SaaS-Vault npm run smoke\n```\n\n## Links\n\n- Product page: https://xknow.org/mcp\n- Knowledge base: https://xknow.org/vaults/seo\n- Registry: https://registry.modelcontextprotocol.io/servers/io.github.techreone/xknow-mcp\n- Source: https://github.com/techreone/xknow-mcp\n\n## License\n\nMIT — see [LICENSE](LICENSE).\n",
+  "status": "curated"
+}

@@ -1,8 +1,8 @@
 {
   "id": "mcp:official/io.github.SpaceFrontiers/mcp",
   "type": "mcp",
-  "name": "mcp",
-  "description": "Citable retrieval across papers, books, patents, Wikipedia, and live social sources.",
+  "name": "Machine Library by Space Frontiers",
+  "description": "Machine Library by Space Frontiers: retrieval across papers, books, patents, and social sources.",
   "author": "io.github.SpaceFrontiers",
   "source": {
     "registry": "mcp-official",
@@ -12,12 +12,12 @@
   "license": null,
   "install": {
     "kind": "remote",
-    "remote_url": "https://mcp.spacefrontiers.org/"
+    "remote_url": "https://mcp.machinelibrary.ai/"
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-07-29T08:17:16.239074Z",
-    "score": 37
+    "pushed_at": "2026-09-12T07:47:19.919243Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -49,6 +49,6 @@
     "category": null,
     "featured": false
   },
-  "readme": null,
+  "readme": "# Machine Library MCP Server\n\nMachine Library is the search and AI product by **Space Frontiers Company**.\nExisting accounts, API keys, and `spacefrontiers_*` tool names remain compatible.\nThe original `https://mcp.spacefrontiers.org` endpoint is still supported.\n\nA retrieval layer for AI agents over peer-reviewed papers, books, patents, standards, Wikipedia, Reddit, Telegram, Discord, and YouTube. Returns bounded full text and canonical source URIs for citation.\n\nHosted at **https://mcp.machinelibrary.ai/** (Streamable HTTP transport, OAuth 2.1 with PKCE or Bearer API key).\n\n<a href=\"https://glama.ai/mcp/servers/@SpaceFrontiers/mcp\">\n  <img width=\"380\" height=\"200\" src=\"https://glama.ai/mcp/servers/@SpaceFrontiers/mcp/badge\" alt=\"Machine Library MCP\" />\n</a>\n\n## Tools\n\nAll four tools are read-only, idempotent, and prefixed `spacefrontiers_` to avoid collisions in multi-server agent setups.\n\n| Tool | When to use |\n|------|-------------|\n| `spacefrontiers_search_documents` | Peer-reviewed papers, books, patents, Wikipedia. Use for citations and prior art. |\n| `spacefrontiers_search_social` | Reddit, Telegram channels, YouTube transcripts. Use for news and community discussion. |\n| `spacefrontiers_fetch_document` | Bounded full text + up to 50 references for one canonical URI. Defaults to 40K characters; supports up to 100K. |\n| `spacefrontiers_search_in_document` | Up to five matching passages within one document. Use for documents over ~20K tokens. |\n\nSearch defaults to 10 compact, hybrid-ranked results and is capped at 30. Every hit includes a canonical `source_uri`, one snippet (up to 900 characters), an abstract preview (up to 800 characters), score, authors, date, type, and estimated full-text size. Citation backlinks are opt-in on `spacefrontiers_fetch_document` because they add another billed search.\n\n## Install\n\nThe hosted server has its own [/mcp install page](https://machinelibrary.ai/mcp) with one-click links for Cursor, VS Code, and Smithery.\n\n### Claude Code (recommended)\n\n```sh\nclaude mcp add --transport http --scope user spacefrontiers https://mcp.machinelibrary.ai\n```\n\nOn first use a browser opens for OAuth login — no API key paste required.\n\n### Cursor / VS Code / Cline / Windsurf (HTTP)\n\n```json\n{\n  \"mcpServers\": {\n    \"spacefrontiers\": {\n      \"type\": \"http\",\n      \"url\": \"https://mcp.machinelibrary.ai\",\n      \"headers\": { \"Authorization\": \"Bearer YOUR_API_KEY\" }\n    }\n  }\n}\n```\n\nGet an API key at https://machinelibrary.ai/keys.\n\n### Self-hosted (stdio)\n\n```sh\ngit clone https://github.com/SpaceFrontiers/mcp.git\ncd mcp\nuv sync\nSEARCH_API_ENDPOINT=https://api.machinelibrary.ai \\\nSPACE_FRONTIERS_API_KEY=sf_live_xxx uv run fastmcp run mcp_server.py\n```\n\nThe environment variable is used as the upstream API credential in stdio mode.\nThe command selects the public Machine Library API with `SEARCH_API_ENDPOINT`.\nThe internal default remains `http://search-api` for existing deployments.\nFor HTTP deployments, set `SEARCH_API_ENDPOINT` to your trusted internal\nsearch API and `USERS_API_ENDPOINT` to your internal users API; the auth\nmiddleware forwards verified identity headers to that internal service.\nOAuth continues to use the Space Frontiers\nauthorization server at `https://api.spacefrontiers.org` and the existing sign-in site.\n\n## Pricing\n\n- Search: $0.01 base + $0.001 per returned result (the 10-result MCP default costs $0.02).\n- Full document fetch: $0.05.\n- In-document passage search: $0.015.\n- `referenced_by_limit > 0` on a fetch adds a separately billed search.\n\nAdd credits at https://machinelibrary.ai/payments.\n\n## Repository layout\n\n- `mcp_server.py` — Starlette + FastMCP entrypoint, OAuth well-known endpoints.\n- `tools.py` — four tools with Pydantic output schemas.\n- `prompts.py` — `deep_research_agent` prompt.\n- `resources.py` — `spacefrontiers://document/{uri_b64}` URI template.\n- `auth.py` — Bearer-token validation, Origin allowlist, MCP-Protocol-Version check.\n- `client.py` — async HTTP client for the v2 search API.\n- `server.json` — Official MCP Registry entry.\n- `smithery.yaml` — Smithery deployment config.\n- `registry.json` — in-house registry metadata.\n- `tests/` — pytest unit tests.\n\n## Spec compliance\n\n- **Transport**: Streamable HTTP, stateless.\n- **Auth**: OAuth 2.1 with RFC 7591 Dynamic Client Registration; long-lived API keys also accepted.\n- **Annotations**: every tool declares `readOnlyHint`, `idempotentHint`, `openWorldHint`, `destructiveHint:false`.\n- **Output schemas**: every tool's `outputSchema` is auto-generated from a Pydantic return model.\n- **Resources**: one URI template registered for documents.\n- **Spec versions accepted**: `2025-03-26`, `2025-06-18`, `2025-11-25`.\n\n## Development\n\n```sh\nuv sync\nuv run pytest\nuv run ruff check .\n```\n\nmcp-name: io.github.SpaceFrontiers/mcp\n\n## License\n\nMIT\n",
   "status": "curated"
 }

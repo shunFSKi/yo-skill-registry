@@ -17,10 +17,10 @@
   "quality": {
     "stars": 1,
     "pushed_at": "2026-07-28T02:07:02Z",
-    "score": 40,
+    "score": 50,
     "star_history": [
       {
-        "d": "2026-09-11",
+        "d": "2026-09-12",
         "s": 1
       }
     ]
@@ -55,6 +55,6 @@
     "category": "编程",
     "featured": false
   },
-  "readme": null,
+  "readme": "# Switchgear\n\n**The control plane for autonomous work.**\n\nA private, single-owner agent application with chat, workflows, schedules,\nresources, memory, approvals, email, and optional browser automation. The default\nself-hosted deployment is one container, one SQLite database, and one persistent\nvolume. Google Cloud is optional.\n\n## Five-minute local start\n\nRequirements: Docker with Compose.\n\n```sh\n./scripts/setup.sh\n```\n\nThe script creates `.env`, generates a session secret, starts the container,\nand prints a one-time setup link. Open it to claim the instance (pick a\nnickname and password — no email needed) and connect an OpenAI-compatible model gateway — that's\nthe whole setup. Configuration lives in the database from then on;\nenvironment variables remain supported as defaults (see\n[configuration](docs/configuration.md)). Private, instance-specific skills and\nworkflows belong in the gitignored `user/` directory, seeded on boot.\n\nCompose binds only to localhost. Data lives in the\n`switchgear-data` volume at `/data`; the database is `/data/switchgear.sqlite3` and generated\nfiles remain below `/data`.\n\nThis release supports one application process and one replica. Do not expose it\nwithout authentication, and put a TLS reverse proxy in front before binding it to a\npublic interface. See [self-hosting](docs/self-hosting.md) and\n[configuration](docs/configuration.md).\n\nWhen a built-in tool is missing, script your own: the `/tools` workbench lets the\nowner author single-file Python tools (with AI-assisted drafting), resolve their\ndependencies, declare secrets from a vault, and grant them to conversations\nthrough deny-by-default toolboxes. See\n[user-tools.md](docs/user-tools.md) for the authoring guide and security model.\n\n## Images and integrations\n\nThe default image is lightweight. Build the browser image with\n`docker build --target browser -t switchgear:browser .`; it includes Playwright\nand Chromium. Released deployments should use immutable semantic-version tags or\ndigests, never `main` or `latest`.\n\nThe base Python installation has no provider-specific identity or mail packages.\nInstall `.[gcp]` or `.[browser]` only when selecting those adapters. Console email\nis the zero-configuration default; SMTP is the portable production option.\n\n## Development\n\n```sh\nUV_CACHE_DIR=/tmp/uv-cache uv sync --all-extras\nUV_CACHE_DIR=/tmp/uv-cache uv run pytest\ncd frontend && npm ci && npm test && npm run build\n```\n\nSee [backup and restore](docs/backup-and-restore.md),\n[deployment integrations](docs/deployment-integrations.md), and [security](SECURITY.md).\n\nLicensed under the [Apache License 2.0](LICENSE).\n",
   "status": "curated"
 }
