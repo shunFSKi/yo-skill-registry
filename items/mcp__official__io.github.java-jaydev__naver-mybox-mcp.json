@@ -1,0 +1,64 @@
+{
+  "id": "mcp:official/io.github.java-jaydev/naver-mybox-mcp",
+  "type": "mcp",
+  "name": "NAVER MYBOX",
+  "description": "List, search, download and upload files in a NAVER MYBOX (네이버 마이박스) cloud drive.",
+  "author": "io.github.java-jaydev",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/java-jaydev/naver-mybox-mcp",
+    "repo": "java-jaydev/naver-mybox-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "naver-mybox-mcp"
+    ],
+    "env": [
+      {
+        "name": "MYBOX_PAT",
+        "required": false,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-13T12:55:05.741506Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# naver-mybox-mcp\n\n<!-- mcp-name: io.github.java-jaydev/naver-mybox-mcp -->\n\nAn MCP server for **NAVER MYBOX** (네이버 마이박스) — list, search, download and upload files in\nyour MYBOX cloud drive from any MCP client (Claude Code, Claude Desktop, and others).\n\nMYBOX opened a public API in August 2026 ([developers.mybox.naver.com](https://developers.mybox.naver.com/)).\nThis wraps it as tools. Unofficial, not affiliated with NAVER.\n\n## Why\n\nPhone photos land in MYBOX automatically. Getting them onto a machine meant clicking through\nthe web UI. With this, an agent can fetch \"every photo taken on 10–11 September\" into a\nworking folder in one step.\n\n## Install\n\nRequires Python 3.10+.\n\n```bash\npip install naver-mybox-mcp\n```\n\n## Get a token\n\nAuthentication is a **personal access token**, not OAuth.\n\n1. Sign in at MYBOX on the web.\n2. Settings → *account and personal access token management* → **create token**.\n3. Copy it immediately — it is shown once.\n\nUp to five tokens per account; each lasts 30, 60, 90 or 180 days, and MYBOX emails you 7 days\nand 1 day before expiry. Anyone holding the token can reach the whole drive, so treat it as a\npassword and never commit it.\n\nProvide it as the `MYBOX_PAT` environment variable, or put it on one line in `~/.mybox/token`.\n\n## Configure your MCP client\n\n```json\n{\n  \"mcpServers\": {\n    \"mybox\": {\n      \"command\": \"naver-mybox-mcp\",\n      \"env\": { \"MYBOX_PAT\": \"mbx_pat_...\" }\n    }\n  }\n}\n```\n\nIn Claude Code: `claude mcp add mybox --env MYBOX_PAT=mbx_pat_... -- naver-mybox-mcp`\n\n## Tools\n\n| Tool | What it does |\n|---|---|\n| `mybox_storage` | Quota, used bytes, per-category file counts, max upload size |\n| `mybox_list` | Entries directly inside a folder, or the drive root |\n| `mybox_search` | Search by keyword, category and/or date range (KST) |\n| `mybox_file_info` | Attributes of one file or folder |\n| `mybox_download` | Download one file into a local directory |\n| `mybox_upload` | Upload one local file |\n| `mybox_create_folder` | Create a folder |\n\n### Deliberately missing: delete\n\nThe API can delete files, empty the trash and set its auto-delete period. Those tools are not\nexposed here. An agent that can read and write files is useful; one that can destroy them is a\ndifferent risk, and the web UI is right there. Open an issue if you need them behind a flag.\n\n## Quotas\n\nThe docs publish per-plan limits and warn that bursts or abuse may be blocked **without prior\nnotice**, so the client paces itself below the lowest documented per-minute limits (9/min for\nsearch, 55/min otherwise). Free accounts can use the API; the plan only changes the limits.\n\n| Plan | Downloads | Search | Other APIs |\n|---|---|---|---|\n| 30GB | 500/day | 10/min | 60/min each |\n| 80GB | 1,000/day | 10/min | 60/min each |\n| 180GB–330GB | 1,000/day | 30/min | 240/min each |\n| 2TB | 2,000/day | 30/min | 240/min each |\n\n**Download limits are daily and the client cannot pace around them.** Search first, count the\nresults, and fetch in batches if the set is large.\n\n## Notes on the API\n\n- Base URL `https://open-api.mybox.naver.com/v1`\n- Upload is two steps: `POST /drive/files` returns an `uploadUrl` (48h, single use); the bytes\n  go there as multipart field `Filedata`.\n- Download is two steps: `GET /drive/files/{id}/download` returns a `downloadUrl`\n  (10 minutes, single use).\n- Paging: `responseMetaData.nextCursor` goes back as `cursor`.\n- Search needs at least one of keyword, category or a date bound.\n- **Encrypted folders and folders shared with you are not exposed by the API** — they exist\n  only in the web and mobile apps. An empty listing does not mean an empty drive.\n\n## Related projects\n\nThe MYBOX API opened on 2026-08-10 and tooling appeared quickly. NAVER publishes no MCP\nserver or SDK of its own, and its launch post does not mention MCP. Community work that exists:\n\n| Project | What it is |\n|---|---|\n| [minking/mybox-mcp](https://github.com/minking/mybox-mcp) | MCP server in TypeScript covering all 20 endpoints, including delete and trash |\n| [oliverne/myboxctl](https://github.com/oliverne/myboxctl) | CLI for file operations (`@oliverne/myboxctl` on npm) |\n| [overworks/php-mybox](https://github.com/overworks/php-mybox) | PHP SDK, plus a Go CLI and a Flysystem adapter by the same author |\n| [chiwanpark/mybox-s3](https://github.com/chiwanpark/mybox-s3) | S3-compatible API in front of MYBOX |\n\nThis one is Python, exposes a deliberately smaller surface (no delete), paces itself under the\ndocumented rate limits, and ships tests that need neither a token nor the network. Pick whichever\nfits; if you want every endpoint including destructive ones, the TypeScript server above has them.\n\n## Development\n\n```bash\npip install -e \".[dev]\"\npytest\n```\n\nTests run against `httpx.MockTransport`; no token or network needed.\n\nReleases are published from GitHub Actions on a GitHub release: PyPI via Trusted Publishing\n(no stored token) and the MCP registry via GitHub OIDC.\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

@@ -1,0 +1,69 @@
+{
+  "id": "mcp:official/io.github.badigit/beget-mcp",
+  "type": "mcp",
+  "name": "Beget Hosting",
+  "description": "Beget hosting: sites, domains, DNS, MySQL, FTP, cron, backups, mail — 73 tools",
+  "author": "io.github.badigit",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/badigit/beget-mcp",
+    "repo": "badigit/beget-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "beget-mcp"
+    ],
+    "env": [
+      {
+        "name": "BEGET_API_LOGIN",
+        "required": true,
+        "secret": false
+      },
+      {
+        "name": "BEGET_API_PASSWORD",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-13T10:33:22.163245Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "运维",
+    "featured": false
+  },
+  "readme": "# beget-mcp\n\nMCP-сервер для управления сервисами хостера [Beget](https://beget.com/p1211871) из AI-агентов.\n\nПостроен на [FastMCP](https://github.com/modelcontextprotocol/python-sdk) и покрывает весь [Beget REST API](https://beget.com/p1211871/kb/api/) — 73 инструмента в 10 разделах.\n\n> [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) — открытый стандарт для подключения AI-моделей к внешним сервисам.\n\n<!-- mcp-name: io.github.badigit/beget-mcp -->\n\n## Быстрый старт\n\nИз PyPI, без установки в систему:\n\n```bash\nclaude mcp add beget -s user \\\n  -e BEGET_API_LOGIN=your_login \\\n  -e BEGET_API_PASSWORD=your_password \\\n  -- uvx beget-mcp\n```\n\nКонтейнером (образ по умолчанию поднимает SSE — локальному клиенту нужен stdio):\n\n```bash\ndocker run -i --rm \\\n  -e MCP_TRANSPORT=stdio \\\n  -e BEGET_API_LOGIN=your_login \\\n  -e BEGET_API_PASSWORD=your_password \\\n  ghcr.io/badigit/beget-mcp:latest\n```\n\nИз исходников:\n\n```bash\npip install -e .\n\nclaude mcp add beget -s user \\\n  -e BEGET_API_LOGIN=your_login \\\n  -e BEGET_API_PASSWORD=your_password \\\n  -- python -m mcp_beget\n```\n\nСервер публикуется в [MCP Registry](https://registry.modelcontextprotocol.io) под именем\n`io.github.badigit/beget-mcp`. Страница проекта — <https://badigit.github.io/beget-mcp/>.\n\n## Что умеет\n\n| Раздел | Инструменты | Примеры операций |\n|--------|------------|-----------------|\n| Сайты | 8 | создание, удаление, привязка доменов, заморозка файлов |\n| Домены | 13 | управление, поддомены, PHP-версии, директивы, проверка доступности |\n| DNS | 8 | A, CNAME, MX, TXT — безопасный merge; частичное обновление через `dns_patch_record`; `dns_verify` сверяет факт у авторитативного NS |\n| MySQL | 6 | базы, доступы с хостов, пароли |\n| FTP | 4 | аккаунты, домашние каталоги |\n| Cron | 7 | задачи, расписание, активация, email-отчёты |\n| Бэкапы | 9 | просмотр содержимого, откат, выгрузка файлов и БД |\n| Почта | 12 | ящики, пароли, спам-фильтр, пересылка, catch-all, one-shot-настройка Яндекс 360 / Mail.ru |\n| Статистика | 4 | нагрузка по сайтам и БД — сводная и детальная |\n| Аккаунт | 2 | тариф, баланс, SSH-доступ |\n\n## Документация\n\n| Файл | О чём |\n|------|-------|\n| [docs/api-coverage.md](docs/api-coverage.md) | покрытие методов Beget API |\n| [docs/beget-api-gotchas.md](docs/beget-api-gotchas.md) | грабли API: ошибка в success-конверте и прочее |\n| [docs/dns-facts-vs-intent.md](docs/dns-facts-vs-intent.md) | DNS: несозданный поддомен, catch-all зоны, задержка распространения |\n| [docs/new-app-deploy-chain.md](docs/new-app-deploy-chain.md) | цепочка вызовов для нового приложения на shared-хостинге |\n\n## Переменные окружения\n\n| Переменная | Назначение |\n|-----------|-----------|\n| `BEGET_API_LOGIN` | Логин Beget |\n| `BEGET_API_PASSWORD` | Пароль Beget |\n\n## Архитектура\n\n```\nsrc/mcp_beget/\n├── app.py       — экземпляр FastMCP\n├── config.py    — конфигурация (dataclass + валидация)\n├── client.py    — HTTP-клиент с переиспользованием сессии\n├── errors.py    — типизированные исключения (Auth / API)\n├── server.py    — точка входа, инициализация, логирование\n└── tools/       — инструменты, сгруппированные по разделам API\n```\n\n## Требования\n\n- Python >= 3.11\n- mcp[cli]\n- requests\n- python-dotenv\n\n## Contributing\n\nIssues и pull requests приветствуются. Если нашли баг или хотите предложить улучшение — создайте issue.\n\n## Лицензия\n\n[MIT](LICENSE)\n\n---\n\nНет аккаунта на Beget? [Зарегистрируйтесь по ссылке](https://beget.com/p1211871) — вы получите хостинг, а автор проекта небольшой бонус.\n",
+  "status": "curated"
+}

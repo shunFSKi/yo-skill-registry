@@ -1,8 +1,8 @@
 {
   "id": "mcp:official/io.github.GSterlingPress/recover",
   "type": "mcp",
-  "name": "RECOVER — Safe Next-Step Decisions After Machine Failures",
-  "description": "Deterministic next-step decisions after failed API, MCP, automation, or AI-agent actions.",
+  "name": "RECOVER — Decide Safely After a Failed Machine Action",
+  "description": "Choose the safest next action after an API, MCP, or agent failure before retrying.",
   "author": "io.github.GSterlingPress",
   "source": {
     "registry": "mcp-official",
@@ -16,8 +16,8 @@
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-08-12T02:11:05.837923Z",
-    "score": 37
+    "pushed_at": "2026-09-13T15:05:05.483505Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -49,6 +49,6 @@
     "category": "编程",
     "featured": false
   },
-  "readme": null,
+  "readme": "# RECOVER\n\n**A failed machine action happened. What should happen next?**\n\nRECOVER is a tiny deterministic decision API for AI agents, MCP clients, automations, and ordinary backend systems. It converts failure context into one of six actions:\n\n`RETRY_NOW` · `WAIT` · `REPAIR_REQUEST` · `VERIFY_FIRST` · `ESCALATE` · `ABORT`\n\nUse it immediately after a failed API/tool/action and before an automatic retry—especially for side-effecting operations, ambiguous timeouts, rate limits, malformed requests, exhausted retry budgets, and uncertain execution outcomes.\n\n## Live production\n\nBase URL: `https://recover-api-production-bbba.up.railway.app`\n\nMCP Streamable HTTP endpoint: `https://recover-api-production-bbba.up.railway.app/mcp`\n\nActivity dashboard: `https://recover-api-production-bbba.up.railway.app/activity`\n\nSafe demo: `https://recover-api-production-bbba.up.railway.app/demo`\n\n## REST\n\n`POST https://recover-api-production-bbba.up.railway.app/v1/recover`\n\n```json\n{\n  \"method\":\"POST\",\n  \"status\":503,\n  \"error\":\"upstream timeout\",\n  \"attempt\":1,\n  \"sideEffect\":true,\n  \"idempotencyKey\":false\n}\n```\n\nExample response:\n\n```json\n{\n  \"decision\":\"VERIFY_FIRST\",\n  \"retry\":false,\n  \"risk\":\"high\",\n  \"reason\":\"A side-effecting non-idempotent action may have completed before the failure became visible.\",\n  \"next\":\"Verify external state or obtain an idempotency key before retrying.\"\n}\n```\n\n## MCP\n\nTool: `recover_decide`\n\nPoint an MCP client at:\n\n`https://recover-api-production-bbba.up.railway.app/mcp`\n\nThe server is designed for machine discovery and includes `server.json` metadata for the official MCP Registry.\n\n## Why call RECOVER?\n\nRetry libraries answer *how to retry*. RECOVER answers the more important question first: **what is the safest next action after this specific failure?**\n\nGood call sites include API clients, AI agents, browser automations, workflow engines, MCP hosts, job runners, payment/order flows, and any system where blindly retrying can duplicate a side effect or amplify a failure.\n\n## Analytics\n\n`GET /activity` displays durable, privacy-safe usage telemetry and a permanent **FIRST 10 REAL-WORLD STRANGER CONVERSIONS** scoreboard. Real-use events are stored separately so discovery traffic cannot push milestones out of history. Raw IPs and request payloads are not stored.\n\n## Deploy\n\nThe repo is Railway-ready with `Dockerfile` and `railway.toml`. Mount a persistent volume at `/data` so the permanent real-use ledger survives restarts.\n",
   "status": "curated"
 }

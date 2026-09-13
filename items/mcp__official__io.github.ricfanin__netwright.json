@@ -1,0 +1,65 @@
+{
+  "id": "mcp:official/io.github.ricfanin/netwright",
+  "type": "mcp",
+  "name": "Netwright",
+  "description": "Playwright-style automation of .NET desktop apps (WPF, WinForms, WinUI) for AI agents.",
+  "author": "io.github.ricfanin",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/ricfanin/netwright",
+    "repo": "ricfanin/netwright"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "Netwright"
+    ],
+    "env": [
+      {
+        "name": "NETWRIGHT_ALLOW",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-13T12:51:30.662064Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# Netwright\n\n**Playwright-style automation for .NET desktop apps.** Netwright is an MCP server that lets AI agents see and operate WPF, WinForms and WinUI apps: they launch your project, read the UI as compact text, act without stealing your mouse, verify the result, and turn the verified flow into a regression test.\n\n[![CI](https://github.com/ricfanin/netwright/actions/workflows/ci.yml/badge.svg)](https://github.com/ricfanin/netwright/actions/workflows/ci.yml)\n[![NuGet](https://img.shields.io/nuget/v/Netwright.svg)](https://www.nuget.org/packages/Netwright)\n[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)\n\n> Formerly **WPF-MCP**. Version 2.0 is a rewrite; see [Migrating from WPF-MCP 1.x](#migrating-from-wpf-mcp-1x).\n\n```\n> desktop_app action=launch project=src/Orders/Orders.csproj\nLaunched Orders.exe (pid 9120, WPF, launched by Netwright)\n- window \"Orders\" [e1]\n\n> desktop_snapshot\n- window \"Orders\" [e1]\n  - textbox \"Customer\" [e4] #txtCustomer\n  - combobox \"Country\" [e5] #cmbCountry collapsed\n  - checkbox \"Accept terms\" [e6] #chkTerms unchecked\n  - button \"Save\" [e7] #btnSave disabled\n\n> desktop_set_state target=#chkTerms checked=true\nchecked checkbox \"Accept terms\" [e6] #chkTerms\n~ checkbox \"Accept terms\" [e6] #chkTerms checked\n~ button \"Save\" [e7] #btnSave\n\n> desktop_click target=#btnSave\nclicked button \"Save\" [e7] #btnSave\n+ window \"Confirm\" [e9] modal\n  + text \"Save order 42?\"\n  + button \"Yes\" [e10]\n```\n\n## Why Netwright\n\n- **Made for .NET apps.** Works with WPF, WinForms (.NET and .NET Framework 4.x) and WinUI/MAUI through UI Automation. It launches straight from a `.csproj`, captures stdout/stderr and `Trace` output, and reports crashes with the exception and stack trace.\n- **Cheap in tokens.**\n  - Snapshots are filtered to what an agent needs: unnamed layout panes are collapsed, and grids are summarized row by row.\n  - Actions answer with a **Change Report** of what appeared, disappeared or changed, so the agent rarely needs another snapshot.\n  - Refs (`e12`) stay valid across snapshots.\n- **Stays out of your way.** Actions run in the **background** through UI Automation patterns, so you keep working while the agent tests. Key presses and right-clicks are explicit, briefly take focus, and give it back.\n- **Reliable by default.**\n  - Every action waits until its target is enabled and on screen.\n  - It then waits for the UI to settle, so async screens don't need sleeps.\n  - Failures come back as error codes with a hint about what to do next.\n- **From exploration to regression tests.** `desktop_expect` verifies state, and `desktop_export_test` turns the session into a C# test on [Netwright.Testing](src/Netwright.Testing/README.md) (xUnit, NUnit or MSTest).\n\n## Benchmark\n\nSame scenarios, same Fixture App, same token encoding for every server (full methodology and all numbers in [benchmarks/results](benchmarks/results/README.md)):\n\n| WPF Fixture App, median of 5 runs | WPF-MCP 1.0 | [FlaUI-MCP](https://github.com/shanselman/FlaUI-MCP) | [Windows-MCP](https://github.com/CursorTouch/Windows-MCP) | **Netwright 2.0** |\n|---|---:|---:|---:|---:|\n| Tool definitions, sent every turn (tokens) | 2,023 (24 tools) | 1,418 (12) | 3,984 (20) | **1,387 (15)** |\n| Snapshot of a form (tokens) | 1,023 | 785 | 1,956¹ | **385** |\n| Snapshot of a 1000-row grid (tokens) | 3,988 | 6,234 | 1,897¹ | **627** |\n| Fill and submit a form: calls / tokens | 10 / 2,463 | 10 / 3,469 | –² | **6 / 549** |\n| Same form on WinForms: success | 0/5 | 0/5 | –² | **5/5** |\n| Wait for an async load: calls / tokens | 5 / 3,337 | 5 / 2,484 | –² | **3 / 405** |\n| Screenshot (tokens) | 25,073 | 1,000 | 1,944 | 1,020 |\n| WinForms grid with 1000 non-virtualized rows: snapshot time | 9.2 s | 12.9 s | 0.3 s¹ | 1.5 s |\n\n¹ Windows-MCP summarizes the whole desktop instead of the app's UI tree; its grid snapshot does not include the rows. ² Its actions work at screen coordinates with the real mouse, so scripted flows were not run.\n\nTokens are counted with `o200k_base` as a proxy for Claude's tokenizer. Netwright's actions are slower per call: the form flow takes ~1.8 s against ~0.6 s, because each action waits for the UI to settle. In exchange the response already contains the result, so the agent needs fewer calls and far fewer tokens.\n\n## Install\n\nRequires Windows 10/11 and the [.NET 10 SDK](https://dotnet.microsoft.com/download). Your apps can target any .NET or .NET Framework version.\n\n**Claude Code**\n\n```bash\nclaude mcp add netwright -- dnx Netwright --yes\n```\n\n**Any MCP client** (Claude Desktop, Cursor, VS Code, Copilot…)\n\n```json\n{\n  \"mcpServers\": {\n    \"netwright\": {\n      \"command\": \"dnx\",\n      \"args\": [\"Netwright\", \"--yes\"]\n    }\n  }\n}\n```\n\nPrefer a global tool? Run `dotnet tool install -g Netwright` and use `\"command\": \"netwright\"`. To restrict which apps an agent may touch, add `\"--\", \"--allow\", \"MyApp*\"` to the args. See the [Integration Guide](docs/INTEGRATION_GUIDE.md) for all options.\n\n## Tools\n\n| Tool | What it does |\n|---|---|\n| `desktop_app` | Launch an `.exe` or build and launch a project, attach, close, status |\n| `desktop_snapshot` | The UI as compact text with Refs |\n| `desktop_find` | Elements matching a Selector (`#id`, `role \"name\"`, `a >> b`) |\n| `desktop_inspect` | Properties, patterns and a stable Selector of one element |\n| `desktop_click` | Click (background; right/double click with `foreground`) |\n| `desktop_type` | Set text (background) or type real keys |\n| `desktop_set_state` | Check, select, expand, set a value, or pick an item by name |\n| `desktop_press_key` | Key presses and shortcuts (foreground) |\n| `desktop_scroll` | Scroll by direction, to an edge, or into view |\n| `desktop_window` | List, activate, minimize, maximize, restore, close windows |\n| `desktop_screenshot` | Image of a window or element, even when covered |\n| `desktop_wait` | Wait for an element state or for text; reports what changed |\n| `desktop_expect` | Retrying assertions: text, value, enabled, checked, count… |\n| `desktop_logs` | App output: stdout, stderr, debug/trace |\n| `desktop_export_test` | Turn the session into a C# regression test |\n\nFull reference: [docs/TOOLS_REFERENCE.md](docs/TOOLS_REFERENCE.md).\n\n## Supported UI technologies\n\n| Tier | Technology | What that means |\n|---|---|---|\n| 1 | WPF, WinForms (.NET 6+ and .NET Framework 4.x) | A Fixture App, integration tests on every change, benchmarked |\n| 2 | WinUI 3, .NET MAUI on Windows | A Fixture App and integration tests |\n| 3 | Avalonia, Uno Platform | Best effort through UI Automation |\n\nOther Windows apps (Win32, Qt, Electron…) often work because Netwright speaks plain UI Automation, but they are not supported.\n\nAutomation works best when your app sets `AutomationProperties.AutomationId` (WPF/WinUI) or `Name` (WinForms) on the controls you care about. See [Making your app automation-friendly](docs/INTEGRATION_GUIDE.md#making-your-app-automation-friendly).\n\n## Regression tests without an agent\n\n```csharp\n[Fact]\npublic async Task Saving_an_order_asks_for_confirmation()\n{\n    await using var app = await DesktopApp.LaunchProjectAsync(@\"..\\..\\..\\..\\src\\Orders\\Orders.csproj\");\n\n    await app.TypeAsync(\"#txtCustomer\", \"Rossi\");\n    await app.CheckAsync(\"#chkTerms\");\n    await app.ClickAsync(\"#btnSave\");\n\n    await app.Expect(\"window \\\"Confirm\\\"\").ToBeVisibleAsync();\n}\n```\n\n`dotnet add package Netwright.Testing`. This is the code `desktop_export_test` writes for you.\n\n## How it works\n\nNetwright captures each window with **one cached UI Automation query**. Windows are found with Win32, only about 20 properties are requested, and offscreen elements are filtered inside the provider. From that capture it renders filtered text, resolves Selectors in memory, and diffs trees by RuntimeId to build Change Reports. Details and measurements: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Vocabulary: [CONTEXT.md](CONTEXT.md). Decisions: [docs/adr](docs/adr).\n\n## Migrating from WPF-MCP 1.x\n\n| 1.x | 2.0 |\n|---|---|\n| `wpf_launch_application`, `wpf_attach_application`, `wpf_close_application` | `desktop_app action=launch\\|attach\\|close` |\n| `wpf_snapshot` (refs reset on every snapshot) | `desktop_snapshot` (refs are stable) |\n| `wpf_find_element`, `wpf_get_element_properties` | `desktop_find`, `desktop_inspect` |\n| `wpf_click`, `wpf_type` | `desktop_click`, `desktop_type`; both accept a Ref or a Selector |\n| `wpf_set_value`, `wpf_toggle`, `wpf_select`, `wpf_expand_collapse` | `desktop_set_state` (`value`, `checked`, `item`, `expanded`) |\n| `wpf_press_key` | `desktop_press_key foreground=true` |\n| `wpf_scroll`, `wpf_scroll_into_view`, `wpf_focus` | `desktop_scroll` (`direction`, `to`, `into_view`) |\n| `wpf_list_windows`, `wpf_switch_window`, `wpf_window_action` | `desktop_window` |\n| `wpf_take_screenshot` (base64 text) | `desktop_screenshot` (image content) |\n| `wpf_wait_for` | `desktop_wait` (also waits for text) |\n| `wpf_console_messages` | `desktop_logs` |\n| `wpf_set_background_mode` | Background is the default; pass `foreground=true` per call when needed |\n| JSON envelopes (`success`, `data`, `metadata`) | Compact text; errors are `isError` results with `code` and `hint` |\n\nThe package is now `Netwright` (command `netwright`), replacing `WpfMcp.Server` (`wpf-mcp`).\n\n## Contributing\n\nIssues and PRs are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md). Build and test with `.\\scripts\\build.ps1 -Integration`, and measure with `.\\scripts\\benchmark.ps1`.\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

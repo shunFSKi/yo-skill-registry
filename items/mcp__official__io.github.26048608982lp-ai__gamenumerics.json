@@ -1,0 +1,65 @@
+{
+  "id": "mcp:official/io.github.26048608982lp-ai/gamenumerics",
+  "type": "mcp",
+  "name": "gamenumerics",
+  "description": "Game numerical design & balance auditing MCP server — 17 deterministic tools, zero LLM guessing.",
+  "author": "io.github.26048608982lp-ai",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/26048608982lp-ai/gamenumerics",
+    "repo": "26048608982lp-ai/gamenumerics"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "mcp-server-gamenumerics"
+    ],
+    "env": [
+      {
+        "name": "GND_WORKSPACES_DIR",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-13T09:00:42.158828Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "生活",
+    "featured": false
+  },
+  "readme": "# gamenumerics\n\n> **Deterministic numeric engines for game design — exposed to your AI coding agent via MCP.**\n> Import xlsx config tables, audit growth curves, run battle/gacha simulations, and reverse-engineer the formulas behind game spreadsheets. Every numeric answer comes from zero-dependency pure-function engines — zero LLM guessing.\n\n**Who it's for**: game designers and solo/small teams doing roguelike / deckbuilder balance work, spreadsheet-driven numerical design, or live-ops tuning audits — no engine integration required, just an xlsx export of your config tables.\n\n## Quick start (MCP server)\n\nThe fastest way to use these engines is through [`mcp-server-gamenumerics`](https://www.npmjs.com/package/mcp-server-gamenumerics) — a stdio MCP server exposing 17 read-only tools to Claude Code, Cursor, ZCode, or any MCP host:\n\n```bash\nnpx -y mcp-server-gamenumerics\n```\n\n```json\n{ \"mcpServers\": { \"gamenumerics\": { \"command\": \"npx\", \"args\": [\"-y\", \"mcp-server-gamenumerics\"] } } }\n```\n\nFull per-host config (Claude Code / Cursor / ZCode), the 17-tool reference, and the performance baseline live in [mcp-server/README.md](mcp-server/README.md).\n\n## What's inside\n\n| Path | What it is |\n|------|------------|\n| `lib/engine/formula-engine/` | 19 pure-function numeric engines: battle simulation, gacha probability + Monte Carlo, EHP×EDPS power model, growth projection, economy production/consumption, progression curves, level systems, difficulty mirroring |\n| `lib/table/` | xlsx/spreadsheet normalization: dual-row header merge, column pattern detection (arithmetic/geometric), base×coefficient relation inference, Theil-Sen robust curve fitting |\n| `lib/agent/tools/` | Tool definitions (JSON Schema + handlers) wrapping the engines — the read/audit surface |\n| `mcp-server/` | The npm-distributed stdio MCP server (`mcp-server-gamenumerics`, esbuild single-file bundle) |\n| `scripts/lib/workspace-import.ts` | xlsx → normalized JSON workspace import pipeline |\n\n## Tool surface (17 = 14 mapped + 3 meta)\n\n`import_xlsx` · `list_tables` / `read_table` · `battle_simulate` / `simulate_gacha` / `compute_power` / `power_curve` / `eval_formula` / `audit_column` / `infer_column_rule` / `infer_table_relation` · `grade_workspace` / `profile_table` / `infer_foreign_keys` · `list_workspaces` / `set_workspace` / `read_memory`\n\nRead-only by design — write tools stay behind the web workbench's human-in-the-loop confirm flow (separate product, not part of this repo).\n\n## Development\n\n```bash\nnpm install\nnpm test         # vitest: engine + table + mcp-server suites\nnpm run check    # tsc --noEmit (lib + scripts)\nnpm run mcp:check  # tsc for mcp-server (own tsconfig)\nnpm run mcp:build  # esbuild bundle → mcp-server/dist/index.js\n```\n\n## License\n\n[MIT](LICENSE)\n",
+  "status": "curated"
+}

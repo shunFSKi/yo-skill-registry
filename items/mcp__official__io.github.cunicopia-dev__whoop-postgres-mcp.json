@@ -1,0 +1,79 @@
+{
+  "id": "mcp:official/io.github.cunicopia-dev/whoop-postgres-mcp",
+  "type": "mcp",
+  "name": "WHOOP MCP",
+  "description": "Sync WHOOP recovery, sleep, strain, and workouts into Postgres and query them from any MCP client.",
+  "author": "io.github.cunicopia-dev",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/cunicopia-dev/whoop-mcp",
+    "repo": "cunicopia-dev/whoop-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "whoop-postgres-mcp"
+    ],
+    "env": [
+      {
+        "name": "WHOOP_CLIENT_ID",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "WHOOP_CLIENT_SECRET",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "WHOOP_REDIRECT_URI",
+        "required": true,
+        "secret": false
+      },
+      {
+        "name": "WHOOP_DB_URL",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-13T11:46:41.936223Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# whoop-mcp\n\n<!-- mcp-name: io.github.cunicopia-dev/whoop-postgres-mcp -->\n\n![Python](https://img.shields.io/badge/python-3.12%2B-3776AB?logo=python&logoColor=white)\n![License: MIT](https://img.shields.io/badge/license-MIT-green)\n![storage: Postgres](https://img.shields.io/badge/storage-Postgres-4169E1?logo=postgresql&logoColor=white)\n![MCP](https://img.shields.io/badge/MCP-ready-FF6F00)\n\n**An [MCP](https://modelcontextprotocol.io) server that syncs your WHOOP data\ninto Postgres and lets AI agents query it.**\n\nWHOOP's public API is rate-limited, cursor-paginated, and returns one record\nat a time. That is fine for a sync job and terrible for an agent that wants to\nanswer \"how does my HRV this week compare to my baseline?\". So this server\nsplits the job in two:\n\n* a **sync** path that pulls cycles, recovery, sleep, workouts, and body\n  measurements from the WHOOP API into a documented Postgres schema, keeping\n  the raw JSON of every record alongside the typed columns;\n* a **query** path of MCP tools that read Postgres only. They are fast, never\n  hit WHOOP's rate limits, and keep working offline once data is synced.\n\nYour data lands in a database you own, in a schema you can read with any SQL\nclient, and nothing leaves your machine except calls to WHOOP itself.\n\n> Python 3.12+ · MIT · stdio MCP server + CLI · Postgres storage\n\n---\n\n## Contents\n\n- [Tools](#tools)\n- [Install](#install)\n- [Quickstart](#quickstart)\n- [Configuration](#configuration)\n- [Register with an MCP client](#register-with-an-mcp-client)\n- [How sync works](#how-sync-works)\n- [Security model](#security-model)\n- [Development](#development)\n- [Project layout](#project-layout)\n- [License](#license)\n\n---\n\n## Tools\n\nTwo write-side tools talk to the WHOOP API; everything else reads Postgres only.\n\n| Tool | Args | What it does |\n| --- | --- | --- |\n| `whoop_auth_url` | none | Returns the OAuth authorization URL to open in a browser. |\n| `whoop_connect` | `code` | Exchanges the OAuth code for tokens, stores them, returns the connected user. |\n| `whoop_sync` | `days=7`, `full=false` | Pulls data from WHOOP into Postgres. Returns per-collection counts and errors. |\n| `whoop_status` | none | Per-collection sync health: last sync, watermark, row count, last error. |\n| `whoop_overview` | `days=7` | Latest recovery and vitals vs. 30-day baseline, last night's sleep, recent workouts and strain. |\n| `whoop_recovery` | `days=7`, `limit=50` | Recent recovery scores, resting HR, HRV, SpO2, skin temperature. |\n| `whoop_sleep` | `days=7`, `limit=50` | Recent sleeps and naps with stage breakdown, need, performance, efficiency. |\n| `whoop_workouts` | `days=14`, `limit=50` | Recent workouts with strain, HR, energy, distance, and zone minutes. |\n| `whoop_cycles` | `days=7`, `limit=50` | Recent physiological cycles (WHOOP days) with day strain and HR. |\n| `whoop_baseline` | none | 30-day mean and standard deviation per vital. |\n\n`days` is capped at 365 and `limit` at 200. All tools return JSON text.\n\n## Install\n\n```bash\nuv tool install whoop-postgres-mcp      # or: pipx install whoop-postgres-mcp\n```\n\nOr run it without installing:\n\n```bash\nuvx whoop-postgres-mcp --help\n```\n\nYou also need a Postgres database (any recent version; 14+ is fine) and a\nWHOOP developer app. [docs/SETUP.md](docs/SETUP.md) walks through both.\n\n## Quickstart\n\n```bash\nexport WHOOP_CLIENT_ID=...\nexport WHOOP_CLIENT_SECRET=...\nexport WHOOP_REDIRECT_URI=http://localhost:8765/callback\nexport WHOOP_DB_URL=postgresql://whoop:whoop@localhost:5432/whoop\n\nwhoop-mcp init-db          # create the `whoop` schema (idempotent)\nwhoop-mcp auth-url         # print the URL to visit; approve access in a browser\nwhoop-mcp connect <code>   # paste the `code` from the redirect URL\nwhoop-mcp sync --all       # first backfill; later runs: whoop-mcp sync --days 7\nwhoop-mcp                  # serve MCP over stdio\n```\n\nThe same flow is available as MCP tools (`whoop_auth_url`, `whoop_connect`,\n`whoop_sync`) so an agent can drive the whole setup.\n\n## Configuration\n\nAll configuration is by environment variable. The server validates every\nvariable at startup and exits with a message naming each missing one.\n\n| Variable | Required | Meaning |\n| --- | --- | --- |\n| `WHOOP_CLIENT_ID` | yes | Client ID of your WHOOP developer app. |\n| `WHOOP_CLIENT_SECRET` | yes | Client secret of your WHOOP developer app. |\n| `WHOOP_REDIRECT_URI` | yes | Redirect URI, exactly as registered on the app. Any URL works; the server does not listen on it. You copy the `code` from the address bar. |\n| `WHOOP_DB_URL` | yes | Postgres DSN, e.g. `postgresql://user:pass@host:5432/db`. Tokens and data live here. |\n\n## Register with an MCP client\n\nClaude Code:\n\n```bash\nclaude mcp add whoop -e WHOOP_CLIENT_ID=... -e WHOOP_CLIENT_SECRET=... \\\n  -e WHOOP_REDIRECT_URI=http://localhost:8765/callback \\\n  -e WHOOP_DB_URL=postgresql://whoop:whoop@localhost:5432/whoop \\\n  -- uvx whoop-postgres-mcp\n```\n\nClaude Desktop (`claude_desktop_config.json`) or any client that takes a\nstdio command:\n\n```json\n{\n  \"mcpServers\": {\n    \"whoop\": {\n      \"command\": \"uvx\",\n      \"args\": [\"whoop-postgres-mcp\"],\n      \"env\": {\n        \"WHOOP_CLIENT_ID\": \"...\",\n        \"WHOOP_CLIENT_SECRET\": \"...\",\n        \"WHOOP_REDIRECT_URI\": \"http://localhost:8765/callback\",\n        \"WHOOP_DB_URL\": \"postgresql://whoop:whoop@localhost:5432/whoop\"\n      }\n    }\n  }\n}\n```\n\n## How sync works\n\nWHOOP's collection endpoints filter on when a record *occurred*, not when it\nwas last modified, and records change after creation (a sleep is created as\n`PENDING_SCORE` and scored later). The sync therefore:\n\n1. always re-fetches the last `days` days, which catches late re-scores;\n2. tracks a per-collection watermark (`newest_updated_at` in\n   `whoop_sync_state`). If the last sync is older than `days`, the window is\n   stretched back to the watermark minus a two-day lookback so a gap never\n   leaves a hole;\n3. upserts every record on its natural key (`id`, or `cycle_id` for recovery),\n   so overlapping windows are harmless and re-running is safe;\n4. records per-collection errors in `whoop_sync_state` and carries on with the\n   other collections rather than aborting the run.\n\n`full=true` (or `whoop-mcp sync --all`) drops the lower bound and walks the\naccount's entire history. Body measurements are a single current record and are\nrefreshed on every sync.\n\nToken refresh is proactive (five minutes before expiry) and serialized through\na Postgres advisory lock, so the MCP server and a cron-driven `whoop-mcp sync`\ncan share one token row without racing.\n\nThe full data model is documented in [docs/SCHEMA.md](docs/SCHEMA.md).\n\n## Security model\n\n* **Database access is token access.** OAuth tokens are stored in plaintext in\n  `whoop.whoop_tokens`. Anyone who can read that table can call the WHOOP API\n  as you until the refresh token is revoked. Restrict database grants\n  accordingly and treat `WHOOP_DB_URL` as a secret.\n* **Read tools never reach the network.** Only `whoop_connect` and `whoop_sync`\n  talk to WHOOP. Everything else is a SQL query against your database.\n* **Nothing is written outside Postgres.** No files, no caches, no telemetry.\n* **Scopes are read-only.** The app requests `read:*` scopes plus `offline` for\n  refresh tokens. It cannot modify anything in your WHOOP account.\n* To revoke access, delete the row from `whoop_tokens` and remove the app from\n  your WHOOP account settings.\n\n## Development\n\n```bash\ngit clone https://github.com/cunicopia-dev/whoop-mcp\ncd whoop-mcp\nuv venv && source .venv/bin/activate\nuv pip install -e \".[dev]\"\n\nruff check .\nmypy src\npytest                       # pure-logic tests\nWHOOP_TEST_DB_URL=postgresql://whoop:whoop@localhost:5432/whoop pytest   # + live DB tests\n```\n\nThe live tests apply the schema and truncate every table in the target\ndatabase before each test. Point them at a scratch database.\n\nA throwaway Postgres for local testing:\n\n```bash\ndocker run -d --rm --name whoop-pg -e POSTGRES_USER=whoop -e POSTGRES_PASSWORD=whoop \\\n  -e POSTGRES_DB=whoop -p 5432:5432 postgres:16-alpine\n```\n\n## Project layout\n\n```\nsrc/whoop_mcp/\n  config.py     environment variables, validated at startup\n  auth.py       OAuth2 flow, token persistence, locked refresh\n  client.py     httpx client: pagination, backoff, Retry-After\n  schema.sql    the Postgres DDL (applied by `whoop-mcp init-db`)\n  db.py         connection + schema helpers\n  sync.py       incremental sync with per-collection watermarks\n  queries.py    read-side SQL behind the MCP tools\n  server.py     MCP server over stdio + CLI entry point\ndocs/\n  SETUP.md      WHOOP app registration, OAuth walkthrough, DB init, first sync\n  SCHEMA.md     column-by-column data model\ntests/          config, schema, client, auth, sync, and stdio protocol tests\n```\n\n## License\n\nMIT. See [LICENSE](LICENSE).\n",
+  "status": "curated"
+}

@@ -1,0 +1,65 @@
+{
+  "id": "mcp:official/io.github.mbilalawan926-sys/best-tempmail-mcp",
+  "type": "mcp",
+  "name": "best-tempmail-mcp",
+  "description": "Disposable email inboxes for AI agents: create, wait for mail, extract verification codes",
+  "author": "io.github.mbilalawan926-sys",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/mbilalawan926-sys/best-tempmail-mcp",
+    "repo": "mbilalawan926-sys/best-tempmail-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "best-tempmail-mcp"
+    ],
+    "env": [
+      {
+        "name": "BTM_API_KEY",
+        "required": false,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-13T10:49:44.482641Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# best-tempmail-mcp\n\nMCP server for [Best Temp Mail](https://best-tempmail.com/api). Gives an AI assistant its own disposable email inboxes, so it can sign up for things, wait for the mail, and read the verification code back to you.\n\n> \"Create a temp email, sign me up for that newsletter, and tell me the confirmation code.\"\n\n## Install\n\nAdd this to your MCP host's configuration. No installation step: `npx` fetches it on first run.\n\n**Claude Desktop** (`claude\\_desktop\\_config.json`):\n\n```json\n{\n  \"mcpServers\": {\n    \"best-tempmail\": {\n      \"command\": \"npx\",\n      \"args\": \\[\"-y\", \"best-tempmail-mcp\"]\n    }\n  }\n}\n```\n\n**With an API key**, for higher limits and verification code extraction:\n\n```json\n{\n  \"mcpServers\": {\n    \"best-tempmail\": {\n      \"command\": \"npx\",\n      \"args\": \\[\"-y\", \"best-tempmail-mcp\"],\n      \"env\": { \"BTM\\_API\\_KEY\": \"btm\\_sk\\_live\\_...\" }\n    }\n  }\n}\n```\n\nThe same shape works in Cursor, VS Code, Claude Code, and other MCP hosts.\n\nRestart the host after editing the config.\n\n## Tools\n\n|Tool|What it does|\n|-|-|\n|`create\\_inbox`|Create a disposable address|\n|`wait\\_for\\_email`|Wait up to 55s for mail to arrive|\n|`get\\_verification\\_code`|Pull the OTP out of a message (paid key)|\n|`list\\_messages`|See what has already arrived|\n|`read\\_message`|Read the full body and attachment list|\n|`list\\_domains`|Available domains|\n|`delete\\_inbox`|Delete an inbox and its contents|\n\n## Without an API key\n\nEverything works except `get\\_verification\\_code`, on the free tier: 150 requests per hour and 3 inboxes per day. That is enough to try it properly.\n\nA paid key raises the limit to 2,000 requests per hour, unlocks code extraction, and allows commercial use. See [pricing](https://best-tempmail.com/api/pricing).\n\n## What it looks like in use\n\n> \\*\\*You:\\*\\* Make me a temp email and sign up for the newsletter at example.com\n>\n> The assistant calls `create\\_inbox`, gets `abc1234@dextde.site`, fills in the form, then calls `wait\\_for\\_email`.\n>\n> \\*\\*Assistant:\\*\\* Signed up with abc1234@dextde.site. The confirmation email arrived; your code is 889231.\n\n## Configuration\n\n|Variable|Purpose|\n|-|-|\n|`BTM\\_API\\_KEY`|Optional. Paid plan key.|\n|`BTM\\_BASE\\_URL`|Optional. Override the API base, for testing.|\n\n## Notes\n\nInboxes expire on their own: 2 hours on the free and Developer plans, 24 hours on Pro. They are receive-only, so nothing can be sent from them.\n\nIf a verification code cannot be identified with confidence, the tool says so rather than guessing. A wrong code is worse than none, and the assistant can fall back to `read\\_message` to look at the body itself.\n\n## Links\n\n* [API documentation](https://best-tempmail.com/api)\n* [Node SDK](https://www.npmjs.com/package/best-tempmail)\n* [Python SDK](https://pypi.org/project/best-tempmail/)\n\n## License\n\nMIT\n\n",
+  "status": "curated"
+}
