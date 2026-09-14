@@ -1,0 +1,65 @@
+{
+  "id": "mcp:official/app.hostbeam/mcp",
+  "type": "mcp",
+  "name": "Hostbeam",
+  "description": "Lets a coding agent read the screenshots you beam to its server with Hostbeam.",
+  "author": "app.hostbeam",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/PunkAbeat/hostbeam-mcp",
+    "repo": "PunkAbeat/hostbeam-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@hostbeam/mcp"
+    ],
+    "env": [
+      {
+        "name": "HOSTBEAM_DIR",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-14T14:58:37.162608Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Hostbeam MCP server\n\n[Hostbeam](https://hostbeam.app) sends a screenshot from your Mac to a server\nover SSH and puts the remote path on your clipboard, so you can paste it to a\ncoding agent running there.\n\nThis MCP server runs on that server, next to the agent. The agent can ask for\nthe screenshot you just beamed and read it, without you pasting the path.\n\n## Install\n\nOn the server your agent runs on, not on your Mac. Node 18 or later.\n\nFor Claude Code:\n\n```sh\nclaude mcp add -s user hostbeam -- npx -y @hostbeam/mcp\n```\n\n`-s user` makes it available in every project on that server.\n\nFor Codex:\n\n```sh\ncodex mcp add hostbeam -- npx -y @hostbeam/mcp\n```\n\nFor other MCP clients, in their JSON config:\n\n```json\n{\n  \"mcpServers\": {\n    \"hostbeam\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@hostbeam/mcp\"]\n    }\n  }\n}\n```\n\nIf the server can't reach npm, copy `hostbeam-mcp.mjs` to it and run that\ninstead. It has no dependencies.\n\n```sh\nclaude mcp add -s user hostbeam -- node /path/to/hostbeam-mcp.mjs\n```\n\nHostbeam beams to `/tmp/hostbeam` unless you changed the folder for that host.\nIf you did, give the server the same folder: `-e HOSTBEAM_DIR=/your/folder` for\nClaude Code, `--env HOSTBEAM_DIR=/your/folder` for Codex, or\n`\"env\": { \"HOSTBEAM_DIR\": \"/your/folder\" }` in JSON.\n\n## Tools\n\n- **`latest_screenshot`** returns the most recent beam as images, with how long\n  ago it arrived. If you beamed several files at once, it returns all of them,\n  up to six, and names the rest.\n- **`list_screenshots`** lists recent beams with file names, sizes and times. No\n  image data.\n- **`read_screenshot`** returns one file by name.\n\n## What it reads\n\nOnly files Hostbeam delivered: names starting with `hostbeam-` with an image\nextension, in that one folder. It doesn't look in subfolders, and it refuses a\nname with a path in it. It never writes, moves or deletes anything.\n\nIt skips symlinks, and it won't read a folder that belongs to another user or\nthat any user can write to, because a file there may not be one you beamed.\n\nJPEG, PNG, GIF and WebP come back as images, up to 3.75 MB each. Other formats\nand larger files come back as a path instead: models only accept those four\nformats, and model APIs refuse bigger images. When a beam holds several files,\n`latest_screenshot` includes images up to 7.5 MB in total and names the rest.\n\n## Check it by hand\n\nIt speaks newline-delimited JSON-RPC on stdin and stdout:\n\n```sh\nprintf '%s\\n' \\\n  '{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"initialize\",\"params\":{}}' \\\n  '{\"jsonrpc\":\"2.0\",\"id\":2,\"method\":\"tools/call\",\"params\":{\"name\":\"list_screenshots\"}}' \\\n  | npx -y @hostbeam/mcp\n```\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

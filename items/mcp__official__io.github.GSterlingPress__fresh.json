@@ -17,7 +17,7 @@
   "quality": {
     "stars": null,
     "pushed_at": "2026-09-13T15:04:54.707918Z",
-    "score": 52
+    "score": 42
   },
   "security": {
     "score": 100,
@@ -49,6 +49,6 @@
     "category": null,
     "featured": false
   },
-  "readme": "# FRESH\n\n**Know whether to fetch again.**\n\nFRESH is shared URL freshness intelligence for AI agents. Before re-fetching, re-scraping, re-rendering, or re-embedding a URL, ask whether the previously seen version is probably still fresh enough to reuse.\n\nProduction base URL: `https://fresh-api-production-c783.up.railway.app`\n\nMCP endpoint: `https://fresh-api-production-c783.up.railway.app/mcp`\n\nFRESH returns one of three decisions:\n\n- `REUSE` — cached knowledge is probably still fresh enough\n- `REFETCH` — the URL is likely stale enough to justify another retrieval\n- `UNKNOWN` — evidence is insufficient; FRESH prefers uncertainty over false confidence\n\n## Why FRESH exists\n\nA local cache knows when *you* last fetched something. It does not know whether the outside resource changed since then, nor what other callers recently observed. FRESH builds shared, privacy-safe URL change history from timestamps, ETags, Last-Modified values, and content hashes.\n\n## REST\n\n### `POST /v1/check`\n\n```json\n{\"url\":\"https://example.com/docs/api\",\"lastSeenAt\":\"2026-08-13T12:00:00Z\",\"toleranceSeconds\":3600}\n```\n\n### `POST /v1/observe`\n\n```json\n{\"url\":\"https://example.com/docs/api\",\"observedAt\":\"2026-08-13T13:00:00Z\",\"etag\":\"abc123\",\"lastModified\":\"Wed, 13 Aug 2026 12:45:00 GMT\",\"contentHash\":\"sha256:...\"}\n```\n\nRaw page content is not required.\n\n## MCP\n\n- `fresh_check` — decide whether to retrieve a URL again\n- `fresh_observe` — report privacy-safe freshness evidence after retrieval\n\n## Privacy\n\nFRESH does not need raw page contents, cookies, target-site credentials, or customer payloads. URL keys are stored as one-way hashes with aggregate observation metadata.\n\n## Stranger verification\n\nA core-tool invocation is evidence of use, not automatically proof of a genuine stranger. FRESH classifies candidate activity as `KNOWN_VALIDATOR`, `LIKELY_VALIDATOR`, `CONTROLLED_TEST`, `UNKNOWN_MACHINE`, or `CREDIBLE_REAL_USE`. Only `CREDIBLE_REAL_USE` advances stranger milestones.\n\nOur acceptance/smoke traffic uses `X-Tollbooth-Internal: 1` or `X-Fresh-Internal: 1` so it cannot earn stranger credit.\n\n## Production acceptance gate\n\nEvery Railway deployment now performs live internal checks against the running service before `/health` can return 200. The gate exercises REST, `UNKNOWN`, `REUSE`, `REFETCH`, persistent observation reload, MCP initialize, MCP tool discovery, MCP `fresh_check`, and verifies that the controlled self-test does not increase the verified-stranger count.\n\n## Status\n\nv0.1.2 experimental production infrastructure. Priorities: conservative decisions, low latency, sub-penny economics, privacy-safe shared learning, REST + MCP, durable observations, and auditable real-use analytics.\n",
+  "readme": null,
   "status": "curated"
 }

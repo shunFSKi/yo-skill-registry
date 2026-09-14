@@ -1,0 +1,64 @@
+{
+  "id": "mcp:official/com.rationalbloks/mcp",
+  "type": "mcp",
+  "name": "RationalBloks",
+  "description": "Deploy production REST and Neo4j Graph APIs from JSON schemas in seconds. 48 tools.",
+  "author": "com.rationalbloks",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/rationalbloks/rationalbloks-mcp",
+    "repo": "rationalbloks/rationalbloks-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "rationalbloks-mcp"
+    ],
+    "env": [
+      {
+        "name": "RATIONALBLOKS_API_KEY",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-14T12:55:23.213144Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# RationalBloks MCP Server\r\n\r\n**Deploy production APIs in minutes.** 48 tools for projects, schemas, deployments, object storage, and graph data — delivered on infrastructure you own (self-host or your own BYOC cluster).\r\n\r\n[![License](https://img.shields.io/badge/license-Proprietary-blue.svg)](LICENSE)\r\n[![Python](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)\r\n[![PyPI](https://img.shields.io/pypi/v/rationalbloks-mcp.svg)](https://pypi.org/project/rationalbloks-mcp/)\r\n\r\n## What Is This?\r\n\r\nRationalBloks MCP lets AI agents (Claude, Cursor, etc.) deploy production APIs from a JSON schema. No backend code to write. No infrastructure to manage.\r\n\r\n```\r\n\"Create a task management API with tasks, projects, and users\"\r\n→ 2 minutes later: Production API running on Kubernetes\r\n```\r\n\r\n## Installation\r\n\r\n```bash\r\n# recommended — no install step, always the latest release\r\nuvx rationalbloks-mcp@latest\r\n\r\n# or install into an environment\r\npip install rationalbloks-mcp\r\n```\r\n\r\n## Quick Start\r\n\r\n### 1. Get Your API Key\r\n\r\nVisit [rationalbloks.com/settings](https://rationalbloks.com/settings) and create an API key.\r\n\r\n### 2. Configure Your AI Agent\r\n\r\n**VS Code** - Add to `.vscode/mcp.json` (Cursor: `.cursor/mcp.json` with a `mcpServers` key):\r\n\r\n```json\r\n{\r\n  \"servers\": {\r\n    \"rationalbloks\": {\r\n      \"command\": \"uvx\",\r\n      \"args\": [\"rationalbloks-mcp@latest\"],\r\n      \"env\": {\r\n        \"RATIONALBLOKS_API_KEY\": \"rb_sk_your_key_here\"\r\n      }\r\n    }\r\n  }\r\n}\r\n```\r\n\r\n**Claude Desktop** - Add to `claude_desktop_config.json`:\r\n\r\n```json\r\n{\r\n  \"mcpServers\": {\r\n    \"rationalbloks\": {\r\n      \"command\": \"uvx\",\r\n      \"args\": [\"rationalbloks-mcp@latest\"],\r\n      \"env\": {\r\n        \"RATIONALBLOKS_API_KEY\": \"rb_sk_your_key_here\"\r\n      }\r\n    }\r\n  }\r\n}\r\n```\r\n\r\n---\r\n\r\n**Remote (no install):** point any MCP client at `https://mcp.rationalbloks.com/mcp` (Streamable HTTP) with `Authorization: Bearer rb_sk_...`.\r\n\r\n---\r\n\r\n## 48 Tools\r\n\r\n### Relational Read Operations (15 tools)\r\n\r\n| Tool | Description |\r\n|------|-------------|\r\n| `list_projects` | List all your projects |\r\n| `get_project` | Get project details |\r\n| `get_schema` | Get current JSON schema |\r\n| `get_user_info` | Get authenticated user info |\r\n| `get_job_status` | Check deployment job status |\r\n| `get_project_info` | Detailed project info with K8s status |\r\n| `get_version_history` | Git commit history |\r\n| `get_template_schemas` | Pre-built schema templates |\r\n| `get_schema_reference` | Advanced schema features reference (`__policy__`, `computed`, `__constraints__`, `__audit__`) |\r\n| `get_subscription_status` | Plan and usage limits |\r\n| `get_project_usage` | CPU/memory metrics |\r\n| `get_project_storage_usage` | Object-storage file count and bytes used vs limits |\r\n| `list_project_files` | List uploaded files (metadata + public URLs) |\r\n| `get_schema_at_version` | Schema at specific commit |\r\n| `list_clusters` | List your BYOC resource pools (client-owned clusters) |\r\n\r\n### Relational Write Operations (7 tools)\r\n\r\n| Tool | Description |\r\n|------|-------------|\r\n| `create_project` | Create new project from schema (`cluster_id` of one of your BYOC pools is required; `backend_type` python or rust) |\r\n| `update_schema` | Update project schema (`dry_run: true` previews the migration plan without saving) |\r\n| `deploy_staging` | Deploy to staging environment |\r\n| `deploy_production` | Deploy to production |\r\n| `delete_project` | Delete project permanently |\r\n| `rollback_project` | Rollback to previous version |\r\n| `rename_project` | Rename project |\r\n\r\n### Graph Schema Operations (11 tools)\r\n\r\n| Tool | Description |\r\n|------|-------------|\r\n| `get_graph_schema` | Get graph project schema |\r\n| `get_graph_template_schemas` | Pre-built graph schema templates |\r\n| `get_graph_version_history` | Graph schema version history |\r\n| `get_graph_schema_at_version` | Schema at specific version |\r\n| `get_graph_project_info` | Graph project info with K8s/Neo4j status |\r\n| `create_graph_project` | Create Neo4j graph project |\r\n| `update_graph_schema` | Update graph schema |\r\n| `deploy_graph_staging` | Deploy graph to staging |\r\n| `deploy_graph_production` | Deploy graph to production |\r\n| `delete_graph_project` | Delete graph project |\r\n| `rollback_graph_project` | Rollback graph to previous version |\r\n\r\n### Graph Data Operations (15 tools)\r\n\r\n| Tool | Description |\r\n|------|-------------|\r\n| `create_graph_node` | Create a single node |\r\n| `get_graph_node` | Get node by ID |\r\n| `list_graph_nodes` | List nodes by entity type |\r\n| `update_graph_node` | Update node properties |\r\n| `delete_graph_node` | Delete a node |\r\n| `create_graph_relationship` | Create a relationship |\r\n| `get_node_relationships` | Get node's relationships |\r\n| `delete_graph_relationship` | Delete a relationship |\r\n| `bulk_create_graph_nodes` | Bulk create nodes |\r\n| `bulk_create_graph_relationships` | Bulk create relationships |\r\n| `search_graph_nodes` | Search nodes by property filters |\r\n| `fulltext_search_graph` | Full-text search across all fields |\r\n| `traverse_graph` | Traverse graph from a node |\r\n| `get_graph_statistics` | Get graph statistics (counts) |\r\n| `get_graph_data_schema` | Get deployed data schema |\r\n\r\n---\r\n\r\n## Schema Format\r\n\r\nSchemas must be in **FLAT format**:\r\n\r\n```json\r\n{\r\n  \"tasks\": {\r\n    \"title\": {\"type\": \"string\", \"max_length\": 200, \"required\": true},\r\n    \"status\": {\"type\": \"string\", \"max_length\": 50, \"enum\": [\"pending\", \"done\"]},\r\n    \"due_date\": {\"type\": \"date\", \"required\": false}\r\n  },\r\n  \"projects\": {\r\n    \"name\": {\"type\": \"string\", \"max_length\": 100, \"required\": true}\r\n  }\r\n}\r\n```\r\n\r\n### Field Types\r\n\r\n| Type | Required Properties |\r\n|------|---------------------|\r\n| `string` | `max_length` |\r\n| `text` | None |\r\n| `integer` | None |\r\n| `decimal` | `precision`, `scale` |\r\n| `boolean` | None |\r\n| `uuid` | None |\r\n| `date` | None |\r\n| `datetime` | None |\r\n| `json` | None |\r\n\r\n### Auto-Generated Fields\r\n\r\nThese are automatic - don't define them:\r\n- `id` (UUID primary key)\r\n- `created_at` (datetime)\r\n- `updated_at` (datetime)\r\n\r\n### User Authentication\r\n\r\nUse the built-in `app_users` table:\r\n\r\n```json\r\n{\r\n  \"employee_profiles\": {\r\n    \"user_id\": {\"type\": \"uuid\", \"foreign_key\": \"app_users.id\", \"required\": true},\r\n    \"department\": {\"type\": \"string\", \"max_length\": 100}\r\n  }\r\n}\r\n```\r\n\r\n---\r\n\r\n## Frontend\r\n\r\nFor frontend development, use our NPM packages:\r\n\r\n```bash\r\nnpm install @rationalbloks/frontblok-auth @rationalbloks/frontblok-crud\r\n```\r\n\r\nThese provide:\r\n- **frontblok-auth**: Authentication, login, tokens, user context\r\n- **frontblok-crud**: Generic CRUD via `getApi().getAll()`, `getApi().create()`, etc.\r\n\r\n---\r\n\r\n## Environment Variables\r\n\r\n| Variable | Description | Default |\r\n|----------|-------------|---------|\r\n| `RATIONALBLOKS_API_KEY` | Your API key (required for stdio; HTTP clients send it as a Bearer token per request) | - |\r\n| `TRANSPORT` | `stdio` or `http` | `stdio` |\r\n| `HOST` / `PORT` | Bind address for `TRANSPORT=http` | `0.0.0.0` / `8000` |\r\n| `LOGICBLOK_URL` | LogicBlok gateway base URL | `https://logicblok.rationalbloks.com` |\r\n| `RATIONALBLOKS_DEBUG` | Print full tracebacks on startup errors | unset |\r\n\r\n---\r\n\r\n## Support\r\n\r\n- **Documentation:** [rationalbloks.com/documentation](https://rationalbloks.com/documentation)\r\n- **Email:** support@rationalbloks.com\r\n\r\n## License\r\n\r\nProprietary - Copyright 2026 RationalBloks. All Rights Reserved.\r\n\r\n<!-- mcp-name: com.rationalbloks/mcp -->\r\n",
+  "status": "curated"
+}

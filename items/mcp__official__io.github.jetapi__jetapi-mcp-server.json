@@ -1,0 +1,70 @@
+{
+  "id": "mcp:official/io.github.jetapi/jetapi-mcp-server",
+  "type": "mcp",
+  "name": "JetAPI",
+  "description": "Send WhatsApp, Telegram, SMS and MAX messages, files and bulk mailings via JetAPI",
+  "author": "io.github.jetapi",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/jetapi/jetapi-mcp-server",
+    "repo": "jetapi/jetapi-mcp-server"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "jetapi-mcp-server"
+    ],
+    "env": [
+      {
+        "name": "JETAPI_TOKEN",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "JETAPI_BASE_URL",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-14T14:51:00.70713Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# JetAPI MCP Server\n\n[![npm](https://img.shields.io/npm/v/jetapi-mcp-server)](https://www.npmjs.com/package/jetapi-mcp-server)\n[![CI](https://github.com/jetapi/jetapi-mcp-server/actions/workflows/ci.yml/badge.svg)](https://github.com/jetapi/jetapi-mcp-server/actions/workflows/ci.yml)\n[![MCP Registry](https://img.shields.io/badge/MCP_Registry-io.github.jetapi%2Fjetapi--mcp--server-0568FD)](https://registry.modelcontextprotocol.io)\n[![License: ISC](https://img.shields.io/badge/license-ISC-blue)](LICENSE)\n\nOfficial MCP server for [JetAPI](https://jetapi.io) — send WhatsApp, Telegram, SMS and MAX messages, files and bulk mailings from AI agents like Claude, Cursor and VS Code.\n\n## Tools\n\n| Tool | Description |\n| --- | --- |\n| `get_account` | Full account info: balance, dispatch routing, sender names, subscription, WhatsApp/Telegram session status (token is masked) |\n| `get_balance` | Balance, customer ID, dispatch routing channels and registered sender names |\n| `get_utm_tags` | List UTM tags used to track dispatches |\n| `send_message` | Send a text via WhatsApp, Telegram (tdlib), Telegram Bot, SMS, VK/OK or MAX — with cascade, scheduling, priority, reply-to and callbacks |\n| `send_bulk` | Send the same message to many phone numbers at once |\n| `get_delivery_status` | Status and details of a delivery, with the status explained in plain words |\n| `delete_delivery` | Delete a delivered WhatsApp/Telegram message on all recipient devices |\n| `get_phone_info` | Country, operator and normalized format of a phone number |\n| `send_file` | Send a document, image, audio or video from a local path, URL or base64 (up to 100 MB) |\n| `create_webhook` | Subscribe a URL to events: incoming messages, WhatsApp statuses, login/logout |\n| `get_webhook` | Details of one webhook |\n| `list_webhooks` | All registered webhooks |\n| `delete_webhook` | Delete a webhook |\n| `update_webhook` | Change a webhook's URL and/or event types |\n\n## Get a token\n\nSign up at **[jetapi.io](https://jetapi.io)** and copy the API token from the dashboard. To send through WhatsApp or Telegram, connect the messenger in the dashboard first.\n\n## Installation\n\n### Claude Desktop — one click\n\n1. Download `jetapi-mcp-server.mcpb` from the [latest release](https://github.com/jetapi/jetapi-mcp-server/releases/latest).\n2. Double-click it (or drag it into *Claude Desktop → Settings → Extensions*).\n3. Paste your JetAPI token when asked. It is stored securely by Claude Desktop.\n\n### Claude Desktop — config file\n\nRequires Node.js 18.17 or newer. Open *Settings → Developer → Edit Config* (`claude_desktop_config.json`) and add:\n\n```json\n{\n  \"mcpServers\": {\n    \"jetapi\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"jetapi-mcp-server\"],\n      \"env\": { \"JETAPI_TOKEN\": \"your_token_here\" }\n    }\n  }\n}\n```\n\nRestart Claude Desktop.\n\n### Claude Code\n\n```bash\nclaude mcp add jetapi -- npx -y jetapi-mcp-server\n```\n\nThe server needs `JETAPI_TOKEN`, so pass it when adding:\n\n```bash\nclaude mcp add jetapi --env JETAPI_TOKEN=your_token_here -- npx -y jetapi-mcp-server\n```\n\n### Cursor\n\nAdd to `~/.cursor/mcp.json` (or `.cursor/mcp.json` in a project):\n\n```json\n{\n  \"mcpServers\": {\n    \"jetapi\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"jetapi-mcp-server\"],\n      \"env\": { \"JETAPI_TOKEN\": \"your_token_here\" }\n    }\n  }\n}\n```\n\n### VS Code\n\nAdd to `.vscode/mcp.json` — VS Code will prompt for the token and keep it out of the file:\n\n```json\n{\n  \"inputs\": [\n    { \"type\": \"promptString\", \"id\": \"jetapi_token\", \"description\": \"JetAPI token\", \"password\": true }\n  ],\n  \"servers\": {\n    \"jetapi\": {\n      \"type\": \"stdio\",\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"jetapi-mcp-server\"],\n      \"env\": { \"JETAPI_TOKEN\": \"${input:jetapi_token}\" }\n    }\n  }\n}\n```\n\n### MCP Registry\n\nThe server is listed in the [official MCP Registry](https://registry.modelcontextprotocol.io) as `io.github.jetapi/jetapi-mcp-server`, so clients and catalogs that read the registry can install it directly.\n\n### Other MCP clients\n\nAny client that supports stdio servers:\n\n```json\n{\n  \"command\": \"npx\",\n  \"args\": [\"-y\", \"jetapi-mcp-server\"],\n  \"env\": { \"JETAPI_TOKEN\": \"your_token_here\" }\n}\n```\n\n## Configuration\n\n| Variable | Required | Default | Description |\n| --- | --- | --- | --- |\n| `JETAPI_TOKEN` | yes | — | Bearer token from the JetAPI dashboard |\n| `JETAPI_BASE_URL` | no | `https://api.jetapi.io` | API host |\n| `JETAPI_DEBUG` | no | `0` | `1` logs every request to stderr |\n\n## Channels\n\n`dispatch_routing` is an ordered list of channels. JetAPI tries them one by one and moves to the next channel only if delivery through the previous one fails. Without it, the default routing from your JetAPI dashboard is used.\n\n| Value | Channel | Recipient |\n| --- | --- | --- |\n| `whatsapp` | WhatsApp | `phone` or `whatsapp_lid` |\n| `tdlib` | Personal Telegram account | `phone`, `username` or `tdlib_user_id` (negative ID = group chat) |\n| `telegram` | Telegram Bot | `phone` |\n| `sms` | SMS | `phone` |\n| `notify` | VK / OK notifications | `phone` |\n| `max` | MAX messenger | `phone` |\n\n## Usage examples\n\nAsk Claude in plain language:\n\n| Say | Tool |\n| --- | --- |\n| \"Show my JetAPI account — is WhatsApp connected?\" | `get_account` |\n| \"How much money is left on JetAPI?\" | `get_balance` |\n| \"Which UTM tags do I have?\" | `get_utm_tags` |\n| \"Send a WhatsApp message to +7 999 123-45-67: Your order has shipped.\" | `send_message` |\n| \"Message @john_doe on Telegram that the meeting moved to 3 pm.\" | `send_message` (tdlib) |\n| \"Try WhatsApp first, then SMS: Your code is 4821.\" | `send_message` (cascade) |\n| \"Remind 79991234567 tomorrow at 09:00 UTC about the appointment.\" | `send_message` (scheduled) |\n| \"Send 'Sale starts today!' to 79991234567, 79997654321 and 995598464533.\" | `send_bulk` |\n| \"Was message 94396942 delivered?\" | `get_delivery_status` |\n| \"Delete message 94396942.\" | `delete_delivery` |\n| \"Which operator is +995 598 464 533?\" | `get_phone_info` |\n| \"Send ~/Documents/invoice.pdf to 79991234567 on WhatsApp.\" | `send_file` |\n| \"Send incoming WhatsApp messages to https://example.com/hook.\" | `create_webhook` |\n| \"Show webhook 57.\" | `get_webhook` |\n| \"List my webhooks.\" | `list_webhooks` |\n| \"Delete webhook 57.\" | `delete_webhook` |\n| \"Point webhook 57 to https://example.com/new-hook.\" | `update_webhook` |\n\n## Behaviour\n\n- Parameters are sent as URL query parameters, as the JetAPI API expects; `send_file` uploads the file as `multipart/form-data`.\n- Incompatible parameters (e.g. a Telegram `username` without the `tdlib` channel, or `scheduled_at` in the past) are rejected before any request is sent.\n- HTTP 429 is retried up to 3 times with exponential backoff, honouring `Retry-After`.\n- 5xx responses are retried twice after 1 s — except for requests that send messages or create webhooks (`send_message`, `send_bulk`, `send_file`, `create_webhook`), so nothing is sent twice.\n- Requests time out after 30 seconds.\n- Errors are returned as readable tool errors, e.g. `Invalid JetAPI token. Check your JETAPI_TOKEN.` or `Validation error: text: the text cannot be empty`.\n- All logs go to stderr; stdout is reserved for the MCP protocol.\n\n## Development\n\n```bash\ngit clone https://github.com/jetapi/jetapi-mcp-server.git\ncd jetapi-mcp-server\nnpm install\ncp .env.example .env   # put your token in .env\nnpm run build\nnpm start\n```\n\n| Script | What it does |\n| --- | --- |\n| `npm run dev` | Run the TypeScript source directly |\n| `npm run inspector` | Open the MCP Inspector with all tools |\n| `npm run check` | Verify versions in `package.json` / `server.json` / `manifest.json` and that the server exposes all 14 tools |\n| `npm run build:mcpb` | Build the Claude Desktop extension into `build/jetapi-mcp-server.mcpb` |\n\n### Releasing\n\n1. Bump the version in `package.json`, `server.json` (both `version` fields) and `manifest.json`, and add a `CHANGELOG.md` entry.\n2. Merge to `main`, then push a tag: `git tag v1.2.3 && git push origin v1.2.3`.\n3. The [Release workflow](.github/workflows/release.yml) publishes to npm (trusted publishing with provenance), creates a GitHub release with the `.mcpb` bundle and updates the MCP Registry.\n\n## Privacy Policy\n\nThe extension runs locally, collects no analytics or telemetry, and sends data only to the JetAPI API to perform the actions you request. Your API token is stored by your MCP client (Claude Desktop keeps it in secure storage).\n\n- [JetAPI MCP Server privacy policy](PRIVACY.md) — what the extension handles, stores and shares\n- [JETAPI LLC Privacy Policy](https://jetapi.io/jp/privacypolicy) — how the JetAPI service processes personal data\n\nQuestions: [support@jetapi.io](mailto:support@jetapi.io)\n\n## License\n\n[ISC](LICENSE)\n",
+  "status": "curated"
+}

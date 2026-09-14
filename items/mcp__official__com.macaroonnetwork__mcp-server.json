@@ -2,12 +2,12 @@
   "id": "mcp:official/com.macaroonnetwork/mcp-server",
   "type": "mcp",
   "name": "Macaroon Network",
-  "description": "Discover x402 and L402 APIs on Macaroon Network, including source-labelled Christian evidence.",
+  "description": "Discover categories, governed sources, vertical MCPs, and x402 USDC products on Macaroon Network.",
   "author": "com.macaroonnetwork",
   "source": {
     "registry": "mcp-official",
-    "url": "https://github.com/kevmoz/macaroonnetwork",
-    "repo": "kevmoz/macaroonnetwork"
+    "url": "https://github.com/kevmoz/macaroonnetwork-mcp",
+    "repo": "kevmoz/macaroonnetwork-mcp"
   },
   "license": null,
   "install": {
@@ -19,8 +19,8 @@
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-09-10T09:11:24.455251Z",
-    "score": 42
+    "pushed_at": "2026-09-14T16:08:22.608551Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -49,9 +49,9 @@
     ]
   },
   "tags": {
-    "category": "编程",
+    "category": "金融",
     "featured": false
   },
-  "readme": null,
+  "readme": "# macaroonnetwork-mcp\n\n<!-- mcp-name: com.macaroonnetwork/mcp-server -->\n\nMCP client for [Macaroon Network](https://macaroonnetwork.com) — a\nmarketplace where AI agents discover, pay for (Bitcoin/Lightning via L402),\nand buy live data.\n\n## What this does\n\nFour tools:\n\n- **`macaroons_search`** — semantic search over the live marketplace registry\n  by natural-language intent. Free.\n- **`macaroons_metadata`** — free freshness/content-hash metadata for a feed\n  target, before deciding whether to buy. Free.\n- **`macaroons_purchase`** / **`macaroons_execute`** — pay via Lightning L402\n  and receive the real, predicate-verified result. See \"Paying\" below —\n  by default this package holds no wallet and doesn't attempt payment for you.\n\n## Paying\n\nThis package never holds a private key or wallet credential by default.\nWhen a purchase/execute call needs payment, it returns a `payment_required`\nresult instead of failing:\n\n```json\n{\n  \"payment_required\": true,\n  \"invoice\": \"lnbc...\",\n  \"macaroon\": \"eyJ...\",\n  \"amount_msat\": 250000,\n  \"instructions\": \"Pay this BOLT11 invoice with your own Lightning wallet, then call this same tool again with identical arguments PLUS resume_macaroon set to the macaroon above.\"\n}\n```\n\nPay the invoice with whatever Lightning wallet you actually have, then call\nthe same tool again with `resume_macaroon` set to the macaroon above. A\nplain retry *without* `resume_macaroon` mints a brand-new invoice instead of\nresuming the one you just paid — always pass it back.\n\nIf you run your own real LND node and want this package to auto-pay from\nit instead of returning `payment_required`, set:\n\n```bash\nMACAROONS_BUYER_LND_MODE=external\nLND_BUYER_HOST=your-node:10009\nLND_BUYER_TLS=/path/to/tls.cert\nLND_BUYER_MACAROON=/path/to/admin.macaroon\n```\n\nThis shells out to a real `lncli` binary on your machine — install LND's\n`lncli` separately, it isn't bundled here.\n\n## Install\n\n```bash\npip install macaroonnetwork-mcp\n```\n\n## Use with an MCP client\n\n```json\n{\n  \"mcpServers\": {\n    \"macaroonnetwork\": {\n      \"command\": \"macaroonnetwork-mcp\"\n    }\n  }\n}\n```\n\nTalks to `https://api.macaroonnetwork.com` by default. Override with\n`MACAROONS_REGISTRY_URL` / `MACAROONS_FEED_URL` env vars to point at a local\ndev stack instead. `MACAROONS_SESSION_BUDGET_SATS` (default 1000) caps total\nspend per server process; each tool call also takes a `max_spend_sats`\nper-call cap (default 100).\n\n## License\n\nMIT\n",
   "status": "curated"
 }
