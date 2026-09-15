@@ -1,0 +1,65 @@
+{
+  "id": "mcp:official/io.github.industriesfatty-spec/fattly",
+  "type": "mcp",
+  "name": "fattly",
+  "description": "AI images, video, voiceovers and UGC ads from 50+ models. Official MCP server for fattly.app.",
+  "author": "io.github.industriesfatty-spec",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/industriesfatty-spec/fattly-mcp",
+    "repo": "industriesfatty-spec/fattly-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "fattly"
+    ],
+    "env": [
+      {
+        "name": "FATTLY_API_KEY",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-15T18:39:12.642498Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "设计",
+    "featured": false
+  },
+  "readme": "<div align=\"center\">\n\n# fattly — FATTLY CLI + MCP server\n\n**Generate AI images, video, voiceovers, music and UGC-style ads from your terminal — or straight from AI assistants like Claude, Cursor and VS Code via MCP.**\n\n50+ AI models in one account (Veo 3.1, Kling 3, Seedance, Nano Banana, GPT Image, ElevenLabs…) · pay with [fattly.app](https://fattly.app) credits that never expire.\n\n[![npm](https://img.shields.io/npm/v/fattly?color=FF6A4A)](https://www.npmjs.com/package/fattly)\n[![CI](https://github.com/industriesfatty-spec/fattly-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/industriesfatty-spec/fattly-mcp/actions/workflows/ci.yml)\n[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)\n[![fattly MCP server](https://glama.ai/mcp/servers/industriesfatty-spec/fattly-mcp/badges/score.svg)](https://glama.ai/mcp/servers/industriesfatty-spec/fattly-mcp)\n\n</div>\n\n---\n\n## MCP (Claude, Cursor, VS Code)\n\nThe package is an MCP server — it lets AI assistants generate media through your FATTLY account.\n\n### Option A — Hosted (no install, sign in with OAuth)\n\nConnect your client to the hosted server. No npm, no key to paste — you approve access in the browser.\n\n```\nhttps://fattly.app/api/mcp\n```\n\nIn Claude: **Settings → Connectors → Add custom connector** → paste the URL. Full setup guide: https://fattly.app/claude-mcp\n\n### Option B — Local (npx, with an API key)\n\n1. On [fattly.app](https://fattly.app) open **Dashboard → API keys** and create a key.\n2. Add this to your client's MCP config:\n\n```json\n{\n  \"mcpServers\": {\n    \"fattly\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"fattly\", \"mcp\"],\n      \"env\": {\n        \"FATTLY_API_KEY\": \"gpx_live_YOUR_KEY\"\n      }\n    }\n  }\n}\n```\n\nInstalling with an AI agent (Cline, Claude Code, Cursor)? Point it at [llms-install.md](llms-install.md).\n\n### Tools\n\n| Tool | What it does | Spends credits |\n|---|---|---|\n| `fattly_credits` | Current credit balance | no (read-only) |\n| `fattly_list_models` | Models and their price in credits | no (read-only) |\n| `fattly_upload_image` | Upload a local photo → URL for edit / image-to-video models | no |\n| `fattly_generate_image` | Text-to-image and image editing (multi-image edits, face swap) | yes |\n| `fattly_generate_video` | Text-to-video and image-to-video; waits for the mp4 | yes |\n| `fattly_generate_audio` | Voiceover (text-to-speech) or music | yes |\n\nEvery tool carries MCP annotations (`readOnlyHint`, `destructiveHint`, `idempotentHint`), so clients can ask before paid calls. Failed generations are refunded automatically. Content must be safe-for-work.\n\n## CLI\n\n```bash\nnpm install -g fattly   # Node.js 18+\nfattly login            # paste your gpx_live_… key\n```\n\n```bash\nfattly credits\nfattly models video\n\nfattly generate \"astronaut cat on Mars\" --model nano-banana-2 --out cat.png\nfattly video \"ocean waves at sunset\" --model kling-3-standard --out waves.mp4\nfattly audio \"Welcome to FATTLY\" --voice Rachel --out voice.mp3\nfattly audio \"calm ambient\" --music --seconds 30 --out music.mp3\n```\n\n## Configuration\n\n| Variable | Purpose |\n|---|---|\n| `FATTLY_API_KEY` | API key (alternative to `fattly login`) |\n| `FATTLY_API_URL` | API address override (default `https://fattly.app`) |\n\nThe key saved by `fattly login` lives in `~/.fattly/config.json` with owner-only permissions.\n\n## More\n\n- Website: https://fattly.app\n- More than the MCP tools (AI dubbing with lip-sync, virtual try-on, UGC ad studio) is available in the web app.\n- Issues: https://github.com/industriesfatty-spec/fattly-mcp/issues\n\nMIT © Fattly\n",
+  "status": "curated"
+}

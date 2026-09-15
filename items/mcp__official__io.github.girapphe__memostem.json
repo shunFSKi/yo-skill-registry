@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.girapphe/memostem",
+  "type": "mcp",
+  "name": "MemoStem",
+  "description": "Suggest reusable AI knowledge, draft it after consent, and reuse reviewed context.",
+  "author": "io.github.girapphe",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/girapphe/memostem-plugins",
+    "repo": "girapphe/memostem-plugins"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://www.memostem.com/api/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-15T13:31:56.165789Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "<p align=\"center\">\n  <img src=\"assets/logo-mark.svg\" alt=\"MemoStem logo\" width=\"88\" height=\"88\">\n</p>\n\n# MemoStem for ChatGPT, Claude, and Codex\n\nLet a connected AI client suggest one reusable idea at the right moment, then\nturn only what you clearly accept into private, reviewable knowledge—without\nuploading the whole conversation or auto-publishing anything.\n\n[Use MemoStem](https://www.memostem.com/plugins) ·\n[Connection guide](docs/mcp.md) ·\n[Privacy](https://www.memostem.com/privacy) ·\n[Terms](https://www.memostem.com/terms) ·\n[Support](https://www.memostem.com/support) ·\n[Security](SECURITY.md)\n\nThis public repository is the official distribution source for MemoStem's\nCodex and Claude Code plugins and its hosted remote MCP connection metadata.\nThe MemoStem application and server implementation remain private.\n\n## Why MemoStem\n\n- **Get a timely suggestion.** In supported plugin clients, the assistant can\n  name a reusable result and ask whether to keep it, so you do not need to\n  remember a MemoStem or card command.\n- **Select, don't scrape.** Send only the concise ideas you deliberately choose\n  from the current conversation, never a transcript or hidden history.\n- **Review before saving.** New material stays in a private pending inbox until\n  you edit, merge, save, or ignore it.\n- **Reuse confirmed knowledge.** Bring a bounded set of your approved knowledge\n  back into a future AI task with provenance, not raw conversation history.\n\n## Connect from an AI app\n\nThe production Streamable HTTP MCP endpoint is:\n\n```text\nhttps://www.memostem.com/api/mcp\n```\n\n### ChatGPT\n\nAdd MemoStem as an OAuth remote MCP app in a supported ChatGPT workspace. The\npublic [MemoStem connection page](https://www.memostem.com/plugins) explains the\nprivacy boundary and points signed-in users to the in-product setup guide.\nGitHub publication alone does not list or activate a ChatGPT plugin.\n\n### Claude\n\nAdd the same endpoint as a custom connector in Claude and complete MemoStem\nOAuth. Claude can also load the Git marketplace below for Claude Code and\ncompatible plugin surfaces.\n\nSee [the MCP connection guide](docs/mcp.md) for provider-specific setup and\nserver-side OpenAI API usage.\n\n## Consent-first proactive capture\n\nDraft-authorized MCP clients receive guidance to make one brief save offer at a\nnatural stopping point when the current conversation produces a reusable\ndecision, explanation, procedure, correction, open question, or durable\npreference. The installable plugin also includes an implicitly discoverable\n`memostem-proactive-capture` skill with the same behavior.\n\nThe offer sends nothing and is not consent. The client may call a creation tool\nonly after a clear affirmative reply to that specific proposal or a direct\nrequest identifying the current-conversation material. It must not repeat a\ndeclined topic or propose sensitive, secret, credential, or do-not-retain\nmaterial. AI hosts decide whether and when to surface MCP instructions, so a\nconnection cannot guarantee an offer in every client.\n\n## Install the Git plugin\n\n### Codex\n\n```bash\ncodex plugin marketplace add girapphe/memostem-plugins --ref main\ncodex plugin add memostem@memostem\ncodex plugin list\n```\n\nStart a new Codex task after installation so the installed snapshot loads.\n\n### Claude Code\n\n```bash\nclaude plugin marketplace add girapphe/memostem-plugins\nclaude plugin install memostem@memostem\nclaude plugin list\n```\n\nRun `/reload-plugins`, then `/mcp` to inspect the connection and complete OAuth\nwhen prompted.\n\n### Update or remove\n\n```bash\n# Codex\ncodex plugin marketplace upgrade memostem\ncodex plugin add memostem@memostem\ncodex plugin remove memostem@memostem\n\n# Claude Code\nclaude plugin marketplace update memostem\nclaude plugin update memostem@memostem\nclaude plugin uninstall memostem@memostem\nclaude plugin marketplace remove memostem\n```\n\n## What the MCP exposes\n\n- `create_knowledge_bundle_drafts`: create structured private drafts from an\n  explicitly selected part of the current conversation.\n- `create_card_drafts`: compatible concept-card draft creation.\n- `get_topic_context`: retrieve a bounded pack of confirmed, owner-scoped\n  knowledge when the connection has the separate read scope.\n\nDraft creation cannot approve knowledge, publish to the public graph, or retain\na conversation transcript. See [the complete trust boundary](docs/mcp.md).\n\n## Included skills\n\nThe user-facing `memostem-proactive-capture` skill provides consent-first save\nsuggestions when the packaged MCP connection is available.\n\nThe Git plugin also includes five guarded skills for authorized MemoStem source\nmaintainers:\n\n- `memostem-card-hygiene`\n- `memostem-db-sync`\n- `memostem-knowledge-graph`\n- `memostem-protected-release`\n- `memostem-validation`\n\nThe five maintenance skills require an authorized MemoStem source checkout and\nits separately configured dependencies and credentials. Installing this public\nplugin grants no GitHub, Cloudflare, Clerk, Neon, database, or app-store access.\n\n## Directory publication\n\n- The remote server metadata is published from `server.json` to the official\n  MCP Registry when a GitHub Release is published.\n- Paste-ready OpenAI and Anthropic listing copy, prompts, review cases, and\n  activation gates live in [docs/directory-submissions.md](docs/directory-submissions.md).\n- Provider review and approval are external states. A public GitHub repository\n  or a successful MCP Registry workflow does not prove an OpenAI or Anthropic\n  directory listing is live.\n\n## Validate locally\n\n```bash\nnpm run check\npython3 /path/to/plugin-creator/scripts/validate_plugin.py plugins/memostem\nclaude plugin validate .\nclaude plugin validate plugins/memostem\n```\n\nThe dependency-free repository check validates both marketplaces, cross-platform\nmetadata, the complete skill trees, MCP Registry metadata, public/private\nboundaries, symlinks, and common secret patterns.\n\n## Publication boundary\n\nOnly this repository is the public installation source. It contains manifests,\ninstructions, static skills, and connection metadata—not the MemoStem web or\nmobile source, MCP implementation, authentication code, database schema,\nmigrations, credentials, environment files, user data, or provider secrets.\n",
+  "status": "curated"
+}

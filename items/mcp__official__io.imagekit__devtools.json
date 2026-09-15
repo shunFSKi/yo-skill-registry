@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.imagekit/devtools",
+  "type": "mcp",
+  "name": "ImageKit DevTools",
+  "description": "Official ImageKit developer server: search the docs and build transformation URLs. No sign-in.",
+  "author": "io.imagekit",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/imagekit-developer/skills",
+    "repo": "imagekit-developer/skills"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://devtools-mcp.imagekit.io/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-15T09:33:58.585025Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# ImageKit Skills\n\n[![skills.sh](https://skills.sh/b/imagekit-developer/skills)](https://skills.sh/imagekit-developer/skills)\n\nReusable AI agent skills for [ImageKit.io](https://imagekit.io) — install them with the `skills` CLI to enhance your coding agent's capabilities.\n\n## Skills\n\n| Skill | Description |\n|-------|-------------|\n| **mcp-preflight** | Which MCP server to call: DAM (media library), Admin (origins, URL endpoints, usage analytics), or DevTools |\n| **search-assets** | Lucene `searchQuery` for DAM `search_media_library` — discover custom metadata and tags before guessing |\n| **upload-files** | DAM uploads via `upload_file` (picker) or `create_upload_signature` — never inline file bytes |\n| **asset-access-control** | File/folder vs media-collection ACL tools, and the write rules that are easy to get wrong |\n| **ai-tasks** | Payload shape for AI tagging, metadata extraction, and quality checks on DAM assets |\n| **search-docs** | How to query DevTools `search_docs` (query rewriting and source selection) |\n| **transformation-builder** | How to query DevTools `transformation_builder` for correct transformation URLs |\n| **imagekit-integrations** | Index of ImageKit SDKs, plugins, and widgets — pick the right one for a stack, then search the docs |\n\n## Installation\n\nThere are two pieces to install: the **skills** (this repo) and the **MCP servers**:\n\n| MCP server | URL | Auth |\n|------------|-----|------|\n| `imagekit_devtools` | `https://devtools-mcp.imagekit.io/mcp` | None |\n| `imagekit_dam` | `https://imagekit.io/mcp/dam` | Sign in with your ImageKit account |\n| `imagekit_admin` | `https://imagekit.io/mcp/admin` | Sign in with your ImageKit account |\n\nIf you previously connected `https://api-mcp.imagekit.io/mcp`, remove it and add DAM and Admin instead.\n\nWhat each server does:\n\n| Server | Use it to |\n|--------|-----------|\n| DAM | Search, upload, organize, tag, share, and manage the media library |\n| Admin | Manage origins (external storage), URL endpoints, account usage, and usage analytics |\n| DevTools | Search the docs and build transformation URLs (no sign-in) |\n\nPick one of the two methods below. Restart your editor after installing so the MCP servers take effect. Authenticate DAM and Admin when prompted.\n\n### Plugin method (recommended)\n\nOn Claude Desktop, Claude.ai (web), and VS Code, the ImageKit plugin installs the skills and MCP servers in a single step.\n\n**Claude Desktop & Claude.ai (web)**\n\n1. Open Customize in the left sidebar and go to the Plugins tab.\n2. Under Personal plugins, click **+** → Add marketplace → Add from a repository, and enter `imagekit-developer/skills`.\n3. Install the ImageKit plugin from that marketplace.\n4. Enable the bundled `imagekit_devtools`, `imagekit_dam`, and `imagekit_admin` connectors, and authenticate DAM and Admin when prompted.\n\n**VS Code**\n\n1. Open the Command Palette (`⇧⌘P`) and run Install Plugin from Source.\n2. Enter `imagekit-developer/skills` as the plugin source.\n3. Restart VS Code.\n\n### Manual method\n\n**1. Install the skills** (same command on every platform):\n\n```bash\nnpx skills add imagekit-developer/skills --all\n```\n\n**2. Add the MCP servers** for your tool:\n\n<details>\n<summary><b>Claude Code</b></summary>\n\n```bash\nclaude mcp add --transport http imagekit_devtools https://devtools-mcp.imagekit.io/mcp\nclaude mcp add --transport http imagekit_dam https://imagekit.io/mcp/dam\nclaude mcp add --transport http imagekit_admin https://imagekit.io/mcp/admin\n```\n</details>\n\n<details>\n<summary><b>Claude Desktop</b></summary>\n\nEdit your config file:\n- **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`\n- **Windows**: `%APPDATA%\\Claude\\claude_desktop_config.json`\n\n```json\n{\n  \"mcpServers\": {\n    \"imagekit_devtools\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"mcp-remote@latest\", \"https://devtools-mcp.imagekit.io/mcp\"]\n    },\n    \"imagekit_dam\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"mcp-remote@latest\", \"https://imagekit.io/mcp/dam\"]\n    },\n    \"imagekit_admin\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"mcp-remote@latest\", \"https://imagekit.io/mcp/admin\"]\n    }\n  }\n}\n```\n</details>\n\n<details>\n<summary><b>Codex</b></summary>\n\nVia CLI:\n\n```bash\ncodex mcp add imagekit_devtools --url https://devtools-mcp.imagekit.io/mcp\ncodex mcp add imagekit_dam --url https://imagekit.io/mcp/dam\ncodex mcp add imagekit_admin --url https://imagekit.io/mcp/admin\n```\n\nOr edit `~/.codex/config.toml`:\n\n```toml\n[mcp_servers.imagekit_devtools]\nurl = \"https://devtools-mcp.imagekit.io/mcp\"\n\n[mcp_servers.imagekit_dam]\nurl = \"https://imagekit.io/mcp/dam\"\n\n[mcp_servers.imagekit_admin]\nurl = \"https://imagekit.io/mcp/admin\"\n```\n</details>\n\n<details>\n<summary><b>VS Code Copilot</b></summary>\n\n```bash\ncode --add-mcp \"{\\\"name\\\":\\\"imagekit_devtools\\\",\\\"type\\\":\\\"http\\\",\\\"url\\\":\\\"https://devtools-mcp.imagekit.io/mcp\\\"}\"\ncode --add-mcp \"{\\\"name\\\":\\\"imagekit_dam\\\",\\\"type\\\":\\\"http\\\",\\\"url\\\":\\\"https://imagekit.io/mcp/dam\\\"}\"\ncode --add-mcp \"{\\\"name\\\":\\\"imagekit_admin\\\",\\\"type\\\":\\\"http\\\",\\\"url\\\":\\\"https://imagekit.io/mcp/admin\\\"}\"\n```\n</details>\n\n<details>\n<summary><b>Cursor</b></summary>\n\nInstall with these buttons:\n\n- [![Install DevTools MCP Server](https://cursor.com/deeplink/mcp-install-light.svg)](https://cursor.com/en-US/install-mcp?name=imagekit_devtools&config=eyJ1cmwiOiJodHRwczovL2RldnRvb2xzLW1jcC5pbWFnZWtpdC5pby9tY3AifQ%3D%3D)\n- [![Install DAM MCP Server](https://cursor.com/deeplink/mcp-install-light.svg)](https://cursor.com/en-US/install-mcp?name=imagekit_dam&config=eyJ1cmwiOiJodHRwczovL2ltYWdla2l0LmlvL21jcC9kYW0ifQ%3D%3D)\n- [![Install Admin MCP Server](https://cursor.com/deeplink/mcp-install-light.svg)](https://cursor.com/en-US/install-mcp?name=imagekit_admin&config=eyJ1cmwiOiJodHRwczovL2ltYWdla2l0LmlvL21jcC9hZG1pbiJ9)\n\nOr edit `~/.cursor/mcp.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"imagekit_devtools\": { \"url\": \"https://devtools-mcp.imagekit.io/mcp\" },\n    \"imagekit_dam\": { \"url\": \"https://imagekit.io/mcp/dam\" },\n    \"imagekit_admin\": { \"url\": \"https://imagekit.io/mcp/admin\" }\n  }\n}\n```\n</details>\n\n<details>\n<summary><b>Windsurf</b></summary>\n\nEdit `~/.codeium/windsurf/mcp_config.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"imagekit_devtools\": { \"serverUrl\": \"https://devtools-mcp.imagekit.io/mcp\" },\n    \"imagekit_dam\": { \"serverUrl\": \"https://imagekit.io/mcp/dam\" },\n    \"imagekit_admin\": { \"serverUrl\": \"https://imagekit.io/mcp/admin\" }\n  }\n}\n```\n</details>\n\n## Usage\n\nOnce installed, these skills are automatically available to your AI agent. The agent will consult the relevant skill before performing ImageKit operations, ensuring correct tool usage and better results.\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

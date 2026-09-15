@@ -1,0 +1,74 @@
+{
+  "id": "mcp:official/io.github.MohdSaleh/tinyfish-guided-research",
+  "type": "mcp",
+  "name": "TinyFish Guided Research",
+  "description": "Auditable deep-research MCP server powered by TinyFish Search and Fetch.",
+  "author": "io.github.MohdSaleh",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/MohdSaleh/tinyfish-guided-research-mcp",
+    "repo": "MohdSaleh/tinyfish-guided-research-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "tinyfish-guided-research-mcp"
+    ],
+    "env": [
+      {
+        "name": "TINYFISH_API_KEY",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "DATABASE_URL",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "RESEARCH_DB_PATH",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-15T11:23:12.942968Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# TinyFish Guided Research MCP\n\n<!-- mcp-name: io.github.MohdSaleh/tinyfish-guided-research -->\n\nAn MCP server that adds a simple research workflow on top of TinyFish Search and Fetch.\n\nThe client model does the reasoning. The server keeps track of the research run, handles the search and fetch flow, stores the state, checks evidence and citations, and tells the client what should happen next.\n\nThere is no LLM running inside the server.\n\n## How it works\n\nA research run usually follows this flow:\n\n```text\nResearch request\n      ↓\nPlan\n      ↓\nSearch\n      ↓\nReview sources\n      ↓\nFetch useful content\n      ↓\nTrack claims and evidence\n      ↓\nCheck what is supported or still missing\n      ↓\nResearch the gaps\n      ↓\nVerify citations\n      ↓\nFinalize\n```\n\nSearch results are treated as candidates first, not as evidence by default.\n\nThe server also keeps duplicate sources from being counted more than once. This includes cases where the same paper or source appears through different URLs or mirrors.\n\nQuotes are checked against the fetched source content, while semantic decisions such as whether a passage actually supports a claim are left to the client model.\n\nConflicting evidence is kept in the research state instead of being ignored, and citations are checked before the research is finalized.\n\n## What it handles\n\n- Research state across multiple steps\n- TinyFish Search and Fetch calls\n- Source screening and duplicate handling\n- Claim and evidence tracking\n- Quote checks against fetched content\n- Conflicting evidence\n- Research gaps and follow-up searches\n- Citation verification\n- Research budgets and stopping conditions\n- SQLite and PostgreSQL persistence\n\n## Quick start\n\n### Hosted\n\nThe hosted MCP endpoint is:\n\n```text\nhttps://tinyfish-guided-research-mcp.fastmcp.app/mcp\n```\n\nUse it as a Streamable HTTP MCP server.\n\n### Local\n\nRequires Python 3.11+ and a TinyFish API key.\n\n```bash\nTINYFISH_API_KEY=\"your-api-key\" uvx tinyfish-guided-research-mcp\n```\n\nExample MCP client config:\n\n```json\n{\n  \"mcpServers\": {\n    \"tinyfish-research\": {\n      \"command\": \"uvx\",\n      \"args\": [\"tinyfish-guided-research-mcp\"],\n      \"env\": {\n        \"TINYFISH_API_KEY\": \"your-api-key\"\n      }\n    }\n  }\n}\n```\n\nThe compatibility entrypoint is also available:\n\n```bash\nuvx --from tinyfish-guided-research-mcp tinyfish-research-mcp\n```\n\n## Storage\n\nSQLite is fine for local or single-instance use:\n\n```bash\nexport RESEARCH_DB_PATH=\"research_state.db\"\n```\n\nFor hosted or multi-instance deployments, use PostgreSQL:\n\n```bash\nexport DATABASE_URL=\"postgresql://user:password@host:5432/database?sslmode=require\"\n```\n\nPostgreSQL is the better option when more than one server instance can access the same research state.\n\n## Distribution\n\nThe server is available through PyPI, the official MCP Registry, and the hosted Horizon endpoint.\n\nPyPI:\n\n```text\ntinyfish-guided-research-mcp\n```\n\nMCP Registry:\n\n```text\nio.github.MohdSaleh/tinyfish-guided-research\n```\n\nHosted MCP:\n\n```text\nhttps://tinyfish-guided-research-mcp.fastmcp.app/mcp\n```\n\n## Development\n\nClone the repo and install the dependencies:\n\n```bash\ngit clone https://github.com/MohdSaleh/tinyfish-guided-research-mcp.git\ncd tinyfish-guided-research-mcp\nuv sync --all-extras\n```\n\nRun it locally:\n\n```bash\nTINYFISH_API_KEY=\"your-api-key\" uv run tinyfish-guided-research-mcp\n```\n\nRun the checks:\n\n```bash\nuv run ruff check .\nuv run ruff format --check .\nuv run pyright\nuv run pytest\nuv run python evals/run_evals.py\nuv run pip-audit\nuv build\n```\n\nThe regular tests cover the implementation and storage layer. The research evals cover cases such as duplicate sources, weak evidence, quote mismatches, superseded claims, and citation coverage.\n\nYou can also inspect the MCP tools with:\n\n```bash\nnpx @modelcontextprotocol/inspector \\\n  --cli uv run tinyfish-guided-research-mcp \\\n  --method tools/list\n```\n\n## Deploying on Horizon\n\nIf you want to deploy your own instance with Prefect Horizon, use:\n\n```text\nEntrypoint:\nsrc/tinyfish_research_mcp/server.py:mcp\n\nDependencies:\npyproject.toml\n```\n\nSet:\n\n```text\nTINYFISH_API_KEY\nDATABASE_URL\n```\n\nUse PostgreSQL for hosted deployments instead of the local SQLite fallback.\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

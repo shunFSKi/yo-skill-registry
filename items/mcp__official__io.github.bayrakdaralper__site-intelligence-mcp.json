@@ -1,0 +1,64 @@
+{
+  "id": "mcp:official/io.github.bayrakdaralper/site-intelligence-mcp",
+  "type": "mcp",
+  "name": "Site Intelligence",
+  "description": "Score any coordinate for ecological and agricultural land suitability from satellite data",
+  "author": "io.github.bayrakdaralper",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/bayrakdaralper/site-intelligence-mcp",
+    "repo": "bayrakdaralper/site-intelligence-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "site-intelligence-mcp"
+    ],
+    "env": [
+      {
+        "name": "RAPIDAPI_KEY",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-15T16:22:15.838966Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Site Intelligence MCP\n\n<!-- mcp-name: io.github.bayrakdaralper/site-intelligence-mcp -->\n\nScore any geographic coordinate for **ecological and agricultural land suitability**, directly from your AI coding agent.\n\nAnalyses satellite and climate data around a point and returns a weighted suitability score with a per-metric breakdown: vegetation health, water access, precipitation, terrain, cropland proximity, urbanisation pressure, climate, and distance to infrastructure.\n\nBuilt for agtech, precision agriculture, ecological field research, conservation planning, environmental consulting and apiculture.\n\n## Install\n\nRequires a key for the [Site Intelligence API](https://rapidapi.com/bayrakdaralper/api/site-intelligence-api) on RapidAPI (free tier available).\n\n### Claude Code\n\n```bash\nclaude mcp add site-intelligence \\\n  --env RAPIDAPI_KEY=your_key_here \\\n  -- uvx site-intelligence-mcp\n```\n\n### Claude Desktop / Cursor / Windsurf\n\nAdd to your MCP config:\n\n```json\n{\n  \"mcpServers\": {\n    \"site-intelligence\": {\n      \"command\": \"uvx\",\n      \"args\": [\"site-intelligence-mcp\"],\n      \"env\": {\n        \"RAPIDAPI_KEY\": \"your_key_here\"\n      }\n    }\n  }\n}\n```\n\n## Usage\n\nAsk your agent in plain language:\n\n> How suitable is 38.42, 27.14 for an apiary? Check May specifically.\n\n> Compare these three coordinates for a reforestation site and tell me which has the best water access.\n\n## Tool\n\n### `site_score`\n\n| Parameter | Type | Default | Notes |\n|---|---|---|---|\n| `lat` | float | required | -90 to 90 |\n| `lon` | float | required | -180 to 180 |\n| `radius_m` | int | `2000` | Analysis radius, 200-5000 |\n| `month` | int | *(none)* | 1-12 for a seasonal view; omit for annual |\n| `detail` | `\"summary\"` \\| `\"full\"` | `\"summary\"` | `\"full\"` adds per-metric raw diagnostics |\n\n`detail` defaults to `\"summary\"` deliberately: tool results are spent from the\nmodel's context window, and the full diagnostic payload runs to several KB.\nAsk for `\"full\"` only when you need the underlying values.\n\n### Without `uv`\n\n```bash\npip install site-intelligence-mcp\n```\n\nthen use `site-intelligence-mcp` as the `command` with no `args`.\n\n## Configuration\n\n| Variable | Required | Default |\n|---|---|---|\n| `RAPIDAPI_KEY` | yes | — |\n| `BEELOCATE_RAPIDAPI_HOST` | no | `site-intelligence-api.p.rapidapi.com` |\n\nGet a key from the [Site Intelligence API listing](https://rapidapi.com/bayrakdaralper/api/site-intelligence-api).\n\n## Limits\n\n- Not a weather forecast and not a property-value estimate.\n- Resolution is bounded by the underlying satellite sources; very small radii\n  will not resolve individual parcels.\n- Rate limits and quota follow your RapidAPI plan.\n\n## Licence\n\nMIT\n",
+  "status": "curated"
+}

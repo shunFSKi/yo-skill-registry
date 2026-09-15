@@ -24,7 +24,7 @@
   "quality": {
     "stars": null,
     "pushed_at": "2026-09-14T16:36:47.013801Z",
-    "score": 52
+    "score": 42
   },
   "security": {
     "score": 100,
@@ -56,6 +56,6 @@
     "category": "编程",
     "featured": false
   },
-  "readme": "# NumberBroom MCP Server\n\nA remote [MCP](https://modelcontextprotocol.io) server that lets AI agents (Claude Code, Cursor,\nClaude Desktop and other MCP clients that can send an Authorization header) verify US phone numbers through the\n[NumberBroom](https://numberbroom.com) API: carrier-level line type, carrier name, an activity\nscore, and TCPA litigator status.\n\nThis server is a thin, stateless proxy. It has no database and runs no OAuth flow — it forwards\nyour NumberBroom API key straight through to `https://numberbroom.com/api/v1`, which already\nowns authentication, rate limiting, billing, and abuse protection. See\n[numberbroom.com/developers](https://numberbroom.com/developers) for the underlying REST API\nthis wraps.\n\n## Tools\n\n| Tool | Description | Cost |\n|---|---|---|\n| `verify_phone_number` | Line type, carrier, activity score, TCPA litigator flag for one US number. | $0.20/call, charged to your NumberBroom credit balance. Unparseable numbers are not charged. |\n| `get_credit_balance` | Remaining pre-paid credit balance on your NumberBroom account. | Free. |\n\n## Get an API key\n\n1. Sign up at [numberbroom.com](https://numberbroom.com) and add credit to your account.\n2. Generate an API key at [numberbroom.com/settings](https://numberbroom.com/settings).\n\n## Connect a client\n\nAdd this server as a remote MCP connection using its deployed URL,\n`https://numberbroom.com/mcp`, with your NumberBroom API key as a Bearer token in the\n`Authorization` header:\n\n```\nAuthorization: Bearer nb_live_YOUR_KEY\n```\n\nStep-by-step setup for Claude Code, Cursor, Claude Desktop, ChatGPT and other clients, with\ncopy-paste config for each, is at [numberbroom.com/mcp-server](https://numberbroom.com/mcp-server).\nOpening `https://numberbroom.com/mcp` in a browser redirects there; MCP clients are unaffected.\n\n## Local development\n\n```bash\nnpm install\nnpm run dev\n```\n\nThis starts the server at `http://localhost:8787/mcp` via `wrangler dev`.\n\n## Deploy\n\n```bash\nnpm run deploy\n```\n\nDeploys to Cloudflare Workers as `numberbroom-mcp`. Requires a Cloudflare account\nauthenticated via `wrangler login`.\n\n## Why a proxy, not a rewrite\n\nEvery tool call here is a direct, unmodified pass-through to NumberBroom's own `/api/v1`\nendpoints. That means:\n\n- Auth, rate limiting (5,000 lookups per key per day at most, and 500 for calls through this server\n  unless the key has its own limit set in Settings), the circuit breaker, and billing are all\n  enforced exactly once, by NumberBroom's own API — this server does not duplicate or\n  second-guess any of it.\n- A number that fails to parse costs nothing, same as calling the REST API directly.\n- An upstream error page or network failure comes back to the agent as a plain tool error, never\n  a thrown exception.\n- This server never sees or stores your API key beyond the lifetime of a single request; each\n  MCP tool call constructs an isolated server instance with no shared state between callers.\n\n## License\n\nMIT\n",
+  "readme": null,
   "status": "curated"
 }

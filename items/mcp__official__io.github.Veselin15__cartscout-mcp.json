@@ -1,0 +1,69 @@
+{
+  "id": "mcp:official/io.github.Veselin15/cartscout-mcp",
+  "type": "mcp",
+  "name": "CartScout",
+  "description": "Live product prices, stock, variants and deal ratings from Shopify, Walmart, eBay and more.",
+  "author": "io.github.Veselin15",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/Veselin15/cartscout-mcp",
+    "repo": "Veselin15/cartscout-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "cartscout-mcp"
+    ],
+    "env": [
+      {
+        "name": "RAPIDAPI_KEY",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "CARTSCOUT_RAPIDAPI_HOST",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-15T16:05:30.362897Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# CartScout MCP server\n\n[![PyPI](https://img.shields.io/pypi/v/cartscout-mcp)](https://pypi.org/project/cartscout-mcp/)\n[![Tests](https://github.com/Veselin15/cartscout-mcp/actions/workflows/tests.yml/badge.svg)](https://github.com/Veselin15/cartscout-mcp/actions/workflows/tests.yml)\n\n<!-- mcp-name: io.github.Veselin15/cartscout-mcp -->\n\nGive Claude, Cursor or any MCP-capable AI agent **live product prices, stock, variants and deal\nratings** from online stores. Paste a product link into the chat and ask \"is this a good price?\",\n\"which of these three stores is cheapest and in stock?\" or \"does it come in size 10?\".\n\nWorks with **Shopify, WooCommerce, Walmart and eBay** stores, with **Amazon in beta**. The data comes\nfrom the [CartScout API](https://rapidapi.com/veselinveselinov06/api/cartscout-api), which handles\nfetching, bot filters and parsing. [Try the API in your browser](https://api.vesflow.dev) first,\nno sign-up needed.\n\n## Tools\n\n| Tool | What the agent gets | Uses |\n|---|---|---|\n| `get_product` | Price, list price and discount, stock, variants (sizes, colours) with their own price and stock, SKU / GTIN, rating, optional reviews and description | 1 extraction |\n| `compare_products` | 2-10 pages ranked: cheapest, cheapest in stock, best rated, biggest discount, price spread, same product by GTIN | 1 extraction per URL, PRO plan or higher |\n| `check_deal` | Deal rating of the current price against its recorded history, with average, lowest and highest price | 1 extraction (or none with `refresh: false`) |\n| `get_price_history` | Recorded price and stock changes with current, lowest and highest price | No extractions |\n\nEvery tool is read-only and returns structured JSON with an output schema. Responses are trimmed\nfor agents: bulky parts such as all variants, reviews and the description are included only when\nthe agent asks for them.\n\n## Setup\n\n1. Subscribe to CartScout on RapidAPI. The **free plan includes 300 extractions a month**:\n   [plans](https://rapidapi.com/veselinveselinov06/api/cartscout-api/pricing).\n2. Copy your `X-RapidAPI-Key` from the RapidAPI dashboard.\n3. Add the server to your client. It runs with [uv](https://docs.astral.sh/uv/), which installs it on\n   first use.\n\n### Claude Code\n\n```bash\nclaude mcp add cartscout -e RAPIDAPI_KEY=your-rapidapi-key -- uvx cartscout-mcp\n```\n\n### Claude Desktop\n\nSettings → Developer → Edit config, then add:\n\n```json\n{\n  \"mcpServers\": {\n    \"cartscout\": {\n      \"command\": \"uvx\",\n      \"args\": [\"cartscout-mcp\"],\n      \"env\": { \"RAPIDAPI_KEY\": \"your-rapidapi-key\" }\n    }\n  }\n}\n```\n\n### Cursor\n\nAdd the same `mcpServers` block to `~/.cursor/mcp.json` (all projects) or `.cursor/mcp.json` (one project).\n\n## Example prompts\n\n- \"What does https://www.allbirds.com/products/mens-tree-runner-nz-ochre cost, and is size 10 in stock?\"\n- \"Is $79 a good price for this air fryer? https://www.walmart.com/ip/844320666\"\n- \"Compare these three listings and tell me the cheapest one I can buy today: …\"\n- \"Show me how the price of this product changed over the last two weeks.\"\n\nCartScout reads product pages; it does not search stores. Give the agent product URLs, or let it find\nthem with a web search tool first.\n\n## Configuration\n\n| Variable | Default | Purpose |\n|---|---|---|\n| `RAPIDAPI_KEY` | required | Your RapidAPI key |\n| `CARTSCOUT_RAPIDAPI_HOST` | `cartscout-api.p.rapidapi.com` | RapidAPI host of the API |\n| `CARTSCOUT_API_URL`, `CARTSCOUT_API_KEY` | unset | Use a directly issued CartScout key instead of RapidAPI |\n\nThe server sends only the product URLs your agent asks about to the CartScout API. Without a key\nit still starts and lists its tools (handy for MCP inspectors); each tool call then explains how to\nadd `RAPIDAPI_KEY`.\n\n### Docker\n\n```bash\ndocker build -t cartscout-mcp .\ndocker run -i --rm -e RAPIDAPI_KEY=your-rapidapi-key cartscout-mcp\n```\n\n### HTTP transport\n\n`cartscout-mcp --transport streamable-http --port 8000` serves the tools at\n`http://127.0.0.1:8000/mcp`. Every client connected to it uses the key from the environment, so keep\nit on a private address.\n\n## Good to know\n\n- Prices follow each store's own region and currency.\n- Results can be cached for up to 60 minutes (`cached: true`).\n- Price history and deal ratings build up as products are read. A product seen for the first time\n  has little history to compare against.\n- History range depends on the plan: 14 days on the free plan, up to 365 days on MEGA.\n- When a store blocks a request, the tool returns an error explaining it, and the failed request is\n  not billed.\n\n## Development\n\n```bash\nuv sync\nuv run pytest\n```\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

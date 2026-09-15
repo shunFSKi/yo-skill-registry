@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/com.plainfreight/quotes",
+  "type": "mcp",
+  "name": "Plain Freight",
+  "description": "All-in DDP quotes for China to USA shipments, 100 g to 2,000 kg, from a live rate card",
+  "author": "com.plainfreight",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/plainfreight-com/plainfreight-mcp",
+    "repo": "plainfreight-com/plainfreight-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://plainfreight.com/api/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-15T14:21:17.422591Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Plain Freight MCP server\n\nA hosted [Model Context Protocol](https://modelcontextprotocol.io) server that quotes real\nfreight. Ask it what it costs to ship something from China to the United States and it returns\nan all-in delivered-duty-paid price from the same rate card a human customer is quoted from:\nfreight, US customs clearance, import duty and delivery to a US door, in one number.\n\nNo API key. No signup. Nothing to install.\n\n```\nhttps://plainfreight.com/api/mcp\n```\n\nTransport is Streamable HTTP, stateless, protocol version `2025-06-18` (also accepts\n`2025-03-26` and `2024-11-05`).\n\n## Add it to a client\n\nClaude Code:\n\n```bash\nclaude mcp add --transport http plain-freight https://plainfreight.com/api/mcp\n```\n\nClaude Desktop, Cursor, or anything reading a JSON config:\n\n```json\n{\n  \"mcpServers\": {\n    \"plain-freight\": {\n      \"type\": \"http\",\n      \"url\": \"https://plainfreight.com/api/mcp\"\n    }\n  }\n}\n```\n\nCheck it by hand:\n\n```bash\ncurl -s -X POST https://plainfreight.com/api/mcp \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"tools/list\"}'\n```\n\n## Tools\n\n| Tool | What it does |\n|---|---|\n| `generate_offer` | Prices a shipment. Needs `product` and `weight_kg` (0.1 to 2000); `dimensions`, `origin`, `destination_zip`, `urgency`, `email`, `name`, `company` and `notes` all improve the answer. Pass carton sizes when you have them: for light bulky cargo the volumetric weight sets the price, not the scale weight. |\n| `check_offer_status` | Polls the offer until `settled` is true. Every quote gets re-checked, which can add follow-up questions, change the options, or set `needs_review`. |\n| `track_shipment` | Reads the live record for a booked shipment from its tracking link. Read-only. |\n\nTwo behaviours worth knowing before you build on it:\n\n- **`needs_review` means the prices are withheld on purpose.** The goods look restricted\n  (batteries, food, chemicals) and a person has to clear them first. Do not present a number to\n  the user in that case; Plain Freight follows up by email. Branded goods are never held, they\n  are priced on a different channel.\n- **The tracking token is the credential.** Anyone holding the link can read that shipment, and\n  the record deliberately excludes cost and margin fields.\n\nRate limits: 20 offers per hour per IP, 4 per email address, 30 across all agents per hour. For\nbulk or programmatic access, email hello@plainfreight.com.\n\nThere is also a plain REST version of the same pricing call at\n`POST https://plainfreight.com/api/v1/offer`, described in\n[openapi.json](https://plainfreight.com/api/v1/openapi.json), and human documentation at\n[plainfreight.com/for-agents](https://plainfreight.com/for-agents).\n\n## Published reference data\n\nThe same engine feeds three pages that are free to cite, with CSV and JSON where it makes sense:\n\n- [China to USA shipping price index](https://plainfreight.com/data/china-usa-shipping-price-index):\n  dated door-to-door prices at twelve weights from 0.5 kg to 1,000 kg, with duty status and\n  transit time on every row.\n- [Chargeable weight reference](https://plainfreight.com/data/chargeable-weight-china-usa): what\n  fifteen real cartons bill, and the same cartons at three divisors.\n- [US import rules timeline](https://plainfreight.com/data/us-import-rules-timeline): every de\n  minimis and entry change since May 2025 with its Federal Register citation.\n\nThe price-index data is also published as a dataset at\n[plainfreight-com/china-usa-freight-price-index](https://github.com/plainfreight-com/china-usa-freight-price-index).\n\n## What Plain Freight is\n\nA China to USA freight agency for small importers: one all-in DDP price on shipments from 100 g\nto 2,000 kg, quoted before pickup. Plain Freight is a trading name of Fisto LLC, a Wyoming\nlimited liability company. The price does not include cargo insurance, which the customer\narranges separately.\n\nQuestions, or a shipment that needs a human: hello@plainfreight.com\n\n## Licence\n\nMIT for the contents of this repository. The MCP server itself is a live commercial service;\nusing it means quoting real freight, so treat the prices as real.\n",
+  "status": "curated"
+}

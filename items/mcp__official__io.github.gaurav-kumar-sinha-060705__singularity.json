@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.gaurav-kumar-sinha-060705/singularity",
+  "type": "mcp",
+  "name": "Singularity - MCP Discovery & Security Gateway",
+  "description": "Find, vet, and run MCP tools through a secure audited gateway with prompt-injection risk scoring",
+  "author": "io.github.gaurav-kumar-sinha-060705",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/gaurav-kumar-sinha-060705/singularity",
+    "repo": "gaurav-kumar-sinha-060705/singularity"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://singularity-osd2.onrender.com/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-15T16:38:33.984315Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "AI",
+    "featured": false
+  },
+  "readme": "# Singularity — MCP Discovery & Security Gateway\n\n**Perplexity for MCP.** Discover the right tool for a problem, see its trust card\n(prompt-injection risk, permission overreach, publisher status), connect it in one\nclick, and execute it through a secure, audited gateway — one product, one config.\n\nSee [ROADMAP.md](ROADMAP.md) for the full plan. Blueprint: `../Singularity_Blueprint.md`.\n\n## Quickstart (local)\n\n```powershell\npip install -r requirements.txt\ncopy .env.example .env          # optional, defaults are fine (SQLite)\npython scripts/seed_index.py    # builds index + embeddings (first run downloads ~35MB model)\npython -m uvicorn app.main:app --reload   # http://127.0.0.1:8000/docs\n```\n\nA fresh boot with an empty database auto-seeds itself — `seed_index.py` is only needed\nfor manual re-seeding.\n\n## Use Singularity as an MCP server\n\nSingularity is a native MCP server (streamable HTTP, stateless) at `/mcp`.\n\n**VS Code / Copilot Chat** — `.vscode/mcp.json`:\n```json\n{ \"servers\": { \"singularity\": { \"type\": \"http\", \"url\": \"http://127.0.0.1:8000/mcp\" } } }\n```\n\n**Cursor** — `~/.cursor/mcp.json`:\n```json\n{ \"mcpServers\": { \"singularity\": { \"url\": \"http://127.0.0.1:8000/mcp\" } } }\n```\n\n**Claude Code CLI**:\n```powershell\nclaude mcp add --transport http singularity http://127.0.0.1:8000/mcp\n```\n\nThen just ask your agent: *\"my team needs expense tracking\"* — it calls `find_solutions`\nand gets ranked options with trust cards and security flags.\n\nOne-click install (replace the URL after deploying):\n[Install in VS Code](vscode:mcp/install?name=singularity&url=http%3A%2F%2F127.0.0.1%3A8000%2Fmcp)\n\nSmoke-check any endpoint without an editor:\n```powershell\npowershell -ExecutionPolicy Bypass -File scripts\\smoke_mcp.ps1 -BaseUrl http://127.0.0.1:8000\n```\n\n## Tools\n\n| Tool | What it does |\n|---|---|\n| `find_solutions(problem, top_k?, max_pricing_tier?)` | Ranked, trust-scored recommendations with plain-language security flags |\n| `get_trust_report(slug)` | Full security card: permissions requested vs needed, injection-scan verdicts, publisher status |\n| `compare_tools(slugs[])` | Side-by-side trust table for shortlisted candidates |\n\nEvery result carries `fit_score`, `trust_score`, `rank_score`, `trust_flags`, and a\nhuman-readable `rationale`. The seed index includes `quickledger-pro`, an intentionally\npoisoned fictional tool — ask about expenses and watch it get flagged\n(`suspicious_description_imperative`, `hidden_unicode_characters`, `permission_overreach`)\nand pushed down the ranking.\n\n## Deploy your own instance (Render + Supabase)\n\nFull walkthrough in [DEPLOY.md](DEPLOY.md). Summary:\n\n1. Create a free Supabase project → copy the connection string → add `+psycopg` driver segment + `?sslmode=require`\n2. Push this repo to GitHub → Render \"New +\" → \"Blueprint\" → it reads `render.yaml`\n3. Paste the Supabase URL into the `SINGULARITY_DATABASE_URL` env var when prompted\n4. First boot auto-creates tables and seeds the index; `https://<app>.onrender.com/mcp` is live\n\n## Publish to MCP registries\n\nAfter deploying (public HTTPS required), list Singularity so others can find it:\n\n1. **Official MCP Registry** — edit placeholders in [`server.json`](server.json)\n   (replace `XXXX` with your Render app name), then:\n   ```powershell\n   npx mcp-publisher@latest init      # scaffolds/validates server.json\n   npx mcp-publisher@latest login     # prove io.github.<you> ownership via GitHub\n   npx mcp-publisher@latest publish   # listed at https://registry.modelcontextprotocol.io within minutes\n   ```\n2. **Smithery** — submit repo at https://smithery.ai/new (uses [`smithery.yaml`](smithery.yaml))\n3. **Glama** — submit remote URL at https://glama.ai, then claim the listing\n4. **GitHub topics** — add `mcp-server`, `mcp`, `ai-security` topics to your repo; PulseMCP/MCP.so crawlers pick it up within 1–2 weeks\n\nTip: registries re-crawl weekly and strip verified badges from sleeping servers —\nRender's `$7/mo` Starter plan keeps Singularity always-on during listing/investor periods.\n\n## Tests\n\n```powershell\npytest -v\n```\n\n## Layout\n\n```\nsingularity/\n  main.py                     FastAPI app factory + lifespan (auto-seed, mounts MCP)\n  mcp_server.py               native MCP server: find_solutions / get_trust_report / compare_tools\n  config.py                   env-driven settings (SINGULARITY_* prefix)\n  database.py                 SQLAlchemy engine/session (SQLite dev, Postgres prod)\n  models.py                   Tool + AuditLog tables\n  schemas.py                  request/response contracts\n  middleware/\n    rate_limit.py             per-IP token-bucket limiter (X-Forwarded-For aware)\n  services/\n    discovery_engine.py       heuristic intent parsing\n    recommendation_index.py   in-memory vector search over seeded tools\n    ranking.py                fit/trust blend + rationale builder\n    scanner.py                static injection/overreach scan (Phase 2 preview)\n    seeder.py                 seed logic shared by CLI and boot-time auto-seed\n    embeddings.py             fastembed provider (bge-small-en-v1.5)\n  routers/\n    recommend.py              POST /recommend, GET /tools\ndata/seed_tools.json          curated 15-tool index incl. demo attack sample\nscripts/seed_index.py         manual seeding CLI\nscripts/smoke_mcp.ps1         end-to-end MCP handshake smoke test (works on remote URLs too)\nDockerfile / render.yaml      one-command Render deployment\nserver.json / smithery.yaml   registry publishing manifests (fill placeholders first)\ntests/                        pytest suite (API + scanner + MCP tools & endpoint)\n```\n",
+  "status": "curated"
+}
