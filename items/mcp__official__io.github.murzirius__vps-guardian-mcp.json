@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.murzirius/vps-guardian-mcp",
+  "type": "mcp",
+  "name": "VPS Guardian",
+  "description": "Secure SSH bridge for AI agents to observe and safely administer Linux VPSs.",
+  "author": "io.github.murzirius",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/murzirius/VPS-Guardian-MCP",
+    "repo": "murzirius/VPS-Guardian-MCP"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@murzirius/vps-guardian-mcp"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-16T13:50:19.051911Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "运维",
+    "featured": false
+  },
+  "readme": "# VPS Guardian MCP\n\n[![CI](https://github.com/murzirius/VPS-Guardian-MCP/actions/workflows/ci.yml/badge.svg)](https://github.com/murzirius/VPS-Guardian-MCP/actions/workflows/ci.yml)\n[![npm](https://img.shields.io/npm/v/@murzirius/vps-guardian-mcp?label=npm)](https://www.npmjs.com/package/@murzirius/vps-guardian-mcp)\n[![PyPI](https://img.shields.io/pypi/v/vps-guardian-mcp?label=PyPI)](https://pypi.org/project/vps-guardian-mcp/)\n[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)\n\nVPS Guardian is a secure [Model Context Protocol](https://modelcontextprotocol.io/) server for AI agents that work with Linux VPSs. It replaces an unrestricted “run this command and paste the result” loop with named, structured and safety-checked operations.\n\nAn agent can inspect a workload, collect bounded diagnostics, preview the impact of a change, and request an exact confirmation for a mutation. The server never exposes a general-purpose shell tool.\n\n**Explore the project:** [capabilities](https://thomas-studios.com/projects/vps-guardian-mcp#capabilities) · [agent workflows](https://thomas-studios.com/projects/vps-guardian-mcp#agent-workflows) · [security model](https://thomas-studios.com/projects/vps-guardian-mcp#security) · [tool catalogue](https://thomas-studios.com/projects/vps-guardian-mcp#tools) · [release notes](UPDATES.md)\n\n<!-- mcp-name: io.github.murzirius/vps-guardian-mcp -->\n\n## Quick start\n\nVPS Guardian has two parts:\n\n- The Python MCP server runs on the VPS.\n- The small npm launcher runs on the computer where Codex, Claude, Cursor or another AI client is installed. It opens an SSH stdio connection and never uploads the private key.\n\n### What you need\n\n- A Linux VPS reachable via SSH.\n- An SSH key for that VPS.\n- Python 3.10+ on the VPS and Node.js 16+ on the AI client's computer.\n- A verified SSH host key. Password-based SSH is intentionally unsupported by the launcher.\n\n### 1. Install the server on the VPS\n\nRun once on the VPS. This installs the published, pinned release:\n\n```bash\nsudo mkdir -p /opt/vps-guardian-mcp\nsudo chown \"$USER\" /opt/vps-guardian-mcp\npython3 -m venv /opt/vps-guardian-mcp/.venv\n/opt/vps-guardian-mcp/.venv/bin/pip install --upgrade pip\n/opt/vps-guardian-mcp/.venv/bin/pip install vps-guardian-mcp==0.19.1\n```\n\nFor development from source instead:\n\n```bash\ngit clone --branch v0.19.1 https://github.com/murzirius/VPS-Guardian-MCP.git /opt/vps-guardian-mcp\ncd /opt/vps-guardian-mcp\npython3 -m venv .venv\n.venv/bin/pip install -e .\n```\n\nIf the server runs as a non-root user, grant only the required read access. Docker and journal features gracefully report as unavailable when that access is absent.\n\n```bash\nsudo usermod -aG docker <MCP_USER>\nsudo usermod -aG systemd-journal <MCP_USER>\n```\n\nLog out and back in after changing groups.\n\n### 2. Choose a safety mode\n\n| Mode | Use it when | Result |\n| --- | --- | --- |\n| `read-only` | Inspecting or diagnosing | Default. Every mutation is blocked. |\n| `controlled` | Assisted administration | Recommended. Each exact change needs a short-lived, single-use confirmation token. |\n| `unrestricted` | A separately protected automation environment | Changes run immediately. Avoid on a general-purpose agent. |\n\nStart with `read-only`; use `controlled` once the connection is verified.\n\n### 3. Connect an AI client over SSH\n\nFirst verify the VPS fingerprint independently and make a normal SSH connection once. That stores the host key in `~/.ssh/known_hosts` (or `%USERPROFILE%\\.ssh\\known_hosts` on Windows). The launcher requires host-key verification by default.\n\nUse this configuration for JSON-based MCP clients:\n\n```json\n{\n  \"mcpServers\": {\n    \"vps-guardian\": {\n      \"command\": \"npx\",\n      \"args\": [\n        \"-y\",\n        \"@murzirius/vps-guardian-mcp@0.19.1\",\n        \"--host\", \"<VPS_IP_OR_HOSTNAME>\",\n        \"--user\", \"root\",\n        \"--key\", \"~/.ssh/id_ed25519\",\n        \"--mode\", \"controlled\"\n      ]\n    }\n  }\n}\n```\n\nEvery item in `args` is a separate argument. Do not join `--host` with its value or paste the entire command into one form field.\n\n### 4. Codex / ChatGPT Desktop\n\nOpen **Settings → MCP servers → Add server**, choose **STDIO**, then enter:\n\n| Field | Value |\n| --- | --- |\n| Name | `vps-guardian` |\n| Command | `npx` |\n| Environment variables | Leave empty |\n| Working directory | Leave empty/default |\n\nAdd these arguments as separate rows, in order:\n\n```text\n-y\n@murzirius/vps-guardian-mcp@0.19.1\n--host\n<VPS_IP_OR_HOSTNAME>\n--user\nroot\n--key\nC:\\Users\\<WindowsUser>\\.ssh\\id_ed25519\n--mode\ncontrolled\n```\n\nSave, restart the client, then use `/mcp` to confirm that `vps-guardian` is connected.\n\n### 5. Common situations\n\n**Claude Code**\n\n```bash\nclaude mcp add vps-guardian -- npx -y @murzirius/vps-guardian-mcp@0.19.1 --host <VPS_IP_OR_HOSTNAME> --user root --key ~/.ssh/id_ed25519 --mode controlled\n```\n\n**A non-root SSH user** — replace `root` after `--user`. Do not add passwordless `sudo` just for the MCP; grant the minimum group permissions needed.\n\n**A non-standard port** — add separate arguments:\n\n```text\n--port\n2222\n```\n\n**A different server location** — add:\n\n```text\n--remote-path\n/srv/vps-guardian/.venv/bin/vps-guardian-mcp\n```\n\n**Host key verification failed** — do not disable verification. Check the VPS fingerprint through a trusted channel and correct `known_hosts`. Use `--known-hosts <path>` for a dedicated file. `--accept-new-host-key` is only for an intentional first-time bootstrap.\n\n### 6. Verify and upgrade\n\nAsk the agent: **“Check CPU and RAM load on my server.”** A correct setup returns structured VPS data rather than a shell command for you to run.\n\nTo upgrade the VPS server, install the matching version and restart the client connection:\n\n```bash\n/opt/vps-guardian-mcp/.venv/bin/pip install --upgrade vps-guardian-mcp==X.Y.Z\n```\n\nThen replace `@0.19.1` with `@X.Y.Z` in the client configuration. For source installations, fetch the tag, inspect local changes, check out the tag, and reinstall with `.venv/bin/pip install -e .`.\n\n## What it can do\n\nVPS Guardian is built around a few workflows instead of a long, unstructured command list:\n\n- **Observe:** system pressure, processes, services, Docker, databases, ports, TLS, logs and updates.\n- **Understand a workload:** discover a site or Compose project, map its dependencies and health, then collect focused diagnostic evidence.\n- **Coordinate agents:** secret-redacted sessions, handoffs, short-lived workload locks and resumable server-event watches.\n- **Change safely:** preview impact, stage configuration changes, validate, back up, health-check and roll back when a deployment fails.\n- **Recover deliberately:** create baselines, compare drift, produce repair plans and require exact confirmation for changes.\n\nExamples of native MCP tools:\n\n| Request | Example tool | Result |\n| --- | --- | --- |\n| “Why is the API slow?” | `diagnose_workload` | Bounded health, logs, OOM and kernel evidence. |\n| “What will a restart affect?” | `get_change_impact` | A read-only dependency and impact report. |\n| “Hand this incident to another agent.” | `handoff_agent_session` | Secret-redacted context and outcome tracking. |\n| “Deploy this Nginx change safely.” | `plan_config_deployment` | Validated diff, backup, confirmation and rollback path. |\n\nSee the [complete capability guide](https://thomas-studios.com/projects/vps-guardian-mcp#capabilities) and [full tool catalogue](https://thomas-studios.com/projects/vps-guardian-mcp#tools) on the project site.\n\n## Security model\n\n- No arbitrary command-execution MCP tool.\n- Server-side allow-lists for files, paths, services and mutation types.\n- `controlled` mode uses parameter-bound, single-use confirmation tokens.\n- Secret values are redacted from file reads, sessions, audit data and diagnostic output.\n- Reads, logs, directory scans and stored state are bounded for small VPSs.\n\nDetails: [security model](https://thomas-studios.com/projects/vps-guardian-mcp#security) · [agent operating guide](https://thomas-studios.com/projects/vps-guardian-mcp#agent-workflows)\n\n## Packages and releases\n\n- npm: [`@murzirius/vps-guardian-mcp`](https://www.npmjs.com/package/@murzirius/vps-guardian-mcp)\n- PyPI: [`vps-guardian-mcp`](https://pypi.org/project/vps-guardian-mcp/)\n- MCP Registry: [`io.github.murzirius/vps-guardian-mcp`](https://registry.modelcontextprotocol.io/)\n- GitHub Packages mirrors each npm release; npmjs is recommended for normal installation.\n\n## Development\n\n```bash\npython -m unittest discover -s tests -v\nnpm test\n```\n\nPlease report security issues privately rather than publishing exploit details in a public issue.\n\n## License\n\n[MIT](LICENSE) © 2026 murzirius.\n",
+  "status": "curated"
+}

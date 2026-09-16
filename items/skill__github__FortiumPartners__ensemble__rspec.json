@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/FortiumPartners/ensemble/rspec",
+  "type": "skill",
+  "name": "rspec",
+  "description": "Execute and generate RSpec tests for Ruby projects with let bindings, before hooks, and mocking support",
+  "author": "FortiumPartners",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/FortiumPartners/ensemble/blob/HEAD/packages/pi/skills/rspec/SKILL.md",
+    "repo": "FortiumPartners/ensemble",
+    "path": "packages/pi/skills/rspec/SKILL.md"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 12,
+    "pushed_at": "2026-09-16T19:29:34Z",
+    "score": 65,
+    "star_history": [
+      {
+        "d": "2026-09-16",
+        "s": 12
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# Ensemble — how it works on this machine\n\nWritten for the other Claude sessions. If you are about to run an `ensemble:` command and you\nare not sure what it will do to your checkout, read the [Before you run anything](#before-you-run-anything)\nsection first — that is the part that has actually cost people time.\n\nEnsemble is a set of Claude Code plugins that turn a piece of work into a planned, reviewed\nchange: product requirements, technical requirements, a task graph, then implementation by\nspecialist subagents. **v6.9.3 — 48 commands, 38 agents, 27 plugins.**\n\nUpstream is `Sunstone-Partners/ensemble`, maintained by Leo D'Angelo. `FortiumPartners/ensemble`\nis ours: ops tooling and issue tracking. The `FS-Ensemble` session owns keeping the two in step —\nask it rather than syncing anything yourself.\n\n## Before you run anything\n\n**Several commands take over your branch and your working tree.** They run `git checkout -b`,\nedit files, and open a PR. Two of them in one checkout will collide:\n\n| Command | Takes a branch | Opens a PR |\n|---|---|---|\n| `fix-issue` | yes | yes |\n| `implement-bead` | yes | yes |\n| `implement-trd` | yes | yes |\n| `implement-trd-beads` | yes | yes |\n| `beads-build` | yes | yes |\n| `release` | yes | yes |\n\n`fix-issue` is three ordered phases — Analysis and Planning, then Execution, then Validation and\nDelivery. **One at a time.** Firing several in parallel to work through a list of issues puts two\nbranch checkouts and two sets of edits in the same tree, and they overwrite each other.\n\nTo genuinely work on several at once, give each its own checkout:\n\n```bash\ngit worktree add ~/projects/.worktrees/<repo>-issue-42 -b fix/issue-42\n```\n\nSee `~/projects/docs/GIT_WORKTREES.md`. Everything else here is read-only or writes only\ndocuments, and is safe to run whenever.\n\n## Pick the workflow by the size of the work\n\nRunning the full pipeline on a bug costs hours and produces a PRD nobody reads. Running\n`fix-issue` on a platform migration ships something nobody planned.\n\n| Size | Use | What you get |\n|---|---|---|\n| A bug, a typo, one file | `fix-issue` | analysis straight to a PR, no PRD, no TRD |\n| A contained feature | `create-prd` → `create-trd`, then stop | documents to review before anyone writes code |\n| Large or cross-cutting | `create-prd` → `refine-prd` → `create-trd` → `refine-trd` → `implement-trd-beads` | the full pipeline with refinement gates |\n| One task in an existing TRD | `implement-trd-task --task <id>` | a single task through implement, review, close |\n\n**`analyze-complexity` will choose for you.** It scores scope, dependencies, risk and team size,\nthen routes: 1–3 to `fix-issue`, 4–6 to PRD and TRD, 7–10 to the full pipeline. It prints the\nscore and its reasoning before it dispatches, and when a description carries no signal at all it\nstops and asks rather than guessing.\n\nIt under-routed badly until 2026-09-06 — a multi-service billing feature scored 3 out of 10 and\nwas sent to `fix-issue`. That is fixed upstream and live here. If you saw a warning in\n`~/projects/CLAUDE.md` telling you to always pass `--route` by hand, that warning is stale.\n`--route simple|medium|complex` still works when you already know the size.\n\n## `implement-trd` or `implement-trd-beads`\n\n**Use `implement-trd-beads`.** The two are separate implementations, not a flag on one command.\n`implement-trd` contains no beads calls at all — zero `bv`, zero `br`. The three times the word\n\"beads\" appears in it are comments pointing at the other file. It runs git-town, one branch, one\nPR, and it re-reads the TRD to decide what to do next.\n\n`implement-trd-beads` parses the TRD into an epic/story/task hierarchy in beads first, then lets\n`bv --robot-plan` schedule the work. What that buys:\n\n- **It survives the session ending.** State lives in the bead graph, so a run that stops halfway\n  picks up where it stopped. `implement-trd` holds its position in the conversation, so a context\n  compaction or a crash costs you the run.\n- **It ships in slices.** A TRD written with `### PR N:` headings becomes one branch and one PR\n  per section, each with its Shippable State line in the body. `implement-trd` produces a single\n  PR for the whole TRD.\n- **It runs tracks in parallel** up to `max_parallel`, because the scheduler can see which beads\n  are unblocked.\n\nCost: `br` and `bv` have to be installed, and the bead graph is real state you can end up having\nto repair. `implement-trd` needs only git-town.\n\nTake `implement-trd` when the TRD is small enough to land as one PR in one sitting and you do not\nwant a bead hierarchy for it. Anything larger, use the beads variant.\n\n## Finding the commands\n\nThe prefix depends on which plugins your config root has enabled, and it is not the same in\nevery session. **Type `/ensemble` and let completion show you what you have.** Do not copy a\nprefix out of a document, including this one.\n\nYou will see either `ensemble-full:<command>` or `<plugin>:ensemble:<command>` — for example\n`ensemble-development:ensemble:fix-issue`. Both resolve to the same command.\n\n## What needs to exist first\n\nAlready installed here, listed so you can tell a missing prerequisite from a broken command:\n\n- **`gh`**, authenticated. Anything that opens a PR needs it. GitHub only, no GitLab or Bitbucket.\n- **`br` / `bv`** (Beads). Needed by `implement-trd-beads`, `beads-plan`, `beads-build`,\n  `implement-bead`, `create-trd`, and the requirement-tracing commands.\n- **`git-town`**, used by `implement-trd` for branch management.\n- **Node 20+**.\n\n`fix-issue` stops if tests fail, retries a fix at most twice, and caps its interview at five\nquestions. `--skip-tests` overrides the first of those.\n\n## Where it comes from\n\nNot from a remote marketplace. Every config root resolves the `ensemble` marketplace to a\ndirectory:\n\n```\n~/projects/.worktrees/ensemble-live      branch `live`, tracks sunstone/main\n```\n\nThat worktree decides what all sessions load. Nothing lands in it without the FS-Ensemble\nsession running a sync, so the version you have is deliberate.\n\nTwo consequences worth knowing. A plugin update is **version-gated**, so when content changes\nwithout a version bump `claude plugin update` reports success and copies nothing — only\nuninstall plus install actually re-copies. And a running session keeps whatever it loaded at\nstartup, so a sync reaches you when you next restart, not before.\n\nA `SessionStart` hook tells you when the worktree has fallen behind upstream, and when the\nwatcher behind it has itself gone stale. Silence from it means current.\n\n## If the ensemble commands are missing\n\nAsk the FS-Ensemble session to run `scripts/provision-ensemble.sh`, then restart yours.\n\nBurke runs four accounts (`ccrgm`, `ccram`, `ccrfs`, `ccrfp`), each with its own config root.\nEnsemble used to be installed by hand in whichever root was in front of whoever did it, so new\naccounts arrived without it — and twice a root ended up with the plugin registered and enabled\nwhile its install directory did not exist. A session in that state has no ensemble commands and\nnothing says why. The script brings every root to the same install and repairs that case;\n`--check` reports without changing anything.\n\n## Known rough edges\n\nRead these before filing something already known. Full list:\n`gh issue list --repo FortiumPartners/ensemble`.\n\n- **#88** — `implement-trd-beads` preflight hard-codes a Claude Code variable and breaks under\n  Oh My Pi. Fine here; only matters if you are running OMP.\n- **#83** — `packages/router` tests gate on `CI=true` rather than on pytest working.\n- **#86** — `scripts/tests/` is not wired into CI, so `lint-model-ids.test.js` has never run.\n- **#92** — 21 `SKILL.md` files are missing frontmatter.\n- **#96** — the opencode dist suite is written to skip in CI, so the generator's output is never\n  checked.\n- **#99, #100** — two guard defects in `validate-peer-deps.js`, both filed with reproductions.\n\nIf a command misbehaves, say what you ran and what happened. A vague report costs a session more\nthan it saves.\n\n## Deeper reading\n\n- `CLAUDE.md` in this repo — architecture, plugin structure, agent mesh, hooks, conventions.\n- `~/projects/CLAUDE.md` — the workspace-level summary every session already loads.\n- `~/projects/.worktrees/ensemble-live/docs/` — upstream guides, including the stacked-PR\n  walkthrough for `implement-trd-beads`.\n- Upstream product README: `~/projects/.worktrees/ensemble-live/README.md`.\n",
+  "status": "curated"
+}

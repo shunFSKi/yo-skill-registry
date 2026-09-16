@@ -1,0 +1,57 @@
+{
+  "id": "mcp:official/io.github.woonstadrotterdam/monumenten",
+  "type": "mcp",
+  "name": "Monumenten",
+  "description": "Look up Dutch BAG verblijfsobject IDs and monumental status.",
+  "author": "io.github.woonstadrotterdam",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/woonstadrotterdam/mcp-monumenten",
+    "repo": "woonstadrotterdam/mcp-monumenten"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "mcp-monumenten"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-16T13:51:16.548482Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Monumenten MCP Server 🏛️\n\nA Model Context Protocol (MCP) server that enables AI assistants to check monumental status of Dutch addresses relevant for woningwaardering (rent-point system). Connects to the Dutch BAG (Basisadministratie Adressen en Gebouwen) data and Ministry of Cultural Heritage (Rijksdienst voor het Cultureel Erfgoed) to identify national monuments, nationally protected cityscapes, and municipal monuments.\n\n<!-- mcp-name: io.github.woonstadrotterdam/monumenten -->\n\nBuilt on the [MCP Python SDK](https://py.sdk.modelcontextprotocol.io/) v2 (`MCPServer`). Tools return structured results; validation and lookup failures raise `ToolError` (`is_error=true`) so the model can retry.\n\nRequires Python 3.11+.\n\n> [!NOTE]\n> This MCP server is based on the [monumenten](https://github.com/woonstadrotterdam/monumenten) package. For more information, see the [monumenten](https://github.com/woonstadrotterdam/monumenten) package.\n\n## What This Does\n\nThis MCP server allows AI assistants to:\n\n- 🏠 **Find verblijfsobject IDs** - Convert Dutch addresses to BAG identifiers (`verblijfsobject_id`)\n- 🏛️ **Check monumental status** - Determine if a property is protected as cultural heritage\n- 📍 **Support flexible address input** - Search by postal code + house number or full address\n- 🔍 **Handle address variations** - Support house letters and suffixes (30A, 30-2, etc.)\n\n### Available Tools\n\n| Tool                         | Parameters                                                                                                   | Result                                                                                                                                                   |\n| ---------------------------- | ------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| **`get_verblijfsobject_id`** | `house_number`, `postal_code` OR `street` + `house_number` + `city`, optional `house_letter`, `house_suffix` | Structured `matches` list of BAG verblijfsobject records                                                                                                 |\n| **`get_monumental_status`**  | `bag_verblijfsobject_id` (16 digits)                                                                         | Structured monumental status (provincie, rijksmonument, rijksbeschermd stads-/dorpsgezicht, municipal monument; `provinciaal_monument` is always `null`) |\n\n## Quick Setup\n\nAdd to your AI assistant's MCP configuration:\n\n```json\n{\n  \"mcpServers\": {\n    \"monumenten\": {\n      \"command\": \"uvx\",\n      \"args\": [\"mcp-monumenten\"]\n    }\n  }\n}\n```\n\nFor local development:\n\n```json\n{\n  \"mcpServers\": {\n    \"monumenten\": {\n      \"command\": \"uv\",\n      \"args\": [\"run\", \"--project\", \"/path/to/mcp-monumenten\", \"mcp-monumenten\"]\n    }\n  }\n}\n```\n\nStreamable HTTP (`mcp-monumenten --http`) listens on `http://127.0.0.1:8000/mcp` by default.\n\n### Claude Code plugin\n\nRequires [uv](https://docs.astral.sh/uv/). Then:\n\n```text\n/plugin marketplace add woonstadrotterdam/mcp-monumenten\n/plugin install monumenten@woonstad-rotterdam\n```\n\nOr add the server directly: `claude mcp add monumenten -- uvx mcp-monumenten`.\n\n## Usage Examples\n\n### Finding Monumental Status\n\n**\"What is the monumental status of Coolsingel 30, Rotterdam?\"**\n\nThe AI will:\n\n1. Convert the address to a BAG verblijfsobject ID\n2. Check monument registries\n3. Report rijksmonument status, rijksbeschermd stads-/dorpsgezicht, or municipal monument designation\n\n**\"Is 1234AB 30-2 a rijksmonument?\"**\n\nThe AI can handle:\n\n- Postal code + house number format\n- House number suffixes (30-2, 30A, etc.)\n- Direct verblijfsobject ID lookups\n\n### Address Flexibility\n\nThe server handles Dutch address formats:\n\n- `1234AB 30` - Basic postal code + house number\n- `1234AB 30-2` - With house number suffix\n- `1234AB 30A` - With house letter\n- `Coolsingel 30, Rotterdam` - Full street address\n\n## Installation\n\n### Via uvx (Recommended)\n\n```bash\nuvx mcp-monumenten\n```\n\n### Local Development\n\n```bash\ngit clone https://github.com/woonstadrotterdam/mcp-monumenten.git\ncd mcp-monumenten\nuv sync\nuv run --project . mcp-monumenten\n```\n\n## Data Sources\n\n- **[Kadaster - BAG (Basisadministratie Adressen en Gebouwen)](https://www.kadaster.nl/)** - Official Dutch address registry\n- **[RCE (Rijksdienst voor het Cultureel Erfgoed)](https://www.rijksoverheid.nl/ministeries/cultureel-erfgoed/rijksdienst-voor-het-cultureel-erfgoed)** - National monuments registry\n\n## License\n\nMIT License - see [LICENSE](LICENSE) file for details.\n",
+  "status": "curated"
+}

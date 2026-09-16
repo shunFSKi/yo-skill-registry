@@ -1,0 +1,70 @@
+{
+  "id": "mcp:official/com.youricp/mcp-server",
+  "type": "mcp",
+  "name": "YourICP",
+  "description": "Enrich contacts by email or LinkedIn URL and build targeted B2B audiences.",
+  "author": "com.youricp",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/YourICP/mcp-server",
+    "repo": "YourICP/mcp-server"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@youricp/mcp"
+    ],
+    "env": [
+      {
+        "name": "YOURICP_API_TOKEN",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "YOURICP_API_URL",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-16T13:22:49.276771Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "办公",
+    "featured": false
+  },
+  "readme": "<!-- mcp-name: com.youricp/mcp-server -->\n\n# YourICP MCP Server\n\n[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)\n[![MCP](https://img.shields.io/badge/Model_Context_Protocol-compatible-brightgreen.svg)](https://modelcontextprotocol.io)\n\nThe official, open-source [Model Context Protocol](https://modelcontextprotocol.io)\n(MCP) server for the [YourICP](https://app.youricp.com) contact-enrichment and\naudience-targeting API. It lets AI assistants such as Claude enrich contacts and\nbuild audiences directly from a conversation.\n\n---\n\n## Two ways to run it\n\n| | This repo (`@youricp/mcp`) | Hosted connector |\n|---|---|---|\n| Transport | `stdio`, runs on your machine | Streamable HTTP |\n| Auth | Paste an API token | OAuth 2.0 + PKCE, browser login |\n| Tools | Contact enrichment | Enrichment **and** audience building |\n| Billing | Your existing YourICP plan | Pay-per-use, or your plan |\n| Setup | Edit a JSON config file | Paste one URL |\n\n**Use the hosted connector** unless you specifically want to run the code\nyourself. It needs no install, stays up to date, and is the only option that\nexposes the audience-building tools:\n\n```\nhttps://mcp.youricp.com/sse\n```\n\nAdd it in Claude under **Settings → Connectors → Add custom connector**. See the\n[connector user guide](https://mcp.youricp.com/docs) for what you can ask it.\n\n**Use this repo** if you want to read or modify the code, self-host, run fully\noffline against your own token, or use a client that only supports `stdio`. It\nis a deliberately small reference implementation — no payment, OAuth, or hosting\ninfrastructure required.\n\n---\n\n## Tools\n\n| Tool | Description |\n|------|-------------|\n| `set_auth_token` | Set a YourICP auth token for this session |\n| `set_token` | Deprecated alias for `set_auth_token` |\n| `submit_lookup` | Enrich contacts by email or LinkedIn URL (returns a `jobId`) |\n| `check_lookup` | Poll the enrichment result for a `jobId` |\n\n---\n\n## Requirements\n\n- **Node.js 18+**\n- A **YourICP auth token** — get one at [app.youricp.com](https://app.youricp.com)\n\n## Quick start (no install)\n\nRun it directly with `npx` — no clone, no global install:\n\n```bash\nYOURICP_AUTH_TOKEN=your_auth_token_here npx @youricp/mcp\n```\n\n## Use with Claude Desktop\n\nAdd this to your `claude_desktop_config.json` — `npx` fetches and runs the\nserver automatically:\n\n```json\n{\n  \"mcpServers\": {\n    \"youricp\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@youricp/mcp\"],\n      \"env\": {\n        \"YOURICP_AUTH_TOKEN\": \"your_auth_token_here\"\n      }\n    }\n  }\n}\n```\n\nRestart Claude Desktop and the YourICP tools will appear.\n\n## Install globally (optional)\n\n```bash\nnpm install -g @youricp/mcp\nYOURICP_AUTH_TOKEN=your_auth_token_here youricp-mcp\n```\n\n## From source\n\n```bash\ngit clone https://github.com/youricp/mcp-server.git\ncd mcp-server\nnpm install\nYOURICP_AUTH_TOKEN=your_auth_token_here npm start\n```\n\nOr copy `.env.example` to `.env` and fill it in, then `npm start`.\n\n---\n\n## Configuration\n\n| Variable | Default | Description |\n|----------|---------|-------------|\n| `YOURICP_API_URL` | `https://app.youricp.com` | Base URL of the YourICP API |\n| `YOURICP_AUTH_TOKEN` | _(none)_ | Your YourICP auth token |\n| `YOURICP_API_TOKEN` | _(none)_ | Deprecated alias for `YOURICP_AUTH_TOKEN`. Still read, but logs a deprecation notice. |\n\n### Two kinds of token\n\nYourICP uses the word \"token\" for two unrelated things, so this server always\nsays which one it means:\n\n- **auth token** — the API credential that proves who you are. That is what\n  `YOURICP_AUTH_TOKEN` and `set_auth_token` set.\n- **billing token** — YourICP's prepaid currency for enrichment work, where 100\n  billing tokens = $1.00. This reference server never touches them.\n\n## Contributing\n\nContributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) and our\n[Code of Conduct](CODE_OF_CONDUCT.md). To report a security issue, see\n[SECURITY.md](SECURITY.md).\n\n## License\n\n[MIT](LICENSE) © YourICP\n",
+  "status": "curated"
+}

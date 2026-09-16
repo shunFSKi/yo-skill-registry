@@ -1,0 +1,79 @@
+{
+  "id": "mcp:official/io.github.Lexus2016/turbo-quant-memory",
+  "type": "mcp",
+  "name": "Turbo Quant Memory",
+  "description": "Local-first memory and knowledge graph for coding agents. Compact retrieval, no network.",
+  "author": "io.github.Lexus2016",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/Lexus2016/turbo_quant_memory",
+    "repo": "Lexus2016/turbo_quant_memory"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "turbo-quant-memory"
+    ],
+    "env": [
+      {
+        "name": "TQMEMORY_FTS_LANGUAGE",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "TQMEMORY_EMBEDDING_BACKEND",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "TQMEMORY_MIGRATE_ON_STARTUP",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "TQMEMORY_SECRETS_PASSPHRASE",
+        "required": false,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-16T17:03:38.394337Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "AI",
+    "featured": false
+  },
+  "readme": "<!-- mcp-name: io.github.Lexus2016/turbo-quant-memory -->\n\n<p align=\"center\">\n  <!-- Absolute on purpose: this file is the PyPI long_description, and PyPI proxies\n       images through pypi-camo, which cannot resolve a repo-relative path. Keep the\n       localized READMEs relative — they are only ever rendered on GitHub. -->\n  <img src=\"https://raw.githubusercontent.com/Lexus2016/turbo_quant_memory/main/assets/readme-hero-en.svg\" alt=\"Turbo Quant Memory\" width=\"820\">\n</p>\n\n<h3 align=\"center\">Local-first memory and knowledge graph for AI coding agents</h3>\n\n<p align=\"center\">\n  Your agent stops re-reading files and re-deriving the same conclusions.<br>\n  Your notes, code and secrets never leave your machine.\n</p>\n\n<p align=\"center\">\n  <a href=\"https://pypi.org/project/turbo-quant-memory/\"><img alt=\"PyPI\" src=\"https://img.shields.io/pypi/v/turbo-quant-memory.svg\"></a>\n  <a href=\"LICENSE\"><img alt=\"License: MIT\" src=\"https://img.shields.io/badge/license-MIT-blue.svg\"></a>\n  <a href=\"https://registry.modelcontextprotocol.io/v0/servers?search=turbo-quant-memory\"><img alt=\"MCP Registry\" src=\"https://img.shields.io/badge/MCP%20Registry-listed-6f42c1.svg\"></a>\n  <img alt=\"Python 3.11+\" src=\"https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13-blue.svg\">\n  <a href=\"https://github.com/Lexus2016/turbo_quant_memory/actions/workflows/ci.yml\"><img alt=\"CI\" src=\"https://github.com/Lexus2016/turbo_quant_memory/actions/workflows/ci.yml/badge.svg\"></a>\n  <img alt=\"MCP tools\" src=\"https://img.shields.io/badge/MCP-19%20tools-green.svg\">\n  <img alt=\"Local-first\" src=\"https://img.shields.io/badge/data-100%25%20local-success.svg\">\n</p>\n\n---\n\n## The problem\n\nA long session accumulates hard-won detail about why the code is the way it is. Then the context compacts and it is gone. Next session the agent re-reads the same files, re-derives the same conclusions, and bills you for the same tokens again.\n\n`CLAUDE.md` does not scale past a few dozen lines, and it cannot answer *\"what did we decide about X, and why?\"*.\n\n**Turbo Quant Memory** is an MCP server that gives the agent a persistent, searchable store it writes to while it works — decisions, lessons, patterns, session handoffs — plus a compact index of your Markdown. Retrieval returns ~220-character result cards rather than whole documents; the agent loads full content only when a card is not enough.\n\n## Why this one\n\n|                          | **Turbo Quant Memory**                | mem0 / OpenMemory        | MCP `memory` server |\n| :----------------------- | :------------------------------------ | :----------------------- | :------------------ |\n| Where your data lives    | your disk, always                     | vendor cloud or self-host | your disk          |\n| Your data leaves the host | **never**                            | yes, unless self-hosted  | never               |\n| Retrieval                | hybrid BM25 + dense vector, RRF-fused | dense vector             | exact graph lookup  |\n| What a search returns    | compact cards, hydrate on demand      | full memories            | full nodes          |\n| Knowledge graph          | yes — with lifecycle + linting        | no                       | yes                 |\n| Non-English content      | Cyrillic exact-match out of the box   | varies                   | n/a                 |\n| Measures its own savings | **yes — `server_info()`**             | no                       | no                  |\n| Price                    | free, MIT                             | paid tiers               | free                |\n\nNo HTTP client, no telemetry, no phone-home. Verify it yourself — this returns nothing:\n\n```bash\ngrep -rnE '^[[:space:]]*(import|from)[[:space:]]+(requests|httpx|aiohttp|urllib3)\\b' src/\n```\n\nTo be precise about the one exception: on first run `fastembed` downloads the embedding model (~0.22 GB) from Hugging Face. After that the server runs fully offline. Your notes, code and secrets are never transmitted anywhere — there is nothing in the package that could send them.\n\n## Install\n\n### Let your agent install it\n\nPaste this into Claude Code, Codex, Gemini CLI, Cursor or Antigravity:\n\n> Install and configure the Turbo Quant Memory MCP server for this workspace from\n> https://github.com/Lexus2016/turbo_quant_memory — follow the README, register the\n> `tqmemory` server, run `turbo-memory-mcp skill install`, run the health check, and\n> index this project.\n\n`skill install` copies an operating manual into every agent skill directory on the machine, so every future session already knows how to use the memory without being told.\n\n### Or install it yourself\n\n```bash\nuv tool install turbo-quant-memory\n```\n\nThen register the server with your client:\n\n```bash\nclaude mcp add --scope project tqmemory -- turbo-memory-mcp serve   # Claude Code\ncodex  mcp add tqmemory -- turbo-memory-mcp serve                   # Codex\ngemini mcp add tqmemory turbo-memory-mcp serve                      # Gemini CLI\n```\n\nCursor, OpenCode, Antigravity and other clients → [CLIENT_INTEGRATIONS.md](CLIENT_INTEGRATIONS.md).\nHermes runs MCP through a systemd gateway → [docs/hermes.md](docs/hermes.md).\n\n<!-- TQ-STATS:BEGIN (auto-generated by scripts/refresh_readme_stats.py — do not edit by hand) -->\n### 📈 It measures its own savings — see for yourself\n\nTurbo Quant Memory doesn't just *claim* to save tokens — every install keeps a running tally you can read anytime with `server_info()` (field `usage_stats.headline`). The savings are yours to verify, not ours to promise.\n\n**Live snapshot from a real developer instance (v0.28.2):**\n\n| What the memory did | Number |\n| :--- | :--- |\n| 🔢 Input tokens saved (cumulative) | **≈ 2,640,000** and counting |\n| 🔁 Retrievals served | **2,280** searches + **280** deep hydrations |\n| 📉 Average saved per retrieval | **≈ 1,200 tokens** |\n| 📚 Knowledge under management | **237** active notes + **763** indexed code blocks |\n| 🛡️ Integrity | **0** corrupted records · **0** pending migrations |\n\n> These are one machine's cumulative numbers, not a synthetic benchmark — your own counter starts at zero and grows as your agent works. Run `server_info()` on your install to see your real figure.\n<!-- TQ-STATS:END -->\n\n## What it does\n\n* **Typed notes.** `decision`, `lesson`, `pattern`, `handoff` — each stored with tags, provenance and a knowledge-graph link to the file or issue it is about.\n* **Tiered memory.** `durable` (decisions, patterns) and `reference` (indexed docs) are searched by default; `episodic` (session handoffs) stays out of the way until you ask for it, so yesterday's noise never buries an architectural decision.\n* **Hybrid retrieval.** A dense vector lane leads; a BM25 lane rescues exact terms — function names, file paths, IDs — fused with Reciprocal Rank Fusion. Cyrillic and other non-English terms match exactly, case- and accent-insensitive, with no configuration.\n* **Knowledge graph.** Directed, timestamped relations between notes, files and issues. Search results carry the linked context inline, so the agent does not need a second lookup.\n* **Human notes outrank agent notes.** Anything you explicitly asked to remember is flagged `human-explicit` and ranks above the agent's own observations at equal relevance.\n* **Encrypted secrets vault.** Project-scoped, AES-256-GCM, structurally unreachable from search. → [docs/secrets-vault.md](docs/secrets-vault.md)\n* **Runs on a small machine.** The default embedder is ONNX via fastembed — no PyTorch, ~0.22 GB model, comfortable on 2 GB of RAM.\n\nFull technical detail → [docs/features.md](docs/features.md)\n\n## The 19 MCP tools\n\n| Group | Tools |\n| :--- | :--- |\n| Write | `remember_note` · `deprecate_note` · `promote_note` · `index_paths` |\n| Read | `semantic_search` · `hydrate` · `recent_context` · `list_scopes` |\n| Graph | `link_entities` · `unlink_entities` · `get_related_entities` |\n| Hygiene | `lint_knowledge_base` · `health` · `self_test` · `server_info` |\n| Vault | `set_secret` · `get_secret` · `list_secrets` · `delete_secret` |\n\n## Documentation\n\n| | |\n| :--- | :--- |\n| [MEMORY_STRATEGY.md](MEMORY_STRATEGY.md) | How to actually use the memory day to day |\n| [CLIENT_INTEGRATIONS.md](CLIENT_INTEGRATIONS.md) | Per-client setup: Cursor, OpenCode, Antigravity, … |\n| [TECHNICAL_SPEC.md](TECHNICAL_SPEC.md) | Architecture and storage format |\n| [docs/features.md](docs/features.md) | Retrieval, graph, tiers, embedder, FTS language |\n| [docs/secrets-vault.md](docs/secrets-vault.md) | Vault setup, threat model, FAQ |\n| [docs/hermes.md](docs/hermes.md) | Hermes gateway setup and troubleshooting |\n| [CHANGELOG.md](CHANGELOG.md) | Release history |\n\n## License\n\n[MIT](LICENSE). Copy it, modify it, fork it, ship it inside a closed-source product, sell it. Attribution is the only condition.\n\n## Languages\n\n🇺🇸 [English](README.md) · 🇺🇦 [Українська](README.uk.md) · 🇷🇺 [Русский](README.ru.md)\n",
+  "status": "curated"
+}

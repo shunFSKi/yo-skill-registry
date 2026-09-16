@@ -1,0 +1,75 @@
+{
+  "id": "mcp:official/io.github.hostkey-cloud-ru/mcp-server-ru",
+  "type": "mcp",
+  "name": "mcp-server-ru",
+  "description": "MCP-сервер Hostkey .ru (InvAPI): серверы, питание, заказ, DNS, S3, биллинг",
+  "author": "io.github.hostkey-cloud-ru",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/hostkey-cloud-ru/mcp-server-ru",
+    "repo": "hostkey-cloud-ru/mcp-server-ru"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "hostkey-mcp-server-ru"
+    ],
+    "env": [
+      {
+        "name": "HOSTKEY_API_KEY",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "HOSTKEY_TOKEN_TTL",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "HOSTKEY_ALLOW_DESTRUCTIVE",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-16T15:28:27.545588Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "运维",
+    "featured": false
+  },
+  "readme": "# Hostkey MCP Server (RU)\n\nMCP-сервер для [Hostkey](https://hostkey.ru/) (портал **.ru**, InvAPI `invapi.hostkey.ru`).\nКлиент запускает сервер локально по stdio — из Cursor, VS Code и других MCP-клиентов.\n\n| | |\n|---|---|\n| **Endpoint** | `https://invapi.hostkey.ru` (зашит в код) |\n| **Авторизация** | `HOSTKEY_API_KEY` |\n| **Инструменты** | 132 типизированных + `call_api_raw` |\n\nСервер даёт модели доступ к аккаунту Hostkey: серверы, каталог и заказ, питание, переустановка ОС,\nсеть, DNS, снапшоты, IPMI/консоль, ISO, S3, Remote Hands, биллинг и API-ключи.\n\nДля портала **.com** — отдельный пакет `hostkey-mcp-server`.\n\n## 1. Получите API-ключ\n\n[InvAPI](https://invapi.hostkey.ru) → управление API-ключами → выпустите ключ.\n\nЛучше отдельный ключ для MCP. Ключ на один сервер ограничивает доступ этим сервером.\nДля записи DNS нужны права `pdns/edit`.\n\n## 2. Установка\n\n### Cursor\n\n`.cursor/mcp.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"hostkey-mcp-server-ru\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"hostkey-mcp-server-ru\"],\n      \"env\": {\n        \"HOSTKEY_API_KEY\": \"your-api-key\"\n      }\n    }\n  }\n}\n```\n\n### VS Code\n\n`.vscode/mcp.json`:\n\n```json\n{\n  \"mcp.servers\": {\n    \"hostkey-mcp-server-ru\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"hostkey-mcp-server-ru\"],\n      \"env\": {\n        \"HOSTKEY_API_KEY\": \"your-api-key\"\n      }\n    }\n  }\n}\n```\n\nОпционально: `HOSTKEY_TOKEN_TTL`, `HOSTKEY_HTTP_TIMEOUT`, `HOSTKEY_ALLOW_DESTRUCTIVE`\n(см. `.env.example`).\n\nИз исходников (Node.js ≥ 20): `npm install && npm run build`.\n\n## 3. Подтверждение опасных операций\n\nВсе write-вызовы требуют `confirm=true`. Без него сервер ничего не меняет.\n\nДополнительно:\n\n- заказ сервера по умолчанию в `dry_run` — реальный заказ только после явного согласия;\n- переустановка ОС, PXE и отмена услуг — только при `HOSTKEY_ALLOW_DESTRUCTIVE=1`;\n- пароли и токены в ответах маскируются.\n\nДолгие операции (деплой, переустановка) возвращают callback-ключ — статус через `check_task`.\n\n## 4. Инструменты\n\nГруппы (полный список виден клиенту в `tools/list`):\n\n| Группа | Примеры |\n|---|---|\n| Серверы | `get_servers`, `get_server`, `get_power_status` |\n| Каталог | `list_presets`, `list_os`, `list_traffic_plans` |\n| Питание и заказ | `power_on`, `power_off`, `order_server`, `reinstall_server` |\n| PXE | `create_reinstall_task` → … → `clear_pxe_config` |\n| Сеть / DNS | порты, PTR, зоны и записи |\n| Снапшоты, ISO, S3 | ВМ-снапшоты, образы, бакеты |\n| Remote Hands | тикеты дежурной смене (`request_rh_*`, `rhr_*`) |\n| Биллинг | счета, платежи, контакты |\n| Прочее | `check_task`, `call_api_raw` |\n\n## Промпты\n\n| Промпт | Зачем |\n|---|---|\n| `order_server_prompt` | заказ сервера по шагам |\n| `reinstall_server_prompt` | переустановка ОС |\n| `troubleshoot_server_prompt` | диагностика |\n\nИли просто напишите: «покажи мои серверы» / «закажи VPS в NL» — модель выберет нужные инструменты.\n",
+  "status": "curated"
+}

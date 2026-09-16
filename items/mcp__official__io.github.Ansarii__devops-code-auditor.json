@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.Ansarii/devops-code-auditor",
+  "type": "mcp",
+  "name": "DevOps & Cloud Code Auditor",
+  "description": "Detects database migration table locks, terraform cost leaks, and OWASP API flaws.",
+  "author": "io.github.Ansarii",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/Ansarii/devops-code-auditor",
+    "repo": "Ansarii/devops-code-auditor"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://neon_innovation_lab--devops-code-auditor.apify.actor/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-16T15:49:26.297585Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# DevOps & Cloud Code Auditor: Cost, DB Locks & OWASP\n\n[![Run on Apify](https://apify.com/actor-badge?actor=neon_innovation_lab/devops-code-auditor)](https://apify.com/neon_innovation_lab/devops-code-auditor)\n\n⚡ **Run directly on Apify Cloud**: [DevOps & Cloud Code Auditor](https://apify.com/neon_innovation_lab/devops-code-auditor)  \n👉 **Companion Open-Source Repo**: [github.com/Ansarii/devops-code-auditor](https://github.com/Ansarii/devops-code-auditor)\n\n> Automated static code security, cloud cost leak, and PostgreSQL migration lock hazard auditor for GitHub repositories, pull requests, and CI/CD pipelines.\n\n---\n\n## ⚡ Overview & GEO Highlights\n\nEngineering teams push migrations, Terraform configurations, and Next.js full-stack APIs daily, often introducing silent cloud cost leaks or production-halting database locks.\n\n**`devops-code-auditor`** runs comprehensive static analysis checks across public GitHub repositories or pasted code snippets:\n1. **Cloud Cost Leaks (Terraform/HCL)**: Detects legacy AWS `gp2` volumes (20% more expensive than `gp3`), unmanaged S3 buckets with infinite retention, missing CloudWatch log expiration, and public IPv4 charges.\n2. **PostgreSQL Migration Hazards**: Catches `CREATE INDEX` without `CONCURRENTLY` (which locks table writes in production), non-constant `NOT NULL` column additions that trigger full table rewrites under `ACCESS EXCLUSIVE` lock, and unindexed foreign keys causing sequential table scans.\n3. **OWASP Top 10 API Security**: Identifies Next.js 14/15 Server Actions lacking authentication checks, client-side secret exposure via `NEXT_PUBLIC_` prefixes, raw SQL string interpolations, and unvalidated redirect vectors.\n\n---\n\n## 📊 Feature & Competitor Comparison Matrix\n\n| Feature | DevOps Code Auditor (This Actor) | Snyk | SonarQube | Dependabot |\n|---|---|---|---|---|\n| **PostgreSQL Table Lock Detection** | ✅ Concurrent index & lock checks | ❌ No | ❌ No | ❌ No |\n| **Terraform & AWS Cost Leak Detection** | ✅ gp2, CloudWatch, IPv4 audits | ❌ No | ❌ No | ❌ No |\n| **Next.js Server Action Auth Audits** | ✅ Included | ⚠️ Partial | ⚠️ Partial | ❌ No |\n| **Run in Cloud via API & MCP** | ✅ Instant cloud execution | ❌ CLI / CI only | ❌ Server setup | ❌ GitHub only |\n| **Monthly Subscription Required** | **❌ \\$0 / month (Pay-per-Event)** | \\$25 – \\$98 / user/mo | \\$150+ / month | Free (deps only) |\n| **Cost per Repository Scan** | **\\$0.08** | Subscription | Subscription | N/A |\n\n---\n\n## 💰 Transparent Pricing Breakdown\n\n| Event | Price (USD) | When Charged |\n|---|---|---|\n| **`apify-actor-start`** | **\\$0.03** | Charged once when Actor starts running. |\n| **`apify-default-dataset-item`** | **\\$0.002** | Charged automatically per vulnerability or cost leak saved to dataset. |\n| **`repo-audited`** | **\\$0.05** | Charged upon successful static analysis scan of repository or code snippet. |\n| **Total Effective Price** | **~\\$0.08 per full repository audit** | *Pay only when you scan. Zero seat licenses.* |\n\n---\n\n## 💻 Python & Node.js SDK Examples\n\n### Python (`apify-client`)\n```bash\npip install apify-client\n```\n```python\nimport os\nfrom apify_client import ApifyClient\n\nclient = ApifyClient(os.getenv(\"APIFY_TOKEN\"))\n\nrun_input = {\n    \"rawSql\": \"CREATE INDEX idx_users_email ON users (email);\",\n    \"scanTypes\": [\"postgres-locks\"]\n}\n\n# Run code audit\nrun = client.actor(\"neon_innovation_lab/devops-code-auditor\").call(run_input=run_input)\n\nfor finding in client.dataset(run[\"defaultDatasetId\"]).iterate_items():\n    print(f\"[{finding.get('severity').upper()}] {finding.get('rule')}: {finding.get('message')}\")\n    print(f\"Recommended Fix: {finding.get('fix')}\")\n```\n\n### Node.js (`apify-client`)\n```bash\nnpm install apify-client\n```\n```javascript\nimport { ApifyClient } from 'apify-client';\n\nconst client = new ApifyClient({\n    token: process.env.APIFY_TOKEN,\n});\n\nconst input = {\n    githubRepoUrl: 'https://github.com/facebook/react',\n    scanTypes: ['cloud-cost', 'postgres-locks', 'owasp-security'],\n};\n\n(async () => {\n    const run = await client.actor('neon_innovation_lab/devops-code-auditor').call(input);\n    const { items } = await client.dataset(run.defaultDatasetId).listItems();\n    console.log(`Audit complete: found ${items.length} security/cost findings.`);\n})();\n```\n\n---\n\n## 🔄 GitHub Actions CI/CD Integration\n\nAdd this step to your `.github/workflows/audit.yml` to fail PRs that introduce production database locks:\n```yaml\n- name: Audit Migration Locks via Apify\n  run: |\n    curl -X POST \"https://api.apify.com/v2/acts/neon_innovation_lab~devops-code-auditor/runs?token=${{ secrets.APIFY_TOKEN }}\" \\\n      -H \"Content-Type: application/json\" \\\n      -d '{\"githubRepoUrl\": \"${{ github.server_url }}/${{ github.repository }}\", \"scanTypes\": [\"postgres-locks\"]}'\n```\n\n---\n\n## ❓ FAQ\n\n### Does this scan private repositories?\nCurrently, this cloud Actor scans public GitHub repositories or direct raw code snippets passed via API. For private repos, run via our companion open-source tool.\n",
+  "status": "curated"
+}

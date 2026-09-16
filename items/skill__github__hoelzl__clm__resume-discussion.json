@@ -10,14 +10,20 @@
     "repo": "hoelzl/clm",
     "path": ".claude/skills/resume-discussion/SKILL.md"
   },
-  "license": null,
+  "license": "ISC",
   "install": {
     "kind": "skill-dir"
   },
   "quality": {
-    "stars": null,
-    "pushed_at": null,
-    "score": 25
+    "stars": 4,
+    "pushed_at": "2026-09-14T02:53:35Z",
+    "score": 61,
+    "star_history": [
+      {
+        "d": "2026-09-16",
+        "s": 4
+      }
+    ]
   },
   "security": {
     "score": 100,
@@ -49,6 +55,6 @@
     "category": "办公",
     "featured": false
   },
-  "readme": null,
+  "readme": "# CLM - Coding-Academy Lecture Manager\n\n[![CI](https://github.com/hoelzl/clm/actions/workflows/ci.yml/badge.svg)](https://github.com/hoelzl/clm/actions/workflows/ci.yml)\n[![codecov](https://codecov.io/gh/hoelzl/clm/branch/master/graph/badge.svg)](https://codecov.io/gh/hoelzl/clm)\n\n**Version**: 1.28.0 | **License**: MIT | **Python**: 3.12, 3.13, 3.14\n\nCLM is a course content processing system that converts educational materials (Jupyter notebooks, PlantUML diagrams, Draw.io diagrams) into multiple output formats.\n\n## Quick Start\n\n### Installation\n\n```bash\n# Install from PyPI\npip install coding-academy-lecture-manager\n\n# Or with all optional dependencies (workers, TUI, web dashboard)\npip install \"coding-academy-lecture-manager[all]\"\n```\n\nFor development, clone the repository and install in editable mode:\n\n```bash\ngit clone https://github.com/hoelzl/clm.git\ncd clm\npip install -e \".[all]\"\n```\n\n### Basic Usage\n\n```bash\n# Convert a course\nclm build /path/to/course.xml\n\n# Watch for changes and auto-rebuild\nclm build /path/to/course.xml --watch\n\n# Show help\nclm --help\n```\n\n## Features\n\n- **Multiple Output Formats**: HTML slides, Jupyter notebooks, extracted code\n- **Multi-Language Notebooks**: Python, C++, C#, Java, TypeScript, Markdown\n- **Diagram Support**: PlantUML and Draw.io conversion\n- **Multiple Output Targets**: Separate student/solution/instructor outputs\n- **Shared-Source Includes**: Declare `<include source=\"…\" as=\"…\"/>` on a `<topic>` or `<section>` to splice a canonical Python package (or any file/directory) into multiple topics at build time. `clm course sync-includes` materializes the same sources on disk so local notebook execution (VS Code, JupyterLab) finds them, with a `.clm-include` ledger for safe cleanup.\n- **Output-Write Deduplication**: When the same file is written to the same output path by multiple producers, CLM deduplicates the write and surfaces a `output_dedup_count` / `output_conflicts` summary so you can spot accidental cross-topic collisions.\n- **Watch Mode**: Auto-rebuild on file changes\n- **Incremental Builds**: Content-based caching\n- **LLM Summaries**: Generate course summaries with `clm export summary` using any OpenAI-compatible LLM API\n- **Recording Management**: Manage video recording workflows with pluggable backends — local ONNX pipeline, iZotope RX 11 external tool, or Auphonic cloud processing — plus assembly, job tracking, and per-course status (`clm recordings`)\n- **MCP Server**: Model Context Protocol server for AI-assisted slide authoring (`clm mcp`) with 16 tools for course navigation, validation, normalization, and bilingual editing\n- **Slide Authoring Tools**: Split-deck authoring sync (`clm slides sync` — the funnel that keeps both halves of a `.de`/`.en` pair consistent), topic resolution (`clm course resolve-topic`), fuzzy search (`clm slides search`), spec/slide validation (`clm validate`), normalization (`clm slides normalize`), bilingual language view (`clm slides language-view`), voiceover extraction (`clm voiceover extract`), LLM-driven voiceover coverage check (`clm slides coverage`), bilingual ↔ per-language file conversion (`clm slides split` / `clm slides unify`), and structured JSON outlines (`clm export outline --format json`). Lower-level plumbing (`clm slides assign-ids`, `clm slides suggest-sync`) stays available by name for scripts and agents.\n- **Video Narration Harvest**: Recover spoken narration from recorded videos into slide decks (`clm harvest`) — an agent-first report → task → accept loop over the deterministic transcribe/detect/match/align pipeline, with multi-part recordings, caching, and a legacy embedded-LLM one-shot (`clm harvest autopilot`)\n- **LLM Polish**: Clean up speaker notes with LLM-powered text polishing (`clm polish`)\n- **Git Integration**: Manage output repos with `clm git init/sync/status`, including `--amend` and `--force-with-lease` for iterative workflows\n- **Flexible Remote URLs**: Configurable git remote URL templates for SSH, custom hosts, etc.\n\n## Documentation\n\n**For Users**:\n- [User Guide](docs/user-guide/README.md) - Complete usage guide\n- [Quick Start](docs/user-guide/quick-start.md) - Build your first course\n- [Spec File Reference](docs/user-guide/spec-file-reference.md) - Course XML format\n- [Configuration](docs/user-guide/configuration.md) - Configuration options\n- [Changelog](CHANGELOG.md) - Version history\n\n**For Developers**:\n- [Contributing Guide](CONTRIBUTING.md) - How to contribute\n- [Developer Guide](docs/developer-guide/README.md) - Development documentation\n- [Architecture](docs/developer-guide/architecture.md) - System design\n- [AGENTS.md](AGENTS.md) - AI assistant reference (imported by `CLAUDE.md` for Claude Code)\n\n## Development Setup\n\n```bash\n# Install pre-commit hooks (recommended)\nuv run pre-commit install\n\n# This enables automatic linting (ruff) and type checking (mypy) on every commit\n```\n\n## Testing\n\n```bash\n# Run unit tests\npytest\n\n# Run all tests (unit, integration, e2e)\npytest -m \"\"\n\n# Run with coverage\npytest --cov=src/clm\n```\n\n## License\n\nMIT License - see [LICENSE](LICENSE) for details.\n\n## Links\n\n- **Repository**: https://github.com/hoelzl/clm/\n- **Issues**: https://github.com/hoelzl/clm/issues\n",
   "status": "curated"
 }

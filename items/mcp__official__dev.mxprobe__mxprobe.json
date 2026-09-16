@@ -28,7 +28,7 @@
   "quality": {
     "stars": null,
     "pushed_at": "2026-09-15T12:17:13.682506Z",
-    "score": 52
+    "score": 42
   },
   "security": {
     "score": 100,
@@ -60,6 +60,6 @@
     "category": "编程",
     "featured": false
   },
-  "readme": "# MX Probe\n\nEmail verification for AI agents. One call returns `send`, `hold` or `kill`\nfor an address, with the reason. Signup and credits happen by API too, so an\noutreach agent can provision itself. No form, no CAPTCHA, no dashboard.\n\n- Site and docs: https://mxprobe.dev\n- API: https://api.mxprobe.dev (it describes itself on `GET /`). OpenAPI: https://mxprobe.dev/openapi.json. For agents: https://mxprobe.dev/llms.txt\n- npm: [`mxprobe`](https://www.npmjs.com/package/mxprobe) (CLI + MCP server), [`mxprobe-core`](https://www.npmjs.com/package/mxprobe-core) (the engine)\n\n```bash\nnpx mxprobe check hello@example.com          # free DNS tier, local, no key\nnpx mxprobe check --hosted hello@example.com # survivors go to the hosted SMTP probe\nclaude mcp add mxprobe -- npx -y mxprobe mcp # the MCP server\n```\n\n```json\n{\n  \"email\": \"hello@example.com\",\n  \"action\": \"send\",\n  \"verdict\": \"OK\",\n  \"reason\": \"mailbox accepted by aspmx.l.google.com\",\n  \"checks\": { \"syntax\": true, \"mx\": \"aspmx.l.google.com\", \"smtp\": \"accepted\", \"catch_all\": false }\n}\n```\n\n`action` is `send`, `hold` or `kill`; `verdict` is `OK`, `WEAK` or `DEAD`. A\n`hold` never becomes a `kill` on a refusal, a greylist or a catch-all. Only a\n5xx that names the mailbox kills.\n\n## Layout\n\n| Path | What |\n|---|---|\n| `packages/core` | The engine: DNS tier, SMTP probe, the verdict contract and the API's wire types. Zero dependencies. |\n| `packages/cli` | `npx mxprobe check | signup | balance | buy | mcp`. Also exports `createClient`. |\n| `server` | The hosted API: `node:http` + `node:sqlite`, Stripe Checkout, Resend, Telegram. |\n| `site` | The landing page, static. |\n| `deploy` | Caddyfile, systemd units, the install script and the runbook. |\n\n## Develop\n\nEverything is TypeScript (strict, ESM). Each package compiles its `src/` to\n`dist/` with `tsc -b`; the published packages ship `dist/` only. `mxprobe` and\nthe server import `mxprobe-core` through the workspace link to its `dist/`,\nso `pnpm build` at the root (which runs the packages in dependency order) must\ncome before a single package's `test` or `typecheck`. Tests are `.ts` files\nthat Node runs directly with its built-in type stripping.\n\n```bash\npnpm install\npnpm build                      # tsc -b in each package, core first\npnpm test                       # builds, then: fake resolver, fake SMTP server, in-memory SQLite. No network.\npnpm typecheck                  # the sources and the tests, without emitting\npnpm test:live                  # the DNS tier against the real network\npnpm check a@b.com              # the CLI from this checkout\ncp server/.env.example server/.env && pnpm dev:server\n```\n\nNode 22.18 or newer (24 recommended) to develop and to run the tests; the\ncompiled engine and CLI run on Node 20, the server on 22.13 or newer\n(`node:sqlite`).\n\n## Pricing\n\n100 checks free at signup, then 9 USD per 10,000, one payment, credits never\nexpire. Addresses are logged for 24 hours for debugging and then deleted.\n\nMIT.\n",
+  "readme": null,
   "status": "curated"
 }

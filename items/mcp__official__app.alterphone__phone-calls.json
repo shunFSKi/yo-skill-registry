@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/app.alterphone/phone-calls",
+  "type": "mcp",
+  "name": "AlterPhone MCP",
+  "description": "Place real phone calls and hold spoken conversations on a user's behalf, billed per minute.",
+  "author": "app.alterphone",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/marius-bardan/alterphone-mcp",
+    "repo": "marius-bardan/alterphone-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://mcp.alterphone.app/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-16T14:32:16.341697Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# AlterPhone MCP\n\n**Let your AI assistant make real phone calls.**\n\nAlterPhone MCP is a hosted [Model Context Protocol](https://modelcontextprotocol.io) server. Connect it to Claude, ChatGPT, Cursor, Claude Code or any other MCP client, and the assistant can dial a real phone number, hold a spoken conversation in one of 12 languages, and report back what was said: book or reschedule appointments, ask a business a question, negotiate, confirm an order, screen a caller, run a survey.\n\n- **Server URL:** `https://mcp.alterphone.app/mcp` (Streamable HTTP)\n- **Registry name:** `app.alterphone/phone-calls` in the [official MCP Registry](https://registry.modelcontextprotocol.io)\n- **Auth:** OAuth 2.1 with PKCE and dynamic client registration. Sign in with Google or Apple on first use.\n- **Billing:** prepaid credits, 100 credits per US dollar, per started minute at the destination rate (about 8 credits per minute to the US). Same account and balance as the [AlterPhone app](https://alterphone.app).\n\nFull details, tools and supported countries: https://alterphone.app/mcp.html\n\n## Quick start\n\n### Claude (claude.ai and Claude Desktop)\n\nSettings → Connectors → **Add custom connector** → enter `https://mcp.alterphone.app/mcp` → complete the sign-in.\n\n### ChatGPT\n\nSettings → Connectors → create a connector with the server URL `https://mcp.alterphone.app/mcp` → complete the sign-in. Custom MCP connectors require developer mode on your plan.\n\n### Claude Code\n\n```bash\nclaude mcp add --transport http -s user alterphone https://mcp.alterphone.app/mcp\n```\n\n### Cursor, Windsurf and other clients with an MCP config file\n\n```json\n{\n  \"mcpServers\": {\n    \"alterphone\": {\n      \"url\": \"https://mcp.alterphone.app/mcp\"\n    }\n  }\n}\n```\n\n### Clients that only run local (stdio) servers\n\nThis package is a thin bridge for that case. It delegates to [`mcp-remote`](https://www.npmjs.com/package/mcp-remote), which performs the browser sign-in, caches the tokens locally and forwards every message to the hosted server:\n\n```json\n{\n  \"mcpServers\": {\n    \"alterphone\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"alterphone-mcp\"]\n    }\n  }\n}\n```\n\nRequires Node.js 18 or newer. Set `ALTERPHONE_MCP_URL` to point the bridge at a different server.\n\n## Tools\n\n| Tool | Description |\n|---|---|\n| `have_conversation` | Dial a number and pursue an objective autonomously. Streams the transcript and returns the collected answers and a summary. The main tool. |\n| `place_call` | Dial a number, optionally with a greeting, for turn-by-turn control. |\n| `speak_and_listen` | Say something and return what the other party replied. |\n| `listen` | Wait for the other party to speak and return the transcript. |\n| `hangup` | End the call. |\n| `get_balance` | Read the prepaid credit balance. |\n| `purchase_credits` | Top up with the saved payment method, within a daily cap. |\n\nEvery tool carries `readOnlyHint` / `destructiveHint` annotations.\n\n## Safety and limits\n\n- Outbound calls only, to the US, Canada, the UK, Germany, France, Italy, Spain, the Netherlands, Belgium, Portugal, Poland, Romania, Turkey, Russia, India, Australia, Saudi Arabia, the UAE, Egypt, Morocco, Algeria, Tunisia and Libya.\n- Emergency, premium-rate and satellite numbers are refused before dialing. Conversation plans are screened for fraud, harassment, impersonation and other prohibited uses.\n- One active call per account. Transcripts are kept for 24 hours; see section 12 of the [privacy policy](https://alterphone.app/privacy-policy.html).\n\n## For developers\n\n- OAuth discovery: `https://mcp.alterphone.app/.well-known/oauth-protected-resource`; authorization server `https://alterphone.app`.\n- Scopes: `calls:write`, `balance:read`, `credits:purchase`.\n- REST description of the call service, for integrations that do not speak MCP: https://calls.alterphone.app/openapi.json\n- Machine-readable summary: https://alterphone.app/llms.txt\n\n## Support\n\nsupport@alterphone.app · [Terms of service](https://alterphone.app/terms-of-service.html)\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

@@ -1,0 +1,74 @@
+{
+  "id": "mcp:official/io.github.wmmg101/kilter-mcp",
+  "type": "mcp",
+  "name": "Kilter Board Logbook",
+  "description": "Read-only access to your Kilter Board logbook: sessions, sends, projects and grade stats",
+  "author": "io.github.wmmg101",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/wmmg101/kilter-mcp",
+    "repo": "wmmg101/kilter-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "kilter-mcp"
+    ],
+    "env": [
+      {
+        "name": "KILTER_USERNAME",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "KILTER_PASSWORD",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "KILTER_TIMEZONE",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-16T11:29:12.430647Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# kilter-mcp\n\n<!-- mcp-name: io.github.wmmg101/kilter-mcp -->\n\nAn unofficial [MCP](https://modelcontextprotocol.io) server that lets your AI agent read and\nanalyse **your own Kilter Board logbook**.\n\nAdd it to [Kiro](https://kiro.dev) (or [another MCP client](docs/clients.md)), give it your\nKilter login, and then just talk to the agent:\n\n> How did my last Kilter session go?\n> What are my current projects at 30°?\n> Compare my climbing at 20° and 40°.\n> Show my grade pyramid. What are my hardest sends? Am I progressing?\n\n<img src=\"docs/example-session.png\" alt='Kiro answering \"How did my last Kilter session go?\" by calling kilter_get_sessions and summarising: 16 climbs logged at 20°, 14 flashed, the two misses named, hardest send V0 (4C).' width=\"800\">\n\nRead-only. Nothing is written to your Kilter account.\n\n## Add to Kiro + Other Clients (Claude, Codex, Cursor etc.)\n\n[![Add to Kiro](https://kiro.dev/images/add-to-kiro.svg)](https://kiro.dev/launch/mcp/add?name=kilter&config=%7B%22command%22%3A%22uvx%22%2C%22args%22%3A%5B%22kilter-mcp%22%5D%2C%22env%22%3A%7B%22KILTER_USERNAME%22%3A%22%24%7BKILTER_USERNAME%7D%22%2C%22KILTER_PASSWORD%22%3A%22%24%7BKILTER_PASSWORD%7D%22%7D%2C%22disabled%22%3Afalse%2C%22autoApprove%22%3A%5B%5D%7D)\n\nClick the button (Kiro shows a confirmation dialog first), then jump to step 3. Or do it by\nhand:\n\n1. Open your MCP config in Kiro: command palette → **Kiro: Open user MCP config (JSON)**\n   (or the workspace one, `.kiro/settings/mcp.json`).\n2. Add the server:\n\n```json\n{\n  \"mcpServers\": {\n    \"kilter\": {\n      \"command\": \"uvx\",\n      \"args\": [\"kilter-mcp\"],\n      \"env\": {\n        \"KILTER_USERNAME\": \"${KILTER_USERNAME}\",\n        \"KILTER_PASSWORD\": \"${KILTER_PASSWORD}\"\n      },\n      \"disabled\": false,\n      \"autoApprove\": []\n    }\n  }\n}\n```\n\n3. Provide your Kilter credentials. Either:\n   - set `KILTER_USERNAME` and `KILTER_PASSWORD` as environment variables (Kiro expands\n     `${VAR}` after you approve the variables in **Settings → Mcp Approved Env Vars**; see\n     [how to set them on macOS, Linux and Windows](docs/clients.md#setting-the-environment-variables)), or\n   - replace the `${...}` placeholders with the literal values. Only do this in the *user*\n     config (`~/.kiro/settings/mcp.json`), never in a workspace config you might commit.\n4. Save. Kiro starts the server and the `kilter_*` tools appear. Ask away.\n\nSomething not working? With the same variables exported in a terminal, run\n`uvx kilter-mcp --check`. It logs in, counts your logbook and prints a short report with no\nsecrets or entries in it, which you can paste into an issue.\n\nRequirements: [`uv`](https://docs.astral.sh/uv/) installed (`uvx` comes with it). Python is\nhandled by `uv`.\n\nKiro CLI users can do the same with\n`kiro-cli mcp add --name kilter --scope global --command uvx --args kilter-mcp --env KILTER_USERNAME=... --env KILTER_PASSWORD=...`.\n\n### Optional: timezone\n\nSessions are grouped by calendar day in your timezone, which is detected from the machine\nrunning the server. If that is wrong (for example a remote or containerised host), add\n`\"KILTER_TIMEZONE\": \"Europe/Rome\"` (any IANA name) to the `env` block. Every response states\nthe timezone it used.\n\n### Other clients\n\nkilter-mcp is a standard local MCP server, so it also works in Claude Desktop, Claude Code,\nCodex, Cursor, VS Code, Windsurf, Gemini CLI and Zed. Copy-paste configs for each are in\n[docs/clients.md](docs/clients.md). (ChatGPT's chat interface only accepts remote HTTP\nservers, so it is not supported directly; details in the same document.)\n\n## Example questions\n\n```text\nShow my latest Kilter session.\nWhat did I climb last Saturday?\nList my sends from this month at 40°.\nWhat are my current projects?\nWhich projects have I put the most attempts into?\nShow my grade pyramid at 30°.\nWhat is my flash rate per grade?\nWhat are my five hardest sends?\nCompare my climbing at 20° and 30°.\nHow has my climbing progressed over the last six months?\n```\n\n## Tools the agent gets\n\n| Tool | What it returns |\n|---|---|\n| `kilter_get_logs` | Logbook entries (filter by limit, angle, topped, date range) |\n| `kilter_get_sends` | Topped climbs, newest first |\n| `kilter_get_projects` | Climbs attempted but never topped at that angle |\n| `kilter_get_summary` | Totals, angles, date range, hardest send/flash, sends by grade |\n| `kilter_get_grade_pyramid` | Sends per grade with flash rates |\n| `kilter_get_hardest_sends` | Hardest unique sends |\n| `kilter_get_sessions` | Entries grouped by day |\n| `kilter_get_progression` | Month-by-month or week-by-week trend |\n| `kilter_get_angle_stats` | Per-angle comparison |\n\nAll tools are read-only and only ever see the account whose credentials you configured.\n\n### How the data is interpreted\n\n- One logbook entry is one climb at one wall angle on one date, with the number of tries in\n  that entry. Re-logging a climb creates a new entry.\n- `status` is `flash` (topped first try), `send` (topped) or `attempt` (not topped).\n- A project is a `(climb, angle)` pair with attempts but no top at that angle.\n- Grades are Kilter's current consensus grade for the climb at that angle. `grade` is the\n  V-scale and `font_grade` the Font scale; the raw `difficulty_id` (1-39) is always included.\n  The grade table is fetched from Kilter at startup with an embedded fallback.\n- If you rated a climb yourself in the app, `my_grade` and `my_rating` (1-5 stars) carry your\n  opinion; otherwise they are null.\n- Dates are reported in your timezone (see above). A session is one calendar day.\n\n## Security and privacy\n\n- Your username and password are only used to obtain an OAuth token from Kilter's login\n  server (`idp.kiltergrips.com`). They never leave your machine otherwise.\n- Tokens are kept in memory for the life of the MCP process and are never written to disk.\n- Credentials and tokens are never included in tool output, logs or error messages.\n- The server makes requests only to `idp.kiltergrips.com` and `portal.kiltergrips.com`.\n- Also available in the [MCP Registry](https://registry.modelcontextprotocol.io) as\n  `io.github.wmmg101/kilter-mcp`.\n- Prefer the `${KILTER_PASSWORD}` form so the password lives in your shell environment or\n  secret manager rather than in a JSON file.\n- Your logbook is fetched at most once a minute, however many tools the agent calls, and\n  Kilter's rate-limit responses are respected.\n\nFull details and how to report a problem privately: [SECURITY.md](SECURITY.md).\n\n## Disclaimer\n\nkilter-mcp is an unofficial community project and is not affiliated with or endorsed by\nKilter Grips. It talks to the same endpoints the Kilter app uses; these are not a documented\npublic API and may change or stop working at any time. Kilter's Terms of Use restrict\naccess to their services outside the official apps; use this project at your own discretion,\nonly with your own account, and keep request volume low (the server fetches your logbook\nonce per tool call).\n\n## Contributing\n\nIssues and pull requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for the\ndevelopment setup (`git clone`, `uv sync`, `uv run pytest`), architecture notes, and how to\nadd a tool.\n\n## License\n\n[MIT](LICENSE)\n",
+  "status": "curated"
+}

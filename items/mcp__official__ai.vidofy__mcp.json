@@ -1,0 +1,65 @@
+{
+  "id": "mcp:official/ai.vidofy/mcp",
+  "type": "mcp",
+  "name": "Vidofy",
+  "description": "Generate video, images, audio and speech with Vidofy — Veo 3.1, Kling 3.0, Flux 2 and 570+ models.",
+  "author": "ai.vidofy",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/vidofy/mcp",
+    "repo": "vidofy/mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@vidofy/mcp"
+    ],
+    "env": [
+      {
+        "name": "VIDOFY_TOKEN",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-16T18:02:44.340106Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "设计",
+    "featured": false
+  },
+  "readme": "# @vidofy/mcp\n\n[![npm](https://img.shields.io/npm/v/@vidofy/mcp?color=cb3837&logo=npm)](https://www.npmjs.com/package/@vidofy/mcp)\n[![node](https://img.shields.io/badge/node-%E2%89%A518-5fa04e?logo=node.js&logoColor=white)](https://nodejs.org)\n[![licence](https://img.shields.io/badge/licence-MIT-blue)](./LICENSE)\n[![MCP](https://img.shields.io/badge/Model_Context_Protocol-server-6f42c1)](https://modelcontextprotocol.io)\n\n**MCP server for [Vidofy](https://vidofy.ai)** — generate images, video, audio and speech from\nClaude, ChatGPT, VS Code, Gemini CLI, Cursor, Hermes, or any MCP client, **billed to your own\nVidofy account**, at the same prices the website charges.\n\nOver 570 models, including **Veo 3.1**, **Kling 3.0**, **Flux 2**, **Seedance 2.5**, **Wan 2.7**,\n**Hailuo 2.3**, **Runway**, **Luma Ray 2**, **Qwen Image 3.0**, **Vidu Q3** and **LTX 2** —\ntext-to-video, image-to-video, text-to-image, image editing, video and photo effects, lipsync,\ntext-to-speech and voice cloning. The agent browses the catalogue, prices a generation before\nrunning it, and follows one to its result.\n\n> **Status: first public release.**\n>\n> **This server is for personal Vidofy accounts.** It takes one credential,\n> `VIDOFY_TOKEN`, and spends **your own coins** — the same balance the website\n> spends, at the same prices. There is no other billing mode: `VIDOFY_API_KEY` is\n> refused at startup, and that is a decision, not a feature waiting on a release.\n\n## Tools\n\n| Tool | What it does | Spends |\n|---|---|---|\n| `list_modes` | What Vidofy can generate: text-to-image, image-to-video, lipsync, speech… | no |\n| `list_models` | The models in one mode, with each one's credit cost and rough duration | no |\n| `get_model` | One model's full input contract: a JSON Schema, its file slots and their limits | no |\n| `estimate_cost` | What a generation will cost, before running it | no |\n| **`generate`** | **Runs it. The only tool that spends the balance.** | **yes** |\n| `get_status` | Whether a generation has finished | no |\n| `get_result` | The finished media | no |\n| `get_balance` | Coins left, and how many expire with the subscription | no |\n| `get_usage` | Recent generations and what they cost | no |\n\nThe usual order is `list_modes` → `list_models` → `get_model` → `estimate_cost` → `generate`\n→ `get_status` → `get_result`.\n\n`generate` is the only tool without `readOnlyHint`, which is what tells a client to ask the user\nbefore running it. It charges at **submit**, not on success, and returns immediately with an id —\na generation takes from ~30 seconds to several minutes, so the agent polls `get_status` rather\nthan holding the call open. Output is **private by default**; pass `public: true` only when the\nuser asked for a permanent public link.\n\nFile inputs take a **path on the machine running the server**. The package reads the user's own\nfile and streams it with the submit — it never makes a temporary copy — and checks the extension\nand size against that model's own limits first, so a file the server would reject never leaves\nthe disk.\n\n**Not exposed, deliberately:** checkout, auto top-up, purchases, referrals, the daily reward.\nNothing in this package can buy coins or change a plan, however it is prompted.\n\n## Setup\n\nThere are two ways in. **Take the first one** unless your client cannot do it.\n\n### 1. Remote connector — nothing to install\n\nGive your client this URL:\n\n```\nhttps://vidofy.ai/mcp-app\n```\n\nYou sign in **in your browser** and approve once. No token to copy, nothing to keep in a\nconfig file, and nothing to update when this package changes.\n\n| Client | How |\n|---|---|\n| **Claude.ai** · **Claude Desktop** | Settings → Connectors → *Add custom connector* → paste the URL → **Connect**, then approve the sign-in. They share one list: add it in either and it appears in both. Available on every plan, including Free — where you get one connector. |\n| **ChatGPT** | Settings → Connectors → add a custom connector (no such option? turn on Developer Mode in Settings first) → paste the URL → **Connect**, then approve. On a Business or Enterprise workspace an administrator adds it for everyone. |\n| **VS Code** | Add an MCP server of type `http` with the URL above, then approve the sign-in in your browser. VS Code identifies itself with its own published client metadata, so there is nothing to register and no client secret to obtain. |\n| **Claude Code** · **Codex** · **Cursor** | Each accepts a remote MCP server URL. Follow that client's own MCP documentation and give it the URL above. |\n\nThen ask it: *\"list Vidofy modes\"* to confirm the connection, and\n*\"make me a 5-second clip of a red bicycle\"* — it prices the generation before running it.\n\n**Some clients cannot take this route, and it is worth knowing why before you try.** Signing in\nhere needs a client that identifies itself with a **published metadata document** — an https URL\nthe authorization server fetches. Clients that instead expect to **register themselves** at a\n`registration_endpoint`, or to be handed a `client_id` and `client_secret` you created by hand,\nhave nothing to work with: this server issues neither. **Gemini CLI** and **Hermes** are both in\nthat group today. Take route 2 — it is not a lesser path, just a different way of proving who\nyou are.\n\n### 2. Local stdio server — works with every client here\n\nCreate a personal MCP token at **vidofy.ai → Studio → Account → MCP Access**. It is shown once.\n\n```jsonc\n// claude_desktop_config.json   (Cursor: .cursor/mcp.json — same shape)\n{\n  \"mcpServers\": {\n    \"vidofy\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@vidofy/mcp\"],\n      \"env\": { \"VIDOFY_TOKEN\": \"vmt_...\" }\n    }\n  }\n}\n```\n\n`npx` fetches it on first run. Prefer a pinned copy? `npm i -g @vidofy/mcp`, then:\n\n```jsonc\n{ \"command\": \"vidofy-mcp\", \"env\": { \"VIDOFY_TOKEN\": \"vmt_...\" } }\n```\n\n**The entry is the same everywhere — the file it goes in, and what the outer key is called,\nare not.** Check yours against your client's own documentation before you paste:\n\n| Client | File | Outer key |\n|---|---|---|\n| Claude Desktop | `claude_desktop_config.json` | `mcpServers` |\n| Cursor | `.cursor/mcp.json` | `mcpServers` |\n| Gemini CLI | `settings.json`, user-level or per project | `mcpServers` |\n| VS Code | `.vscode/mcp.json`, or the user-profile `mcp.json` | **`servers`** — and each entry adds `\"type\": \"stdio\"` |\n| Hermes | `config.yaml` in the Hermes home directory | `mcp_servers` — **YAML**, not JSON |\n\nSo VS Code wants:\n\n```jsonc\n// .vscode/mcp.json\n{\n  \"servers\": {\n    \"vidofy\": {\n      \"type\": \"stdio\",\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@vidofy/mcp\"],\n      \"env\": { \"VIDOFY_TOKEN\": \"vmt_...\" }\n    }\n  }\n}\n```\n\nand Hermes wants the same thing in YAML:\n\n```yaml\nmcp_servers:\n  vidofy:\n    command: npx\n    args: [\"-y\", \"@vidofy/mcp\"]\n    env:\n      VIDOFY_TOKEN: \"vmt_...\"\n```\n\nBoth paths reach the same account, the same models and the same balance. The difference is\nonly where the process runs and how you prove who you are.\n\n**One client shows more than the others.** A generation normally comes back as text the model\nreads out. A host that supports **MCP Apps** gets a live card instead — the picture or clip\nitself, its progress while it runs, and a download button — and the server offers it only to a\nhost that says it can render one. Claude and **VS Code** both do (in VS Code, turn on\n`chat.mcp.apps.enabled`). Everywhere else the same result arrives as text and, for an image,\nan inline picture. Nothing is missing; it is just quieter.\n\n### Environment\n\n| Variable | Required | What it does |\n|---|---|---|\n| `VIDOFY_TOKEN` | **yes** | Personal MCP token (`vmt_…`). Spends **your own Vidofy coins**, exactly as the studio does. |\n| `VIDOFY_API_BASE` | no | Override the origin the server talks to — an **origin only**, no path. Defaults to `https://vidofy.ai`, which is what you want. |\n\n`VIDOFY_API_KEY` is recognised only in order to be **refused**: a `vky_…` key bills a\ndifferent balance, which this server does not serve. Setting it stops startup with a message\nnaming the token to use instead — and setting *both* is refused too, since the two bill\ndifferent balances and no precedence rule is worth having to remember.\n\n## Development\n\n```bash\nnpm install\nnpm run build\nnpm run inspect      # MCP Inspector — spends nothing\n```\n\n`VIDOFY_API_BASE` points it at a different origin, if you are running one.\n\n**Nothing here writes to stdout.** With stdio transport, stdout *is* the protocol channel — a\nsingle stray `console.log()` puts a non-JSON line in the stream and the client drops the\nconnection with an error that explains nothing. Diagnostics go to stderr via the `log()` helper\nin `src/index.ts`.\n\n## Layout\n\n```\nsrc/config.ts          credential + mode + base URL, validated at startup\nsrc/backend.ts         the only place that talks HTTP: auth, retries, multipart, errors\nsrc/schema.ts          one model's m_options → a JSON Schema the agent can fill in\nsrc/map/b2c.ts         both response shapes → one; strips the provider cost\nsrc/tools/info.ts      list_modes, list_models, get_model\nsrc/tools/generation.ts estimate_cost, generate, get_status, get_result\nsrc/tools/account.ts   get_balance, get_usage\nsrc/index.ts           the server: stdio transport, tool registration, annotations\n\n\nserver.json     MCP registry manifest (name must match package.json \"mcpName\")\n```\n\n## Licence\n\nMIT\n",
+  "status": "curated"
+}

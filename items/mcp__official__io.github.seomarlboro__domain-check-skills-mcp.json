@@ -2,12 +2,12 @@
   "id": "mcp:official/io.github.seomarlboro/domain-check-skills-mcp",
   "type": "mcp",
   "name": "domain-check-skills-mcp",
-  "description": "World's fastest domain check. Or the second — dispute it. 52 TLDs, 7 registrars, no API key.",
+  "description": "World's fastest domain check. Or the second — dispute it. 50+ TLDs, 6 registrars, no API key.",
   "author": "io.github.seomarlboro",
   "source": {
     "registry": "mcp-official",
-    "url": "https://github.com/Seomarlboro/digmyname",
-    "repo": "Seomarlboro/digmyname"
+    "url": "https://github.com/seomarlboro/digmyname",
+    "repo": "seomarlboro/digmyname"
   },
   "license": null,
   "install": {
@@ -27,8 +27,8 @@
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-08-05T21:30:11.951993Z",
-    "score": 37
+    "pushed_at": "2026-09-16T16:56:02.171821Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -60,6 +60,6 @@
     "category": "运维",
     "featured": false
   },
-  "readme": null,
+  "readme": "# DigMyName\n\n[![npm version](https://img.shields.io/npm/v/domain-check-skills-mcp?color=6d28d9&label=npm&logo=npm)](https://www.npmjs.com/package/domain-check-skills-mcp)\n[![npm downloads](https://img.shields.io/npm/dm/domain-check-skills-mcp?color=10b981&label=downloads)](https://www.npmjs.com/package/domain-check-skills-mcp)\n[![license MIT](https://img.shields.io/badge/license-MIT-2563eb)](https://github.com/seomarlboro/digmyname/blob/main/LICENSE)\n![MCP compatible](https://img.shields.io/badge/MCP-compatible-7c3aed)\n![free, no API key](https://img.shields.io/badge/free-no%20API%20key-16a34a)\n\n**The fastest domain search — or the second. Dispute it.** Free, honest domain availability checks across 50+ TLDs with 6-registrar price comparison.\n\n## Links\n\n- Website: https://digmyname.com\n- Free API: https://digmyname.com/api\n- MCP server: https://digmyname.com/mcp (npm: [`domain-check-skills-mcp`](https://www.npmjs.com/package/domain-check-skills-mcp))\n- Speed benchmark: https://digmyname.com/speed\n\n## Quick start\n\nNo install needed to try it — the site and the API are both live.\n\n```sh\ncurl \"https://api.digmyname.com/functions/v1/public-api/check?domain=acmeforge.io\"\n```\n\n```json\n{\n  \"result\": {\n    \"domain\": \"acmeforge.io\",\n    \"available\": true,\n    \"price_usd\": 28.12,\n    \"cheapest_registrar\": { \"name\": \"Porkbun\", \"reg_price_usd\": 28.12 },\n    \"buy_url\": \"https://porkbun.com/checkout/search?q=acmeforge.io\"\n  }\n}\n```\n\nFree, no API key, no account — 60 requests/minute/IP. Full docs: [digmyname.com/api](https://digmyname.com/api).\n\nWant your LLM to call it directly instead? One line: `claude mcp add domain-check -- npx -y domain-check-skills-mcp` — see [mcp/README.md](./mcp/README.md).\n\n## What it does\n\nDigMyName checks domain availability in real time across 50+ TLDs. Availability is cross-checked against two independent signals on every name — RDAP (resolved via the IANA bootstrap registry) and DNS-over-HTTPS (Cloudflare, Google and AdGuard, hedged) — with a third, Fastly Domain Research, brought in only where those two are not enough (an uncertain answer, a premium suspect, a brand-blocked label, the zones without public RDAP, and the name the visitor typed). When the signals disagree we show an honest **Unverified** state instead of guessing. For the popular extensions the visitor's browser asks the registry's RDAP server and DNS-over-HTTPS directly for the first answer, over connections opened while the name is still being typed; the edge re-checks every card and stays the authority. Prices are refreshed weekly from the registrars' own catalogs and pages.\n\nOn top of availability you get side-by-side registrar pricing for 6 registrars, including the renewal traps that first-year promo prices hide (a $1 registration that renews at $61 is not a deal). Everything is also exposed through a free, no-auth JSON API for agents, plus an MCP server so any LLM — Claude, Cursor, Windsurf, Continue, Zed — can check domains directly.\n\n## Speed\n\n**Under 0.5 s** to the first answer at the 95th percentile for a cold visitor — 386 ms from the US, 485 ms from the EU, 150 fresh browsers each, September 2026 · the full check with pricing lands in about half a second (median). Everyday numbers, not a lab result — the on-screen stopwatch is the live proof; your numbers vary by network, TLD and cache — see [digmyname.com/speed](https://digmyname.com/speed).\n\n## Tech stack\n\n- Vite\n- React\n- TypeScript\n- shadcn/ui\n- Tailwind CSS\n- Supabase edge functions (Deno)\n\n## Development\n\nThe only requirement is having Node.js & npm installed — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).\n\n```sh\n# Step 1: Clone the repository.\ngit clone https://github.com/seomarlboro/digmyname.git\n\n# Step 2: Navigate to the project directory.\ncd digmyname\n\n# Step 3: Install the necessary dependencies.\nnpm i\n\n# Step 4: Start the development server with auto-reloading and an instant preview.\nnpm run dev\n```\n\n### Tests\n\n```sh\nnpm test                                   # vitest: frontend, route table, prerender, search lanes, browser lane\ndeno test -A supabase/functions/fetch-registrar-prices/parsers_test.ts   # price-source parsers (fixtures from the real pages)\ndeno test -A supabase/functions/_shared/pipeline_test.ts                 # availability pipeline\n```\n\n### Benchmark\n\n`scripts/bench/first-answer.mjs` measures what a cold visitor sees on the stopwatch: each visitor is a fresh browser that loads the home page, pauses, types a name nobody has checked and stops when the first verdict paints. It needs Playwright (`npm i playwright && npx playwright install chromium` in any scratch folder, then `node first-answer.mjs`); the `bench-first-answer` GitHub Actions workflow runs the same script from a US runner on demand. Numbers quoted on the site come from these runs, with date, location, sample size and percentile.\n\n\n\n## License\n\nMIT. The `mcp/` package is published under MIT as well.\n\n## Built with Lovable\n\nDigMyName is built and shipped with [Lovable](https://lovable.dev). If you want to try it, this is a **referral link** — signing up through it gives *you* free Lovable credits and supports DigMyName's development at no cost to you: **https://lovable.dev/invite/8W3RM72**\n\n(Prefer no referral? Just go to [lovable.dev](https://lovable.dev) directly.)\n",
   "status": "curated"
 }
