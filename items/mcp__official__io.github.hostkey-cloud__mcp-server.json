@@ -38,7 +38,7 @@
   "quality": {
     "stars": null,
     "pushed_at": "2026-09-16T15:28:19.087234Z",
-    "score": 52
+    "score": 42
   },
   "security": {
     "score": 100,
@@ -70,6 +70,6 @@
     "category": "运维",
     "featured": false
   },
-  "readme": "# Hostkey MCP Server\n\nMCP server for [Hostkey](https://hostkey.com/) (**.com** portal, InvAPI `invapi.hostkey.com`).\nRuns locally over stdio — Cursor, VS Code, and other MCP clients.\n\n| | |\n|---|---|\n| **Endpoint** | `https://invapi.hostkey.com` (hardcoded) |\n| **Auth** | `HOSTKEY_API_KEY` |\n| **Tools** | 132 typed tools + `call_api_raw` |\n\nGives the model access to your Hostkey account: servers, catalog and ordering, power, OS reinstall,\nnetwork, DNS, snapshots, IPMI/console, ISO, S3, Remote Hands, billing, and API keys.\n\nFor the **.ru** portal use the separate package `hostkey-mcp-server-ru`.\n\n## 1. Get an API key\n\n[InvAPI](https://invapi.hostkey.com) → API keys → create a key.\n\nPrefer a dedicated key for MCP. Per-server keys limit access to one server.\nDNS writes need the `pdns/edit` permission.\n\n## 2. Install\n\n### Cursor\n\n`.cursor/mcp.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"hostkey-mcp-server\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"hostkey-mcp-server\"],\n      \"env\": {\n        \"HOSTKEY_API_KEY\": \"your-api-key\"\n      }\n    }\n  }\n}\n```\n\n### VS Code\n\n`.vscode/mcp.json`:\n\n```json\n{\n  \"mcp.servers\": {\n    \"hostkey-mcp-server\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"hostkey-mcp-server\"],\n      \"env\": {\n        \"HOSTKEY_API_KEY\": \"your-api-key\"\n      }\n    }\n  }\n}\n```\n\nOptional: `HOSTKEY_TOKEN_TTL`, `HOSTKEY_HTTP_TIMEOUT`, `HOSTKEY_ALLOW_DESTRUCTIVE`\n(see `.env.example`).\n\nFrom source (Node.js ≥ 20): `npm install && npm run build`.\n\n## 3. Confirming dangerous operations\n\nEvery write call needs `confirm=true`. Without it, nothing changes.\n\nAlso:\n\n- `order_server` defaults to `dry_run` — a real order only after explicit consent;\n- OS reinstall, PXE, and service cancellation require `HOSTKEY_ALLOW_DESTRUCTIVE=1`;\n- passwords and tokens are masked in responses.\n\nLong jobs (deploy, reinstall) return a callback key — poll with `check_task`.\n\n## 4. Tools\n\nGroups (full list via `tools/list`):\n\n| Group | Examples |\n|---|---|\n| Servers | `get_servers`, `get_server`, `get_power_status` |\n| Catalog | `list_presets`, `list_os`, `list_traffic_plans` |\n| Power & order | `power_on`, `power_off`, `order_server`, `reinstall_server` |\n| PXE | `create_reinstall_task` → … → `clear_pxe_config` |\n| Network / DNS | ports, PTR, zones and records |\n| Snapshots, ISO, S3 | VM snapshots, images, buckets |\n| Remote Hands | duty-shift tickets (`request_rh_*`, `rhr_*`) |\n| Billing | invoices, payments, contacts |\n| Misc | `check_task`, `call_api_raw` |\n\n## Prompts\n\n| Prompt | Purpose |\n|---|---|\n| `order_server_prompt` | guided server order |\n| `reinstall_server_prompt` | OS reinstall |\n| `troubleshoot_server_prompt` | diagnostics |\n\nOr just ask: “list my servers” / “order a VPS in NL”.\n",
+  "readme": null,
   "status": "curated"
 }

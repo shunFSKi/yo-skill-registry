@@ -1,0 +1,79 @@
+{
+  "id": "mcp:official/ai.datavidence/datavidence-financials",
+  "type": "mcp",
+  "name": "Datavidence Financials",
+  "description": "Normalized US-GAAP financial statements & fundamentals from SEC EDGAR, as MCP tools for LLM agents.",
+  "author": "ai.datavidence",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/datavidence/datavidence-financials-mcp",
+    "repo": "datavidence/datavidence-financials-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "datavidence-financials"
+    ],
+    "env": [
+      {
+        "name": "FL_API_KEY",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "FL_API_BASE_URL",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "FL_API_KEY_HEADER",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "FL_API_TIMEOUT",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-17T16:25:25.232573Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "金融",
+    "featured": false
+  },
+  "readme": "# Datavidence Financials — MCP Server\n\n<!-- mcp-name: ai.datavidence/datavidence-financials -->\n\nNormalized **US-GAAP financial statements from SEC EDGAR** — income statement,\nbalance sheet, and cash flow — exposed as **Model Context Protocol (MCP) tools**\nfor LLM agents (Claude Desktop, LangChain, and custom frameworks). Every value is\ntraceable to its source SEC filing, and figures can be pulled *as originally\nreported* for any date (no look-ahead), for backtests.\n\nThis is the open-source, AI-native layer for the\n[**Datavidence Financials API**](https://financials.datavidence.ai) — a\nstandalone stdio server that forwards over HTTPS to the REST API (bring your own\nkey). The connector is MIT-licensed; the underlying API is a commercial service.\n\n## Quick start (no clone)\n\nRun it with [uv](https://docs.astral.sh/uv/) — it installs into a throwaway\nenvironment:\n\n```bash\nFL_API_KEY=sandbox_demo_key uvx datavidence-financials\n```\n\n`sandbox_demo_key` returns sample data with **no signup** — good for a first run.\nSwap in your real key for live SEC data. Or install it as a persistent tool with\n`pipx install datavidence-financials`.\n\n## Claude Desktop\n\nAdd to `claude_desktop_config.json`, then fully quit (Cmd+Q) and reopen Claude\nDesktop — the tools appear:\n\n```json\n{\n  \"mcpServers\": {\n    \"datavidence-financials\": {\n      \"command\": \"uvx\",\n      \"args\": [\"datavidence-financials\"],\n      \"env\": { \"FL_API_KEY\": \"sandbox_demo_key\" }\n    }\n  }\n}\n```\n\nThen ask, e.g., *\"get AAPL's FY2023 financials with ratios.\"*\n\n## Tools\n\n- **`get_financials`** — normalized income statement + balance sheet + cash flow\n  for one company and fiscal year, from SEC EDGAR XBRL. Supports `as_of`\n  (point-in-time, as originally reported), `include_provenance` (per-value SEC\n  accession, filed date, and direct EDGAR source URL), and `include_ratios`\n  (margins, ROA/ROE, leverage).\n- **`get_financials_batch`** — the same, for up to 25 companies in one call\n  (comma-separated tickers/CIKs). Per-symbol results; counts as a single quota\n  unit, so one bad symbol never fails the batch.\n- **`list_filings`** — a company's recent SEC filings (newest first) from the\n  EDGAR submissions index; filter by form (e.g. `10-K`). Use it to discover which\n  fiscal years are available before calling `get_financials`.\n- **`get_usage`** — the key's monthly quota (tier, used, remaining, reset). Free\n  to call; consumes no quota.\n\nErrors surface the API's `recovery_action` hint, so agents self-correct.\n\n## Configuration (environment variables)\n\n| Variable | Default | Notes |\n| --- | --- | --- |\n| `FL_API_KEY` | _(none)_ | Your API key. `sandbox_demo_key` = no-signup trial (sample data). |\n| `FL_API_BASE_URL` | `https://api.financials.datavidence.ai` | Point at a marketplace gateway for metered BYOK access. |\n| `FL_API_KEY_HEADER` | `X-API-Key` | Header to send the key in (e.g. `X-RapidAPI-Key` for the RapidAPI gateway). |\n| `FL_API_TIMEOUT` | `30` | Per-request timeout, in seconds. |\n\n## Run from source\n\n```bash\npip install -e .\nFL_API_KEY=sandbox_demo_key python -m mcp_server.server   # stdio transport\n```\n\n## Links\n\n- **API & docs:** https://financials.datavidence.ai\n- **PyPI:** https://pypi.org/project/datavidence-financials/\n- **Get a key (RapidAPI):** https://rapidapi.com/datavidence-ykNLbvGmT/api/datavidence-financials-api\n- **Security:** see [`SECURITY.md`](SECURITY.md) to report a vulnerability privately.\n\n## License\n\nMIT © 2026 Datavidence LLC. The connector is open-source; the underlying\nDatavidence Financials API is a commercial service.\n",
+  "status": "curated"
+}

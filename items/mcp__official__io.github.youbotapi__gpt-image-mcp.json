@@ -1,0 +1,70 @@
+{
+  "id": "mcp:official/io.github.youbotapi/gpt-image-mcp",
+  "type": "mcp",
+  "name": "gpt-image-mcp",
+  "description": "Generate and edit images with GPT Image 2.5 for $0.029 — free key, 50 credits, no card.",
+  "author": "io.github.youbotapi",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/youbotapi/gpt-image-mcp",
+    "repo": "youbotapi/gpt-image-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "gpt-image-2-5-mcp"
+    ],
+    "env": [
+      {
+        "name": "YOUBOT_API_KEY",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "YOUBOT_IMAGE_DIR",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-17T17:55:11.690042Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "设计",
+    "featured": false
+  },
+  "readme": "# GPT Image 2.5 MCP Server\n\n**Generate and edit images with GPT Image 2.5 — OpenAI's most capable image model — directly inside Claude, Cursor, or any MCP client. $0.029 per image.**\n\n[![npm](https://img.shields.io/npm/v/gpt-image-2-5-mcp)](https://www.npmjs.com/package/gpt-image-2-5-mcp)\n[![license](https://img.shields.io/badge/license-MIT-blue)](./LICENSE)\n\nAsk Claude for a picture and get one back in the chat:\n\n> *\"A friendly robot painting a picture at an easel in a sunlit studio, warm morning light through a tall window, soft shadows, detailed illustration style, a small wooden sign on the easel reading 'GPT IMAGE 2.5'\"*\n\n![Example output from GPT Image 2.5](https://raw.githubusercontent.com/youbotapi/gpt-image-mcp/main/docs/example.png)\n\n*Generated with this server in 45 seconds for $0.029. Note that the text on the sign came out exactly as asked — GPT Image 2.5 is unusually good at rendering words inside an image.*\n\n---\n\n## ⚠️ Read this first: the API key comes from you.bot, not OpenAI\n\nThis server reaches GPT Image 2.5 through **[you.bot](https://you.bot)**, an API gateway that resells the model below OpenAI's own rate.\n\n- You need a **you.bot** API key. It starts with `sk-live-`.\n- An **OpenAI key will not work**, and you do not need an OpenAI account at all.\n- If you paste an OpenAI key by mistake, the server will tell you so by name rather than failing with a confusing 401.\n\n**Why people use it:** signup gives you **50 free credits — about 17 images** — with no credit card, so the server works the moment you paste the key in.\n\n---\n\n## Setup\n\n### 1. Get a free key (2 minutes)\n\n1. Sign up at **<https://you.bot>** — no credit card.\n2. You start with **50 credits ≈ 17 images**.\n3. Create a key at **<https://you.bot/dashboard/api-keys>** and copy it (it begins with `sk-live-`).\n\n### 2. Add the server to your client\n\n<details open>\n<summary><b>Claude Desktop</b></summary>\n\nEdit `claude_desktop_config.json`\n(macOS: `~/Library/Application Support/Claude/`, Windows: `%APPDATA%\\Claude\\`):\n\n```json\n{\n  \"mcpServers\": {\n    \"gpt-image\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"gpt-image-2-5-mcp\"],\n      \"env\": {\n        \"YOUBOT_API_KEY\": \"sk-live-your-key-from-you.bot\"\n      }\n    }\n  }\n}\n```\n\nRestart Claude Desktop.\n</details>\n\n<details>\n<summary><b>Claude Code</b></summary>\n\n```bash\nclaude mcp add gpt-image -e YOUBOT_API_KEY=sk-live-your-key -- npx -y gpt-image-2-5-mcp\n```\n</details>\n\n<details>\n<summary><b>Cursor</b></summary>\n\nIn `~/.cursor/mcp.json` (or Settings → MCP → Add new server):\n\n```json\n{\n  \"mcpServers\": {\n    \"gpt-image\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"gpt-image-2-5-mcp\"],\n      \"env\": { \"YOUBOT_API_KEY\": \"sk-live-your-key-from-you.bot\" }\n    }\n  }\n}\n```\n</details>\n\n<details>\n<summary><b>Any other MCP client</b></summary>\n\nRun `npx -y gpt-image-2-5-mcp` over stdio with `YOUBOT_API_KEY` in the environment.\n</details>\n\n### 3. Check it works\n\nAsk your assistant: **\"check my image credits\"**. You should see your balance and how many images it buys.\n\n---\n\n## Tools\n\n| Tool | What it does | Cost |\n|---|---|---|\n| `generate_image` | Make an image from a text prompt | 2.9 credits (**$0.029**) |\n| `edit_image` | Change an existing image from a public URL — swap a background, add or remove objects, restyle | 2.9 credits (**$0.029**) |\n| `check_credits` | Show remaining balance and images left | free |\n\nThere is also a `setup` prompt that walks you through configuration if something isn't working.\n\n**Aspect ratios:** `1:1` (default), `3:2`, `2:3`, `4:3`, `3:4`, `16:9`, `9:16`, `2:1`, `1:2`, `21:9`\n\nOutput is fixed at **1024px (1K)**, which is what keeps every call at a flat $0.029. A generation typically takes **30–60 seconds**; the server polls until the image is ready and then shows it to you inline.\n\n---\n\n## What it costs\n\n| | |\n|---|---|\n| Per image | **$0.029** |\n| Free on signup | 50 credits ≈ **17 images**, no card |\n| Credit value | 1 credit = $0.01 |\n| Expiry | Credits never expire |\n| Failed generations | Refunded automatically |\n\nThe server tells you the cost after every image, and `check_credits` never spends anything.\n\n---\n\n## Optional settings\n\n| Environment variable | Effect |\n|---|---|\n| `YOUBOT_API_KEY` | **Required.** Your you.bot key (`sk-live-…`) |\n| `YOUBOT_IMAGE_DIR` | If set, every generated image is also saved to this folder as a PNG |\n\n---\n\n## Tips for better images\n\nGPT Image 2.5 rewards long, specific prompts. Describe **subject, setting, lighting, composition and style** instead of stacking keywords.\n\nIt also renders text inside images accurately — so if you want words on a poster or a sign, quote them exactly:\n\n> *\"A minimalist café sign reading 'OPEN DAILY 7AM' in clean sans-serif, warm morning light, shallow depth of field\"*\n\nFor `edit_image`, say what should change **and** what should stay:\n\n> *\"Replace the background with a snowy forest. Keep the subject, pose and lighting unchanged.\"*\n\n---\n\n## Troubleshooting\n\n**\"No API key found\"** — `YOUBOT_API_KEY` isn't reaching the server. Check it's inside the `env` block of your MCP config, then fully restart the client.\n\n**\"That key looks like an OpenAI API key\"** — exactly what it says. Get a key from <https://you.bot> instead; it starts with `sk-live-`.\n\n**\"Out of credits\"** — each image is 2.9 credits. Top up at <https://you.bot>; credits never expire.\n\n**Nothing happens / tool isn't offered** — confirm your client picked the server up (Claude Desktop lists it under the tools icon), and that you have Node 18 or newer.\n\n---\n\n## Links\n\n- Model and live pricing — <https://you.bot/models/gpt-image-2-5-sunburst-text-to-image>\n- API docs — <https://you.bot/docs>\n- Get a key — <https://you.bot>\n\nMIT licensed. Not affiliated with OpenAI; GPT Image 2.5 is accessed through the you.bot API.\n",
+  "status": "curated"
+}

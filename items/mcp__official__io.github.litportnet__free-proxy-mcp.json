@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.litportnet/free-proxy-mcp",
+  "type": "mcp",
+  "name": "free-proxy-mcp",
+  "description": "MCP server exposing Litport's verified free HTTP, SOCKS4 and SOCKS5 proxy snapshot.",
+  "author": "io.github.litportnet",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/litportnet/free-proxy-mcp",
+    "repo": "litportnet/free-proxy-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@litportnet/free-proxy-mcp"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-17T18:32:19.511019Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "<!-- shared-readme:banner:start -->\n[![Litport free proxies: live lists, API and SDKs](https://raw.githubusercontent.com/litportnet/free-proxy-sdk/main/assets/free-proxy-banner-static.png)](https://litport.net/free-proxy)\n<!-- shared-readme:banner:end -->\n\n# Litport Free Proxy MCP Server\n\nA local, stdio [Model Context Protocol](https://modelcontextprotocol.io) server that gives an MCP\nclient (Claude Desktop, Claude Code, or any other MCP-compatible agent) three bounded, read-only\ntools over Litport's public free-proxy snapshot: list verified HTTP, SOCKS4, and SOCKS5 proxies,\npick the highest-ranked ones, and summarize the current snapshot. It never forwards traffic, never\naccepts arbitrary URLs from tool callers, and exposes no write or side-effecting tools; it is a thin\nwrapper around [`@litportnet/free-proxy-sdk`](https://github.com/litportnet/free-proxy-sdk).\n\n## Install / Use with Claude Desktop, Claude Code, and other MCP clients\n\nAdd this to your client's MCP server configuration (for Claude Desktop, `claude_desktop_config.json`;\nfor Claude Code, `.mcp.json` or `claude mcp add`):\n\n```json\n{\n  \"mcpServers\": {\n    \"free-proxy\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@litportnet/free-proxy-mcp\"]\n    }\n  }\n}\n```\n\nNo installation step is required beyond having Node.js 20+ available; `npx` fetches and runs the\npackage on demand. To install it explicitly instead:\n\n```sh\nnpm install -g @litportnet/free-proxy-mcp\n```\n\n## Tools\n\nAll three tools are read-only and share the same underlying filters. `country` is a two-letter ISO\n3166-1 alpha-2 code (case-insensitive). `checkedWithinMin` limits results to proxies checked within\nthe last 1-1440 minutes.\n\n| Tool | Description | Inputs |\n| --- | --- | --- |\n| `list_proxies` | List verified free proxies matching filters. | `protocol` (`http`\\|`socks4`\\|`socks5`), `country`, `anonymity` (`transparent`\\|`anonymous`\\|`elite`\\|`unknown`), `https` (boolean), `maxLatencyMs` (int ≥ 0), `minUptime7d` (int 0-100), `minChecks7d` (int ≥ 0), `checkedWithinMin` (int 1-1440, default 30), `limit` (int 1-50, default 10) |\n| `pick_best_proxies` | Return the highest-ranked proxies matching filters. | `count` (int 1-25, default 5), plus the same filters as `list_proxies` except `limit` |\n| `proxy_snapshot_stats` | Summarize the current proxy snapshot. | `checkedWithinMin` (int 1-1440, default 30), `protocol`, `country` |\n\n`list_proxies` and `pick_best_proxies` return a `count` and a `proxies` array of normalized records\nexactly as returned by the SDK. `proxy_snapshot_stats` returns the total matching count, counts by\nprotocol and anonymity, the top 10 countries by count, the share of matching proxies that support\nHTTPS, latency min/median/p90/max across records that report latency, how many records have a known\nseven-day uptime, and the newest and oldest `lastChecked` timestamps. Every response includes a\n`disclaimer` field. Errors from the underlying SDK (invalid filters, request timeouts, malformed or\nstale snapshots) are returned as `{ isError: true, content: [...] }` rather than thrown, and never\ninclude a stack trace.\n\n## Environment\n\n| Variable | Default | Purpose |\n| --- | --- | --- |\n| `LITPORT_FREE_PROXY_API_URL` | the SDK's built-in snapshot URL | Absolute `http://` or `https://` URL for the snapshot endpoint. The server validates this and exits with a clear error on startup if it is set to something else. |\n| `LITPORT_FREE_PROXY_TIMEOUT_MS` | `10000` | Per-request timeout in milliseconds passed to the SDK client. |\n\n## Test\n\n```sh\nnpm install\nnpm test\n```\n\n`npm test` runs `node --test` over `test/*.test.mjs`: in-process unit tests that drive the server\nthrough the MCP SDK's in-memory transport with an injected `@litportnet/free-proxy-sdk` client, and\nan end-to-end test that spawns the server over stdio against a local HTTP fixture server, plus a\nregression test that launches the server through a `bin` symlink the way `npx` does.\n\n## Resources\n\n- [Free proxy list](https://litport.net/free-proxy)\n- [API documentation](https://litport.net/docs/free-proxy-api)\n- [SDK source](https://github.com/litportnet/free-proxy-sdk)\n\nFree proxies are for testing only. Never route credentials, cookies, payment data, or private data through them.\n",
+  "status": "curated"
+}

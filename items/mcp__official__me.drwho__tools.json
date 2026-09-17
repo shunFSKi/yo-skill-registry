@@ -1,8 +1,8 @@
 {
   "id": "mcp:official/me.drwho/tools",
   "type": "mcp",
-  "name": "drwho.me developer tools",
-  "description": "Remote MCP server: 10 developer utilities (base64, JWT, DNS, UUID, URL, JSON, UA, IP lookup).",
+  "name": "drwho.me network and developer tools",
+  "description": "29 free tools: DNS, email auth (SPF, DKIM, DMARC), TLS, headers, WHOIS, dev utils.",
   "author": "me.drwho",
   "source": {
     "registry": "mcp-official",
@@ -16,8 +16,8 @@
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-04-17T09:55:44.614016Z",
-    "score": 32
+    "pushed_at": "2026-09-17T15:15:05.809837Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -49,6 +49,6 @@
     "category": "编程",
     "featured": false
   },
-  "readme": null,
+  "readme": "# drwho.me\n\n[![drwhome MCP server](https://glama.ai/mcp/servers/hikmahtech/drwhome/badges/score.svg)](https://glama.ai/mcp/servers/hikmahtech/drwhome)\n\nFree tools for domains, mail and the web, and a free MCP server that gives the same tools to AI\nagents. No account, no API key.\n\n- Site: https://drwho.me\n- MCP endpoint: `https://drwho.me/mcp/mcp` (streamable HTTP)\n\nMost tools run in your browser. A DNS or email check goes from your browser straight to\nCloudflare's public DNS, so the domain you look up never reaches our server. Tools that must read\nanother site's response (security headers, TLS certificate, redirects) run on the server, which\ndoes not store what you check.\n\ndrwho.me is built by [Hikmah Technologies](https://hikmahtechnologies.com), the team behind\nDomain Posture. Each tool here checks one thing. Domain Posture runs every check at once, grades\nthem and tells you what to fix first.\n\n## Use the MCP server\n\nClaude Code:\n\n```\nclaude mcp add --transport http drwho https://drwho.me/mcp/mcp\n```\n\nMost other clients take this shape (check your client's docs):\n\n```json\n{ \"mcpServers\": { \"drwho\": { \"url\": \"https://drwho.me/mcp/mcp\" } } }\n```\n\nFair use: 60 tool calls per hour per address. Listing the tools is never limited.\n\nTo run it yourself over stdio:\n\n```\ndocker build -t drwho-mcp .\ndocker run -i --rm drwho-mcp\n```\n\n### Tools\n\n| Tool | What it does |\n|---|---|\n| `dossier_summary` | Nine DNS, email and TLS checks on a domain, one graded line each |\n| `dossier_dns`, `dossier_mx`, `dossier_dnssec` | DNS records, mail servers, DNSSEC |\n| `dossier_spf`, `dossier_dmarc`, `dossier_dkim` | Email authentication |\n| `dossier_mta_sts`, `dossier_tlsrpt` | Inbound mail TLS policy and reporting |\n| `dossier_tls`, `dossier_headers`, `dossier_redirects`, `dossier_cors` | TLS certificate, response headers, redirect chain, CORS preflight |\n| `dossier_web_surface`, `dossier_ai_crawlers`, `dossier_llms_txt`, `dossier_security_txt` | robots.txt, sitemap, page metadata, AI-crawler policy, llms.txt, security.txt |\n| `dossier_whois`, `dossier_ct_log` | Registration data, subdomains in certificate logs |\n| `dns_lookup`, `ip_lookup`, `user_agent_parse` | One DNS record type, IP location and network, user agent parsing |\n| `base64_encode`, `base64_decode`, `jwt_decode`, `json_format`, `url_encode`, `url_decode`, `uuid_generate` | Developer utilities, run locally |\n\nEvery tool is read-only. A result for a domain also links to the full graded report on Domain\nPosture.\n\n## How it is built\n\nTypeScript on Node 22. [Hono](https://hono.dev) renders the pages on the server as plain HTML.\nThere is no client framework: two small custom elements (`<dw-check>`, `<dw-live>`) run the tools\nin the page. The check logic is the MIT-licensed\n[`@hikmahtech/dossier-checks`](https://www.npmjs.com/package/@hikmahtech/dossier-checks) package,\nshared by the browser, the server and the MCP server.\n\n```\nsrc/content/tools.ts   the tool list; pages, sitemap and navigation read it\nsrc/checks/            which checks run in the browser and which on the server\nsrc/reports/           turns a check result into a report: a verdict and rows\nsrc/lib/               pure logic for the developer tools (also used by MCP)\nsrc/client/            browser scripts, one bundle per tool kind\nsrc/views/             pages; tool views are found by file name\nsrc/mcp/               the MCP tools, the HTTP endpoint, the manifests\nsrc/server/            client address, rate limit, outbound network guard\n```\n\n`docs/ADDING_A_TOOL.md` explains how to add a tool.\n\n### Safety\n\nThe server fetches sites that visitors name, so it guards its own network. Before a check runs,\nthe domain must resolve only to public addresses. On top of that, every outgoing connection is\nchecked at the socket layer, whichever library opens it, so a redirect, a changed DNS answer or a\nWHOIS referral cannot reach a private address. See `src/server/ssrf.ts`.\n\nThe content security policy allows no inline or evaluated script.\n\n## Run it\n\n```\npnpm install\npnpm dev          # http://localhost:3000\npnpm test\npnpm lint\n```\n\nConfiguration is in `.env.example`. Everything is optional: without `IPINFO_TOKEN` the two IP\ntools say they are not configured, and without `GA_MEASUREMENT_ID` no analytics loads.\n\n`glama.json` and `server.json` are generated from the code with `pnpm manifests`. A test fails if\nthey are out of date.\n\n## Deploy\n\n`Dockerfile.web` is the website and the hosted MCP endpoint. `Dockerfile` is the stdio MCP\nserver. `.paas/app.yaml` is the manifest for [koyracloud](https://koyracloud.com).\n\nUnknown paths redirect to the same path on domainposture.com. drwho.me used to be that product's\naddress, and links and signed documents issued then must keep working.\n\n## Licence\n\nMIT\n",
   "status": "curated"
 }

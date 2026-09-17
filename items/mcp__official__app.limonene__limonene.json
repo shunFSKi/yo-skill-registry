@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/app.limonene/limonene",
+  "type": "mcp",
+  "name": "Limonene",
+  "description": "Read-only Amazon seller analytics: sales, Buy Box, FBA inventory, alerts, revenue and fees.",
+  "author": "app.limonene",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/M-Abozaid/limonene-mcp",
+    "repo": "M-Abozaid/limonene-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://limonene.app/api/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-17T16:29:43.022502Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "数据",
+    "featured": false
+  },
+  "readme": "# Limonene connector — v0.1.0 pilot\n\nRead-only Amazon seller investigations through ChatGPT, Claude and compatible MCP clients.\n\nEndpoint: `https://limonene.app/api/mcp`\nSetup and permissions: https://limonene.app/connect-ai\nRevoke connections: https://limonene.app/api/mcp/connections\nPrivacy: https://limonene.app/privacy\n\nThis is a direct-install pilot, not a claim of approval or listing in either platform's directory.\n\n## Connection\n\n1. Sign in to Limonene and connect an Amazon store. Complete its initial sync.\n2. Add the endpoint as a custom remote connector in your AI client (account/workspace support varies).\n3. Authenticate in the browser. Read the client name and callback origin, select a store and grant read-only access.\n4. Ask: “Review my last seven days. What deserves investigation? Cite sources, dates, and limitations.”\n\nClaude Code: `claude mcp add --transport http limonene https://limonene.app/api/mcp`, then use `/mcp` to authenticate.\nThe package includes separate OpenAI and Claude manifests referring to the same remote server; there is no local executable and no credential embedded in the package.\n\n## Tools\n\n- `get_store_overview`: bounded marketplace-local sales window.\n- `get_open_insights`: dated existing alerts, capped at 25.\n- `get_pricing_and_buybox`: cached observations for up to 20 SKUs; no price edits.\n- `get_inventory_health`: FBA-only inventory, optional SKU.\n- `get_sales_trend`: SKU history for 1–60 days.\n- `get_profit_breakdown`: revenue/fees and available cost-coverage information; do not label fees-only figures net profit.\n\nBuyer contacts, arbitrary API/SQL access, price/ads/listing writes and scheduled execution are not exposed.\nEach grant is bound to one store and its active marketplace; reads fail closed while a different marketplace is active. To read that marketplace, reconnect.\nResults use the existing capability caches and may trigger their normal background refresh. The external AI generates the answer; this connector does not run a second Limonene model call or debit chat credits.\nFirst-party telemetry records connection, revocation, tool name, success and duration; it does not log prompts, arguments, tokens or tool results. Existing billing remains advisory under the current app policy. This release does not introduce a paid gate or promise unlimited access. Limits: 60 MCP requests/minute/store plus the existing IP ceiling.\n\n## Privacy and security\n\nOAuth authorization code flow with mandatory S256 PKCE and resource binding. Public clients register with `token_endpoint_auth_method: none`. Access tokens expire after one hour; refresh tokens rotate and expire after 30 days. Tokens/codes/browser nonces are stored hashed. Consent requests expire after ten minutes and codes after one minute. Ownership, connection health, revocation and marketplace are rechecked on access. Product and alert text are untrusted data.\n\nThe AI service receives the requested store results under the seller's authorization. Its own data policies apply. Revocation blocks subsequent reads, not copies already retained by that service. Account deletion removes grants and their token/code records.\n\n## GitHub Copilot in VS Code\n\nCopy `vscode.mcp.json` to your workspace as `.vscode/mcp.json`, then start the server from VS Code and complete the browser authorization. Your editor must support remote HTTP MCP and OAuth. This configuration is for GitHub Copilot in VS Code; it is not a Microsoft 365 Copilot marketplace listing.\n\n## Installation package\n\nThis repository contains public connector configuration and documentation only. The hosted Limonene service is separate. No API key is required in these files; each user signs in and grants access to their own store.\n\nA Limonene account and a connected, synchronized Amazon store are required. Availability and pricing: https://limonene.app/pricing. Do not connect a customer store for platform review; use a dedicated review account.\n\n## Pilot status\n\nThe remote endpoint is live. SDK integration tests cover initialize, tool discovery and a read against a local test server. Full end-to-end testing inside each AI product and directory approvals are still pending. Installing this package does not imply endorsement by OpenAI, Anthropic, GitHub or Microsoft.\n\nSupport: hello@limonene.app\nSetup: https://limonene.app/connect-ai\nTerms: https://limonene.app/terms\nPrivacy: https://limonene.app/privacy\n\nThe MIT license applies only to files in this public connector package, not to the hosted service or its backend.\n",
+  "status": "curated"
+}

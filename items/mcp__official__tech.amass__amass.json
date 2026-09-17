@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/tech.amass/amass",
+  "type": "mcp",
+  "name": "Amass",
+  "description": "Linked life-science search: 40M+ papers, 1.2M+ trials, drugs, genes, FDA/EMA approvals, patents.",
+  "author": "tech.amass",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/amass-technologies/amass-mcp",
+    "repo": "amass-technologies/amass-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://mcp.amass.tech/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-17T15:21:56.775981Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Amass MCP server\n\nAmass is a remote [MCP](https://modelcontextprotocol.io) server for life-science\nresearch. It exposes one linked corpus — publications, clinical trials, drugs,\ngenes, regulatory approvals and patents — to Claude, ChatGPT, VS Code, Cursor and\nany other MCP client.\n\nThis repository holds the [MCP Registry](https://modelcontextprotocol.io/registry/about)\nlisting (`server.json`). The server itself is a hosted service, so there is\nnothing here to install or run.\n\n## Connect\n\nAmass speaks streamable HTTP with OAuth 2.1. Most clients need only the URL:\n\n```\nhttps://mcp.amass.tech/mcp\n```\n\nYou will be redirected to sign in with your Amass account; new accounts are\nprovisioned automatically with trial credits. Clients that cannot complete an\nOAuth flow can instead send an Amass API key (`amass_…`) as a bearer token.\n\nOr install it from the registry by name: `tech.amass/amass`.\n\n## What you get\n\nSix Cores, cross-linked so you can move between them in a single query —\npublications ↔ trials, trials ↔ drugs, drugs ↔ genes, drugs ↔ approvals, and\npatents ↔ drugs/publications.\n\n| Core | Contents |\n| --- | --- |\n| **BioMedCore** | 40M+ biomedical publications (PubMed/PMC-derived) with abstracts, authors, journal metadata, citations, MeSH terms and optional fulltext |\n| **TrialCore** | 1.2M+ clinical trials (ClinicalTrials.gov + WHO ICTRP non-US registries) with phase, status, sponsor, conditions, interventions, enrollment and outcomes |\n| **DrugCore** | 22K+ harmonized drugs/molecules (ChEMBL-anchored) with modality, clinical stage, chemical structure, synonyms and trade names |\n| **GeneCore** | 43K+ harmonized genes (Ensembl-anchored) with biotype, RefSeq summary, tractability/safety intelligence and UniProt protein annotations |\n| **RegulatoryCore** | Unified FDA + EMA authorizations with approval status, orphan designations, and parsed source documents (labels, SmPCs, reviews, EPARs) |\n| **PatentCore** *(preview)* | Life-science patents (USPTO/EPO/WIPO subset) with full-text search, CPC/IPC classifications, assignees/inventors and patent families |\n\nEach Core has a `search_amass_<core>_records` tool for discovery and a\n`get_amass_<core>_record` tool for fetching a known identifier. RegulatoryCore\nadds `get_amass_regulatorycore_document_section` for full source-document text,\nand `send_feedback` reports data issues straight to the Amass data team.\n\nWebsite: <https://amass.tech> · Platform: <https://platform.amass.tech> ·\nAPI docs: <https://mcp.amass.tech/api/doc>\n\n## License\n\n[Apache-2.0](LICENSE).\n\n---\n\n## Maintainers\n\nEverything below is the release runbook for this listing. It is not needed to\nuse the server.\n\n`server.json` is the source of truth. The registry authenticates by DNS: a TXT\nrecord on `amass.tech` carries the public half of an Ed25519 key, and CI signs\nwith the private half. That is why the listing is namespaced `tech.amass/…`\nrather than under a GitHub org.\n\n### Publishing a new version\n\n1. Edit `server.json` and bump `version`.\n2. Open a PR — CI validates the file, checks the version is not already\n   published, and confirms `https://mcp.amass.tech/mcp` is up.\n3. Merge, then tag:\n\n   ```bash\n   git tag vX.Y.Z && git push origin vX.Y.Z    # must match \"version\" in server.json\n   ```\n\nThe tag must match `version` in `server.json` or the workflow fails.\n\nThe listing `version` tracks the major version of the deployed MCP server.\n\n### One-time DNS auth setup\n\n```bash\n./scripts/setup-dns-auth.sh\n```\n\nGenerates the keypair and prints the Cloudflare TXT record and the\n`gh secret set` command for `MCP_PRIVATE_KEY`. Follow its four steps, then\ndelete the local `key.pem`.\n\n### Publishing by hand\n\n```bash\nbrew install mcp-publisher\nmcp-publisher login dns --domain amass.tech \\\n  --private-key \"$(openssl pkey -in key.pem -noout -text | grep -A3 'priv:' | tail -n +2 | tr -d ' :\\n')\"\nmcp-publisher publish\n```\n\nVerify:\n\n```bash\ncurl --get --data-urlencode \"search=tech.amass/amass\" \\\n  https://registry.modelcontextprotocol.io/v0.1/servers\n```\n\n### Constraints worth remembering\n\n- **`description` is capped at 100 characters.** CI enforces this.\n- **Published versions are immutable**, and servers currently **cannot be\n  deleted or unpublished** — corrections ship as a new version.\n- Do not name a release branch after its version; it collides with the tag and\n  `git push origin vX.Y.Z` becomes ambiguous.\n",
+  "status": "curated"
+}
