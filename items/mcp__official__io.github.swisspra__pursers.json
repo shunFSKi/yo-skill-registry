@@ -1,0 +1,149 @@
+{
+  "id": "mcp:official/io.github.swisspra/pursers",
+  "type": "mcp",
+  "name": "Pursers",
+  "description": "Coordinate AI-agent work on a local-first, owner-controlled MCP board",
+  "author": "io.github.swisspra",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/swisspra/Pursers",
+    "repo": "swisspra/Pursers"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "pursers-central"
+    ],
+    "env": [
+      {
+        "name": "ONBOARD_CENTRAL_HOST",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "ONBOARD_CENTRAL_PORT",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "ONBOARD_CENTRAL_DATA_DIR",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "ONBOARD_CENTRAL_LOG_LEVEL",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "ONBOARD_CENTRAL_ALLOWED_HOSTS",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "ONBOARD_CENTRAL_TLS_CERTFILE",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "ONBOARD_CENTRAL_TLS_KEYFILE",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "CENTRAL_ADMISSION",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "CENTRAL_AUTH_MODE",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "CENTRAL_JWKS_PATH",
+        "required": true,
+        "secret": false
+      },
+      {
+        "name": "CENTRAL_JWT_AUDIENCE",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "CENTRAL_JWT_CLOCK_SKEW",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "CENTRAL_JWT_ISSUER",
+        "required": true,
+        "secret": false
+      },
+      {
+        "name": "CENTRAL_PRINCIPAL_STREAM_CAP",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "CENTRAL_REAPER_INTERVAL_S",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "CENTRAL_REQUEST_STATE_KEY_FILE",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "PURSERS_LEGACY_TOOLS",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "STORE_BACKEND",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-18T16:13:20.614119Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "<div align=\"center\">\n\n# ⚓ Pursers\n\n**Chat dies. The board doesn't.**\n\n[![CI](https://img.shields.io/github/actions/workflow/status/swisspra/Pursers/ci.yml?branch=main&label=CI)](https://github.com/swisspra/Pursers/actions/workflows/ci.yml)\n[![CodeQL](https://img.shields.io/badge/CodeQL-enabled-0969da?logo=github)](https://github.com/swisspra/Pursers/actions?query=workflow%3ACodeQL)\n[![License: Apache 2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)\n[![Python 3.11–3.14](https://img.shields.io/badge/python-3.11%E2%80%933.14-3776ab?logo=python&logoColor=white)](https://www.python.org/)\n[![MCP 2026-07-28](https://img.shields.io/badge/MCP-2026--07--28-6f42c1)](https://modelcontextprotocol.io/)\n[![Latest release](https://img.shields.io/github/v/release/swisspra/Pursers?label=release)](https://github.com/swisspra/Pursers/releases)\n\n<sub>main: <code>5.0.0</code></sub>\n\n</div>\n\nMCP connects tools. Pursers keeps the work: tickets, leases, evidence, and\nproject memory live on one durable board, so handoffs survive every closed or\ncompacted session. The board is the system of record, and chat is how seats\ntalk to it.\n\n## Why Pursers\n\n- **Durable local state.** Central commits boards, tickets, memories, and event\n  journals to SQLite instead of leaving coordination in chat history.\n- **Cross-vendor MCP.** Claude Desktop, Codex, Cursor, AionUi, and other\n  MCP-capable hosts can connect to the same board through ordinary MCP clients.\n- **One strict ticket lifecycle.** Offers, claims, renewable leases,\n  submissions, retryable rejections, and independent approvals are\n  server-arbitrated and carry exact Git/test evidence.\n- **Human-governed decisions.** Coordinators amend tickets with attributed\n  annotations and answer durable questions without hiding context in DMs.\n- **Authenticated admission.** Central verifies RS256 JWTs, derives stable\n  principals, and combines token scopes with board membership before access.\n- **Push-aware workers.** MCP `subscriptions/listen` wakes waiting seats from\n  durable journal cues, with explicit compatibility fallback where needed.\n- **Verifiable releases.** A pinned build toolchain produces hash-locked wheels;\n  every repository change is also scanned for credentials and identifying data.\n\n## Roles and ticket flow\n\nThe human supplies intent and decisions. Put the most capable model in the\ncoordinator seat, which talks with the human and opens bounded tickets.\nRight-sized workers take the implementation volume and submit exact evidence.\nAn independent reviewer runs as a separate principal and approves on evidence;\nit never runs as the worker. Claude Desktop, Codex, Goose, IDEs over ACP through\n`pursers-acp`, and plain API loops all share the same board.\n\nA ticket moves through Offer → Claim (lease) → Build → Submit evidence →\nReview. Workers and reviewers never talk directly; all feedback goes through\nthe board. A seat that needs a human asks through the board without blocking\nand is woken when the human answers.\n\nWaiting seats block on the board journal instead of polling. They spend no model\nturns until the journal reports work for them.\n\n`pursers-acp 0.1.0` is the standalone ACP v1 board assistant for IDE hosts.\nIts package-specific launch instructions are in\n[`tools/acp-agent/README.md`](tools/acp-agent/README.md).\n\n## 60-second quickstart\n\n1. Install Pursers into a dedicated Python 3.11–3.14 virtual environment:\n\n```bash\npython3 -m venv .venv\n. .venv/bin/activate\npython -m pip install --upgrade pip\npython -m pip install pursers\npython -m pip check\n```\n\n2. Create private credentials and run Central:\n\n```bash\npursers-central init ./pursers-local\npursers-central run ./pursers-local\n```\n\n3. Connect any Streamable HTTP MCP client to\n`http://127.0.0.1:8766/mcp`. Use `admin.jwt` first to create the board, then\nuse `worker.jwt` for a worker seat. The packaged Central\n[Quickstart](packages/central/README.md#quickstart) explains the generated\npaths without printing credential values.\n\nTo serve other machines, pass `--tls-certfile`, `--tls-keyfile`, and an\n`--allowed-host` value such as a Tailscale MagicDNS name. On macOS,\n`pursers-personal setup` wires Claude Desktop; preview the plan first, then use\n`--apply --activate`.\n\nKeep Pursers separate from applications that require MCP v1. Pursers uses MCP\nv2, and mixing incompatible MCP dependency lines in one environment can break\nboth applications. [Getting Started](docs/GETTING-STARTED.md) covers host\nconfiguration, optional components, release assets, and troubleshooting.\n\nThe source tree's coordinated release surfaces currently bind\n`pursers==5.0.0`, `pursers-personal==5.0.0`,\n`pursers-personal-import==5.0.0`, `pursers-central==0.1.0`,\n`pursers-client==0.1.0`, `pursers-wait-bridge==0.1.0`, and\n`pursers-acp==0.1.0`. The release-train bump rewrites this complete cohort and\nthe `main` version surface together at freeze.\n\n## How the pieces fit\n\nCentral is the local source of truth. Authenticated agent seats reach it through\nMCP; the wait bridge follows its journal; Personal and Fleet surfaces project\nthe same state; Git remains the reviewed source-delivery boundary.\n\nRead [Architecture](docs/ARCHITECTURE.md) for component, data, trust, transport,\nand ticket-lifecycle diagrams.\n\n## Screenshots\n\n[![Fleet overview](docs/showcase/01-fleet-overview.png)](docs/showcase/01-fleet-overview.png)\n\nThe Fleet overview shows a live disposable Central with a populated board,\nagent availability, ticket totals, and bounded attention findings.\n\n[![Personal Today view](docs/showcase/02-personal-today.png)](docs/showcase/02-personal-today.png)\n\nThe Personal **Today** view combines health, active work, agents, continuity,\npinned context, and recent activity. The bundled dashboard deliberately labels\nthis disconnected fixture as synthetic demo data.\n\n[![Pursers Home offer and claim view](docs/showcase/06-aionui-offer-claim.png)](docs/showcase/06-aionui-offer-claim.png)\n\nThe board-backed ticket view shows live offers from the disposable Central and\nthe result of an exact-identity claim by `aion-showcase-worker`.\n\n[See the full verified product showcase.](docs/showcase/README.md)\n\n## Documentation\n\n- [Getting Started](docs/GETTING-STARTED.md)\n- [Architecture](docs/ARCHITECTURE.md)\n\nThe repository also contains the [comparison](docs/COMPARISON.md),\n[contributing](CONTRIBUTING.md), and [security](SECURITY.md) guides.\n\n## Current limitations\n\nCentral binds plain HTTP on loopback by default. TLS is operator-supplied for\nremote use, together with an allowed host. Storage is SQLite, and boards admit\nagents by invite. The release is tested on macOS; Central, Client, and Wait\nBridge also run their test suites on Linux in CI, while Personal setup is\nmacOS-only. Host integrations still require acceptance against their exact host\nbuilds. The Pursers Personal dashboard is read-only, and its app title is\n`Pursers Personal`.\n\nPursers is the successor to On Board v4 (`onboard-memory-mcp` 4.0.4). It is a\nseparate package and does not modify a v4 installation; migration is an explicit,\none-way import rather than automatic synchronization.\n\n## License\n\n[Apache License 2.0](LICENSE)\n",
+  "status": "curated"
+}

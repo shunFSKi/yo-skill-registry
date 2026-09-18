@@ -1,0 +1,65 @@
+{
+  "id": "mcp:official/io.github.THE-KIPDEV/specpack",
+  "type": "mcp",
+  "name": "specpack",
+  "description": "Audit and write CLAUDE.md / AGENTS.md / Cursor rules; generate full build specs for new projects.",
+  "author": "io.github.THE-KIPDEV",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/THE-KIPDEV/specpack",
+    "repo": "THE-KIPDEV/specpack"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "specpack"
+    ],
+    "env": [
+      {
+        "name": "SPECPACK_API_KEY",
+        "required": false,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-18T18:23:10.426866Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "写作",
+    "featured": false
+  },
+  "readme": "# specpack\n\n**Lint and generate the files your AI coding agent reads** — `CLAUDE.md`, `AGENTS.md`, `.cursorrules`,\nCursor rules — and turn a project description into a full build spec. CLI, library and MCP server.\n\n```bash\nnpx specpack audit          # bloat score for the agent files in this repo (offline)\nnpx specpack init           # write a lean AGENTS.md from your manifests (offline)\nnpx specpack spec --describe \"Booking app for dog groomers with deposits and SMS reminders\"\n```\n\n[![npm](https://img.shields.io/npm/v/specpack.svg)](https://www.npmjs.com/package/specpack)\n[![CI](https://github.com/THE-KIPDEV/specpack/actions/workflows/ci.yml/badge.svg)](https://github.com/THE-KIPDEV/specpack/actions/workflows/ci.yml)\n[![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)\n\n`CLAUDE.md` / `AGENTS.md` are loaded into the agent's context **on every session**. Every line that\nrestates `package.json`, pastes a file tree or tells the model to \"write clean code\" costs tokens and\ncompetes with the two rules that actually matter. `specpack audit` finds those lines; `specpack init`\nstarts you at the trimmed end.\n\nNode ≥ 18. No account needed. `audit` and `init` never touch the network.\n\n---\n\n## `specpack audit` — how much of your memory file does nothing?\n\nEach line is classified **keep**, **cut** (removing it changes nothing: role-play preamble, generic\nadvice, restated manifests, duplicates, emphasis inflation, prose) or **offload** (true but\nsituational: file trees, schema dumps, endpoint lists, long code blocks, setup/deploy sections — move\nthem to their own file and reference them with `@docs/…`). Same rules as the browser tool at\n[prompt-generator-website.com/claude-md-audit](https://prompt-generator-website.com/claude-md-audit).\n\nReal output on a typical file:\n\n```text\n$ npx specpack audit CLAUDE.md\nCLAUDE.md  59% bloat  · 44 lines · ~341 tokens every session\n  10 keep · 12 cut · 15 offload of 37 non-empty lines · ceiling 200, trimmed files land near 60\n  Over half of this file is doing nothing. It is not neutral weight — it is what your real rules are competing against.\n\n     3  cut     You are an expert senior full-stack developer with 10 years of experience.\n        ↳ role-play preamble: CLAUDE.md is project memory, not a system prompt. \"You are an expert…\" costs tokens and changes nothing about the code produced.\n     4  cut     Please always write clean, readable and maintainable code.\n        ↳ default behaviour: Removing this line does not make the model write worse code — it already tries to do this. It only dilutes the lines that matter.\n     5  cut     IMPORTANT: follow best practices at all times.\n     …\n    12  cut     - Next.js 15.1\n        ↳ restates a manifest: package.json / composer.json / requirements.txt already state this, and the agent reads them. Keep it only if the version pin has a non-obvious reason.\n     …\n    18  offload ## Database schema\n        ↳ situational section: Only a fraction of your sessions need this. Move the section to its own file and point at it with @docs/… so it loads when the task asks for it.\n     …\n    31  offload src/\n        ↳ file tree: Root of a pasted directory tree. The agent can run ls and get the real one — a copy goes stale after the first refactor.\n     …\n  Trimmed copy (8 lines): specpack audit CLAUDE.md --trimmed\n```\n\nWithout arguments it audits every agent file in the current directory: `CLAUDE.md`, `AGENTS.md`,\n`.cursorrules`, `.windsurfrules`, `.github/copilot-instructions.md`, `CLAUDE.local.md`,\n`.cursor/rules/*.mdc`. `-` reads stdin.\n\n| Option | |\n|---|---|\n| `--trimmed` | print only the keep-only version (`> CLAUDE.trimmed.md`) |\n| `--json` | every line with verdict, rule and reason, plus stats and the trimmed file |\n| `--all` | also list the kept lines and why |\n| `--max-bloat <pct>` | exit code 1 when a file is above the threshold |\n\n### In CI\n\n```yaml\n# .github/workflows/agent-files.yml\nname: Agent files\non: [pull_request]\njobs:\n  audit:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - run: npx -y specpack audit --max-bloat 30\n```\n\n## `specpack init` — a lean AGENTS.md from what the repo already says\n\nReads `package.json` (scripts, lockfile → package manager, framework), `tsconfig.json`, the Prisma\nschema, `pyproject.toml` / `requirements*.txt` (uv, Poetry), `composer.json`, `go.mod`, `Cargo.toml`,\n`Gemfile`, `Makefile`, Docker Compose, `.nvmrc`, `.env.example`, `.claude/commands`. Only what a file\nstates is written: nothing is guessed, no patch versions, no \"You are an expert\" preamble. Sections with\nnothing detected are left out.\n\nReal output on a Next.js + Prisma repository:\n\n```text\n$ npx specpack init\n✓ Wrote AGENTS.md (37 lines, 0% bloat)\n  Scanned from package.json, tsconfig.json, prisma/schema.prisma, .nvmrc, docker-compose.yml, .env.example, .gitignore, .claude/commands/.\n```\n\n```markdown\n# AGENTS.md — ledgerly\n\nInvoicing app for freelancers. A web application.\n\n## Stack\n- Next.js (App Router)\n- Tailwind CSS\n- Zod\n- Stripe\n- Vitest\n- Playwright\n- ESLint\n- TypeScript (strict)\n- Prisma + PostgreSQL (schema: prisma/schema.prisma)\n- Local services via Docker Compose (docker-compose.yml): db\n\n## Commands\n- `pnpm dev` — `next dev --turbopack -p 3001` (port 3001)\n- `pnpm build` — `next build`\n- `pnpm start` — `next start`\n- `pnpm test` — `vitest run`\n- `pnpm test:e2e` — `playwright test`\n- `pnpm lint` — `next lint`\n- `pnpm db:migrate` — `prisma migrate dev`\n- `pnpm db:seed` — `tsx prisma/seed.ts`\n- `docker compose up -d`\n\n## Project rules\nThese are things the agent cannot guess from the code. Follow them exactly.\n- Use pnpm (pnpm-lock.yaml), not npm or yarn — another package manager ignores the lockfile.\n- Runtime: Node 20 (.nvmrc).\n- Environment variables are listed in `.env.example`; the real `.env` is git-ignored — do not commit it.\n<!-- Add the rules the code cannot tell the agent, one per line: the directory scheduled for deletion,\n     money stored in cents, the command that must never run against staging. -->\n```\n\nThen add the rules only you know under **Project rules** — that is the part that matters.\n\n| Option | |\n|---|---|\n| `--format agents` | `AGENTS.md` (default) |\n| `--format claude` | `CLAUDE.md` — imports `@AGENTS.md` when it exists, plus Claude Code specifics (slash commands, `.mcp.json` servers) |\n| `--format cursor` | `.cursor/rules/project.mdc` (always-applied rule) |\n| `--format all` | the three |\n| `--dry-run` / `--force` | preview / overwrite (existing files are never overwritten otherwise) |\n\n## `specpack spec` — a full build spec for a new project\n\nFor a project that does not exist yet, [prompt-generator-website.com](https://prompt-generator-website.com)\nturns a questionnaire (7 project types: SaaS, e-commerce, business site, marketplace, blog, web app,\nlanding page) into a complete specification — stack, database schema, authentication, type-specific\nfeatures, pages, design, SEO, security, legal, deployment, file structure — plus `AGENTS.md`,\n`CLAUDE.md`, `.cursor/rules/project.mdc`, `.cursorrules`, `.windsurfrules` and\n`.github/copilot-instructions.md` that keep the agent on-spec for the whole build.\n\n```bash\n# AI drafts the answers from a description (10–40 s), then the spec is generated\nnpx specpack spec --describe \"Booking app for dog groomers with deposits and SMS reminders\" --out ./groombook\n\n# your own answers (see GET /questions in the API)\nnpx specpack spec --answers answers.json --type saas\n\n# or answer the questionnaire in the terminal\nnpx specpack spec\n```\n\nThe spec engine is deterministic: the same answers always give the same bytes. Free without an\naccount: **2 specs and 3 AI drafts**. More: a 7-day Pass or Pro at\n[prompt-generator-website.com/pricing](https://prompt-generator-website.com/pricing); then\n`specpack login pgw_…` (or `SPECPACK_API_KEY`). `specpack whoami` shows what is left.\n\n## MCP server\n\nSeven tools for Claude Code, Cursor, Windsurf, VS Code and any MCP client:\n\n| Tool | Where it runs | |\n|---|---|---|\n| `audit_agent_file` | local | bloat score, lines to cut/offload with reasons, trimmed copy |\n| `draft_agent_file` | local | lean AGENTS.md / CLAUDE.md / Cursor rule from the manifests (returns it, writes nothing) |\n| `list_project_types` | API | the 7 project types |\n| `get_questionnaire` | API | every question for a type; **the agent fills it from the conversation and the repo** |\n| `generate_spec` | API | spec + agent files, written to `output_dir` if given (`files` picks which). No AI on the server |\n| `draft_answers` | API | AI fills the questionnaire from a description (uses an AI draft) |\n| `get_usage` | API | plan and what is left |\n\n**Claude Code**\n\n```bash\nclaude mcp add specpack -- npx -y specpack mcp\n```\n\n**Cursor** (`.cursor/mcp.json`), **Windsurf**, **Claude Desktop**\n\n```json\n{\n  \"mcpServers\": {\n    \"specpack\": { \"command\": \"npx\", \"args\": [\"-y\", \"specpack\", \"mcp\"], \"env\": { \"SPECPACK_API_KEY\": \"\" } }\n  }\n}\n```\n\n**Remote, nothing to install** (streamable HTTP; `audit_agent_file` and `draft_agent_file` read local files, so they only exist in the local server):\n`https://prompt-generator-website.com/mcp` — optional header `Authorization: Bearer pgw_…`.\n\n```bash\nclaude mcp add --transport http specpack https://prompt-generator-website.com/mcp\n```\n\n## Library\n\n```ts\nimport { audit, scanProject, renderAgentsMd, SpecpackClient } from \"specpack\";\n\nconst { stats, lines, trimmed } = audit(fs.readFileSync(\"CLAUDE.md\", \"utf8\"));\nconsole.log(`${stats.bloat}% bloat`, lines.filter((l) => l.verdict === \"cut\").length, \"lines to cut\");\n\nconst agentsMd = renderAgentsMd(scanProject(\".\"));\n\nconst client = new SpecpackClient({ apiKey: process.env.SPECPACK_API_KEY });\nconst draft = await client.draft(\"A booking app for dog groomers\");\nconst spec = await client.createSpec(draft.type, draft.answers); // spec.spec, spec.files[\"AGENTS.md\"]…\n```\n\n`createMcpServer()` is exported from `specpack/mcp`. API errors are `SpecpackError` with `code`\n(`quota_exceeded`, `unauthorized`, `invalid_request`, …), `status` and `upgradeUrl`.\n\n## Reference\n\n- Exit codes: `0` ok · `1` failure, or `--max-bloat` exceeded · `2` usage error or quota exceeded.\n- Environment: `SPECPACK_API_KEY`, `SPECPACK_API_URL` (testing), `NO_COLOR`.\n- Key storage: `~/.config/specpack/config.json` (`$XDG_CONFIG_HOME` honoured), mode 600.\n- HTTP API: [API-V1.md](https://prompt-generator-website.com/API-V1.md).\n- Privacy: `audit` and `init` read local files and send nothing. `spec` sends your answers or\n  description to prompt-generator-website.com.\n\n## License\n\nMIT © Kipdev\n",
+  "status": "curated"
+}

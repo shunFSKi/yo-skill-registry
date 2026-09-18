@@ -1,0 +1,70 @@
+{
+  "id": "mcp:official/io.github.Agent360dk/computer-mcp",
+  "type": "mcp",
+  "name": "computer-mcp",
+  "description": "macOS computer use with the guardrails on: passwords blacked out, writes need consent, all logged.",
+  "author": "io.github.Agent360dk",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/Agent360dk/computerMCP",
+    "repo": "Agent360dk/computerMCP"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@agent360/computer-mcp"
+    ],
+    "env": [
+      {
+        "name": "CMCP_MODE",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "CMCP_ASK_TIMEOUT",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-18T12:06:40.476713Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "写作",
+    "featured": false
+  },
+  "readme": "# Computer MCP\n\n**Computer use you can actually leave running.**\n\nA macOS computer-use MCP server with the guardrails on by default. Password\nfields are blacked out while the screenshot is still in memory. Nothing clicks\nor types until a human says yes. Every call is written to an append-only log.\n\nNo account, no API key, no model inside it. MIT.\n\n```bash\nnpx @agent360/computer-mcp\n```\n\nNo Swift needed: the package ships a signed universal binary for Apple silicon\nand Intel.\n\n[computermcp.dev](https://computermcp.dev) · [Security model](https://computermcp.dev/security.html)\n\n---\n\n## Why\n\nHanding an agent your keyboard, mouse and screen is the most useful thing you\ncan give it and the least reversible. A screenshot of a working developer's Mac\ncan contain a password manager mid-unlock, a `.env` open in the editor, or\ncustomer data. A stray keystroke in a terminal is not a typo - it is a command.\n\nMost desktop-automation MCP servers hand all of that over at once, with no way\nto say *that, but not that*. So the careful people don't run them on the machine\nwhere the work actually is.\n\nThis is the same capability with the dangerous edges answered.\n\n## The three gates\n\n**1. Passwords never reach the model.** Secure text fields and password-manager\nwindows are painted opaque black on the bitmap *in memory*, before the PNG is\nwritten. There is no moment where an unredacted picture of your desktop exists\nas a file. Native fields expose the role `AXSecureTextField`; fields in a web\npage expose role `AXTextField` with the *subrole* `AXSecureTextField`. Checking\nonly the role would catch native fields and let every browser password box\nthrough - so both are checked.\n\n**2. Nothing clicks until you say yes.** The first write action opens a real\nmacOS dialog naming what is about to happen. Password managers and terminals ask\n*every single time*, even after the session was approved, even in `allow` mode -\nthat one is not configurable. If nobody answers the dialog, the answer is no.\n\n**3. Everything is written down.** `~/.local/state/computer-mcp/audit.jsonl`,\nmode `0600`, append-only: every call, its target app, and whether it was allowed\nor refused with the reason. Typed text is stored as a length and a *salted*\nSHA-256 prefix, never in clear - an audit trail full of passwords is its own\nbreach. The salt is random per run and never written down, because an unsalted\nhash of a short password can be guessed offline by whoever holds the log. The\nhonest cost: two actions can be compared within one run, not across runs.\n\nEach gate has a test, and each test has been mutation-checked: break the code on\npurpose and the test goes red. See [Testing](#testing).\n\n## Install\n\n```bash\n# Claude Code\nclaude mcp add computer -- npx -y @agent360/computer-mcp\n```\n\n```jsonc\n// Cursor, VS Code, Codex CLI, Windsurf - mcp.json\n{\n  \"mcpServers\": {\n    \"computer\": { \"command\": \"npx\", \"args\": [\"-y\", \"@agent360/computer-mcp\"] }\n  }\n}\n```\n\nThen grant two macOS permissions: **System Settings → Privacy & Security →\nAccessibility**, and the same under **Screen Recording**. Ask your agent to call\n`computer_permissions` and it will tell you what is still missing.\n\n**Which app do you grant them to?** macOS attributes these to the *responsible\nprocess*, and which process that is depends on how you launched the server. Run\nfrom a terminal, it is usually the terminal. Run by an MCP client over `npx`, it\nmay be the client instead. The honest answer is: grant it to whichever app the\nsystem dialog names, and if no dialog appears, start with the app that launched\nthe client and check `computer_permissions` again.\n\n> **Untested, and we would rather say so:** we have not yet measured this from a\n> clean machine with permissions reset, so we cannot tell you with certainty\n> which of the two it will be in your setup, nor whether upgrading the package\n> re-prompts. The helper is ad-hoc signed, which means its code identity changes\n> with every build - if macOS keys your grant to the helper rather than to the\n> host app, an upgrade could silently revoke it.\n> [Issue #4](https://github.com/Agent360dk/computerMCP/issues) tracks the\n> measurement. If you hit either behaviour, telling us what you saw is a real\n> contribution.\n\n## Modes\n\n| `CMCP_MODE` | Behaviour |\n|---|---|\n| `readonly` | Write tools are not even listed. The agent can look and cannot touch. |\n| `ask` | **Default.** One dialog grants the session. Dangerous apps still ask every time. |\n| `allow` | Writes proceed without asking, still logged. Dangerous apps *still* ask. |\n\n`CMCP_ASK_TIMEOUT` (seconds, default 60) controls how long a dialog waits before\nit refuses.\n\n## Tools\n\n> **0.2.0 er kilden her i repoet.** `computer_find` og `computer_press` er med i\n> koden og i proeverne; indtil 0.2.0 er paa npm giver `npx @agent360/computer-mcp`\n> stadig 0.1.0 med tolv vaerktoejer. Byg fra kilden for at faa alle fjorten.\n\n**Look:** `computer_screenshot` · `computer_inspect` · `computer_find` ·\n`computer_apps` · `computer_windows` · `computer_permissions` · `computer_audit`\n\n**Touch:** `computer_press` · `computer_click` · `computer_type` ·\n`computer_key` · `computer_scroll` · `computer_move` · `computer_activate`\n\n`computer_inspect` reads the accessibility tree - roles, titles, values, frames -\nso the agent can click a button by knowing where it is instead of guessing from\npixels. `computer_find` narrows that to the elements matching a role, a title or\na substring. Values of secure fields are never returned, not even to the agent.\n\n**Deliberately absent:** no shell execution, no arbitrary file access, no URL\nfetching. Each would be one line of code. A computer-control server with a shell\ninside it is remote access under a friendlier name. If you want a shell, install\na shell MCP server - then you have chosen it, and the choice is visible in your\nconfig.\n\n## Without taking over your screen\n\n`computer_click` and `computer_type` go through the system's own input tap, so\nthey land wherever the keyboard focus is and they move your real pointer. That\nis fine when you are watching. It is not fine when you are working in another\nwindow.\n\n`computer_press` takes the other route: it fires the element's *own*\naccessibility action. That works while the window is behind another one, and it\nmoves nothing on your screen. `computer_find` is how the agent locates the\nelement to press.\n\n```jsonc\ncomputer_find  { \"app\": \"com.apple.Safari\", \"role\": \"AXButton\", \"contains\": \"Log in\" }\ncomputer_press { \"app\": \"com.apple.Safari\", \"contains\": \"Log in\" }\n```\n\nTwo or more matches is a refusal, not a guess - the agent gets the candidates\nand has to narrow it down, because pressing the first plausible button is\nexactly the kind of almost-right action nobody notices afterwards.\n\nThe consent dialog still comes to the front, and the apps on the always-ask list\nstill ask every time. `computer_press` names its target app, and that name is\nwhat the gate judges - so pressing something in 1Password asks even when\n1Password is nowhere near the front.\n\n**Several agents at once.** Each MCP client starts its own server, so a second\nchat is just a second process. They share one audit log, and every line carries\na per-server `session` mark - set `CMCP_CLIENT=<name>` and the line carries that\ntoo, so the log answers *which* conversation clicked. Fifty interleaved writes\nfrom two servers, zero torn lines: `test/concurrent.mjs`.\n\nWhat is **not** solved yet: two servers pressing at the same time still share\none pointer and one focused window, and there is no lock between them. Use\n`computer_press` for the background work, and keep the coordinate tools for the\nsession you are actually watching.\n\n## What it does not do\n\n- **macOS only** (14+). No Windows or Linux build, and none planned.\n- **Only what macOS marks as secure is redacted.** A password in a plain text\n  editor or a token in a terminal buffer is not marked and will not be hidden.\n  Use `readonly` when the screen holds something the system cannot know about.\n- **Consent is not containment.** After you approve, the agent drives your real\n  Mac - that is what you approved. If you need a boundary rather than a\n  decision, run it in a VM. That is the honest answer, not a missing feature.\n- **Prompt injection stays possible.** The dialogs and the log make it visible\n  rather than silent. They do not make it impossible.\n\n## Building from source\n\n```bash\ngit clone https://github.com/Agent360dk/computerMCP\ncd computerMCP/helper && swift build -c release     # the privileged binary\ncd ../mcp-server && npm install\nCMCP_MODE=readonly node index.js\n```\n\nThe helper is a separate Swift binary with **zero third-party dependencies**.\nIt is the part that *uses* Accessibility and Screen Recording, it is small\nenough to read in one sitting, and it can be replaced without touching the\nserver. (Which process macOS *grants* those permissions to is a separate\nquestion, and an open one - see the note under Install.) Every package inside a binary that privileged is a vendor\nyou are trusting without having chosen to.\n\n## Testing\n\n```bash\n./test/run-all.sh                # everything, full output kept in a log\n\npython3 test/redaction-unit.py   # the four redaction checks\nnode test/server-e2e.mjs         # the MCP protocol, read paths, readonly refusal\nnode test/failclosed.mjs         # an unanswered dialog must refuse\nnode test/claims.mjs             # every claim this README makes\nnode test/concurrent.mjs         # two servers at once: no torn lines, both identifiable\n./test/redaction-proof.sh        # live secure-field detection (needs a normal desktop)\n```\n\n`claims.mjs` checks the sentences on the front page against the code: that a\nterminal still asks in `allow` mode, that a harmless app does *not* (otherwise\n\"refuse everything\" would pass), that typed text reaches the log only as a\nlength and a hash, and that no shell, file or URL tool has appeared.\n\nWhere a check cannot be made meaningfully - no secure field happens to be on\nscreen - it reports SKIPPED, not passed. A green suite that measured nothing is\nthe failure mode these tests exist to avoid.\n\n`redaction-unit.py` builds its own image instead of measuring the live screen.\nThe first version measured the real desktop - and on a machine where the editor\nruns full-screen the test window could not appear at all, so the test measured\nan empty screenshot and called it a pass. A security test that passes when it\ncannot see anything is worse than no test.\n\n`redaction-proof.sh` still exercises the live path and needs a desktop that is\nnot in full-screen mode. It fails loudly rather than skipping quietly.\n\n## Help build it\n\nThe redaction list holds the password managers we thought of. It does not hold\nyour banking app, your company's secrets manager, or whatever is popular where\nyou live. **One team cannot write that list; many people adding one line each\ncan** - and every app someone contributes makes the tool safer for everyone who\ninstalls it afterwards.\n\nThat takes [an issue form](https://github.com/Agent360dk/computerMCP/issues/new/choose)\nand no code. So does writing down how some Mac app actually behaves, which is\nknowledge that currently only exists in the heads of people who already fought it.\n\n[The wishlist](WISHLIST.md) is the rest: open items, sized honestly, none of them\nassigned. [How contributing works](CONTRIBUTING.md).\n\n## Licence\n\nMIT © Agent360 Group ApS. Built alongside\n[Browser MCP](https://browsermcp.dev), which does the same thing for a real,\nlogged-in Chrome.\n",
+  "status": "curated"
+}

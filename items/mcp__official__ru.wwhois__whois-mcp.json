@@ -17,7 +17,7 @@
   "quality": {
     "stars": null,
     "pushed_at": "2026-09-17T17:07:26.850624Z",
-    "score": 52
+    "score": 42
   },
   "security": {
     "score": 100,
@@ -49,6 +49,6 @@
     "category": "运维",
     "featured": false
   },
-  "readme": "# wwhois — MCP server\n\nWHOIS/RDAP domain lookup, IP geolocation and Punycode conversion, exposed as\n[Model Context Protocol](https://modelcontextprotocol.io) tools. Backed by\n[wwhois.ru](https://wwhois.ru).\n\n- **Server URL:** `https://wwhois.ru/backend/mcp`\n- **Transport:** Streamable HTTP (JSON-RPC 2.0)\n- **Protocol revisions:** `2026-07-28` (current — per-request metadata,\n  `server/discover`) and `2025-11-25` … `2024-11-05` (the `initialize`\n  handshake). Both are served on the same endpoint; the server picks by how\n  the client opens.\n- **Auth:** none — public, read-only\n- **Rate limit:** 30 tool calls / minute per client IP\n- **Docs:** https://wwhois.ru/mcp\n\n## Connect\n\nClaude Desktop, Cursor, and other clients with an MCP server config:\n\n```json\n{\n  \"mcpServers\": {\n    \"wwhois\": { \"type\": \"http\", \"url\": \"https://wwhois.ru/backend/mcp\" }\n  }\n}\n```\n\n## Tools\n\n| Tool | Arguments | Returns |\n|---|---|---|\n| `whois_lookup` | `domain` (string) | Registration state (`registered` / `available` / `reserved` / `unsupported` / `unknown`) and the full raw WHOIS/RDAP record: registrar, registration and expiry dates, name servers, status. 1400+ zones including IDN / Cyrillic (`.рф`, `.москва`). RDAP where a zone offers it, plain WHOIS otherwise. |\n| `ip_geolocation` | `ip` (string) | Country, region, city, ISP and organisation for an IPv4/IPv6 address. |\n| `punycode_convert` | `value` (string) | Converts a domain between Unicode (IDN) and Punycode/ACE (`xn--`), both directions, auto-detected. |\n\n## Manual check\n\n```bash\ncurl -s https://wwhois.ru/backend/mcp \\\n  -H 'Content-Type: application/json' -H 'Accept: application/json' \\\n  -d '{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"tools/list\"}'\n```\n\n## Notes\n\nThe server is a thin MCP wrapper over wwhois.ru's existing tools — the data is\nthe same you get from the web pages at\n[/whois](https://wwhois.ru/whois), [/ip](https://wwhois.ru/ip) and\n[/punycode](https://wwhois.ru/punycode). It is a hosted remote service; this\nrepository holds the description and manifests only.\n",
+  "readme": null,
   "status": "curated"
 }

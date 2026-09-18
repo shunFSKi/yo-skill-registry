@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/speednet-software/speedwave/speedwave-implement",
+  "type": "skill",
+  "name": "speedwave-implement",
+  "description": "Implement a piece of work based on a spec or set of tickets.",
+  "author": "speednet-software",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/speednet-software/speedwave/blob/HEAD/containers/claude-resources/skills/speedwave-implement/SKILL.md",
+    "repo": "speednet-software/speedwave",
+    "path": "containers/claude-resources/skills/speedwave-implement/SKILL.md"
+  },
+  "license": "Apache-2.0",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 21,
+    "pushed_at": "2026-09-18T14:07:42Z",
+    "score": 64,
+    "star_history": [
+      {
+        "d": "2026-09-18",
+        "s": 21
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "办公",
+    "featured": false
+  },
+  "readme": "# Speedwave\n\n**A controlled environment for AI coding agents.**\n\nSpeedwave is an open-source platform for running AI coding agents inside controlled development environments.\n\nIt creates an isolated runtime on the developer workstation and controls how agents access project files, credentials, development tools and external systems.\n\nDevelopers keep their existing workflows and AI tools. Organisations get a consistent way to control and observe how agents interact with the development environment.\n\nSpeedwave Core is available under the [Apache 2.0 license](LICENSE).\n\n## Why Speedwave exists\n\nAI coding agents do more than generate code. They can read project files, execute commands and interact with repositories, issue trackers and other development tools.\n\nIn enterprise engineering environments, this creates a new control boundary:\n\n- unnecessary access to source code and internal systems\n- exposed credentials\n- sensitive data sent to external models\n- uncontrolled access to repositories and development tools\n- inconsistent agent configurations across teams\n- limited visibility into AI-assisted activity\n\nSpeedwave provides a controlled layer between AI coding agents and the development environment, without requiring teams to move development onto a new platform.\n\n## How Speedwave works\n\nSpeedwave runs on the developer workstation and creates a controlled environment around the AI coding agent.\n\n**Developer workstation → Speedwave → AI coding agent**\n\nSpeedwave controls:\n\n- the runtime environment in which the agent operates\n- access to development tools and external systems\n- how credentials are separated from the agent\n- how sensitive data is handled\n- what activity and usage can be observed\n\n## Who it is for\n\nSpeedwave is designed for organisations where:\n\n- developers are already using or evaluating AI coding agents\n- AI agents need access to source code, repositories and development tools\n- Security or Platform Engineering needs control over that access\n- teams need a consistent approach across multiple developers or projects\n- development takes place in regulated or security-sensitive environments\n\nSpeedwave is built for:\n\n- developers who want to use AI coding assistants safely\n- engineering leaders who want to scale AI adoption without shadow AI\n- security teams that need clearer control boundaries\n- governance and compliance teams that need visibility and audit evidence\n\n## What Speedwave is not\n\nSpeedwave is not an AI coding agent. It works around AI coding agents such as [Claude Code](https://docs.anthropic.com/en/docs/claude-code) rather than replacing them.\n\nSpeedwave is also not a complete compliance programme by itself. It provides technical controls, visibility and evidence that can support broader security, governance and audit processes.\n\n## Core principles\n\n- **Keep developers moving.** AI should improve delivery speed, not create a parallel approval burden.\n- **Keep control boundaries clear.** AI should only access what it is allowed to access.\n- **Keep credentials protected.** Assistants and models should not receive broad or unnecessary access to secrets.\n- **Keep sensitive data safer.** Teams should reduce the risk of sensitive information being exposed in prompts or tool calls.\n- **Keep activity reviewable.** AI-assisted work should leave evidence that teams can inspect when needed.\n\n## Technical overview\n\nUnder the hood, Speedwave uses isolated environments, controlled tool access, credential separation, sensitive-data protection and audit logging to reduce the risks of AI-assisted development.\n\nKey capabilities include:\n\n- hardened local runtime\n- token-free assistant container\n- scoped MCP gateway\n- isolated MCP workers\n- credential isolation\n- PII tokenisation\n- local LLM support\n- audit logging\n- SIEM / OTEL-ready observability\n- prompt-injection-aware design\n\n## Quick start\n\n1. Download the latest release for your platform (macOS `.dmg`, Windows `.exe`) from [GitHub Releases](https://github.com/speednet-software/speedwave/releases).\n2. Install and launch Speedwave, then complete the setup wizard (it provisions the bundled container runtime: Lima on macOS, WSL2 on Windows).\n3. Add a project and enable the integrations your team has approved.\n4. Work in the Desktop chat UI, or run `speedwave` in a terminal to start a CLI session.\n\nFull installation guide and first-session walkthrough: [speedwave.dev/docs](https://speedwave.dev/docs).\n\n## Architecture\n\nThe assistant runs in a hardened container inside a VM (Lima on macOS, WSL2 on Windows). It holds no credentials: all service access goes through the MCP Hub to isolated per-integration workers, and all model traffic goes through a per-project LLM proxy.\n\n```mermaid\ngraph TB\n    subgraph Host[\" Host \"]\n        APP[Desktop App] & CLI[CLI]\n        IDE[IDE Bridge]\n        MCP_OS[mcp-os]\n    end\n\n    subgraph VM[\" Lima VM / WSL2 \"]\n        CLAUDE[Claude Code]\n        HUB[MCP Hub]\n        PROXY[LLM proxy]\n        subgraph Workers[\" Workers \"]\n            direction LR\n            SLACK[Slack] ~~~ GITLAB[GitLab] ~~~ GITHUB[GitHub] ~~~ ATLASSIAN[Atlassian] ~~~ SP[SharePoint] ~~~ REDMINE[Redmine]\n        end\n    end\n\n    APP & CLI --> CLAUDE\n    CLAUDE -- \"MCP (2 tools)\" --> HUB\n    CLAUDE -- \"LLM traffic\" --> PROXY\n    CLAUDE -. \"WebSocket\" .-> IDE\n    HUB --> Workers\n    HUB -- \"HTTP\" --> MCP_OS\n```\n\n| Component       | Role                                                                                                          |\n| --------------- | ------------------------------------------------------------------------------------------------------------- |\n| **Claude Code** | Hardened container: zero tokens, zero credentials, read-only filesystem                                       |\n| **MCP Hub**     | The only MCP server the assistant sees: exposes `search_tools` + `execute_code`, tokenizes PII                |\n| **LLM proxy**   | Per-project forwarder for model traffic (Anthropic passthrough or approved local providers), records usage    |\n| **Workers**     | One container per integration; each mounts only its own service credentials (read-only), per-project networks |\n| **mcp-os**      | Host process for native OS integrations (Mail, Calendar, Reminders, Notes)                                    |\n| **IDE Bridge**  | WebSocket link between the assistant container and your editor on the host                                    |\n\nModel usage and cost are logged per project, diagnostics are collectable for review, and telemetry can be exported via OTLP to your own collector, including organisation-enforced configuration via MDM policy.\n\nThe full architecture series is in the \"Under the Hood\" section of the [documentation](https://speedwave.dev/docs).\n\n## Security model\n\nSpeedwave is designed to limit what AI can see, access and do. It focuses on:\n\n- reducing unnecessary model context exposure\n- keeping credentials outside the assistant environment\n- routing tool usage through controlled integrations\n- protecting sensitive values before model exposure\n- logging AI-assisted activity for review\n\n## Limitations\n\nSpeedwave does not replace secure development practices, code review, access management, secrets management or organisational AI policies.\n\nIt helps create safer boundaries and evidence around AI-assisted development, but it should be deployed as part of a broader engineering, security and governance model.\n\n## Core and Enterprise\n\n**Speedwave Core** is open source under the Apache 2.0 license. Organisations can inspect, deploy, modify and operate it independently.\n\n**Speedwave Enterprise** is for organisations that want to deploy and operate Speedwave as a managed standard across engineering teams, with central management, organisational rollout, lifecycle management and ongoing support.\n\nRunning Speedwave at organisational scale? [Learn about Speedwave Enterprise](https://speedwave.dev/#enterprise)\n\n## Documentation\n\n- User and developer documentation: [speedwave.dev/docs](https://speedwave.dev/docs)\n- Architectural decisions: [docs/adr/](docs/adr/README.md)\n- Contributor working rules: [.claude/rules/](.claude/rules/)\n- Product roadmap: [speedwave.dev/roadmap](https://speedwave.dev/roadmap/)\n\n## Contributing\n\nSee [CONTRIBUTING.md](CONTRIBUTING.md) for bug reports, feature requests, development setup, and the PR process. Please review the [Code of Conduct](CODE_OF_CONDUCT.md) before participating.\n\n## Security\n\nIf you discover a vulnerability, **do not open a public issue**. See [SECURITY.md](SECURITY.md) for responsible disclosure instructions.\n\n## License\n\nSpeedwave core is available under the [Apache 2.0 license](LICENSE).\n",
+  "status": "curated"
+}

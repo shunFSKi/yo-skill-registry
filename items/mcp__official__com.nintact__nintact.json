@@ -2,12 +2,12 @@
   "id": "mcp:official/com.nintact/nintact",
   "type": "mcp",
   "name": "nintact",
-  "description": "Create a contact form, read what came in, and approve AI-written replies. No SMTP, no DNS records.",
+  "description": "Contact forms that actually arrive. No SPF/DKIM, no SMTP. AI sorts them and drafts the reply.",
   "author": "com.nintact",
   "source": {
     "registry": "mcp-official",
-    "url": "https://registry.modelcontextprotocol.io/v0/servers/com.nintact%2Fnintact",
-    "repo": null
+    "url": "https://github.com/homareyoshizaki/nintact-mcp",
+    "repo": "homareyoshizaki/nintact-mcp"
   },
   "license": null,
   "install": {
@@ -20,15 +20,15 @@
     "env": [
       {
         "name": "NINTACT_API_KEY",
-        "required": true,
+        "required": false,
         "secret": true
       }
     ]
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-09-07T07:36:54.714956Z",
-    "score": 42
+    "pushed_at": "2026-09-18T12:32:47.984068Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -57,9 +57,9 @@
     ]
   },
   "tags": {
-    "category": "写作",
+    "category": null,
     "featured": false
   },
-  "readme": null,
+  "readme": "# nintact — MCP server and JavaScript client\n\nA contact form you paste in one line. An AI that sorts what comes in and drafts the reply.\nDelivery that needs no DNS work.\n\nThis repository holds the two published packages. The hosted service lives at\n[nintact.com](https://nintact.com).\n\n| Package | What it is |\n|---|---|\n| [`nintact-mcp`](packages/nintact-mcp) | MCP server — 32 tools. Build forms, read the inbox, approve replies from your editor. |\n| [`nintact`](packages/nintact) | JavaScript client, React component, and CLI. |\n\n## The problem this exists for\n\nA site built with an AI assistant usually works until the contact form. Then the mail silently\nstops. Gmail and Yahoo! reject mail from a domain with no SPF/DKIM, and whoever built the site\nfinds out weeks later — from the customer who never got an answer.\n\nThe usual fixes all end at the same wall: an SMTP plugin still needs a domain you have\nauthenticated, and authenticating a domain means DNS records the person often cannot edit.\n\nnintact sends over an already-authenticated domain, with `Reply-To` pointing at your own address.\nReplies reach you without touching DNS, SMTP, or a mail provider.\n\n## Quick start\n\n```bash\nnpx nintact-mcp login                          # 6-digit code by email; the key is stored, not pasted\nclaude mcp add nintact -- npx -y nintact-mcp\n```\n\nThen ask your assistant to build the form.\n\nNo account yet? `check_deliverability` works without a key — it reads public DNS and tells you\nwhether a domain can actually get mail delivered.\n\n```bash\ncurl https://nintact.com/api/v1/check?domain=example.com\n```\n\n## Docs\n\n- [`https://nintact.com/llms.txt`](https://nintact.com/llms.txt) — one screen, enough to install\n- [`https://nintact.com/llms-full.txt`](https://nintact.com/llms-full.txt) — the full API\n- [MCP server details](packages/nintact-mcp/README.md)\n- [Client and CLI](packages/nintact/README.md)\n\n## Development\n\n```bash\nnpm install\nnpm run build\n```\n\n## License\n\nMIT\n",
   "status": "curated"
 }

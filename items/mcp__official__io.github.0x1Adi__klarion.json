@@ -1,0 +1,65 @@
+{
+  "id": "mcp:official/io.github.0x1Adi/klarion",
+  "type": "mcp",
+  "name": "Klarion",
+  "description": "Secret scanning for AI agents: rules and entropy find candidates, a model decides which are real.",
+  "author": "io.github.0x1Adi",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/0x1Adi/Klarion",
+    "repo": "0x1Adi/Klarion"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "https://github.com/0x1Adi/Klarion/releases/download/v0.3.8/klarion-mcp-v0.3.8.mcpb"
+    ],
+    "env": [
+      {
+        "name": "ANTHROPIC_API_KEY",
+        "required": false,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-18T13:01:21.765558Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "<div align=\"center\">\n\n<img src=\"./assets/hero.svg\" alt=\"Klarion finds leaked secrets in code. An AI model checks each one, so you see the real ones.\" width=\"100%\">\n\n<br><br>\n\n[![CI](https://github.com/0x1Adi/Klarion/actions/workflows/ci.yml/badge.svg)](https://github.com/0x1Adi/Klarion/actions/workflows/ci.yml)\n[![Go Reference](https://pkg.go.dev/badge/github.com/0x1Adi/Klarion.svg)](https://pkg.go.dev/github.com/0x1Adi/Klarion)\n[![License MIT](https://img.shields.io/badge/license-MIT-green.svg)](./LICENSE)\n\n[Install](#install) · [Use it](#use-it) · [Results](#results) · [How it works](#how-it-works) · [Reference](./docs/reference.md)\n\n</div>\n\n---\n\nKlarion finds secrets in your code: API keys, passwords and tokens.\n\nIt works in two steps:\n\n1. **Find.** Fast local checks flag anything that looks like a secret.\n2. **Check.** An AI model reads each one with the code around it and decides if it is real.\n\nPattern scanners stop at step 1, so they also flag test values, IDs and hashes. Klarion shows\nyou the real leaks.\n\n```console\n$ klarion scan .\n\nservices/billing/client.py\n  [critical] stripe-secret-key  39:18  sk_l****4bQx\n    verdict: secret (confidence 0.96)\n    | stripe.api_key = \"sk_l****4bQx\"\n\nSummary: 1 finding(s) across 1 file(s), 198 suppressed [1204 files scanned in 612ms]\n```\n\n## Install\n\n```sh\ngo install github.com/0x1Adi/Klarion/cmd/klarion@latest\n```\n\nOr download a binary from the [releases page](https://github.com/0x1Adi/Klarion/releases).\n\nKlarion needs an AI model. Pick one:\n\n| Model | Setup |\n| --- | --- |\n| Anthropic (default) | `export ANTHROPIC_API_KEY=...` |\n| OpenAI or compatible | `export OPENAI_API_KEY=...` and set `provider = \"openai\"` |\n| Local model, nothing leaves your machine | Run Ollama and set `provider = \"ollama\"` |\n| Your Claude Code login | Set `provider = \"claude-cli\"` |\n\nSettings go in `.klarion.toml` under `[ai]`. All options are in the [reference](./docs/reference.md#configuration).\n\n## Use it\n\n| What you want | How |\n| --- | --- |\n| Scan a folder | `klarion scan .` |\n| Block commits that add a secret | `klarion protect` |\n| Block commits with the [pre-commit](https://pre-commit.com) framework | The `.pre-commit-config.yaml` below |\n| Stop Claude Code from writing a secret | `/plugin marketplace add 0x1Adi/Klarion` then `/plugin install klarion@klarion` |\n| Stop Cline, Cursor or any MCP agent from writing a secret | The MCP server below |\n| Fail pull requests that add a secret | The GitHub Action below |\n| Start on a repo that already has findings | `klarion baseline create`, so only new secrets fail |\n\n```yaml\n# .github/workflows/secrets.yml\nname: secret-scan\non: [push, pull_request]\n\njobs:\n  klarion:\n    runs-on: ubuntu-latest\n    permissions:\n      contents: read\n      security-events: write\n    steps:\n      - uses: actions/checkout@v6\n        with:\n          fetch-depth: 0\n      - uses: 0x1Adi/Klarion@v0.3.8\n        with:\n          anthropic-api-key: ${{ secrets.ANTHROPIC_API_KEY }}\n```\n\nOn a pull request it scans only what the PR adds. It caches the AI answers, so unchanged code\ncosts nothing. Findings show in the job log. On a private repo without GitHub Code Security,\nadd `upload-sarif: \"false\"` to skip the Security tab upload. GitLab CI and every option are in\nthe [reference](./docs/reference.md).\n\n```yaml\n# .pre-commit-config.yaml\nrepos:\n  - repo: https://github.com/0x1Adi/Klarion\n    rev: v0.3.8\n    hooks:\n      - id: klarion\n        stages: [pre-commit]\n```\n\nWithout the `stages` line the hook is off and runs only when you ask for it, with\n`pre-commit run --hook-stage manual klarion`. The `klarion` hook builds Klarion with Go the\nfirst time it runs; use `id: klarion-system` if klarion is already installed. Everyone who\ncommits needs a model set up.\n\n```json\n// ~/.cline/mcp.json, or the MCP settings of any other client\n{\n  \"mcpServers\": {\n    \"klarion\": {\n      \"command\": \"klarion\",\n      \"args\": [\"mcp\"],\n      \"autoApprove\": [\"scan_text\", \"scan_file\", \"verify_finding\"]\n    }\n  }\n}\n```\n\nThe agent calls `scan_text` before it writes code and `scan_file` before it commits. With no\nmodel configured the server hands each candidate and its decision rules to that agent to judge,\nso it needs no API key. Configure one and Klarion judges instead. Full steps, including the\ntools and how to verify the install: [llms-install.md](./llms-install.md).\n\n## Results\n\nKlarion found **about 1.7× more real secrets than gitleaks**, and 89% of its alerts were real\n(gitleaks: 91%).\n\nWe tested Klarion v0.3.0 on [CredData](https://github.com/Samsung/CredData): 337 real open\nsource repos where Samsung labeled the lines that hold secrets. These numbers cover code\noutside test folders.\n\n| | Klarion | gitleaks | detect-secrets |\n| --- | :--: | :--: | :--: |\n| Real secrets found | **35%** | 21% | 35% |\n| Alerts that were real | **89%** | 91% | 34% |\n| False alarms on flask and rails | **9** | 33 | 247 |\n\nGood to know:\n\n- **Klarion skips test fixtures and docs examples on purpose.** CredData counts those as real.\n  Counted that way, Klarion found 9% and gitleaks 46%.\n- **Klarion's numbers come from a sample** of 612 AI checks with one model (Claude Haiku). The\n  likely range is 30 to 40% found and 82 to 97% real.\n- **CredData's labels came from what other scanners found**, which helps those scanners.\n\nFull method and data: [benchmark/REPORT.md](./benchmark/REPORT.md).\n\n## How it works\n\n<img src=\"./assets/pipeline.svg\" alt=\"Step 1 runs local checks and finds candidates. Step 2 an AI model checks each one: real secrets fail the scan, the rest are hidden.\" width=\"100%\">\n\n- **Step 1 runs on your machine.** It looks for known key formats, `password = value` style\n  lines, credential files like `.pgpass`, and secrets hidden in base64 or hex. It also checks\n  how random a string looks.\n- **Step 2 asks the model.** Each candidate goes out with a few lines of code. The model\n  answers secret, false positive or uncertain. Uncertain counts as a secret.\n- **You can see what was hidden.** Run `klarion scan . --show-suppressed`.\n- **Your code goes only to the model you pick.** Set `send_secret = false` to send a masked\n  value instead. It is less accurate.\n\n## Limits\n\n- **It needs a model.** Without one, `klarion scan` and the commit hooks stop with an error.\n  The Claude Code hook still blocks provider keys such as AWS, GitHub and Stripe, and the MCP\n  server hands the candidates and its rules to your agent to judge.\n- **The model can be wrong.** Check what it hid with `--show-suppressed`.\n- **It finds secrets, it does not fix them.** Rotate any secret it finds.\n- **Local hooks can be skipped** with `git commit --no-verify`. Run Klarion in CI too, with\n  the Action. The pre-commit hook checks staged changes only, so in CI it has nothing to check.\n\n## More\n\n[Reference](./docs/reference.md) · [Benchmark](./benchmark/REPORT.md) · [Design](./DESIGN.md) ·\n[Changelog](./CHANGELOG.md) · [Contributing](./CONTRIBUTING.md) · [Security](./SECURITY.md)\n\nMIT © The Klarion Authors\n",
+  "status": "curated"
+}

@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/com.backpow/pow-mining-oracle",
+  "type": "mcp",
+  "name": "BackPow PoW Oracle",
+  "description": "Proof of Work oracle: solo mining odds, cost of production, hashrate, mining hardware",
+  "author": "com.backpow",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/BackpowCom/backpow-mcp-server",
+    "repo": "BackpowCom/backpow-mcp-server"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@backpow/mcp-server"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-18T15:21:35.112812Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# BackPow MCP Server\n\nThe official [Model Context Protocol](https://modelcontextprotocol.io) server for\n**BackPow — The Proof of Work Oracle**.\n\nIt gives an AI assistant live mining data for 126+ Proof of Work networks and 770+\nhardware models: network difficulty and hashrate, Poisson solo-mining\nprobabilities, Cost of Production, and hardware profitability.\n\n**Remote endpoint:** `https://mcp.backpow.com/mcp` — Streamable HTTP, no API key,\nno account.\n**Local package:** `@backpow/mcp-server` — the same six tools over stdio.\n\n---\n\n## Install\n\n### Claude Code\n\n```bash\nclaude mcp add --transport http backpow https://mcp.backpow.com/mcp\n```\n\n### Claude Desktop / claude.ai\n\nSettings → Connectors → **Add custom connector** → `https://mcp.backpow.com/mcp`\n\n### VS Code\n\n```json\n{\n  \"servers\": {\n    \"backpow\": { \"type\": \"http\", \"url\": \"https://mcp.backpow.com/mcp\" }\n  }\n}\n```\n\n### Cursor\n\nSettings → MCP → Add, or in `~/.cursor/mcp.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"backpow\": { \"url\": \"https://mcp.backpow.com/mcp\" }\n  }\n}\n```\n\n### Local stdio\n\nFor clients that run a local process instead of calling a URL. It talks to the\nsame public endpoints as the remote server, so it needs no key either:\n\n```json\n{\n  \"mcpServers\": {\n    \"backpow\": { \"command\": \"npx\", \"args\": [\"-y\", \"@backpow/mcp-server\"] }\n  }\n}\n```\n\n---\n\n## Tools\n\n| Tool | Answers |\n| --- | --- |\n| `calculate_solo_mining_odds` | \"How long to solo mine a Bitcoin block at 100 TH/s?\" — mean time, Poisson probability over 1/7/30/90/365 days, the luck spread, and what the electricity costs while you wait |\n| `get_cost_of_production` | \"Is mining Monero profitable?\" — CoP vs spot, gross margin, the reference machine and tariff, 30-day trend |\n| `get_coin_oracle` | \"What is Kaspa's current difficulty?\" — live network state with a confidence block |\n| `list_pow_coins` | Browse or filter the tracked networks by algorithm or profitability |\n| `get_hardware_benchmarks` | \"What should I mine with an RTX 4090 at $0.10/kWh?\" — coins ranked by net USD/day |\n| `get_pow_news` | Recent mining and network events, quoted as third-party content |\n\nAll six are read-only and annotated `readOnlyHint`, so hosts that support\nauto-approval will not prompt on every call.\n\n## How results are shaped\n\nEvery successful result is an envelope:\n\n```jsonc\n{\n  \"warnings\": [ /* plain prose caveats that qualify how the figures should be read */ ],\n  \"source\": {\n    \"as_of_utc\": \"2026-09-18T08:12:00Z\",\n    \"data_age_seconds\": 30,\n    \"served_from\": \"live\",\n    \"url\": \"https://backpow.com/Bitcoin\",\n    \"cite_as\": \"BackPow — The Proof of Work Oracle, \\\"BTC solo mining odds\\\", retrieved 2026-09-18 — https://backpow.com/Bitcoin\",\n    \"methodology\": \"…\"\n  },\n  \"data\": { /* the figures */ }\n}\n```\n\nDifficulty, hashrate and price move continuously, so a figure only means\nsomething alongside the moment it was measured. Every result therefore carries\nits measurement timestamp and a ready-made citation line.\n\nTwo deliberate behaviours worth knowing:\n\n- **Ambiguity is refused, not guessed.** Several tickers are shared by multiple\n  tracked chains (DGB by 5, XVG by 5). `get_coin_oracle {\"coin_id\": \"DGB\"}`\n  returns an error listing the candidates rather than picking one, so an answer\n  is never about a different network than the caller meant.\n- **An unavailable measurement is refused, not substituted.** When a network's\n  current state cannot be measured, the tool returns an error rather than a\n  placeholder such as `0 H/s`, which a caller could not tell apart from a real\n  reading.\n\n## Data and licence\n\nFigures derive from BackPow's stratum collector nodes and market data, and are\npublished under CC BY 4.0 — see [backpow.com/llms.txt](https://backpow.com/llms.txt).\nCitation is requested, permission is not required.\n\nThis is a calculator and data source, not financial advice. No tool executes a\ntransaction.\n\n---\n\n## Development\n\nNode 22 or newer is required: the Cloudflare Workers toolchain needs it. The\npublished package itself runs on Node 20 and above.\n\n```bash\nnpm install\nnpm run typecheck     # tsc --noEmit\nnpm test              # unit + integration, no network\nnpm run dev           # wrangler dev on :8787\nnpm run conformance -- http://127.0.0.1:8787   # protocol probe against a running server\nnpm run deploy        # Cloudflare Workers\n```\n\n`scripts/conformance.mjs` drives a live endpoint through the transport and\nsecurity behaviours that only show up over a real HTTP connection: status codes,\nheader negotiation, origin checks and protocol-version handling. Point it at a\nlocal `wrangler dev` instance, or at the deployed endpoint.\n\n## Transport\n\nStreamable HTTP on a single endpoint, `POST /mcp`. The server is stateless: it\nmints no session ids, `GET` and `DELETE` answer `405`, and notifications get\n`202` with no body. Protocol revisions `2025-11-25` through `2024-11-05` are\nnegotiated at `initialize`; `server/discover` reports the supported set.\n\n`/sse` and `/message`, the paths of the deprecated HTTP+SSE transport, answer\n`410` pointing at `/mcp`.\n\n## Licence\n\nMIT — see [LICENSE](LICENSE).\n",
+  "status": "curated"
+}

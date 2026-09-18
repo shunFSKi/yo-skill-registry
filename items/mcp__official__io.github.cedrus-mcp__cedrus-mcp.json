@@ -1,0 +1,57 @@
+{
+  "id": "mcp:official/io.github.cedrus-mcp/cedrus-mcp",
+  "type": "mcp",
+  "name": "CEDRUS",
+  "description": "Reasoning scaffolding that supercharges your small AI: an argument-mapping MCP server",
+  "author": "io.github.cedrus-mcp",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/cedrus-mcp/cedrus-mcp",
+    "repo": "cedrus-mcp/cedrus-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "cedrus-mcp"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-18T13:15:24.278077Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "生活",
+    "featured": false
+  },
+  "readme": "# CEDRUS\n\n<!-- mcp-name: io.github.cedrus-mcp/cedrus-mcp -->\n\n**Reasoning scaffolding that supercharges your small AI.**\n\nCEDRUS gives a local model an argument map to think in: the model lays out claims and the\nreasons for and against them, and the map keeps everything in place.\n\n- **A scaffold, not a scratchpad.** The map records which reason answers which claim, so the\n  model doesn't have to hold it in its head, and a small model can work through a debate\n  that would otherwise swamp it.\n- **Structure is checked for the model.** IDs, sides and placement are worked out by the\n  server. A move that doesn't fit is refused with an explanation, so mistakes get fixed\n  instead of piling up.\n- **You see the reasoning.** Every step lands in a map you can read, question and extend:\n  \"add an objection to A3\", \"what supports A7?\".\n- **Local and private.** Made for small models on your own machine, with maps saved as\n  plain text and JSON.\n\n## What a map looks like\n\n```\n- C1 Legalisation of Soft Drugs\n  - A1 Minimize destructive activity [con] — attacks C1\n  - A2 No harm, no ban [pro] — supports C1\n    - A3 Law must protect [con] — attacks A2\n      - A4 Soft drugs are harmful [con] — supports A3 (also attacks A2, supports A1)\n  - A5 Lifestyle decision [pro] — supports C1\n    - A6 Moral leadership [con] — attacks A5\n  - A7 Alcohol and tobacco analogy [pro] — supports C1\n    - A8 Tobacco and alcohol more dangerous [pro] — supports A7\n    - A9 Major differences [con] — attacks A7\n    - A10 Poor reason [con] — undercuts A7\n  - A11 Listen to society [pro] — supports C1\n  - A12 Argument from addiction [con] — attacks C1\n    - A13 Soft drugs are addictive [con] — supports A12\n    - A14 Addiction no reason to ban [pro] — undercuts A12\n  - A15 Slippery slope [con] — attacks C1\n    - A16 Coffee houses [pro] — attacks A15\n  - A19 Tax revenue [pro] — supports C1\n```\n\nThis is the outline. The full view the model reads also has every claim and argument in\nfull, and notes which ones nothing has challenged yet.\n\n## Quick start\n\n### 1. Install uv\n\nCEDRUS is started by [uv](https://docs.astral.sh/uv/), which downloads and runs it for you.\n\n```bash\n# macOS and Linux\ncurl -LsSf https://astral.sh/uv/install.sh | sh\n```\n\n```powershell\n# Windows\npowershell -ExecutionPolicy ByPass -c \"irm https://astral.sh/uv/install.ps1 | iex\"\n```\n\n### 2. Add CEDRUS to your app\n\nEach setup below saves your maps to `~/cedrus-maps`, a folder in your home directory. Use\nany folder you like, or leave out `--save-dir` and its path if you don't want files.\n\nWhichever app you use, the model has to support tool calling.\n\n#### LM Studio\n\nIn the right sidebar, open the **Program** tab and choose **Install → Edit mcp.json**. Add\nCEDRUS under `mcpServers`:\n\n```json\n{\n  \"mcpServers\": {\n    \"cedrus\": {\n      \"command\": \"uvx\",\n      \"args\": [\"cedrus-mcp\", \"--save-dir\", \"~/cedrus-maps\"]\n    }\n  }\n}\n```\n\n#### Jan\n\nGo to **Settings → MCP Servers**, click **+**, and fill in:\n\n| Field | Value |\n|---|---|\n| Server Name | `cedrus` |\n| Command | `uvx` |\n| Arguments | `cedrus-mcp --save-dir ~/cedrus-maps` |\n\nFor a local model, turn on tool calling in the model's settings (the edit button under\n**Model Capabilities**).\n\n#### Goose\n\nRun `goose configure`, choose **Add Extension → Command-line Extension**, name it\n`cedrus`, and give the command `uvx cedrus-mcp --save-dir ~/cedrus-maps`. In Goose\nDesktop, the same is under **Extensions → Add custom extension**.\n\nOr add it to `~/.config/goose/config.yaml` (`%APPDATA%\\Block\\goose\\config\\config.yaml` on\nWindows) yourself:\n\n```yaml\nextensions:\n  cedrus:\n    name: cedrus\n    type: stdio\n    cmd: uvx\n    args: [cedrus-mcp, --save-dir, ~/cedrus-maps]\n    enabled: true\n    timeout: 300\n```\n\nGoose can run local models through Ollama, so this is also the way to use CEDRUS with\nOllama.\n\n#### Other MCP clients\n\nAny client that can start a local (stdio) MCP server works: the command is `uvx`, the\narguments are `cedrus-mcp` and any options below.\n\n## Try it\n\n> Map the debate on whether cities should ban cars from their centres. Start with the main\n> claim, then add the strongest arguments on both sides.\n\n> Now add an objection to the weakest pro argument.\n\n> Which arguments has nobody challenged yet? Add a reply to one of them.\n\nWhenever you want to see the whole map, ask the model to show it.\n\n## Saving your maps\n\nWith `--save-dir DIR`, CEDRUS writes the map after every change to `DIR/<id>.txt`, the\nreadable view, and `DIR/<id>.json`. Each time your app starts CEDRUS, it gets a new `<id>`,\nso earlier maps are kept. `--save-file PATH` writes to one fixed file instead, and a new\nsession overwrites it.\n\nWhen the model starts a new map, the old one is kept beside the live file as `.1`, then\n`.2`, and so on.\n\n## What the model can do\n\n| Tool | What it does |\n|---|---|\n| `show` | Print the whole map. |\n| `add_claim` | Add a claim: the statement being debated, or a principle. |\n| `add_argument` | Add an argument for or against something already in the map. |\n| `link` | Relate two items already in the map, or change how they relate. |\n| `unlink` | Remove one relation. |\n| `edit` | Change a label or a text. |\n| `delete` | Delete an item, optionally with the arguments that respond only to it. |\n| `new_map` | Start over with an empty map, for another question. |\n\nAn argument can **support** or **attack** what it responds to, or **undercut** another\nargument: grant its premises, but deny that they lead to its conclusion.\n\n## Options\n\n| Option | What it does |\n|---|---|\n| `--save-dir DIR` | Save each session's map in `DIR`. Also `CEDRUS_SAVE_DIR`. |\n| `--save-file PATH` | Save the map to one file, `PATH` and `PATH` with `.txt`. Also `CEDRUS_SAVE_FILE`. |\n| `--max-chars N` | Size limit for the map view, default 24000 (roughly 6k tokens). Larger maps are shown shortened. |\n| `--hints` | Add a short hint to each tool result. |\n\nRunning over HTTP, from a checkout, or under the MCP inspector is covered in\n[docs/ADVANCED.md](https://github.com/cedrus-mcp/cedrus-mcp/blob/main/docs/ADVANCED.md).\n\n## More\n\n- [docs/ADVANCED.md](https://github.com/cedrus-mcp/cedrus-mcp/blob/main/docs/ADVANCED.md):\n  running from source, HTTP, the file format, context pruning, development.\n- [docs/PLAN.md](https://github.com/cedrus-mcp/cedrus-mcp/blob/main/docs/PLAN.md): the\n  design.\n- Version 1 is a separate code base, tagged\n  [`v1-final`](https://github.com/cedrus-mcp/cedrus-mcp/tree/v1-final).\n\n## Licence\n\nGNU Affero General Public License v3.0 or later. See\n[LICENSE](https://github.com/cedrus-mcp/cedrus-mcp/blob/main/LICENSE).\n",
+  "status": "curated"
+}

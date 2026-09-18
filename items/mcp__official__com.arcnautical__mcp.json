@@ -1,0 +1,65 @@
+{
+  "id": "mcp:official/com.arcnautical/mcp",
+  "type": "mcp",
+  "name": "mcp",
+  "description": "Screen any vessel by IMO for sanctions, ownership opacity and vetting grade. Keyless check included.",
+  "author": "com.arcnautical",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/arcnautical/arcnautical-mcp",
+    "repo": "arcnautical/arcnautical-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@arcnautical/mcp"
+    ],
+    "env": [
+      {
+        "name": "ARCNAUTICAL_API_KEY",
+        "required": false,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-18T16:12:56.407856Z",
+    "score": 55
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# @arcnautical/mcp\n\nAn [MCP](https://modelcontextprotocol.io) server for the [ArcNautical API](https://arcnautical.com/developers/): screen any commercial vessel by IMO number for sanctions, ownership opacity and a vetting grade — from Claude, ChatGPT, Cursor, VS Code, Windsurf or any MCP client.\n\n**Two tools need no API key at all.** Add it, ask \"is IMO 9274446 sanctioned?\", get the answer.\n\n[![smithery badge](https://smithery.ai/badge/notoverkil/arcnautical)](https://smithery.ai/servers/notoverkil/arcnautical) [![npm](https://img.shields.io/npm/v/%40arcnautical%2Fmcp)](https://www.npmjs.com/package/@arcnautical/mcp)\n\nTwo ways to use it: a **remote endpoint** at `https://mcp.arcnautical.com/mcp` (nothing to install — claude.ai, ChatGPT, Claude Code, Cursor) or a **local server** over stdio with `npx -y @arcnautical/mcp` (Claude Desktop and every other stdio client).\n\n```\nIMO 9274446 HS STAR: sanctions RED — 4 confirmed matches on vessel identifier.\nOwnership opacity MEDIUM. Vetting grade E (unacceptable). Checked 2026-09-12T08:10:40Z.\n```\n\n## Remote endpoint (no install)\n\n`https://mcp.arcnautical.com/mcp` — MCP Streamable HTTP, stateless, JSON responses. No authentication is required for `check_vessel` and `find_port`; the keyed tools take your API key as an `Authorization: Bearer` header on the MCP request (an `X-API-Key` or `arcnautical-api-key` header is accepted too, for gateways that name the header themselves — never a query parameter).\n\n**claude.ai** — Settings → Connectors → *Add custom connector* → URL `https://mcp.arcnautical.com/mcp`, no authentication. The two keyless tools are available at once.\n\n**ChatGPT** — Settings → Connectors → *Create* (developer mode) → server URL `https://mcp.arcnautical.com/mcp`, no authentication.\n\n**Claude Code**\n\n```\nclaude mcp add --transport http arcnautical https://mcp.arcnautical.com/mcp\nclaude mcp add --transport http arcnautical https://mcp.arcnautical.com/mcp --header \"Authorization: Bearer arc_live_…\"\n```\n\n**Cursor** — `.cursor/mcp.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"arcnautical\": {\n      \"url\": \"https://mcp.arcnautical.com/mcp\",\n      \"headers\": { \"Authorization\": \"Bearer arc_live_…\" }\n    }\n  }\n}\n```\n\n**Anything with curl** — the endpoint is plain JSON-RPC over POST:\n\n```\ncurl -s https://mcp.arcnautical.com/mcp -H 'Content-Type: application/json' \\\n  -d '{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"tools/call\",\"params\":{\"name\":\"check_vessel\",\"arguments\":{\"imo\":\"9274446\"}}}'\n```\n\nThe remote endpoint is a thin client of the same public API: a keyless call counts against **your** 100-per-hour allowance (the caller's address is forwarded), and a keyed call is metered on your key exactly as a direct API call would be. `GET /mcp` answers 405 — there is no server-to-client stream to hold — and `GET https://mcp.arcnautical.com/health` reports the endpoint's version.\n\n## Local server (stdio)\n\nRequires Node 18+. No install step — every client below runs it with `npx`.\n\n**Claude Desktop** — `claude_desktop_config.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"arcnautical\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@arcnautical/mcp\"]\n    }\n  }\n}\n```\n\n**Claude Code**\n\n```\nclaude mcp add arcnautical -- npx -y @arcnautical/mcp\n```\n\n**Cursor / Windsurf / VS Code** — same `command` / `args` shape in the client's MCP settings.\n\nTo unlock the full record, batches and voyage scoring, add an API key to the `env` block:\n\n```json\n{\n  \"mcpServers\": {\n    \"arcnautical\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@arcnautical/mcp\"],\n      \"env\": { \"ARCNAUTICAL_API_KEY\": \"arc_live_…\" }\n    }\n  }\n}\n```\n\nKeys are self-serve at https://arcnautical.com/arcnautical.html#/developer-api — no approval step. A key includes 5,000 vessel screenings and 10,000 voyage assessments a month.\n\n## Tools\n\n| Tool | Key? | What it does |\n|---|---|---|\n| `check_vessel` | no | Sanctions status (OFAC SDN, EU, UN, UK OFSI, OpenSanctions), ownership-opacity score, A–E vetting grade for one IMO. 100/hour per IP. |\n| `find_port` | no | Resolve a port name or country to UN/LOCODEs — call before `score_voyage`. |\n| `screen_vessel` | yes | The full screening record: every match with its source list, programme and confidence class, the graded vetting factors, per-source freshness, a retained record id. Same hull asked again today replays free. |\n| `screen_vessels` | yes | Batch up to 50 IMOs and wait for the results. |\n| `get_screening` | yes | Retrieve a stored record by id (retained ten years). |\n| `score_voyage` | yes | Route risk between two LOCODEs: score, level, drivers, confidence, missing sources. |\n| `get_usage` | yes | Remaining allowance and limits for the configured key. |\n\n### Reading a verdict\n\n- **RED** — confirmed match on the vessel identifier. **AMBER** — possible match, review it. **GREEN** — no match against the sources reached. **INCOMPLETE** — a core source could not be read; never present it as clear.\n- `coverage_complete: false` on a GREEN means one supplementary list was unavailable: re-screen before relying on it.\n- `assessed: false` means ownership and vetting are defaults, not findings.\n- The keyless check matches the vessel's **current** name and identifiers only. A hull renamed after a designation can read GREEN there; `screen_vessel` covers that case.\n- Designations change daily. Quote the `checkedAt` / `screened_at` time with any answer.\n\n## Idempotency\n\nEvery resource-creating call sends an `Idempotency-Key` derived from the *question* — the hull and the UTC day — not from the attempt. Asking about the same vessel twice in a day returns the stored record and spends nothing. The API's docs measured 42% of one integration's monthly screenings as same-day repeats billed only because their client generated a random key per call; this server does not do that.\n\n## Environment\n\n| Variable | Default | Purpose |\n|---|---|---|\n| `ARCNAUTICAL_API_KEY` | unset | Enables the keyed tools (stdio; the remote endpoint reads the `Authorization` header instead). |\n| `ARCNAUTICAL_BASE_URL` | `https://arcnautical.com` | Override for testing. |\n| `PORT` / `HOST` | `3005` / all interfaces | `arcnautical-mcp-http` only. |\n| `MCP_TRUST_PROXY` | unset | `arcnautical-mcp-http` only: `1` reads the caller's address from `X-Real-IP` / `CF-Connecting-IP` set by a reverse proxy. Only when nothing but the proxy can reach the port. |\n\n### Self-hosting the HTTP endpoint\n\n`npx -y -p @arcnautical/mcp arcnautical-mcp-http` serves `POST /mcp` on port 3005 — useful when your assistants run in a network that cannot spawn local processes but can reach one internal URL. The `Dockerfile` in this repository builds the same thing; it is what `mcp.arcnautical.com` runs.\n\n## Links\n\n- Guide: https://arcnautical.com/developers/\n- Reference: https://arcnautical.com/developers/reference/\n- OpenAPI 3.1: https://arcnautical.com/api/v1/openapi.json\n- Postman: https://www.postman.com/arcnautical-6322764/arcnautical-s-workspace\n- For agents: https://arcnautical.com/llms.txt\n- Listed on: [MCP registry](https://registry.modelcontextprotocol.io/v0.1/servers?search=com.arcnautical/mcp) (`com.arcnautical/mcp`) · [Smithery](https://smithery.ai/servers/notoverkil/arcnautical) · [npm](https://www.npmjs.com/package/@arcnautical/mcp)\n\n## Development\n\n```\nnpm install\nnpm test        # builds, then drives dist/cli.js over stdio AND createHttpServer() over Streamable HTTP\n                # (a local stub API asserts the forwarded caller address and Bearer key; one call hits prod keyless)\nnpm run start:http   # the remote endpoint on http://localhost:3005/mcp\n```\n\nMIT © ArcNautical\n",
+  "status": "curated"
+}

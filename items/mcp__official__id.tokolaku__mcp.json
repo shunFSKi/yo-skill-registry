@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/id.tokolaku/mcp",
+  "type": "mcp",
+  "name": "Tokolaku",
+  "description": "WhatsApp Business API platform for Indonesian SMBs: messages, inbox, products, orders, webhooks.",
+  "author": "id.tokolaku",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/Rustam335/tokolaku-mcp",
+    "repo": "Rustam335/tokolaku-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://api.tokolaku.id/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-18T16:00:12.165126Z",
+    "score": 52
+  },
+  "security": {
+    "score": 85,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": false
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# Tokolaku MCP Server\n\nRemote [MCP](https://modelcontextprotocol.io) (Model Context Protocol) server for [Tokolaku](https://tokolaku.id) — a WhatsApp business platform for Indonesian SMBs built on the **official WhatsApp Business API** (Meta Cloud API, zero message markup).\n\nConnect Claude, ChatGPT, or any MCP client to your Tokolaku account and let your AI agent send WhatsApp messages, browse conversations, look up products & orders, and manage webhooks.\n\n```\nEndpoint : https://api.tokolaku.id/mcp\nTransport: Streamable HTTP (stateless)\n```\n\n## Quick start\n\n### claude.ai / ChatGPT & other OAuth-capable clients\n\nJust add the URL — no keys needed:\n\n1. Add a custom connector / MCP server with URL `https://api.tokolaku.id/mcp`\n2. Sign in with your Tokolaku account and approve access\n3. Done — 6 read-only tools are available (channels, inbox, products, orders)\n\n### Claude Code / Claude Desktop / SDKs (API key)\n\nUse a **secret API key** from your [Tokolaku developer dashboard](https://tokolaku.id/developers):\n\n```json\n{\n  \"mcpServers\": {\n    \"tokolaku\": {\n      \"type\": \"http\",\n      \"url\": \"https://api.tokolaku.id/mcp\",\n      \"headers\": { \"x-api-key\": \"tk_live_sk_xxx\" }\n    }\n  }\n}\n```\n\n## Tools\n\nWith an API key (scope-gated — `tools/list` follows your key's scopes):\n\n| Tool | Description |\n|---|---|\n| `send_message` | Send a session text message via the official channel |\n| `generate_bot_reply` | Generate an AI reply using the tenant's bot engine |\n| `list_channels` | List connected official channels |\n| `list_conversations` / `get_conversation` | Browse the inbox |\n| `list_products` | Browse the product catalog |\n| `list_orders` / `get_order` | Browse orders (incl. payment status) |\n| `get_subscription` | Plan & quota info |\n| `list_webhooks` / `create_webhook` / `test_webhook` | Manage inbound-event webhooks |\n\nVia OAuth (read-only bundle): `list_channels`, `list_conversations`, `get_conversation`, `list_products`, `list_orders`, `get_order`.\n\n## Auth\n\n- **OAuth 2.1** (PKCE, dynamic client registration, RFC 8414/9728 discovery) — for interactive clients; tokens are per-user and read-only.\n- **API key** (`x-api-key` or `Authorization: Bearer`) — secret keys only; write tools respect billing/quota exactly like the REST API.\n\n## Links\n\n- Docs & API reference: https://tokolaku.id/api-docs\n- Developer overview: https://tokolaku.id/developers\n- WhatsApp Business API plan (Rp99k/mo, no message markup): https://tokolaku.id/whatsapp-api\n- SDKs: [npm `tokolaku-sdk`](https://www.npmjs.com/package/tokolaku-sdk) · [PyPI `tokolaku`](https://pypi.org/project/tokolaku/) · [Packagist `tokolaku/sdk`](https://packagist.org/packages/tokolaku/sdk)\n\n---\n\n*This repository hosts the public metadata (`server.json`) and documentation for the hosted server; the server itself is a managed service operated by Tokolaku.*\n",
+  "status": "curated"
+}

@@ -2,7 +2,7 @@
   "id": "mcp:official/com.limzo/telegram-group-stats",
   "type": "mcp",
   "name": "Limzo Telegram Group Stats",
-  "description": "Read-only public Telegram group stats from Limzo: leaderboards, activity, levels. No API key.",
+  "description": "Read-only stats for public Telegram groups tracked by Limzo, the anti-spam bot. No API key.",
   "author": "com.limzo",
   "source": {
     "registry": "mcp-official",
@@ -20,8 +20,8 @@
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-07-22T07:40:52.035818Z",
-    "score": 37
+    "pushed_at": "2026-09-18T11:54:47.080197Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -53,6 +53,6 @@
     "category": "编程",
     "featured": false
   },
-  "readme": null,
+  "readme": "# limzo-mcp\n\n[![npm version](https://img.shields.io/npm/v/limzo-mcp.svg)](https://www.npmjs.com/package/limzo-mcp)\n[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](./LICENSE)\n[![MCP](https://img.shields.io/badge/Model_Context_Protocol-server-blue.svg)](https://modelcontextprotocol.io)\n\nMCP (Model Context Protocol) server for **[Limzo](https://limzo.com)**, the Telegram anti-spam and moderation bot — read-only public Telegram group statistics: leaderboards, activity trends, member levels, weekly award history, and moderation summaries for any group with a public Limzo stats page.\n\nNo API key, no account. Everything served is already public at `limzo.com/s/<slug>` — payloads never include verbatim member messages.\n\n## Tools\n\n| Tool | What it returns |\n|---|---|\n| `list_groups` | Search/browse the public group directory (slug, title, members, language) |\n| `get_group_stats` | Full public stats for one group by slug: activity, top members, levels, awards, moderation summary |\n| `get_global_stats` | Network-wide Limzo stats |\n\n## Quick start\n\nThe server is hosted — this package is a stdio bridge for MCP clients:\n\n```bash\nnpx limzo-mcp\n```\n\n### Claude Desktop / Claude Code\n\n```json\n{\n  \"mcpServers\": {\n    \"limzo\": { \"command\": \"npx\", \"args\": [\"-y\", \"limzo-mcp\"] }\n  }\n}\n```\n\n### Cursor / other MCP clients\n\nSame pattern — command `npx`, args `[\"-y\", \"limzo-mcp\"]`.\n\n### Direct HTTP (streamable MCP, no bridge)\n\nClients that support remote MCP can connect straight to:\n\n```\nhttps://limzo.com/api/public/mcp\n```\n\n## Example\n\nAsk an assistant *\"How active is the hipo_chat Telegram group?\"* and it calls `get_group_stats`:\n\n```jsonc\n// get_group_stats { \"slug\": \"hipo\" }  →  (response trimmed)\n{\n  \"group\":  { \"title\": \"Hipo Chat\", \"username\": \"hipo_chat\", \"member_count\": 3920 },\n  \"range\":  { \"key\": \"7d\", \"label\": \"7 days\", \"days\": 7 },\n  \"stats\":  {\n    \"messages\": 1107,\n    \"active_users\": 236,\n    \"mood\": { \"label\": \"Sunny\", \"emoji\": \"☀️\", \"positive_pct\": 83 },\n    \"top_members\": [\n      { \"rank\": 1, \"name\": \"Josip\", \"messages\": 238 },\n      { \"rank\": 2, \"name\": \"Behrang Norouzinia\", \"messages\": 84 }\n    ]\n  }\n}\n```\n\nEvery value above is already public at [limzo.com/s/hipo](https://limzo.com/s/hipo) — the server never exposes verbatim member messages. Full response shape: [openapi.json](https://limzo.com/api/public/openapi.json).\n\n## What is Limzo?\n\nA Telegram community bot: public shareable stats pages, member levels/badges/achievements, weekly highlights and reports, mini-games, and smart anti-spam moderation (newcomer captcha, impersonator guard, link safety scan, /warn warnings, language lock, cross-group network shield). Free to start: [@LimzoRobot](https://t.me/LimzoRobot?start=github).\n\n- Docs: https://limzo.com/docs/\n- OpenAPI: https://limzo.com/api/public/openapi.json\n- llms.txt: https://limzo.com/llms.txt\n\n## Listed on\n\nOfficial [MCP Registry](https://registry.modelcontextprotocol.io) (`com.limzo/telegram-group-stats`) · [Glama](https://glama.ai/mcp/servers/LimzoCom/limzo-mcp) · [Smithery](https://smithery.ai) · [npm](https://www.npmjs.com/package/limzo-mcp)\n\n## License\n\nMIT\n",
   "status": "curated"
 }
