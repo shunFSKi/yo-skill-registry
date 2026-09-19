@@ -1,0 +1,114 @@
+{
+  "id": "mcp:official/io.github.dev-prathap/attest",
+  "type": "mcp",
+  "name": "Attest",
+  "description": "Decide by policy, gate behind a human, verify by read-back, record a hash-chained ledger.",
+  "author": "io.github.dev-prathap",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/dev-prathap/ATTEST",
+    "repo": "dev-prathap/ATTEST"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "attestlayer"
+    ],
+    "env": [
+      {
+        "name": "ATTEST_POLICY",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "ATTEST_LEDGER",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "ATTEST_AUTO_APPROVE",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "ATTEST_CONFIRM_TIMEOUT",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "GMAIL_TOKEN",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "GOOGLE_TOKEN",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "SLACK_BOT_TOKEN",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "HUBSPOT_TOKEN",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "NOTION_TOKEN",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "LINEAR_API_KEY",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "GRAPH_TOKEN",
+        "required": false,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-19T07:41:45.558681Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Attest — Proof layer for AI agents\n\n[![ci](https://github.com/dev-prathap/ATTEST/actions/workflows/ci.yml/badge.svg)](https://github.com/dev-prathap/ATTEST/actions/workflows/ci.yml) [![npm](https://img.shields.io/npm/v/attestlayer?label=npm%20attestlayer)](https://www.npmjs.com/package/attestlayer) [![docs](https://img.shields.io/badge/docs-dev--prathap.github.io%2FATTEST-black)](https://dev-prathap.github.io/ATTEST/) [![license](https://img.shields.io/badge/license-MIT-green)](./LICENSE)\n\n> **Decide → Gate → Verify → Attest.**\n> When an AI agent takes an action in the real world, Attest decides whether it may, gates it behind a human when it matters, verifies from the system of record that it actually happened, and records tamper-evident evidence.\n\nAttest is **not** an agent framework, not a connector platform, not a guardrail filter. It is the layer that lets a team say, with proof: *\"this agent did exactly this, as this person, and it worked.\"*\n\n## Read in this order\n\n| Doc | What it locks |\n| --- | --- |\n| [01 — Vision](./docs/01-vision.md) | What Attest is, what it is not, the thesis |\n| [02 — Product](./docs/02-product.md) | The four steps, surfaces, what a customer experiences |\n| [03 — Universal adapter](./docs/03-universal-adapter.md) | **All apps, all actions**: descriptor, entry points, verification ladder, auth, confirm, policy |\n| [04 — Architecture](./docs/04-architecture.md) | SDK + Cloud, stack, data model, ledger |\n| [05 — Market & positioning](./docs/05-market-positioning.md) | Why now, competitors, first vertical, go-to-market |\n| [06 — Build plan](./docs/06-build-plan.md) | Phases, weekly plan, what we reuse, what we do not build |\n| [07 — Decisions](./docs/07-decisions.md) | Locked decisions and open questions |\n| [08 — Phase plan](./docs/08-phase-plan.md) | Detailed phase-wise split: task IDs, deliverables, exit criteria, milestones, founder checklist |\n\n## Quickstart\n\nBrand **Attest** · PyPI `attestlayer` · npm `attestlayer` · deploy runbook in [DEPLOY.md](./DEPLOY.md).\n\n**TypeScript** — on npm today:\n\n```bash\nnpm install attestlayer\n```\n\n```ts\nimport { Attest } from \"attestlayer\";\n\nconst at = new Attest({ agent: \"followup-agent@v3\", readers: { gmail: process.env.GMAIL_TOKEN! } });\nconst sendEmail = at.wrap({ system: \"gmail\", verb: \"send\", target: \"to\" },\n                          async ({ to, subject, body }) => gmail.send({ to, subject, body }));\n\nawait sendEmail({ to: \"arun@newco.com\", subject: \"Proposal\", body: \"…\" });\n```\n\n**Python** — same contract, same ledger format:\n\n```bash\npip install attestlayer              # publishing pending; today: pip install -e \".[dev]\"\n```\n\n```python\nimport attest\n\n@attest.action(system=\"gmail\", verb=\"send\", target=\"to\")\ndef send_email(to, subject, body): ...\n```\n\nThe first external send pauses for a human; the ledger row says `acknowledged`, or `verified` once Attest can\nread back with the agent's own credentials (`Attest(readers={\"gmail\": service})`). `attest ledger` · `attest verify`.\nFull docs: `mkdocs serve` → [docs/site](./docs/site/quickstart.md).\n\n## Repository\n\n| path | what |\n| --- | --- |\n| [attest/](./attest/) | Python SDK — descriptor, registry, policy, hash-chained ledger, verification ladder + recipes, gates (console / Slack / webhook / inbox / LangGraph interrupt / pending + resume), adapters (LangGraph, OpenAI Agents), MCP proxy, CLI, cloud client. [attest/README.md](./attest/README.md) |\n| [cloud/](./cloud/) | Attest Cloud v0 — FastAPI + Postgres: orgs, keys, agents, versioned policy, per-org hash-chained ledger, confirm inbox with Slack / webhook, exports |\n| [dashboard/](./dashboard/) | Next.js dashboard — ledger drill-down, confirm inbox, policy / keys / settings |\n| [examples/](./examples/) | unknown app (L1 → L3), LangGraph agent (two `verified` rows), OpenAI Agents, MCP config, API-only, cloud |\n| [docs/site/](./docs/site/) | documentation site (mkdocs) · [docs/](./docs/) — product docs 01–08 · [docs/notes](./docs/notes/do-extraction.md) — DO / DeerFlow extraction |\n| [deploy/](./deploy/) | Dockerfiles + compose (Postgres, API :8400, dashboard :3400) |\n| [launch/](./launch/) | Show HN, blog drafts, LangChain integration PR draft |\n| [benchmarks/](./benchmarks/) | what the layer costs per action — `python benchmarks/bench.py` ([results](https://dev-prathap.github.io/ATTEST/performance/)) |\n| [DEPLOY.md](./DEPLOY.md) · [CHANGELOG.md](./CHANGELOG.md) | release (`git tag vX.Y.Z` → PyPI, npm, GHCR, Pages) and hosting runbook |\n\n```bash\npytest -q && (cd cloud && pytest -q)                   # 273 + 21 tests\nATTEST_AUTO_APPROVE=1 python examples/langgraph_agent.py\ncd deploy && cp .env.example .env && docker compose up  # cloud + dashboard\n```\n\n## One-line rules\n- We never execute the customer's action. Their tool executes; we observe, decide, gate, verify, record.\n- Coverage is universal (any app, any action, any framework, any language). Verification depth is layered and honest.\n- Open-source SDK (MIT). Paid cloud (ledger, confirm inbox, policies, exports).\n- Developer-led, self-serve, USD. No enterprise sales motion in year one.\n\n## Install from registries\n\n| where | how |\n| --- | --- |\n| PyPI *(publishing pending)* | `pip install attestlayer` → `attest`, `attest-mcp`, `attest-mcp-server`, `attest-gateway`, `attestlayer` |\n| MCP Registry | `io.github.dev-prathap/attest` (verify server) · `io.github.dev-prathap/attest-proxy` (zero-code proxy) — `uvx attestlayer` |\n| Smithery | [`attestlayer/attest`](https://smithery.ai/server/attestlayer/attest) |\n| Claude Desktop | `attest-<version>.mcpb` on the [release](https://github.com/dev-prathap/ATTEST/releases/latest) |\n| npm | `npm install attestlayer` — **live** |\n| Docker | `ghcr.io/dev-prathap/attest-api`, `ghcr.io/dev-prathap/attest-dashboard` |\n\n<!-- mcp-name: io.github.dev-prathap/attest -->\n<!-- mcp-name: io.github.dev-prathap/attest-proxy -->\n\n## Lineage\nAttest is extracted from two working codebases: **DO** (policy engine, read-back verification pairs, evidence ledger, Nango auth) and **DeerFlow** (tool receipts, verification patterns, MCP/IM channel adapters). Nothing here is theoretical — every core mechanism already runs against real Gmail, Slack, HubSpot, Notion, Linear and Google Workspace.\n",
+  "status": "curated"
+}

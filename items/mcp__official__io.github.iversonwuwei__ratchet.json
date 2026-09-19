@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.iversonwuwei/ratchet",
+  "type": "mcp",
+  "name": "ratchet",
+  "description": "Read-only tools to inspect your agent setup: list MCP servers, flag unpinned ones, test a policy.",
+  "author": "io.github.iversonwuwei",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/suhui-organization/ratchet",
+    "repo": "suhui-organization/ratchet"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "ghcr.io/suhui-organization/ratchet:v0.11.0"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-19T06:12:56.764978Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# Ratchet\n\n> **从 agent 的真实行为编译最小权限策略，并给出收货方能自己验证的证据。**\n\n```bash\ncurl -fsSL https://github.com/suhui-organization/ratchet/releases/latest/download/install.sh | sh\n```\n\nmacOS / Linux 上也可以用 Homebrew（formula 钉住每个平台的 sha256）：\n\n```bash\nbrew install suhui-organization/tap/ratchet\n```\n\nLinux / macOS（amd64 · arm64）。装完先跑这一条——**只读配置，不执行任何东西**：\n\n```bash\nratchet scan --home ~\n```\n\n它会在十秒内告诉你：这台机器上有几个 MCP server，其中几个**没锁版本**。\n（我自己的机器：16 个里 12 个没锁。）\n\n棘轮只能往一个方向转：权限可以收紧，放宽必须显式。\n\n## 这是什么\n\n一个跑在**你自己机器上**的工具：它读 agent 用到的工具清单，\n编译出一份最小权限策略，再把这次审计的产物打成一份\n**收货方不需要信任你、也不需要装任何东西就能验证**的交付目录。\n\n## 这不是什么\n\n- 不是沙箱、不是容器运行时；\n- 不是 prompt 内容过滤器；\n- 不是企业控制台（不做 dashboard、不做多租户、不做 SaaS 依赖）；\n- 不要求你把日志传到哪里去。\n\n## 为什么值得存在\n\n市场上的产品要么**让你自己手写策略**（Cedar / CEL / 自然语言），\n要么**要你相信它的日志**。Ratchet 做的是这两件之间缺失的一步：\n**策略由观测编译，证据由收货方自己算哈希。**\n\n## 一个例子\n\n```bash\n# 1) 编译：从工具清单得到一份保守的最小权限策略\nratchet policy draft --from examples/inventory.json --out policy.json\n\n# 2) 出交付物：报告 + 逐文件 sha256 清单\nratchet-report build --dir ./delivery --policy policy.json\n\n# 3) 收货方验证（不需要装 ratchet）\npython3 verify.py ./delivery\n```\n\n## 仓库结构\n\n| 目录 | 语言 | 是什么 |\n|---|---|---|\n| `cmd/` `internal/` | **Go** | 机器上的引擎：工具清单 → 能力判定 → 最小权限策略。编译成单个静态二进制，目标机器不需要任何运行时 |\n| `service/` | **Python** | 交付物侧：合规映射、sha256 清单、以及**只用标准库**的独立验证器 |\n| `web/` | **Nuxt 4 + Vue 3 + Tailwind** | 公开页面：落地页 + 收货方在浏览器里自己算哈希的验证页 |\n| `docs/` | — | 设计与计划（`DESIGN.md` / `PLAN.md` / `DECISIONS.md`） |\n\n## 状态\n\n**0.1.0 — 走的通的最小骨架**：策略编译与验证链路已实现且有测试，\n真实环境扫描（读 harness 配置、MCP introspection）尚未实现，输入是清单文件。\n详见 [docs/PLAN.md](docs/PLAN.md)。\n\n## 开发\n\n```bash\nmake test          # 三端全部测试\nmake go-test\nmake py-test\nmake web-test\n```\n",
+  "status": "curated"
+}

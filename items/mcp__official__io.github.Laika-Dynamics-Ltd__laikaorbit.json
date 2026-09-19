@@ -1,0 +1,65 @@
+{
+  "id": "mcp:official/io.github.Laika-Dynamics-Ltd/laikaorbit",
+  "type": "mcp",
+  "name": "Laika Orbit recall",
+  "description": "Zero-model recall over your docs: the section that answers a question, in about a millisecond.",
+  "author": "io.github.Laika-Dynamics-Ltd",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/Laika-Dynamics-Ltd/laika-orbit",
+    "repo": "Laika-Dynamics-Ltd/laika-orbit"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "laikaorbit"
+    ],
+    "env": [
+      {
+        "name": "BRAIN_ROOT",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-19T04:20:03.632192Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "写作",
+    "featured": false
+  },
+  "readme": "# Laika Orbit\n\n**A cockpit for your coding agents.** Run many Claude Code chats at once. Orbit keeps them moving,\nputs what needs you first, and sits beside the editor you already use. Open source, and it all runs\non your own Mac.\n\n![Away mode: the Autopilot panel set to Away while the conductor keeps the chats moving](docs/images/away.webp)\n\n> **Status: macOS preview.** Built and used daily on macOS, and built with itself\n> ([how](https://laikaorbit.com/built-with-orbit/)). The recall engine, CLI and MCP server run\n> anywhere Node runs; the desktop app is macOS first, Linux best effort, Windows untested.\n\n## What it does\n\n**Give it a goal. It runs the fleet.** A conductor chat sends each of your chats its next step.\nSwitch to Away and it keeps them going: plainly safe steps are approved, stuck chats are brought\nback, and anything that reaches outside your Mac waits for you. Come back to one summary card.\n[Away mode](https://laikaorbit.com/docs/away-mode/).\n\n**Every chat, and what each one needs.** Chats run side by side, one per task, on any of your\nClaude accounts, and come back after a restart or a crash. The fleet board puts the ones waiting on\nyou at the top.\n\n![The fleet board: chats waiting on you first, finished ones below](docs/images/fleet.webp)\n\n**Long jobs report themselves.** Builds, test runs and batch jobs share one runs page, with progress,\nan ETA, and before/after compares. A job that goes quiet is flagged as stalled.\n\n**Work that waits its turn.** A queue of next tasks that survives restarts. With autopilot on, the\nnext item starts by itself when a chat frees up.\n\n<p><img src=\"docs/images/runs.webp\" width=\"49%\" alt=\"The runs page\"> <img src=\"docs/images/queue.webp\" width=\"49%\" alt=\"The queue\"></p>\n\n**Heavy work goes to your other machines.** Tests, builds and captures run on a Linux box under the\ndesk and the files come back ([below](#other-machines)). Windows PCs for GPU work are in testing.\n\n**And the rest of your day in the same window:** panels you dock and lay out, a real Chromium\nbrowser with a profile per account, inbox and calendar widgets, and a live map of everything you\nknow. Hidden panels stop drawing: idle, the app went from 41% of one CPU core to 11%, and to 5.5%\nwhile you're in another window.\n\n**Finished work folds itself into main (new).** Each chat shows its branch, its commits and its\nuncommitted files. Mark a chat's work ready and the merge train lands it on your local main once the\nrepo's own check passes. If the check goes red, it finds which chat's work broke it, lands the rest,\nand sends that chat the failing output. Pushing stays with you.\n\n### Laika Orbit recall\n\nUnderneath is **Laika Orbit recall**, a retrieval engine that answers questions about your files\nwithout calling a model: the exact section and the file it came from, in about a millisecond, with\n97.8% fewer tokens than an agent grepping and reading whole files\n([`bench/RESULTS.md`](bench/RESULTS.md)). It works in any Claude Code session on its own:\n\n```bash\nclaude mcp add laikaorbit -- npx -y laikaorbit mcp\n```\n\n## Requirements\n\n- **Node 22.18 or newer** (runs TypeScript directly) and **pnpm 10**. `mise install` sets up both.\n- **macOS** for the desktop app. `pdftotext` for PDF indexing: `brew install poppler`.\n- **Your own Claude account** for chats. Sign in from the Claude panel; it runs Claude Code's own\n  login, and Laika Orbit never sees or stores your credentials. Until then, a demo agent runs\n  offline so you can try the panel.\n\n## Quick start\n\n```bash\ngit clone https://github.com/Laika-Dynamics-Ltd/laika-orbit.git && cd laika-orbit\nmise install && pnpm install\n\ncd packages/app && node server.mjs    # the app at http://localhost:5200\npnpm shell                            # (from the root) the same app in its own window, with real browser tabs\n```\n\nThe first run indexes this folder only. Add your own folders (notes, projects, documents) from\nthe index settings (`i`); nothing outside the repo is read until you add it.\n\n### The engine on its own\n\n```bash\nnode packages/cli/src/index.ts index                          # build the index\nnode packages/cli/src/index.ts recall \"which TTS voice do we use\"\nnode packages/cli/src/index.ts lint                           # router-file diagnostics\n```\n\nClaude Code picks up the MCP server from [`.mcp.json`](.mcp.json) when you open this folder.\n`BRAIN_ROOT` points any of it at another corpus:\n\n```bash\ncd packages/app && BRAIN_ROOT=\"$HOME/Documents\" PORT=5201 node server.mjs\n```\n\n## Configuration\n\nEverything is optional. Copy [`.env.example`](.env.example) to `.env.local` for the feeds:\n\n| | |\n|---|---|\n| **Calendar** | `CALENDAR_ICS_URLS`: your calendar's secret iCal address. Several: comma-separated. |\n| **Inbox** | `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` from your own Google Cloud OAuth client, then connect from the widget. The refresh token goes in the macOS Keychain. |\n| **Claude accounts** | Added from the Claude panel, listed in `brain/agents.local.json`. |\n| **Connectors** | The Claude connectors your accounts have, for the settings panel and the map: `brain/connectors.local.json`, as `[{ \"id\", \"name\", \"via\", \"live\" }]`. |\n\nFiles ending `.local.json`, `.env.local`, and the settings the app writes as you use it are\ngitignored, so pulling updates never conflicts with your setup.\n\n## Privacy and security\n\n- **Local only.** The server listens on `127.0.0.1` and refuses requests with any other `Host`,\n  and cross-site requests that would change something are refused. There is no login, so don't\n  expose the port.\n- **What leaves your machine:** chats go to Anthropic through Claude Code under your account; the\n  inbox and calendar widgets fetch from Google with the credentials you configure. After each\n  chat turn a short summary is written by a small model on the same account; `LAIKA_BRIEFS=0`\n  turns that off.\n- **Chats ask before acting.** New chats start in Claude Code's default permission mode; you\n  choose when to allow more.\n- **Usage reporting is opt-in and anonymous.** Off until you turn it on, and declining never\n  creates an identifier. It sends daily counts of coarse actions (`recall_run: 40`) and never a\n  path, query, file, prompt, URL or IP. Turning it off destroys the id and the queue.\n  [PRIVACY.md](PRIVACY.md) lists the whole payload.\n\nFound a vulnerability? See [SECURITY.md](SECURITY.md).\n\n## Other machines\n\nClaude sessions and terminals can run on other machines on your network, so their builds and\ntests don't load your Mac. `pnpm node:bundle` builds one archive per platform (Linux x64 and arm64\nby default; `darwin-arm64` and `darwin-x64` on request) in `tools/node-bundle/dist/`. Copy one to\nthe machine, then `tar -xzf` it and run `./install.sh` as the user the sessions should run as. It\nbundles Node and Claude Code, installs the agent host as a user service listening on loopback only,\nand lets this Mac's Laika Orbit key (`~/.laika/node/`) open an SSH tunnel to it and nothing else.\nSee [`tools/node-bundle/README.txt`](tools/node-bundle/README.txt).\n\n`packages/app/offload.mjs` sends a command to the least busy machine as if it ran here: it\ncopies the project over (rsync, without Unity's `Library`), runs the command there, streams the\noutput back, brings its result files home and exits with its code. For Unity,\n`offload unity -- -nographics -runTests -testResults out/tests.xml` runs the project's own Unity\nversion and brings the results back. `offload add user@host` adds a machine, `offload machines`\nshows them, `offload discover` lists the ones announcing themselves on the network.\n\n## How recall works\n\nSeven steps, each a pure function with its own tests, none of them a model call:\n\n1. **`tokenise`**: lowercase, strip punctuation, drop a stop list, matched on word boundaries so\n   `everyone` and `milestone` survive.\n2. **`score`**: sum weights across the inverted index. No file is opened yet.\n3. **`select`**: top 5 with a confidence margin; two sources come back when the result is\n   ambiguous, and say so.\n4. **`read`**: open only the winner.\n5. **`sliceOf`**: keep the `##` section whose heading matches, or a window around the densest line.\n6. **`hop`**: follow at most **one** pointer out of that slice. Hard cap, enforced by test.\n7. **`buildAsk`**: question, evidence, one instruction. 9KB cap.\n\nRecall quality is bounded by your router files, not the engine. `brain/routers/` holds typed\npointer files that act as a curated index:\n\n```\n- Skills:    script-writing — full script generation\n- Files:     shared/projects/C-*/script.md — in-progress scripts\n- Rules:     brain/rules/feedback_au_english.md — AU spelling always\n```\n\nWrite descriptions the way a question is phrased. Pointed at a folder with no routers, recall is\na very fast filename and content search; with them, it answers.\n\n## Packages\n\n| | |\n|---|---|\n| **`core`** | The engine: indexer and the seven-step recall path. **Zero runtime dependencies.** |\n| **`cli`** | `laikaorbit index · status · lint · recall · ask` |\n| **`mcp`** | Three tools over stdio for Claude Code. |\n| **`app`** | The Laika Orbit app: one Node server with Vite, the core API, the Claude chat host and the feeds. |\n| **`shell`** | The Electron desktop app, with native browser tabs. `pnpm shell`; `pnpm shell:app` builds a macOS app into `/Applications` and adds it to the Dock. |\n| **`graph`** | The renderer's scratch package. Not shipped. |\n| **`tools/pulse-ingest`** | The `/pulse` ingest endpoint: a Cloudflare Worker and D1 schema. The only server-side piece, and optional. |\n\n## Development\n\n```bash\npnpm typecheck && pnpm test && pnpm lint      # the gates CI runs\npnpm test:e2e                                 # browser suite (npx playwright install chromium first)\nnode bench/scoring.bench.mjs                  # scoring throughput\nnode bench/token-delta.mjs                    # the token-saving claim\n```\n\nSee [CONTRIBUTING.md](CONTRIBUTING.md). Plan and gates: [`PLAN.md`](PLAN.md), [`STACK.md`](STACK.md);\nstill open: [`BACKLOG.md`](BACKLOG.md).\n\n## Licence\n\nMIT © Laika Dynamics Limited. See [LICENSE](LICENSE) and\n[THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md): the Chrome extension support uses a GPL-3.0\nlibrary, and chats run Anthropic's Claude Agent SDK under Anthropic's terms.\n\nLaika Orbit runs Claude Code. It is not made by, affiliated with, or endorsed by Anthropic.\n",
+  "status": "curated"
+}

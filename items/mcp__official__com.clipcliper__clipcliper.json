@@ -1,0 +1,61 @@
+{
+  "id": "mcp:official/com.clipcliper/clipcliper",
+  "type": "mcp",
+  "name": "CLIPCLIPER",
+  "description": "Timestamped transcripts, chapters and clip suggestions from YouTube, Twitch, Kick or TikTok links.",
+  "author": "com.clipcliper",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/Inmoprice/clipcliper-mcp",
+    "repo": "Inmoprice/clipcliper-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://clipcliper.com/mcp",
+    "env": [
+      {
+        "name": "Authorization",
+        "required": false,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-18T19:38:10.617634Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# CLIPCLIPER MCP server\n\n[![smithery badge](https://smithery.ai/badge/clipcliper/clipcliper)](https://smithery.ai/servers/clipcliper/clipcliper)\n\nGive your agent a public video link and get back a **timestamped transcript**, **chapters** and\n**clip suggestions**. Works with YouTube (videos, shorts, live replays), Twitch VODs, Kick VODs\nand TikTok, including the platforms that block datacenter IPs.\n\nThe server is hosted: nothing to download or run on GPUs. The video is fetched, transcribed\nwith Whisper large-v3 and deleted; only the transcript stays, for 24 hours.\n\n## Tools\n\n| Tool | What it does |\n|---|---|\n| `get_transcript` | Full transcript with timestamps. Formats: `timestamped` (default), `text`, `srt`, `segments` (JSON). |\n| `get_chapters` | Topic chapters: `start`, `end`, `title`, one-line `summary`. |\n| `suggest_clips` | The most shareable moments for short-form clips: `start`, `end`, hook-style `title`, `reason`. Accepts an editorial `instruction`. |\n\nAll three take a `url`. Processing is asynchronous: a call waits up to `wait_seconds`\n(default 90) and, if the video is still downloading or transcribing, returns\n`status: \"processing\"`. Call the same tool again with the same url; the job keeps running on\nthe server and nothing is charged twice. Results are cached for 24 hours per url.\n\n## Connect\n\nListed on [Smithery](https://smithery.ai/servers/clipcliper/clipcliper) (one-click setup for Claude, Cursor and other clients) and submitted to the Glama registry.\n\n**Remote (recommended)**, Streamable HTTP:\n\n```\nhttps://clipcliper.com/mcp\nAuthorization: Bearer <your license key>\n```\n\nClaude Code:\n\n```bash\nclaude mcp add --transport http clipcliper https://clipcliper.com/mcp --header \"Authorization: Bearer YOUR_KEY\"\n```\n\nClaude Desktop, Cursor and other clients that take a JSON config (remote):\n\n```json\n{\n  \"mcpServers\": {\n    \"clipcliper\": {\n      \"type\": \"http\",\n      \"url\": \"https://clipcliper.com/mcp\",\n      \"headers\": { \"Authorization\": \"Bearer YOUR_KEY\" }\n    }\n  }\n}\n```\n\n**Local bridge (stdio)** for clients that cannot call a URL directly:\n\n```json\n{\n  \"mcpServers\": {\n    \"clipcliper\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"clipcliper-mcp\"],\n      \"env\": { \"CLIPCLIPER_LICENSE_KEY\": \"YOUR_KEY\" }\n    }\n  }\n}\n```\n\nThe bridge is this repository: a ~100-line process that speaks MCP over stdio and forwards\nevery call to the hosted endpoint with your key. Until the npm package is published you can run\nit straight from GitHub: `npx -y github:Inmoprice/clipcliper-mcp`.\n\n## Keys and pricing\n\n- **Without a key**: each IP can process 3 videos per day of up to 15 minutes. Good for trying it.\n- **With a key**: minute packs at [clipcliper.com/mcp](https://clipcliper.com/mcp), one-time, minutes never expire:\n\n| Pack | Price | Minutes | Per minute |\n|---|---|---|---|\n| Starter | USD 9 | 600 | USD 0.015 |\n| Pro | USD 29 | 3,000 | USD 0.0097 |\n| Scale | USD 79 | 12,000 | USD 0.0066 |\n\nEvery video costs one pack minute per started minute of video; chapters and clip suggestions on\na transcribed video are free. The license key is emailed to you right after checkout. Send it\nas `Authorization: Bearer <key>` (or `X-License-Key`); it never goes in tool arguments or URLs.\nHour packs of the CLIPCLIPER desktop app also work here (one pack hour per started hour).\n\n## REST\n\nPrefer plain HTTP? The same pipeline is available at\n`POST https://clipcliper.com/api/link/transcribe`, `/api/link/chapters` and `/api/link/suggest`\nwith a JSON body `{\"url\": \"...\"}` and the same header. `202` while processing, `200` when done.\n\n## Privacy\n\n- The video file is deleted as soon as the transcript exists; the transcript expires after 24 h.\n- No accounts, no cookies. Usage is counted per key (hours) or per IP hash (free tier).\n- Questions: support@clipcliper.com\n\n## License\n\nMIT for the code in this repository (the bridge). The hosted service is subject to\n[clipcliper.com](https://clipcliper.com)'s terms.\n",
+  "status": "curated"
+}

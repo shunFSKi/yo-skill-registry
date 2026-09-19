@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/com.csscreme/design-systems",
+  "type": "mcp",
+  "name": "CSS Crème",
+  "description": "Give your agent a real design system: tokens, measured WCAG contrast, and rules to follow.",
+  "author": "com.csscreme",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/damnepic/csscreme-skill",
+    "repo": "damnepic/csscreme-skill"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://csscreme.com/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-19T04:29:36.79411Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "设计",
+    "featured": false
+  },
+  "readme": "# csscreme skill\n\nA Claude Code skill that gives a coding agent a real design system before it writes UI:\nsemantic tokens, measured WCAG contrast, and rules it can be held to.\n\nFree. No account, no API key, no paid tier.\n\n## Why\n\nAn agent asked for UI with no design system does the same thing every time: invents a palette,\nmixes three or four corner radii, adds a second font nobody asked for, and ships contrast that\nwas never checked. The result is recognisable on sight, and no amount of prompt rewording fixes\nit, because the problem is missing input rather than weak instruction.\n\nA file fixes it. Tokens the agent must use, ratios that were computed rather than asserted, and\nnumbered rules that can be diffed against what actually got built. \"Use only these six roles\" is\ncheckable. \"Make it clean\" is not.\n\n## Install\n\n**Fastest: connect the MCP server** (free, no account, no key):\n\n```bash\nclaude mcp add --transport http csscreme https://csscreme.com/mcp\n```\n\nThat gives the agent ten tools with no files to manage: `search_themes`, `list_themes`,\n`get_design_md`, `get_theme_tokens`, `get_install_command`, `get_agent_rules`, `how_to_use`,\n`decode_url`, `decode_site` and `verify_design_md`. The last three are the ones worth knowing\nabout: point the agent at a live URL and it decodes that site into the same format, then checks\nits own generated UI against the file afterwards. The skill below adds the house rules on top.\n\n### As a skill\n\n**Claude Code (project):**\n\n```bash\nmkdir -p .claude/skills/csscreme\ncurl -o .claude/skills/csscreme/SKILL.md \\\n  https://raw.githubusercontent.com/damnepic/csscreme-skill/main/SKILL.md\n```\n\n**Claude Code (all projects):** same, into `~/.claude/skills/csscreme/`.\n\nThen ask for UI as normal. The skill fires on things like \"build a dashboard\", \"make this look\nless generic\", or \"match the design of stripe.com\".\n\n## What it does\n\n1. **Fetches a DESIGN.md** for one of the curated themes at <https://csscreme.com/themes>.\n2. **Or extracts one from any site** via <https://csscreme.com/extract> - URL or screenshot in,\n   role-mapped tokens out, contrast checked in both modes.\n3. **Installs the tokens for real** with `npx shadcn@latest add <registry-url>`.\n\n## Endpoints it uses\n\n| URL | Returns |\n|---|---|\n| `csscreme.com/d/<slug>.md` | DESIGN.md for a curated theme |\n| `csscreme.com/d/t/<slug>.md` | DESIGN.md for a template theme |\n| `csscreme.com/t/<id>.md` | DESIGN.md for an extracted theme |\n| `csscreme.com/r/<slug>.json` | shadcn/ui registry item |\n| `csscreme.com/t/<id>.json` | shadcn/ui registry item, extracted |\n| `csscreme.com/mcp` | MCP server (JSON-RPC 2.0 over POST) |\n\nAll CORS-open and cacheable, served as `text/markdown` or `application/json`.\n\n## What the agent actually gets\n\nA DESIGN.md is a contract rather than a description. Eight fields: semantic colour roles in hex and\nOKLCH, the full shadcn token set in light and dark, two font families, one radius token, an explicit\nspacing scale, WCAG contrast ratios that were computed rather than asserted, numbered rules each\ncheckable against the tables above them, and paste-ready CSS variables.\n\nThe contrast section is the part worth reading twice. If a colour pair fails AA, the file says\n`FAILS WCAG` instead of quietly shipping it. Nothing in the file is an adjective the agent has to\ninterpret.\n\n## Works with other tools too\n\nThe files are plain Markdown, so nothing here is Claude-specific. Per-tool wiring for Cursor,\nCodex, v0 and Lovable: <https://csscreme.com/ai/design-md>\n\n## The format\n\nFull field spec, with a worked example generated at build time:\n<https://csscreme.com/ai/design-md>\n\nNobody owns the `DESIGN.md` file name, us included. The useful part here is the generator and\nthe measured contrast, not the noun.\n\n## Licence\n\nMIT. The skill is MIT; the themes it fetches are free to use.\n",
+  "status": "curated"
+}

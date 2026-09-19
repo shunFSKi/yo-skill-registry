@@ -1,0 +1,61 @@
+{
+  "id": "mcp:official/ai.audiopod/audiopod",
+  "type": "mcp",
+  "name": "AudioPod AI",
+  "description": "Audio AI tools: text-to-speech, voice cloning, music generation, stem separation, transcription.",
+  "author": "ai.audiopod",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/AudiopodAI/audiopod-mcp",
+    "repo": "AudiopodAI/audiopod-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://mcp.audiopod.ai",
+    "env": [
+      {
+        "name": "X-API-Key",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-19T03:27:45.61674Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "生活",
+    "featured": false
+  },
+  "readme": "# AudioPod MCP Server\n\nHosted [Model Context Protocol](https://modelcontextprotocol.io) server for **AudioPod's audio AI**. Give any MCP-capable agent — Claude Desktop, Claude Code, Cursor, Continue, Cline, Goose, Codex — ten audio tools over a single endpoint. No install, no local models, no GPU.\n\n| | |\n|---|---|\n| **Endpoint** | `https://mcp.audiopod.ai` |\n| **Transport** | Streamable-HTTP (MCP `2025-06-18`) |\n| **Auth** | `X-API-Key: ap_*` (or OAuth2 / JWT) — [get a free key](https://audiopod.ai/dashboard/account/api-keys) |\n| **Docs** | https://docs.audiopod.ai/sdks/mcp |\n| **Discovery** | [`/.well-known/mcp/server-card.json`](https://audiopod.ai/.well-known/mcp/server-card.json) |\n\n**Registry name:** `ai.audiopod/audiopod` (official [MCP Registry](https://registry.modelcontextprotocol.io)).\n\n**Installing with an agent?** [`llms-install.md`](./llms-install.md) is the unattended-install guide — config for each client, how to verify, and the failures to expect.\n\n**Using a coding agent?** [`AudiopodAI/audiopod-plugins`](https://github.com/AudiopodAI/audiopod-plugins) wraps this server plus fourteen task skills as a one-command install for the major agent CLIs and editors.\n\n## Tools\n\n| Tool | Does |\n|---|---|\n| `text_to_speech` | Speech in 200+ languages, 500+ voices and custom clones |\n| `clone_voice` | Clone a voice from a 5–30s reference clip |\n| `change_voice` | Convert a recording to a different target voice |\n| `generate_music` | Songs, instrumentals, rap, or vocal stems from a text prompt |\n| `separate_stems` | Split a track into stems (vocals, drums, bass, …); two-stem mode = karaoke |\n| `separate_speakers` | Isolate each speaker into a separate track |\n| `transcribe_audio` | Transcribe with word-level timestamps and speaker diarization |\n| `denoise_audio` | Remove background noise while preserving voice character |\n| `convert_media` | Convert audio/video formats (mp3/wav/flac/ogg/m4a, mp4/mov) |\n| `check_job_status` | Poll the status/result of a long-running job (free) |\n\nLong-running tools return a `job_id`; poll with `check_job_status`.\n\n## Add it\n\n**Claude Code**\n```bash\nclaude mcp add --transport http audiopod https://mcp.audiopod.ai \\\n  --header \"X-API-Key: ap_YOUR_KEY\" --scope user\n```\n\n**Claude Desktop / Cursor / Continue / Cline** — add to your `mcpServers` config:\n```json\n{\n  \"mcpServers\": {\n    \"audiopod\": {\n      \"url\": \"https://mcp.audiopod.ai\",\n      \"headers\": { \"X-API-Key\": \"ap_YOUR_KEY\" }\n    }\n  }\n}\n```\n\n## Try it (raw JSON-RPC)\n\n```bash\n# List tools\ncurl -s https://mcp.audiopod.ai \\\n  -H \"X-API-Key: ap_YOUR_KEY\" -H \"Content-Type: application/json\" \\\n  -d '{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"tools/list\"}'\n\n# Text to speech\ncurl -s https://mcp.audiopod.ai \\\n  -H \"X-API-Key: ap_YOUR_KEY\" -H \"Content-Type: application/json\" \\\n  -d '{\"jsonrpc\":\"2.0\",\"id\":2,\"method\":\"tools/call\",\n       \"params\":{\"name\":\"text_to_speech\",\"arguments\":{\"text\":\"Hello from my agent.\"}}}'\n```\n\n## Building a startup on this?\n\nApply to **[AudioPod for Startups](https://audiopod.ai/startups)** — free Pro for 3 months plus developer API credits for eligible early-stage teams.\n\n## Links\n\n- Website — https://audiopod.ai\n- API + SDK docs — https://docs.audiopod.ai\n- MCP setup guide — https://docs.audiopod.ai/sdks/mcp\n\nTwo manifests live here and they are not interchangeable: `server.json` is the\nofficial registry entry (registry schema), `server-card.json` is the MCP server\ncard — a reference copy, since the live card is served at the Discovery URL above.\n\n## License\n\nMIT — see [LICENSE](./LICENSE). (Covers this listing/README; the AudioPod service itself is governed by the [AudioPod Terms](https://audiopod.ai/terms).)\n",
+  "status": "curated"
+}

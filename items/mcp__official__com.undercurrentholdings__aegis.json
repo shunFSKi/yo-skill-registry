@@ -27,7 +27,7 @@
   "quality": {
     "stars": null,
     "pushed_at": "2026-09-18T16:01:26.161814Z",
-    "score": 52
+    "score": 42
   },
   "security": {
     "score": 100,
@@ -59,6 +59,6 @@
     "category": null,
     "featured": false
   },
-  "readme": "# AEGIS Governance — MCP Server\n\n> **Status: the hosted AEGIS service is offline (since September 2026).**\n> The hosted API and the hosted MCP endpoint (`mcp.aegis.undercurrentholdings.com`) are offline.\n> The local server does not evaluate proposals itself, so no tool returns an evaluation at this time.\n> Current status: <https://undercurrentholdings.com/status/>\n\n## What the package is\n\n`aegis-governance` on PyPI is a Python client for the AEGIS API. It also contains a local\nMCP server. The package installs one console script, `aegis-mcp-server`. This script starts\na local MCP server that uses the stdio transport. The package has no other command-line tool.\n\nThe local server has no evaluation engine. By default, the client sends all requests to the\nhosted AEGIS API. Sandbox mode (the mode without an API key) also uses the hosted API. While\nthe hosted service is offline, tool calls do not return evaluations.\n\n## Install\n\n```bash\npip install \"aegis-governance[mcp]\"\n```\n\nThe `[mcp]` extra is necessary for `aegis-mcp-server`. On Python < 3.10, the extra installs\nnothing, and `aegis-mcp-server` exits with an install hint.\n\n## Local stdio MCP configuration\n\n**Claude Code**\n\n```bash\nclaude mcp add aegis -- aegis-mcp-server\n```\n\n**Cursor** (`.cursor/mcp.json`) / **Windsurf** / any stdio MCP client:\n\n```json\n{\n  \"mcpServers\": {\n    \"aegis\": { \"command\": \"aegis-mcp-server\" }\n  }\n}\n```\n\n**VS Code** (`.vscode/mcp.json`):\n\n```json\n{\n  \"servers\": {\n    \"aegis\": { \"type\": \"stdio\", \"command\": \"aegis-mcp-server\" }\n  }\n}\n```\n\n## Tools\n\n`tools/list` from `aegis-mcp-server` in `aegis-governance` 1.4.2 returns these six tools.\nWithout `AEGIS_API_KEY`, `aegis_evaluate_proposal` and `aegis_health` call the hosted API, and\nthe other four tools return an `AuthenticationError` JSON result without an API call. With\n`AEGIS_API_KEY` set, all six tools call the hosted API.\n\nThe descriptions below are quoted from the server. They do not describe a service that is\navailable now.\n\n| Tool | Description (quoted from the server) |\n|------|--------------------------------------|\n| `aegis_evaluate_proposal` | Evaluate an engineering proposal through the AEGIS gate checks. |\n| `aegis_quick_risk_check` | Quick risk threshold check without a full Bayesian evaluation. |\n| `aegis_health` | Check AEGIS API health (service status, version, components). |\n| `aegis_list_decisions` | List recent governance decisions for the authenticated customer. |\n| `aegis_get_decision` | Fetch a specific governance decision by ID, with full gate detail. |\n| `aegis_get_usage` | Get the authenticated customer's evaluation usage report. |\n\n## Reading the source\n\nThe `aegis-governance` source repository is private. To read the published source, download\nthe source distribution (sdist) from PyPI:\n\n```bash\npip download --no-binary :all: --no-deps \"aegis-governance==1.4.2\"\n```\n\nOr get the `.tar.gz` file from the [PyPI release files](https://pypi.org/project/aegis-governance/1.4.2/#files).\n",
+  "readme": null,
   "status": "curated"
 }

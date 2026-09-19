@@ -1,0 +1,61 @@
+{
+  "id": "mcp:official/com.growaify/mcp",
+  "type": "mcp",
+  "name": "Growaify — Autonomous Commerce for AI Agents",
+  "description": "Autonomous commerce for AI agents: discover, quote, order, pay, verify.",
+  "author": "com.growaify",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/h-abar/growaify-mcp",
+    "repo": "h-abar/growaify-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://growaify.com/mcp",
+    "env": [
+      {
+        "name": "X-API-Key",
+        "required": false,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-19T04:20:52.317903Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Growaify MCP Server\n\nOfficial MCP (Model Context Protocol) server for the [Growaify](https://growaify.com) autonomous commerce platform.\n\n> **This server implements the [Growaify Protocol](https://github.com/h-abar/growaify-protocol)** — the open spec, JSON schemas, conformance suite, and Agent/Provider SDKs live there. Verify any deployment: `python conformance/run.py https://growaify.com`\n\nGrowaify lets AI agents discover services, negotiate binding quotes, place idempotent orders, pay, and receive **cryptographically verified deliverables** — fully autonomously.\n\n## What you can do with this server\n\n| Tool | Description |\n|---|---|\n| `discover_capabilities` | Match your requirements (e.g. `[\"whatsapp\", \"booking\"]`) against available services |\n| `create_binding_quote` | Get a deterministic, binding quote with agent pricing |\n| `purchase_service` | Place a state-machine order with verified payment rails |\n| `track_order_telemetry` | Track order status, progress (0–100%), and deliverables |\n| `query_trust_and_sla` | Inspect checksums, refund policies, and trust metadata |\n\n## Available services\n\n| Service | Agent price | What you get |\n|---|---|---|\n| Smart Consultation | $1 | Tailored written consultation (immigration, legal, work, study) |\n| Autonomous AI Task Worker | $15 | Finished written work: descriptions, replies, translations |\n| AI Website + Booking | $69 | SEO-ready website with self-service booking |\n| n8n / AI Automation | $69 | Custom n8n workflow, built, tested, deployed |\n| AI WhatsApp Receptionist | $39 | 24/7 AI receptionist provisioning |\n\n## Installation\n\n### Via Smithery (recommended)\n\n```bash\nnpx -y @smithery/cli install @habar/growaify --client claude\n```\n\n### Claude Desktop\n\nAdd to `claude_desktop_config.json` (Settings → Developer → Edit Config):\n\n```json\n{\n  \"mcpServers\": {\n    \"growaify\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"mcp-remote\", \"https://growaify.com/mcp\", \"--header\", \"X-API-Key:YOUR_API_KEY\"]\n    }\n  }\n}\n```\n\n### Cursor\n\nAdd to `.cursor/mcp.json` in your project root (or via Settings → MCP):\n\n```json\n{\n  \"mcpServers\": {\n    \"growaify\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"mcp-remote\", \"https://growaify.com/mcp\", \"--header\", \"X-API-Key:YOUR_API_KEY\"]\n    }\n  }\n}\n```\n\n### Windsurf\n\nAdd to `~/.codeium/windsurf/mcp_config.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"growaify\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"mcp-remote\", \"https://growaify.com/mcp\", \"--header\", \"X-API-Key:YOUR_API_KEY\"]\n    }\n  }\n}\n```\n\n> **Discovery is open** — `initialize`, `tools/list`, `ping`, and `discover_capabilities` work with **no API key**. Commerce tools (`create_binding_quote`, `purchase_service`, `track_order_telemetry`, `query_trust_and_sla`) require `X-API-Key`. You can connect without a key to inspect the surface; add one when you're ready to transact.\n\n## Example agent workflow\n\n```text\n1. discover_capabilities(required_capabilities=[\"booking\", \"multilingual\"])\n2. create_binding_quote(service_id=\"website-booking\")\n3. purchase_service(quote_id=\"Q-...\", email=\"agent@example.com\")\n4. track_order_telemetry(order_id=\"ORD-...\")  → deliverables + checksum\n```\n\n## Trust & verification\n\n- Every deliverable ships with a **SHA-256 checksum**\n- Orders are **idempotent** and enforced by a strict state machine\n- Payments verified via PayPal NCP (webhook or operator secret) — never client assertion; x402 USDC rail deferred until on-chain verification\n- Agent Card: https://growaify.com/.well-known/agent.json\n- Trust portal: https://growaify.com/trust.html\n- Live trust metrics: https://growaify.com/api/v1/trust (computed from real order records)\n\n## Links\n\n- Website: https://growaify.com\n- **Protocol spec + SDKs + conformance suite**: https://github.com/h-abar/growaify-protocol\n- Agent Card: https://growaify.com/.well-known/agent.json\n- OpenAPI spec: https://growaify.com/openapi.json\n- Service catalog: https://growaify.com/catalog.json\n- Agent SDK (Python): [`sdk/agent/growaify_agent.py`](https://github.com/h-abar/growaify-protocol/blob/main/sdk/agent/growaify_agent.py)\n- Provider SDK (Python): [`sdk/provider/growaify_provider.py`](https://github.com/h-abar/growaify-protocol/blob/main/sdk/provider/growaify_provider.py)\n- Live sandbox: https://growaify.com/sandbox.html\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

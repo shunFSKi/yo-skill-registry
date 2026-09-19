@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/lol.typosafe/jef",
+  "type": "mcp",
+  "name": "TypoSafe AI — Jef",
+  "description": "Jef decides. Give it options, it returns one with a confidence, never a sentence. A parody.",
+  "author": "lol.typosafe",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/SPFreedom/jef-mcp",
+    "repo": "SPFreedom/jef-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "jef-mcp"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-19T01:59:43.828491Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Jef MCP\n\nAn MCP server for a model that decides instead of generating.\n\nJef never produces text. Every answer is one of the options you supplied, a number from\n1 to 10, a yes or no, or a flag, with a confidence between 84% and 99%. It reads 0 tokens\nof your input, because it hashes it rather than reading it. It stores nothing, costs\nnothing, and returns the same answer for the same input forever.\n\nIt is a parody of [TypeSafe AI's](https://typesafe.ai) real decision model, Jev, and it is\nlabelled as one everywhere. If you want to understand the real thing, we wrote a straight\nexplainer for it: [What is Jev?](https://typosafe.lol/jev)\n\n## Connect\n\nThe server is hosted. Nothing to install, no key, no account.\n\n```\nhttps://typosafe.lol/mcp\n```\n\nClaude Code:\n\n```bash\nclaude mcp add --transport http jef https://typosafe.lol/mcp\n```\n\nAnything that reads a config file:\n\n```json\n{\n  \"mcpServers\": {\n    \"jef\": { \"type\": \"http\", \"url\": \"https://typosafe.lol/mcp\" }\n  }\n}\n```\n\nOr find it in the [official MCP registry](https://registry.modelcontextprotocol.io/v0.1/servers?search=lol.typosafe/jef)\nas `lol.typosafe/jef`, or on [Smithery](https://smithery.ai/servers/typosafe/jef) as `typosafe/jef`.\n\n## Tools\n\n| Tool | Ask it | Get back |\n|---|---|---|\n| `jef_yes_no` | A yes-or-no question | `YES` or `NO` |\n| `jef_pick` | 2 to 5 options | One of them, plus a probability for each |\n| `jef_score` | Something to rate | 1 to 10 |\n| `jef_rank` | 2 to 5 options | Them, in order |\n| `jef_flag` | A described behaviour | `RED FLAG`, `GREEN FLAG` or `BEIGE FLAG` |\n\nEvery result carries a `structuredContent` object with the answer, the confidence, the\nprobability for each option, and two booleans that matter more than the answer does.\n\n## Two things an agent must handle\n\n**`escalated: true`** means the question touched health, harm, money, law or safety. The\ncontent is `ESCALATED TO A HUMAN` and confidence is 0. Tell the person to ask a human. Do\nnot rephrase the question to get a different answer.\n\n**`blocked: true`** means the input contained profanity, slurs or sexual content. The\ncontent is `NOT EVALUATED`, nothing was stored, and nothing is echoed back. Do not retry.\n\nBoth checks run on normalised text, so leetspeak, dotted letters and stretched spellings\nare caught, and both cover English, Spanish, Portuguese, Japanese and Chinese.\n\nBeyond that: Jef is a parody and its answers are deliberately arbitrary. Present them as a\nconfident arbitrary choice, which is what the user asked for, and never as advice.\n\n## Run it yourself\n\n```bash\nnpx jef-mcp                    # MCP over stdio, what most clients spawn\n```\n\nOr from source:\n\n```bash\ngit clone https://github.com/SPFreedom/jef-mcp.git\ncd jef-mcp\nnode src/stdio.js              # stdio transport\nnode src/server.js             # http://localhost:8787/mcp\nnode test.js                   # smoke test, no network\n```\n\nAs a local stdio server in a client config:\n\n```json\n{\n  \"mcpServers\": {\n    \"jef\": { \"command\": \"npx\", \"args\": [\"-y\", \"jef-mcp\"] }\n  }\n}\n```\n\nThe hosted URL needs no install. This one runs entirely offline, which is possible\nbecause the whole model is 331 lines and reads nothing.\n\nZero dependencies. `src/jef.js` is the whole model, and `src/handler.js` is the exact\nhandler running at typosafe.lol/mcp.\n\n## Why the joke works\n\nEvery other MCP server is a wrapper around something that does work. This one wraps a\n32-bit hash and a lookup table, and is honest that it never reads your input. It is\nstateless, so there is no session to establish and nothing to resume, which is the one\npart of MCP it implements better than most.\n\nRelated: [`npx typosafe`](https://www.npmjs.com/package/typosafe) is the same model on the\ncommand line, where the exit code is the decision.\n\n## Docker\n\n```bash\ndocker build -t jef-mcp .\ndocker run -i --rm jef-mcp        # stdio, nothing exposed\n```\n\nThe build runs the test suite, so a broken image cannot be produced. Nothing is\ninstalled, because there is nothing to install.\n\n## License\n\nMIT. The model is 331 lines. Read it.\n",
+  "status": "curated"
+}
