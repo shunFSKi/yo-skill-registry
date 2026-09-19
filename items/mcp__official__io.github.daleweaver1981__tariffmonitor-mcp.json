@@ -2,7 +2,7 @@
   "id": "mcp:official/io.github.daleweaver1981/tariffmonitor-mcp",
   "type": "mcp",
   "name": "tariffmonitor-mcp",
-  "description": "Live US tariff calculator: HTS lookup, full stacked rate (MFN+301+IEEPA+reciprocal). No API key.",
+  "description": "US import tariff estimates: HTS lookup and stacked rate (MFN + Section 301 + 232). No API key.",
   "author": "io.github.daleweaver1981",
   "source": {
     "registry": "mcp-official",
@@ -20,8 +20,8 @@
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-05-22T20:43:56.412568Z",
-    "score": 32
+    "pushed_at": "2026-09-19T17:01:37.266031Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -53,6 +53,6 @@
     "category": "编程",
     "featured": false
   },
-  "readme": null,
+  "readme": "# tariffmonitor-mcp\n\nMCP server for the **Tariff Exposure Monitor** — a live US import tariff calculator covering 19,856 HTS codes.\n\nGive Claude (or any MCP-compatible AI) the ability to look up real stacked tariff rates and project the **November 10, 2026 cliff** impact on any product.\n\n## What it does\n\nTwo tools:\n\n| Tool | What it does |\n|---|---|\n| `lookup_hts_code` | Search 19,856 HTS codes by description or numeric prefix |\n| `calculate_tariff` | Returns an estimated stacked rate (MFN base + Section 301 + Section 232) and flags the Nov 10, 2026 Section 301 exclusion expiry. Optional: annual import volume → dollar impact |\n\nExample exchange — a real capture from the live API on 2026-09-11, not a mock-up:\n\n```\nYou: What's the tariff on athletic footwear from China, and what does it cost me at $800k/year?\n\nClaude: [calls lookup_hts_code query=\"athletic footwear\", then calculate_tariff\n         hts_code=\"6404110000\", origin_country=\"CN\", annual_import_value_usd=800000]\n\nNote: 6404110000 is not in the schedule. This rate is for heading 640411, resolved to 6404112030.\n\nHTS 6404112030 - For men\nOrigin: CN\n\nRate stack:\n  MFN base rate: +0.00%\n  Section 301 (China trade enforcement): +7.50%\nTotal current rate: 7.50%\n\nNo cliff change projected for this code/country combination.\n\nDollar impact at $800,000/yr import value:\n  Current annual duties: $60,000\n```\n\nRates change, and a rate is per HTS code and origin country - treat the numbers above as the shape\nof the answer, not as a quote for your shipment. The tool never invents a rate: if the upstream is\nunreachable or the code is not in the schedule, it says so instead of estimating.\n\n## Install (Claude Desktop)\n\nAdd to your `claude_desktop_config.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"tariffmonitor\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"tariffmonitor-mcp\"]\n    }\n  }\n}\n```\n\nRestart Claude Desktop. The `lookup_hts_code` and `calculate_tariff` tools appear automatically.\n\n## Install (Cursor / other MCP clients)\n\n```json\n{\n  \"mcp\": {\n    \"servers\": {\n      \"tariffmonitor\": {\n        \"command\": \"npx\",\n        \"args\": [\"-y\", \"tariffmonitor-mcp\"]\n      }\n    }\n  }\n}\n```\n\n## No API key required\n\nThe tool calls the free public API at adcreator-ai.com. No signup, no rate limits for reasonable use.\n\n## Related\n\n- [Free tariff calculator](https://adcreator-ai.com/tariffs/calculator) — browser version\n- [Official US Harmonized Tariff Schedule](https://hts.usitc.gov/) — the authoritative rates\n\nBuilt by [Dale Weaver / 0xpi](https://0xpi.com).\n",
   "status": "curated"
 }

@@ -6,8 +6,8 @@
   "author": "com.frameonlab",
   "source": {
     "registry": "mcp-official",
-    "url": "https://api.frameonlab.com/api/v1/mcp",
-    "repo": null
+    "url": "https://github.com/frameonlab/frameon-mcp",
+    "repo": "frameonlab/frameon-mcp"
   },
   "license": null,
   "install": {
@@ -16,8 +16,8 @@
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-09-18T22:55:29.20926Z",
-    "score": 42
+    "pushed_at": "2026-09-19T11:13:40.842364Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -49,6 +49,6 @@
     "category": "写作",
     "featured": false
   },
-  "readme": null,
+  "readme": "# FrameOn MCP\n\n**MCP server for agentic project management.** Tasks, documents, decisions and\ntime in one shared team context, reachable by an AI agent over the Model\nContext Protocol.\n\nThis repository holds the **public surface** of that server: the protocol\ntypes, the guide the server serves to connected clients, the skill playbooks,\nand the published manifest. The server itself is hosted — you do not run it.\n\n| | |\n| --- | --- |\n| **Endpoint** | `https://api.frameonlab.com/api/v1/mcp` |\n| **Transport** | `streamable-http` |\n| **Auth** | OAuth 2.1 — Dynamic Client Registration, PKCE (S256) required |\n| **Tools** | 20 (13 read-only, 7 write) — see [docs/tools.md](docs/tools.md) |\n| **Registry** | [`com.frameonlab/frameon`](https://registry.modelcontextprotocol.io/v0/servers?search=frameon) |\n| **Docs** | https://app.frameonlab.com/mcp |\n\n## Why this exists\n\nAn AI assistant asked to help with a project normally works from whatever got\npasted into the chat. It cannot see what was decided three weeks ago, which\nconstraint someone stated in a meeting, or who is already on the task. So it\nguesses, confidently, and a human spends the afternoon correcting it.\n\nFrameOn exposes the project itself: the task tree, the wiki where decisions\nlive, a separate project memory holding conventions and traps, the team, the\nalerts and the time log. The agent reads the real state, writes back what it\ndid, and the next agent — on another machine, in another client — finds it\nthere.\n\n## Connect\n\n### Claude Code\n\n```bash\nclaude mcp add --transport http frameon https://api.frameonlab.com/api/v1/mcp\n```\n\n### Claude Desktop, Cursor, and other `mcpServers` clients\n\n```json\n{\n  \"mcpServers\": {\n    \"frameon\": {\n      \"type\": \"http\",\n      \"url\": \"https://api.frameonlab.com/api/v1/mcp\"\n    }\n  }\n}\n```\n\n### ChatGPT\n\nAdd a connector pointing at the same URL. The OAuth flow runs in the browser;\nno key is pasted anywhere.\n\nThere is no API key in any of these. The first call opens an authorisation\nscreen, a human approves the workspace, and the client stores a token it\nrotates on its own. A Personal Access Token also works, as\n`Authorization: Bearer …`, for scripted use where no browser exists.\n\nMore, including a per-client walkthrough: https://app.frameonlab.com/mcp\n\n## What the agent gets\n\nConnect and call `frameon://guide`. The server hands back a written briefing —\nwhat FrameOn is, which tool answers which question, the traps that cost a\nround-trip, and, just as importantly, **what FrameOn has that the agent does\nnot**: the Gantt, the approval step on timesheets, the financial reports. A\ntool that refuses to say where its edges are gets improvised around, badly.\n\n## Scope of this repository\n\n| Path | What it is |\n| --- | --- |\n| `src/mcp.types.ts` | JSON-RPC 2.0 envelope types and the protocol versions the server echoes |\n| `src/mcp-guide.ts` | the text served at `frameon://guide`, plus the prompt specs |\n| `src/mcp-skills.ts` | the skill playbooks behind `list_skills` / `get_skill` |\n| `server.json` | the manifest published to the MCP registry |\n| `docs/tools.md` | the 20 tools, with the descriptions the server advertises |\n| `examples/` | client configuration, ready to paste |\n\nThe service implementation, the database and the tenant layer are not here and\nare not open source. What is here is what a client talks to and what an agent\nreads — enough to know exactly what you are connecting to before you connect.\n\n## Security\n\nThe endpoint is multi-tenant and every query filters by tenant. A credential\nreaches the projects its role reaches and nothing else; `tenant_id` never\nappears in a tool response. Write tools are gated per call, on the scope and\nthe role carried by the credential — never on anything sent in the request\nbody.\n\nFound something that looks wrong? `seguranca@frameonlab.com`. Please do not\nopen a public issue for a suspected vulnerability.\n\n## Licence\n\nMIT — see [LICENSE](LICENSE).\n",
   "status": "curated"
 }

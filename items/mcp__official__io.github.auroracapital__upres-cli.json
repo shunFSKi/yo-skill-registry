@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.auroracapital/upres-cli",
+  "type": "mcp",
+  "name": "upres-cli",
+  "description": "UpRes MCP: list models, credits, submit 4K image and video upscale jobs.",
+  "author": "io.github.auroracapital",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/auroracapital/upres-cli.git",
+    "repo": "auroracapital/upres-cli"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "https://github.com/auroracapital/upres-cli/releases/download/v0.2.0/upres-cli-0.2.0.mcpb"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-19T13:51:14.36942Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "设计",
+    "featured": false
+  },
+  "readme": "# upres-cli\n\n[![npm version](https://img.shields.io/npm/v/upres-cli?style=flat-square)](https://www.npmjs.com/package/upres-cli)\n[![PyPI version](https://img.shields.io/pypi/v/upres-ai?style=flat-square)](https://pypi.org/project/upres-ai/)\n[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)\n[![GitHub stars](https://img.shields.io/github/stars/auroracapital/upres-cli?style=flat-square)](https://github.com/auroracapital/upres-cli/stargazers)\n\nOfficial CLI + SDK for **[upres.ai](https://upres.ai)** — AI image and video upscaling. One API, 6 specialist models (Flare, Prism, Lumen, Mirage, Motion, Motion X), up to 8K output.\n\n```\n$ upres upscale photo.jpg --model flare --scale 4\nSubmitting job... model=flare\nJob created: 550e8400-e29b-41d4-a716-446655440000 (status: pending)\nWaiting for result.......\nDownloading to photo_upscaled.jpg... done.\n\nResult: photo_upscaled.jpg\n```\n\n---\n\n## Why we built this\n\n- **Topaz** is $200/yr, desktop-only, no API, no automation\n- **Upscayl** is great for one-offs but can't handle bulk exports or CI pipelines\n- **Every other SaaS upscaler** either watermarks your output, caps resolution at 2K, or charges per image with no monthly plan\n\nupres.ai gives you a clean REST API, 6 specialist models, batch processing, and predictable pricing starting at $9/mo on the Creator launch deal.\n\n---\n\n## Quickstart\n\n### Node.js\n\n```bash\nnpx upres-cli upscale photo.jpg\n```\n\nOr install globally:\n\n```bash\nnpm install -g upres-cli\nupres upscale photo.jpg --model lumen --scale 8 --output photo_8k.jpg\n```\n\n### Python\n\n```bash\npip install upres-ai\nupres upscale photo.jpg --model flare --scale 4\n```\n\n---\n\n## Authentication\n\n1. Sign up at [upres.ai](https://upres.ai) (free — 3 upscales/month)\n2. Go to [upres.ai/account/api-keys](https://upres.ai/account/api-keys)\n3. Generate a key — it's shown once\n\n```bash\nexport UPRES_API_KEY=upres_yourkey\n```\n\nOr save permanently:\n\n```bash\nmkdir -p ~/.config/upres\necho '{\"apiKey\":\"upres_yourkey\"}' > ~/.config/upres/config.json\n```\n\nKey resolution order: `--api-key` flag → `UPRES_API_KEY` env var → `~/.config/upres/config.json`\n\n---\n\n## Commands\n\n```bash\n# Upscale a single image (local file or URL)\nupres upscale photo.jpg --model flare --scale 4\nupres upscale photo.jpg --model lumen --scale 8 --output out.jpg\nupres upscale https://example.com/photo.jpg --model prism\n\n# Upscale video (AI-generated video from Sora, Kling, Runway etc.)\nupres upscale clip.mp4 --model motion --scale 4\n\n# Batch upscale a folder\nupres batch ./photos/ --model flare --output ./upscaled/ --concurrency 5\n\n# List available models\nupres models\n\n# List recent jobs\nupres jobs --limit 20 --status completed\n\n# Account / quota info\nupres account\n```\n\n---\n\n## Node.js SDK\n\n```typescript\nimport { UpresClient } from \"upres-cli\";\n\nconst client = new UpresClient(); // reads UPRES_API_KEY from env\n\n// Upscale a local file\nconst job = await client.createJobFromFile(\"photo.jpg\", {\n  model: \"flare\",\n  scale: 4,\n});\n\n// Wait for completion\nconst completed = await client.waitForJob(job.id);\n\n// Download result\nawait client.downloadResult(completed, \"photo_4k.jpg\");\nconsole.log(\"Done:\", completed.result_url);\n```\n\nFiles over 50 MB are automatically uploaded via [TUS resumable protocol](https://tus.io/).\n\n---\n\n## Python SDK\n\n```python\nfrom upres import UpresClient\n\nwith UpresClient() as client:                        # reads UPRES_API_KEY from env\n    job = client.create_job_from_file(\n        \"photo.jpg\",\n        model=\"flare\",\n        scale=4,\n    )\n    completed = client.wait_for_job(job[\"id\"])\n    client.download_result(completed, \"photo_4k.jpg\")\n    print(\"Done:\", completed[\"result_url\"])\n```\n\nThe Python SDK uses `httpx` — async-ready, no heavy dependencies.\n\n---\n\n## Examples\n\n| Example | What it does |\n|---|---|\n| [batch-upscale-folder.js](examples/batch-upscale-folder.js) | Upscale all images in a folder with configurable concurrency |\n| [restore-photo-folder.py](examples/restore-photo-folder.py) | Restore old/scanned photos using Recraft Crisp Upscale |\n| [ecommerce-pipeline.js](examples/ecommerce-pipeline.js) | Product image pipeline: raw shots → 4K → publish-ready |\n| [lightroom-export-hook.md](examples/lightroom-export-hook.md) | Auto-upscale Lightroom exports via post-processing hook |\n| [figma-plugin-stub.md](examples/figma-plugin-stub.md) | Figma plugin integration guide |\n\n---\n\n## Models\n\n6 specialist models across image and video. Each one tells you up front whether it invents detail or leaves your file alone.\n\n| Model | Kind | Best for |\n|---|---|---|\n| `flare` | Image | Everyday photos, fastest default |\n| `prism` | Image | Text, logos, product shots — keeps edges true |\n| `lumen` | Image | Maximum detail recovery for print, up to 8x |\n| `mirage` | Image | Invents new detail — art and hero images |\n| `motion` | Video | Fast 4K finish for Sora/Kling/Runway clips |\n| `motion-x` | Video | Cinema-grade, for film and commercials |\n\nFull model catalogue: [upres.ai/models](https://upres.ai/models) · Live spec: [api.upres.ai/v1/openapi.json](https://api.upres.ai/v1/openapi.json)\n\n---\n\n## Pricing\n\n| Plan | Price | Includes | API | Watermark |\n|---|---|---|---|---|\n| **Free** | $0 | 3 upscales/mo | — | Yes |\n| **Creator** | $9/mo (launch deal, was $19) | 50 stills + 20 min 4K video/mo | — | No |\n| **Studio** | $39/mo | 250 stills + 90 min 4K video/mo | **Yes** | No |\n\n**Studio tier unlocks the full API, batch processing, and no output watermark.**\n\n[Compare plans →](https://upres.ai/pricing) · [vs. Topaz →](https://upres.ai/topaz-alternative) · [vs. Upscayl →](https://upres.ai/compare/upscayl)\n\n---\n\n## MCP (Claude, Cursor, Hermes)\n\n```bash\nclaude mcp add upres -- npx -y github:auroracapital/upres-cli mcp\n```\n\nOr in `claude_desktop_config.json` / Cursor:\n\n```json\n{\n  \"mcpServers\": {\n    \"upres\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"github:auroracapital/upres-cli\", \"mcp\"],\n      \"env\": { \"UPRES_API_KEY\": \"upres_yourkey\" }\n    }\n  }\n}\n```\n\nTools: `upres_list_models`, `upres_get_credits`, `upres_upscale_image`, `upres_upscale_video`, `upres_get_job`.\n\n---\n\n## Free tier for open-source projects\n\nIf you're building something open-source on top of the API, email [support@upres.ai](mailto:support@upres.ai) with your repo link. We offer 500 ops/month for qualifying OSS projects.\n\n---\n\n## Error handling\n\nThe SDK handles these errors automatically:\n\n| Status | Behavior |\n|---|---|\n| `401` | Prints API key error + link to key management, exits |\n| `402` | Prints quota exceeded + link to pricing, exits |\n| `429` | Prints rate limit message (60 req/min), exits |\n| `5xx` | Throws `UpresError` with message |\n\nIn Python: raises `AuthError`, `QuotaExceededError`, or `UpresError`.\n\n---\n\n## Contributing\n\nSee [CONTRIBUTING.md](CONTRIBUTING.md). Tests run with:\n\n```bash\n# Node\nnpm test\n\n# Python\npip install -e \".[dev]\"\npytest tests/test_client.py -v\n```\n\n---\n\n## License\n\nMIT — see [LICENSE](LICENSE)\n",
+  "status": "curated"
+}

@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/wahidyankf/ose-public/apps-ayokoding-www-developing-content",
+  "type": "skill",
+  "name": "apps-ayokoding-www-developing-content",
+  "description": "Guide for creating content on ayokoding-web, a Next.js 16 fullstack content platform (ayokoding-web). Covers bilingual content strategy (default English), tRPC API, content workflow, and ayokoding-web specific patterns. Essential for content creation tasks on ayokoding-web",
+  "author": "wahidyankf",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/wahidyankf/ose-public/blob/HEAD/.claude/skills/apps-ayokoding-www-developing-content/SKILL.md",
+    "repo": "wahidyankf/ose-public",
+    "path": ".claude/skills/apps-ayokoding-www-developing-content/SKILL.md"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 12,
+    "pushed_at": "2026-09-19T15:24:16Z",
+    "score": 65,
+    "star_history": [
+      {
+        "d": "2026-09-19",
+        "s": 12
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# 🌙 Open Sharia Enterprise\n\nOpen Sharia Enterprise (OSE) is an open-source platform for researching and building trustworthy,\nSharia-compliant enterprise products. It exists for organizations that need business software whose\nrules, decisions, and foundations can be examined rather than treated as a black box.\n\nOSE is for product people exploring that problem and early-career engineers who want to see how a\nproduct platform is being built. This is a pre-alpha repository: the architecture and APIs will\nchange as product, research, assurance, and platform work develops.\n\nThis is the active OSE product monorepo, not a generic project starter. It holds OSE product work,\nits supporting research, and the governance and automation that carry them.\n\nThis repository is one of the **OSE Code Repositories**, the five repositories OSE is built and\nmaintained in. The other four have distinct roles: the private sibling holds authorized operations,\n[RHINO](https://github.com/wahidyankf/rhino) supplies repository hygiene,\n[HIPPO](https://github.com/wahidyankf/hippo) supplies resource coordination, and\n[BeaverNest](https://github.com/wahidyankf/beaver-nest) is an independent family product. Each of\nthe five versions and releases on its own schedule; the name is navigation, not a shared release.\n\nThe [repository comparison](./docs/reference/related-repositories.md) says which repository answers\nwhich question.\n\nExternal contributions are currently closed while the project stabilizes its product and engineering\npatterns.\n\nChoose the path that fits what you need:\n\n- [🧭 Understand the product](#-understand-the-product) if you are evaluating OSE, mapping its\n  workstreams, or looking for the product context.\n- [🧰 Run OSE locally](#-run-ose-locally) if you want to start the OSE Platform website on your\n  machine.\n\n## 🧭 Understand the product\n\nOSE works toward enterprise systems that make Sharia compliance a design constraint from the start.\nThe repository brings together product delivery, Shariah and regulatory research, enterprise-domain\nresearch, security and governance work, platform engineering, and public learning. Each stream moves\nwhen its own evidence and dependencies are ready, not on one portfolio-wide stage.\n\nThe current product and public surfaces are:\n\n- **OSE Platform** — the platform’s public website at [oseplatform.com](https://oseplatform.com).\n- **OrganicLever** — an active local-first productivity product workstream, with a marketing site,\n  web client, backend, and end-to-end tests.\n- **AyoKoding** — public engineering research and learning drawn from work around the platform.\n\nStart with the [development roadmap](./roadmap.md) for the workstreams and readiness model. Then\nuse the [application map](./docs/reference/system-architecture/applications.md) to see the current\nsoftware surfaces and their responsibilities.\n\n### Where the work lives\n\nOSE uses an [Nx](https://nx.dev/) monorepo: one repository that contains several independently\ndeployable applications and shared libraries while Nx coordinates their development tasks.\n\n| Location                      | What you will find                                                         |\n| ----------------------------- | -------------------------------------------------------------------------- |\n| [`apps/`](./apps/README.md)   | Product apps, public sites, command-line tools, and end-to-end test suites |\n| [`libs/`](./libs/README.md)   | Shared code used by applications                                           |\n| [`docs/`](./docs/README.md)   | Tutorials, how-to guides, technical reference, and explanations            |\n| [`specs/`](./specs/README.md) | Product and behaviour specifications                                       |\n| [`plans/`](./plans/README.md) | Current and completed planning records                                     |\n\n## 🧰 Run OSE locally\n\nThis first run starts `ose-www`, the OSE Platform website, at <http://localhost:3100> — a small,\nvisible way into the product that needs no knowledge of the other services.\n\nWant a paced walkthrough with expected results and recovery steps? Follow\n[Getting started with OSE Public](./docs/tutorials/getting-started-with-ose-public.md).\n\n### Supported platforms and prerequisites\n\nmacOS and Ubuntu Linux are supported. The Linux steps may work in WSL2 (Windows Subsystem for\nLinux 2), but WSL2 is neither supported nor verified by this project. Native Windows is not\nsupported.\n\nBefore installing dependencies, have these tools available:\n\n- Git to clone the repository.\n- [Volta](https://volta.sh/) to install the Node.js and npm versions pinned in\n  [`package.json`](./package.json).\n- The .NET SDK used by the repository's F# command-line tools.\n- Rust and Cargo for the workspace projects and checks that use them.\n- Docker and `jq` only for container-based or broader local-tooling work. Neither is needed for the\n  first `ose-www` website run.\n\nFollow [Set up your development environment](./docs/how-to/setup-development-environment.md) for\nmacOS or Ubuntu installation commands and recovery steps for a missing tool.\n\n### Clone and bootstrap\n\n```bash\ngit clone https://github.com/wahidyankf/ose-public.git\ncd ose-public\n./hippo run --class transactional --resource-tier standard --disk-path . -- npm install\n```\n\n`./hippo` verifies the pinned upstream release before `npm install` installs dependencies, Git\nhooks, and repository tooling. Follow the onboarding tutorial's focused check; install optional\ntools only when your chosen work needs them. The normal Doctor check is ephemeral; `--fix` is\ndetected by its wrapper and uses a transactional reservation because it can install tools or\nreplace managed directories. To repair a required tool, run:\n\n```bash\nnpm run doctor -- --fix\n```\n\nWhen the focused check is green, run the public website. If Cargo, Volta, or another tool it names\nis still missing, return to the\n[setup guide](./docs/how-to/setup-development-environment.md) rather than bypassing the check.\n\n### Find and run the first project\n\nList the projects that Nx can run:\n\n```bash\nnpm run nx:show -- projects\n```\n\nThe list it prints includes `ose-www`, the public website. Start that one:\n\n```bash\n./hippo run --class service --resource-tier standard --disk-path . -- npm exec nx -- dev ose-www\n```\n\nOpen <http://localhost:3100> when the development server reports that it is ready.\n\nAlready using port 3100? Point the site somewhere else instead of guessing which process to stop:\n\n```bash\nOSE_WWW_PORT=4000 ./hippo run --class service --resource-tier standard --disk-path . -- npm exec nx -- dev ose-www\n```\n\nThen open <http://localhost:4000> instead.\n\nThe [Nx command guide](./docs/how-to/run-nx-commands.md) explains project discovery and the other\ntargets you can run.\n\nFrom there, read [how OSE applications fit together](./docs/reference/system-architecture/applications.md)\nor explore the [OSE Platform app](./apps/ose-www/) itself.\n\n## Project status\n\nOSE is pre-alpha. Expect breaking changes, evolving architecture, and experimental implementations.\nThe project uses TypeScript and Next.js for web applications, Rust for selected workspace tools,\nand F# for repository tooling, backend, and document-processing work. See the\n[technology-stack reference](./docs/reference/system-architecture/technology-stack.md) for the\ncurrent technical picture.\n\n## License\n\nOSE is available under the [MIT License](./LICENSE). See the\n[licensing notice](./LICENSING-NOTICE.md) for the repository-wide statement.\n",
+  "status": "curated"
+}

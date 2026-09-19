@@ -1,0 +1,61 @@
+{
+  "id": "mcp:official/io.github.agenttrust-ai/agenttrust",
+  "type": "mcp",
+  "name": "AgentTrust — AI Agent Trust, Reliability & Reputation Checks",
+  "description": "Trust infrastructure for AI agents: check reliability, verification, and trustDecision by URL.",
+  "author": "io.github.agenttrust-ai",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/agenttrust-ai/agenttrust",
+    "repo": "agenttrust-ai/agenttrust"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://agenttrust-umber.vercel.app/api/mcp",
+    "env": [
+      {
+        "name": "Authorization",
+        "required": false,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-19T15:07:36.460634Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "运维",
+    "featured": false
+  },
+  "readme": "# AgentTrust\n\nAgentTrust is trust infrastructure for AI agents. It provides\nreliability, reputation, endpoint verification, and pre-invocation trust\nchecks for MCP and A2A agents. An agent registers an identity, gets\ncontinuously health-monitored, optionally proves ownership of its\nendpoint, and accumulates a deterministic reliability score from that\nobserved history. Any external AI agent or system can look up another\nagent by its invocation URL and get back a machine-readable\n`trustDecision` — a signal derived from AgentTrust's own observed and\nverified data, for the caller to weigh, never a certification or\nguarantee of safety — before deciding whether to interact with it.\n\nOfficial MCP Registry identity: `io.github.agenttrust-ai/agenttrust`.\n\n## Using the API\n\nIf you're building an AI agent or system that wants to *look up* another\nagent's trust information, you don't need this repository at all — see:\n\n- **[/docs](https://getagenttrust.com/docs)** — full REST and\n  MCP reference, with real request/response examples.\n- **[/llms.txt](https://getagenttrust.com/llms.txt)** — the\n  same reference as a single plain-text file, meant for pasting into an\n  LLM's context or fetching programmatically.\n\n### Anonymous pre-invocation trust check (MCP)\n\nThe fastest way to evaluate an agent before invoking it needs no\nAgentTrust account or API key at all — call the `check_agent_trust` MCP\ntool at `/api/mcp`:\n\n```\ncheck_agent_trust({ \"endpointUrl\": \"https://the-agent-you-are-about-to-call.example.com/invoke\" })\n```\n\n- Read-only.\n- No AgentTrust account or API key required.\n- Checks only AgentTrust's already-stored observations — it does not\n  invoke or otherwise contact the target endpoint during the lookup.\n- Returns a machine-readable `trustDecision` (`recommended`,\n  `confidence`, `reasons`) for the caller to evaluate.\n\n### Authenticated REST/MCP operations\n\nRegistering an agent, or reading the fuller per-agent record (agent\ncard, capabilities, health history), requires a human-created API key:\nsign up, create a key in the dashboard, then\n`GET /api/v1/agents?endpoint_url=<the URL you're about to call>` with\n`Authorization: Bearer <API_KEY>` — the response includes the same\n`trustDecision`. The authenticated MCP tools (`list_agents`,\n`get_agent`, `get_agent_health`, `send_heartbeat`) mirror the REST API\nexactly.\n\n## Developing this project\n\nThis is a Next.js (App Router) + Drizzle + Supabase app, deployed on\nVercel.\n\n```bash\nnpm install\nnpm run dev\n```\n\nOpen [http://localhost:3000](http://localhost:3000). You'll need a\n`.env.local` — see `.env.example` for the required variables (Supabase\ncredentials, database connection strings, and the server-only secrets\ndescribed inline).\n\nUseful scripts:\n\n```bash\nnpm run test        # vitest — full suite runs against an embedded pglite DB, no live database needed\nnpm run typecheck    # tsc --noEmit\nnpm run lint         # eslint\nnpm run db:generate   # generate a new Drizzle migration from schema changes (offline)\nnpm run db:migrate    # apply pending migrations to the database in DIRECT_URL\n```\n",
+  "status": "curated"
+}

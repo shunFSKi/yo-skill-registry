@@ -17,7 +17,7 @@
   "quality": {
     "stars": null,
     "pushed_at": "2026-09-19T06:06:51.852939Z",
-    "score": 52
+    "score": 42
   },
   "security": {
     "score": 100,
@@ -49,6 +49,6 @@
     "category": "AI",
     "featured": false
   },
-  "readme": "# Scrapiq MCP Server\n\n> MCP server for [Scrapiq](https://github.com/NG-PR0JECT/scrapiq) — turn any URL into clean text, markdown, or JSON for LLM/RAG pipelines, directly from your MCP client.\n\n[Scrapiq](https://github.com/NG-PR0JECT/scrapiq) is a lightweight open-source HTTP API that fetches a web page and returns clean content — boilerplate stripped. This server exposes it as a Model Context Protocol (MCP) tool so Claude Desktop, Cursor, and any MCP client can extract clean web content with one call.\n\nDependency-free: pure Python stdlib, JSON-RPC 2.0 over stdio. No pip packages, no node_modules.\n\n## Install\n\nNot on PyPI yet, so install straight from this repo:\n\n```bash\n# run it without installing anything (run against `main`, 2026-09-17)\nuvx --from git+https://github.com/NG-PR0JECT/scrapiq-mcp-server scrapiq-mcp\n\n# or install it into an isolated environment\npipx install git+https://github.com/NG-PR0JECT/scrapiq-mcp-server\n```\n\nRequires a running Scrapiq instance (see [Scrapiq README](https://github.com/NG-PR0JECT/scrapiq#quick-start-self-hosted) — `git clone`, `pip install -e \".[dev]\"`, then `scrapiq`). Point the server at it:\n\n```bash\nSCRAPIQ_ENDPOINT=http://localhost:8001/v1/extract scrapiq-mcp\n```\n\n## Usage with Claude Desktop\n\nAdd to `claude_desktop_config.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"scrapiq\": {\n      \"command\": \"scrapiq-mcp\",\n      \"env\": { \"SCRAPIQ_ENDPOINT\": \"http://localhost:8001/v1/extract\" }\n    }\n  }\n}\n```\n\n## Tool\n\n### `scrapiq_extract`\n\nExtract a web page into clean structured content.\n\n**Arguments:**\n- `url` (string, required) — the URL to extract\n- `format` (string, optional) — `\"markdown\"` (default) | `\"text\"` | `\"json\"`\n- `max_chars` (integer, optional) — truncate content to N chars\n\n**Example:**\n```\nscrapiq_extract(url=\"https://en.wikipedia.org/wiki/Retrieval-augmented_generation\", format=\"markdown\")\n```\n\nReturns title, content, links, and metadata — no ads, no nav, no scripts.\n\n## Test the server\n\n```bash\nprintf '%s\\n' \\\n  '{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"initialize\",\"params\":{\"protocolVersion\":\"2024-11-05\"}}' \\\n  '{\"jsonrpc\":\"2.0\",\"id\":2,\"method\":\"tools/list\"}' \\\n  '{\"jsonrpc\":\"2.0\",\"id\":3,\"method\":\"tools/call\",\"params\":{\"name\":\"scrapiq_extract\",\"arguments\":{\"url\":\"https://example.com\",\"format\":\"text\"}}}' \\\n  | scrapiq-mcp\n```\n\n## License\n\nMIT\n",
+  "readme": null,
   "status": "curated"
 }

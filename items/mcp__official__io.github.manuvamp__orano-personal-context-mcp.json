@@ -1,0 +1,61 @@
+{
+  "id": "mcp:official/io.github.manuvamp/orano-personal-context-mcp",
+  "type": "mcp",
+  "name": "ORANO Personal Context MCP",
+  "description": "Read-only MCP server: let AI agents read your ORANO saved-video library, tasks, and memory.",
+  "author": "io.github.manuvamp",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/manuvamp/orano-mcp-examples",
+    "repo": "manuvamp/orano-mcp-examples"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://orano-ai-backend-1037939693300.us-central1.run.app/mcp/",
+    "env": [
+      {
+        "name": "Authorization",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-19T17:38:50.593433Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "设计",
+    "featured": false
+  },
+  "readme": "# ORANO personal MCP — curl examples\n\nMinimal, copy-paste examples for reading your own ORANO library through the personal, read-only MCP server. No SDK required.\n\n- Endpoint & auth format: https://oranoai.com/mcp.json\n- Overview: https://oranoai.com/mcp\n- Key management: https://oranoai.com/mcp-access.html\n\n## Setup\n\n```bash\nBASE=\"https://orano-ai-backend-1037939693300.us-central1.run.app/mcp/\"\nKEY=\"YOUR_ORANO_PERSONAL_KEY\"   # generate at oranoai.com/mcp-access.html (subscription required)\n```\n\n## 1. Initialize the session\n\n```bash\ncurl -s -X POST \"$BASE\" \\\n  -H \"Authorization: Bearer $KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -H \"Accept: application/json, text/event-stream\" \\\n  -d '{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"initialize\",\"params\":{\"protocolVersion\":\"2025-03-26\",\"capabilities\":{},\"clientInfo\":{\"name\":\"curl\",\"version\":\"1.0\"}}}'\n```\n\nCopy the `mcp-session-id` response header into `SID` for later calls:\n\n```bash\nSID=\"PASTE_SESSION_ID\"\n```\n\n## 2. List your projects\n\n```bash\ncurl -s -X POST \"$BASE\" -H \"Authorization: Bearer $KEY\" -H \"Content-Type: application/json\" \\\n  -H \"Accept: application/json, text/event-stream\" -H \"mcp-session-id: $SID\" \\\n  -d '{\"jsonrpc\":\"2.0\",\"id\":2,\"method\":\"tools/call\",\"params\":{\"name\":\"list_projects\",\"arguments\":{}}}'\n```\n\n## 3. Search your library\n\n```bash\ncurl -s -X POST \"$BASE\" -H \"Authorization: Bearer $KEY\" -H \"Content-Type: application/json\" \\\n  -H \"Accept: application/json, text/event-stream\" -H \"mcp-session-id: $SID\" \\\n  -d '{\"jsonrpc\":\"2.0\",\"id\":3,\"method\":\"tools/call\",\"params\":{\"name\":\"search_library\",\"arguments\":{\"query\":\"pgvector\"}}}'\n```\n\n## 4. Read curated memory facts\n\n```bash\ncurl -s -X POST \"$BASE\" -H \"Authorization: Bearer $KEY\" -H \"Content-Type: application/json\" \\\n  -H \"Accept: application/json, text/event-stream\" -H \"mcp-session-id: $SID\" \\\n  -d '{\"jsonrpc\":\"2.0\",\"id\":4,\"method\":\"tools/call\",\"params\":{\"name\":\"get_memory_facts\",\"arguments\":{}}}'\n```\n\n## Available tools\n\n`list_projects` · `get_project` · `get_pending_handoffs` · `search_library` · `get_memory_facts`\n\n## Boundaries\n\nRead-only (scope `orano:read`), personal keys, 240 calls / 60 min budget, up to 10 active keys. No OAuth yet — keys are provisioned manually after subscribing.\n\nORANO app: [iOS](https://apps.apple.com/us/app/orano-ai/id6791454509) · [Android](https://play.google.com/store/apps/details?id=com.oranoai.app) · [oranoai.com](https://oranoai.com)\n",
+  "status": "curated"
+}
