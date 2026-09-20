@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/digital.chip-ai/chip",
+  "type": "mcp",
+  "name": "Chip MCP",
+  "description": "Project memory, tasks and Telegram notifications for your coding agent. Chip account required.",
+  "author": "digital.chip-ai",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/zapret-digital/chip-mcp",
+    "repo": "zapret-digital/chip-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://chip-ai.digital/mcp/"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-20T16:14:58.739561Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "办公",
+    "featured": false
+  },
+  "readme": "# Chip MCP\n\n**Project memory, tasks and Telegram notifications for your coding agent.**\n\n[Русская версия](README.ru.md) · [chip-ai.digital/mcp](https://chip-ai.digital/mcp)\n\nChip is an assistant living in Telegram. This MCP server connects your IDE agent —\nClaude Code, Cursor, anything that speaks MCP — to the same account. Decisions you\nmade yesterday, notes your agent wrote last session, tasks you assigned from your\nphone: all still there when the next session starts with an empty context window.\n\n> **Language note.** Chip is a Russian-language product: the tools answer in Russian\n> and billing is in rubles. Everything works from any country, but if you don't read\n> Russian, the responses will not be useful to you.\n\n## Why bother\n\n**Returning to a project costs 63 tokens instead of 2538.** Your agent calls\n`whats_new` and gets only what changed since its last visit, not the whole project\nagain. Measured 2026-09-10 on a reference mature project with real `tiktoken\no200k_base` counting — not an estimate:\n\n| scenario | before | after |\n|---|---:|---:|\n| first visit to a project | 2538 tokens | 2284 tokens |\n| returning, nothing changed | 2538 tokens | **63 tokens** |\n| returning after a day of edits | 2538 tokens | 295 tokens |\n\n**A read-only token costs less to even list.** The tool list is paid for by every\nsession before the first call: 27 tools = 2905 tokens, the 11 read-only ones = 1155.\nIf your agent only reads the project, issue a `read` token and save 1750 tokens per\nsession.\n\n**Your agent can reach you.** `notify_me` pushes a message to your Telegram when a\nlong build finishes; `ask_user` asks a question with buttons and `check_confirmation`\npicks up the answer later — so an agent working alone can wait for a human decision\ninstead of guessing.\n\n## Install\n\nYou need a free account: open [@ChipAI_robot](https://t.me/ChipAI_robot) in Telegram\n→ mini app → **Chip MCP** → issue a token (`chip_mcp_…`). Choose **read** if you want\nthe agent to look but never touch.\n\n**Claude Code**\n\n```bash\nclaude mcp add --transport http chip https://chip-ai.digital/mcp --header \"Authorization: Bearer chip_mcp_YOUR_TOKEN\"\n```\n\n**Cursor** — `~/.cursor/mcp.json` (or `.cursor/mcp.json` in the project):\n\n```json\n{\n  \"mcpServers\": {\n    \"chip\": {\n      \"url\": \"https://chip-ai.digital/mcp\",\n      \"headers\": { \"Authorization\": \"Bearer chip_mcp_YOUR_TOKEN\" }\n    }\n  }\n}\n```\n\nAny other client that takes an `mcpServers` entry with `url` + `headers` works the\nsame way. See [docs/clients.md](docs/clients.md) for more.\n\nThen tell your agent to start with `whats_new` — the server's own instructions say so\ntoo, so most agents do it unprompted.\n\n## Claude Code plugin\n\nClaude Code can install everything at once — the server, the session ritual and two\ncommands — instead of you wiring up the config by hand.\n\n```bash\nexport CHIP_MCP_TOKEN=chip_mcp_YOUR_TOKEN\nclaude plugin marketplace add zapret-digital/chip-mcp\nclaude plugin install chip@chip-ai\n```\n\nThe token lives **only** in `CHIP_MCP_TOKEN`. It is never written into the plugin\nfiles, and never into `.chip.json`.\n\nWhat the plugin adds:\n\n- the `chip` MCP server, pointed at `https://chip-ai.digital/mcp/` — the address is\n  a literal in the plugin, not something the environment can re-point;\n- `/chip:start` and `/chip:finish` — the same session ritual as the server's `start`\n  and `finish` prompts, for clients that don't render prompts;\n- three hooks: on session start the project delta goes into the context; before\n  context compaction and on stop the agent is reminded to save the summary.\n\nThe hooks need a `.chip.json` in the repository root to know which project this is:\n\n```json\n{ \"project_id\": 12 }\n```\n\nThe mini app sends it to you — project settings, **«Правила для IDE-агента»**, next to\n`AGENTS.md`. Telegram strips the leading dot from attachment names, so rename the file\nback to `.chip.json` after saving. Without the file the hooks stay quiet — except for\none line at session start saying this repository has no `.chip.json`. The plugin still\nworks, the session just starts without the delta.\n\nThe hooks never block a session — no token, no network, no `python3` or `curl`, and\nyou get one line of explanation instead of a failed start.\n\n*For local development:* `CHIP_MCP_URL` re-points **the hooks only**, and only at the\nproduction address or a loopback stand (`http://127.0.0.1:8092/mcp/`); anything else\nis refused. The MCP channel itself ignores the variable, so no repository can send\nyour token to its own host through `.claude/settings.json`.\n\n## Tools\n\n27 tools. `read` tokens get the 11 marked *read*; `full` tokens get everything.\n\n<!-- tools:start -->\n| Tool | Access | Arguments |\n|---|---|---|\n| `add_note` | write | `project_id`, `text`, `kind` |\n| `add_task` | write | `project_id`, `text` |\n| `archive_project` | write | `project_id` |\n| `ask_user` | write | `question`, `options` |\n| `attach_file` | write | `filename`, `size_bytes` |\n| `check_confirmation` | write | `ask_id` |\n| `complete_task` | write | `task_id`, `result` |\n| `create_project` | write | `name` |\n| `finalize_upload` | write | `upload_id` |\n| `generate_image` | write | `prompt`, `project_id` |\n| `get_project_context` | read | `project_id`, `depth` |\n| `get_project_map` | write | `project_id` |\n| `list_files` | read | `project_id` |\n| `list_projects` | read | — |\n| `list_tasks` | read | `project_id` |\n| `notify_me` | write | `text`, `upload_id` |\n| `read_journal` | read | `project_id`, `offset` |\n| `read_map_section` | read | `project_id`, `section` |\n| `read_project_dialog` | read | `project_id`, `session_id` |\n| `read_project_file` | read | `project_id`, `filename`, `page` |\n| `rename_project` | write | `project_id`, `name` |\n| `save_session_summary` | write | `project_id`, `text` |\n| `search_project` | read | `query`, `project_id`, `kind`, `since` |\n| `set_reminder` | write | `text`, `when` |\n| `upload_project_file` | write | `project_id`, `filename`, `size_bytes`, `content` |\n| `whats_new` | read | `project_id`, `since`, `session` |\n| `whoami` | read | — |\n<!-- tools:end -->\n\n`get_project_map` reads a table of contents but is listed as *write*, and that is\ndeliberate: fetching it also refreshes the project map, so a read-only token does not\nget it. `read_map_section` reads a single entry without side effects.\n\nMachine-readable: [spec.json](spec.json), generated from the server's own tool\nregistry — see below.\n\n## What the server can and cannot see\n\n- **It has no access to your filesystem.** It only ever receives what your agent\n  explicitly passes as arguments. Nothing scans your repository.\n- **Call arguments and results are not logged.** The usage log stores the tool name,\n  duration and success flag — nothing else.\n- **A `read` token cannot write.** Enforced on the call itself, not just by hiding\n  tools from the list.\n- **Tokens are stored as SHA-256.** The raw value is shown once, at issue time.\n- Listing tools needs no token, so directories can index this server. Every actual\n  call does.\n\n## Verify the spec yourself\n\n`spec.json` in this repo is generated from the live server's tool registry, so it\ncannot quietly drift from reality. Check it against production yourself:\n\n```bash\n./scripts/verify.sh\n```\n\nIt diffs the committed spec against `https://chip-ai.digital/mcp/spec.json`.\n\n## Pricing\n\nConnecting is free. Reading your own projects is free. Writes, Telegram messages and\nimage generation are metered against your Chip plan — the tools tell your agent when\na limit is reached and what to do about it. Plans live in the Telegram bot.\n\n## Links\n\n- [Landing page and docs](https://chip-ai.digital/mcp)\n- [Telegram bot](https://t.me/ChipAI_robot)\n- [Live spec](https://chip-ai.digital/mcp/spec.json)\n\n## License\n\n[MIT](LICENSE) for the contents of this repository (spec, docs, scripts). The Chip\nservice itself is proprietary.\n",
+  "status": "curated"
+}

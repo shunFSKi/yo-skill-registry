@@ -1,0 +1,57 @@
+{
+  "id": "mcp:official/io.github.ajwann/queensestate",
+  "type": "mcp",
+  "name": "Charlotte Open City Data",
+  "description": "Charlotte and Mecklenburg County open data: addresses, crime, 311, zoning, budget, and services",
+  "author": "io.github.ajwann",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/ajwann/queensestate",
+    "repo": "ajwann/queensestate"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "queensestate"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-20T16:49:16.330627Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "数据",
+    "featured": false
+  },
+  "readme": "<!-- mcp-name: io.github.ajwann/queensestate -->\n\n# QueensEstate ♔⛫\n\n[![CI](https://github.com/ajwann/queensestate/actions/workflows/ci.yml/badge.svg)](https://github.com/ajwann/queensestate/actions/workflows/ci.yml)\n\nAn [MCP](https://modelcontextprotocol.io) server that lets an LLM answer Charlotte residents'\neveryday questions with official public data from the\n**City of Charlotte Open Data Portal** — <https://data.charlottenc.gov>.\n\n> The portal lives at `data.charlottenc.gov`.\n> It is an ArcGIS Hub site; its ~380 datasets are ArcGIS REST layers run by the City of\n> Charlotte and Mecklenburg County. No API key is required.\n\n## What's on the portal\n\nA survey of the catalog (`/api/feed/dcat-us/1.1.json`) shows these main themes:\n\n| Theme | Examples |\n| --- | --- |\n| Public safety | CMPD incidents (870k+ since 2017, updated daily), homicides, traffic stops, fire incident reports, crashes |\n| City services | 311 service requests (3.4M), solid-waste collection routes, code enforcement cases, street closures |\n| Planning & zoning | Zoning, rezoning petitions, historic districts, 2040 policy map, floodplains, parcels |\n| Transportation | CATS bus routes and stops, LYNX light rail, park-and-ride, bike lanes, sidewalks, greenways |\n| Places | Libraries, schools, parks, fire/police stations, pharmacies, grocery stores, EV chargers, day care |\n| Government | Capital projects, budget, employee salaries, council and commissioner districts |\n| Demographics | Census block groups/tracts, Quality of Life neighborhood profiles |\n\n## Tools\n\nThe tools are chosen for the questions residents actually ask. Every tool is read-only, and\nevery location parameter accepts either an address (`\"600 E 4th St, Charlotte\"`) or\n`\"latitude,longitude\"`.\n\n### My address\n\n| Tool | Answers questions like |\n| --- | --- |\n| `get_address_profile` | \"Who is my council member?\" \"What police division and fire station serve me?\" \"What's my zoning? Am I in a flood zone or historic district?\" |\n| `get_trash_and_recycling_schedule` | \"What day is trash pickup? Is this a recycling week (GREEN/ORANGE)?\" |\n| `lookup_address` | \"Is this a valid address? What's its parcel ID and municipality?\" |\n\n### Safety\n\n| Tool | Answers questions like |\n| --- | --- |\n| `get_crime_near` | \"Any car break-ins near my apartment this month?\" |\n| `summarize_crime` | \"How have robberies in Charlotte changed since 2019?\" \"Which division has the most burglaries?\" |\n| `get_traffic_crashes_near` | \"Is the intersection by my kid's school dangerous?\" |\n\n### City services and neighborhood change\n\n| Tool | Answers questions like |\n| --- | --- |\n| `get_311_requests_near` | \"Has anyone already reported this pothole or streetlight?\" |\n| `get_code_enforcement_cases` | \"Does the house I'm renting have open housing-code violations?\" |\n| `get_street_closures` | \"Are any roads closed on my commute?\" |\n| `get_capital_projects_near` | \"What's being built near me, when is it done, and who do I contact?\" |\n| `get_pending_rezonings` | \"Is anyone trying to rezone land near my neighborhood?\" |\n\n### Places and transit\n\n| Tool | Answers questions like |\n| --- | --- |\n| `find_nearby_places` | Nearest library, school, park, greenway, pharmacy, grocery store, EV charger, light rail station, bus stop, public Wi-Fi… (18 categories) |\n| `get_bus_route` | \"How often does the 9 run on Sunday evenings?\" |\n\n### Government transparency\n\n| Tool | Answers questions like |\n| --- | --- |\n| `get_city_budget` | \"How much does the city budget for Police?\" |\n| `get_city_salary_stats` | \"What do Charlotte firefighters earn on average?\" (aggregates only, no names) |\n\n### Anything else in the catalog\n\n| Tool | Purpose |\n| --- | --- |\n| `search_datasets` | Keyword search over the whole portal |\n| `describe_dataset` | Fields, types, and record count for a layer |\n| `query_dataset` | SQL-filtered records from any layer, optionally near a location |\n| `summarize_dataset` | Server-side counts/sums grouped by fields |\n\n## Setup\n\nRequires Python 3.14 (developed on 3.14.7).\n\n```bash\n~/.pyenv/versions/3.14.7/bin/python -m venv .venv\n.venv/bin/python -m pip install -e . --group dev\n```\n\n### Use with Claude Code\n\n```bash\nclaude mcp add queensestate -- /absolute/path/to/queensestate/.venv/bin/queensestate\n```\n\n### Use with Claude Desktop\n\nAdd to `claude_desktop_config.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"queensestate\": {\n      \"command\": \"/absolute/path/to/queensestate/.venv/bin/queensestate\"\n    }\n  }\n}\n```\n\n### Other transports and debugging\n\n```bash\n.venv/bin/queensestate --transport http --port 8000        # http://127.0.0.1:8000/mcp\nnpx @modelcontextprotocol/inspector .venv/bin/queensestate  # interactive inspector\n```\n\nThe `http` transport authenticates its callers with Google OAuth and refuses to start\nwithout a public URL, a Google client, and an allow list — see [Hosting](#hosting). To try\nit locally:\n\n```bash\nQUEENSESTATE_PUBLIC_URL=http://localhost:8000 \\\nQUEENSESTATE_GOOGLE_CLIENT_ID=... QUEENSESTATE_GOOGLE_CLIENT_SECRET=... \\\nQUEENSESTATE_ALLOWED_EMAILS=you@gmail.com \\\n  .venv/bin/queensestate --transport http --port 8000\n```\n\n## Hosting\n\nThe hosted server runs on Google Cloud Run at\n<https://queensestate.adamwanninger.com/mcp>, and is its own OAuth 2.1 authorization\nserver: it delegates the sign-in to Google purely to learn which account is calling, then\nchecks that address against an allow list and mints its own tokens. Google's tokens are\nnever passed through to the MCP client.\n\n```bash\nclaude mcp add --transport http queensestate https://queensestate.adamwanninger.com/mcp\n```\n\n`scripts/deploy-gcp.sh` provisions and deploys the whole thing, and re-running it is also\nhow you update. See [deploy/GCP.md](deploy/GCP.md).\n\nHosting is only for the HTTP transport. Running the server locally over stdio needs no\nGoogle account, no allow list, and none of the cloud dependencies.\n\n## Development\n\n```bash\n.venv/bin/pytest                 # unit + in-memory MCP tests; no network access\n.venv/bin/ruff format --check . && .venv/bin/ruff check .\n.venv/bin/mypy\n```\n\nLayout:\n\n- `src/queensestate/arcgis.py`: async ArcGIS REST / Hub client (timeouts, bounded retries, host allowlist)\n- `src/queensestate/address.py`: address matching against the county Master Address layer\n- `src/queensestate/catalog.py`: the curated layers behind the purpose-built tools\n- `src/queensestate/server.py`: the MCP tools\n\n## Data notes and limitations\n\n- **Geocoding** uses Mecklenburg County's Master Address layer, so only addresses inside the\n  county resolve. Coordinates outside the county are rejected.\n- **Freshness varies by dataset**: CMPD incidents, 311 requests, and code enforcement are current\n  within days; the Budget Report dataset currently runs FY2018–FY2023. Tools report what the\n  portal publishes.\n- **CMPD locations are generalized** by the department for privacy.\n- **311 data** records when requests were received, not when they were resolved.\n- **Timestamps** are ISO 8601 in Charlotte local time with the UTC offset\n  (e.g. `2026-09-06T00:00:00-04:00`). The underlying services store UTC.\n- **Budget amounts** include large negative lines (e.g. \"00 Non Department\", Charlotte Water),\n  so `get_city_budget` reports both the net total and the sum of positive lines.\n- **Statistics limits**: some city map services ignore `resultRecordCount` on aggregate\n  queries, so the client enforces row limits itself.\n- **Live bus arrivals** are not on the portal; pair this server with a CATS real-time source.\n  Bus stop IDs from `find_nearby_places` match CATS stop IDs.\n- The generic tools only reach hosts that serve portal datasets (`gis.charlottenc.gov`,\n  `meckgis.mecklenburgcountync.gov`, `services.arcgis.com`, `gis.ci.charlotte.nc.us`).\n- Mecklenburg County's server rejects default Python user agents, so the client sends its own.\n\n## Ideas for more tools\n\n- Neighborhood Quality of Life indicators by NPA (income, age, housing, amenities)\n- Charlotte Fire incident reports by address block\n- CMPD officer traffic-stop statistics\n- Sidewalk and bike network gaps near an address\n- Tree canopy and land surface temperature by neighborhood\n\n## License\n\nMIT - see [LICENSE](LICENSE).\n",
+  "status": "curated"
+}

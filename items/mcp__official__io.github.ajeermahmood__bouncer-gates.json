@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.ajeermahmood/bouncer-gates",
+  "type": "mcp",
+  "name": "bouncer-gates",
+  "description": "Stops secrets, cross-tenant queries and unsafe migrations before they merge.",
+  "author": "io.github.ajeermahmood",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/ajeermahmood/bouncer-gates",
+    "repo": "ajeermahmood/bouncer-gates"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "bouncer-gates"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-20T16:53:59.105098Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# bouncer-gates\n\n**Five checks that stop the expensive mistakes before they merge, whether a\nperson or an agent wrote the code.**\n\nHardcoded secrets. Database queries that leak one customer's data to another.\nFloat maths on money. Migrations that break the running app. Docs that link to\nfiles which no longer exist.\n\nAgents write most new code now, and they make exactly these mistakes: a key\npasted in to make a test pass, a query with no tenant filter because the prompt\nnever mentioned tenants. bouncer-gates runs inside Claude Code and Cursor, so the\nagent hears about it in the same turn it wrote it, and again in CI so nothing\ngets through.\n\nTry it on any repository in ten seconds:\n\n```bash\nnpx bouncer-gates\n```\n\nOr paste some code into the [playground](https://bouncer-gates.ajeermdk001.workers.dev)\nand watch the same checks run on it.\n\n---\n\n## Quick start\n\n```bash\nnpx bouncer-gates --init          # writes bouncer-gates.config.json, reads your Prisma schema if you have one\nnpx bouncer-gates --init-agents   # wires the same checks into Claude Code and Cursor for this repo\nnpx bouncer-gates                 # runs every check and prints what it found\n```\n\nAdd it to GitHub Actions:\n\n```yaml\nsteps:\n  - uses: actions/checkout@v4\n    with:\n      fetch-depth: 0             # needed so the migration check can see what is new\n  - uses: ajeermahmood/bouncer-gates@v0\n    with:\n      version: \"0.5.0\"\n```\n\nThat is the whole setup. Everything below is detail.\n\n## In the editor, with the agent\n\n`--init-agents` commits two things into the repository: an MCP server the agent\ncan call, and a hook that scans every file the agent writes. When a file has a\nblocking finding, the agent sees the file, the line, what is wrong and what to\ndo instead, in the same turn:\n\n```\nx src/orders.ts:12  scope/unscoped-query\n  \"order\" is tenant-owned, but nothing in this query mentions \"tenantId\", so it returns rows from every tenant.\n  fix: Add tenantId to the where clause, or go through a tenant-scoped client.\n```\n\nAny other MCP client can run `npx -y bouncer-gates --mcp`, and any post-edit\nhook can pipe its event to `npx -y bouncer-gates --hook`.\n[How it works, and what it will not do](https://github.com/ajeermahmood/bouncer-gates/blob/main/docs/agents.md).\n\n## What it checks\n\n| Check | Catches | Example of what it stops |\n|---|---|---|\n| **secrets** | Passwords, API keys and private keys committed to the repo, plus a few risky shapes like `curl ... \\| sh` | `const apiKey = \"sk_live_...\"`, a committed `.env` with a real password |\n| **scope** | Queries on multi-tenant tables that are not limited to one tenant | `prisma.order.findMany({ where: { status: \"paid\" } })` with no `tenantId` |\n| **money** | Currency handled as floats, or `* 100` assuming every currency has two decimals | `Math.round(parseFloat(price) * 100)` |\n| **migration-safety** | SQL migrations that break the version of the app still running during a deploy | `ALTER TABLE orders DROP COLUMN total` while old code still reads it |\n| **doc-links** | Markdown links to files that do not exist | `[setup](docs/setup.md)` after the file moved |\n\nEach check exists because of a real, expensive bug. None is a style opinion.\nThe [gate reference](https://github.com/ajeermahmood/bouncer-gates/blob/main/docs/gates.md)\nexplains every rule with a bad example and a fixed one.\n\n## When it finds something\n\nEvery finding names the file, the line, what is wrong and what to do instead:\n\n```\n  FAIL  scope\n\n    x src/orders.ts:2  scope/unscoped-query\n      \"order\" is tenant-owned, but nothing in this query mentions \"tenantId\", so it returns rows from every tenant.\n      fix: Add tenantId to the where clause, or go through a tenant-scoped client.\n```\n\nYou have three options, in this order:\n\n1. **Fix it.** Usually the right answer.\n2. **Explain why it is fine.** Put a comment on the line, or the line above it,\n   with a reason. The reason is required; a bare marker does nothing.\n   ```js\n   // bouncer-gates-ok(scope): nightly revenue report spans every tenant by design\n   const all = await prisma.order.findMany();\n   ```\n3. **Record existing problems so only new ones block.** On a codebase that\n   already has findings, run this once and commit the file it writes:\n   ```bash\n   npx bouncer-gates --baseline-write\n   ```\n   Old findings stop blocking. Anything new still does. The file is readable,\n   and the count in it should only ever go down.\n\n## Configuration\n\n`bouncer-gates --init` writes this for you. Edit it by hand any time.\n\n```json\n{\n  \"exclude\": [\"fixtures/**\"],\n  \"scope\": {\n    \"models\": [\"order\", \"customer\"],\n    \"tables\": [\"orders\", \"customers\"],\n    \"column\": \"tenantId\",\n    \"clients\": [\"prisma\"],\n    \"rawAccessor\": \"raw\"\n  },\n  \"doc-links\": { \"repoUrl\": \"https://github.com/you/your-repo\" }\n}\n```\n\n- **exclude**: files not to scan at all. The run prints how many files each\n  pattern removed, every time, so the list cannot grow quietly.\n- **scope.models / tables**: the models and tables that belong to a tenant.\n  `--init` fills these from any model in your Prisma schema that has a\n  `tenantId` field.\n- **scope.clients**: plain client names, like `prisma`, whose queries should be\n  checked for the tenant column. Use this when you do not have a scoped wrapper.\n- **scope.rawAccessor**: if you *do* have a scoped wrapper, this is the name of\n  the raw client it hides, like `db.raw`. Reaching for it gets flagged.\n- **doc-links.repoUrl**: lets absolute links back to your own repository be\n  checked as file paths too.\n\nWithout a scope section, the scope check reports **skipped**, not passed.\n\n## All the commands\n\n```bash\nnpx bouncer-gates                        # every check, whole repository\nnpx bouncer-gates --init                 # write a starter config\nnpx bouncer-gates --init-agents          # wire the gates into Claude Code and Cursor\nnpx bouncer-gates --mcp                  # serve the gates over MCP, for any agentic editor\nnpx bouncer-gates --hook                 # scan the file named by a hook event on stdin\nnpx bouncer-gates --changed              # only files this branch touched\nnpx bouncer-gates --only scope,money     # just some checks\nnpx bouncer-gates --explain scope        # what a check does and how to excuse a case\nnpx bouncer-gates --baseline-write       # record existing findings\nnpx bouncer-gates --json                 # machine-readable output\nnpx bouncer-gates --sarif                # for the GitHub Security tab\n```\n\nExit code `0` means clean, `1` means something blocked, `2` means the tool\nitself could not run (bad flag, broken config, not a git repository). CI treats\n`1` and `2` differently on purpose: a broken tool should not look like a\ncodebase full of problems.\n\n## What it does not do\n\nHonest limits, so nobody trusts it further than it deserves:\n\n- It matches shapes in text. It does not understand your code. A tenant filter\n  built in a helper the check cannot see will be reported, and the comment above\n  is the fix.\n- The money and scope checks only read JavaScript and TypeScript.\n- The migration check only reads `.sql` files. Migrations written in JavaScript\n  or TypeScript are not checked.\n- Secrets split across lines, or with no recognisable prefix, are not found. For\n  deep history scanning use gitleaks or trufflehog; this is the cheap guard on\n  the door, not the audit.\n- A query inside `prisma.$transaction(async (tx) => ...)` uses a client the\n  check cannot follow.\n\nEvery rule's blind spots are listed in the\n[gate reference](https://github.com/ajeermahmood/bouncer-gates/blob/main/docs/gates.md).\n\n## Words used here\n\n- **Gate** or **check**: one of the five things it looks for.\n- **Finding**: one problem it reports, with a file and line.\n- **Blocking**: a finding that makes the run exit `1`. Warnings do not.\n- **Baseline**: the file that records findings you have chosen to live with for\n  now, so only new ones block.\n- **Acknowledge** or **excuse**: the `bouncer-gates-ok` comment that says a specific\n  line is fine, and why.\n\n## Telemetry\n\nOne anonymous ping a day: a random id, the version, the runtime, the OS and the\nNode major. Nothing about your code, ever. `BOUNCER_TELEMETRY=0` turns it off.\n[Everything it sends](https://github.com/ajeermahmood/bouncer-gates/blob/main/docs/telemetry.md).\n\n## More\n\n- [Inside the editor](https://github.com/ajeermahmood/bouncer-gates/blob/main/docs/agents.md): the MCP server and the hook, what the agent sees, other editors\n- [Gate reference](https://github.com/ajeermahmood/bouncer-gates/blob/main/docs/gates.md): every rule, a bad and a good example, what it misses\n- [Rolling it out on an existing codebase](https://github.com/ajeermahmood/bouncer-gates/blob/main/docs/adoption.md)\n- [Design notes](https://github.com/ajeermahmood/bouncer-gates/blob/main/docs/design-notes.md): why it never fails open, why findings never quote the secret, the false-positive story, and the speed work\n- [Architecture](https://github.com/ajeermahmood/bouncer-gates/blob/main/docs/architecture.md): gates are pure functions, which is why the same code runs in the CLI, in a Cloudflare Worker and in your browser\n- [Deployment](https://github.com/ajeermahmood/bouncer-gates/blob/main/docs/deployment.md): the playground, the API and npm\n- [Contributing](https://github.com/ajeermahmood/bouncer-gates/blob/main/CONTRIBUTING.md): adding a gate, and how to decide whether something should be one\n\n## Development\n\n```bash\nnpm install\nnpm test                        # unit tests\nnpm run check                   # bouncer-gates on itself\nnpm run bench -- ../some-repo   # measure against a real codebase\nnpm run dev                     # the playground site\n```\n\n## Licence\n\nMIT. Take any of it.\n\nBuilt by [Ajeer Mohammed](https://ajeer.website). The rules come from running\nchecks like these across eight production repositories, on a multi-tenant\nplatform where missing one meant a merchant seeing another merchant's orders.\n",
+  "status": "curated"
+}

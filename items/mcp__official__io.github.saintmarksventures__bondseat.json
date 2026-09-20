@@ -1,0 +1,70 @@
+{
+  "id": "mcp:official/io.github.saintmarksventures/bondseat",
+  "type": "mcp",
+  "name": "BondSeat",
+  "description": "Find restaurants and automate Resy bookings: cancellation monitoring and scheduled release attempts.",
+  "author": "io.github.saintmarksventures",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/saintmarksventures/bondseat-connector",
+    "repo": "saintmarksventures/bondseat-connector"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@bondseat/mcp"
+    ],
+    "env": [
+      {
+        "name": "BONDSEAT_API_URL",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "BONDSEAT_STATE_FILE",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-20T17:43:01.087596Z",
+    "score": 55
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "生活",
+    "featured": false
+  },
+  "readme": "# BondSeat connector\n\nSnag hard-to-get tables on Resy. BondSeat watches for cancellations or tries to book right when reservations open, then automatically books a table that matches your preferences.\n\nBondSeat carefully manages your credentials and paces availability checks, keeping routine monitoring separate from your personal Resy account.\n\nThe agent uses booking tools. The connector keeps the access token, setup codes,\nretry identifiers and polling state private. The diner only opens a setup link.\nNo token needs to be copied into chat or remembered by the agent.\n\nThis is an MCP server using the official TypeScript SDK and local stdio transport.\nIt works with clients that can launch a local MCP process. It is not a hosted HTTP\nMCP endpoint. The underlying REST API also remains available to custom runtimes.\n\n## Install\n\nRequires Node.js 22 or newer. Configure an MCP client that supports local stdio:\n\n```json\n{\n  \"mcpServers\": {\n    \"bondseat\": {\n      \"command\": \"npx\",\n      \"args\": [\"--yes\", \"@bondseat/mcp@0.1.2\"]\n    }\n  }\n}\n```\n\nThe default connects to the production BondSeat API. There is no API key to copy:\nwhen setup is needed, the diner opens a link to connect Resy and authorize the\n$10 USD success fee. Unsuccessful requests incur no fee. The account-free flow\nsupports Resy; the diner needs a saved card in Resy for restaurant charges and\nseparately authorizes BondSeat's fee through Stripe.\n\nThe executable starts MCP when called without arguments. A CLI is also available:\n\n```sh\nnpx --yes @bondseat/mcp@0.1.2 --help\nnpx --yes @bondseat/mcp@0.1.2 schema request\nnpx --yes @bondseat/mcp@0.1.2 restaurants <<'BONDSEAT_INPUT'\n{\"q\":\"La Vara\",\"city\":\"Brooklyn\"}\nBONDSEAT_INPUT\n```\n\nCommands: `restaurants`, `request`, `status`, `requests`, `stop`, `resume`, `connect`.\nPass JSON through stdin. `schema <command>` prints the MCP tool's input schema\nwithout contacting the API. CLI exits: 0 for a result (including pending setup),\n1 for an action-required result or runtime error, 2 for invalid input. Read JSON\nresults even on exit 1. Diagnostics never include raw inputs or stored credentials.\n\nThe [BondSeat skill](skills/bondseat/SKILL.md) provides the workflow for OpenClaw\nand other skill-capable agents. It can use either connected MCP tools or the CLI.\nInstalling the skill does not by itself configure an MCP connection.\n\n## Runtime configuration\n\n| Variable | Default | Purpose |\n| --- | --- | --- |\n| `BONDSEAT_API_URL` | Production API at `https://6qq9f4msd4.execute-api.us-east-1.amazonaws.com/agent/v1` | Trusted HTTPS BondSeat API base. |\n| `BONDSEAT_STATE_FILE` | `~/.bondseat/connection.json` | Private, persistent state for one diner and environment. |\n\nA multi-user host must isolate each diner's state. The same file must remain\navailable to subsequent CLI calls and scheduled follow-ups. If a client executes\nin a sandbox, configure Node, network access and persistent storage there.\n\nFor QA development, explicitly configure **both** variables:\n\n```json\n{\n  \"BONDSEAT_API_URL\": \"https://31clusup32.execute-api.us-east-1.amazonaws.com/agent/v1\",\n  \"BONDSEAT_STATE_FILE\": \"/absolute/private/path/bondseat/qa.json\"\n}\n```\n\nLocal source development can launch `node server.mjs` or `node cli.mjs` from this\npackage after installing dependencies. Remote-only clients need a hosted adapter;\nthis package does not expose an HTTP MCP endpoint.\n\n## Agent workflow\n\n1. Start directly with a name and location:\n   `bondseat_request({restaurant: \"La Vara\", city: \"Cobble Hill\", partySize: 2, date, startTime: \"18:00\", endTime: \"19:00\", confirmed: true})`.\n   BondSeat looks up the venue and adds it if missing. Multiple matches return choices without starting a request. No diner-managed restaurant IDs, directory additions or provider credentials are needed for lookup.\n2. For a separate search, use `bondseat_restaurants({q: \"La Vara\", city: \"Brooklyn\"})` or `{url: \"https://resy.com/cities/new-york-ny/venues/la-vara\"}`. Pass the matching `restaurantId` to `bondseat_request`, or pass `restaurantUrl` directly:\n   use the diner's actual authorized date and details. The original instruction\n   may authorize automatic booking; do not ask again when a table appears.\n3. Show the returned `setupUrl` if setup is required. The diner connects Resy and\n   authorizes the displayed fee on BondSeat/Stripe. The connector retains codes.\n4. Call `bondseat_status({})` after `pollAfterSeconds` to finish setup. It returns\n   the started request; closing/restarting the connector preserves setup state.\n5. `bondseat_status({kind, id})` reads saved status. Reads are cached for 60 seconds.\n   Schedule these calls with the agent runtime's background/scheduled task facility;\n   the connector does not schedule itself or push updates. Continue after the chat turn ends\n   until `terminal` or user action is needed, then notify the diner and end that follow-up.\n   Monitor `outcome: FIRED` (even with `status: PAUSED`) or scheduled `status: SUCCEEDED`\n   means booked. Report the actual `bookedSlot` and dining details; follow `agentInstruction`.\n   If the runtime cannot schedule follow-ups, disclose that and share the BondSeat manage page.\n   Never promise a proactive update without scheduling one.\n   Cancellation with `nextAction: verify_provider` leaves the booking outcome unconfirmed.\n   Ask the diner to check their reservations with the provider; an in-flight attempt may still\n   finish. Do not claim no booking exists or keep polling indefinitely. Later status reads\n   can still report a completed booking.\n6. If credentials need repair, show the returned reconnect link, then use\n   `bondseat_resume({kind, id})` when authorized. `bondseat_connect({})` restores\n   expired connector access without creating/resuming work or collecting a card.\n7. `bondseat_stop({kind, id})` stops future attempts. It cannot cancel an existing\n   restaurant reservation. Payment issues are resolved through `paymentUrl`,\n   never by submitting another booking.\n\n`bondseat_requests({kind: \"monitor\"})` lists existing requests; pass `nextCursor`\nas `cursor`. Repeat for `kind: \"scheduled\"`. No API token or idempotency key is a\ntool argument. Identical dining details intentionally reuse the same request;\nuse resume to repair paused work, not another request.\n\n## Storage and deployment\n\nOne state file represents one diner and environment. Use a private directory\noutside the repository, synced folders and prompt attachments. The reference\nstore writes mode-0600 files atomically, locks across processes, and rejects\nsymlinks. It stores credentials on disk with filesystem access protection, not\nOS-keychain encryption. Custom runtimes can inject their own transactional secret\nstore via `withState(callback)`; the callback receives `(state, save)` and may\npersist recovery identifiers before network calls.\n\nThe connector persists identifiers before submitting and retries a lost response\nonce with identical identifiers. It honors Retry-After, never polls providers,\nand never returns bearer tokens or device codes in tool results. Server-side\nrecovery material is KMS-encrypted. Token-exchange replay is allowed for 24 hours\nand always checks revocation. After that, reconnect restores access to existing\nrequests. Connecting another diner clears the previous diner's cached requests.\n\nDo not point a QA test at production. Production deployment and a real booking\ntest require explicit approval and actual dining details. A success fee is only\ncollected for a successful booking; setup is uncharged.\n\n## Validation\n\n```sh\nnpm install\nnpm test\n```\n\nTests use an MCP client and simulated REST responses to cover first submission,\nlost setup/exchange responses, process restarts, concurrent stores, returning\ndiners, payment setup, credential expiry, status caching and secret-free tool\nresults. They never make a restaurant booking or payment.\n\nProtocol references: [MCP stdio transport](https://modelcontextprotocol.io/specification/2025-11-25/basic/transports),\n[official SDK](https://github.com/modelcontextprotocol/typescript-sdk/tree/v1.x).\n\nThe release test packs the npm artifact, installs it in a clean temporary directory,\nand verifies CLI execution and MCP discovery without making live bookings or payments.\nThe connector is MIT licensed; the skill is separately MIT-0 for ClawHub distribution.\n",
+  "status": "curated"
+}

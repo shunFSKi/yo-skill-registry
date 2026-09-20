@@ -2,7 +2,7 @@
   "id": "mcp:official/io.github.CsoftTarun/gstinapi-mcp",
   "type": "mcp",
   "name": "gstinapi-mcp",
-  "description": "GSTIN verification, GST filing history, HSN/SAC lookup, and MCA company registry for India.",
+  "description": "GSTIN verification, GST filing history and HSN/SAC lookup for India.",
   "author": "io.github.CsoftTarun",
   "source": {
     "registry": "mcp-official",
@@ -27,8 +27,8 @@
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-08-27T13:04:33.261407Z",
-    "score": 42
+    "pushed_at": "2026-09-20T10:30:24.112451Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -60,6 +60,6 @@
     "category": null,
     "featured": false
   },
-  "readme": null,
+  "readme": "# gstinapi-mcp\n\nAn [MCP](https://modelcontextprotocol.io) server for [gstinapi.in](https://www.gstinapi.in) — GSTIN verification, GST return/compliance history and HSN/SAC code lookup, callable directly from Claude and other MCP clients.\n\nThis is a thin wrapper around the REST API at [gstinapi.in/docs](https://www.gstinapi.in/docs). It holds no logic of its own — every tool call is one authenticated HTTP request, and the response is returned as-is.\n\n## Setup\n\n1. Get a free API key — up to 100 free lookups (25 on signup, 25 for each of three setup steps), no card required: https://www.gstinapi.in/register\n2. Add this server to your MCP client config, e.g. for Claude Desktop / Claude Code (`claude_desktop_config.json` or `.mcp.json`):\n\n```json\n{\n  \"mcpServers\": {\n    \"gstinapi\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"gstinapi-mcp\"],\n      \"env\": {\n        \"GSTINAPI_API_KEY\": \"your-api-key-here\"\n      }\n    }\n  }\n}\n```\n\nNo install step — `npx` fetches it on first use.\n\n## Tools\n\n| Tool | What it does |\n|---|---|\n| `verify_gstin` | Live registration lookup: legal name, status, taxpayer type, address |\n| `get_gstin_returns` | GSTR-1/3B filing history for a financial year |\n| `get_gstin_compliance` | Filing history summarised — counts, lag, last period |\n| `get_gstin_filing_preference` | Monthly vs quarterly (QRMP), quarter by quarter |\n| `lookup_hsn_code` | Official description for an HSN/SAC code |\n| `search_hsn_codes` | Find HSN/SAC codes from a description |\n| `get_usage_stats` | Today's call count for the key (free) |\n\nFull field-level reference: https://www.gstinapi.in/docs\n\n## Accuracy notes\n\n- Every GSTIN lookup queries the GST network live — nothing is cached.\n- No GST rate is returned from the HSN endpoints — a rate depends on more than the code alone, and the government's own master publishes no rate column.\n\n## Billing\n\nPay-per-use credits on your gstinapi.in account, no separate charge for this MCP server. Pricing: https://www.gstinapi.in/pricing\n\n## License\n\nMIT\n",
   "status": "curated"
 }

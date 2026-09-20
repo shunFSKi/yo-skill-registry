@@ -1,0 +1,85 @@
+{
+  "id": "mcp:official/io.github.WYRE-AI/printix-mcp",
+  "type": "mcp",
+  "name": "Printix",
+  "description": "MCP server for Printix's Cloud Print API.",
+  "author": "io.github.WYRE-AI",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/WYRE-AI/printix-mcp",
+    "repo": "WYRE-AI/printix-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "ghcr.io/wyre-ai/printix-mcp:v1.0.0"
+    ],
+    "env": [
+      {
+        "name": "PRINTIX_CLIENT_ID",
+        "required": true,
+        "secret": false
+      },
+      {
+        "name": "PRINTIX_CLIENT_SECRET",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "MCP_TRANSPORT",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "AUTH_MODE",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "LOG_LEVEL",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-20T10:19:47.813885Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# Printix MCP Server\n\nMCP server for [Printix](https://www.printix.net)'s Cloud Print API (now part of Tungsten Automation) - printer/queue, site, workstation, and read-only user/group lookups - for AI assistants and the WYRE Conduit gateway.\n\n## Authentication\n\nPrintix issues a `client_id`/`client_secret` pair **per tenant**, obtained through the Printix Administrator dashboard - there is no single WYRE-level integration credential; each MSP-managed customer tenant supplies its own pair, and only one pair is active per tenant at a time (issuing a new one invalidates the previous pair).\n\nThe pair is exchanged for a short-lived (~1-hour) OAuth access token via `POST https://auth.printix.net/oauth/token` (`grant_type=client_credentials`, `client_id`/`client_secret` in a form body). This server handles that exchange internally, and re-authenticates the same way when a token expires or is rejected - **Printix does not support refresh tokens** (removed 2024-12-17; the docs describe the prior refresh-token approach as \"not standard OAuth2\").\n\nCallers only ever need to supply the two long-lived values below - not the short-lived access token.\n\nEvery resource in Printix's Cloud Print API is scoped under a tenant path (`/cloudprint/tenants/{tenantId}/...`). This server resolves the tenant ID once per credential pair by calling the API root (`GET /cloudprint`, the documented HATEOAS entry point that \"returns a list of links to accessible tenants\") and caching it alongside the access token.\n\n## Configuration\n\n| Env var | Description |\n|---|---|\n| `PRINTIX_CLIENT_ID` | Client ID from the Printix Administrator dashboard. |\n| `PRINTIX_CLIENT_SECRET` | Client secret paired with the client ID. |\n| `MCP_TRANSPORT` | `stdio` (default) or `http`. |\n| `AUTH_MODE` | `env` (default, reads the vars above) or `gateway` (credentials arrive per-request via `X-Printix-*` headers, injected by the Conduit gateway). |\n| `CONDUIT_S2S_SECRET` | When set, the HTTP transport requires a valid `X-Gateway-S2S` header (Conduit sidecar auth) on every `/mcp` request. |\n| `LOG_LEVEL` | `debug` \\| `info` (default) \\| `warn` \\| `error`. |\n\n## Tools\n\n### Tenant\n- `printix_get_tenant` - get the tenant this credential pair is scoped to (tenant ID and its API root link).\n\n### Printers / Queues\n- `printix_list_printers` - list print queues/printers, optionally filtered and paged.\n- `printix_get_printer` - get a single printer/queue and its properties/capabilities.\n\n### Sites\n- `printix_list_sites` - list sites (physical locations), paged.\n- `printix_get_site` - get a single site's details.\n\n### Workstations\n- `printix_list_workstations` - list workstation monitoring data, paged.\n- `printix_get_workstation` - get a single workstation's details.\n\n### Users (read-only)\n- `printix_list_users` - list users, optionally filtered by query/role, paged.\n- `printix_get_user` - find a single user by ID.\n\n### Groups (read-only)\n- `printix_list_groups` - list/search groups, paged.\n- `printix_get_group` - fetch a single group's details.\n\n## Scope\n\nThis is a v1 surface covering the MSP fleet-monitoring/admin value of Printix's Cloud Print API, not end-user print-job workflow. Explicitly out of scope for now:\n\n- **Print Jobs** (submit/retrieve/delete) - end-user print workflow, not MSP admin value.\n- **Cards** (register/search/delete) - a niche auth-card identity feature.\n- **Networks** and **SNMP Configurations** - provisioning-heavy, higher-risk write surfaces.\n- **User and group mutation** (create/delete) - real account-management consequences (licensing, access removal); only read (list/get) is exposed for both. Worth a deliberate separate decision later.\n\nThey can be added as a follow-up once there's a clear MSP workflow need.\n\nThis server was built against the **Cloud Print API** (`printix.github.io`), not the narrower **Partner API** (`printix.bitbucket.io`), which is scoped to tenant provisioning rather than day-to-day fleet management.\n\n## Development\n\n```bash\nnpm install\nnpm run build\nnpm test\nnpm run lint   # tsc --noEmit\n```\n\n## Docker\n\n```bash\ndocker build -t printix-mcp .\ndocker run -p 8080:8080 \\\n  -e PRINTIX_CLIENT_ID=... \\\n  -e PRINTIX_CLIENT_SECRET=... \\\n  printix-mcp\n```\n",
+  "status": "curated"
+}

@@ -1,0 +1,57 @@
+{
+  "id": "mcp:official/io.github.proprock/sql-mini-mcp",
+  "type": "mcp",
+  "name": "SQL Mini MCP",
+  "description": "Minimal, read-only, PII-safe MCP server for SQL databases.",
+  "author": "io.github.proprock",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/proprock/sql-mini-mcp",
+    "repo": "proprock/sql-mini-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "sql-mini-mcp"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-20T17:16:59.635308Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "<div align=\"center\">\n\n# sql-mini-mcp\n\nA read-only, PII-safe SQL Server MCP server for coding agents: schema knowledge and safe queries, with no way to change or leak data.\n\n[![CI](https://github.com/proprock/sql-mini-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/proprock/sql-mini-mcp/actions/workflows/ci.yml)\n[![Release](https://img.shields.io/github/v/release/proprock/sql-mini-mcp)](https://github.com/proprock/sql-mini-mcp/releases)\n[![PyPI Version](https://img.shields.io/pypi/v/sql-mini-mcp)](https://pypi.org/project/sql-mini-mcp/)\n[![Python](https://img.shields.io/badge/python-3.12%2B-blue)](https://www.python.org/downloads/)\n[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)\n\n[![Model Context Protocol compatible](https://img.shields.io/badge/Model_Context_Protocol-compatible-000000?logo=modelcontextprotocol&logoColor=white)](https://modelcontextprotocol.io)\n[![MCP Registry: io.github.proprock/sql-mini-mcp](https://img.shields.io/badge/MCP_Registry-io.github.proprock%2Fsql--mini--mcp-000000?logo=modelcontextprotocol&logoColor=white)](server.json)\n\n<img src=\"https://raw.githubusercontent.com/proprock/sql-mini-mcp/master/images/luna-guard.jpg\" alt=\"Read the data. Protect the identity.\" width=\"760\">\n\n<i>Read the data. Protect the identity.</i>\n\n</div>\n\n<!-- mcp-name: io.github.proprock/sql-mini-mcp -->\n\nGeneral-purpose database MCP servers hand the agent a raw SQL prompt and dozens of tools. This\nserver gives a coding agent the schema knowledge it needs to write correct code - servers,\ndatabases, tables, columns, keys, indexes, stored procedures - and, on servers you mark\n`pii_safe`, a way to look at real rows without ever seeing the personal data in them.\n\n## Read-only by design. PII-safe by default\n\n- **Read-only by construction** - seven tools, all annotated read-only. No tool writes data, and\n  the server never executes SQL an agent wrote: metadata comes from SQLAlchemy Inspector and fixed\n  catalog queries, and `execute_sql` runs only a validated, regenerated `SELECT`.\n- **PII-safe by default** - on a `pii_safe` server, the columns you configure come back as\n  alias-bound, authenticated tokens (`pii:v1:...`), never as plaintext. An agent can still\n  project, count, and filter on them with `=` and `IN` using tokens it was given, so it can follow\n  a record without reading it. Tokens do not work on another server alias or with another key.\n- **Fails closed** - SQL validation is an allowlist. Unknown syntax, unresolved lineage, and\n  unsupported protected-value types are refused, not guessed at. The verification evidence is in\n  the [security model](SECURITY-MODEL.md).\n- **Least access first** - `access_level: metadata` (the default) exposes schema only;\n  `execute_sql` needs an explicit `pii_safe` alias with its own key. Database permissions stay the\n  primary control, so use a least-privilege login.\n\n## Also\n\n- **Your aliases, not your network** - the agent sees only the server aliases you configure. There\n  is no network discovery, and the catalog is not published as MCP resources.\n- **Secrets stay out of sight** - connection URLs live in YAML with `${NAME}` placeholders resolved\n  from the environment. They never appear in logs or model-visible errors.\n- **Compact, predictable output** - object-rooted results with stable sorting, literal\n  case-insensitive name filters, and stored procedure lists that do not expand definitions.\n- **Errors an agent can act on** - an ambiguous name lists the candidate schemas. Errors never\n  contain connection details, credentials, keys, tokens, or rows.\n- **On PyPI** - `uvx sql-mini-mcp`, no repo clone required.\n\n| Tool | Access | Purpose |\n|---|---|---|\n| `list_servers` | 🟢 read | Configured server aliases |\n| `list_databases` | 🟢 read | Databases visible to the credentials |\n| `list_tables` | 🟢 read | Base tables, filtered by schema or name |\n| `get_table_definition` | 🟢 read | Columns, keys, constraints, and indexes of one table |\n| `list_stored_procedures` | 🟢 read | Stored procedures, without definitions |\n| `get_stored_procedure` | 🟢 read | The definition of one stored procedure |\n| `execute_sql` | 🟢 read | One restricted `SELECT` on a `pii_safe` server; protected columns return tokens |\n\n> [!NOTE]\n> **Status:** SQL Server only. MySQL/MariaDB is planned; see [ARCHITECTURE.md](ARCHITECTURE.md).\n> Configuration for MySQL/MariaDB is rejected until it ships.\n\n- [Install](#install)\n- [Configure](#configure)\n- [PII-safe queries](#pii-safe-queries)\n- [Security](#security)\n- [Contributing](#contributing)\n\nMore detail lives in [`docs/`](docs): the [configuration reference](docs/configuration.md),\n[what the tools return](docs/tools.md), and the [security model](SECURITY-MODEL.md).\n\n## Install\n\n```bash\nuvx sql-mini-mcp\n```\n\nor\n\n```bash\npip install sql-mini-mcp\n```\n\nPin a version when you want a fixed surface: `uvx sql-mini-mcp==1.1.0`.\n\nRequires Python 3.12+, [uv](https://docs.astral.sh/uv/) (or `pip`), and\n[Microsoft ODBC Driver 18 for SQL Server](https://learn.microsoft.com/sql/connect/odbc/download-odbc-driver-for-sql-server).\n\n## Configure\n\nCopy [sql-mini-mcp.example.yaml](sql-mini-mcp.example.yaml) to `sql-mini-mcp.yaml`, list your\nservers, and keep credentials in environment variables:\n\n```yaml\nversion: 1\nservers:\n  reporting:\n    engine: sqlserver\n    access_level: metadata\n    connection_url: \"${REPORTING_SQL_URL}\"\n```\n\nPoint the server at the file with `SQL_MINI_MCP_CONFIG` (or `--config`), and check it without\nconnecting to any database:\n\n```bash\nSQL_MINI_MCP_CONFIG=sql-mini-mcp.yaml uvx sql-mini-mcp --check-config\n```\n\nConfiguration is validated at startup, and an error names the problem without printing a URL or\nsecret. Keep credentials in the host's own configuration and never commit them. The server acts\nwith the database account's permissions, so use a dedicated login with the least access the job\nneeds. Every setting, including the runtime limits, is in\n[configuration.md](docs/configuration.md).\n\n<details>\n<summary><b>Claude Code</b></summary>\n\n```bash\nclaude mcp add --env SQL_MINI_MCP_CONFIG=/path/to/sql-mini-mcp.yaml --env REPORTING_SQL_URL=mssql+pyodbc://... --transport stdio sql-mini -- uvx sql-mini-mcp\n```\n\nPut at least one other option between the last `--env` and the server name, as above - the CLI\notherwise reads the name as another `KEY=value` pair.\n\n</details>\n\n<details>\n<summary><b>Claude Desktop</b></summary>\n\nIn `claude_desktop_config.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"sql-mini\": {\n      \"command\": \"uvx\",\n      \"args\": [\"sql-mini-mcp\"],\n      \"env\": {\n        \"SQL_MINI_MCP_CONFIG\": \"/path/to/sql-mini-mcp.yaml\",\n        \"REPORTING_SQL_URL\": \"mssql+pyodbc://...\"\n      }\n    }\n  }\n}\n```\n\n</details>\n\n<details>\n<summary><b>Codex CLI</b></summary>\n\n```bash\ncodex mcp add sql-mini --env SQL_MINI_MCP_CONFIG=/path/to/sql-mini-mcp.yaml --env REPORTING_SQL_URL=mssql+pyodbc://... -- uvx sql-mini-mcp\n```\n\n</details>\n\n<details>\n<summary><b>Any other stdio host</b></summary>\n\nCommand `uvx`, argument `sql-mini-mcp`, and the environment variables your configuration\nreferences, plus `SQL_MINI_MCP_CONFIG`. The server speaks MCP over stdio and logs only to stderr.\n\n</details>\n\n## PII-safe queries\n\nMark an alias `access_level: pii_safe`, give it its own key, and list the protected columns:\n\n```yaml\nservers:\n  legacy_prod:\n    engine: sqlserver\n    access_level: pii_safe\n    connection_url: \"${LEGACY_PROD_SQL_URL}\"\n    pii_key_env: LEGACY_PROD_PII_KEY\n    pii:\n      rules:\n        - database: \"*\"\n          schema: dbo\n          table: Users\n          columns: [Email, FirstName, LastName]\n```\n\n`execute_sql` then accepts one restricted `SELECT`. Protected cells come back as tokens, and a\ntoken is accepted only in `=` and `IN` predicates on the same alias. Protection covers the columns\nyou list, so list every column that holds personal data. The rule format, key generation, and the\naccepted SQL are in [configuration.md](docs/configuration.md) and [tools.md](docs/tools.md).\n\n## Security\n\nThe MCP caller, SQL input, database metadata, rows, and tokens are untrusted; the operator, the\nprocess environment, and the database credentials are the trusted boundary. Database permissions\nremain the primary authorization control - this server never widens them. The full model and its\nverification are in [SECURITY-MODEL.md](SECURITY-MODEL.md). To report a vulnerability,\nuse the private channel in [SECURITY.md](SECURITY.md).\n\n## Contributing\n\nSetup, checks, the test commands, the branch and commit conventions, and the release model are in\n[CONTRIBUTING.md](CONTRIBUTING.md). Changes that affect someone running the server are recorded in\n[CHANGELOG.md](CHANGELOG.md).\n\n## License\n\n[MIT](LICENSE).\n",
+  "status": "curated"
+}

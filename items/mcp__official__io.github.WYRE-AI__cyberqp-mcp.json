@@ -1,0 +1,80 @@
+{
+  "id": "mcp:official/io.github.WYRE-AI/cyberqp-mcp",
+  "type": "mcp",
+  "name": "CyberQP",
+  "description": "MCP server for CyberQP's privileged access management API.",
+  "author": "io.github.WYRE-AI",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/WYRE-AI/cyberqp-mcp",
+    "repo": "WYRE-AI/cyberqp-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "ghcr.io/wyre-ai/cyberqp-mcp:v1.0.0"
+    ],
+    "env": [
+      {
+        "name": "CYBERQP_ACCESS_TOKEN",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "MCP_TRANSPORT",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "AUTH_MODE",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "LOG_LEVEL",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-20T15:37:11.180226Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# CyberQP MCP Server\n\nMCP server for [CyberQP](https://www.getquickpass.com/)'s (formerly QuickPass Cybersecurity) privileged access management (PAM) API - customer/account metadata, the tenant event log, and JIT (Just-In-Time) account status/policy visibility, for AI assistants and the WYRE Conduit gateway.\n\n## Authentication\n\nCyberQP authenticates with **OAuth2 authorization_code** flow (`offline_access` scope, refresh_token-backed) - not `client_credentials`. This connector never performs the OAuth dance itself: the WYRE Conduit gateway owns the authorize/exchange/refresh legs, and this server only ever receives a live bearer access token, sent as `Authorization: Bearer <token>` to CyberQP's API. In gateway mode the token arrives per-request via the `X-CyberQP-Access-Token` header; in local/stdio mode it's read once from `CYBERQP_ACCESS_TOKEN`.\n\n## Configuration\n\n| Env var | Description |\n|---|---|\n| `CYBERQP_ACCESS_TOKEN` | OAuth2 access token issued by CyberQP. |\n| `MCP_TRANSPORT` | `stdio` (default) or `http`. |\n| `AUTH_MODE` | `env` (default, reads the var above) or `gateway` (credential arrives per-request via the `X-CyberQP-Access-Token` header, injected by the Conduit gateway). |\n| `CONDUIT_S2S_SECRET` | When set, the HTTP transport requires a valid `X-Gateway-S2S` header (Conduit sidecar auth) on every `/mcp` request. |\n| `LOG_LEVEL` | `debug` \\| `info` (default) \\| `warn` \\| `error`. |\n\n## Tools\n\n### Customers\n- `cyberqp_list_customers` - list customers visible to the authenticated technician, filterable by directory type and name.\n- `cyberqp_get_customer_accounts` - list account metadata (id, username, type, status) for a customer.\n- `cyberqp_get_customer_accounts_count` - get per-account-type counts for a customer.\n\n### Events\n- `cyberqp_get_events` - get the tenant's event log, filterable by customer, account, event type, status, and date range.\n- `cyberqp_get_event_types` - get the full set of event-type values.\n\n### Tenant\n- `cyberqp_get_tenant_company_data` - get the authenticated tenant's own company profile.\n\n### JIT (Just-In-Time) - status and policy only\n- `cyberqp_get_jit_policies` - get the configured JIT policy (approval requirements, max duration) for a customer + account type.\n- `cyberqp_get_customer_jit_status` - get JIT account status for a specific customer.\n- `cyberqp_check_jit_account_exists` - check whether a JIT account exists for a customer + directory type.\n- `cyberqp_get_tenant_jit_status` - get JIT account status across the entire tenant.\n\n## Scope\n\n**This is a deliberately narrow, read-only, non-credential-exposing v1 surface.** CyberQP is a PAM product - several of its real endpoints return live plaintext passwords and OTP codes, or mutate/provision privileged access. None of those are implemented here, by design, not by oversight:\n\n**Hard-excluded (credential-exposing) - never implemented:**\n- `GET /api/v1/account/{accountId}/password` (`AccountController_getAccountPassword_v1`)\n- `GET /api/v1/jit/customer/{customerId}/account/{accountId}/password` (`JitController_getJitAccountPassword_v1`)\n- `GET /api/v1/jit/customer/{customerId}/account/{accountId}/otp` (`JitController_getJitAccountOTP_v1`)\n- `POST /api/v1/jit/customer/{customerId}/account/{accountId}/otp` (`JitController_saveJitAccountOtpSecret_v1`)\n- `DELETE /api/v1/jit/customer/{customerId}/account/{accountId}/otp` (`JitController_deleteJitAccountOtpSecret_v1`)\n\n**Hard-excluded (provisioning/mutation) - never implemented:**\n- `PATCH /api/v1/jit/customer/{customerId}/account/{accountId}/enable` (`JitController_enableJitAccount_v1`)\n- `PATCH /api/v1/jit/customer/{customerId}/account/{accountId}/disable` (`JitController_disableJitAccount_v1`)\n- `DELETE /api/v1/jit/customer/{customerId}/account/{accountId}` (`JitController_deleteJitAccount_v1`)\n- `POST /api/v1/jit/customer/{customerId}/account` (`JitController_createJitAccount_v1`)\n\n**Out of v1 scope** (not credential/provisioning, just not part of this connector's metadata-visibility surface - could be added later as a deliberate follow-up):\n- `GET /api/v1/customers/installer` (`CustomerController_downloadAgent_v1`) - returns a binary installer, not structured data.\n- `GET /api/v1/tenants/install-token` (`TenantController_getInstallToken_v1`) - returns an installation token.\n- `GET /api/v1/auth/login`, `GET /api/v1/auth/status`, `POST /api/v1/auth/refresh-token`, `POST /api/v1/auth/revoke-token`, `POST /api/v1/auth/notification-engine-token` - OAuth/session plumbing the gateway already owns, not tool-shaped.\n- `POST /api/v1/event` (`EventController_processGenericEvent_v1`) - a write.\n- `POST /api/v1/identity-verification/self-serve-notification` (`IdentityVerificationController_triggerSelfServePushIdentityVerification_v1`) - a write/notification trigger.\n\nThey can be added as a follow-up if there's demand, after a deliberate scope decision - not by default.\n\n## Development\n\n```bash\nnpm install\nnpm run build\nnpm test\nnpm run lint   # tsc --noEmit\n```\n\n## Docker\n\n```bash\ndocker build -t cyberqp-mcp .\ndocker run -p 8080:8080 -e CYBERQP_ACCESS_TOKEN=... cyberqp-mcp\n```\n",
+  "status": "curated"
+}

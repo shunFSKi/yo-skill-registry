@@ -1,0 +1,85 @@
+{
+  "id": "mcp:official/io.github.WYRE-AI/gorelo-mcp",
+  "type": "mcp",
+  "name": "Gorelo",
+  "description": "MCP server for Gorelo's PSA ticket, client, contact, contract, asset, and time-tracking APIs.",
+  "author": "io.github.WYRE-AI",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/WYRE-AI/gorelo-mcp",
+    "repo": "WYRE-AI/gorelo-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "ghcr.io/wyre-ai/gorelo-mcp:v1.0.0"
+    ],
+    "env": [
+      {
+        "name": "GORELO_API_KEY",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "GORELO_REGION",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "MCP_TRANSPORT",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "AUTH_MODE",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "LOG_LEVEL",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-20T11:34:08.071376Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# Gorelo MCP Server\n\nMCP server for [Gorelo](https://gorelo.io)'s PSA (Professional Services Automation) REST API - ticket, client, contact, contract, asset, and time-tracking visibility - for AI assistants and the WYRE Conduit gateway.\n\n## Authentication\n\nGenerate an API key for your Gorelo organization and send it as the `X-API-Key` header - this server handles that on every request. There is no token exchange.\n\n## Configuration\n\n| Env var | Description |\n|---|---|\n| `GORELO_API_KEY` | Gorelo Public API key for the tenant. |\n| `GORELO_REGION` | `us` (default) or `au` - your account's regional API host. |\n| `MCP_TRANSPORT` | `stdio` (default) or `http`. |\n| `AUTH_MODE` | `env` (default, reads the vars above) or `gateway` (credentials arrive per-request via `X-Gorelo-*` headers, injected by the Conduit gateway). |\n| `CONDUIT_S2S_SECRET` | When set, the HTTP transport requires a valid `X-Gateway-S2S` header (Conduit sidecar auth) on every `/mcp` request. |\n| `LOG_LEVEL` | `debug` \\| `info` (default) \\| `warn` \\| `error`. |\n\n## Tools\n\n### Tickets\n- `gorelo_list_tickets` - list tickets, filterable by status/client/priority/type/assignee/contact/tag/group/keyword/date range.\n- `gorelo_get_ticket` - get a single ticket's full detail.\n- `gorelo_list_ticket_statuses` - list configured ticket statuses.\n- `gorelo_list_ticket_tags` - list configured ticket tags.\n- `gorelo_list_ticket_types` - list configured ticket types.\n- `gorelo_list_ticket_comments` - list comments on a ticket.\n- `gorelo_get_ticket_comment` - get a single comment on a ticket.\n- `gorelo_list_ticket_conversations` - list a ticket's main thread, side conversations, and approvals.\n- `gorelo_get_ticket_approval` - get a single approval's status and approvers.\n\n### Clients\n- `gorelo_list_clients` - list clients.\n- `gorelo_get_client` - get a single client.\n- `gorelo_list_client_locations` - list a client's locations.\n\n### Contacts\n- `gorelo_list_contacts` - list contacts, optionally filtered by client.\n- `gorelo_get_contact` - get a single contact.\n\n### Contracts\n- `gorelo_list_contracts` - list billing contracts and their service lines.\n\n### Assets\n- `gorelo_list_assets` - list agent (managed device) assets.\n- `gorelo_get_asset` - get a single agent asset.\n- `gorelo_list_custom_assets` - list custom (non-agent) assets.\n\n### Time Tracking\n- `gorelo_list_time_entries` - list logged time across tickets and tasks.\n- `gorelo_get_time_entry` - get a single time entry.\n- `gorelo_list_billing_roles` - list configured billing roles.\n- `gorelo_list_work_types` - list configured work types.\n\n### Organization\n- `gorelo_list_users` - list users (technicians).\n- `gorelo_list_groups` - list technician groups.\n\n## Scope\n\nThis is a v1 read-only surface: every tool is a `GET` against Gorelo's Public API. Every write action (creating or updating tickets/comments/clients/contacts/time entries, posting external alerts, uploading attachments, and all delete endpoints) is out of scope for this release and can be added as a follow-up once there's a concrete need for it.\n\n`GET /v1/invoices/{id}/pdf` is also out of scope: it returns a binary PDF rather than JSON, and this wave's connectors treat binary report/document endpoints as a separate concern from structured data visibility.\n\n## Development\n\n```bash\nnpm install\nnpm run build\nnpm test\nnpm run lint   # tsc --noEmit\n```\n\n## Docker\n\n```bash\ndocker build -t gorelo-mcp .\ndocker run -p 8080:8080 \\\n  -e GORELO_API_KEY=... \\\n  gorelo-mcp\n```\n",
+  "status": "curated"
+}

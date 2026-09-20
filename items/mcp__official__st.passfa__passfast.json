@@ -1,0 +1,66 @@
+{
+  "id": "mcp:official/st.passfa/passfast",
+  "type": "mcp",
+  "name": "PassFast",
+  "description": "Remote HTTPS MCP for Apple + Google Wallet passes. Paste sk_live_ once.",
+  "author": "st.passfa",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/aberkaneso/passfast-mcp",
+    "repo": "aberkaneso/passfast-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://passfa.st/mcp",
+    "env": [
+      {
+        "name": "Authorization",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "X-App-Id",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-20T16:19:02.707539Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "金融",
+    "featured": false
+  },
+  "readme": "# PassFast MCP\n\nRemote HTTPS [Model Context Protocol](https://modelcontextprotocol.io) server for **[PassFast](https://passfa.st)** — Apple Wallet + Google Wallet passes from any MCP client (Cursor, Claude, ChatGPT, Codex, Grok).\n\n| | |\n|---|---|\n| **Endpoint** | `https://passfa.st/mcp` |\n| **Alias** | `https://passfa.st/api/mcp` |\n| **Docs** | https://passfa.st/docs/mcp · https://passfa.st/mcp.md |\n| **OpenAPI** | https://passfa.st/openapi.yaml |\n| **Signup / keys** | https://passfa.st/signup |\n| **Privacy / Terms** | https://passfa.st/privacy · https://passfa.st/terms |\n\nThis repository is the **public metadata + install kit** for marketplace listings (official MCP Registry, Grok Build plugins, open directories). The server itself is hosted at `passfa.st` — there is no local stdio binary here.\n\n## Auth\n\n```\nAuthorization: Bearer sk_live_YOUR_SECRET_KEY\nX-App-Id: YOUR_APP_ID   # optional for single-app orgs\n```\n\n- Secret keys only (`sk_live_`). Publishable `pk_live_` keys are rejected.\n- No OAuth, no PassFast agent account — the MCP client *is* the agent.\n- Member/invite tools need a user JWT and are **out of scope** for key-auth MCP v1.\n\n## Install\n\n### Cursor\n\nCopy [`cursor/mcp.json`](./cursor/mcp.json) into `~/.cursor/mcp.json` or project `.cursor/mcp.json`, then replace the placeholders.\n\n### Claude (HTTP)\n\n```json\n{\n  \"mcpServers\": {\n    \"passfast\": {\n      \"type\": \"http\",\n      \"url\": \"https://passfa.st/mcp\",\n      \"headers\": {\n        \"Authorization\": \"Bearer sk_live_YOUR_SECRET_KEY\",\n        \"X-App-Id\": \"YOUR_APP_ID\"\n      }\n    }\n  }\n}\n```\n\nStdio-only clients: `npx mcp-remote https://passfa.st/mcp` with the same headers via your client’s env/header support.\n\n### Generic / registry\n\nSee [`server.json`](./server.json) for the official MCP Registry remote descriptor (Streamable HTTP + auth headers).\n\n## What agents can do\n\n- List / publish templates; generate dual-wallet passes; download `.pkpass`\n- Update / void passes; share links + QR\n- Upload images & signing credentials; manage apps / org / API keys\n- Same billing as the HTTP API (see https://passfa.st/#pricing)\n\n## Starter prompts\n\nSee [`skills/passfast/SKILL.md`](./skills/passfast/SKILL.md).\n\n## Marketplace submissions\n\nPrepared listing fields live under [`listings/`](./listings/). Status checklist: [`SUBMIT.md`](./SUBMIT.md).\n\n## License\n\nMIT © Aberkane Software\n",
+  "status": "curated"
+}
