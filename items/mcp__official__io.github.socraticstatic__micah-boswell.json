@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.socraticstatic/micah-boswell",
+  "type": "mcp",
+  "name": "Micah Boswell",
+  "description": "Facts about Micah Boswell, product design leader in Dallas: work, writing, photography, profiles.",
+  "author": "io.github.socraticstatic",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/socraticstatic/micah-boswell-mcp",
+    "repo": "socraticstatic/micah-boswell-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://micah-boswell-mcp.vercel.app/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-21T17:17:31.360854Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "设计",
+    "featured": false
+  },
+  "readme": "# micah-boswell-mcp \n[![smithery badge](https://smithery.ai/badge/smackintosh/micah-boswell)](https://smithery.ai/servers/smackintosh/micah-boswell)\n\nA public Model Context Protocol (MCP) server that answers questions about Micah Boswell, product design leader in Dallas, Texas. Any MCP-capable agent (Claude, ChatGPT, Cursor, and others) connects to one URL and gets his facts from his own pages.\n\n- Endpoint: `https://micah-boswell-mcp.vercel.app/mcp` (streamable HTTP, stateless, no auth)\n- Landing page: https://micah-boswell-mcp.vercel.app/\n- Registry manifest: https://micah-boswell-mcp.vercel.app/server.json (`io.github.socraticstatic/micah-boswell`)\n- Plain text: https://micah-boswell-mcp.vercel.app/llms.txt\n- Liveness: https://micah-boswell-mcp.vercel.app/healthz\n\n## Tools\n\n| Tool | Returns |\n|---|---|\n| `about_micah_boswell` | One paragraph plus a key-facts list |\n| `micah_boswell_facts` | The full structured record (`data/facts.json`) |\n| `micah_boswell_profiles` | The 23 verified profiles (sameAs) with labels |\n| `micah_boswell_work` | Roles 1998 to now, awards, education, AT&T work |\n| `micah_boswell_writing` | Essays, all 29 poems with URLs, Medium, LinkedIn, Quora, dev.to |\n| `micah_boswell_poem(slug)` | One poem, fetched live from `conscious-shell.com/poems/<slug>` |\n| `micah_boswell_photography(limit?)` | Unsplash stats and top photographs |\n| `micah_boswell_faq(query?)` | Sixteen Q and A pairs, filterable |\n| `search_micah_boswell(query)` | Paragraph search over `llms-full.txt` with source URLs |\n\nResources: `micah://llms.txt`, `micah://llms-full.txt`, `micah://facts.json`.\n\n## Connect\n\nClaude Code:\n\n```bash\nclaude mcp add --transport http micah-boswell https://micah-boswell-mcp.vercel.app/mcp\n```\n\nClaude Desktop / claude.ai: Settings, Connectors, Add custom connector, paste the URL.\n\nChatGPT: Settings, Connectors, Create (developer mode), paste the URL, no auth.\n\nCursor (`.cursor/mcp.json`):\n\n```json\n{ \"mcpServers\": { \"micah-boswell\": { \"url\": \"https://micah-boswell-mcp.vercel.app/mcp\" } } }\n```\n\n## Layout\n\n```\napi/mcp.js          POST /mcp: fresh stateless StreamableHTTPServerTransport per request\napi/healthz.js      GET /healthz\nlib/server.js       buildServer(): tools + resources\nlib/data.js         loads data/\nlib/search.js       paragraph search\nlib/poem.js         live poem fetch + CreativeWork JSON-LD parse\ndata/               bundled sources: llms.txt, llms-full.txt, conscious-shell-llms.txt, photography.json, facts.json\npublic/             landing page, llms.txt, server.json, robots.txt, sitemap.xml\nscripts/dev.mjs     local server mirroring the Vercel routing\ntest/               vitest\n```\n\nData sources: https://micahboswell.vercel.app/llms.txt, https://micahboswell.vercel.app/llms-full.txt, https://conscious-shell.com/llms.txt, Unsplash stats for @micahboswell. `facts.json` is curated from those files only. To refresh, re-fetch them into `data/`, update `facts.json`, and run the tests, which enforce the content rules (no em dashes, no off-limits topics).\n\nTransport note: `mcp-handler` 2.x requires the SDK v2 package and 1.x is Next.js-bound, so this server hand-rolls `StreamableHTTPServerTransport` from `@modelcontextprotocol/sdk` 1.x in stateless JSON mode, the same shape as the gpsail-mcp function.\n\n## Develop\n\n```bash\nnpm install\nnpm test          # vitest: tool handlers, HTTP transport, content rules\nnpm run dev       # http://localhost:3939  (MCP at /mcp)\n```\n\n## Deploy\n\n```bash\nvercel --prod --yes\n```\n\n## Publish the repo (run once, by Micah)\n\n```bash\ngh repo create socraticstatic/micah-boswell-mcp --public --source=. --push\n```\n\nThen, optionally, submit `public/server.json` to the MCP registry with `mcp-publisher publish` after `mcp-publisher login github`.\n\n## License\n\nMIT. Facts about Micah Boswell are his own; cite https://micahboswell.vercel.app/.\n",
+  "status": "curated"
+}

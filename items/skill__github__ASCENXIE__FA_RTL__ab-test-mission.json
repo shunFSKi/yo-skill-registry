@@ -17,10 +17,10 @@
   "quality": {
     "stars": 1,
     "pushed_at": "2026-07-04T11:48:16Z",
-    "score": 53,
+    "score": 43,
     "star_history": [
       {
-        "d": "2026-09-20",
+        "d": "2026-09-21",
         "s": 1
       }
     ]
@@ -55,6 +55,6 @@
     "category": "编程",
     "featured": false
   },
-  "readme": "# FA_RTL\n\nFlash Attention accelerator RTL baseline project. The repository keeps the\nhardware implementation, fixed-point golden model, simulation flow, synthesis\nflow, and design documentation in one place.\n\n## Directory Map\n\n| Path | Purpose |\n| --- | --- |\n| `rtl/` | Synthesizable RTL for control, DMA, buffers, compute core, VPU, and top-level integration. |\n| `verification/tb/` | Archived Verilog/SystemVerilog testbenches, grouped by `unit/`, `integration/`, `smoke/`, and `debug/`. |\n| `verification/sim/` | Simulation Makefile, filelists, golden comparison scripts, and generated simulation outputs. |\n| `model/` | Python fixed-point FlashAttention golden model, configs, tests, and vector generation tools. |\n| `syn/` | Cadence Genus synthesis and VPU timing-analysis scripts. |\n| `docs/` | Architecture notes, unit specs, diagrams, and presentation material. |\n| `CONTEXT.md` | Project domain language for Flash Attention dataflow and module responsibilities. |\n\n## Quick Verification\n\nThe main end-to-end regression is `tb_fa_integration`:\n\n```powershell\ncd verification/sim\nmake win-xsim TEST=fa_integration\n```\n\nA clean run prints:\n\n```text\ntb_fa_integration: PASS\nGolden compare PASS\n```\n\nThe golden comparison checks `SCORE`, `P`, `PV`, and `O` streams against the\nPython fixed-point model. See `verification/sim/README.md` for the full simulation flow.\n\n## Common Commands\n\n| Command | Description |\n| --- | --- |\n| `cd verification/sim; make win-xsim TEST=fa_integration` | Run the Windows Vivado xsim integration regression. |\n| `cd verification/sim; make cad-run TEST=fa_integration` | Run the Linux Xcelium integration regression. |\n| `cd verification/sim; make list-tests` | List supported simulation tests. |\n| `cd verification/sim; make clean` | Remove simulator-generated files for the active platform. |\n| `cd model; python run_experiment.py --config configs/baseline.json` | Generate fixed-point model debug outputs for the RTL-aligned baseline. |\n| `cd model; python -m pytest -q` | Run Python model tests. |\n| `cd syn; make logic` | Run logical Genus synthesis for `TOP`. |\n| `cd syn; make ispatial CLK_PERIOD=5.0` | Run physical-aware iSpatial synthesis for `TOP`. |\n\n## Generated Artifacts\n\nBuild products, simulator outputs, generated vectors, model debug logs, and\nsynthesis reports are not tracked. Important generated paths include:\n\n```text\nout/\nverification/sim/results/\nmodel/debug_logs/\nmodel/vectors/\nmodel/sweep_results/\nsyn/log/\nsyn/report/\nsyn/database/\nxsim.dir/\n*.log\n*.pb\n```\n\nIf a verification run recreates these files, they should stay ignored by Git.\nDo not commit generated outputs unless the project explicitly promotes one to a\nchecked-in fixture.\n\n## Refactor Plan\n\nDirectory cleanup should stay incremental so Git history remains easy to follow:\n\n1. Keep generated artifacts out of version control.\n2. Fix stale filelists and path drift before moving source files.\n3. Move RTL directories by hardware responsibility, with path-only commits where possible.\n4. Consolidate testbenches, simulation entrypoints, and comparison tools into a verification area.\n5. Move model configs under a dedicated configs directory and update docs after each path change.\n\nRun `tb_fa_integration` after every repository layout change.\n",
+  "readme": null,
   "status": "curated"
 }

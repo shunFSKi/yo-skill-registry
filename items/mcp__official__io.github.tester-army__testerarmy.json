@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.tester-army/testerarmy",
+  "type": "mcp",
+  "name": "TesterArmy",
+  "description": "Agents that test your web and mobile app like real users, on every pull request.",
+  "author": "io.github.tester-army",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/tester-army/cli",
+    "repo": "tester-army/cli"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://tester.army/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-21T13:51:20.556836Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "<p align=\"center\">\n  <img src=\"https://github.com/user-attachments/assets/2eeb068a-36c4-43fb-838c-7e57b087cac3\" alt=\"TesterArmy CLI\" />\n</p>\n\n<p align=\"center\">\n  <a href=\"#quickstart\"><strong>Quickstart</strong></a> |\n  <a href=\"https://tester.army/docs\"><strong>Docs</strong></a> |\n  <a href=\"https://tester.army\"><strong>Platform</strong></a> |\n  <a href=\"https://tester.army/dashboard/profile/api-keys\"><strong>API Keys</strong></a> |\n  <a href=\"#skill-installation\"><strong>Skills</strong></a> |\n  <a href=\"#mcp-server-and-plugins\"><strong>MCP</strong></a> |\n  <a href=\"#examples\"><strong>Examples</strong></a>\n</p>\n\n<p align=\"center\">\n  <a href=\"https://www.npmjs.com/package/testerarmy\"><img src=\"https://img.shields.io/npm/v/testerarmy?logo=npm&color=cb3837\" alt=\"npm version\" /></a>\n  <a href=\"https://www.npmjs.com/package/testerarmy\"><img src=\"https://img.shields.io/npm/dm/testerarmy?logo=npm\" alt=\"npm downloads\" /></a>\n  <a href=\"./LICENSE\"><img src=\"https://img.shields.io/badge/license-MIT-blue\" alt=\"MIT license\" /></a>\n</p>\n\n## Agents that test your app like real users.\n\nTesterArmy CLI (`testerarmy` / `ta`) manages QA coverage in the TesterArmy dashboard\nand queues runs that execute in TesterArmy cloud.\n\n- Create and organize saved tests with plain-language steps.\n- Run browser and mobile checks against saved environments.\n- Wait for results and inspect run transcripts through JSON output.\n- Feed concrete validation back to coding agents.\n\nStart here:\n\n- Docs: [tester.army/docs](https://tester.army/docs)\n- Platform: [tester.army](https://tester.army)\n- API keys:\n  [tester.army/dashboard/profile/api-keys](https://tester.army/dashboard/profile/api-keys)\n\nhttps://github.com/user-attachments/assets/f7524c3f-018e-46eb-9bae-cb69335fda64\n\n</p>\n\n## Quickstart\n\nInstall globally:\n\n```bash\nnpm install -g testerarmy\n```\n\nThen create API key:\n\n[tester.army/dashboard/profile/api-keys](https://tester.army/dashboard/profile/api-keys)\n\nAuthenticate (pick one):\n\n```bash\nta auth\n```\n\nOr run without install:\n\n```bash\nnpx testerarmy --help\n```\n\nFind a project and its saved tests, then wait for a cloud run:\n\n```bash\nta projects list --json\nta tests list --project <projectId> --json\nta tests run <testId> --wait --json\n```\n\nUse IDs returned by the list commands. Without `--wait`, a successful command\nonly confirms that the run was queued. To validate development changes, save a\ncloud-reachable preview or tunnel URL as a project environment and select it\nwith `--env <nameOrSlug>`.\n\n## Skill Installation\n\nUse skills CLI install:\n\n```bash\nnpx skills add tester-army/cli\n```\n\n## MCP server and plugins\n\nTesterArmy also runs as a hosted MCP server at `https://tester.army/mcp` (Streamable HTTP). It signs you in with your TesterArmy account through OAuth, so there is no API key to create or paste.\n\nClaude Code:\n\n```bash\nclaude mcp add --transport http testerarmy https://tester.army/mcp\n```\n\nCodex:\n\n```bash\ncodex mcp add testerarmy --url https://tester.army/mcp\n```\n\nOr add it to `~/.codex/config.toml` and run `codex mcp login testerarmy`:\n\n```toml\n[mcp_servers.testerarmy]\nurl = \"https://tester.army/mcp\"\n```\n\nCursor: open Customize and search for `testerarmy`, or click Add to Cursor on the marketplace listing. If the plugin is not listed yet, add the server by hand to `~/.cursor/mcp.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"testerarmy\": {\n      \"url\": \"https://tester.army/mcp\"\n    }\n  }\n}\n```\n\nThis repo is also a plugin that installs the MCP server and the `testerarmy-cli` skill together.\n\nClaude Code: run `/plugin marketplace add tester-army/cli`, then `/plugin install testerarmy@testerarmy-agent-skills`.\n\nCodex: the repo is a plugin marketplace too, so until TesterArmy appears in the Plugins Directory you can add it from here:\n\n```bash\ncodex plugin marketplace add tester-army/cli\ncodex plugin add testerarmy@testerarmy-agent-skills\n```\n\nThe plugin registers the hosted server for you; sign in once with `codex mcp login testerarmy`, or accept the sign-in prompt the ChatGPT app shows at install. In the ChatGPT desktop app, open this repository in Codex and the marketplace appears as a source in the Plugins tab.\n\nFull reference for the server and its tools: https://docs.tester.army/cli/mcp\n\n## Examples\n\nUse the markdown scenarios in [`examples/`](examples/README.md) as authoring\nreferences when creating saved dashboard tests with `ta tests create`.\n\n- `examples/TESTER.md`\n- `examples/tests/01-landing-page.md`\n- `examples/tests/02-auth-smoke.md`\n- `examples/tests/03-project-create.md`\n- `examples/prompts/ad-hoc-regression.md`\n\nRun a saved smoke group:\n\n```bash\nta groups list --project <projectId> --json\nta tests run --group <groupId> --project <projectId> --wait --json\n```\n\n## Contributing\n\nPRs welcome, especially for:\n\n- improving skill quality and references\n- better issue templates and triage process\n- better real-world test examples\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

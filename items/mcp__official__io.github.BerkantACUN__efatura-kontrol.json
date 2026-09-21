@@ -1,0 +1,57 @@
+{
+  "id": "mcp:official/io.github.BerkantACUN/efatura-kontrol",
+  "type": "mcp",
+  "name": "efatura-kontrol",
+  "description": "GİB e-Fatura/e-Arşiv/e-İrsaliye belgelerini GİB'in XSD ve şematron kurallarıyla yerelde denetler",
+  "author": "io.github.BerkantACUN",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/BerkantACUN/efatura-kontrol",
+    "repo": "BerkantACUN/efatura-kontrol"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "efatura-kontrol"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-21T15:33:26.318499Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# efatura-kontrol\n\nGİB'e göndermeden önce e-Fatura, e-Arşiv Fatura, e-İrsaliye ve zarf dosyalarını **GİB'in kendi kurallarıyla** kontrol eder: OASIS UBL 2.1 XSD'si, GİB'in e-Fatura Paketi şematronu (498 kural, 41 kod listesi), satır/vergi/tevkifat/dip toplam aritmetiği ve imza yapısı. Her bulgu satır numarası, GİB'in özgün mesajı, Türkçe açıklama ve düzeltme önerisiyle gelir. Komut satırı, Python kütüphanesi ve MCP sunucusu; hiçbir veri ağa gitmez.\n\n*Validates Turkish UBL-TR e-invoices (e-Fatura, e-Arşiv, e-İrsaliye, envelopes) offline with the Revenue Administration's own XSD and schematron rules, plus arithmetic and signature-structure checks; explains every finding in Turkish with a fix. CLI, Python API and MCP server.*\n\nmcp-name: io.github.BerkantACUN/efatura-kontrol\n\n```\n$ efatura-kontrol dogrula fatura.xml\nfatura.xml: GEÇERSİZ — 1 hata, 1 uyarı, 1 bilgi (fatura / TEMELFATURA / SATIS, 6.2 ms)\n  HATA  sch-GeneralUnitCodeCheck-1 [satır 138]: Geçersiz unitCode niteliği : 'ADET'. Geçerli değerler için kod listesine bakınız.\n        → Adet için C62, kilogram KGM, gram GRM, metre MTR, litre LTR, saat HUR, gün DAY, ay MON, kutu BX, paket PA, çift PR yazın.\n  UYARI hesap-dip-odenecek [satır 134]: Ödenecek tutar vergiler dahil tutar − tevkifat + yuvarlama ile uyuşmuyor: yazılan 18.88, hesaplanan 17.88\n        → Tevkifatlı faturada tevkifatı düşün; yuvarlama varsa PayableRoundingAmount yazın.\n  BILGI imza-yok [satır 3]: Belge elektronik imza taşımıyor; GİB'e gönderilecek belgede XAdES imzası bulunmalıdır, taslak için normaldir\n```\n\n## Neden\n\nGİB'in şematronu XPath 2.0 ile yazılmış, üç dosyaya bölünmüş, 133 soyut kural ve parça-içerme kullanır; sıradan araçlarla (lxml, çoğu Python şematron kütüphanesi) çalışmaz. Bu yüzden entegratörler hatayı ancak GİB'e ya da özel entegratöre gönderince öğrenir. efatura-kontrol GİB'in şematronunu düzleştirip XSLT 3.0'a bir kez derler (SchXslt2), Saxon ile çalıştırır: belge başına 2–20 ms, GİB'in verdiği mesajın aynısı, üstüne satır numarası ve düzeltme.\n\n## Kurulum\n\n```bash\nuvx efatura-kontrol --help          # kurulumsuz\npip install efatura-kontrol         # ya da kalıcı\n```\n\nPython ≥ 3.10; bağımlılıklar lxml ve SaxonC-HE (`saxonche`, ~40 MB wheel; Windows, macOS, Linux). İlk çalıştırma şematronu derlerken ~0,5 s alır, sonrası milisaniyeler.\n\n## Komutlar\n\n| Komut | Ne yapar |\n|---|---|\n| `dogrula belge.xml [belge2.xml…] [--tur fatura\\|earsiv\\|irsaliye\\|irsaliye-yaniti\\|uygulama-yaniti\\|zarf] [--json] [--sessiz]` | Tam denetim; hata varsa çıkış kodu 1 |\n| `ozet belge.xml` | Senaryo, tip, numara, taraflar (VKN/TCKN), satırlar, vergiler, dip toplamlar, imzalı mı |\n| `kod` / `kod UnitCodeList --ara KGM` | GİB kod listeleri (şematronun fiilen uyguladığı değerler) |\n| `acikla sch-GeneralUnitCodeCheck-1` | Bulgu kodunun açıklaması ve düzeltmesi |\n| `toplu klasor/ [--isci 8] [--json]` | Klasördeki tüm XML'leri paralel denetle; 200 belge (22 MB) ≈ 2 s |\n| `mcp` | MCP sunucusu (stdio) |\n\nBelge türü kök elemandan ve `cbc:ProfileID`'den bulunur; `EARSIVFATURA` görünce e-Arşiv kuralları (`type=earchive`) uygulanır. `--tur` ile zorlanabilir.\n\n## MCP sunucusu\n\nClaude Desktop / Claude Code / Cursor için:\n\n```json\n{\n  \"mcpServers\": {\n    \"efatura-kontrol\": { \"command\": \"uvx\", \"args\": [\"efatura-kontrol\", \"mcp\"] }\n  }\n}\n```\n\nAraçlar (hepsi salt okunur): `belge_dogrula(dosya|xml, tur)`, `belge_ozeti(dosya|xml)`, `bulgu_acikla(kod)`, `kod_listesi(liste, ara)`, `kod_listeleri()`. Resmî MCP kayıt defterinde `io.github.BerkantACUN/efatura-kontrol`.\n\n## Python\n\n```python\nfrom efatura_kontrol.kontrol import kontrol_et, ozet\n\nrapor = kontrol_et(\"fatura.xml\")  # ya da bytes, tur=\"earsiv\"\nrapor.gecerli, rapor.sayim(\"hata\"), rapor.sozluk()\nfor b in rapor.bulgular:\n    print(b.seviye, b.kod, b.satir, b.mesaj, b.duzeltme)\n```\n\n## Ne kontrol edilir\n\n| Katman | Kaynak | Seviye |\n|---|---|---|\n| XML iyi biçimlilik, boyut (≤ 50 MB), kök eleman | lxml | hata |\n| XSD | OASIS UBL 2.1 runtime şemaları (UBL-TR 1.2.1 paketi) + GİB zarf/HRXML şemaları | hata |\n| Şematron | GİB e-Fatura Paketi (29), `UBL-TR_Main/Common/Codelist`, şematron güncellemesi 2026-07-01; 121 kural, 499 assert, 41 kod listesi (birim, para birimi, ülke, vergi, tevkifat kod+oran, istisna, ödeme şekli, senaryo, fatura tipi…) | hata |\n| Aritmetik | satır tutarı = miktar × fiyat − indirim + artırım; vergi = matrah × oran; vergi toplamı; tevkifat = KDV × oran; dip toplamlar (mal/hizmet, indirim, artırım, vergi hariç, vergiler dahil, ödenecek); currencyID tutarlılığı | uyarı |\n| İmza | ds:Signature var mı, SignedInfo/SignatureValue/X509Certificate/SigningTime/SigningCertificate, Reference URI'leri çözülüyor mu | hata/bilgi |\n\n\"Uyarı\" GİB'in reddetmeyebileceği ama alıcının reddedeceği şeydir; \"bilgi\" imza durumu gibi notlardır. HKS (hal) faturalarında dip toplam kuralları farklı olduğundan aritmetik dip kontrolü atlanır.\n\n## Bulgu biçimi\n\n```json\n{\"kod\": \"sch-GeneralUnitCodeCheck-1\", \"seviye\": \"hata\", \"kaynak\": \"sematron\",\n \"mesaj\": \"Geçersiz unitCode niteliği : 'ADET'. …\", \"gib_mesaj\": \"…\",\n \"kural\": \"not(//cbc:UBLVersionID = '2.1') or contains($UnitCodeList, …)\",\n \"konum\": \"/Q{…}Invoice[1]/Q{…}InvoiceLine[1]/Q{…}InvoicedQuantity[1]/@unitCode\",\n \"satir\": 138, \"aciklama\": \"…\", \"duzeltme\": \"Adet için C62, …\"}\n```\n\nŞematron bulgu kodları GİB'in soyut kural adından türetilir (`sch-<KuralAdı>-<sıra>`); GİB kural sırasını değiştirirse kod kayar, mesaj aynı kalır.\n\n## GİB'in kendi örneklerinde sonuç\n\nUBL-TR 1.2.1 paketindeki örnekler (hiçbir şey değiştirmeden):\n\n| Örnek | Sonuç |\n|---|---|\n| IDIS_Fatura, SARJ, SARJANLIK, OTV, OZELMATRAH, YTB_* (12 dosya), HKS-Ornek1 (şematron) | geçerli |\n| TemelFaturaOrnegi | fatura numarası biçimi (`ABC2009123456789` kalıbı), 10 haneli TCKN |\n| TEVKIFAT, ISTISNA-2, HASTANE | `unitCode` yok (paket örnekleri 2022 öncesi kurala göre) |\n| ISTISNA-1/2 | TRY dışı para biriminde kur yok |\n| IadeFaturasiOrnegi | TICARIFATURA'da IADE olmaz; iade referansı eksik |\n| IHRACAT | imza yapısı eksik (örnek imzasız kesilmiş) |\n| HKS-Ornek1/2 | XSD: boş `ext:ExtensionContent` |\n| e-FaturaPaketi/xml/* | UBL 2.0 / TR1.0 eski örnekler, şematron reddediyor |\n\nYani araç GİB'in kendi paketindeki eskimiş örnekleri bile yakalıyor; `ornekler/` altında düzeltilmiş, tam geçerli dört belge var.\n\n## Güncel kalma\n\n`araclar/paket_indir.py` GİB paketlerini indirir (sha256 ile), `efatura-kontrol derle kaynak` şematronu düzleştirip derler, kod listelerini ve XSD'leri `ekler/` altına yazar. CI her çalıştığında güncel GİB paketiyle üretilen çıktının repodakiyle aynı olduğunu doğrular; GİB paketi değiştiğinde iş kırmızıya döner ve yeni sürüm çıkar. Kullanılan paket sürümleri `efatura_kontrol.PAKET` içinde ve her raporun `paket` alanında.\n\n## Sınırlar\n\n- İmza kriptografik olarak doğrulanmaz (sertifika, özet, zaman damgası); yalnız yapısı denetlenir.\n- GİB'in **canlı** kontrolleri (mükellef kayıtlı mı, etiket geçerli mi, faaliyet kodu–KDV oranı eşleşmesi, mükerrer numara) bu araçta yoktur; bunlar ancak GİB sisteminde bilinir.\n- e-Arşiv **raporu** (`eArsivRaporu`) ve e-Defter kapsam dışıdır (sonraki sürüm).\n- \"Geçerli\" = GİB'in yayımladığı XSD ve şematronu geçer; GİB'in sistem tarafındaki ek kontrolleri için garanti değildir.\n\n## Kaynaklar\n\nPaketler, sürümler, şematrona yapılan düzleştirme müdahaleleri ve GİB paketinde bulunan tutarsızlıklar: [KAYNAKLAR.md](KAYNAKLAR.md). Değişiklikler: [CHANGELOG.md](CHANGELOG.md).\n\nMIT lisansı. GİB ile bir bağı yoktur; \"GİB\", \"e-Fatura\", \"UBL-TR\" ilgili kurumların adlarıdır.\n",
+  "status": "curated"
+}

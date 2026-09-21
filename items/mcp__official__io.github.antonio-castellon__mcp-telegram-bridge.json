@@ -1,0 +1,57 @@
+{
+  "id": "mcp:official/io.github.antonio-castellon/mcp-telegram-bridge",
+  "type": "mcp",
+  "name": "Telegram Bridge",
+  "description": "Stdio MCP bridge to Telegram Bot API with scrubbing and chat allowlist.",
+  "author": "io.github.antonio-castellon",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/antonio-castellon/mcp-telegram-bridge",
+    "repo": "antonio-castellon/mcp-telegram-bridge"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "mcp-telegram-bridge"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-21T14:09:55.903333Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# mcp-telegram-bridge\n\n**Controlled Telegram channel bridge for any MCP host.**\n\nA small stdio [Model Context Protocol](https://modelcontextprotocol.io/) server that sits between your local agent (Cursor, Claude Desktop, Windsurf, Grok/Cursor agents, and others) and the Telegram Bot API. The agent owns conversation logic; this process handles I/O, always-on outbound scrubbing, and chat allowlist enforcement. Optional strict inbound classification is disabled by default.\n\nBuilt for client-owned deployments: the bridge runs on **your machine**, not on a hosted Grok VM. Games and game-master flows are one demo use case, not the product.\n\nOwner context: [Antonio Castellon](https://castellon.ch) / Castellon.CH - Swiss freelance architect. The same bridge shape is useful for SME lab patterns (notify channels, specialist handoff, moderated drafts) alongside email or ERP connectors.\n\n## What / why\n\nAgents are good at reasoning and poor at holding a raw Bot API session by themselves. Telegram is a convenient human surface (groups, buttons, mobile). This project gives you a **narrow, reviewable bridge**:\n\n- **Client-owned** - stdio MCP on the workstation or CI runner that already hosts your agent.\n- **Host-agnostic** - any MCP client that can launch a local command.\n- **Controlled** - outbound scrubbing and optional `ALLOWED_CHAT_IDS`; optional strict inbound classification for untrusted groups.\n- **Minimal tools** - send, edit markup, answer callbacks, get updates, getMe / getChat. No game engine, no inbox file, no wake-RPC.\n\nPitch pattern for SMEs: start with a Telegram notify or triage channel using the same architecture you would later apply to email or ERP.\n\n## Architecture\n\n```\n  +---------------------------+\n  |  MCP host / agents        |  Cursor / Claude Desktop / Windsurf / ...\n  |  (conversation logic)     |\n  +-------------+-------------+\n                |\n                |  MCP (stdio)\n                v\n  +---------------------------+\n  |  mcp-telegram-bridge      |  tools + safety scrub/classify\n  |  (this process)           |\n  +-------------+-------------+\n                |\n                |  HTTPS Bot API\n                v\n  +---------------------------+\n  |  api.telegram.org         |\n  +-------------+-------------+\n                v\n         Telegram chats / groups\n```\n\nThe **agent** owns polling offsets, handoffs between specialists, and product policy. This server enforces destination controls and sends scrubbed text; inbound classification is opt-in.\n\n## Install\n\nRequirements: Python 3.11+, a Telegram bot token from [@BotFather](https://t.me/BotFather).\n\n```bash\ngit clone https://github.com/antonio-castellon/mcp-telegram-bridge.git\ncd mcp-telegram-bridge\npython -m venv .venv\nsource .venv/bin/activate   # Windows: .venv\\Scripts\\activate\npip install -e \".[dev]\"\ncp .env.example .env        # set TELEGRAM_BOT_TOKEN (never commit .env)\n```\n\nOr without cloning, once published:\n\n```bash\nuvx --from mcp-telegram-bridge mcp-telegram-bridge\n# or: pipx run mcp-telegram-bridge\n```\n\n### Cursor / Claude Desktop (`mcp.json`)\n\nExample for Cursor (User MCP settings) or Claude Desktop (`claude_desktop_config.json`):\n\n```json\n{\n  \"mcpServers\": {\n    \"telegram-bridge\": {\n      \"command\": \"uvx\",\n      \"args\": [\"--from\", \"mcp-telegram-bridge\", \"mcp-telegram-bridge\"],\n      \"env\": {\n        \"TELEGRAM_BOT_TOKEN\": \"YOUR_BOT_TOKEN_HERE\",\n        \"ALLOWED_CHAT_IDS\": \"-1001234567890\"\n      }\n    }\n  }\n}\n```\n\nOn Windows, point `command` at your venv Python if needed, for example:\n\n`C:\\DEV.Personal\\mcp-telegram-bridge\\.venv\\Scripts\\python.exe`\n\nLeave `ALLOWED_CHAT_IDS` empty only if you intentionally accept traffic from every chat the bot can see - document that risk for your deployment.\n\nSmoke without a host:\n\n```bash\npython -m mcp_telegram_bridge\n# process waits on stdio for MCP JSON-RPC (Ctrl+C to stop)\n```\n\n## MCP tools\n\n| Tool | Purpose |\n|---|---|\n| `telegram_get_me` | Bot identity / connectivity check |\n| `telegram_send_message` | `chat_id`, `text`, optional `parse_mode`, optional `buttons=[{id,label}]` |\n| `telegram_edit_reply_markup` | Strip or replace inline buttons |\n| `telegram_answer_callback` | Ack a `callback_query_id` (optional toast) |\n| `telegram_get_updates` | `offset`, `limit`, `timeout` - returns messages + callback_queries; **agent owns the loop** |\n| `telegram_get_chat` | Chat metadata |\n\nOutbound text is always scrubbed. `ALLOWED_CHAT_IDS` restricts destinations when configured. `telegram_get_updates` runs the heuristic secret/NSFW classifier only when `SAFETY_STRICT=1` (or `true`/`yes`/`on`); strict mode is optional and recommended for public or untrusted groups.\n\n## Usage guide\n\n### Collaborative agents in a Telegram group\n\nRun one bridge process per bot (or one bot with clear agent roles). Use the group for standup notes, triage queues, and handoff between specialist agents (\"ops acknowledges; billing drafts the reply\"). Keep humans in the loop for irreversible actions.\n\n### Game master / tabletop facilitator (demo)\n\nSend scene text with `buttons=[{id,label}, ...]` for player choices; on `callback_query`, answer the callback, optionally `claim`-style first-tap handling in the agent, then edit markup to clear spent choices. This is a **demo** of buttons + agent loop - not a bundled RPG engine.\n\n### Support / ops notify channel\n\nPush alerts with ack buttons (`ack`, `snooze`, `escalate`). The agent records who tapped what; Telegram is the pager surface, not the source of truth.\n\n### Community moderation assistant\n\nDraft replies and suggest actions. **Humans still own ban / restrict / delete** in Telegram Admin - say so in your agent prompt. The bridge must not be treated as a moderation authority.\n\n### Lab / SME pattern\n\nSame shape as an email or ERP connector: narrow tools, allow-listed destinations, scrubbed egress, explicit inbound warnings. Telegram is the demo channel; swap the transport later without rewriting agent policy.\n\n## What this is NOT\n\n- Not a hosted bot SaaS or multi-tenant cloud bridge\n- Not Grok-only (works with any stdio MCP host)\n- Not a full RPG / game engine (no dice ruleset, no campaign DB in this repo)\n- Not an unattended admin bot (no ban tools shipped here)\n\n## Relation to sibling demos\n\nOptional context only - this project does **not** require them:\n\n- [grokgame](https://github.com/antonio-castellon/grokgame) - tabletop / game demo surface\n- [grok2telegram](https://github.com/antonio-castellon/grok2telegram) - earlier bridge experiment whose safety doctrine informed `SAFETY.md` and `safety.py`\n\n`mcp-telegram-bridge` is the reusable, host-agnostic extraction: I/O + safety, no game loop and no Grok VM wake logic.\n\n## Safety\n\nSee **[SAFETY.md](SAFETY.md)** for the threat model, always-on scrubbing and allowlist controls, token handling, and optional strict mode. Do not put secrets in the repository; prefer `ALLOWED_CHAT_IDS` in production-like setups.\n\n## Development\n\n```bash\npip install -e \".[dev]\"\npytest\n```\n\nTests mock Telegram HTTP with `respx` / `httpx`; no live token required.\n\n## MCP Registry\n\nCanonical name: `io.github.antonio-castellon/mcp-telegram-bridge`\n\n<!-- mcp-name: io.github.antonio-castellon/mcp-telegram-bridge -->\n\n## License\n\nMIT (c) Antonio Castellon / Castellon.CH\n",
+  "status": "curated"
+}

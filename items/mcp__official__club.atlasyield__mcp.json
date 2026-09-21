@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/club.atlasyield/mcp",
+  "type": "mcp",
+  "name": "AtlasYield",
+  "description": "DeFi vault judgment for agents: 16-factor Atlas Score, route survival, blowup alerts. Read-only.",
+  "author": "club.atlasyield",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/gveshk/atlasyield-mcp",
+    "repo": "gveshk/atlasyield-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@atlasyield/mcp"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-21T19:41:56.759623Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "金融",
+    "featured": false
+  },
+  "readme": "# @atlasyield/mcp\n\nRead-only MCP server for the AtlasYield judgment layer. Six tools, no key, no custody,\nno execution: an agent asks for judgment and is told when a route is unsafe.\n\n| Tool | Answers |\n|---|---|\n| `get_vault_score` | Latest 16-factor Atlas Score for one vault (composite, label, 4 pillars, live APY/TVL). |\n| `get_coverage` | What is scored right now: vault count, TVL, score spread, by protocol and chain. |\n| `check_route_survival` | Can a deposit be exited at size, measured today? `blocking:true` means refuse. |\n| `list_open_alerts` | Open blowup-monitor alerts from the published daily snapshot. |\n| `explain_vault_score` | Why: all 16 factors by pillar (sub-score, weight, raw input, label) and the three weakest. |\n| `compare_vaults` | 2-8 vaults side by side, ranked by composite; unscored ones stay visible as `found:false`. |\n\nData comes from the public API `https://api.atlasyield.club/v1` and the published score\nhistory `https://github.com/gveshk/atlasyield-score-history`. Scored every 4 hours, snapshot\npublished daily. Research and information, not investment advice.\n\n## Install\n\nClaude Code:\n\n```bash\nclaude mcp add atlasyield -- npx -y @atlasyield/mcp\n```\n\nClaude Desktop / Cursor / any stdio client (`mcp.json` or `claude_desktop_config.json`):\n\n```json\n{\n  \"mcpServers\": {\n    \"atlasyield\": { \"command\": \"npx\", \"args\": [\"-y\", \"@atlasyield/mcp\"] }\n  }\n}\n```\n\nFrom a checkout: `npm install && npm run build` then use `\"command\": \"node\", \"args\": [\"<checkout>/dist/index.js\"]`.\n\n## Try it\n\n> Is Morpho WETH on Base (0x09832347586e238841f49149c84d121bc2191c53) safe to enter at $10k?\n\nThe agent calls `get_vault_score`, then `check_route_survival`. A `NO_ROUTE` verdict comes\nback as `blocking: true` and a plain-English refusal.\n\nWithout an MCP client: `npm run build && node scripts/smoke.mjs check_route_survival '{\"chainId\":8453,\"address\":\"0x...\"}'`\nspeaks raw JSON-RPC to the binary over stdio.\n\n## Environment\n\n- `ATLAS_API_BASE` — override the API base (default `https://api.atlasyield.club/v1`)\n- `ATLAS_SNAPSHOT_BASE` — override the score-history raw base\n\n## What this is not\n\nNo deposit, sign, or send tool exists here and none will be added. Execution, if offered, is a\nseparate API with its own guards (`recipient-safety`, `assertRouteValue`) — never an MCP tool.\n\nDocs: https://docs.atlasyield.club/api-reference/mcp · Licence: MIT · Data licence:\nhttps://atlasyield.club/data-license\n",
+  "status": "curated"
+}

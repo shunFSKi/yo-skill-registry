@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.paeyoungpark-web/lupa-mcp",
+  "type": "mcp",
+  "name": "Lupa — local file search for your Mac",
+  "description": "Search your Mac's files by name and by text inside documents. Local index, Korean-aware.",
+  "author": "io.github.paeyoungpark-web",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/paeyoungpark-web/lupa-mcp",
+    "repo": "paeyoungpark-web/lupa-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "lupa-mcp"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-21T17:22:03.841769Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "写作",
+    "featured": false
+  },
+  "readme": "# lupa-mcp\n\n**Let your AI agent search the documents on your Mac — by what's written inside them.**\n\nAn MCP server for [Lupa](https://lupa.kr), a macOS file search app with its own index.\nYour agent asks Lupa; Lupa answers from a local index in ~30 ms. Nothing touches the network.\n\n```\n\"find the contract that mentions the penalty clause\"\n        ↓\n   lupa_search  →  ranked paths + matching snippets\n   lupa_read    →  the document's text, without opening the file\n```\n\nSearches **file names and document contents**: PDF, Word, Excel, PowerPoint, plain text,\nHangul **HWP/HWPX**, and **scanned PDFs read with OCR**.\n\n## Why this instead of find/grep\n\n| | `find` / `grep` / `mdfind` | lupa-mcp |\n|---|---|---|\n| Searches inside PDF, DOCX, HWP | no | **yes** |\n| Scanned documents (OCR) | no | **yes** |\n| Korean partial words and particles | poorly | **yes** — `보호정책` finds `정보보호정책서.hwp` |\n| Speed on a large disk | seconds | **~30 ms** (indexed) |\n| Agent needs file system access | **yes** | **no** — Lupa reads the files, not your agent |\n\nThat last row is the point. Your agent gets document contents **without you granting it\naccess to your disk**.\n\n## Requirements\n\n**The Lupa app must be installed** — this server reads the index that Lupa builds; it does\nnot index anything itself.\n\n1. Install Lupa (free) from the Mac App Store: <https://lupa.kr>\n2. Open it, add the folders you want searchable, and let indexing finish.\n\nmacOS only.\n\n## Install\n\n**Claude Code**\n\n```bash\nclaude mcp add lupa -- npx -y lupa-mcp\n```\n\n**Claude Desktop / Cursor / any MCP client** — add to the client's MCP config:\n\n```json\n{\n  \"mcpServers\": {\n    \"lupa\": { \"command\": \"/bin/zsh\", \"args\": [\"-lc\", \"npx -y lupa-mcp\"] }\n  }\n}\n```\n\nThat's it. No API key, no account, no configuration.\n\n> **Why `/bin/zsh -lc`?** GUI apps don't inherit your shell's PATH, so a bare\n> `\"command\": \"npx\"` fails to start with `env: npx: No such file or directory`\n> (measured on Claude Desktop and Aside). A login shell finds `npx` wherever it lives —\n> Homebrew, nvm, or a system install. In a terminal-based client (Claude Code, Codex)\n> plain `npx -y lupa-mcp` is fine.\n\n> **Agents: don't run `lupa-search` through your shell.** Sandboxed agent shells\n> (Aside, Codex) kill the App Store-signed CLI at launch — exit code 133 or 134.\n> Register this MCP server instead; it starts outside that sandbox.\n> Full guide: https://lupa.kr/agents.html\n\n## Tools\n\n### `lupa_search`\n\n| argument | default | meaning |\n|---|---|---|\n| `query` | — | see syntax below |\n| `limit` | 10 | results to return (max 50) |\n| `names_only` | false | file names only, ignore contents (faster) |\n| `snippet_chars` | 160 | truncate each snippet (0 = none) |\n\n### `lupa_read`\n\nReturns the text Lupa already extracted from a file — cheaper than reading the original,\nand it works for formats your agent cannot parse. Requires **Lupa 2.0 or later**.\n\n| argument | default | meaning |\n|---|---|---|\n| `path` | — | absolute path, as returned by `lupa_search` |\n| `max_chars` | 8000 | cap the returned text (0 = no limit) |\n\n## Query syntax\n\n```\nword1 word2      files matching ALL words rank first\nn:word           file name only          (name:, 이름:, 文件名:)\nc:word           document content only   (content:, 내용:, 内容:)\nf:word           folder path contains    (폴더:, 文件夹:)\n-word            exclude\n\"exact phrase\"   literal match\n.pdf  *.mp3  report*      extension / wildcard\nkind:document    document · pdf · hwp · image · video · audio · code · archive · app\nsize:>10mb       size:<1mb\ndate:today       date:week · date:month · date:7d · date:2026-06\n```\n\nKorean and Chinese prefixes work too (`종류:` `크기:` `날짜:` / `种类:` `大小:` `日期:`).\n\nKorean is handled properly — partial words inside compounds and attached particles both\nmatch, which is what Spotlight gets wrong.\n\n## Privacy\n\nEverything runs on your Mac. Lupa has no network code at all, and this server only\nlaunches Lupa's bundled command-line tool and passes the results to your agent. Nothing is\nuploaded, and there is no telemetry.\n\n## Notes\n\n- Lupa's free index covers up to 50,000 files. This server inherits whatever the app\n  indexed — there is no separate limit or paywall here.\n- Only the beginning of each document is indexed, so `lupa_read` truncates long files.\n- If Lupa is installed somewhere unusual, set `LUPA_SEARCH_PATH` to the `lupa-search`\n  binary inside the app bundle.\n\n## Troubleshooting\n\n| message | fix |\n|---|---|\n| \"Lupa를 찾을 수 없습니다\" / not found | Install Lupa from the Mac App Store |\n| \"검색 인덱스가 없습니다\" | Open Lupa, add folders, wait for indexing |\n| \"본문 읽기를 지원하지 않습니다\" | Update Lupa to 2.0 or later |\n| No results for a file you know exists | Its folder may not be registered in Lupa |\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

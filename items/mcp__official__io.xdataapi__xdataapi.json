@@ -6,8 +6,8 @@
   "author": "io.xdataapi",
   "source": {
     "registry": "mcp-official",
-    "url": "https://github.com/andrewchmr/xdataapi",
-    "repo": "andrewchmr/xdataapi"
+    "url": "https://github.com/xdataapi/xdataapi",
+    "repo": "xdataapi/xdataapi"
   },
   "license": null,
   "install": {
@@ -16,8 +16,8 @@
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-09-20T13:39:20.837645Z",
-    "score": 52
+    "pushed_at": "2026-09-21T08:06:04.124819Z",
+    "score": 42
   },
   "security": {
     "score": 100,
@@ -49,6 +49,6 @@
     "category": null,
     "featured": false
   },
-  "readme": "# xdataapi\n\nRead-only public X (Twitter) data for developers and AI agents. Profiles, tweets, timelines, threads,\nfollowers, and search with the x.com operators. One credit per tweet or profile returned. Empty results\nand errors are free.\n\n- Site and docs: https://xdataapi.io/docs\n- API: `https://api.xdataapi.io` (OpenAPI 3.1: [openapi.yaml](openapi.yaml), also at https://api.xdataapi.io/openapi.yaml)\n- Hosted MCP server: `https://api.xdataapi.io/mcp` (Streamable HTTP, OAuth or `x-api-key`)\n- Status, checked every minute from outside: https://xdataapi.io/status\n- Docs for agents: https://xdataapi.io/llms.txt\n\nNot affiliated with X Corp. Public data only. No write endpoints.\n\n## MCP\n\nClaude Code:\n\n```bash\nclaude mcp add --transport http xdataapi https://api.xdataapi.io/mcp\n```\n\nThe server signs you in with OAuth on first use. Clients without OAuth pass a key instead:\n\n```json\n{\n  \"mcpServers\": {\n    \"xdataapi\": {\n      \"url\": \"https://api.xdataapi.io/mcp\",\n      \"headers\": { \"x-api-key\": \"xd_live_...\" }\n    }\n  }\n}\n```\n\nStdio-only clients can bridge with `mcp-remote`:\n\n```json\n{\n  \"mcpServers\": {\n    \"xdataapi\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"mcp-remote\", \"https://api.xdataapi.io/mcp\", \"--header\", \"x-api-key:${XDATAAPI_KEY}\"],\n      \"env\": { \"XDATAAPI_KEY\": \"xd_live_...\" }\n    }\n  }\n}\n```\n\nTools: `get_user`, `get_users`, `get_user_tweets`, `get_followers`, `get_following`, `get_follower_ids`,\n`search_tweets`, `get_tweet`, `get_tweets`, `get_thread`, `get_replies`, `get_quotes`, `get_retweeters`,\n`get_balance`. All read-only. Listed on the official MCP Registry as `io.xdataapi/xdataapi`.\n\n## REST\n\n```bash\ncurl \"https://api.xdataapi.io/v1/tweets/search?q=from:x%20since:2026-09-01&count=20\" \\\n  -H \"x-api-key: xd_live_...\"\n```\n\nEvery response carries `credits_charged` and `balance_remaining`. Pages return `next_cursor`; pass it back as `cursor`.\n\n## SDKs\n\nTypeScript, `npm install xdataapi`:\n\n```ts\nimport { xdataapi } from 'xdataapi';\nconst api = xdataapi({ apiKey: process.env.XDATAAPI_KEY! });\nconst { data } = await api.searchTweets({ query: { q: 'from:x', count: 20 } });\n```\n\nPython, `pip install xdataapi`:\n\n```python\nfrom xdataapi import AuthenticatedClient\nfrom xdataapi.api.tweets import search_tweets\nclient = AuthenticatedClient(base_url=\"https://api.xdataapi.io\", token=KEY, prefix=\"\", auth_header_name=\"x-api-key\")\npage = search_tweets.sync(client=client, q=\"from:x\", count=20)\n```\n\nBoth are generated from `openapi.yaml`. See [examples/](examples/) for LangChain, CrewAI, and Vercel AI SDK tools.\n\n## Pricing\n\nPrepaid credit packs from $10. Credits never expire. No per-call minimum. Rate limit rises with lifetime spend.\nDetails: https://xdataapi.io/#pricing\n\n## Support\n\nhello@xdataapi.io. Security reports: https://xdataapi.io/.well-known/security.txt\n",
+  "readme": null,
   "status": "curated"
 }

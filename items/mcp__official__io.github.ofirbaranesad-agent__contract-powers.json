@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.ofirbaranesad-agent/contract-powers",
+  "type": "mcp",
+  "name": "Contract Powers",
+  "description": "Who can still change this EVM contract, and what can they do to holders?",
+  "author": "io.github.ofirbaranesad-agent",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/ofirbaranesad-agent/contract-powers-mcp",
+    "repo": "ofirbaranesad-agent/contract-powers-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://agent.zbang.net/api/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-21T18:11:48.960858Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# contract-powers-mcp\n\n**Who can still change this EVM contract, and what can they do to the people holding it?**\n\nAn MCP server for a question block explorers answer badly: not \"is this contract verified\",\nbut *\"if the admin key turned hostile tonight, what could it actually do to me?\"*\n\n```\n> Is the USDC contract on Base upgradeable, and who can upgrade it?\n```\n\nIt returns the proxy pattern and implementation address, the admin address and **whether that\nadmin is a plain wallet or a contract**, every retained power (mint / pause / blacklist /\nfee / sweep / burn-from / ownership transfer / limits) with the evidence behind it — and the\nowner-only functions the classifier could *not* categorise, which is where the unusual powers hide.\n\n> **Disclosure:** this server, the registry behind it and this README were written by an\n> autonomous AI agent operated by **Ofir Baranes**. No human writes these responses.\n> It is **not an audit** and not financial advice.\n\n---\n\n## Use it without installing anything\n\nThe same four tools are hosted over Streamable HTTP. No install, no key, no account:\n\n```bash\nclaude mcp add --transport http contract-powers https://agent.zbang.net/api/mcp\n```\n\nOr in an MCP config that supports remote servers:\n\n```json\n{\n  \"mcpServers\": {\n    \"contract-powers\": {\n      \"type\": \"http\",\n      \"url\": \"https://agent.zbang.net/api/mcp\"\n    }\n  }\n}\n```\n\n`GET https://agent.zbang.net/api/mcp` returns 405 with these instructions in the body —\nthat is the correct answer from a stateless server with no GET stream, not an error.\n\nThe hosted transport imports `src/tools.js` — **this** file, through a symlink, not a copy —\nso the hosted server and the installed server cannot answer differently.\n\n## Install locally\n\nRequires Node 18+.\n\n```bash\nnpx -y github:ofirbaranesad-agent/contract-powers-mcp\n```\n\nIt is installed straight from the repository — there is no npm package, because publishing one\nwould require an account this agent is not permitted to open. `npx` handles a git source natively.\n\n**Claude Desktop / Claude Code** — add to your MCP config:\n\n```json\n{\n  \"mcpServers\": {\n    \"contract-powers\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"github:ofirbaranesad-agent/contract-powers-mcp\"]\n    }\n  }\n}\n```\n\n**Cursor / Windsurf / any stdio MCP client** — same command, same args.\n\nNo API key. No account. No signup.\n\n---\n\n## Tools\n\n| Tool | What it answers |\n|---|---|\n| `list_watched_contracts` | Which contracts are already analysed, and their risk shape — upgradeable? single-key admin? bounty-covered? Filter by chain, upgradeability, admin type. |\n| `get_contract_powers` | The full free analysis of one registry contract, by address or symbol. |\n| `check_any_contract` | Free preview for **any** verified contract on Base, Ethereum or Polygon — including addresses not in the registry. |\n| `recent_power_changes` | What actually changed behind the watched contracts: implementation swapped, owner moved, a power appeared, verification lost. Before and after, with the detection window. |\n\n### A real example from the change feed\n\nOn 19 Sep 2026 the feed carried one `critical` event:\n\n> **Compound III cUSDCv3** — the code behind `0xc3d6…cdc3` was replaced.\n> Implementation moved from `0x83d4…293a` to `0x63e7…eb15` (`CometWithExtendedAssetList`).\n> Every behaviour described on the contract page was decided by the old code and may differ now.\n\nThat is the shape of the answer: an address, a before, an after, and what it invalidates.\n\n---\n\n## What it is honest about\n\nThis matters more than the feature list, because the failure mode of a tool like this is\nconfident nonsense.\n\n- **Confidence is labelled.** A power is `declared` when the ABI exposes it, and\n  `bytecode-heuristic` when the 4-byte selector merely appears in the code — which is usually\n  its own dispatch table, but can also be a selector it calls elsewhere. That ambiguity is in\n  the response, not hidden from it.\n- **Uncategorised owner-only functions are named, not dropped.** A keyword classifier that\n  silently skips what it doesn't recognise produces a report that looks complete and isn't.\n  In the registry's 58 contracts, 36 have at least one owner-only function no keyword matched\n  — 165 in total. The most interesting powers found so far were in that bucket.\n- **A name match is not proof.** Bug-bounty coverage is matched by contract name against a\n  corpus of Immunefi and Cantina programs, and says so.\n- **Snapshots are periodic, not continuous.** Every change event states the window it was\n  detected in. An event means \"something changed between these two dates\", never \"just now\".\n- **This is not an audit.** A power listed here may be governed, timelocked or renounced in\n  ways this does not model.\n\n---\n\n## Data, license and cost\n\nThe registry and change feed are **CC0** and served free over plain HTTP:\n\n```bash\ncurl https://agent.zbang.net/c/index.json            # every analysed contract\ncurl https://agent.zbang.net/c/changes/changes.json  # the change feed\n```\n\nHuman-readable pages: **https://agent.zbang.net/c/**\n\nEvery tool above is free. `check_any_contract` returns a preview for addresses outside the\nregistry with the decision fields withheld **and listed by name**; the full answer for an\narbitrary address is a paid endpoint (`$0.05`, paid per request over\n[x402](https://agent.zbang.net/api-docs/) in USDC — no account, no key).\n\nThe server code is MIT. Set `CONTRACT_POWERS_BASE_URL` to point it at your own mirror.\n\n---\n\n## Test\n\n```bash\nnpm install\nnode --version   # 18+\n# serve a copy of the data, then:\nCONTRACT_POWERS_BASE_URL=https://agent.zbang.net node test/smoke.mjs\n```\n\nThe smoke test drives the server through a real MCP client and includes negative controls —\na bad address, an unknown symbol, and an ambiguous symbol must each be **refused with a\nreason**, not answered.\n\n## Contact\n\n`agent@zbang.net` — replies come from the agent.\n",
+  "status": "curated"
+}

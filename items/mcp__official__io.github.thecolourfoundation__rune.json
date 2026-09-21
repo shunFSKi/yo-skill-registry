@@ -2,7 +2,7 @@
   "id": "mcp:official/io.github.thecolourfoundation/rune",
   "type": "mcp",
   "name": "rune",
-  "description": "Evidence-traced codebase understanding and security scanning for AI agents over MCP.",
+  "description": "Evidence-backed codebase understanding with file:line citations, for AI clients over MCP.",
   "author": "io.github.thecolourfoundation",
   "source": {
     "registry": "mcp-official",
@@ -15,13 +15,13 @@
     "command": "npx",
     "args": [
       "-y",
-      "@moosl/rune"
+      "https://github.com/thecolourfoundation/rune/releases/download/v0.5.1/rune-mcp-linux-x64.mcpb"
     ]
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-08-28T10:42:06.38601Z",
-    "score": 42
+    "pushed_at": "2026-09-21T16:39:44.747536Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -53,6 +53,6 @@
     "category": "编程",
     "featured": false
   },
-  "readme": null,
+  "readme": "# Rune\n\nAsk questions about a codebase. Rune finds the evidence, your own AI model explains it, and every statement is checked against the code before you see it.\n\n## Install\n\nLinux (x64) and macOS (Apple Silicon):\n\n    curl -fsSL https://raw.githubusercontent.com/thecolourfoundation/rune/main/install.sh | sh\n\nWindows: download `rune-windows-x64.exe` from the [latest release](https://github.com/thecolourfoundation/rune/releases/latest) and run it from a terminal.\n\nThe installer verifies a SHA-256 checksum and puts `rune` in `~/.local/bin`.\n\n## Use\n\n    cd your-project\n    rune \"how does routing work\"\n\nThe first run scans the project (a few seconds). Rune prints ranked findings with file:line evidence, then your model writes a short explanation from that evidence. Any statement that cites evidence Rune didn't retrieve, or quotes text that isn't there, is dropped and counted.\n\n`rune explain <id>` shows the evidence trail behind any fact, and `rune verify` checks the stored understanding against the code as it is now.\n\n## Bring your own model\n\nRune has no model of its own. Point it at yours with environment variables:\n\n    # Anthropic (early support)\n    export ANTHROPIC_API_KEY=your-key\n\n    # OpenAI or any OpenAI-compatible API\n    export OPENAI_API_KEY=your-key\n    export RUNE_LLM_MODEL=model-name\n\n    # Local model with Ollama (no key, nothing leaves your machine)\n    export RUNE_LLM_BASE_URL=http://localhost:11434/v1\n    export RUNE_LLM_MODEL=model-name\n\nIf no model is configured, Rune prints the evidence, then setup help, and exits with code 2. Add `--evidence-only` to skip the model entirely. Set `RUNE_LLM_DEBUG=1` to see the model's raw reply and why any statement was dropped.\n\n## What leaves your machine\n\nOnly the evidence for your question goes to the model provider you configured: up to 40 short code snippets, never the whole project. Rune prints how many it is sending before it sends them. Use `--evidence-only`, or a local model, to send nothing.\n\n## Use it from an AI client (MCP)\n\nRune is an MCP server. Point any MCP client at it:\n\n    {\"command\": \"rune\", \"args\": [\"serve\", \"/absolute/path/to/your-project\"]}\n\nThe client gets tools such as `rune_agent`, `rune_search`, `rune_explain`, `rune_verify_fact` and `rune_check_drift`, with file, line and snippet citations. No key is needed here: the client's own model is the model.\n\n## Good to know\n\n- Rune is read-only. It observes and reports; it never modifies your project.\n- Best on JavaScript/TypeScript, shell, Lua, and config files. Other languages get thinner results for now.\n- Explanation quality depends on your model. Small local models write plain, short explanations.\n- Rune saves its scan in `.rune/` inside your project. Add `.rune/` to your `.gitignore`.\n- Binaries are unsigned, so macOS or Windows may show a security warning. There is no prebuilt binary yet for Intel Macs or Linux on ARM.\n\nRun `rune --help` for all commands. More detail: [Docs.md](Docs.md).\n\n## License\n\nMIT\n",
   "status": "curated"
 }

@@ -1,0 +1,80 @@
+{
+  "id": "mcp:official/io.github.freepik-company/jev-mcp",
+  "type": "mcp",
+  "name": "Jev MCP",
+  "description": "Typed decisions with Jev / System One via OpenRouter or TypeSafe: classify, verify, rerank, decide.",
+  "author": "io.github.freepik-company",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/freepik-company/jev-mcp",
+    "repo": "freepik-company/jev-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "ghcr.io/freepik-company/jev-mcp:v0.3.0"
+    ],
+    "env": [
+      {
+        "name": "OPENROUTER_API_KEY",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "TYPESAFE_API_KEY",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "JEV_PROVIDER",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "JEV_MODEL",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-21T12:54:23.529892Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Jev MCP\n\n[![CI](https://github.com/freepik-company/jev-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/freepik-company/jev-mcp/actions/workflows/ci.yml)\n[![Release](https://img.shields.io/github/v/release/freepik-company/jev-mcp)](https://github.com/freepik-company/jev-mcp/releases)\n[![Go Reference](https://pkg.go.dev/badge/github.com/freepik-company/jev-mcp.svg)](https://pkg.go.dev/github.com/freepik-company/jev-mcp)\n[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)\n\nA small, dependency-light **MCP server** that gives any MCP client typed,\nprobabilistic decisions from [Jev](https://docs.typesafe.ai/concepts/system-one),\nTypeSafe's System One model, through **OpenRouter** or **TypeSafe** directly.\n\nJev does not write text. You send it data plus typed questions and it returns\none calibrated answer per question: a choice among your options, a probability\nfor a yes/no, or a position on a scale you define, each with a confidence and\nthe full probability distribution. It answers in a single parallel pass, fast\nand at a fraction of the cost of a chat model, and it cannot return an option\nyou did not offer.\n\nThis server exposes that as five MCP tools, validates every answer the provider\nreturns, never leaks your credential, and never retries a paid call.\n\n## Why use it\n\n- **Let your agent decide instead of guess.** Routing, triage, classification,\n  claim checking and ranking become explicit, typed calls with probabilities\n  your workflow can act on or escalate.\n- **Cheap and fast.** One paid inference call per tool invocation, regardless\n  of how many items or questions it carries.\n- **Provider agnostic.** Use an OpenRouter key you already have, or a TypeSafe\n  key. Switch with one environment variable.\n- **Honest outputs.** Answers are validated against the question you asked;\n  inconsistent or incomplete answers fail the call instead of being fixed up.\n  The unchanged provider response, including `usage.cost`, is always returned.\n- **Safe by construction.** Credentials live only in the server environment,\n  HTTPS is enforced, redirects are refused, request and response sizes and time\n  are bounded.\n\n## Quick start\n\n### 1. Get an API key\n\n- **OpenRouter** (default): create a key at [openrouter.ai](https://openrouter.ai/) and\n  set `OPENROUTER_API_KEY`. Jev is listed as\n  [`typesafe/jev-latest`](https://openrouter.ai/typesafe); the bare `jev-latest` id also works.\n- **TypeSafe**: create a key at [typesafe.ai](https://typesafe.ai/) and set\n  `TYPESAFE_API_KEY` together with `JEV_PROVIDER=typesafe`.\n\n### 2. Install the server\n\nPick one:\n\n**Binary.** Download the archive for your platform from\n[Releases](https://github.com/freepik-company/jev-mcp/releases) (Linux, macOS\nand Windows, amd64 and arm64), verify it against `checksums.txt` and put\n`jev-mcp` on your `PATH`.\n\n**Container.** Images are published for every tagged release:\n\n```sh\ndocker pull ghcr.io/freepik-company/jev-mcp:latest\n```\n\n**Go toolchain.**\n\n```sh\ngo install github.com/freepik-company/jev-mcp/cmd/jev-mcp@latest\n```\n\n### 3. Register it in your MCP client\n\nThe server speaks MCP over stdio and reads the credential from its environment.\nNever put the key in tool arguments.\n\n**Claude Code**\n\n```sh\nclaude mcp add jev -e OPENROUTER_API_KEY=\"$OPENROUTER_API_KEY\" -- jev-mcp\n```\n\n**Claude Desktop, Cursor and other JSON-configured clients**\n\n```json\n{\n  \"mcpServers\": {\n    \"jev\": {\n      \"command\": \"jev-mcp\",\n      \"env\": { \"OPENROUTER_API_KEY\": \"sk-or-...\" }\n    }\n  }\n}\n```\n\n**Container instead of a binary** (use `-i`, never `-t`; the key is inherited\nfrom the client's environment):\n\n```json\n{\n  \"mcpServers\": {\n    \"jev\": {\n      \"command\": \"docker\",\n      \"args\": [\"run\", \"--rm\", \"-i\", \"-e\", \"OPENROUTER_API_KEY\", \"ghcr.io/freepik-company/jev-mcp:latest\"]\n    }\n  }\n}\n```\n\nFor TypeSafe directly, add `\"JEV_PROVIDER\": \"typesafe\"` and `TYPESAFE_API_KEY`\ninstead of the OpenRouter key.\n\nThe server is also listed in the [MCP Registry](https://registry.modelcontextprotocol.io)\nas `io.github.freepik-company/jev-mcp`, so clients that browse the registry can\ninstall it from there.\n\n## Configuration\n\n| Variable | Default / purpose |\n| --- | --- |\n| `JEV_PROVIDER` | `openrouter` or `typesafe` (default: `openrouter`) |\n| `OPENROUTER_API_KEY` | OpenRouter credential |\n| `TYPESAFE_API_KEY` | TypeSafe credential |\n| `API_KEY` | Overrides the selected provider's credential |\n| `JEV_MODEL` | `jev-latest`; overridable per tool call with `model` |\n| `BASE_URL` | Provider API root; `/v1/systemone` is appended |\n\nDefault roots: `https://openrouter.ai/api` and `https://api.typesafe.ai`.\n`BASE_URL` must be HTTPS; plain HTTP is accepted on loopback only, for local\nproxies and tests. Credentials belong in the server environment, never in tool\narguments.\n\n## Tools\n\n| Tool | Input | Result |\n| --- | --- | --- |\n| `decide` | Shared `state` and named `questions` | Raw typed answers and provider metadata |\n| `classify` | `items`, `categories`, `instructions` | Category per item, confidence and probabilities |\n| `verify` | `claims`, `evidence` | `supported`, `contradicted` or `insufficient_evidence` per claim |\n| `rerank` | `query`, `candidates`, optional `top_k` | Descending relevance scores on a 0–4 rubric |\n| `list_models` | No arguments | Compatible model IDs and the configured default |\n\nItems, claims, evidence and candidates are arrays of `{ \"id\": \"unique-id\", \"text\": \"...\" }`\nwith 1–64 entries. Categories map category IDs to descriptions. The three task tools\naccept an optional `model`, make one inference call, and return `results` plus the\nunchanged provider `response` (including `response.usage.cost` when supplied).\nClassification and verification preserve input order; ranking preserves it for ties.\n`top_k` filters results after evaluating every candidate. Inputs are never truncated.\n\nVerification uses only supplied evidence; its verdict is a model judgment, not a\nproof or approval. No automatic acceptance thresholds are imposed. Model discovery\nuses OpenRouter's decisions catalogue or TypeSafe's native catalogue, without inference.\n\n### Example: `decide`\n\n```json\n{\n  \"state\": {\"ticket\": \"Please refund the duplicate charge.\"},\n  \"questions\": {\n    \"department\": {\n      \"type\": \"choice\",\n      \"instructions\": \"Which team should handle this ticket?\",\n      \"criteria\": {\"billing\": \"Payments and refunds\", \"technical\": \"Software defects\"}\n    },\n    \"refund\": {\"type\": \"noul\", \"instructions\": \"Is a refund requested?\"},\n    \"urgency\": {\n      \"type\": \"score\",\n      \"instructions\": \"How urgent is this ticket?\",\n      \"criteria\": [\"Routine\", \"Service blocked\", \"Active financial harm\"]\n    }\n  }\n}\n```\n\n`choice` selects a supplied option; `noul` returns P(true); `score` returns a\nprobability-weighted rubric index. Full provider output is preserved, including\nscore legends and `usage.cost` when available.\n\n### Example: `classify`\n\n```json\n{\n  \"instructions\": \"Route each support message to the right queue.\",\n  \"categories\": {\n    \"billing\": \"Charges, invoices and refunds\",\n    \"technical\": \"Bugs, errors and outages\",\n    \"other\": \"Anything else\"\n  },\n  \"items\": [\n    {\"id\": \"m1\", \"text\": \"I was charged twice this month.\"},\n    {\"id\": \"m2\", \"text\": \"The export button does nothing.\"}\n  ]\n}\n```\n\nReturns one `{ \"id\", \"category\", \"confidence\", \"probabilities\" }` per item, in\ninput order, plus the full provider `response`.\n\n### Limits and failure modes\n\nUnknown input fields and incomplete or inconsistent answers fail the call.\nRequests have a 30-second timeout, a 1 MiB input limit, and a 2 MiB response limit.\nPaid calls are not automatically retried. Provider errors surface only their HTTP\nstatus, never the response body, so a credential echoed by a provider cannot\nreach the model. See the [input](internal/mcp/input.schema.json) and\n[output](internal/mcp/output.schema.json) schemas for the complete contract.\n\n## Development\n\nOnly Docker is required:\n\n```sh\nmake test       # formatting, vet, race-enabled unit and integration tests\nmake image      # runtime image, tagged jev-mcp:local\nmake release    # archives and checksums for every platform in dist/\n```\n\n`cmd/jev-mcp` contains the entry point. `internal/` separates configuration,\nthe System One client and answer validation, the task layer and the MCP protocol.\nCI verifies builds and tests on every push and pull request; version tags publish\nrelease archives, the container image on GHCR and the entry in the MCP Registry.\n\nSee [CONTRIBUTING.md](CONTRIBUTING.md) for the workflow and design principles,\n[SECURITY.md](SECURITY.md) for reporting vulnerabilities and\n[CHANGELOG.md](CHANGELOG.md) for release notes.\n\n## License\n\n[Apache License 2.0](LICENSE). Jev and System One are products of\n[TypeSafe AI](https://typesafe.ai/); this project is an independent client and\nis not affiliated with TypeSafe or OpenRouter.\n",
+  "status": "curated"
+}

@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.railyai/raily",
+  "type": "mcp",
+  "name": "Raily",
+  "description": "Raily personal-agent MCP with scoped reads and approved actions.",
+  "author": "io.github.railyai",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/railyai/raily-mcp",
+    "repo": "railyai/raily-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://railyai.com/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-21T15:49:14.409622Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Raily MCP\n\nConnect your Raily personal agent through the hosted endpoint\n**https://railyai.com/mcp** (Streamable HTTP). The server runs there; this\nrepository is metadata (tool catalog, plugin manifests, registry `server.json`).\nThere is no first-party `npx raily` / `npx railyai` runtime.\n\n## Capabilities and permissions\n\nThe current server exposes **47 registered tools**: status, Brief, match cards and\ncontacts, Memory, Focus, settings, matching controls, and analysis/top-up handoffs.\nSee the generated [complete tool catalog](TOOLS.md), the [API guide](https://railyai.com/api/)\nand [live agent guide](https://railyai.com/llms.txt).\n\nSupported MCP revisions `2025-06-18`, `2025-11-25` and `2026-07-28` share the\nregistered catalog. **Discovery is not permission:** each call requires its\ncorresponding scope, supported credential type and enabled server capability.\nThe default personal key from [Keys](https://railyai.com/integrations/keys/)\ncurrently has `agent:read` only; it does not authorize every listed read or write.\nUse browser OAuth consent/step-up for additional supported scopes.\n\nActions can change your data. Ask the agent for the intended action explicitly;\nit must follow the server's approval and idempotency contracts. Paid actions and\nMemory reset require their first-party approval flows. A top-up/analysis link\nopens a first-party flow; it is not proof of payment or completed analysis.\n\n## Connect directly\n\nUse the official vendor client. Verify its executable provenance and version;\nthird-party `grok-dev` is not official xAI Grok. Authentication to the LLM provider\nand authorization to Raily are separate. Never paste tokens into chat, commit\ncredentials, or put bearer values on a command line. Keep them in a supported\ncredential store or owner-only environment file. Never reset Keychain for setup.\n\n### Cursor Agent\n\nMerge the URL-only entry from [`cursor-mcp.example.json`](cursor-mcp.example.json)\ninto your project `.cursor/mcp.json` or private `~/.cursor/mcp.json`, preserving\nother servers. Then use the official **cursor-agent**, not the editor launcher:\n\n```bash\ncursor-agent mcp enable raily\ncursor-agent mcp login raily\ncursor-agent mcp list-tools raily\n```\n\nComplete browser consent. Portable plugin `mcp.json` uses `streamable-http`;\nCursor Agent's native config uses the URL-only example. Do not copy one format\ninto the other. Installation in a marketplace is not authentication.\n\n### Codex CLI\n\n```bash\ncodex mcp add raily --url https://railyai.com/mcp\ncodex mcp login raily\ncodex mcp list\n```\n\nComplete browser consent. When a requested action needs additional scopes, use\n`codex mcp login raily --scopes <comma-separated-required-scopes>` with the scopes\nspecified by the server, rather than assuming a broad default grant.\n\n### Official xAI Grok\n\nOn the certified Mac install the official executable was `~/.grok/bin/grok`.\nCheck your actual vendor installation, then configure the direct HTTP transport:\n\n```bash\ngrok mcp add --transport http raily https://railyai.com/mcp\ngrok mcp doctor raily --json\n```\n\nThese commands configure/check the connection; they do not themselves guarantee\nOAuth completion. If authentication is required, complete the client's supported\nauth flow or configure its private environment-backed bearer header. The certified\nGrok run used a separately provisioned Raily credential; do not infer browser OAuth\nor Grok Bot marketplace acceptance from that result. Never put a literal bearer\nsecret in `--header` arguments or shared project configuration.\n\n### Other HTTP clients\n\nIn a client that supports remote Streamable HTTP MCP, add\n`https://railyai.com/mcp` and complete its browser OAuth flow when supported.\nClaude Code/Desktop and Grok Bot UI are not certified by this bundle release.\nFollow the vendor's current setup rather than reusing another client's CLI flags.\nManage/revoke Raily access at [Integrations](https://railyai.com/integrations/).\nA grant shown on the site does not install a client or transfer credentials to it.\n\n### Stdio-only clients\n\nIf the client can only spawn a local stdio MCP process, use the existing\n[`mcp-remote`](https://www.npmjs.com/package/mcp-remote) bridge. Do not publish or\ninstall a first-party Raily CLI for this:\n\n```json\n{\n  \"mcpServers\": {\n    \"raily\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"mcp-remote\", \"https://railyai.com/mcp\"]\n    }\n  }\n}\n```\n\nComplete the browser OAuth flow that `mcp-remote` opens. A branded `npx railyai`\nwrapper would call the same command.\n\n## Plugin listing\n\nAgent Plugins / ClawHub package **`@railyai/raily`** (owner **`railyai`**) is a\nportable manifest listing. It is not required to reach the hosted MCP:\n\n```bash\nopenclaw plugins install clawhub:@railyai/raily\n```\n\nCursor Marketplace, official MCP Registry and npm are separate channels. See\n[PUBLISHING.md](PUBLISHING.md).\n\n## Compatibility evidence\n\nThe Raily server's isolated 2026-09-21 certification exercised official Grok\n1.0.34, Codex 0.154.0 and Cursor Agent 2026.08.11-e8db854 (composer-2.5), including\nnative settings write/read-back, replay/conflict, scope refusal and revocation.\nThis describes that recorded server/client wave, not every future client version\nor installation of this bundle. Grok doctor exposes a count, not all tool names;\nCodex JSON does not expose its complete negotiated catalog. Claude was excluded.\nLater runner assertions received hermetic coverage without a new native wave.\n\n## Maintain and validate\n\nNode.js 22 or later is needed only for repository validation, not to use the\nremote server. The bundle has no JS runtime or dependencies. Stdio clients that\nrun `mcp-remote` pull that tool from npm on demand.\n\n```bash\nnpm run catalog:sync   # refresh generated catalog from the live canonical registry mirror\nnpm run check          # offline manifest/version/catalog checks\nnpm run catalog:check  # fail if the server catalog has changed\nmcp-publisher validate server.json\nnpm pack --dry-run\n```\n\nRelease all manifest versions together. [CHANGELOG.md](CHANGELOG.md) records the\nbundle changes; the server remains independently deployed at the stable endpoint.\n",
+  "status": "curated"
+}

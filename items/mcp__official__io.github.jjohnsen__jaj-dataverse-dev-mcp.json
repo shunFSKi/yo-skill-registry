@@ -1,0 +1,65 @@
+{
+  "id": "mcp:official/io.github.jjohnsen/jaj-dataverse-dev-mcp",
+  "type": "mcp",
+  "name": "JAJ Dataverse Dev MCP",
+  "description": "Xrm/Power Platform/Dataverse MCP for devs, Azure CLI auth, Web API and multi-environment support",
+  "author": "io.github.jjohnsen",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/jjohnsen/jaj-dataverse-dev-mcp",
+    "repo": "jjohnsen/jaj-dataverse-dev-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "jaj-dataverse-dev-mcp"
+    ],
+    "env": [
+      {
+        "name": "DATAVERSE_ENVIRONMENTS_PATH",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-21T14:08:51.462258Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# JAJ Dataverse Dev MCP\nLightweight MCP server for day-to-day Dataverse and Power Platform development.\n\nConnect your agents to multiple Dataverse environments using your existing Azure CLI identity.\nThe server exposes a thin, agent-friendly layer over the Web API for data, metadata, solutions, components, troubleshooting, and development tasks.\n\n**Agent → MCP → Azure CLI identity → Dataverse Web API**\n\n## Quick Start for VS Code + GitHub Copilot\n\nAdd the server to `.vscode/mcp.json`:\n\n```json\n{\n  \"servers\": {\n\t\t\"dataverse-dev\": {\n\t\t\t\"command\": \"npx\",\n\t\t\t\"args\": [ \"-y\", \"jaj-dataverse-dev-mcp\" ]\n\t\t}\n\t}\n}\n```\n\nSave the file and press **Start**. The first start may take some time while `npx` downloads the package.\n\nSign in with the [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli):\n\n```bash\naz login\n```\n\nCreate `environments.json` in your project root with the environments you need:\n\n```json\n{\n  \"environments\": {\n    \"dev\": {\n      \"url\": \"https://org8ffb6d07.crm.dynamics.com/\",\n      \"allowWrite\": true\n    }\n  }\n}\n```\n\nOpen Copilot and try:\n\n- List the available Dataverse environments\n- Call whoami for the dev environment\n- Show me the names and IDs of the five most recently created accounts\n- List the unmanaged solutions\n\nThat's it!\n\n> Other MCP-compatible agents follow the same pattern: run jaj-dataverse-dev-mcp over stdio and provide access to your local Azure CLI session and connection configuration.\n\n## Why this project?\nThere are already several Dataverse MCP implementations, including Microsoft's own tooling.\n\nThis project grew out of day-to-day development work where agents frequently needed capabilities beyond the available specialized tools.\nIn many cases, the agent could solve the task successfully by constructing Dataverse Web API requests directly.\n\nThis MCP embraces that approach.\n\nInstead of hiding Dataverse behind a large abstraction, it provides broad access to the Web API through a thin wrapper.\n\nIt is also designed for developers and consultants who regularly move between projects, customers, and Dataverse environments.\n\nOne MCP server can work with multiple Dataverse environments while using existing Azure CLI identity.\nNo separate app registration, client ID, or client secret is required.\n\n\n## Prerequisites\n\n- Node.js 20+\n- [Azure CLI installed](https://learn.microsoft.com/cli/azure/install-azure-cli) and signed in\n- Access to one or more Dataverse environment URLs\n\n## Authentication\n```\n# Authentication is based on your current Azure CLI identity:\n\naz login\n\n# Useful variants:\n\naz login --tenant <tenant-id>       # Specific tenant, if your tenant is not the default\naz login --allow-no-subscriptions   # Tenant without subscriptions\naz login --use-device-code          # Remote/headless environments\n\n# To inspect the currently active Azure CLI account:\n\naz account show\n```\n\n## Dataverse environments\n\nEnvironments are configured in `environments.json` in the project root and identified by friendly names such as dev, test, prod.  \nAgents use these names when selecting which Dataverse environment to work with.\n\nIf an environment is in a different tenant than the default Azure CLI tenant, add a `tenantId` for that environment.\n\n`DATAVERSE_ENVIRONMENTS_PATH` can be used to override the config file path at runtime.\n\nExample:\n\n```json\n{\n  \"environments\": {\n    \"dev\": {\n      \"url\": \"https://YOUR-DEV.crm.dynamics.com/\",\n      \"allowWrite\": true\n    },\n    \"test\": {\n      \"url\": \"https://YOUR-TEST.crm4.dynamics.com\",\n      \"allowWrite\": false\n    },\n    \"prod\": {\n      \"url\": \"https://YOUR-PROD.crm4.dynamics.com\",\n      \"allowWrite\": false,\n      \"tenantId\": \"xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx\"\n    }\n  }\n}\n```\n\n## Add project-specific Copilot instructions\nFor better agent behavior, add Dataverse-specific instructions to the project where you use the MCP.\n\nCopy [`docs/examples/copilot-instructions.md`](docs/examples/copilot-instructions.md) to `.github/copilot-instructions.md` in the workspace where you use the MCP server, then customize it for your project:\n\n* replace `YOUR-dev`, `YOUR-test`, and `YOUR-prod` with the environment names from `environments.json`\n* replace `YOUR_DEFAULT_SOLUTION` with the unique name of the primary Dataverse solution\n* adjust the default environment and safety rules for the project\n\nCommit the customized file to the project repository so all contributors use the same guidance.\n\n## Run directly with npx\n\nThe package can also be launched manually with stdio as default transport:\n\n```\nnpx -y jaj-dataverse-dev-mcp\n```\nFor development or clients that use Streamable HTTP add `--http`.\n\n## What can it be used for?\n\nAlthough the MCP is intentionally a thin wrapper around the Dataverse Web API, it can support a broad range of development and troubleshooting tasks, for example:\n\n- query and update Dataverse records\n- inspect tables, columns, metadata, publishers, and solutions\n- create and configure unmanaged solutions\n- add existing components to solutions\n- work with Dataverse actions and functions\n- export solutions for deployment to other environments\n\nThis makes it useful for both direct development tasks and agent-driven workflows where the agent inspects Dataverse, decides on the next action, and performs it through the MCP.",
+  "status": "curated"
+}

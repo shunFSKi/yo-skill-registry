@@ -1,0 +1,65 @@
+{
+  "id": "mcp:official/io.github.docsagent/docsagent",
+  "type": "mcp",
+  "name": "DocsAgent — Zotero MCP Server",
+  "description": "Give AI agents instant, private access to your personal knowledge base. First source: Zotero.",
+  "author": "io.github.docsagent",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/docsagent/docsagent",
+    "repo": "docsagent/docsagent"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@docsagent/mcp-zotero"
+    ],
+    "env": [
+      {
+        "name": "DOCSAGENT_CONFIG",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-21T15:45:20.802234Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "写作",
+    "featured": false
+  },
+  "readme": "# DocsAgent MCP — Zotero MCP Server 📚⚡\n\n**DocsAgent gives AI agents instant, private access to your personal knowledge base.**\n**`@docsagent/mcp-zotero`** is the spec-driven **MCP (Model Context Protocol) server** (Zotero is\nthe first supported source) that lets any AI agent — Claude Desktop, Cursor, Cline, Qwen Code, or\nany MCP client — search, read, and write your **Zotero** library through a resident **C++ search\nengine**. BM25 full-text search + query-ranked passage retrieval over **1,000+ PDFs** at\n**~15 ms**, fully local (RAG-ready knowledge base).\n\n- 🔒 **Local-first & private** — the engine reads your Zotero library directly on your\n  machine. Your PDFs never leave it.\n- ⚡ **Native C++ search core** — inverted-index BM25 + passage ranking, millisecond lookup,\n  low memory footprint (160–227 MB for a 1,500-paper library).\n- 🧩 **8 MCP tools** — 5 read + 3 write, with JSON-schema validated arguments, token budgets,\n  result dedup, and a three-layer write safety gate.\n- 🌐 **Two transports** — stdio for local MCP clients, Streamable HTTP for remote deployment\n  (origin checks, API-key / OAuth 2.0 token introspection, per-request RBAC, `/health` probe).\n- 🐍 **Two shells, one core** — this TypeScript package and a feature-equal\n  [Python wrapper](python/) ship the same tools over the same JSON-RPC contract.\n\n---\n\n## Architecture\n\n```\nMCP Client (Claude Desktop / Cursor / Cline / Qwen Code / any MCP host)\n        │  stdio (local)   or   Streamable HTTP  /mcp  (remote)\n        ▼\nMCP shell  ← this package (@docsagent/mcp-zotero / docsagent-mcp-zotero)\n   · tool schemas (spec-driven), argument validation, token budget, dedup\n   · write orchestration via the Zotero local API, write safety gate, RBAC\n   · group-library sync via the Zotero Web API\n        │  JSON-RPC 2.0 over HTTP ({coreHost}:{httpPort}/rpc, cpp-httplib)\n        ▼\nDocsAgent Core (resident C++ engine, papersgpt-agent)\n   · reads ~/Zotero/zotero.sqlite + storage/ directly on your machine\n   · builds & serves the full-text index (BM25 + passage ranking)\n```\n\nThe shell **never spawns the core** during tool calls and never touches your Zotero files.\nThe core runs as a background service and stays available across MCP client restarts.\nTool schemas and error codes: [spec/](spec/).\n\n---\n\n## Quick Start\n\n### 1. Start the core\n\n```bash\nnpx @docsagent/mcp-zotero start           # spawn the bundled core for your platform\nnpx @docsagent/mcp-zotero status          # pid / endpoint / version\n```\n\nPython shell (same verbs, under the `core` subcommand):\n\n```bash\npip install ./python                      # build the wheel locally (PyPI upload pending)\ndocsagent-mcp-zotero core start\n```\n\n(`core stop` / `core restart` also available. The core reads your Zotero data directory,\nbuilds the full-text index, and serves JSON-RPC on `http://0.0.0.0:23120/rpc`.)\n\n### 2. Configure your MCP client\n\nClaude Desktop / Cursor / Cline / Qwen Code (`mcpServers`):\n\n```json\n{\n  \"mcpServers\": {\n    \"docsagent-zotero\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@docsagent/mcp-zotero\"]\n    }\n  }\n}\n```\n\nPython shell (same tools, same contract, installed from this repo) — `mcpServers`:\n\n```json\n{\n  \"mcpServers\": {\n    \"docsagent-zotero-py\": {\n      \"command\": \"docsagent-mcp-zotero\"\n    }\n  }\n}\n```\n\nInstall the Python package first (step 1) so `docsagent-mcp-zotero` is on your PATH.\n\nOn startup the shell connects to the core, loads sources, and checks index status. If the\ncore is not running it fails fast with startup instructions — it never spawns anything.\n\n---\n\n## MCP Tools (external API)\n\n8 tools, 5 read + 3 write. Schemas are the single-sourced contract in\n[`spec/tools/*.json`](spec/tools) (mirrored into both packages); arguments are validated\nbefore handlers run and failures map to typed docsagent error codes.\n\n### `list_sources`\nEvery searchable source with capabilities, supported targets/includes/browse modes,\nfilters, and document counts. **Call this first.**\n\n### `search`\nCross-entry search over the whole library.\n\n| Parameter | Type | Notes |\n|---|---|---|\n| `query` | string, required | plain keywords or phrases |\n| `target` | `\"items\" \\| \"annotations\" \\| \"notes\"` or array | default `items` |\n| `depth` | `ids` \\| `snippets` \\| `full` | snippets by default (BM25-ranked passages) |\n| `filters` | object | `tags`, `yearFrom`/`yearTo`, `itemType`, `authors`, `colors`, `containerId`, `titleContains` |\n| `k`, `snippetsPerResult`, `max_tokens` | numbers | ranking depth and token budget |\n\nReturns `results[]` with global ids (`zotero:KEY`), titles, relevance, snippets; multi-target\nsearches group by target. Results are deduped (id, then normalized title + year) and packed\nunder a token budget.\n\n### `get_content`\nRead one entry. `mode=passages` (query-ranked passages, `k`) or `mode=fulltext`\n(offset pagination with `nextOffset`). Notes return their body with tags and metadata.\n\n### `get_metadata`\n`include`: `metadata`, `abstract`, `annotations`, `notes`, `citation` (bibtex / csljson /\nformatted via `citationFormat`/`citationStyle`). Notes are packed under the token budget.\n\n### `list_library`\nBrowse modes: `collections` (drill-down via `parentId`), `items` (by `containerId`),\n`tags`, `saved_searches`, `standalone_notes`.\n\n### Write tools (three-layer safety gate)\n\n| Tool | What it does | Key arguments |\n|---|---|---|\n| `import_item` | Import local PDFs or resolve DOI / ISBN / arXiv IDs (via the Zotero translation server); optional `autoClassify` suggests collections | `paths` \\| `identifiers`, `containerId`, `autoClassify`, `confirmed` |\n| `add_note` | Add a Markdown child note to an item (converted to Zotero note HTML), with orphan verification and rollback | `id`, `content`, `tags`, `confirmed` |\n| `batch_modify` | Bulk `add_to_collection` / `remove_from_collection` / `add_tags` / `remove_tags` on up to 200 items in batches of 50 | `action`, `ids`, `containerId`, `tags`, `confirmed` |\n\nWrite safety gate (spec/algorithms/write-gate.md): **layer 1** write tools are not\nregistered unless `enableWrites=true`; **layer 2** `confirmed=false` returns a preview and\nconsumes no rate-limit quota; **layer 3** confirmed writes consume a per-hour rate limit\n(default 30/h). Anything above 20 items in `batch_modify` additionally reports\n`requiresConfirmation` in the preview.\n\n---\n\n## Engine performance\n\nThe C++ engine powers [PapersGPT](https://www.papersgpt.com/zh) — the same index and\nretrieval stack ships in this MCP server. Benchmark on a real Zotero installation\n([full write-up](https://www.papersgpt.com/zh/blogs/papersgpt-search-performance-benchmark)):\n\n| Metric | Mac (Intel i9) | Windows VM (4C8G) |\n|---|---|---|\n| Library size | 1,506 PDFs (4.5 GB on disk) | 500+ PDFs |\n| **Index build time** | **141 s** | a few seconds |\n| **Memory (agent process)** | **227 MB** | **160 MB** |\n| **Average retrieval latency** | **~15 ms** | **~15 ms** |\n\n- Indexing cost scales roughly **linearly** with library size; retrieval latency stays\n  **constant** — a 10,000-paper library (~30 GB) indexes in about 15–20 minutes, and\n  everyday search stays at **~15 ms**.\n- For comparison: a typical web page load takes 1,000–3,000 ms; a blink of an eye is\n  100–150 ms. PapersGPT answers in ~15 ms, fully offline.\n- Privacy: your library never leaves your machine.\n\n## Configuration\n\nConfig lives at `~/.docsagent/config.json` (or `$DOCSAGENT_CONFIG`) — one file shared by\nthe JS shell, the Python wrapper, and the C++ core. Validated against\n[`spec/config.json`](spec/config.json).\n\n| Key | Default | Description |\n|---|---|---|\n| `coreHost` | `0.0.0.0` | Address the core binds and the shell dials |\n| `httpPort` | `23120` | Core HTTP port (`POST /rpc`) |\n| `coreBinary` | `\"\"` | Optional explicit path to the core binary |\n| `zoteroDataDir` | `~/Zotero` | Zotero data directory |\n| `zoteroApiUrl` | `http://localhost:23119/api` | Zotero local API (write orchestration) |\n| `zoteroGroups` | `[]` | Group libraries to sync from zotero.org |\n| `enableWrites` | `false` | Register the three write tools |\n| `writeRateLimitPerHour` | `30` | Confirmed-write rate limit |\n| `maxTokensPerTool` | `4000` | Token budget per tool result |\n| `defaultSource` | `zotero` | Source used when an id omits the prefix |\n| `transport` | `stdio` | `stdio` or `streamable-http` |\n| `httpListenAddr` | `0.0.0.0:8080` | Listen address for streamable-http (`/mcp`) |\n| `authMode` / `authConfig` | `none` | `api-key` or `oauth2` (RFC 7662) + `allowedOrigins` |\n| `rbacRoles` | `{}` | role → allowed tool names (per-request RBAC on HTTP) |\n| `logLevel` | `info` | `debug` / `info` / `warn` / `error` |\n\n---\n\n## Distribution\n\n| Channel | Package | Bundled core | Size |\n|---|---|---|---|\n| npm (JS/TS shell) | `@docsagent/mcp-zotero` | all platforms in `bin/` | ~70 MB tarball |\n| PyPI (Python shell) | `docsagent-mcp-zotero` (`pip install ./python`) | same binaries in the wheel | ~65 MB wheel |\n\nBoth shells read the same config and talk to the same core — pick either (or both) as\nyour MCP distribution channel. Core lifecycle (`start` / `stop` / `restart` / `status`)\nis available from both CLIs.\n\n## Links\n\n- [spec/](spec/) — the single-sourced contract: 8 tool schemas, 23 JSON-RPC methods,\n  error codes + suggested calls, config schema\n- [PapersGPT search performance benchmark](https://www.papersgpt.com/zh/blogs/papersgpt-search-performance-benchmark)\n- [Zotero](https://www.zotero.org/) · [Model Context Protocol](https://modelcontextprotocol.io)\n\n## License\n\nApache-2.0\n",
+  "status": "curated"
+}

@@ -1,0 +1,75 @@
+{
+  "id": "mcp:official/dev.clusteragent/cluster-mcp",
+  "type": "mcp",
+  "name": "cluster-mcp",
+  "description": "Self-hostable index of AI financial agents — tokenized stocks + crypto, memory, LLM gateway.",
+  "author": "dev.clusteragent",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/clusteragent/cluster",
+    "repo": "clusteragent/cluster"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@clusteragent/cluster-mcp"
+    ],
+    "env": [
+      {
+        "name": "CLUSTER_API_URL",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "CLUSTER_API_KEY",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "CLUSTER_WALLET",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-21T14:25:57.683954Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "金融",
+    "featured": false
+  },
+  "readme": "# cluster\n\n<p align=\"center\">\n  <a href=\"https://github.com/clusteragent/cluster\"><img src=\"https://img.shields.io/badge/chain-Robinhood%20%234663-7b5cff.svg?style=flat-square\" alt=\"Chain\"></a>\n  <a href=\"https://www.npmjs.com/package/@clusteragent/cluster-mcp\"><img src=\"https://img.shields.io/npm/v/@clusteragent/cluster-mcp.svg?style=flat-square\" alt=\"npm\"></a>\n  <img src=\"https://img.shields.io/badge/license-MIT-yellow.svg?style=flat-square\" alt=\"MIT\">\n</p>\n\n**The runtime layer for agentic finance on Robinhood Chain.** Self-hostable index\nof AI financial agents — 192 tokenized stocks + native crypto, real Uniswap v3\nswaps (non-custodial), persistent memory, and a 24-model LLM gateway.\n\n```\nnpx @clusteragent/cluster-mcp\n```\n\n```bash\nnpx skills add clusteragent/cluster        # any skills-CLI agent\npip install cluster-agent                  # Python SDK\n```\n\n## Repo Layout\n\n```\n├── SKILL.md                    main installer skill (any agent)\n├── index.mjs                   MCP server — 35 tools (@clusteragent/cluster-mcp)\n├── skills/\n│   ├── swap/                   dedicated swap execution: safety scan → quote →\n│   │                           calldata → sign → receipt proof, DCA/bracket patterns\n│   ├── trading/                quotes, market data, chart (4663)\n│   ├── memory/                 built-in memory + Hindsight backend\n│   ├── finance/                portfolio, payouts, keys & metering\n│   ├── crypto-intel/           wallet forensics, pool forensics, scout swarm\n│   ├── research/               agent roster + OpenBB integration\n│   ├── llm-gateway/            24 models, thinking mode, credit accounting\n│   ├── portfolio/              wallet valuation, DCA/TP-SL previews\n│   ├── social/                 X links + tip intents\n│   └── monitor/                price/wallet/cycle/gas watch loops\n├── python/                     cluster-agent PyPI SDK\n└── docs/self-hosting.md        deployment guide\n```\n\n**11 skills total** — 1 installer + 10 domain sub-skills.\n\n> The cluster backend, frontend and keeper bot are **not** in this repo — the bot\n> signs real treasury transactions, so the operational stack stays private. This\n> repo is the skill/MCP platform: point it at any cluster deployment.\n\n## Quick Start\n\n**Agent users** — see [SKILL.md](./SKILL.md). MCP config:\n\n```json\n{ \"mcpServers\": { \"cluster\": {\n    \"command\": \"npx\", \"args\": [\"-y\", \"@clusteragent/cluster-mcp\"],\n    \"env\": { \"CLUSTER_API_URL\": \"https://clusteragent.dev\", \"CLUSTER_API_KEY\": \"clst_...\", \"CLUSTER_WALLET\": \"0x...\" }\n}}}\n```\n\n**Self-hosters** — see [docs/self-hosting.md](./docs/self-hosting.md). Docker images + a deployment guide; SQLite default, zero external services except one LLM key for chat.\n\n**Python** — see [python/](./python):\n\n```python\nfrom cluster import Cluster\nc = Cluster(api_url=\"https://your-host\", api_key=\"clst_...\")\nc.quotes([\"NVDA\", \"PONS\"]); c.payout_basket(); c.chat(\"hi\", thinking=True)\n```\n\n## The Mechanism\n\n```\nfees in ──▶ vault ──▶ keeper bot buys the 19-name basket ──▶ $CLST holders paid pro-rata\n```\n\nHolding is the position. Every cycle is public: `GET /api/distributions`.\n\n## Integrations\n\n| Project | Role | Guide |\n|---|---|---|\n| [Hindsight](https://github.com/vectorize-io/hindsight) | learning memory backend (observations, mental models) | `skills/memory/` |\n| [OpenBB](https://github.com/OpenBB-finance/OpenBB) | institutional market data (fundamentals, macro) via MCP/Python | `skills/research/` |\n| [Maybe](https://github.com/maybe-finance/maybe) | self-hosted personal finance UI (AGPLv3 — rename your fork) | `skills/finance/` |\n| [OpenCatz](https://github.com/dizcorvus/opencatz-ai-robinhood-chain) | multi-agent scout swarm pattern on 4663 | `skills/crypto-intel/` |\n| [Uniswap AI](https://github.com/Uniswap/uniswap-ai) | skills architecture this repo follows | structure |\n\n## The Agents\n\n**Trading** Relay · Pivot — **Research** Scout · Sifter · Quill — **Analysis** Argus ·\nPrism · Census — **Finance** Ledger · Remit · Margin — **Memory** Memoria · Echo —\n**Crypto** Nexus · Vault · Oracle\n\n## Honesty by Construction\n\n- Pre-launch payout data = honest zeros, never fabricated\n- Swaps: API quotes, your wallet signs — no private keys server-side\n- Keys: SHA-256 at rest, shown once\n- Quote = prediction; receipt = proof (parse the Transfer logs)\n\n## License\n\nMIT. Backend and skills are original work. The Maybe Finance fork note applies if\nyou self-host that integration (AGPLv3, trademark rules in `skills/finance/`).\n",
+  "status": "curated"
+}

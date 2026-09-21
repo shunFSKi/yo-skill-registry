@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.danielarif26/freerdc",
+  "type": "mcp",
+  "name": "FreeRDC",
+  "description": "Safe folder access for ChatGPT and Claude: read, write and search files, risky tools opt-in.",
+  "author": "io.github.danielarif26",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/danielarif26/freerdc",
+    "repo": "danielarif26/freerdc"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://freerdc.sjaman.deno.net/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-21T15:21:18.193508Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "写作",
+    "featured": false
+  },
+  "readme": "# FreeRDC\n\n**Give ChatGPT and Claude access to the folders you choose — and nothing else.**\n\nFreeRDC is an MCP server for file work with AI assistants. It reads, writes,\nsearches and edits files and documents inside the folders you approve, and\nrefuses everything outside them. Anything that can run commands, click the\nscreen or shut the machine down is off unless you turn it on.\n\n[Demo video](https://freerdc.sjaman.deno.net/demo.mp4) ·\n[Website](https://freerdc.sjaman.deno.net/) ·\n[Privacy](https://freerdc.sjaman.deno.net/privacy/local) ·\nListed on the [official MCP Registry](https://registry.modelcontextprotocol.io/) as `io.github.danielarif26/freerdc`\n\n## Why FreeRDC\n\n- **Containment first.** Paths outside your approved folders, `..` traversal and\n  symlink escapes are rejected before any file is touched. Protected paths such\n  as device keys are denied even inside a root.\n- **Risky tools are opt-in.** Shell, GUI and system tools are disabled by\n  default. The desktop extension exposes 23 file and document tools out of the\n  box and 84 only when you enable local power.\n- **Every tool is described and annotated.** In the desktop extension, each tool\n  has a title, a description, input and output schemas, and read-only /\n  destructive / open-world hints, so the assistant knows what it is about to do.\n- **Local.** The desktop extension runs on your Mac. Your files are not sent to\n  FreeRDC servers.\n- **Audited.** Every operation is written to a hash-chained audit log, with a\n  `STOP` file kill switch.\n\n## Get started\n\n### Claude Desktop (desktop extension)\n\n1. Download `freerdc-0.1.0.mcpb` from\n   [Releases](https://github.com/danielarif26/freerdc/releases/latest).\n2. Open it with Claude Desktop and pick the folder(s) FreeRDC may use.\n3. Leave **local power tools** off unless you need shell or GUI access.\n\nRequires macOS and Node.js 22+. Details and privacy policy:\n[`mcpb/README.md`](mcpb/README.md).\n\n### ChatGPT (self-hosted)\n\nRun the server locally and reach it privately through OpenAI Secure MCP Tunnel.\nDo not expose the local listener to the public internet. See\n[`docs/OPENAI-INTEGRATION.md`](docs/OPENAI-INTEGRATION.md) and\n[`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).\n\n### ChatGPT hosted connector (early access)\n\nThe hosted connector is in review for the ChatGPT app directory. Until it is\nlisted, add it in ChatGPT developer mode with the MCP URL\n`https://freerdc.sjaman.deno.net/mcp`.\n\n1. Connect FreeRDC in ChatGPT. The sign-in page shows a 10-character pairing\n   code (letters A–Z and digits 2–9).\n2. Download `freerdc-agent-hosted.mjs` from\n   [Releases](https://github.com/danielarif26/freerdc/releases/latest).\n   Requires Node.js 22+.\n3. Pair this computer, choosing the folder ChatGPT may use:\n\n   ```sh\n   node freerdc-agent-hosted.mjs connect --server https://freerdc.sjaman.deno.net/mcp --code YOUR_CODE --device-id my-mac --root /absolute/allowed/folder\n   ```\n\n4. Keep the agent running while you use FreeRDC:\n\n   ```sh\n   node freerdc-agent-hosted.mjs run --device-id my-mac\n   ```\n\nThe pairing code expires after about 10 minutes. The agent is a prebuilt\nbinary; its source is not included in this repository.\n\n## Run from source\n\nRequires Node.js 22+, npm and Git.\n\n```sh\nnpm ci\nnpm run build\nnode packages/server/dist/src/cli.js --root /absolute/allowed/folder --port 8787\n```\n\nThe server binds to `127.0.0.1` only, requires at least one explicit root,\nstores state under `~/.freerdc`, and leaves process tools disabled. Create\n`~/.freerdc/STOP` to activate the kill switch. Pick the narrowest folder that\nfits the task — never add credentials, caches or unrelated projects to a root.\n\n### Installer scripts\n\nmacOS or Linux:\n\n```sh\ncurl -fsSLo install.sh https://raw.githubusercontent.com/danielarif26/freerdc/main/install.sh\nsh install.sh\n```\n\nWindows PowerShell:\n\n```powershell\nInvoke-WebRequest https://raw.githubusercontent.com/danielarif26/freerdc/main/install.ps1 -OutFile install.ps1\n.\\install.ps1\n```\n\nThe installers follow the mutable `main` branch. For higher assurance, review a\ncommit or tag and pin it with `FREERDC_REF=<tag-or-commit>`. Rerun with\n`--uninstall` (macOS/Linux) or `-Uninstall` (Windows) to remove an\ninstaller-managed copy.\n\n## Packages\n\n| Package | Purpose |\n|---|---|\n| `@freerdc/protocol` | Wire schemas, RPC contracts, errors, redaction, negotiation |\n| `@freerdc/guard` | Path containment, protected-path denylist, concurrency primitives |\n| `@freerdc/agent` | Filesystem, process policy, RPC dispatcher, authenticated connector |\n| `@freerdc/server` | MCP tools, HTTP host, OAuth, audit log, runtime CLI |\n\n```sh\nnpm run typecheck && npm run build && npm test\n```\n\n## Security\n\n- Secrets belong in environment variables or file references — never in this\n  repository, profiles, shell history or tunnel metadata.\n- Report vulnerabilities privately; see [`SECURITY.md`](SECURITY.md).\n\n## License\n\nReleased under [AGPL-3.0-or-later](LICENSE). See\n[`docs/EDITIONS.md`](docs/EDITIONS.md) for what the Community Edition includes.\n",
+  "status": "curated"
+}

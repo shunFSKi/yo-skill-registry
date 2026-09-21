@@ -1,0 +1,70 @@
+{
+  "id": "mcp:official/io.github.limitcool/quota-mcp",
+  "type": "mcp",
+  "name": "quota-mcp",
+  "description": "Usage & quota tracker for AI subscription accounts (StepFun, Command Code)",
+  "author": "io.github.limitcool",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/limitcool/quota-mcp",
+    "repo": "limitcool/quota-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "ghcr.io/limitcool/quota-mcp:0.3.1"
+    ],
+    "env": [
+      {
+        "name": "QUOTA_MCP_MASTER_KEY",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "QUOTA_MCP_DB",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-21T19:44:47.330457Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "**English** | [简体中文](README.zh-CN.md)\r\n\r\n# quota-mcp\r\n\r\nA **usage & quota tracker for AI subscription accounts**. It pulls the balances, subscription expiry dates and rate-limit windows that are scattered across vendor dashboards into one place, and exposes them through both a **REST management API** and an **MCP query surface** — point your agent (Hermes, Claude Code, …) at it with one config line and it can answer \"how much quota do I have left?\" on its own.\r\n\r\nTwo platforms supported today:\r\n\r\n| Platform | Data source | Credential | What you can see |\r\n|---|---|---|---|\r\n| **StepFun** (阶跃星辰, `.ai` intl / `.com` China) | `platform.stepfun.{ai,com}` console Connect RPC | Browser session (Oasis-Token, ~2 h, auto-renewed) + optional plan key | Plan & expiry, 5-hour / weekly / subscription credit windows, access keys under the account, session health |\r\n| **Command Code** (commandcode.ai) | Undocumented `/alpha/*` endpoints on `api.commandcode.ai` | A single Bearer API key | Plan (GOAT/Pro/Max/…), 5-hour / weekly / monthly windows, balances, billing-period request stats |\r\n\r\nHighlights:\r\n\r\n- **Encrypted at rest**: credentials are AES-256-GCM encrypted into SQLite (pure-Go driver, no CGO); every endpoint returns masked views only\r\n- **StepFun session auto-renewal**: a background goroutine checks every 60 s and renews any session whose TTL drops below 20 min. Renewing an *expired* session gets you a degraded device token — there is a guard that detects this and refuses to persist it\r\n- **Dual auth planes**: StepFun's plan key (permanent) and console session (quota data) are managed and probed separately; the verdict is driven by the permanent plane\r\n- **MCP is read-only**: the query surface (list / probe / summarize) is safe to hand to agents; enrol / renew / delete live on the REST side only\r\n- Single binary, zero external services\r\n\r\n## Quick start\r\n\r\n```bash\r\ngo build -o quota-mcp ./cmd/quota-mcp\r\n\r\n# In production set the master key explicitly (64 hex chars). Without it the key is\r\n# derived from machine traits and old ciphertext becomes unreadable after a migration.\r\nexport QUOTA_MCP_MASTER_KEY=$(openssl rand -hex 32)\r\n\r\n./quota-mcp -db data/quota-mcp.db -listen 127.0.0.1:8780\r\n```\r\n\r\nAfter startup:\r\n\r\n- `http://127.0.0.1:8780/healthz` health check\r\n- `http://127.0.0.1:8780/api/stepfun/accounts` REST list\r\n- `http://127.0.0.1:8780/mcp` MCP endpoint\r\n\r\n## Enrolling accounts\r\n\r\n### Command Code (a single key — the easy one)\r\n\r\n```bash\r\ncurl -X POST http://127.0.0.1:8780/api/commandcode/accounts \\\r\n  -H 'Content-Type: application/json' \\\r\n  -d '{\"service\":\"cc-myname\",\"api_key\":\"user_xxx\",\"label\":\"primary\"}'\r\n```\r\n\r\nGet the key from [commandcode.ai/settings/keys](https://commandcode.ai/settings/keys) (shown once at creation). The server validates it with `whoami` first and refuses to store a rejected key.\r\n\r\n### StepFun (browser session)\r\n\r\n`Oasis-Token` is an HttpOnly cookie, so `document.cookie` cannot read it — copy it from a request header in DevTools. Paste the whole `Cookie:` header (or the bare token) to the server:\r\n\r\n```bash\r\ncurl -X POST http://127.0.0.1:8780/api/stepfun/accounts \\\r\n  -H 'Content-Type: application/json' \\\r\n  -d '{\"service\":\"ai-412848664332275712\",\"region\":\"ai\",\"session_text\":\"Oasis-Token=eyJ...; Oasis-Webid=...\",\"email\":\"me@example.com\"}'\r\n```\r\n\r\nProtocol findings from real-world testing (all handled in code):\r\n\r\n- The `.ai` `Oasis-Token` cookie value is **two JWTs concatenated** (8 segments); the console only accepts the whole value — a single segment gets you `token is illegal`\r\n- Timestamp units differ per site: `.ai` returns second-level strings, `.com` returns milliseconds; the code infers by magnitude\r\n- `.com` device tokens live only 30 minutes and its RefreshToken returns a degraded token — `.com` sessions need periodic re-import\r\n- Renewing **after** expiry yields a device token (`mode 1`, data plane always `token is illegal`), so renewal must happen before expiry; a degradation guard refuses to store such tokens\r\n\r\n## REST API\r\n\r\n```\r\nGET    /api/stepfun/accounts                     List (masked view)\r\nPOST   /api/stepfun/accounts                     Enrol/update (stored only if at least one plane probes OK)\r\nPOST   /api/stepfun/accounts/{service}/probe     Probe (auto-renews once on console auth failure)\r\nPOST   /api/stepfun/accounts/{service}/renew     Force-renew the console session\r\nPOST   /api/stepfun/accounts/{service}/register?region=ai   Register an anonymous device slot (self-test)\r\nDELETE /api/stepfun/accounts/{service}           Delete\r\nPOST   /api/stepfun/probe                        Probe all (cron-friendly)\r\n\r\nGET    /api/commandcode/accounts                 List (masked view)\r\nPOST   /api/commandcode/accounts                 Enrol (key validated via whoami first)\r\nPOST   /api/commandcode/accounts/{service}/probe Probe\r\nDELETE /api/commandcode/accounts/{service}       Delete\r\nPOST   /api/commandcode/probe                    Probe all\r\n```\r\n\r\n## MCP surface (for agents)\r\n\r\nTwo ways to connect — pick either:\r\n\r\n**1. Streamable HTTP** (served on `/mcp`) — for always-on deployments:\r\n\r\n```yaml\r\nmcp_servers:\r\n  quota:\r\n    url: http://<your-host>:8780/mcp\r\n```\r\n\r\n**2. stdio** — for clients that spawn the server themselves (Claude Code, containers, `mcp-publisher`-style registry installs):\r\n\r\n```bash\r\n# local binary\r\nquota-mcp -stdio\r\n\r\n# or straight from the published image (works with zero setup)\r\ndocker run -i --rm -v quota-mcp-data:/data ghcr.io/limitcool/quota-mcp:latest\r\n```\r\n\r\nWorks the same way from Claude Code or any other MCP client.\r\n\r\nAll tools are read-only:\r\n\r\n| Tool | Description |\r\n|---|---|\r\n| `quota_list_accounts` | List every account: plan, expiry, remaining quota, session/key status (masked) |\r\n| `quota_probe_account` | Live-probe one account (hits upstream, takes a few seconds) |\r\n| `quota_probe_all` | Serially probe all accounts and refresh the cache |\r\n| `quota_status` | Summary: per-platform counts of serving / limited / invalid / needs-relogin, plus a one-line status per account |\r\n| `quota_check_alerts` | Firing alerts: low quota, upcoming expiry, dead session, rejected key, window exceeded |\r\n| `quota_report` | The scheduled-digest payload: all account numbers + current alerts |\r\n\r\n## Alerts, expiry warnings & scheduled digest\r\n\r\nquota-mcp owns **condition detection** (it holds the data and runs a 60 s background loop);\r\n**scheduling and delivery belong to your agent platform**. A hermes-style wiring:\r\n\r\n### 1. Threshold & expiry alerts (event-driven, push)\r\n\r\nA background evaluator refreshes stale probe data (>5 min), evaluates rules, keeps a\r\nfiring/resolved state machine in SQLite (`alert_events`), and POSTs **only the transitions**\r\nto a webhook — the same alert never repeats until it clears and fires again.\r\n\r\nRules: `credit_low` (remaining share below threshold), `expiring_soon` (subscription/billing\r\nperiod ending within N days), `session_dead` (StepFun console session needs re-import),\r\n`key_rejected` (Command Code key got 401/403), `window_limited` (rate window exceeded).\r\n\r\n```bash\r\nQUOTA_MCP_ALERT_WEBHOOK_URL=http://<hermes>:8642/webhooks/quota \\\r\nQUOTA_MCP_ALERT_CREDIT_PCT=0.2 \\\r\nQUOTA_MCP_ALERT_EXPIRY_DAYS=7 \\\r\n./quota-mcp -listen 0.0.0.0:8780\r\n```\r\n\r\nPayload pushed on each transition:\r\n\r\n```json\r\n{\r\n  \"source\": \"quota-mcp\",\r\n  \"at\": \"2026-09-21T15:52:30Z\",\r\n  \"fired\":    [{\"kind\":\"credit_low\",\"provider\":\"stepfun\",\"service\":\"ai-…\",\"severity\":\"warn\",\"title\":\"订阅额度即将耗尽\",\"detail\":\"剩余 13%（阈值 20%），2026-10-20 重置\"}],\r\n  \"resolved\": []\r\n}\r\n```\r\n\r\n**No webhook? No problem** — hermes (or anything) can poll instead:\r\n\r\n```yaml\r\n# hermes mcp_servers\r\nmcp_servers:\r\n  quota:\r\n    url: http://<host>:8780/mcp\r\n```\r\n\r\nthen have a hermes cron every 15–30 min call `quota_check_alerts` and `hermes send` anything\r\nnew. Same for `GET /api/alerts?history=20`.\r\n\r\n### 2. Scheduled digest (cron)\r\n\r\n`quota_report` (or `GET /api/report`) returns a stable, agent-friendly payload: every account's\r\nplan / expiry / remaining quota / session state / window usage / request stats, plus current\r\nalerts. Point hermes's existing 09:30 cron at it: one turn calls the tool, composes the message,\r\nand delivers via `hermes send`. No scheduler is duplicated inside quota-mcp.\r\n\r\n### 3. Environment variables\r\n\r\n| Variable | Default | Meaning |\r\n|---|---|---|\r\n| `QUOTA_MCP_ALERT_CREDIT_PCT` | `0.2` | Fires when remaining share drops below this |\r\n| `QUOTA_MCP_ALERT_EXPIRY_DAYS` | `7` | Fires when subscription/billing period ends within N days |\r\n| `QUOTA_MCP_ALERT_WEBHOOK_URL` | — | POST target for alert transitions; empty = record only (pull mode) |\r\n\r\nExample (`quota_status` output — what an agent would read to answer \"how much quota is left?\"):\r\n\r\n```json\r\n{\r\n  \"stepfun\": {\r\n    \"total\": 2, \"healthy\": 2, \"attention\": 0,\r\n    \"accounts\": [\"ai-4128…: ok (10 models)\", \"com-3766…: ok (0 models)\"]\r\n  },\r\n  \"commandcode\": {\r\n    \"total\": 1, \"serving\": 1, \"limited\": 0, \"key_rejected\": 0,\r\n    \"accounts\": [\"cc-limitcool: serving GOAT\"]\r\n  }\r\n}\r\n```\r\n\r\n## Project layout\r\n\r\n```\r\ncmd/quota-mcp/        Entrypoint (flags/env config, one port serving both surfaces)\r\ninternal/store/       SQLite + AES-256-GCM encryption + schema\r\ninternal/stepfun/     StepFun protocol client + account registry + background renewer\r\ninternal/commandcode/ Command Code protocol client + account registry\r\ninternal/api/         REST management surface (net/http, no framework)\r\ninternal/mcpsrv/      MCP query surface (modelcontextprotocol/go-sdk)\r\ninternal/alerts/      Alert rules + firing/resolved state machine + webhook push\r\ninternal/digest/       Scheduled-digest payload for cron consumers\r\n```\r\n\r\n## Security boundary\r\n\r\n- Ciphertext goes to the DB only — never to logs, never to responses; every endpoint returns masks\r\n- The REST surface contains writes: **bind it to loopback or a private network**. To expose it publicly, front it with a reverse proxy + auth and only publish the MCP path\r\n- Losing the master key means every stored credential becomes unreadable — back up `QUOTA_MCP_MASTER_KEY`\r\n\r\n## Releases\r\n\r\nBinaries for Linux / macOS / Windows (amd64 + arm64) are attached to each GitHub Release. Grab the latest:\r\n\r\n```bash\r\n# example: linux amd64\r\ncurl -LO https://github.com/limitcool/quota-mcp/releases/latest/download/quota-mcp_linux_amd64\r\nchmod +x quota-mcp_linux_amd64\r\n```\r\n\r\n## Docker\r\n\r\nImage is published to `ghcr.io/limitcool/quota-mcp` (amd64 + arm64) on every main push (`:main`) and tag (`:v1.0.0`, `:latest`).\r\n\r\n```bash\r\ndocker run -d --name quota-mcp \\\r\n  -p 8780:8780 \\\r\n  -v quota-mcp-data:/data \\\r\n  -e QUOTA_MCP_MASTER_KEY=$(openssl rand -hex 32) \\\r\n  ghcr.io/limitcool/quota-mcp:latest\r\n```\r\n\r\nOr with the bundled compose file (`QUOTA_MCP_MASTER_KEY` is required, put it in `.env`):\r\n\r\n```bash\r\necho \"QUOTA_MCP_MASTER_KEY=$(openssl rand -hex 32)\" > .env\r\ndocker compose up -d\r\n```\r\n\r\nThe database lives in the `/data` volume (`QUOTA_MCP_DB=/data/quota-mcp.db`). **Back up the master key** — losing it makes every stored credential unreadable.\r\n\r\n## License\r\n\r\nMIT\r\n",
+  "status": "curated"
+}
