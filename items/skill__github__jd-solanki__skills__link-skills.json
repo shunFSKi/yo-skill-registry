@@ -15,9 +15,15 @@
     "kind": "skill-dir"
   },
   "quality": {
-    "stars": null,
-    "pushed_at": null,
-    "score": 22
+    "stars": 6,
+    "pushed_at": "2026-09-22T17:47:24Z",
+    "score": 60,
+    "star_history": [
+      {
+        "d": "2026-09-22",
+        "s": 6
+      }
+    ]
   },
   "security": {
     "score": 100,
@@ -49,6 +55,6 @@
     "category": null,
     "featured": false
   },
-  "readme": null,
+  "readme": "# JD Solanki's AI Agent Skills\n\n<a href=\"https://skilld.dev/gh/jd-solanki/skills\">\n  <picture>\n    <source media=\"(prefers-color-scheme: dark)\" srcset=\"https://skilld.dev/b/jd-solanki/skills?theme=dark\">\n    <source media=\"(prefers-color-scheme: light)\" srcset=\"https://skilld.dev/b/jd-solanki/skills?theme=light\">\n    <img alt=\"Skill repository on skilld.dev\" src=\"https://skilld.dev/b/jd-solanki/skills?theme=light\">\n  </picture>\n</a>\n\n## Setup\n\n1. Run the skills.sh installer:\n\n    ```shell\n    npx skills@latest add jd-solanki/skills\n    ```\n\n2. Pick the skills you want, and which coding agents you want to install them on. **Make sure you select /setup-jd-solanki-skills.**\n3. Run `/setup-jd-solanki-skills` in your agent. It will:\n    - Upsert instructions into your `CLAUDE.md` or `AGENTS.md` file(s) for how to load and use these skills.\n    - Suggest you install and use third-party skills that I mostly use in my projects. See [`THIRD-PARTY.md`](./skills/scaffolding/setup-jd-solanki-skills/THIRD-PARTY.md) for a list of third-party skills.\n4. Bam - you're ready to go.\n5. Install `/context-engineering`, `/setup-project-context` and `/audit-project-context` together. Run `/setup-project-context` to give the agent this repo's own context — its words, rules, reasons, and the fences it must not walk into.\n\n## Context engineering\n\nAn agent arrives holding coding guidelines and nothing else. `/setup-project-context` gives it the rest, split by **domain** so a task loads only what it needs:\n\n| File | Reader | Loads |\n| --- | --- | --- |\n| `AGENTS.md` / `CLAUDE.md` | agent | every turn — behaviour and one gate |\n| `CONTRIBUTING.md` | humans and agents | every session — what the project is and its status |\n| `/project-context` | agent | every session — the rules and the routing table |\n| `domains/<domain>.md` | agent | only when a task enters that domain |\n| `README.md` | humans | never read by an agent |\n\n`/context-engineering <decision>` records a decision in the right domain file. `/audit-project-context` runs at the end of a pull request and trims whatever the week's work added that the code could have said itself. Install all three: the other two call `/context-engineering` for the shape and the rules.\n\nThe reasoning behind all of it — why domain and not document type, why the glossary left the repo root, why the method is three skills — is in [`docs/context-engineering.md`](./docs/context-engineering.md).\n\n## Tips\n\n- Use global instruction files (`~/.claude/CLAUDE.md` & `~/.codex/AGENTS.md`) for behavioural changes and use project instructions for working instructions.\n\n## Forked skills\n\nSkills taken from elsewhere and changed. They are maintained here now, so they live in their real category rather than under `third-party/`.\n\n- **[`skills/engineering/code-review`](./skills/engineering/code-review/)** — from [mattpocock/skills](https://github.com/mattpocock/skills).\n  The Standards axis reads `/project-context` instead of `CONTRIBUTING.md`, because this repo's rules live in domain files. The spec source uses `gh` directly, because `docs/agents/issue-tracker.md` is no longer part of the layout.\n- **[`skills/engineering/domain-modeling`](./skills/engineering/domain-modeling/)** — from [mattpocock/skills](https://github.com/mattpocock/skills).\n  The glossary moved from a root `CONTEXT.md` into `/project-context`, and the multi-context `CONTEXT-MAP.md` branch was dropped: a term used inside one domain now lives in that domain file's **Words**.\n- **[`skills/in-progress/grilling`](./skills/in-progress/grilling/)** — from [mattpocock/skills](https://github.com/mattpocock/skills).\n  The frontier is filtered by **altitude**: the goal always clears it, a technical question only when it is a one-way door, and every two-way door is the agent's to settle and list under **Assumed**. `/codebase-design` and `/domain-modeling` supply the vocabulary for the two levels, and the session closes on an ADR offer.\n\nUsed unchanged, so not forked: see [`THIRD-PARTY.md`](./skills/scaffolding/setup-jd-solanki-skills/THIRD-PARTY.md).\n",
   "status": "curated"
 }

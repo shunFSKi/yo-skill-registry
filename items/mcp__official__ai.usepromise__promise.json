@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/ai.usepromise/promise",
+  "type": "mcp",
+  "name": "Promise",
+  "description": "Evidence-backed follow-through memory for what you owe, await, and need to remember.",
+  "author": "ai.usepromise",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/UsePromise/promise-mcp",
+    "repo": "UsePromise/promise-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://mcp.usepromise.ai/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-22T13:15:09.981869Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "AI",
+    "featured": false
+  },
+  "readme": "# Promise MCP\n\nAgent-facing MCP server/tools for Promise. The hosted HTTP endpoint is `POST\n/mcp`; `GET /healthz` is available for runtime checks.\n\nThis repository is intentionally separate from the Promise platform. It should\ncompose the platform API into agent-friendly tools, not implement canonical\nbackend business logic.\n\n## Boundary\n\n- Call the Promise platform API for data access and mutations.\n- Do not access Postgres, Redis, queues, provider tokens, or migrations directly.\n- Keep authorization, provenance, retention, provider behavior, and canonical\n  domain rules in the platform.\n- Consume explicit platform contracts instead of duplicating procedure or\n  capability names by hand.\n\nInitial MCP tool surface:\n\n- `connect_promise`\n- `get_today`\n- `list_commitments`\n- `get_commitment`\n- `get_commitment_evidence`\n- `get_person_context`\n- `search_memory`\n- `capture_note`\n- `create_follow_up`\n- `mark_resolved`\n- `draft_follow_up`\n\n`connect_promise` and unauthenticated tool results are intentionally part of\nthe product. MCP should help users discover and connect Promise when an agent\nneeds follow-up memory that Promise can provide.\n\nUnauthenticated tool results include a scoped `authorizationUrl` that sends the\nuser to `https://app.usepromise.ai/start?source=mcp...`, preserves agent\nattribution, and uses a relative `/mcp/authorize` callback inside Promise before\nany return to an agent URL.\n\n## Development\n\n```bash\nnpm install\nnpm run build\nnpm run smoke\nnpm run tools\nnpm run start\n```\n\nExample MCP call:\n\n```bash\ncurl -sS http://localhost:3000/mcp \\\n  -H 'content-type: application/json' \\\n  -d '{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"tools/list\",\"params\":{}}'\n```\n\nProtected tools return a structured `promise_auth_required` result when no\nBearer token is present. After the user authorizes `/mcp/authorize`, Promise\nreturns a short-lived one-time code to the agent callback. The agent exchanges\nthat code at `/api/mcp/token` for a scoped opaque `pmcp_...` bearer token.\nBearer tool calls are proxied to the Promise platform API, which enforces the\ngrant's scopes. `mark_resolved` and `draft_follow_up` intentionally deep-link\nto Promise for user review rather than sending or mutating mail directly.\n\nSee `docs/ACQUISITION.md` for signup flow guidance, `docs/SECURITY.md` for the\nMCP safety boundary, and `docs/DEPLOYMENT.md` for container/runtime details.\n",
+  "status": "curated"
+}

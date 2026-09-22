@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.cuotos/rock-regeneration-gigs-mcp",
+  "type": "mcp",
+  "name": "Rock Regeneration Gigs",
+  "description": "Search upcoming gigs from the Rock Regeneration gig guide (southern England).",
+  "author": "io.github.cuotos",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/cuotos/rock-regeneration-gigs-mcp",
+    "repo": "cuotos/rock-regeneration-gigs-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "ghcr.io/cuotos/rock-regeneration-gigs-mcp:2.0.0"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-22T12:32:10.251519Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# rock-regeneration-gigs-mcp\n\nAn MCP server for searching upcoming gigs and live music events from the [Rock Regeneration gig guide](https://www.rock-regeneration.co.uk/gig-guide/), covering venues across southern England (Hampshire, Dorset, Wiltshire, Isle of Wight, etc).\n\n## Usage\n\nAdd to your Claude config:\n\n```json\n{\n  \"mcpServers\": {\n    \"gigs\": {\n      \"command\": \"docker\",\n      \"args\": [\"run\", \"--rm\", \"-i\", \"ghcr.io/cuotos/rock-regeneration-gigs-mcp\"]\n    }\n  }\n}\n```\n\nOr with the Claude CLI:\n\n```bash\nclaude mcp add --transport stdio gigs -- docker run --rm -i ghcr.io/cuotos/rock-regeneration-gigs-mcp\n```\n\n## Tools\n\n### `search_gigs`\n\nSearch for upcoming gigs. All filters are optional — omit to return everything.\n\n| Parameter   | Type   | Description                                      |\n|-------------|--------|--------------------------------------------------|\n| `location`  | string | Town or city (expands to nearby towns)           |\n| `artist`    | string | Artist or band name (partial, case-insensitive)  |\n| `venue`     | string | Venue name (partial, case-insensitive)           |\n| `from_date` | string | Start date filter — `YYYY-MM-DD`                 |\n| `to_date`   | string | End date filter — `YYYY-MM-DD`                   |\n\n## Testing\n\nBuild the image locally:\n\n```bash\ndocker build -t rock-regeneration-gigs-mcp .\n```\n\nTest it responds correctly:\n\n```bash\necho '{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"initialize\",\"params\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{},\"clientInfo\":{\"name\":\"test\",\"version\":\"0\"}}}' \\\n  | docker run --rm -i rock-regeneration-gigs-mcp\n```\n\nExpected output:\n\n```json\n{\"jsonrpc\":\"2.0\",\"id\":1,\"result\":{\"capabilities\":{\"tools\":{}},\"protocolVersion\":\"2024-11-05\",\"serverInfo\":{\"name\":\"rock-regeneration-gigs-mcp\",\"version\":\"...\"}}}\n```\n\n## Publishing\n\nPushing a version tag does both halves of a release:\n\n```bash\ngit tag v1.0.0\ngit push origin v1.0.0\n```\n\n1. The image is built and pushed to `ghcr.io/cuotos/rock-regeneration-gigs-mcp`.\n2. The server is published to the [MCP Registry](https://registry.modelcontextprotocol.io) as\n   `io.github.cuotos/rock-regeneration-gigs-mcp`, using GitHub OIDC — no secrets needed.\n\n`server.json` keeps a placeholder `0.0.0` version in git; CI rewrites it, and the image tag, from\nthe git tag at publish time.\n\nThe registry verifies ownership by pulling the image and reading its\n`io.modelcontextprotocol.server.name` label, so **the GHCR package must be public**. It is private\non first push — make it public once, under the package settings on GitHub.\n\nCheck the published entry with:\n\n```bash\ncurl \"https://registry.modelcontextprotocol.io/v0.1/servers?search=io.github.cuotos/rock-regeneration-gigs-mcp\"\n```\n",
+  "status": "curated"
+}

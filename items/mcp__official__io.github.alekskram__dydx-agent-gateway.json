@@ -1,0 +1,57 @@
+{
+  "id": "mcp:official/io.github.alekskram/dydx-agent-gateway",
+  "type": "mcp",
+  "name": "dYdX Agent Gateway",
+  "description": "Analytics-only MCP gateway to dYdX v4: market data, funding, trader PnL, anomalies. No keys.",
+  "author": "io.github.alekskram",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/alekskram/dydx-agent-gateway",
+    "repo": "alekskram/dydx-agent-gateway"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "dydx-agent-gateway"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-22T15:58:16.029942Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "数据",
+    "featured": false
+  },
+  "readme": "# dYdX Agent Gateway\n\n<!-- mcp-name: io.github.alekskram/dydx-agent-gateway -->\n\n[![tests](https://github.com/alekskram/dydx-agent-gateway/actions/workflows/tests.yml/badge.svg)](https://github.com/alekskram/dydx-agent-gateway/actions/workflows/tests.yml)\n[![PyPI](https://img.shields.io/pypi/v/dydx-agent-gateway.svg)](https://pypi.org/project/dydx-agent-gateway/)\n[![PyPI downloads](https://img.shields.io/pypi/dm/dydx-agent-gateway?label=downloads)](https://pypi.org/project/dydx-agent-gateway/)\n[![MCP Catalog](https://img.shields.io/badge/MCP_Catalog-glama.ai-4f46e5)](https://glama.ai/mcp/servers/alekskram/dydx-agent-gateway)\n[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue)](https://pypi.org)\n[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)\n\nOne MCP server that gives any AI agent analytics access to dYdX v4: market data, funding analytics, verified trader PnL, leaderboards, anomaly detection. Read-only and keyless — the gateway holds no keys and cannot move funds.\n\n## Use cases\n\n- **Verify a trader before you copy them** — deposit-adjusted PnL, day winrate,\n  drawdown in USD, and phantom-PnL detection that flags unreliable equity curves\n- **Hunt funding and OI anomalies** — funding heatmap ranked by |rate| with OI\n  context, OI-spike-without-price detectors, liquidation-cascade alerts\n- **Find real smart money** — verified leaderboard from on-chain trader\n  discovery, farmer-bot flags so you don't copy a rewards farmer\n- **Check the book before entering** — one-call market digest: latest anomaly\n  events + funding extremes + leaderboard top\n- **Plan the exit while you plan the entry** — ATR-based stop/take-profit/\n  breakeven/trailing plan per side\n\nFull walkthroughs with real outputs: [examples/use-cases.md](examples/use-cases.md).\n\n## Install\n\n**Claude Code:**\n```bash\nclaude mcp add dydx -- uvx dydx-agent-gateway\n```\n\n**Claude Desktop / Cursor / any mcp.json:**\n```json\n{\"mcpServers\": {\"dydx\": {\n  \"command\": \"uvx\",\n  \"args\": [\"dydx-agent-gateway\"]}}}\n```\n\n<details>\n<summary><b>Codex</b> (~/.codex/config.toml)</summary>\n\n```toml\n[mcp_servers.dydx]\ncommand = \"uvx\"\nargs = [\"dydx-agent-gateway\"]\n```\n</details>\n\n<details>\n<summary><b>ZCode</b> — register the server and copy the agent skill (copy-paste)</summary>\n\n```bash\n# 1) start the gateway (keep it running)\nuvx dydx-agent-gateway --http --port 8901 &\n\n# 2) register it (merges into ~/.zcode/cli/config.json; workspace .zcode/config.json works too)\npython3 - <<'PY'\nimport json, os\np = os.path.expanduser(\"~/.zcode/cli/config.json\")\nos.makedirs(os.path.dirname(p), exist_ok=True)\ncfg = json.load(open(p)) if os.path.exists(p) else {}\ncfg.setdefault(\"mcp\", {}).setdefault(\"servers\", {})[\"dydx\"] = {\n    \"type\": \"http\", \"url\": \"http://127.0.0.1:8901/mcp\"}\njson.dump(cfg, open(p, \"w\"), indent=2)\nprint(\"dydx MCP server registered:\", p)\nPY\n\n# 3) copy the agent skill (tool guide + data gotchas)\ngit clone -q --depth 1 https://github.com/alekskram/dydx-agent-gateway /tmp/dag\ncp -r /tmp/dag/.agents/skills/dydx-gateway ~/.zcode/skills/ && rm -rf /tmp/dag\necho \"ZCode setup done — restart your session and call any dydx tool\"\n```\n</details>\n\n**Plain Python:**\n```bash\npip install dydx-agent-gateway\npython -c \"from dydx_mcp import server; import json; print(json.dumps(server.market_digest(), default=str)[:400])\"\n```\n\n**Hosted (streamable HTTP):** `dydx-agent-gateway --http --port 8901`, then any client:\n```json\n{\"mcpServers\": {\"dydx\": {\"type\": \"http\", \"url\": \"http://host:8901/mcp\"}}}\n```\n\nRequires Python ≥ 3.11. Deps (`fastmcp`, `pycryptodome`, `ecdsa`) install automatically. See `examples/` for ready-made configs and a working autonomous agent script.\n\n## Tools (22 — read-only, keyless)\n\n| Group | Tools |\n|---|---|\n| Market data | `list_markets`, `market_detail`, `candles`, `recent_trades`, `height`, `historical_funding` |\n| Analytics | `funding_heatmap`, `market_ta`, `suggest_stops`, `cvd`, `correlation` |\n| Traders | `trader_profile`, `trader_pnl_stats`, `fills_review`, `raw_fills` |\n| Discovery | `discover_traders`, `leaderboard`, `list_traders`, `registry_stats` |\n| Signals | `latest_events` (funding extremes, OI spikes, liquidation cascades, equity jumps) |\n| Briefing | `market_digest` — one call: events + funding + leaderboard top. **Start here.** |\n\nReal outputs of every tool: [`examples/tool-output.md`](examples/tool-output.md).\n\n**Solving real trader problems** — 5 scenarios with live data: [`examples/use-cases.md`](examples/use-cases.md).\n\n## What makes it different\n\n- **Verified trader PnL.** `trader_pnl_stats` reconciles the identity `equity-Δ = Δpnl + ΣnetTransfers` on every account — residual ≠ 0 means the numbers lie. Live-checked on real accounts to $0.0000 (see `reports/qa-logic.md`). Deposit-adjusted maxDD, day-winrate, sharpe-like.\n- **Anomaly detectors, not dashboards.** Funding extremes, OI spikes without price, equity jumps, and a liquidation-cascade signature (|Δprice|↑ + OI↓) — the patterns that matter before they're charts. Live catches in `reports/`.\n- **Analyst pack.** Funding-rate history, CVD, cross-market correlation, raw fills for execution analysis; TA enrichments MACD/VWAP/realized vol; sortino-like downside risk.\n- **Data-quality discipline.** Five documented indexer API gotchas (`.agents/skills/dydx-gateway/references/data-gotchas.md`) that silently corrupt naive analytics. 129 tests, CI on 3.11/3.13.\n\n## Why a gateway and not the raw indexer API?\n\nYou can point an agent at `indexer.dydx.trade` directly — and then rebuild, one by one, what this gateway already handles:\n\n| Raw indexer gives you | You would have to build |\n|---|---|\n| paginated endpoints (≤1000/req) | per-endpoint pagination logic |\n| a funding endpoint that intermittently returns EMPTY or rpc-times out | retry + cached-series fallback |\n| per-bucket (non-cumulative) netTransfers, newest-first PnL, an unreliable `priceChange24H` field | reconciliation math — this gateway verifies the identity `equity-Δ = Δpnl + ΣnetTransfers` per account (phantom-PnL detection) |\n| raw candles and trades | anomaly detectors (funding extremes, OI spikes without price, liquidation-cascade signature), a TA pack (RSI/MACD/ATR/Bollinger/VWAP), CVD, cross-market correlation, ATR-based stop plans |\n| address strings in blocks | a validated bech32 trader registry with farmer-bot flags and verified leaderboard |\n\nThe five documented indexer gotchas: `.agents/skills/dydx-gateway/references/data-gotchas.md`.\n\n## Data notes\n\nIndicators are computed over the current candle window and change with every new bar. `nextFundingRate` is the exchange's live preview and is recomputed continuously; `volume24H` is a rolling window. Two calls moments apart legitimately differ.\n\n## Safety model\n\nAll tools are read-only and keyless. The gateway signs nothing and holds no credentials. An offline-tested EIP-712 signer remains in `dydx_mcp/signer.py` as a library for anyone building their own execution layer — it is wired to no MCP tool.\n\n## FAQ\n\n- **Does it trade?** No. Analytics only, by design.\n- **API keys?** None. Everything runs on public indexer endpoints.\n- **Rate limits?** Public endpoints, no auth; a 60s markets cache keeps you polite.\n- **How do I verify a trader before copying them?** `trader_profile` → `trader_pnl_stats` → `fills_review` — check the identity residual and maker/taker mix first.\n\n\n## Part of the suite\n\nFour sibling read-only MCP gateways, one style — keyless, cached, honest degradation:\n\n| Gateway | Focus |\n|---|---|\n| **dydx-agent-gateway** (you are here) | dYdX v4: verified trader PnL, funding/OI anomaly detectors, leaderboard |\n| [arcus-agent-gateway](https://github.com/alekskram/arcus-agent-gateway) | 194 tokenized US equities on Robinhood Chain: quotes, holders, whale transfers |\n| [hyperliquid-agent-gateway](https://github.com/alekskram/hyperliquid-agent-gateway) | Hyperliquid: 233 perps + spot, funding carry, account risk, HyperEVM |\n| [aster-agent-gateway](https://github.com/alekskram/aster-agent-gateway) | Aster DEX: ~580 futures incl. 24/7 TradFi perps, funding caps/floors |\n\nAll four are on [glama.ai](https://glama.ai/mcp/servers/alekskram/dydx-agent-gateway) and PyPI — install any of them with `uvx <name>`.\n\n## License\n\nMIT. Not affiliated with dYdX Trading Inc.\n",
+  "status": "curated"
+}

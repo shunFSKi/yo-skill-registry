@@ -1,0 +1,65 @@
+{
+  "id": "mcp:official/io.github.equalang-ai/equalang-mcp",
+  "type": "mcp",
+  "name": "equalang-mcp",
+  "description": "Translate documents, subtitles, pictures, audio and video with layout kept; transcribe recordings.",
+  "author": "io.github.equalang-ai",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/equalang/equalang-mcp",
+    "repo": "equalang/equalang-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@equalang/mcp"
+    ],
+    "env": [
+      {
+        "name": "EQUALANG_API_KEY",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-22T12:34:15.385053Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "写作",
+    "featured": false
+  },
+  "readme": "# equalang-mcp\n\n[![npm](https://img.shields.io/npm/v/@equalang/mcp.svg)](https://www.npmjs.com/package/@equalang/mcp)\n[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)\n[![MCP](https://img.shields.io/badge/Model_Context_Protocol-stdio-000000.svg)](https://modelcontextprotocol.io)\n[![Node](https://img.shields.io/badge/node-%3E%3D18-339933.svg)](https://nodejs.org)\n\n**English** · [简体中文](readme/README.zh-CN.md) · [日本語](readme/README.ja.md) · [한국어](readme/README.ko.md) · [Español](readme/README.es.md) · [Français](readme/README.fr.md) · [Deutsch](readme/README.de.md) · [Português](readme/README.pt.md) · [Italiano](readme/README.it.md) · [Русский](readme/README.ru.md) · [Polski](readme/README.pl.md) · [Türkçe](readme/README.tr.md) · [Tiếng Việt](readme/README.vi.md) · [Bahasa Indonesia](readme/README.id.md) · [ไทย](readme/README.th.md) · [हिन्दी](readme/README.hi.md) · [العربية](readme/README.ar.md)\n\n[Website](https://equalang.com) · [Pricing](https://equalang.com/pricing) · [Developer docs](https://equalang.com/developers) · [API keys](https://equalang.com/api-keys)\n\n> **Keywords:** document translation, pdf translator, translate pdf keep layout, docx translation, pptx translation, excel translation, epub translation, subtitle translation, srt translator, image translation, video translation, audio transcription, speech to text, ai translator, mcp server, model context protocol, claude mcp, cursor mcp, translation api\n\n**Translate the file, keep the layout.** An MCP server for [Equalang](https://equalang.com) - an AI translator that works on whole files: a PDF comes back as a PDF, a deck as a deck, with tables, images and formulas where they were. It also translates subtitles and pictures, turns audio and video into translated subtitles or a transcript, and translates short texts in bulk. Works in Claude Code, Claude Desktop, Codex, Cursor, Windsurf, Cline, VS Code and every other MCP client.\n\n```bash\nclaude mcp add equalang -s user -e EQUALANG_API_KEY=el_your_key -- npx -y @equalang/mcp\n```\n\n## Try asking\n\n- \"Translate ~/Documents/contract.pdf into Chinese, keeping the layout.\"\n- \"Translate pitch-deck.pptx into Japanese and German.\"\n- \"Translate https://example.com/whitepaper.pdf into Spanish and save it in ~/Downloads.\"\n- \"How much would it cost to translate thesis.docx into French?\"\n- \"Make Korean subtitles for interview.mp4, with the original line above each one.\"\n- \"Transcribe standup.m4a with timestamps.\"\n- \"Make an English version of menu.jpg.\"\n- \"Translate novel.epub into English.\"\n\n## Features\n\n- **Documents** - PDF, DOCX, PPTX, XLSX, EPUB, HTML and TXT come back in the same format, still editable, with tables, images, formulas and page layout in place\n- **Subtitles and pictures** - SRT and VTT keep their timing, optionally with the source line above the translation; JPG, PNG, WebP and BMP come back with the text in the picture translated\n- **Audio and video** - MP3, M4A, WAV, FLAC, OGG, AAC, Opus, MP4, MOV, WebM and MKV become translated subtitles, or a transcript in the language spoken (SRT, VTT, TXT, JSON)\n- **Text in bulk** - short texts translated in order, or one long text (up to 100,000 characters) that Equalang cuts at sentences itself\n- **Languages** - 100+ for text and 12 for files; leave the source language out and it is detected\n\n## Get a key\n\nSign up at <https://equalang.com> and create a key at <https://equalang.com/api-keys>. New accounts start with free credits, enough to put a document through.\n\nThe key goes in an environment variable of the MCP client's config, never in a URL. Without a key the server still starts and lists its tools; a tool that needs the key answers with how to get one.\n\nThe key can also live once per machine, in `~/.config/equalang/.env`, which the Equalang skill reads too:\n\n```bash\n# Replace el_your_key with your key\nmkdir -p ~/.config/equalang && echo 'EQUALANG_API_KEY=el_your_key' > ~/.config/equalang/.env && chmod 600 ~/.config/equalang/.env\n```\n\nThe server takes `EQUALANG_API_KEY` from its environment first, and reads the file only when the environment has none: a key in the client config wins, and with the file in place the client config needs no `env`.\n\n## Install\n\nNeeds Node 18 or later.\n\n<details open>\n<summary><b>Claude Code</b></summary>\n\n```bash\nclaude mcp add equalang -s user -e EQUALANG_API_KEY=el_your_key -- npx -y @equalang/mcp\n```\n\n`-s user` puts it in every project; the default scope, `local`, loads the server only in the directory the command was run from.\n</details>\n\n<details>\n<summary><b>OpenAI Codex</b></summary>\n\n```bash\ncodex mcp add equalang --env EQUALANG_API_KEY=el_your_key -- npx -y @equalang/mcp\n```\n</details>\n\n<details>\n<summary><b>Claude Desktop, Cursor, Windsurf, Cline and other JSON-configured clients</b></summary>\n\nAdd this to the client's MCP config - `claude_desktop_config.json`, `~/.cursor/mcp.json`, `~/.codeium/windsurf/mcp_config.json`, or the file your client documents:\n\n```json\n{\n  \"mcpServers\": {\n    \"equalang\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@equalang/mcp\"],\n      \"env\": { \"EQUALANG_API_KEY\": \"el_your_key\" }\n    }\n  }\n}\n```\n</details>\n\n<details>\n<summary><b>VS Code</b></summary>\n\n```bash\ncode --add-mcp '{\"name\":\"equalang\",\"command\":\"npx\",\"args\":[\"-y\",\"@equalang/mcp\"],\"env\":{\"EQUALANG_API_KEY\":\"el_your_key\"}}'\n```\n</details>\n\nPrefer a skill? [equalang-skill](https://github.com/equalang/equalang-skill) offers the same operations as an Agent Skill - one Python script, nothing to install.\n\n## Tools\n\n| Tool | What it does |\n| --- | --- |\n| `translate_file` | Translate a file (path or public URL) into another language and save the result beside it. |\n| `transcribe_recording` | Write down what an audio or video file says, as timed text (SRT, VTT, TXT, JSON). |\n| `translate_text` | Translate short texts, in order - or one long text, which Equalang cuts at sentences itself. |\n| `estimate_cost` | Upload a file without starting anything; answers with the most a job on it can cost, and a `file_id` that starts the job without a second upload. Free. |\n| `check_job` | Pick a job up again, and save its results once it has finished. |\n| `cancel_job` | Stop a queued or running job. A cancelled job is not charged. |\n| `get_credit_balance` | The account's credits. |\n| `list_languages` | Every language code and name. Needs no key. |\n\nLanguage codes look like `en`, `zh-CN`, `ja`; `list_languages` has the full list. A job takes minutes - a tool waits up to `wait_seconds` (50 s by default, 240 at most), then hands back a job id for `check_job` to pick up.\n\n## Links\n\n- [Equalang](https://equalang.com) · [Pricing](https://equalang.com/pricing) · [Developer docs](https://equalang.com/developers)\n- API for agents: [llms.txt](https://equalang.com/llms.txt) · [llms-full.txt](https://equalang.com/llms-full.txt) · [OpenAPI](https://equalang.com/api/backend/v1/openapi.json)\n- [equalang-skill](https://github.com/equalang/equalang-skill) - the same operations as an Agent Skill\n- Questions: <support@equalang.com>\n\n## License\n\n[Apache-2.0](LICENSE) © Equalang\n",
+  "status": "curated"
+}

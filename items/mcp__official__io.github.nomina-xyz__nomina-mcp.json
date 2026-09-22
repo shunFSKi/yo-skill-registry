@@ -15,13 +15,13 @@
     "command": "npx",
     "args": [
       "-y",
-      "https://github.com/nomina-xyz/nomina-mcp/releases/download/v2.0.5/Nomina.mcpb"
+      "https://github.com/nomina-xyz/nomina-mcp/releases/download/v2.0.6/Nomina.mcpb"
     ]
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-09-21T19:45:04.978968Z",
-    "score": 52
+    "pushed_at": "2026-09-21T21:18:06.027932Z",
+    "score": 42
   },
   "security": {
     "score": 100,
@@ -53,6 +53,6 @@
     "category": "金融",
     "featured": false
   },
-  "readme": "# Nomina\n\nMarkets research for agents from public data.\n\nFive read-only tools, no API key, no account, no trading access:\n\n- **`search_markets`** — find symbols in Nomina's catalog (on-chain price feeds, Treasury\n  tenors, macro series, SEC registrants) and recent headlines.\n- **`research_asset`** — latest value, period change, drawdown and volatility, dated history,\n  and headlines for one symbol, over a named period or an exact date window.\n- **`compare_assets`** — align 2–6 symbols on shared observation dates, each in its own unit.\n- **`market_overview`** — period changes for BTC, ETH, SOL, gold, SPY, QQQ, EUR/USD, US 2y\n  and 10y yields and CPI.\n- **`company_fundamentals`** — latest annual and quarterly financials and filings for an SEC\n  registrant.\n\nData: Chainlink price feeds read from the Ethereum blockchain (crypto, FX, gold and silver, a\nfew US equities/ETFs), the US Treasury yield curve, Bureau of Labor Statistics series, SEC\nEDGAR filings, and GDELT headlines: public-domain government statistics, public blockchain\nstate, and openly released news records, each source's obligations documented and met in\n[Data sources and limits](https://nomina-xyz.github.io/nomina-mcp/data-sources/).\n\n## Install\n\n**Hosted (no install):** add `https://nomina-mcp.onrender.com/mcp` as a custom connector in\nClaude (Settings → Connectors → Add custom connector), or\n`claude mcp add --transport http nomina https://nomina-mcp.onrender.com/mcp`. First request\nafter an idle period can take about a minute.\n\n**Claude Desktop:** Settings → Extensions → Advanced settings → Extension Developer →\nInstall Extension… → select `Nomina.mcpb` from a\n[release](https://github.com/nomina-xyz/nomina-mcp/releases) (or build it yourself, see below). Requires a Claude Desktop\nrelease with MCPB v0.4 UV-runtime support and internet access on first install.\n\n**Any other MCP client (Claude Code, etc.):** point it at this as a local stdio server:\n\n```json\n{\n  \"mcpServers\": {\n    \"nomina\": {\n      \"command\": \"uv\",\n      \"args\": [\"run\", \"--frozen\", \"--no-dev\", \"--directory\", \"/path/to/nomp\", \"server.py\"]\n    }\n  }\n}\n```\n\n**Self-hosted (Streamable HTTP):** `docker run --rm -p 8000:8000 ghcr.io/nomina-xyz/nomina-mcp:2.0.5`,\nthen connect to `http://localhost:8000/mcp`. Details in the docs below.\n\n## Docs\n\nInstall guides, tool reference, privacy policy, and data-source limits:\nhttps://nomina-xyz.github.io/nomina-mcp/ — see especially\n[Data sources and limits](https://nomina-xyz.github.io/nomina-mcp/data-sources/).\n\n## Privacy Policy\n\nFull policy: https://nomina-xyz.github.io/nomina-mcp/privacy/\n\n- **Collection:** when a tool runs, only its inputs — search terms, symbols, tickers, and the\n  requested period or date window — are sent to the public sources that answer it: Ethereum\n  JSON-RPC gateways (`ethereum.publicnode.com`, `rpc.mevblocker.io`) and Chainlink's feed\n  directory, `home.treasury.gov`, `api.bls.gov`, `www.sec.gov`/`data.sec.gov`, and\n  `api.gdeltproject.org`. Nothing else leaves the process.\n- **Usage and storage:** Nomina stores nothing. No accounts, no logs of requests or their\n  contents, no telemetry. Source responses are held in memory (ten minutes for headlines up\n  to a day for catalogs; immutable on-chain rounds for the process lifetime) to avoid repeat\n  requests; nothing is written to disk.\n- **Third parties:** each source processes those requests under its own policy. Your MCP host\n  handles the conversation under its own policy. Operators of a hosted instance may keep\n  infrastructure connection logs; Nomina adds none.\n- **Retention:** none beyond the in-memory cache of the running process.\n- **Contact:** https://github.com/nomina-xyz/nomina-mcp/issues\n\n## Build from source\n\nRequires [uv](https://docs.astral.sh/uv/).\n\n```sh\nuv sync\nuv run python scripts/build_bundle.py   # writes dist/Nomina.mcpb\nuv run pytest -q                        # 12 tests\nuv run ruff check .\n```\n\n## License\n\nCode in this repository is MIT-licensed (see `LICENSE`).\n",
+  "readme": null,
   "status": "curated"
 }

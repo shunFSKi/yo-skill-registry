@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.mzahir/tellandgo-mcp",
+  "type": "mcp",
+  "name": "tellandgo-mcp",
+  "description": "Book real hotel and resort stays from any AI agent: all-in pricing, hosted Stripe checkout, no key.",
+  "author": "io.github.mzahir",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/tell-and-go/mcp",
+    "repo": "tell-and-go/mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://mcp.tellandgo.com/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-22T12:49:53.228629Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "生活",
+    "featured": false
+  },
+  "readme": "<div align=\"center\">\n\n<picture>\n  <source media=\"(prefers-color-scheme: dark)\" srcset=\"assets/logo-dark.svg\">\n  <source media=\"(prefers-color-scheme: light)\" srcset=\"assets/logo-light.svg\">\n  <img alt=\"Tell & Go\" src=\"assets/logo-light.svg\" width=\"380\">\n</picture>\n\n# Book real travel from any AI agent\n\n**No account · No API key · Same prices as our site · Payment on a hosted Stripe checkout your agent never touches**\n\n[![MCP](https://img.shields.io/badge/MCP-Streamable--HTTP-542fdb?style=flat-square)](https://modelcontextprotocol.io)\n[![Auth](https://img.shields.io/badge/auth-none-22c55e?style=flat-square)](#connect)\n[![Pricing](https://img.shields.io/badge/pricing-free-7e5eff?style=flat-square)](#pricing)\n[![License: MIT](https://img.shields.io/badge/license-MIT-542fdb?style=flat-square)](./LICENSE)\n[![Endpoint](https://img.shields.io/badge/endpoint-live-22c55e?style=flat-square)](https://mcp.tellandgo.com/mcp)\n\n</div>\n\nTell & Go runs a public [Model Context Protocol](https://modelcontextprotocol.io)\nserver. Connect any AI agent — **Claude, ChatGPT, Cursor, Gemini CLI, Hermes,\nOpenClaw, or your own** — and it can search live resort inventory, get exact\nall-in quotes, and start a real booking that completes on our secure checkout page.\n\n> [!IMPORTANT]\n> **This repository is documentation only.** The server is hosted at\n> `https://mcp.tellandgo.com/mcp` — there is nothing to install or run.\n\n---\n\n## Connect in 30 seconds\n\nOne endpoint works in every MCP client:\n\n| | Client | One-liner |\n|---|---|---|\n| 🟣 | **Claude Code** | `claude mcp add --transport http tellandgo https://mcp.tellandgo.com/mcp` |\n| 🌐 | **Claude.ai / Desktop** | Settings → Connectors → Add custom connector → `https://mcp.tellandgo.com/mcp` (leave auth empty) |\n| 💬 | **ChatGPT** | Settings → Connectors → Add custom MCP → `https://mcp.tellandgo.com/mcp` |\n| ⚡ | **Cursor / VS Code / Windsurf / Gemini CLI** | add an `mcpServers` entry (below) |\n| 🧠 | **Hermes** | `hermes mcp add tellandgo --url https://mcp.tellandgo.com/mcp` |\n| 🦅 | **OpenClaw** | add a remote HTTP MCP server → `https://mcp.tellandgo.com/mcp` |\n\n**Cursor / VS Code / Gemini CLI** — add to your MCP config\n(`~/.cursor/mcp.json`, VS Code MCP settings, etc.):\n\n```json\n{\n  \"mcpServers\": {\n    \"tellandgo\": { \"url\": \"https://mcp.tellandgo.com/mcp\" }\n  }\n}\n```\n\nPrefer a ready-made pack? [`skills/`](./skills) has a drop-in agent skill\n([`tellandgo-travel.md`](./skills/tellandgo-travel.md)) + per-client\n[`SETUP.md`](./skills/SETUP.md).\n\n---\n\n## Why this exists\n\nBooking.com and Expedia built AI agents **inside their own apps**. We did the\nopposite: we opened our travel agency as a **public MCP** that works in *every*\nagent — before the big OTAs did.\n\n| The question | The answer |\n|---|---|\n| **Is it real?** | Live inventory, real bookings, confirmation email. An all-in quote *with transfers included* — resort speedboat, seaplane, domestic flight, whatever the property requires — a single upfront number no OTA API surfaces in one line. |\n| **Is it safe?** | Search & quote are read-only. Booking only returns a hosted Stripe checkout URL on `tellandgo.com`. The agent **never** sees card data. |\n| **What's the catch?** | None. Website rates, no markup for agent users, no account, MIT-licensed docs. |\n| **Why not Booking's agent?** | Theirs is a closed app inside one assistant. Ours works in *every* client that speaks MCP. |\n\n---\n\n## Tools\n\n| Tool | What it does |\n|---|---|\n| `search_stays` | Natural-language search over bookable hotel & resort inventory; returns matches with all-in, transfer-inclusive nightly pricing. |\n| `get_stay_details` | Full detail for one property: rooms, amenities, location, policies, indicative pricing. |\n| `get_quote` | A live, dated quote for a specific stay + dates + guests — the exact all-in total, matching the website. |\n| `prebook_stay` | Locks the quoted rate with the supplier before payment; returns a `prebook_id` for `start_booking`. If the supplier price changed, re-call with the returned `terms_digest` to accept it. |\n| `start_booking` | Returns a hosted Stripe Checkout link (checkout.stripe.com) that the traveler opens to pay. The agent never handles card data. |\n\n**Typical flow:** `search_stays` → `get_stay_details` → `get_quote` → `prebook_stay` → `start_booking`\n\n<details>\n<summary><b>Example JSON-RPC calls</b></summary>\n\nThe MCP transport speaks JSON-RPC 2.0 over streamable-HTTP.\n\n**Initialize the session**\n\n```json\n{\n  \"jsonrpc\": \"2.0\", \"id\": 1, \"method\": \"initialize\",\n  \"params\": {\n    \"protocolVersion\": \"2025-06-18\",\n    \"capabilities\": {},\n    \"clientInfo\": { \"name\": \"my-agent\", \"version\": \"1.0.0\" }\n  }\n}\n```\n\n**List available tools**\n\n```json\n{ \"jsonrpc\": \"2.0\", \"id\": 2, \"method\": \"tools/list\", \"params\": {} }\n```\n\n**Search for stays**\n\n```json\n{\n  \"jsonrpc\": \"2.0\", \"id\": 3, \"method\": \"tools/call\",\n  \"params\": {\n    \"name\": \"search_stays\",\n    \"arguments\": {\n      \"query\": \"overwater villa in the Maldives for a honeymoon in October, all-in with seaplane transfer\",\n      \"check_in\": \"2026-10-12\", \"check_out\": \"2026-10-19\", \"adults\": 2\n    }\n  }\n}\n```\n\nFollow up with `get_quote` for an exact dated total, then `prebook_stay` to\nlock the rate, then `start_booking` to receive the hosted checkout link the\ntraveler completes.\n\n</details>\n\n<details>\n<summary><b>Try it with curl</b></summary>\n\n```bash\n# MCP handshake\ncurl -X POST https://mcp.tellandgo.com/mcp \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"initialize\"}'\n\n# List tools\ncurl -X POST https://mcp.tellandgo.com/mcp \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"jsonrpc\":\"2.0\",\"id\":2,\"method\":\"tools/list\"}'\n```\n\n</details>\n\n---\n\n## What it can book\n\nCurated, verified-bookable hotel & resort stays. The live set of destinations\ngrows all the time — see the current coverage at\n**[tellandgo.com/en/destinations](https://tellandgo.com/en/destinations)**.\n\n> Each new market simply grows the catalog behind the same endpoint — your agent\n> doesn't need to change anything.\n\n---\n\n## Pricing\n\n**Free to connect.** No account, no API key, no cost. Prices shown by the tools\nare **identical to tellandgo.com** — all-in (room + stated meal plan +\nresort/seaplane transfer where applicable). We never add fees or markups for\nagent users.\n\n> [!NOTE]\n> **Fair use:** ~60 requests/minute per IP, a tighter budget on\n> search/quote/booking, and a global ceiling. Excess traffic gets `429` +\n> `Retry-After`. Building a product on this? Reach out for higher throughput.\n\n---\n\n## FAQ\n\n<details>\n<summary><b>Is it free?</b></summary>\nYes. No account, no API key, no cost to connect.\n</details>\n\n<details>\n<summary><b>Are the prices the same as the website?</b></summary>\nIdentical — markup-inclusive and all-in (room + meal plan + transfer).\n</details>\n\n<details>\n<summary><b>How does payment work?</b></summary>\n<code>start_booking</code> returns a hosted Stripe checkout link on\ntellandgo.com. The agent never touches card data; the traveler completes payment\nsecurely.\n</details>\n\n<details>\n<summary><b>Is it safe?</b></summary>\nSearch and quote are read-only. Booking only produces a checkout link you choose\nto complete — the MCP cannot charge anyone on its own. Tool annotations\n(<code>readOnlyHint</code>, <code>openWorldHint</code>) are set honestly.\n</details>\n\n<details>\n<summary><b>Which MCP spec version?</b></summary>\n<code>2025-06-18</code>. The server also answers <code>2024-11-05</code> for\nolder clients.\n</details>\n\n---\n\n## Links\n\n- 🌐 **Landing page:** <https://tellandgo.com/mcp>\n- 📋 **Discovery manifest:** <https://tellandgo.com/.well-known/mcp.json>\n- 🤖 **`llms.txt`:** <https://tellandgo.com/llms.txt>\n- 📖 **Full inventory reference:** <https://tellandgo.com/llms-full.txt>\n- 📦 **Registry manifest:** [`server.json`](./server.json) · [`glama.json`](./glama.json)\n- 📝 **Changelog:** [`CHANGELOG.md`](./CHANGELOG.md)\n\n---\n\n<div align=\"center\">\n\n<picture>\n  <source media=\"(prefers-color-scheme: dark)\" srcset=\"assets/icon-dark.svg\">\n  <source media=\"(prefers-color-scheme: light)\" srcset=\"assets/icon.svg\">\n  <img alt=\"Tell & Go\" src=\"assets/icon.svg\" width=\"56\">\n</picture>\n\n**[Tell & Go](https://tellandgo.com)** · Made for agents, built for humans.\n\nDocumentation © 2026 Island Inventions, Inc. — released under the\n[MIT License](./LICENSE).\n\n</div>\n",
+  "status": "curated"
+}

@@ -1,0 +1,61 @@
+{
+  "id": "mcp:official/io.github.Ifeanyiejindu/qarunbook",
+  "type": "mcp",
+  "name": "qarunbook",
+  "description": "Shared app-testing runbook: read the plan, record results per platform, raise and fix issues.",
+  "author": "io.github.Ifeanyiejindu",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/Ifeanyiejindu/qarunbook",
+    "repo": "Ifeanyiejindu/qarunbook"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://qarunbook.com/api/mcp",
+    "env": [
+      {
+        "name": "Authorization",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-22T18:30:37.547751Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# qarunbook\n\n![qarunbook — checks filling in across web, Android and iOS](assets/qarunbook-hero.gif)\n\n**Work out what needs testing, then actually get it tested.**\n\nMost teams know they should test before a release. What stops them is not\ndiscipline — it is that nobody wants to sit down and write out three hundred\nthings to check, and once somebody has, there is nowhere sensible to record\nwhat happened to each one.\n\nqarunbook does both halves:\n\n1. **Itemise.** Point an AI assistant at your codebase and it works out every\n   module, feature and user journey worth testing, across each platform you\n   ship on, and writes them as checks a non-technical person can follow. Or\n   write them yourself, or upload a plan you already have.\n2. **Test and track.** Testers work top to bottom, marking each check passed or\n   failed and raising what breaks. You can see how far along the release is at\n   any moment, and what is in the way.\n\nIt is built for **user acceptance testing** — the pass a human makes over a\nreal build before it ships. Not unit tests, not CI. The kind of testing where\nsomebody opens the app, signs up, and tries to actually use it.\n\n**https://qarunbook.com** — free to use.\n\n---\n\n## Why an MCP server\n\nBecause the loop usually breaks at the hand-off. A tester finds a bug, writes\nit in a spreadsheet or a WhatsApp message, and it is now somebody's job to read\nthat, understand it, fix it, and remember to tell the tester it is done.\n\nqarunbook exposes the runbook over MCP, so your coding assistant is on the\nother end of that loop directly:\n\n```\nlist_issues            what did the testers actually find (and what they attached)\nlist_checks failing    what is broken right now\nedit_issue             that report was vague — here is what actually happens\nresolve_issue          I fixed it\n```\n\nTesters can attach screenshots, screen recordings and logs to an issue in the\nweb app. Videos stream straight in the page, so a bug is something you watch\nrather than something you read about.\n\nWhen an issue is marked fixed, the check does not silently go back to passing.\nIt reads **R — retest**, because the person who last passed it was looking at a\nbuild without the fix in it. It clears when somebody actually looks again.\nStatus is derived from marks and issues rather than stored, so the runbook can\nnever quietly disagree with itself.\n\n## Install\n\n### Claude Code\n\nOne step, and the MCP connection and both skills come with it:\n\n```text\n/plugin marketplace add Ifeanyiejindu/qarunbook\n/plugin install qarunbook@qarunbook\n```\n\n(or from a terminal: `claude plugin marketplace add Ifeanyiejindu/qarunbook` then\n`claude plugin install qarunbook@qarunbook`)\n\nThen set your token, from your qarunbook home page under **Connect your AI**:\n\n```bash\nexport QARUNBOOK_TOKEN=\"qarb_…\"\n```\n\nThe token is yours, not the workspace's. It acts as you, with your role, and\nremoving you revokes exactly it.\n\n### Updates\n\nOpen `/plugin`, choose **Marketplaces**, select **qarunbook**, and turn on\nauto-update — Claude Code checks when it starts. Or update by hand:\n\n```text\n/plugin marketplace update qarunbook\n/plugin update qarunbook@qarunbook\n/reload-plugins\n```\n\n### Codex, Cursor and other agents\n\nTwo parts: the MCP connection, and the skills.\n\n**1. The skills** — works with Codex, Cursor, Gemini CLI, OpenCode, Cline and\nother agents that read `SKILL.md` files:\n\n```bash\nnpx skills add Ifeanyiejindu/qarunbook --global\n```\n\nUpdate them later with `npx skills update -g`.\n\n**2. The MCP connection.**\n\nCodex — `~/.codex/config.toml`\n\n```toml\n[mcp_servers.qa-runbook]\nurl = \"https://qarunbook.com/api/mcp\"\nhttp_headers = { Authorization = \"Bearer qarb_…\" }\n```\n\nCursor — `~/.cursor/mcp.json`\n\n```json\n{\n  \"mcpServers\": {\n    \"qa-runbook\": {\n      \"url\": \"https://qarunbook.com/api/mcp\",\n      \"headers\": { \"Authorization\": \"Bearer qarb_…\" }\n    }\n  }\n}\n```\n\nAny other MCP client: it is a Streamable HTTP server at\n`https://qarunbook.com/api/mcp`, authenticated with `Authorization: Bearer <your token>`.\n\n## The two skills\n\n| | |\n|---|---|\n| **`/test-checklist`** | Reads the app's code and works out what is worth testing — every module, feature and journey, on each platform it ships on. Writes them as steps a non-technical tester can follow, and creates the app in your runbook with the checks already in it. |\n| **`/qa-runbook`** | Runs the testing. Establishes what is under test, creates real accounts, drives web and mobile, records each result with evidence, and verifies fixes. |\n\nNeither is required. You can write the plan by hand, upload a markdown file, or\nadd checks one at a time — the skills just make the tedious part fast.\n\n## Working with other people\n\nA workspace holds your apps. People join it and get a role:\n\n- **tester** — record results, raise issues\n- **admin** — the above, plus edit the plan, import, resolve issues, invite\n- **owner** — the above, plus manage owners and the workspace\n\nRoles are enforced on the web app and on the MCP tools alike — a tester's token\ncannot edit the plan.\n\nYou can also choose **which apps** somebody sees: all of them, or the ones you\npick. Someone brought in to test one product does not get a list of everything\nelse you are working on.\n\nEveryone gets their own MCP token, so an assistant acting through it acts as\nthat person — its writes carry their name, and removing them revokes exactly\ntheir access.\n\n## The tools\n\nRead: `list_apps` · `progress` · `list_checks` · `get_check` · `list_issues`\nWrite: `set_result` · `add_issue` · `edit_issue` · `resolve_issue` · `update_check` ·\n`add_check` · `add_section` · `create_app` · `import_plan`\n\n`import_plan` takes a whole markdown test plan and builds the app from it in\none call, which is how a real runbook gets in — a plan runs to hundreds of\nchecks and adding them one at a time is not the way.\n\n## Self-hosting\n\nThe server is a small Next.js app over MongoDB. Set `QA_MONGO_URI` and\n`QA_SESSION_SECRET`, deploy, and point `QARUNBOOK_URL` at your own instance.\nEmail (invitations, password reset) is optional — without a provider\nconfigured, accounts verify themselves rather than locking anyone out.\n\n## Licence\n\nMIT — see [LICENSE](LICENSE). The hosted service at qarunbook.com is free while it is new.\n\n## Status\n\nIn use, and moving. Free while it is new. If something is broken or missing,\nopen an issue.\n",
+  "status": "curated"
+}

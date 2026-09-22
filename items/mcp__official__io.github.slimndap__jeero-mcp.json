@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.slimndap/jeero-mcp",
+  "type": "mcp",
+  "name": "Jeero MCP",
+  "description": "Local Jeero MCP server backed by Mother and SQLite.",
+  "author": "io.github.slimndap",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/slimndap/jeero-mcp",
+    "repo": "slimndap/jeero-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "jeero-mcp"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-22T17:49:56.318809Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# Jeero MCP\n\nJeero MCP is a local [Model Context Protocol](https://modelcontextprotocol.io/) server for Jeero subscriptions and event data. It synchronizes with Mother and keeps its local event cache in SQLite; it does not require WordPress or a hosted MCP service.\n\n## Install\n\nUse Node.js 20 or later and configure your MCP client to run the published package:\n\n```json\n{\n  \"mcpServers\": {\n    \"jeero\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"jeero-mcp\"]\n    }\n  }\n}\n```\n\nThe server communicates over stdio. Do not write application logs to stdout.\n\n## First use\n\nCreate a subscription with `create_subscription`. Mother first returns its **Ticketing solution** field; set that value with `config_subscription`, which returns the connector-specific fields. Send those completed settings through `config_subscription`. One subscription can be the default; tools use it when `subscription` is omitted. Multiple active subscriptions are supported.\n\n`get_events` synchronizes the selected subscriptions at most once a minute. While the server is running, active subscriptions are also checked every minute. Use `sync_subscription` or `sync_subscriptions` with `force: true` when an immediate refresh is needed.\n\n## Tools\n\n- Subscription management: `list_subscriptions`, `create_subscription`, `get_subscription`, `config_subscription`, `set_default_subscription`, `activate_subscription`, `deactivate_subscription`\n- Synchronization: `sync_subscription`, `sync_subscriptions`\n- Event data: `get_events`, `get_event`, `list_event_categories`, `get_ticket_snapshots`, `get_logs`\n\n## Local data and configuration\n\nBy default Jeero MCP stores its SQLite cache and persistent site identity in `~/.jeero-mcp/`. Keep that directory private: the identity is used for Mother requests.\n\n| Variable | Purpose |\n| --- | --- |\n| `JEERO_DATA_DIR` | Override the local data directory. |\n| `JEERO_SITE_URL` | Stable local site identifier; defaults to the machine hostname. |\n| `JEERO_MOTHER_BASE_URL` | Override Mother’s base URL, for example for staging. |\n| `JEERO_NO_OF_ITEMS_PER_PICKUP` | Limit inbox items requested per sync. |\n| `JEERO_LOG_MOTHER` | Enable Mother request tracing with `true`, `1`, `yes`, or `on`. |\n| `JEERO_LOG_MOTHER_FILE` | Override the trace log path. |\n\nMother remains the upstream source of truth. Jeero MCP stores processed event records and synchronization state, not raw inbox payloads.\n\n## Development\n\n```sh\nnpm install\nnpm test\nnpm pack --dry-run\n```\n\nThe tag-based publish workflow requires an explicit repository release approval before a version tag can publish.\n\n## License\n\n[MIT](LICENSE)\n",
+  "status": "curated"
+}

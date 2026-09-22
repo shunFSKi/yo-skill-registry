@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.sergelogvinov/proxmox-mcp",
+  "type": "mcp",
+  "name": "Proxmox MCP is an opinionated MCP server",
+  "description": "Proxmox MCP is an opinionated MCP server",
+  "author": "io.github.sergelogvinov",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/sergelogvinov/proxmox-mcp",
+    "repo": "sergelogvinov/proxmox-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "ghcr.io/sergelogvinov/proxmox-mcp:v0.2.0"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-22T16:59:46.139807Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Proxmox MCP Server\n\n> **NOTE:**\n> This project is under active development.\n\n## Motivation\n\nModern infrastructure often uses tools such as Terraform/OpenTofu, Ansible,\nand GitOps. These tools deploy and configure Proxmox infrastructure and\nKubernetes clusters.\n\nThe Proxmox MCP Server does not replace these tools. It gives AI assistants\nand automation agents access to information about your Proxmox clusters.\n\nThe default tools are read-only. Optional action tools can be enabled with\n`--allow-destructive` for operations such as backups and reboots.\n\nInstead of checking many pages in the Proxmox UI or running several commands,\nyou can ask an AI assistant to collect and analyze the required information.\nYour existing automation tools remain the main source for infrastructure\nchanges.\n\n## Overview\n\nThe server connects an MCP client, such as an AI assistant, to the Proxmox VE API.\nIt supports multiple Proxmox clusters and returns structured data.\n\nYou can use it to:\n\n- inspect clusters, nodes, and storage\n- check resource usage and node status\n- review recent Proxmox task events\n- find differences and possible configuration problems\n- collect information before you make infrastructure changes\n\nKeep your AI on the leash.\n\n## Proxmox core tools\n\nThe MCP server provides the following read-only tools:\n\n| Tool | Arguments | Description |\n| --- | --- | --- |\n| `proxmox_clusters_list` | None | List the configured Proxmox clusters. |\n| `proxmox_clusters_describe` | `cluster` | Show a cluster's version, nodes, node statuses, and total resources. |\n| `proxmox_containers_list` | `cluster` | List LXC containers with their status and resource usage. |\n| `proxmox_containers_describe` | `cluster`, `vmid`, `node` (optional) | Show an LXC container's current status and runtime network interfaces when it is running. |\n| `proxmox_events_list` | `cluster`, `limit` (optional) | List recent task events across all nodes. The default limit is `10`. |\n| `proxmox_nodes_list` | `cluster` | List nodes with their status and resource usage. |\n| `proxmox_nodes_describe` | `cluster`, `node` | Show a node's status, resources, uptime, version, kernel, and boot information. |\n| `proxmox_storage_list` | `cluster` | List storage resources with their status, type, content, and capacity usage. |\n| `proxmox_storage_describe` | `cluster`, `name`, `node` (optional) | Show storage details and, when a node is provided, content visible on that node. |\n| `proxmox_vms_list` | `cluster` | List QEMU virtual machines with their status and resource usage. |\n| `proxmox_vms_describe` | `cluster`, `vmid`, `node` (optional) | Show a QEMU virtual machine's current status and guest network interfaces when its QEMU guest agent is responding. |\n\nUse `proxmox_clusters_list` first to find the cluster names used by the other\ntools. MCP clients can discover the full input and output schemas. You can\nalso list the tools from the command line:\n\n```sh\nproxmox-mcp tools --config /absolute/path/to/cluster-config.yaml\n```\n\nWhen `--allow-destructive` is enabled, `proxmox_vms_backup` and\n`proxmox_containers_backup` accept `cluster`, `vmid`, optional `node`,\n`storage`, `mode`, and `compress` arguments. They start an asynchronous backup\nand return its Proxmox task identifier; task creation does not mean that the\nbackup has already completed successfully.\n\n## Installation\n\nFor a local installation with Homebrew, run:\n\n```sh\nbrew install sergelogvinov/tap/proxmox-mcp\n```\n\nYou do not need a local installation when you use an MCP server hosted on\nanother machine.\n\n## Configure Proxmox clusters\n\nCreate a YAML file that contains one or more Proxmox clusters:\n\n```yaml\nclusters:\n  - region: homelab\n    url: https://pve.example.com:8006/api2/json\n    token_id: mcp@pve!reader\n    token_secret_file: /absolute/path/to/token-secret\n    ca_file: /absolute/path/to/proxmox-ca.crt\n```\n\nEach cluster supports these fields:\n\n| Field | Required | Description |\n| --- | --- | --- |\n| `region` | Yes | Unique name used to select the cluster in tool calls. |\n| `url` | Yes | Full Proxmox API URL, including `/api2/json`. |\n| `token_id` | For token login | Proxmox API token ID, for example `mcp@pve!reader`. |\n| `token_id_file` | For token login | File that contains the token ID. Use this instead of `token_id`. |\n| `token_secret` | For token login | Proxmox API token secret. |\n| `token_secret_file` | For token login | File that contains the token secret. Use this instead of `token_secret`. |\n| `username` | For password login | Proxmox user name. Must be used with `password`. |\n| `password` | For password login | Proxmox password. Must be used with `username`. |\n| `ca_file` | No | Path to the CA certificate used to check the Proxmox TLS certificate. |\n| `insecure` | No | Skip TLS certificate checks. Use only for local testing. Default: `false`. |\n\nUse either token login or password login for a cluster, not both. Files are\nrecommended for secrets because they keep secret values out of the YAML file.\nThe Proxmox account should have only the permissions required by the tools.\n\nSet the configuration path with `--config` or `CONFIG_FILE`.\n\n## Configure an MCP client\n\n### Local stdio server\n\nFor clients that use a JSON MCP configuration, add an entry like this:\n\n```json\n{\n  \"mcpServers\": {\n    \"proxmox\": {\n      \"command\": \"proxmox-mcp\",\n      \"args\": [\"mcp\"],\n      \"env\": {\n        \"CONFIG_FILE\": \"/absolute/path/to/cluster-config.yaml\"\n      }\n    }\n  }\n}\n```\n\n### Remote HTTP server\n\nStart the streamable HTTP server with:\n\n```sh\nproxmox-mcp server \\\n  --config /absolute/path/to/cluster-config.yaml \\\n  --port 8080\n```\n\nThe MCP endpoint is `http://host:8080/mcp`\n\nFor a remote client, use an HTTPS URL that ends with `/mcp`:\n\n```json\n{\n  \"mcpServers\": {\n    \"proxmox\": {\n      \"type\": \"http\",\n      \"url\": \"https://proxmox-mcp.example.com/mcp\",\n      \"headers\": {\n        \"Authorization\": \"Bearer PVEAPIToken=mcp@pve!reader=TOKEN_SECRET\"\n      }\n    }\n  }\n}\n```\n\nThe server does not provide user authentication for the HTTP endpoint.\nIt relies on Proxmox authentication and API tokens for access control.\nProvide the token in mcp header like:\n\n```text\nAuthorization: PVEAPIToken=mcp@pve!reader=TOKEN_SECRET\n```\n\nWhen this header is present, its token is used for the tool call instead of\nthe credentials from the cluster configuration. The configured cluster must\nstill include `region` and `url`.\n\nRestart or reload the MCP client after you save its configuration.\n\n## Running\n\n### Common flags\n\nThe `mcp`, `server`, and `tools` commands use the following flags. Each flag\ncan also be set with an environment variable. A command-line flag has higher\npriority than an environment variable.\n\n| Flag | Environment variable | Default | Description |\n| --- | --- | --- | --- |\n| `--config <path>` | `CONFIG_FILE` | None | Path to the required clusters YAML configuration file. |\n| `--extensions <list>` | `EXTENSIONS` | `all` | Comma-separated list of extensions to enable, or `all`. |\n| `--allow-destructive` | `ALLOW_DESTRUCTIVE` | `false` | Allow destructive tools when they are available. Current core tools are read-only. |\n| `--log-level <level>` | `LOG_LEVEL` | `info` | Log level: `debug`, `info`, `warn`, or `error`. |\n| `--log-format <format>` | `LOG_FORMAT` | `text` | Log output format: `text` or `json`. |\n\nThe `server` command also accepts `--port` or `PORT`. The default port is\n`8080`. The `tools` command accepts `--output` (`-o`) with `text`, `json`, or\n`yaml`. Its default is `text`.\n\nFor example, run the stdio server with JSON logs:\n\n```sh\nproxmox-mcp mcp \\\n  --config /absolute/path/to/cluster-config.yaml \\\n  --log-format json\n```\n\n## Test the configuration\n\nList all available tools:\n\n```sh\nexport CONFIG_FILE=\"/absolute/path/to/cluster-config.yaml\"\nproxmox-mcp tools\n```\n\nCall a tool directly:\n\n```sh\nproxmox-mcp tools proxmox_clusters_list\nproxmox-mcp tools proxmox_nodes_list cluster=homelab\nproxmox-mcp tools -o json proxmox_events_list cluster=homelab limit=5\n```\n\n## License\n\nLicensed under the Apache License, Version 2.0 (the \"License\");\nyou may not use this file except in compliance with the License.\nYou may obtain a copy of the License at\n\n[http://www.apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0)\n\nUnless required by applicable law or agreed to in writing, software\ndistributed under the License is distributed on an \"AS IS\" BASIS,\nWITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\nSee the License for the specific language governing permissions and\nlimitations under the License.\n\n---\n\n`Proxmox®` is a registered trademark of [Proxmox Server Solutions GmbH](https://www.proxmox.com/en/about/company).\n",
+  "status": "curated"
+}
