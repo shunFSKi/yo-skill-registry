@@ -1,0 +1,84 @@
+{
+  "id": "mcp:official/io.github.whatevercat-creator/crypto-sentiment-x402",
+  "type": "mcp",
+  "name": "crypto-sentiment-x402",
+  "description": "Real-time crypto sentiment for a ticker symbol from 8 news RSS feeds and the Fear & Greed Index",
+  "author": "io.github.whatevercat-creator",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/whatevercat-creator/crypto-sentiment-x402",
+    "repo": "whatevercat-creator/crypto-sentiment-x402"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "crypto-sentiment-x402-mcp"
+    ],
+    "env": [
+      {
+        "name": "CDP_API_KEY_ID",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "CDP_API_KEY_SECRET",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "CDP_WALLET_NAME",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "SENTIMENT_API_URL",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "X402_NETWORK",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-23T15:06:57.895132Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "金融",
+    "featured": false
+  },
+  "readme": "# Crypto Sentiment API (x402)\n\nPay-per-call crypto sentiment API for AI agents. No API keys, no\nsubscriptions — agents discover it, get an HTTP 402, pay in USDC on Base,\nand get the data.\n\n**Sentiment sources (all free, no keys required):**\n- Crypto news RSS (8 outlets) — CoinDesk, Cointelegraph, Decrypt, Bitcoin\n  Magazine, The Block, CryptoSlate, NewsBTC, CryptoPotato\n- Fear & Greed Index — alternative.me\n\n**Scoring:** VADER sentiment analysis, extended with a crypto slang lexicon\n(moon, rekt, rug, hodl, bullish/bearish, etc.) so slang isn't scored as neutral.\n\n---\n\n## 1. Get a Base wallet address\n\nYou need an address to receive USDC payments. Any standard Ethereum-style\nwallet works on Base (e.g. Coinbase Wallet, MetaMask configured for Base).\nYou do **not** need to give this app your private key — only the public\naddress, to receive funds.\n\n## 2. Run it locally (testnet — free, no real money)\n\n```bash\ncd crypto-sentiment-x402\ncp .env.example .env\n# edit .env and set PAY_TO_ADDRESS to your wallet address\npip install -r requirements.txt\nuvicorn app.main:app --reload\n```\n\nVisit `http://localhost:8000` — you'll see the API description.\nCalling `http://localhost:8000/sentiment/BTC` without payment returns an\nHTTP 402 with payment instructions, exactly what an agent's x402 client\nwould see and act on automatically.\n\nTo actually test a paid call, use the official x402 test client (needs\nBase Sepolia testnet USDC — free from the\n[Base Sepolia faucet](https://docs.base.org/tools/network-faucets)):\n\n```bash\npip install x402\npython -m x402.examples.client --url http://localhost:8000/sentiment/BTC\n```\n\n## 3. Deploy (simplest path: Render.com)\n\n1. Push this folder to a new GitHub repo.\n2. Go to [render.com](https://render.com) → New → Blueprint → connect the repo.\n   Render will read `render.yaml` automatically.\n3. When prompted, set the `PAY_TO_ADDRESS` environment variable to your\n   wallet address.\n4. Deploy. Render builds the `Dockerfile` and gives you a public HTTPS\n   URL like `https://crypto-sentiment-x402.onrender.com`.\n\nThat's it — testnet mode is on by default, so nothing costs real money\nuntil you flip `X402_NETWORK` to `mainnet` (step 4 below).\n\n## 4. Go live with real USDC payments\n\n1. Sign up for a free [Coinbase Developer Platform](https://portal.cdp.coinbase.com)\n   account and create an API key — this is required for the mainnet\n   facilitator (production-grade payment verification/settlement).\n2. In Render, set:\n   - `X402_NETWORK=mainnet`\n   - `CDP_API_KEY_ID=...`\n   - `CDP_API_KEY_SECRET=...`\n   - `PAY_TO_ADDRESS` = your **mainnet** Base address (double-check it's\n     not a testnet-only address)\n3. Redeploy. Calls now settle real USDC on Base mainnet.\n\nStart with a low price (`X402_PRICE_USD`, default `$0.01`) while you\nvalidate everything works end-to-end.\n\n## 5. List it so AI agents can find and pay you\n\nThis is the **x402 Bazaar** — Coinbase's discovery layer, essentially a\nsearch engine for agents looking for x402 services.\n\n- If you're using the **CDP facilitator** (i.e. you're on mainnet per step\n  4), your service becomes automatically discoverable in the Bazaar once\n  you process your first real payment through it — no separate signup.\n- To improve how well agents can find and understand it, keep the\n  `description` field in `app/main.py`'s `RouteConfig` clear and specific\n  (already set) — that text is what shows up in Bazaar search results.\n- You can browse the current Bazaar listing yourself at\n  `https://api.cdp.coinbase.com/platform/v2/x402/discovery/resources`\n  (public, no key needed) to confirm your service appears after going live.\n- Optional extra distribution: submit your API to\n  [x402bazaar.org](https://www.x402bazaar.org/), a community-run directory\n  of x402 services, separate from Coinbase's own Bazaar.\n\n## MCP server (Claude Desktop / Claude Code)\n\nPrefer agents calling this over MCP instead of raw HTTP? `mcp_server.py`\nwraps the same API as an MCP tool (`crypto_sentiment`) -- the server pays\nfor each call from its own CDP-managed wallet, so callers never touch\ncrypto directly. See [MCP.md](MCP.md) for setup.\n\n## Subscription tiers (Stripe, no crypto required)\n\nPrefer a monthly bill over pay-per-call USDC? `GET /v1/sentiment/{symbol}`\ntakes an `X-API-Key` header instead of an x402 payment, backed by Free /\nStarter ($15/mo) / Pro ($59/mo) tiers. See [BILLING.md](BILLING.md) for\nsetup, or `GET /billing/pricing` on a running instance for current pricing.\n\n## Sentiment-shift alerts\n\nWatch a symbol and get pinged (webhook / Discord / Telegram) when its\nsentiment moves, instead of polling `/sentiment` yourself. Bundled into the\nStarter/Pro subscription tiers -- see [ALERTS.md](ALERTS.md).\n\n## Historical dataset export\n\nSells access to the *history* of sentiment readings, not just the current\none -- a background job takes one snapshot per symbol per day, and\nsubscribers on the \"Data Access\" tier can export everything collected so\nfar as CSV or JSON via `GET /dataset/export`. See [DATASET.md](DATASET.md)\n(there's no backfilled history -- it only has data from whenever you turn\nthe snapshot loop on).\n\n## Also on RapidAPI\n\nListed on the [RapidAPI Hub](https://rapidapi.com/whatevercat/api/crypto-sentiment-analysis)\nfor developers who'd rather discover and pay for it through RapidAPI's\nmarketplace instead of Stripe or x402 directly. Same underlying data,\nserved from `GET /rapidapi/sentiment/{symbol}` -- traffic is only accepted\nwhen it's routed through RapidAPI's proxy (validated via a shared secret\nheader), so this endpoint isn't meant to be called directly. Plans there\nmirror the Stripe tiers: Free (100 req/mo), $15/mo (3,000 req), $59/mo\n(15,000 req).\n\n## Zapier & TradingView integrations\n\nRoute sentiment-shift alerts into Zapier (via the existing webhook\nchannel -- no new endpoint needed) or enrich TradingView price alerts\nwith live sentiment before relaying them to your webhook/Discord/\nTelegram. See [INTEGRATIONS.md](INTEGRATIONS.md).\n\n## API reference\n\n| Endpoint | Price | Description |\n|---|---|---|\n| `GET /` | Free | Service info |\n| `GET /health` | Free | Health check |\n| `GET /sentiment/{symbol}` | $0.01 (configurable) | Aggregate sentiment for a symbol, e.g. `/sentiment/BTC` |\n\nExample paid response:\n\n```json\n{\n  \"symbol\": \"BTC\",\n  \"name\": \"Bitcoin\",\n  \"overall_sentiment\": {\n    \"sample_size\": 42,\n    \"average_compound\": 0.21,\n    \"label\": \"bullish\",\n    \"positive_pct\": 55.0,\n    \"negative_pct\": 15.0,\n    \"neutral_pct\": 30.0\n  },\n  \"breakdown\": {\n    \"news\": { \"...\": \"...\" },\n    \"fear_greed_index\": { \"value\": 62, \"classification\": \"Greed\" }\n  },\n  \"sources\": [\"coindesk.com RSS\", \"...\"]\n}\n```\n\n## Notes and limitations\n\n- Reddit was removed as a source: Reddit's Responsible Builder Policy\n  prohibits commercial use of their data without written approval, which\n  this paid API would violate. `app/sources/reddit.py` is left in the repo\n  unused in case that changes in the future.\n- Coin coverage: `app/coins.py` has a starter list of ~15 symbols. Add more\n  as needed — unmapped symbols still work, just with slightly less accurate\n  news matching (falls back to matching on the symbol itself).\n- Only supports the `exact` payment scheme on Base/EVM. The x402 SDK also\n  supports Solana (`ExactSvmServerScheme`) if you want to accept SOL-based\n  USDC too — see the commented-out import in `app/main.py`'s dependencies.\n- Add more paid endpoints (e.g. historical sentiment, multi-symbol batch\n  queries) by adding entries to the `routes` dict in `app/main.py`.\n",
+  "status": "curated"
+}

@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.SylphxAI/cue",
+  "type": "mcp",
+  "name": "Cue",
+  "description": "Cue — video answers with timestamp-level proof. Scenes and frames stay off until asked.",
+  "author": "io.github.SylphxAI",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/SylphxAI/cue",
+    "repo": "SylphxAI/cue"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@sylphx/cue"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-23T15:22:43.263058Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "设计",
+    "featured": false
+  },
+  "readme": "# Cue\n\n### Video answers with timestamp-level proof\n\nCue gives agents a local video timeline they can search and cite. The default\nread returns container metadata, streams, chapters, and embedded subtitles.\nScenes and frames are separate.\n\n```bash\nnpx -y @sylphx/cue\n```\n\nFor Claude Code:\n\n```bash\nclaude mcp add cue -- npx -y @sylphx/cue\n```\n\n## Read a local video\n\n```json\n{\n  \"sources\": [{ \"path\": \"/absolute/path/to/demo.mp4\" }]\n}\n```\n\nThat call uses the `fast` profile. It returns container metadata, streams,\nchapters, and embedded subtitles. It does not detect scenes, extract frames,\nor run speech recognition.\n\nThen ask:\n\n> “Which chapter covers the pricing change?”\n\nCue returns chapter and subtitle locators with `timestamp_ms` and the source\nhash. It does not invent a transcript. A quote search matches embedded\nsubtitles only. Render or crop a frame afterwards with `video_evidence`, once\nyou have a timestamp.\n\n## Jobs Cue is built for\n\n| Ask your agent | Cue returns |\n| --- | --- |\n| “Find this quote.” | a timestamped match in embedded subtitles, when those subtitles exist |\n| “Summarize this meeting.” | chapters and embedded subtitles |\n| “Where is the code shown?” | one frame from `video_evidence` at a known timestamp |\n| “What changed in this demo?” | scene boundaries when `profile` is `quality` or `include_scenes` is set |\n| “Give me the useful moments.” | chapters, embedded subtitles, warnings, and gaps |\n\n## Tool surface\n\n| Tool | Purpose |\n| --- | --- |\n| `read_video` | Default `fast` profile: container metadata, streams, chapters, and embedded subtitles. Scenes are opt-in. |\n| `search_video` | Search embedded subtitle cues. It does not run speech recognition. |\n| `video_evidence` | Named follow-up: render, crop, or OCR one frame at a timestamp |\n\n## Predictable defaults\n\n- Omitted `profile` is `fast`: container metadata, streams, chapters, and embedded subtitles. No scenes, frames, or speech recognition.\n- `profile` `quality` sets scene detection and keyframes only. It does not enable OCR or speech recognition.\n- `include_transcript` stays off unless the caller sets it, including on `quality`.\n- OCR stays on `video_evidence`.\n- No cloud video API or frame-by-frame vision model is required.\n- Missing ffprobe or embedded subtitles is reported as a gap, not guessed around.\n\n## Why agents trust it\n\nEvery claim can point back to `timestamp_ms`, a stream index, a subtitle range,\nor the source hash. A frame index is present only after `video_evidence`. When\nkeyframes are requested, structural keyframes are preferred over sampling every\nframe.\n\n## Companion MCP tools\n\n| Product | Job |\n| --- | --- |\n| [Citra](https://github.com/SylphxAI/citra) | PDF answers with page-level proof |\n| [Iris](https://github.com/SylphxAI/iris) | Image facts and pixel evidence |\n| [Spine](https://github.com/SylphxAI/spine) | Repository architecture and impact |\n| [Locus](https://github.com/SylphxAI/locus) | Exact code-chunk retrieval |\n| [Lookout](https://github.com/SylphxAI/lookout) | Web research with source excerpts |\n\nEach product is independent. Install only the tools your agent needs.\n\n## Development\n\n```bash\nbun install\nbun run build\nbun test\ncargo test\nbun run benchmark:public-proof\nbun run benchmark:release-gate\n```\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

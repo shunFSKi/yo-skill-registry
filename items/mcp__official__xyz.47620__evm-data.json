@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/xyz.47620/evm-data",
+  "type": "mcp",
+  "name": "47620 Base + Polygon Data API",
+  "description": "Pay-per-call Base and Polygon onchain data over x402 for AI agents.",
+  "author": "xyz.47620",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/fito311/evm-data-mcp",
+    "repo": "fito311/evm-data-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "47620-evm-mcp"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-23T17:51:00.218814Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# 47620 Base + Polygon Data API — MCP server\n\n[![MCP](https://img.shields.io/badge/MCP-server-blue)](https://modelcontextprotocol.io)\n[![x402](https://img.shields.io/badge/payments-x402-purple)](https://x402.org)\n\nPay-per-call **Base** and **Polygon** onchain data for AI agents. No signup, no API\nkey — every call is an [x402](https://x402.org) (HTTP 402) request settled in **USDC**,\nnon-custodially. Pay on **Solana, Base or Polygon** — whichever your wallet supports.\n\n## Tools (18)\n\nPer chain (`base_*`, `polygon_*`):\n\n| Tool | Price | What it returns |\n|---|---|---|\n| `{chain}_health` | $0.002 | chain id, latest block, gas price, native USD price |\n| `{chain}_block` | $0.005 | block header + summary (hash, txs, gas, base fee) |\n| `{chain}_balance` | $0.005 | native balance + live USD value |\n| `{chain}_stables` | $0.01 | USDC / USDT / DAI balances in one call |\n| `{chain}_token` | $0.02 | price, liquidity, 24h volume, DEX pairs, ERC-20 metadata |\n| `{chain}_tx` | $0.01 | status, block, gas, from/to/value |\n| `{chain}_contract` | $0.01 | is-contract, bytecode size, ERC-20 metadata |\n| `{chain}_gas` | $0.005 | gas price (gwei/wei) + 21k transfer cost |\n| `{chain}_trending` | $0.02 | trending DEX pairs by 24h volume |\n\n## Use it (remote — no install)\n\nConnect any MCP client to:\n\n```\nhttps://47620.xyz/mcp/evm\n```\n\nStreamable HTTP transport. Tool calls return the x402 challenge; an x402-capable\nruntime completes the USDC payment and retries. Works with Claude, Cursor,\nOpenClaw, Windsurf and any MCP-capable agent.\n\n## Use it (local, stdio)\n\n```bash\nnpx -y 47620-evm-mcp\n```\n\nClaude Desktop / Cursor config:\n\n```json\n{\n  \"mcpServers\": {\n    \"47620-evm-data\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"47620-evm-mcp\"],\n      \"env\": { \"X402_PAY_URL\": \"https://your-pay-broker.example/pay\" }\n    }\n  }\n}\n```\n\n- `X402_PAY_URL` (optional): an HTTP pay broker that, given `{url, challenge}`,\n  returns `{header}` — a base64 `PAYMENT-SIGNATURE`. Without it, tools return the\n  402 challenge and payment instructions.\n\n## HTTP API\n\n| Method | URL |\n|---|---|\n| GET | `https://47620.xyz/x/base` | catalog |\n| GET | `https://47620.xyz/x/polygon` | catalog |\n| GET | `https://47620.xyz/x/base/{health,gas,trending}` | paid |\n| GET | `https://47620.xyz/x/base/{block/:n,balance/:a,stables/:a,token/:t,tx/:h,contract/:a}` | paid |\n| GET | `https://47620.xyz/x/polygon/...` | same, Polygon |\n\nFacilitated mirrors under `/x/base-fac/*` and `/x/polygon-fac/*` are used by the\nremote MCP for marketplace discovery.\n\n## Payment\n\nEvery endpoint advertises `accepts[]` on all three chains:\n\n- **Solana** — USDC (SPL)\n- **Base** (`eip155:8453`) — USDC\n- **Polygon** (`eip155:137`) — USDC\n\n1% platform fee is split at settlement; 99% goes to the merchant. Non-custodial.\n\n## Links\n\n- Remote MCP: https://47620.xyz/mcp/evm\n- Manifest: https://47620.xyz/mcp/evm/server-card\n- Repo: https://github.com/fito311/evm-data-mcp\n- Registry: `xyz.47620/evm-data`\n\nMIT.\n",
+  "status": "curated"
+}

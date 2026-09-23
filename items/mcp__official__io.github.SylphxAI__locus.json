@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.SylphxAI/locus",
+  "type": "mcp",
+  "name": "Locus",
+  "description": "Locus — the exact code chunk for the job: local Rust TF-IDF search for agents.",
+  "author": "io.github.SylphxAI",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/SylphxAI/locus",
+    "repo": "SylphxAI/locus"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@sylphx/locus"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-23T18:28:40.602188Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# Locus\n\n### The exact code chunk for the job\n\nLocus is local code search for coding agents. It indexes the repository on the machine, ranks chunks with BM25, and returns the path, line range, symbol, score, and chunk text.\n\nNo API key. No vector database. No Docker. The default transport is stdio.\n\n```bash\nnpx -y @sylphx/locus --root=/absolute/path/to/project\n```\n\nLocus does not search the process working directory. Pass `--root`, set `CODERAG_ROOT`, or pass `root` on the tool call. A tool `root` wins, then the launch `--root`, then `CODERAG_ROOT`.\n\nClaude Code:\n\n```bash\nclaude mcp add locus -- npx -y @sylphx/locus --root=/absolute/path/to/project\n```\n\nCodex:\n\n```bash\ncodex mcp add locus -- npx -y @sylphx/locus --root=/absolute/path/to/project\n```\n\n## Tools\n\n| Tool | Use it when | You get |\n| --- | --- | --- |\n| `codebase_search` | You can name words that appear in the code | Ranked chunks. Filters apply before the limit. |\n| `find_related` | You already have a file and a line | Other chunks that share its tokens |\n\n```json\n{\n  \"query\": \"authenticate request\",\n  \"limit\": 5,\n  \"file_extensions\": [\"ts\"],\n  \"path_filter\": \"src/auth\",\n  \"exclude_paths\": [\"src/auth/legacy\"]\n}\n```\n\n`login` does not match `authenticate`. Ranking is lexical. Search for the words the code uses.\n\n## What is indexed\n\n`.ts` `.tsx` `.js` `.jsx` `.mjs` `.cjs` `.rs` `.md` `.py` `.go`\n\nSkipped path segments, by exact name: `node_modules`, `dist`, `target`, `.git`. This is not gitignore. Files larger than 1,048,576 bytes are skipped. The index is `.coderag/rust-index.json` and `.coderag/file-hashes.json`.\n\nA line that looks like a symbol starts a chunk. Other files stay one chunk. The patterns are regular expressions, not a syntax tree. [Symbol chunks](https://sylphxai.github.io/locus/guide/ast-chunking).\n\n## Defaults that stay boring\n\n- `limit` defaults to 10 and must be an integer from 1 to 100.\n- `include_content` defaults to true. `false` returns locators only.\n- There is no `auto`, `fast`, or `quality` search mode.\n- Each call refreshes the local index. Unchanged files are a cache hit. That refresh mode is not a search profile you select.\n- HTTP exists only when `MCP_TRANSPORT=http`. Agents should use stdio.\n\n## Install surfaces\n\n| Surface | Where |\n| --- | --- |\n| Claude Code | `claude mcp add locus -- npx -y @sylphx/locus --root=/absolute/path/to/project` |\n| Codex | `codex mcp add locus -- npx -y @sylphx/locus --root=/absolute/path/to/project` |\n| Cursor | `mcpServers` in `.cursor/mcp.json` or `~/.cursor/mcp.json` |\n| VS Code | `servers` in `.vscode/mcp.json` (`${workspaceFolder}` is expanded) |\n| Other MCP clients | `mcpServers` in `.mcp.json`, with an absolute `--root` |\n\nPublished natives: `@sylphx/locus-darwin-arm64`, `@sylphx/locus-darwin-x64`, `@sylphx/locus-linux-arm64-gnu`, `@sylphx/locus-linux-x64-gnu`. Windows is not a published target.\n\n`npx -y @sylphx/locus doctor` prints the server version and whether `locus-cli` was found.\n\n## Companions\n\n| Product | Job |\n| --- | --- |\n| [Citra](https://github.com/SylphxAI/citra) | PDF answers with page-level proof |\n| [Iris](https://github.com/SylphxAI/iris) | Image facts and pixel evidence |\n| [Cue](https://github.com/SylphxAI/cue) | Video timelines and timestamp evidence |\n| [Spine](https://github.com/SylphxAI/spine) | Repository architecture and impact |\n| [Lookout](https://github.com/SylphxAI/lookout) | Web research with source excerpts |\n\nLocus finds the chunk. Spine maps the architecture. Install only what the task needs.\n\nDocs: <https://sylphxai.github.io/locus/>\n\n## Development\n\n```bash\nbun install\nbun run build:rust\ncargo test\nbun run docs:build\n```\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

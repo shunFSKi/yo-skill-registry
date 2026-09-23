@@ -1,0 +1,74 @@
+{
+  "id": "mcp:official/io.github.thyn-ai/codna",
+  "type": "mcp",
+  "name": "Codna — repository intelligence",
+  "description": "Map a repo before spending a token: triage, bug-fix PRs, SARIF reachability, on-device recall.",
+  "author": "io.github.thyn-ai",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/thyn-ai/codna-cli",
+    "repo": "thyn-ai/codna-cli"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "codna"
+    ],
+    "env": [
+      {
+        "name": "ANTHROPIC_API_KEY",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "GITHUB_TOKEN",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "CODNA_API_KEY",
+        "required": false,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-23T18:24:50.577739Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# Codna\n\n<!-- mcp-name: io.github.thyn-ai/codna -->\n\n**Understand. Fix. Evolve.**\n\nAgents read your code. Codna understands it.\n\nCodna maps a repository before it spends a token. It then reviews pull requests, fixes bugs and\nproves which scanner findings are reachable. The same `codna` command runs on your machine, in the\nGitHub Action and behind the GitHub App.\n\nRuns on your machine or your cloud. Your code never leaves without your key.\n\n## Install\n\n```bash\npip install codna          # or: pipx install codna · uv tool install codna\ncodna --version\n```\n\nPython 3.12–3.13. Wheels for macOS on Apple silicon and Linux x86_64. `git` on your `PATH`.\nNothing else to install: no Node, Bun, Docker or server. The agent runtime ships inside the wheel.\n\nLocal commands need no Codna key. `fix` and `review` use your own model provider key, stored in\nthe OS keychain and never printed:\n\n```bash\ncodna key set anthropic    # also: openai, gemini, google, groq, mistral, openrouter, xai, cursor\n```\n\n## Commands\n\n```bash\ncodna triage . --issue \"checkout total is wrong\"     # suspect files. Deterministic. 0 LLM tokens.\ncodna review . --pr 123 --post                        # findings with a verdict on the pull request\ncodna fix . --tests --apply --max-iterations 3        # patch, re-run your tests, re-fix until green\ncodna fix <git url> --ref <sha> --issue \"…\" --open-pr # push a branch and open a pull request\ncodna secure . --from-sarif results.sarif             # which scanner findings are reachable. 0 LLM tokens.\n```\n\n`codna fix` prints the root cause, the impacted symbols, the blast radius, its confidence and a\nregression risk. `--open-pr` needs a git URL and a GitHub write token. `codna review` posts one\ninline comment per finding with severity, category and a suggestion block, and an Approve when the\ndiff is clean at medium and high. `codna secure` reads SARIF 2.1.0 from CodeQL, Semgrep, Snyk,\nTrivy or any other scanner.\n\nOther commands: `init`, `status`, `doctor`, `login`, `key`, `impact`, `memory export`, `report`.\nFull reference: [docs.codna.ai/reference/cli](https://docs.codna.ai/reference/cli).\n\n## MCP server\n\nRun Codna as a [Model Context Protocol](https://modelcontextprotocol.io) server over stdio —\nthe same engine the CLI uses, inside Cursor, Claude Desktop, or your own agent:\n\n```bash\npipx install \"codna[mcp]\"       # or: pip install \"codna[mcp]\"\ncodna mcp                       # serve over stdio\ncodna mcp install --client cursor     # optional: write the client config for you (or --client claude)\n```\n\nFive tools, each returning JSON; a failure comes back as `codna_<tool> error: …` text and never\ncrashes the server:\n\n| Tool | What it does | Needs |\n| --- | --- | --- |\n| `codna_triage` | Understand a repo and locate the code relevant to an issue. Deterministic, 0 LLM tokens. | free `codna login` |\n| `codna_secure` | Prove which SARIF scanner findings (CodeQL, Semgrep, Snyk, Trivy) are reachable. Read-only, 0 LLM tokens. | free `codna login` |\n| `codna_recall` | Recall code from local on-device memory — semantic + lexical search, fully offline. | free `codna login` (+ on-device runtime from the login-gated install) |\n| `codna_fix` | Root-cause and plan a fix (read-only by default); with `open_pr=true` pushes a branch and opens a real PR. | free `codna login` + provider key (BYOK; + `GITHUB_TOKEN` for `open_pr=true`) |\n| `codna_report_bug` | File a bug, feature, or question to thyn-ai/feedback. | free `codna login` + `GITHUB_TOKEN` (else returns a pre-filled URL) |\n\nIntrospection (`initialize`/`tools/list`) needs no credentials. Executing any of the five tools\nrequires the one-time free community login (`codna login` — device authorization, free community\nlicense) — fully offline thereafter. `codna_fix` additionally needs a provider key (BYOK, e.g.\n`ANTHROPIC_API_KEY`); `codna_report_bug` needs `GITHUB_TOKEN` or it returns a pre-filled issue\nURL; `codna_recall` additionally uses the on-device memory runtime from the login-gated install.\nFull reference:\n[docs.codna.ai/guides/mcp](https://docs.codna.ai/guides/mcp).\n\n## Code memory\n\nCode memory and recall run on your machine after a one-time free `codna login` (device\nauthorization); the signed on-device runtime arrives via the login-gated install. From then on,\nrecall runs fully\noffline: no key, no network calls. The optional\n`codna[memory]` extra adds the on-device semantic reranker; without it, recall ranks lexically.\n\n## What leaves your machine\n\n- Repository mapping, triage, recall and `impact` run offline. No model is involved.\n- `fix` and `review` send one issue-specific evidence bundle to the provider you chose, under your\n  key. Not the repository.\n- Secret redaction is always on and cannot be turned off.\n- `privacy.egress: fail-closed` in `codna.yaml` refuses to run tests without network denial and\n  skips registry lookups during review.\n- Source distributions exclude runtime binaries, keys, `.env` files and logs.\n\n## Links\n\n- Homepage: https://codna.ai\n- Documentation: https://docs.codna.ai\n- Source: https://github.com/thyn-ai/codna\n- Security: https://codna.ai/security\n",
+  "status": "curated"
+}

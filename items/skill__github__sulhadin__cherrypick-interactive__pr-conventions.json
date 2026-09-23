@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/sulhadin/cherrypick-interactive/pr-conventions",
+  "type": "skill",
+  "name": "pr-conventions",
+  "description": "Compose a PR title and description that follow the org convention. Use when opening or rewriting a pull request.",
+  "author": "sulhadin",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/sulhadin/cherrypick-interactive/blob/HEAD/.agents/skills/pr-conventions/SKILL.md",
+    "repo": "sulhadin/cherrypick-interactive",
+    "path": ".agents/skills/pr-conventions/SKILL.md"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 6,
+    "pushed_at": "2026-09-22T23:17:46Z",
+    "score": 63,
+    "star_history": [
+      {
+        "d": "2026-09-23",
+        "s": 6
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# 🪶 cherrypick-interactive\n\n### Cherry-pick missing commits from `dev` to `main` — interactively and safely.\n\n---\n\n## 🚧 Motivation\n\nWhen you maintain long-lived branches like `dev` and `main`, keeping them in sync can get messy.\nSometimes you rebase, sometimes you cherry-pick, sometimes you merge release branches — and every time, it's easy to lose track of which commits actually made it into production.\n\n**This CLI solves that pain point:**\n\n- It compares two branches (e.g. `origin/dev` vs `origin/main`)\n- Lists commits in `dev` that are *not yet* in `main`\n- Lets you choose which ones to cherry-pick interactively\n- Handles merge conflicts with an interactive resolution wizard\n- Preserves original commit messages perfectly (even with squashed commits)\n- (Optionally) bumps your semantic version, creates a release branch, updates `package.json`, and opens a GitHub draft PR for review\n\nNo manual `git log` diffing. No risky merges. No guesswork.\n\n---\n\n## 📦 Installation\n\n```bash\nnpm install -g cherrypick-interactive\n```\n\n(You can also run it directly without installing globally using `npx`.)\n\n---\n\n## 🚀 Quick Start\n\n```bash\ncherrypick-interactive\n```\n\nThat's it. Compares `origin/dev` vs `origin/main` for the last week and lets you pick interactively.\n\nFor a full release workflow, see the [Quick Start guide](https://github.com/sulhadin/cherrypick-interactive/blob/main/docs/quick-start.md).\n\n---\n\n## 🧭 What it does\n\n- 🔍 Finds commits in `dev` not present in `main`\n- 🗂️ Lets you select which commits to cherry-pick (or pick all)\n- 🪜 Cherry-picks in the correct order (oldest → newest)\n- ⚔️ [**Interactive conflict resolution wizard**](https://github.com/sulhadin/cherrypick-interactive/blob/main/docs/conflict-resolution.md)\n- 🎯 **Preserves exact commit messages** from squashed commits\n- 🪄 Detects [**semantic version bump**](https://github.com/sulhadin/cherrypick-interactive/blob/main/docs/semantic-versioning.md) from conventional commits\n- 🧩 Creates a `release/x.y.z` branch from `main`\n- 🧾 Generates a Markdown changelog with [**ticket linking**](https://github.com/sulhadin/cherrypick-interactive/blob/main/docs/tracker-integration.md)\n- 🖥️ Rich [**TUI dashboard**](https://github.com/sulhadin/cherrypick-interactive/blob/main/docs/tui-dashboard.md) with diff preview, search, and keyboard shortcuts\n- 🤖 [**CI mode**](https://github.com/sulhadin/cherrypick-interactive/blob/main/docs/ci-mode.md) for fully non-interactive pipeline execution\n- 💾 [**Profiles**](https://github.com/sulhadin/cherrypick-interactive/blob/main/docs/profiles.md) to save and reuse CLI flag combinations\n\n---\n\n## 📖 Documentation\n\n| Topic | Description |\n|-------|-------------|\n| [🚀 Quick Start](https://github.com/sulhadin/cherrypick-interactive/blob/main/docs/quick-start.md) | Getting started, full workflow, custom branches |\n| [🧩 Common Use Cases](https://github.com/sulhadin/cherrypick-interactive/blob/main/docs/common-use-cases.md) | Filtering, profiles, CI, tracker, and more |\n| [⚙️ All Options](https://github.com/sulhadin/cherrypick-interactive/blob/main/docs/options.md) | Complete reference for all CLI flags |\n| [⚔️ Conflict Resolution](https://github.com/sulhadin/cherrypick-interactive/blob/main/docs/conflict-resolution.md) | Per-file and bulk resolution, CI strategies |\n| [🧠 Semantic Versioning](https://github.com/sulhadin/cherrypick-interactive/blob/main/docs/semantic-versioning.md) | Conventional commits, version sources, ignore patterns |\n| [🖥️ TUI Dashboard](https://github.com/sulhadin/cherrypick-interactive/blob/main/docs/tui-dashboard.md) | Keyboard shortcuts, diff preview, search, fallback |\n| [💾 Profiles](https://github.com/sulhadin/cherrypick-interactive/blob/main/docs/profiles.md) | Save/load/list profiles, config file, CI usage |\n| [🔗 Tracker Integration](https://github.com/sulhadin/cherrypick-interactive/blob/main/docs/tracker-integration.md) | ClickUp, Jira, Linear presets, custom patterns |\n| [🤖 CI Mode](https://github.com/sulhadin/cherrypick-interactive/blob/main/docs/ci-mode.md) | Exit codes, JSON output, GitHub Actions example |\n\n---\n\n## 🧰 Requirements\n\n- Node.js ≥ 20\n- Git ≥ 2.0\n- **GitHub CLI (`gh`)** — *Optional, only required if using `--push-release`*\n\n---\n\n## 🧑‍💻 Contributing\n\n1. Clone the repo\n2. Install dependencies: `yarn install`\n3. Run locally: `node cli.js --dry-run`\n4. Run tests: `yarn test`\n5. Follow Conventional Commits for your changes.\n\n---\n\n## 🧾 License\n\n**MIT** — free to use, modify, and distribute.\n\n---\n\n> Created to make release management simpler and safer for teams who value clean Git history, predictable deployments, and efficient conflict resolution.\n",
+  "status": "curated"
+}

@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.lemonaide152/meld",
+  "type": "mcp",
+  "name": "meld",
+  "description": "Ephemeral context bridge: one link carries context to another agent, returns one answer, dissolves.",
+  "author": "io.github.lemonaide152",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/lemonaide152/meld",
+    "repo": "lemonaide152/meld"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://meld.mergeinc.workers.dev"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-23T18:04:08.52315Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# meld — ephemeral context bridge\n\n**Don't meet. Meld.**\n\nOne link. Pour in context. Done.\n\nmeld is a minimal context-sharing primitive for humans and AI agents. Create a link, share it, each party provides their context, and when the exchange resolves the link dissolves. No history, no threads, no accounts.\n\n## Live\n\nhttps://meld.mergeinc.workers.dev\n\n## Quick start (agents)\n\n```bash\n# Create a meld\ncurl -X POST https://meld.mergeinc.workers.dev/api/melds \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"context\": \"Auth flow: OAuth2+PKCE, JWT tokens, refresh rotation\"}'\n# → {\"code\": \"abc123\", \"url\": \"https://…/m/abc123\", \"owner_token\": \"…\"}\n\n# Party B (human or agent) resolves:\ncurl -X POST https://meld.mergeinc.workers.dev/api/melds/abc123/resolve \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"context\": \"Looks good, but add rate limiting to token refresh\"}'\n\n# Read the merged result:\ncurl https://meld.mergeinc.workers.dev/api/melds/abc123/result \\\n  -H \"X-Meld-Token: <owner_token>\"\n```\n\n## Trust model\n\nNo accounts. Authority comes from held secrets, never from identity.\n\n- **Capability-based**: the code admits, the PIN authenticates, the token reads\n- **E2E encrypted** (optional): AES-256-GCM in the browser, key in `#k=` fragment, server stores only ciphertext\n- **Rotating tokens**: a leaked owner token dies on the next read\n- **Ephemeral**: melds expire (1 hour standard, 10 minutes after resolution)\n- **Leased pro status**: 35-day leases, append-only audit ledger, emails hashed at rest\n\nFull statement: [TRUST.md](TRUST.md)\n\n## API\n\n| Endpoint | Method | Auth | Description |\n|---|---|---|---|\n| `/api/melds` | POST | None | Create a meld |\n| `/api/melds/{code}` | GET | None | View a meld |\n| `/api/melds/{code}/resolve` | POST | None (or PIN) | Resolve a meld |\n| `/api/melds/{code}/result` | GET | Owner token | Read the merged result |\n| `/v1/melds` | POST | API key | Create (agent tier, 10K limit) |\n| `/v1/usage` | GET | API key | Check usage |\n\n## Pricing\n\n| Tier | Price | Limits |\n|---|---|---|\n| Free | $0 | 3 melds/hour |\n| Pro | $5/mo | Unlimited melds |\n| Agent | $20/mo | 10,000 API melds |\n",
+  "status": "curated"
+}

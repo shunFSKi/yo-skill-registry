@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.Intellics-ai/kabuken",
+  "type": "mcp",
+  "name": "kabuken",
+  "description": "Japanese EDINET XBRL facts: bilingual labels, financials, screening. No prices. Signup required.",
+  "author": "io.github.Intellics-ai",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/Intellics-ai/kabuken-mcp-plugin",
+    "repo": "Intellics-ai/kabuken-mcp-plugin"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://kabuken.intellics.ai/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-23T15:32:29.460969Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "金融",
+    "featured": false
+  },
+  "readme": "# Kabuken MCP plugin\n\nKabuken is an MCP server that gives Claude and other MCP clients direct\naccess to Japanese statutory filings on EDINET. It returns individual XBRL\nfacts with bilingual (English/Japanese) taxonomy labels, calculation-linkbase\ntrees, and segment breakdowns, all traceable to the filing they came from —\nnot a flattened summary table.\n\n**Coverage, as of 2026-09-21**: 99 of 99 currently-tracked TOPIX-100\nconstituents, 1,967 filings, fully extracted with zero missing facts on the\ncurrent read path. Coverage beyond this set is broader but partial, and\nremediation is in progress. Kabuken has no stock prices or market data, and\nno history before FY2025 — earlier years appear only as comparatives inside\n2025+ filings.\n\nSignup is required. A free BASIC tier is available; see [Tiers](#tiers)\nbelow.\n\n## Install\n\nThis plugin declares a remote MCP server in `.mcp.json`\n(`https://kabuken.intellics.ai/mcp`, streamable HTTP). Enable the plugin,\nthen see [SETUP.md](./SETUP.md) or ask Claude \"set up Kabuken\" to\nauthenticate.\n\n## Tools\n\n16 read-only tools, grouped by purpose. None write or modify data.\n\n**Company and industry discovery**\n- `search_companies` — search Japanese listed companies by name (EN or JA, partial match)\n- `get_company` — full company record by any identifier (entity code, ticker, name)\n- `list_industries` — TSE industry classification taxonomy (bilingual)\n\n**Filings**\n- `list_documents` — EDINET filing list for a company, with submission dates, period coverage, and XBRL/PDF availability\n\n**Financial facts**\n- `get_financial_facts` — structured XBRL facts for a single filing, bilingual labels\n- `get_calculation_tree` — XBRL calculation linkbase as a tree (how totals decompose into components)\n- `get_segment_breakdown` — segment/geography/consolidation-scope dimensional data, bilingual axis and member labels\n- `get_company_financials` — multi-period income statement, balance sheet, and cash flow, grouped by statement type\n\n**Comparison and screening**\n- `compare_companies` — side-by-side financial matrix for 2-5 companies from their latest annual securities report\n- `screen_companies` — filter companies by financial ratio (ROE, ROA, operating margin, current ratio, debt-to-equity); no price-based screens\n- `get_industry_overview` — mean/median/count per ratio for an industry, plus top/bottom 3 companies\n\n**Ownership and risk**\n- `get_major_shareholders` — large-shareholding report (大量保有報告書) data: holder, percentage, shares, filing date\n- `get_risk_context` — BOJ policy-rate sensitivity and METI export-control classification for a company\n\n**AI-powered analysis**\n- `get_document_summary` — AI-generated summary of a filing\n- `analyze_document` — free-text Q&A grounded in a specific filing\n\n**Account**\n- `get_account_quota` — caller's current daily quota usage, limit, and reset time; available to all tiers and does not itself consume quota\n\n## Tiers\n\n| Tier | Price | Daily call limit | Tool access |\n|---|---|---|---|\n| BASIC | Free | 50/day | 5 tools: `search_companies`, `get_company`, `list_industries`, `get_risk_context`, `get_account_quota` |\n| INVESTOR | ¥1,980/month or ¥19,800/year | 500/day | All 16 tools |\n| MCP DEVELOPER | ¥4,980/month | 1,000/day | All 16 tools |\n\nGet an account and a `kbk_` API key (or use OAuth) at\n[kabuken.intellics.ai](https://kabuken.intellics.ai). See\n[SETUP.md](./SETUP.md) for the connection walkthrough.\n\n## Slash commands\n\n- `/kabuken:company-snapshot <company>` — revenue, income, assets, equity, and risk context for one company\n- `/kabuken:peer-comparison <company, company, ...>` — side-by-side financials for 2-5 companies\n- `/kabuken:segment-breakdown <company>` — business/geographic segment breakdown for a filing\n\n## Attribution\n\nEDINET content (filings, facts, dimensions) is used under Japan's Public\nData License 1.0 (PDL 1.0):\n\n> Source: EDINET (https://disclosure2.edinet-fsa.go.jp/), PDL 1.0\n> (https://www.digital.go.jp/resources/open_data/public_data_license_v1.0).\n> Data is processed by Kabuken, not raw unprocessed FSA data.\n\nThe EDINET Taxonomy (concept labels, calculation-linkbase relationships,\ndimension axis/member labels) is excluded from PDL 1.0 and separately\nlicensed under the FSA EDINET Taxonomy Legal Statement\n(https://www.fsa.go.jp/search/EDINET_Taxonomy_Legal_Statement.html), which\nrequires the notice \"© Copyright 2014 Financial Services Agency, The\nJapanese Government\" on redistribution. Tools that surface taxonomy content\n(`get_calculation_tree`, `get_segment_breakdown`) carry this notice.\n\nFigures returned by `screen_companies`, `get_industry_overview`,\n`compare_companies`, and `get_company_financials` are calculated by Kabuken\nfrom EDINET filings, not reported directly by EDINET. Output from\n`analyze_document` is AI-generated and may contain errors; it is not\ninvestment advice.\n\n## Privacy policy\n\nhttps://kabuken.intellics.ai/privacy\n\n## Documentation\n\nhttps://kabuken.intellics.ai/docs\n\n## Registry manifest\n\n`server.json` describes the hosted Kabuken MCP server (`https://kabuken.intellics.ai/mcp`)\nin the [official MCP registry](https://registry.modelcontextprotocol.io) format and is\npublished from this repo under the `io.github.intellics-ai/kabuken` namespace. The server's\nown source runs in a separate, private repository; this public repo is the registry's\ncompanion listing and the home for the plugin package documented above. Publishing runs via\n`.github/workflows/publish-registry.yml` (manual `workflow_dispatch`, GitHub OIDC\nauthentication, no stored secrets).\n",
+  "status": "curated"
+}

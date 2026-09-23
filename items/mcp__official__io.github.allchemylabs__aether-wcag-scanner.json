@@ -1,0 +1,65 @@
+{
+  "id": "mcp:official/io.github.allchemylabs/aether-wcag-scanner",
+  "type": "mcp",
+  "name": "Aether WCAG Scanner",
+  "description": "WCAG 2.1 AA accessibility scanner (Playwright + axe-core) with grounded, browser-verified fixes.",
+  "author": "io.github.allchemylabs",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/allchemylabs/aether-wcag-scanner",
+    "repo": "allchemylabs/aether-wcag-scanner"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@allchemylabs/aether-wcag-scanner"
+    ],
+    "env": [
+      {
+        "name": "ALLCHEMY_API_KEY",
+        "required": false,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-23T18:57:12.926907Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# Aether WCAG Scanner\n\nA Claude Code plugin that finds **WCAG 2.1 AA accessibility violations** and\nreturns **ready-to-apply fixes** — not just a list of problems.\n\nIt drives a real browser (Playwright + axe-core) across desktop, tablet, and\nmobile viewports, then pairs each violation with a concrete fix: corrected\nHTML, the relevant WCAG success criteria, and technique code examples.\n\n---\n\n## Why it's different\n\nPlain Claude Code can *guess* at accessibility issues by reading your markup.\nThis plugin actually **runs your page** and grounds every fix in the WCAG spec.\n\n| | Plain Claude Code | Aether (offline) | Aether (with API key) |\n|---|---|---|---|\n| Detection | Eyeballs the HTML it can see | Real browser + axe-core, all viewports | Real browser + axe-core, all viewports |\n| Coverage | Misses computed/runtime issues | Catches contrast, ARIA, focus, names | Same |\n| Fixes | Generic suggestions | Built-in fix templates | RAG-backed fixes + WCAG technique code |\n| Grounding | None | Rule IDs + severity | Cited success criteria + techniques |\n| Works offline | n/a | Yes | Falls back to offline automatically |\n\nThe scanner **degrades gracefully**: with no API key (or when offline or\nrate-limited) it still returns template-based fixes for every violation. Add an\nAPI key and the same violations come back with corpus-grounded fixes and WCAG\ntechnique snippets.\n\n---\n\n## Install\n\n```\n/plugin marketplace add https://github.com/allchemylabs/claude-plugins.git\n/plugin install aether-wcag-scanner@allchemylabs\n```\n\nOnce the official Claude Code marketplace listing is live, you can also install\nit directly from there.\n\nThe install prompts for your **Allchemy Labs API key**; paste the key you got\nfrom [beta.allchemylabs.ai](https://beta.allchemylabs.ai). To set or change it\nlater:\n\n```\n/plugin configure aether-wcag-scanner@allchemylabs\n```\n\nThe first start installs the plugin's dependencies (about a minute) and the\nfirst scan downloads Chromium for Playwright. If `/mcp` shows the server as not\nconnected right after install, wait a moment and run `/reload-plugins`.\n\n### Running without a key\n\nThe scanner itself runs locally and works without a key: you get template\nfixes for every violation. The key adds corpus-grounded fixes from the hosted\ninsights engine. Set it via the prompt above, or put `ALLCHEMY_API_KEY=<key>`\nin the `.env` of the project you are scanning.\n\n---\n\n## Use it outside Claude Code (any MCP client)\n\nThe same server is published to npm and the MCP Registry as\n`@allchemylabs/aether-wcag-scanner`. Any MCP client that speaks stdio can run it:\n\n```json\n{\n  \"mcpServers\": {\n    \"aether-wcag-scanner\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@allchemylabs/aether-wcag-scanner\"],\n      \"env\": { \"ALLCHEMY_API_KEY\": \"<your beta key>\" }\n    }\n  }\n}\n```\n\nThe first scan downloads Chromium once (about 150 MB). Without `ALLCHEMY_API_KEY`\nthe scanner still runs fully offline and returns template fixes.\n\nClaude Code gets the `/wcag-scan` skill, which drives the scan → review → fix → verify\nloop. Other agents only see the tool descriptions and the instructions the server sends at\nconnect time, so for the same behaviour copy [`AGENTS.md`](./AGENTS.md) into your project\n(Codex reads it natively; Cursor and Windsurf accept it as a rules file). Without it an agent\nmay fetch the page HTML and guess instead of running the browser scan.\n\n## The 5 tools\n\n| Tool | What it does |\n|---|---|\n| `aether_scan_and_fix` | **Recommended.** Scan a URL — or a single-page app across routes via the `spa` block — and return violations *with* fixes, each verified on the real browser, in one call. Set `maxFixes: 0` for a fast scan-only pass. |\n| `aether_get_fix` | Get a fix for one specific violation (verified on the real browser). Omit `html` to instead get a rule-level explanation — WCAG success criteria and technique examples. |\n| `aether_verify_fix` | Deterministically verify a fix with real Playwright + axe — re-scan a URL or diff original vs fixed HTML. Reports whether the target cleared, any new regressions, and the net compliance delta. |\n| `aether_check_html` | Analyze an HTML snippet for issues — no live URL or browser needed. |\n| `aether_submit_feedback` | Rate a fix (useful / not useful) so the guidance engine keeps improving; your correction helps seed better fixes. |\n\nJust ask Claude naturally, e.g. *\"check localhost:3000 for accessibility\nissues and fix them\"* — it will pick the right tool.\n\n## The `/wcag-scan` skill\n\nRun `/wcag-scan <url>` for a guided workflow: scan → review violations → apply\nfixes → re-scan to verify → summarize. The skill orchestrates the tools above\nand edits your files in place.\n\n---\n\n## Scanning single-page apps\n\nPass a `spa` block to `aether_scan_and_fix` instead of `url`:\n\n```json\n{ \"spa\": { \"entryUrl\": \"http://localhost:4200\", \"framework\": \"angular\", \"maxRoutes\": 10 } }\n```\n\n- `entryUrl` — where the app boots. Routes are discovered by crawling client-side links\n  unless you list them in `routes: [{ \"path\": \"/settings\", \"name\": \"Settings\" }]`.\n- `framework` — `angular`, `react`, `vue`, or omit to auto-detect.\n- `maxRoutes` — cap on discovered routes.\n\nNavigation is client-side (the browser context and app state are kept between routes),\nand readiness is decided by a layered stability cascade — DOM quiet, framework hooks such\nas Angular testability, pending-request drain — never by Playwright's `networkidle`,\nwhich deadlocks on apps with long-polling or websockets. A config that sets\n`networkIdle` is rejected for that reason.\n\n## Requirements\n\n- Node.js >= 20\n- Chromium (installed automatically on first run)\n\n## Disclaimer\n\nAether is an accessibility analysis and guidance tool. Using the platform does not, by\nitself, make your website, application, or digital service conformant with WCAG, the ADA\n(including Title II), the European Accessibility Act, Section 508, EN 301 549, or any other\naccessibility law or standard.\n\nAutomated scans detect only a subset of accessibility barriers. A \"zero issues\" result means\nthe scanner did not flag anything in its detection range — not that the property is legally\ncompliant.\n\nYou remain responsible for:\n\n- reviewing findings with qualified people\n- fixing issues in the underlying code and content\n- conducting or commissioning manual testing and audits as needed\n- maintaining accessibility as the product changes\n- obtaining legal advice for your specific obligations\n\nAether does not provide legal advice and does not replace an accessibility audit or a\nVPAT/ACR prepared by a qualified auditor.\n\n## License\n\nMIT for the client (this plugin). The hosted insights engine and related\nAllchemy Labs services are proprietary — see `LICENSE` and `NOTICE`.\n",
+  "status": "curated"
+}

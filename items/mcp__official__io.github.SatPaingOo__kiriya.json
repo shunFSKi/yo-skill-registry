@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.SatPaingOo/kiriya",
+  "type": "mcp",
+  "name": "kiriya",
+  "description": "Developer tools for files, git, ports, processes and more, the same on Windows, Linux and macOS",
+  "author": "io.github.SatPaingOo",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/SatPaingOo/kiriya",
+    "repo": "SatPaingOo/kiriya"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "kiriya"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-23T17:48:33.530759Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# kiriya\n\n**One command-line toolbox for everyday developer work that behaves the same on Windows,\nLinux and macOS.**\n\nkiriya (ကိရိယာ, Burmese for \"tool\") saves remembering `del` and `rm`, `netstat -ano` and\n`lsof -i`, `clip` and `pbcopy`, or writing a one-off script for each. It is one Node.js\nprogram with no runtime dependencies. Every command answers `--json`, changes to many files\nshow a plan first, deletions go to the trash, and nothing that cannot be undone happens\nuntil you type a confirmation. AI agents can use the same commands over MCP, under the same\nrules.\n\n## Install\n\nkiriya needs [Node.js](https://nodejs.org/) 22.13 or later.\n\n```bash\nnpm install --global kiriya\n```\n\nThen check what this machine gives it:\n\n```bash\nkiriya doctor\n```\n\nEvery release is published from CI with [provenance](https://docs.npmjs.com/generating-provenance-statements),\nso `npm audit signatures` can show which workflow built the copy you installed. Every module\nbelow is tested on Windows, Linux and macOS with Node.js 22, 24 and the current release.\n\n[Getting started](docs/getting-started.md) takes it from there, and\n[CONTRIBUTING.md](CONTRIBUTING.md) covers building from source.\n\n## Quick start\n\n```bash\nkiriya doctor                                   # what this machine offers kiriya\nkiriya port who 3000                            # which process holds port 3000\nkiriya files find --name \"*.log\" --older 30d    # the same search in every shell\nkiriya files delete dist --dry-run              # the plan, before anything changes\nkiriya git status ~/code --json                 # every repository under a folder, as JSON\n```\n\n## Finding your way\n\nHelp goes three steps deep, and each step names the next, so nothing has to be guessed.\n\n```bash\nkiriya --help              # the modules, and the options every command accepts\nkiriya help files          # one module: its commands, and what each one takes\nkiriya help files delete   # one command: its arguments, options and examples\n```\n\n`kiriya files delete --help` says the same as that third line. The middle step lists each\ncommand's option names underneath it, so a module's whole surface fits on one screen:\n\n```text\nCommands\n  delete   Send files and folders to the trash, or remove them for good with --permanent\n           --permanent --dry-run --yes --confirm --all\n  find     Find files and folders by name, extension, type, size, age or emptiness\n           --name --ext --type --larger --smaller --newer --older --empty --all --limit\n```\n\nEvery module also has a guide below with a full reference: every command, argument and\noption, what each does, and whether it can be undone.\n\n## Modules\n\n<!-- kiriya:modules -->\n<!-- Written by `npm run docs` from the command specs. Change the specs, not this part. -->\n\n| Module | What it does |\n|---|---|\n| [`archive`](docs/modules/archive.md) | ZIP and tar.gz archives, made and opened the same way on every OS with no zip, tar or 7-Zip installed. |\n| [`clip`](docs/modules/clip.md) | Copy text to the clipboard and paste it back, with Unicode intact on every OS. |\n| [`completion`](docs/modules/completion.md) | Tab completion for kiriya's modules, commands, options and values in bash, zsh, fish and PowerShell. |\n| [`config`](docs/modules/config.md) | kiriya's own settings, such as the plugins to load, in one file per user. |\n| [`convert`](docs/modules/convert.md) | Convert text between base64, hex, URL encoding, JSON, JWT, times and cases, entirely on this machine. |\n| [`docker`](docs/modules/docker.md) | docker compose for the project in the current folder, and a previewed clean-up of the engine. |\n| [`doctor`](docs/modules/doctor.md) | Check what this machine gives kiriya: runtime, configuration, trash, clipboard, git, docker and plugins. |\n| [`env`](docs/modules/env.md) | Environment variables, PATH and .env files, read the same way on every OS. |\n| [`files`](docs/modules/files.md) | Files and folders: create, find, read, search, compare, copy, move, rename and delete, the same on every OS. |\n| [`gen`](docs/modules/gen.md) | Random identifiers, passwords and tokens from the operating system's secure random source. |\n| [`git`](docs/modules/git.md) | Git across every repository under a folder: status, fetch, pull and switch. |\n| [`net`](docs/modules/net.md) | Local addresses, TCP reachability and DNS lookups, the same on every OS. |\n| [`open`](docs/modules/open.md) | Open a file or folder in its default application, or a web address in the browser. |\n| [`port`](docs/modules/port.md) | See which process listens on a TCP port, end it, or find a free port, the same on every OS. |\n| [`proc`](docs/modules/proc.md) | List, find and end processes, and show them as a tree, the same on every OS. |\n| [`sys`](docs/modules/sys.md) | This machine and the developer tools on it, described the same way on every OS. |\n| [`wait`](docs/modules/wait.md) | Wait until a port listens, a web address answers or a file appears, the same way on every OS. |\n<!-- /kiriya:modules -->\n\n## AI agents\n\n`kiriya mcp` serves these commands to AI agents over the Model Context Protocol. It offers\nonly commands that change nothing until you allow more, and asks you before any work that\ncannot be undone. [MCP server](docs/guides/mcp.md) shows how to add it to a client.\n\n## Documentation\n\n| For | Read |\n|---|---|\n| Using kiriya | [Getting started](docs/getting-started.md) · [Usage](docs/usage.md) · [Modules](docs/modules/README.md) |\n| Guides | [MCP server](docs/guides/mcp.md) · [Tab completion](docs/guides/completion.md) · [Plugins](docs/guides/plugins.md) |\n| Contributing | [CONTRIBUTING.md](CONTRIBUTING.md) · [Architecture](docs/development/architecture.md) · [Design](docs/development/design.md) |\n| Everything | [Documentation index](docs/README.md) |\n\n## Project\n\n[Changelog](CHANGELOG.md) · [Security policy](SECURITY.md) · [Code of conduct](CODE_OF_CONDUCT.md) ·\n[MIT licence](LICENSE)\n",
+  "status": "curated"
+}
