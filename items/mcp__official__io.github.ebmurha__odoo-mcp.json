@@ -1,0 +1,89 @@
+{
+  "id": "mcp:official/io.github.ebmurha/odoo-mcp",
+  "type": "mcp",
+  "name": "Odoo MCP",
+  "description": "Workflow-native MCP server for safe Odoo Enterprise back-office operations",
+  "author": "io.github.ebmurha",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/ebmurha/odoo-mcp",
+    "repo": "ebmurha/odoo-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "odoo-erp-mcp"
+    ],
+    "env": [
+      {
+        "name": "ODOO_MCP_ODOO_URL",
+        "required": true,
+        "secret": false
+      },
+      {
+        "name": "ODOO_MCP_ODOO_DATABASE",
+        "required": true,
+        "secret": false
+      },
+      {
+        "name": "ODOO_MCP_ODOO_USERNAME",
+        "required": true,
+        "secret": false
+      },
+      {
+        "name": "ODOO_MCP_ODOO_API_KEY",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "ODOO_MCP_ALLOWED_COMPANY_IDS",
+        "required": true,
+        "secret": false
+      },
+      {
+        "name": "ODOO_MCP_DEFAULT_COMPANY_ID",
+        "required": true,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-24T18:57:32.006158Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Odoo MCP\n\n<!-- mcp-name: io.github.ebmurha/odoo-mcp -->\n\n`odoo-mcp` is a workflow-native MCP server for Odoo Enterprise. It exposes\nread-only capability discovery, trial-balance reporting, aged receivables and\npayables reporting, cashbook visibility, unmatched bank-line detection, and\nproposal-only bank reconciliation.\n\nThe initial accounting release also supports bounded invoice, supplier-bill,\ncredit-note, payment-registration, and manual-journal workflows. Mutating tools\nare preview-only by default and require explicit execution plus idempotency.\n\nThe internal accounting adapter provides bounded, typed, company-scoped read\nprimitives for the reporting workflows. It enforces fixed model/action allowlists,\nstrips denied fields, normalizes dates, decimals, relations, and cursor pages,\nand translates Odoo authentication, permission, and transport failures into\nsafe errors. It does not expose generic CRUD or an Odoo configuration surface.\n\nSupported connection targets are Odoo.sh and self-hosted Odoo Enterprise:\n\n- Odoo 18 through external JSON-RPC\n- Odoo 19 through JSON-2\n\nOther Odoo versions, Odoo Online, Community edition, and custom forks are not\nsupported. This package is not an Odoo module and does not expose generic model\nCRUD.\n\n## Installation\n\nThe product and commands are named `odoo-mcp`; the PyPI distribution is\n`odoo-erp-mcp` because the `odoo-mcp` distribution name is owned by another\nproject.\n\n```bash\npipx install odoo-erp-mcp\nodoo-mcp --help\n```\n\nThe package also exposes `odoo-erp-mcp` as a compatibility launcher for MCP\nRegistry clients. It starts the same server as `odoo-mcp`.\n\n## Local Development\n\nRequires Python 3.11 or newer and [uv](https://docs.astral.sh/uv/).\n\n```powershell\nCopy-Item .env.example .env.local\n# Replace the placeholders in .env.local, then:\nuv sync --locked --all-extras\nuv run odoo-mcp --profile local --config config/config.example.yaml\n```\n\nLocal Development uses stdio. Process-environment settings take precedence over\n`.env.local`. Never commit `.env.local`.\n\n## Remote profiles\n\nDedicated Remote and Shared Hosted use the same server, registry, workflow, and\nOdoo adapter as Local Development, exposed through Streamable HTTP:\n\n```powershell\nuv run odoo-mcp --profile dedicated --host 127.0.0.1 --port 8000\nuv run odoo-mcp --profile shared --host 127.0.0.1 --port 8000\n```\n\nDedicated Remote reads its single Odoo connection from the process environment;\nit never loads `.env.local`. Every `/mcp` request must carry a deployment-issued\nHS256 bearer JWT. The server validates its signature, fixed issuer, fixed\naudience, expiry, issued-at time, subject, and client ID before MCP routing;\npermissions and company grants remain server-owned. Configure\n`ODOO_MCP_AUTH_ISSUER`, `ODOO_MCP_AUTH_AUDIENCE`, and a secret-store supplied\n`ODOO_MCP_AUTH_SIGNING_KEY` of at least 32 characters.\n\nShared Hosted is a runnable open-enrollment application in the same image. It\nserves OAuth discovery, dynamic client registration, authorization, token,\nrevocation, browser enrollment, protected-resource metadata, and MCP routes.\nThe application verifies each Odoo connection, lets the user select from the\ncompanies that Odoo returned, stores the credential encrypted, and binds every\ntoken to exactly one active connector. Configure it from\n`.env.shared.example`; its versioned 256-bit encryption keys must come from an\noperator-controlled secret store. Missing configuration, invalid ciphertext,\ninactive grants, unsafe Odoo destinations, and unauthorized connector bindings\nfail closed. Shared Hosted supports either one writable process with a durable\nlocal SQLite volume or qualified PostgreSQL with pooled runtime and direct\nmigration connections. TLS, public ingress, monitoring, and production\ndeployment remain operator responsibilities.\n\nReproducible Dedicated Remote Docker and systemd templates, Shared Hosted\nintegration requirements, and network hardening guidance are in\n[`docs/deployment.md`](docs/deployment.md). Do not expose the example HTTP\nlistener directly to the public internet.\n\n## Durable state\n\n`odoo_mcp.storage.Storage` provides ordered SQLite and PostgreSQL migrations and tenant-scoped\nrepositories for audit records, proposals, artifacts, idempotency reservations,\ncapability snapshots, and encrypted Shared Hosted connections. Audit rows are\nappend-only and SHA-256 hash-chained per tenant. Idempotency reservations bind\nthe tenant, company, tool, key, and request payload for 24-hour replay, while\nin-progress and unknown outcomes remain blocked for explicit recovery. Final\noutcomes must retain a replayable response and match the reserving company.\nAudit failure text is derived from registered error codes; free-form upstream\nerror text is not persisted.\n\nSQLite backups use a consistent snapshot. Restore writes to a new destination\nand is accepted only after database integrity, migrations, tenant audit chains,\nidempotency state, capability data, and encrypted connections verify. Encryption\nkeys must be backed up and restored separately. PostgreSQL uses database-level\nmigration serialization and preserves the same repository, OAuth, audit,\nidempotency, encryption, and lifecycle contracts.\n\nThe server stores local durable state at `.odoo-mcp/state.sqlite3` by default.\nUse `--storage <path>` to select a different SQLite file. Successful accounting\nreports atomically persist their Markdown artifact and a compact audit outcome;\nfailed and denied report calls persist a secret-safe failure audit when an\nisolation identity has been resolved.\n\n## Write safety\n\n`odoo_mcp.policy.WriteSafetyCoordinator` is the required boundary for\nwrite-capable workflows. It enforces registry risk metadata, resolved identity,\npermission, company, and capability gates before workflow preparation. Calls\ndefault to preview-only behavior. Execution requires explicit `dry_run: false`\nand a non-empty idempotency key, then reserves that key and appends the attempt\naudit before fresh-state validation and the Odoo mutation.\n\nSuccessful, rejected, conflicting, replayed, known-failed, and unknown outcomes\nremain distinct and replay-safe across restart. An uncertain mutation is never\nautomatically retried; if outcome persistence fails after a possible mutation,\nthe in-progress reservation continues to block duplicate execution. Odoo\npermission denials that prove no mutation occurred remain structured known\nfailures. Audit and response text suppress raw exception details.\n\nHuman confirmation belongs to the MCP client host. The server does not issue\napproval tokens, provide an approval UI, or automatically turn a preview into\nexecution. Reconciliation calls default to preview. An explicit\n`dry_run: false` call with an idempotency key stores a server-owned proposal and\nMarkdown artifact, but never finalizes reconciliation or changes a bank\nstatement line in Odoo.\n\n## Configuration\n\nLocal and Dedicated Odoo settings are documented in `.env.example`; Shared\nHosted operator settings are documented in `.env.shared.example`. Do not configure\nan Odoo version: the adapter detects it and fails explicitly for unsupported or\nmalformed responses. `config/config.example.yaml` is the safe MCP permission-map\nexample and enables the current read tools. A tool is authorized only when it is\nlisted under its registry-defined\npermission; unknown or mismatched entries prevent startup.\n\nUse a dedicated non-production Odoo technical user with only the required\ncompany and module access. Company IDs are an additional MCP authorization\nboundary and never expand the technical user's Odoo permissions.\n\n## Accounting workflows\n\n- `get_trial_balance` returns posted opening balances, inclusive-period debit\n  and credit movement, closing balances, totals, and a Markdown artifact.\n- `get_profit_and_loss` classifies posted lines by Odoo's income and expense\n  account types for an inclusive period. Income uses credit-minus-debit,\n  expenses use debit-minus-credit, and net profit is income minus expenses.\n- `get_balance_sheet` classifies posted lines by Odoo's asset, liability, and\n  equity account types through an inclusive date. It reports unclosed earnings\n  separately within total equity and verifies the accounting equation at\n  company-currency precision.\n- `get_aged_receivables` and `get_aged_payables` reconstruct posted residuals\n  as of a date, including later partial reconciliations, and group them into\n  not-yet-due, 1–30, 31–60, 61–90, and 90+ day buckets.\n- `get_cashbook` returns posted move lines from cash and bank journals with\n  opening balance, period debit and credit, and closing balance.\n- `flag_unmatched_statement_lines` identifies unreconciled statement lines\n  without one unique eligible match at or above the requested threshold.\n- `reconcile_bank_statement_lines` scores exact one-to-one candidates by amount,\n  partner, normalized reference, and date proximity. Ties and candidate reuse\n  remain explicit unmatched results. The tool can persist a proposal locally;\n  it does not perform Odoo reconciliation.\n- `list_open_invoices` and `list_open_bills` reconstruct record- and\n  company-currency residuals as of a date, including later partial\n  reconciliations.\n- `create_customer_invoice` and `create_supplier_bill` provide non-mutating,\n  input-only previews by default. Explicit execution creates one unposted\n  draft and reads back Odoo's effective accounting results.\n- `create_credit_note` creates one linked full draft reversal. Before posting,\n  `validate_invoice` reports locally determinable balance, currency, account,\n  total, and tax blockers while explicitly deferring Odoo-only posting checks.\n- `register_payment` delegates route discovery and execution to Odoo's standard\n  payment-registration wizard. Preview may create bounded ephemeral wizard\n  records but never executes a payment or alters accounting records. Non-manual\n  or unidentified methods report their possible external effect as unknown.\n  Execution requires an idempotency key and a freshly revalidated wizard route.\n- `list_journal_entries` returns filtered draft and posted manual entries with\n  bounded line details and opaque continuation cursors. `create_journal_entry`\n  creates only a balanced draft, while the separate `post_journal_entry` tool\n  revalidates and posts one existing draft after explicit execution.\n\nReport results are deterministically ordered and cursor-paginated with a default\nlimit of 100 and maximum of 500. Empty data is a successful empty report;\nupstream denial, timeout, malformed data, or partial retrieval is a structured\nfailure rather than an empty result. Paginated Markdown artifacts label the row\nrange, continuation state, and whole-report totals explicitly.\n\nProfit-and-loss and balance-sheet analytic filters apply Odoo's percentage\ndistribution to exact analytic account IDs. These reports do not infer custom\nchart-of-accounts groups, fiscal-year closing rules, consolidation, eliminations,\nor localization-specific report layouts. Unsupported account classifications\nfail explicitly instead of being guessed.\n\n## Verification\n\nOne command runs formatting checks, static analysis, tests, package builds, and\nartifact inspection in temporary directories:\n\n```powershell\nuv run python scripts/verify.py\n```\n\nAutomated tests use synthetic Odoo responses. They do not establish live Odoo\nversion compatibility, real permissions, installed modules, or deployment\nnetworking.\n\nStorage backup, restore, integrity verification, monitoring, upgrade, rollback,\nand incident procedures are documented in\n[`docs/operations.md`](docs/operations.md). See [`SECURITY.md`](SECURITY.md) for\nthe security boundary and vulnerability reporting, and [`SUPPORT.md`](SUPPORT.md)\nfor supported configurations and support requests.\n\n[`docs/demo.md`](docs/demo.md) provides a bounded accounting demonstration that\nkeeps every write-capable call in preview mode unless the operator separately\nauthorizes execution in a non-production Odoo environment.\n",
+  "status": "curated"
+}

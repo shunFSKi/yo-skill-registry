@@ -10,14 +10,20 @@
     "repo": "davidondrej/cloudroom-gui",
     "path": "plugins/provider-pi/skills/pi-provider/SKILL.md"
   },
-  "license": null,
+  "license": "MIT",
   "install": {
     "kind": "skill-dir"
   },
   "quality": {
-    "stars": null,
-    "pushed_at": null,
-    "score": 22
+    "stars": 4,
+    "pushed_at": "2026-09-24T19:23:41Z",
+    "score": 58,
+    "star_history": [
+      {
+        "d": "2026-09-24",
+        "s": 4
+      }
+    ]
   },
   "security": {
     "score": 100,
@@ -49,6 +55,6 @@
     "category": null,
     "featured": false
   },
-  "readme": null,
+  "readme": "# Cloudroom GUI\n\nCloudroom's desktop app, based on [BB](https://github.com/get-bb/bb). Run agents locally or connect to a compatible [Cloudroom core](https://github.com/davidondrej/cloudroom-core) for cloud execution.\n\nThis is an experimental source release. Building needs no Cloudroom account or core checkout. Using the GUI currently requires an invite-enabled Cloudroom account, including for local agents. See [release notes and compatibility](docs/releases.md).\n\n## Build from source\n\nUse macOS on Apple Silicon for the supported development target. Install Git, Node.js 22.19+, pnpm **9.15.0**, Python **3.11+**, and Xcode Command Line Tools for native dependencies. Keep the same Node version for installation and builds.\n\nRun these commands from this directory:\n\n```sh\npnpm install --frozen-lockfile\npnpm exec turbo run build typecheck --filter=@bb/app --filter=@bb/server --filter=@bb/desktop --concurrency=2\n```\n\nDo not disable dependency install scripts: SQLite, file watching, and terminal support use native modules. If your global pnpm version differs, use `npx --yes pnpm@9.15.0` in place of `pnpm`.\n\n## Run locally\n\nStart the development backend and browser UI:\n\n```sh\npnpm dev\n```\n\nIn another terminal, start Electron:\n\n```sh\npnpm exec turbo run dev --filter=@bb/desktop\n```\n\nDevelopment uses checkout-specific ports and a separate profile. The launcher prints both. Stop each command with Ctrl-C. Local agents require their own installed, authenticated provider CLIs.\n\nUse **Sign in** for hosted access. Cloud execution requires a matching core with `direct_workspaces` and `command_guard` capabilities; use public core [`source-2026-09-23`](https://github.com/davidondrej/cloudroom-core/releases/tag/source-2026-09-23) or newer. Manual connections use `POST /api/v1/cloudroom` with `url` and `token`, but do not bypass the GUI account requirement. Remote URLs require HTTPS. Keep tokens out of browser code, URLs, and Git.\n\n## Checks\n\nUse the non-interactive checks below. Desktop integration tests can launch real apps; run them only in a dedicated test environment.\n\n```sh\npnpm exec turbo run test --filter=@bb/scripts --filter=@bb/config --concurrency=2\npnpm exec turbo run test --filter=@bb/server -- test/app/cloudroom-assets.test.ts\n```\n\nSync and preview helpers ship in `apps/server/src/assets/cloudroom-{sync,preview}/`. Maintainers copy them from the core and verify byte-for-byte parity. They use Python's standard library.\n\nThe desktop build above creates runnable bundles, not a signed installer. Installer signing, notarization, and publication are separate steps.\n\n## Contributing and licenses\n\nSee [CONTRIBUTING.md](CONTRIBUTING.md). Some deeper documentation and package names are inherited from BB; the commands above describe this fork.\n\nBB's [MIT license](LICENSE) and copyright notice are retained. The bundled Cloudroom Python helpers are [Apache 2.0](apps/server/src/assets/cloudroom-sync/LICENSE). Bundled third-party notices remain with their components.\n",
   "status": "curated"
 }

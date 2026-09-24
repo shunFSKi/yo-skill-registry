@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/acro5piano/dotfiles/mcp",
+  "type": "skill",
+  "name": "mcp",
+  "description": "Use registered MCP servers through the mcp CLI. Use when a task can be handled by an available MCP server such as Linear.",
+  "author": "acro5piano",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/acro5piano/dotfiles/blob/HEAD/home/.pi/agent/skills/mcp/SKILL.md",
+    "repo": "acro5piano/dotfiles",
+    "path": "home/.pi/agent/skills/mcp/SKILL.md"
+  },
+  "license": null,
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 15,
+    "pushed_at": "2026-09-24T14:02:31Z",
+    "score": 66,
+    "star_history": [
+      {
+        "d": "2026-09-24",
+        "s": 15
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# Dotfiles\n\nacro5piano's personal dotfiles. It aims to automate setup my development PC idempotently.\n\nCore technologies:\n\n- Arch Linux\n- Sway\n- Neovim\n- Alacritty\n- keyd/Xremap\n- Brave Browser\n\n<table>\n  <td>\n    <img src=\"https://user-images.githubusercontent.com/10719495/176838810-ea61f97a-7f7f-4c8b-80f7-243ee8eb8de9.png\" />\n  </td>\n  <td>\n    <img src=\"https://user-images.githubusercontent.com/10719495/176839022-bcaf0d70-3395-4b6e-812e-ff676c8294c0.png\" />\n  </td>\n</table>\n\n<table>\n  <td>\n    <img src=\"https://user-images.githubusercontent.com/10719495/202087327-462649bd-d3df-45c7-b0e0-62e35074769f.png\" />\n  </td>\n  <td>\n    <img src=\"https://user-images.githubusercontent.com/10719495/224475627-923fb9fd-592c-4079-8605-91c50755cef8.png\" />\n  </td>\n</table>\n\n# Setup process\n\nThe following document assumes you have:\n\n- A UEFI boot device\n- No multie boot device (Windows multi boot document below)\n\n## Install Arch Linux\n\n- Create arch linux install usb.\n  - download the latest iso image\n  - `cp /path/to/iso /dev/sdX`\n- Boot to usb\n\n### File system (UEFI)\n\nselect disk to write arch linux\n\n```sh\ncfdisk /dev/nvme0n1\n```\n\n- Create a partition for UEFI `/dev/nvme0n1p1`\n  - create a new partition and set `1G` size for it\n  - Set the type to `EFI System`\n- Create a partition for swap (for hibernation) `/dev/nvme0n1p2`\n  - create a new partition and set `40G` size for it (I have 24GB machine)\n  - Set the type to `Linux swap`\n- Create a partition for main `/dev/nvme0n1p3`\n  - create a new partition and set maximum size for it\n  - Set the type to `Linux Filesystem`\n- write out\n\nSwap is required for hibernation.\n\n![image](https://github.com/user-attachments/assets/9a2e3df2-d1c4-43ce-b94f-a3535c473800)\n\n```sh\n# UEFI\nmkfs.fat -F32 /dev/nvme0n1p1\nmkswap /dev/nvme0n1p2\nswapon /dev/nvme0n1p2\nmkfs.ext4 /dev/nvme0n1p3\nmount /dev/nvme0n1p3 /mnt\nmkdir /mnt/boot\nmount /dev/nvme0n1p1 /mnt/boot\n```\n\n### Install base system\n\n```sh\n# Connect to a Network\niwctl\n\npacstrap /mnt base base-devel linux-zen linux-zen-headers linux-firmware iwd\n# Or, for note PC:\n# pacstrap /mnt base base-devel linux linux-headers linux-firmware iwd\n\ngenfstab -U /mnt >> /mnt/etc/fstab\n\n# Enter new arch\narch-chroot /mnt\n\n# install /boot\nbootctl install\n```\n\nCreate `/boot/loader/entries/arch.conf`\n\n```\ntitle Arch Linux Zen\nlinux /vmlinuz-linux-zen\ninitrd /initramfs-linux-zen.img\n\noptions root=UUID=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx acpi_backlight=native rw resume=UUID=xxxxxxxxxxxxxxxxxxxx\n```\n\nAdd user:\n\n```\n# add user\nuseradd --create-home kazuya\npasswd kazuya\ngpasswd -a kazuya wheel\nEDITOR=vim sudo visudo\n```\n\nThen exit and reboot.\n\nNotes:\n\n- If you have any problems on resolving name, edit `/etc/systemd/resolved.conf` and fix `DNS=8.8.8.8` then restart systemd-resolved.\n- systemd-boot is pre-installed and simple to use than Grub unless dual boot with Windows.\n\n## Add user\n\nRun the following commands as root:\n\n```sh\nvisudo\n\n# Recommended config:\n#   %wheel ALL=(ALL) ALL\n#   %wheel ALL=NOPASSWD: /bin/systemctl restart iwd\n#   %wheel ALL=NOPASSWD: /bin/systemctl restart bluetooth\n#   %wheel ALL=NOPASSWD: /bin/systemctl suspend\n#   %wheel ALL=NOPASSWD: /bin/systemctl hibernate\n#   %wheel ALL=NOPASSWD: /home/kazuya/bin/connect-client-vpn\n#   %wheel ALL=NOPASSWD: /home/kazuya/bin/connect-client-vpn-stop\n```\n\nand login as kazuya:\n\n```sh\nlocalhost login> kazuya\npassword:\n```\n\n## Install dotfiles\n\nthen install dotfiles:\n\n```sh\ncd ~\ngit clone git@github.com:/acro5piano/dotfiles $HOME/.dotfiles\ncd $HOME/.dotfiles\n./bin/apply-etc.sh\n./bin/apply-aur.sh\n./bin/apply-nix.sh\n```\n\n## Bluetooth\n\nBy default bluetooth connection takes too much time. Here is the fix: https://gist.github.com/andrebrait/961cefe730f4a2c41f57911e6195e444#enable-bluetooth-fast-connect-config\n\n# Enable hibernation with swap partition\n\nLinux supports swapfile, but it is not reliable as of 2024. swapfile causes the `hibernate inconsistent memory map detected` error while resuming.\n\nSpecify swap partition\n\n```bash\n# /etc/fstab\n\nUUID=7efab515-xxxx-xxxx-xxxx-7e17afceeacb none swap defaults 0 0\n```\n\nModify HOOKS in mkinitcpio config like this:\n\n```\n# /etc/mkinitcpio.conf\n\nHOOKS=(base udev autodetect keyboard modconf block filesystems resume fsck)\n```\n\nThen run\n\n```\nsudo mkinitcpio -p linux\n```\n\nAdd resume to the kernel parameter:\n\n```\n# /boot/loader/entries/arch.conf\n\noptions root=UUID=63f7f18e-xxxx-xxxx-xxxx-e3fc0e2e4666 resume=UUID=7efab515-xxxx-xxxx-xxxx-7e17afceeacb acpi_backlight=native rw\n```\n\nYou also may want to change the power button behavior:\n\n```\n/etc/systemd/logind.conf\n\n# ...\nHandlePowerKey=hibernate\nHandleLidSwitch=ignore\n# ...\n```\n\n# Tweak Bluetooth config\n\nFollow https://gist.github.com/acro5piano/9606ce598e04c10dde1948cf7e098f80\n\nBluez 5.73 may contain a bug which the service hangs up after hibernation. For the time being, let's use 5.72.\n\n```\nsudo pacman -U /var/cache/pacman/pkg/bluez-5.72-2-x86_64.pkg.tar.zst /var/cache/pacman/pkg/bluez-libs-5.72-2-x86_64.pkg.tar.zst /var/cache/pacman/pkg/bluez-utils-5.72-2-x86_64.pkg.tar.zst\n```\n\n# Backlight is wrong\n\nIf `light` does not work properly, try to modify the kernel parameter:\n\n```\n~> cat /boot/loader/entries/arch.conf\noptions root=UUID=... acpi_backlight=native rw\n```\n\nref: https://bbs.archlinux.org/viewtopic.php?id=282805\n\n# pnpm completion\n\nNot works. use Yarn completion for now.\n\n```\npnpm completion fish > ~/.config/fish/completions/pnpm.fish\n```\n\n# Disable Logi Bold wakeup from sleep\n\n/etc/udev/rules.d/99-logibolt-power.rules\n\n```\nACTION==\"add\", SUBSYSTEM==\"usb\", ATTR{idVendor}==\"046d\", ATTR{idProduct}==\"c548\", TEST==\"power/wakeup\", ATTR{power/wakeup}=\"disabled\"\n```\n\n# Sync GoPro photo and video\n\n```\ncd var/gopro\nsudo mount -o uid=1000,gid=1000 /dev/mmcblk0p1 /mnt\ncp /mnt/DCIM/100GOPRO/*.{THM,LRV} .\n```\n",
+  "status": "curated"
+}

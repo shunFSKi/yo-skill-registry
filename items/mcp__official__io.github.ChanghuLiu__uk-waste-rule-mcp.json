@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.ChanghuLiu/uk-waste-rule-mcp",
+  "type": "mcp",
+  "name": "RegEvidenceHub Waste",
+  "description": "RegEvidenceHub Waste: England waste registration, DWT readiness and permit-change preflight.",
+  "author": "io.github.ChanghuLiu",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/ChanghuLiu/uk-waste-rule-mcp",
+    "repo": "ChanghuLiu/uk-waste-rule-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://waste.regevidencehub.com/ai/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-24T16:13:41.37623Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# RegEvidenceHub Waste\n\nEvidence-linked, deterministic regulatory preflight for England waste workflows. The service is designed for AI agents and workflow automation and fails closed when decisive official evidence is stale, changed, unavailable, unreviewed, conflicting, or required facts are missing.\n\nProduction origin: `https://waste.regevidencehub.com`\n\n- Commercial MCP: `https://waste.regevidencehub.com/mcp`\n- Payment-free public AI MCP: `https://waste.regevidencehub.com/ai/mcp`\n- Health: `/health`\n- Status: `/status`\n- Metrics: `/metrics`\n- Agent card: `/.well-known/agent-card.json`\n- MCP discovery: `/.well-known/mcp.json`\n- x402 metadata: `/.well-known/x402`\n- OpenAPI: `/openapi.json`\n- LLM guide: `/llms.txt`\n\n## Decision workflows\n\nCommercial decision tools:\n\n- `waste_rule_preflight` — general England waste route and missing-facts preflight — **$0.02 USDC**\n- `waste_carrier_broker_dealer_preflight` — carrier/broker/dealer registration, renewal and change lifecycle — **$0.02 USDC**\n- `waste_digital_tracking_readiness` — phase-1 Digital Waste Tracking readiness for receiving sites — **$0.03 USDC**\n- `waste_permit_change_preflight` — current-vs-proposed operational change impact — **$0.03 USDC**\n\nFree discovery/evidence tools include `waste_service_info`, `waste_rule_catalog`, `waste_source_status`, `waste_source_audit` and `waste_source_registry`.\n\nThe separate `/ai/mcp` and `/openai/mcp` public-AI surface is permanently payment-free and read-only. It exposes seven bounded tools: service info, rule catalogue, source status, general preflight, carrier/broker/dealer registration preflight, DWT receipt readiness and permit-change impact.\n\n## Evidence model\n\nThe checked-in registry contains eight official GOV.UK / Environment Agency sources. All eight now have reviewed semantic fingerprints. On 24 September 2026, a live production audit confirmed five existing baselines unchanged; the carrier/broker/dealer registration source and waste environmental-permits source were manually reviewed and promoted, and the software-provider source was re-reviewed after GOV.UK updated its provider list without changing the modeled DWT obligation or 1 October 2026 timing.\n\nA source is decision-usable only when:\n\n1. a reviewed semantic SHA-256 baseline exists;\n2. the latest observed fingerprint is `UNCHANGED`;\n3. the check is inside its freshness window.\n\n`CHANGED`, `FETCH_ERROR`, `MISSING_BASELINE` and stale records fail closed to review.\n\nThe service does **not** infer hazardous status, waste codes, permit conditions, exemption eligibility, regulator approval, or legal advice.\n\n## Digital Waste Tracking scope\n\nThe DWT workflow models the current England phase-1 receiving-site requirement and keeps later phases separate. It does not create or submit Digital Waste Tracking records.\n\n## Production operations\n\nThe production surface provides a RegEvidenceHub-style operations contract:\n\n- `/health` — serving/source/payment state\n- `/status` — evidence state, prices and 24h metrics\n- `/version` — release/deployment identity\n- `/metrics` — aggregate discovery/tool/payment funnel telemetry\n\nAnalytics are privacy-minimal: scenario payloads are not intentionally persisted. Owner/test payment activity is separated from external/unattributed activity.\n\n## Payment\n\nx402 v2 is opt-in through `WASTE_PAYMENT_ENFORCED=1`. Production uses Base USDC when configured. Required settings:\n\n- `WASTE_X402_NETWORK`\n- `WASTE_X402_PAY_TO`\n- `WASTE_X402_FACILITATOR_URL`\n- `WASTE_PUBLIC_MCP_URL`\n\n`WASTE_PAYMENT_MODE=maintenance` is a fail-closed kill switch: paid tools remain discoverable but execute no regulatory decision and request no payment.\n\nNo buyer private key or seed phrase is handled by this service.\n\n## Source monitoring\n\nUse the durable registry path in production:\n\n```bash\nexport WASTE_SOURCE_REGISTRY_PATH=/data/waste/source_registry.json\nuk-waste-source-monitor --write\n```\n\nOnly after manual review of a completely successful source audit:\n\n```bash\nuk-waste-source-monitor --establish-baseline\n```\n\n## Development and CI\n\n```bash\npython -m venv .venv\nsource .venv/bin/activate\npip install -e '.[mcp,dev]' 'x402[evm]==2.21.0'\npython -m compileall -q src\npytest -q\n```\n\nGitHub CI and the Docker build both run compile + tests before a production image is accepted.\n\n## Boundary\n\nThis is regulatory **preflight**, not waste-management execution software. It does not submit carrier registrations, environmental permits, exemptions, DWT records, or regulator filings; it does not approve an operation.\n",
+  "status": "curated"
+}

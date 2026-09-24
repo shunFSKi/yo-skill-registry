@@ -1,0 +1,65 @@
+{
+  "id": "mcp:official/io.github.bitfiction/staticbot",
+  "type": "mcp",
+  "name": "Staticbot",
+  "description": "Deploy websites, migrate app backends, and run continuous sync with explicit approval gates.",
+  "author": "io.github.bitfiction",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/bitfiction/staticbot-mcp",
+    "repo": "bitfiction/staticbot-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@staticbot/mcp"
+    ],
+    "env": [
+      {
+        "name": "STATICBOT_API_KEY",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-24T16:50:00.663035Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# Staticbot MCP server\n\nGive Codex, Claude, Cursor, and other MCP-compatible agents safe access to [Staticbot](https://www.staticbot.dev). The server exposes typed tools for deploying websites, migrating application backends, and operating continuous sync while Staticbot keeps credentials and long-running workflow state outside the model context.\n\n## Two ways to connect\n\n**Connect the hosted server** — no install, no API key. Point an MCP client that supports remote\nservers with OAuth at:\n\n```text\nhttps://mcp.staticbot.dev/mcp\n```\n\nYou sign in to Staticbot, choose what to grant, and the client stores the connection. If you do not\nhave a Staticbot account yet, one is created when you first connect.\n\n**Run it locally** — for clients that launch MCP servers as a local process. Needs Node.js 20 or\nnewer and a Staticbot API key from\n[app.staticbot.dev/developer](https://app.staticbot.dev/developer).\n\nBoth expose the same tools. The hosted server acts as the person who authorized it and never sees an\nAPI key; the local server uses the API key you give it.\n\n## Install as a Codex plugin\n\nThis repository is also a Codex plugin. Its manifest bundles the Staticbot MCP server with four intent-focused skills:\n\n- `deploy-web-app-with-staticbot` deploys a repository without making the agent choose a cloud provider. Staticbot analyzes the repo, classifies the workload, and selects the supported AWS or Cloudflare target plus its customer-owned or Staticbot-managed ownership model.\n- `migrate-vibe-coded-app` moves Base44, Lovable, Bolt, or Firebase backends to customer-owned Supabase infrastructure with discovery and approval gates.\n- `sync-vibe-coded-app` keeps migrated projects synchronized while preserving destructive-change review.\n- `live-migrate-ai-built-app` cuts a live Lovable or Base44 app over to the migrated stack during a planned maintenance window: test migration, cutover plan, maintenance page, source write freeze, fresh final copy, verification, and domain switch. The builder-specific freeze steps are in `live-migrate-lovable-app` and `live-migrate-base44-app`.\n\nThe general `staticbot` skill remains available as a direct REST API fallback.\n\nAdd the public GitHub marketplace, then install Staticbot:\n\n```bash\ncodex plugin marketplace add bitfiction/staticbot-mcp\ncodex plugin add staticbot@staticbot\n```\n\nRestart the ChatGPT desktop app or Codex after adding the marketplace if Staticbot does not appear immediately. This preview plugin uses the local MCP transport, so set `STATICBOT_API_KEY` in the environment that launches the app. The hosted OAuth connection at `https://mcp.staticbot.dev/mcp` remains the lowest-friction option when you only need MCP tools rather than the bundled skills.\n\n## Install as a Claude Code plugin\n\nClaude Code does not require Staticbot to be accepted into a central plugin registry. Add the self-hosted marketplace directly from this GitHub repository, then install the plugin:\n\n```text\n/plugin marketplace add bitfiction/staticbot-mcp\n/plugin install staticbot@staticbot\n```\n\nSet `STATICBOT_API_KEY` in the environment that launches Claude Code. The plugin starts the published `@staticbot/mcp` package with `npx` and inherits that environment; `STATICBOT_API_URL` remains optional for self-hosted or local Staticbot APIs.\n\nThe installed skills are namespaced by the plugin. For example, use `/staticbot:deploy-web-app-with-staticbot`, `/staticbot:migrate-vibe-coded-app`, `/staticbot:sync-vibe-coded-app`, or `/staticbot:live-migrate-ai-built-app`. Restart Claude Code or run `/reload-plugins` after installation if the plugin is not immediately available.\n\n## Configure your MCP client directly\n\n### Hosted (OAuth)\n\nFor clients that support remote MCP servers, add `https://mcp.staticbot.dev/mcp` and authorize when\nprompted. The client discovers where to sign in from the server itself; there is nothing to copy or\npaste, and no credential is stored on your machine.\n\n### Local (API key)\n\nAdd the published package to your project or global MCP configuration:\n\n```json\n{\n  \"mcpServers\": {\n    \"staticbot\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@staticbot/mcp\"],\n      \"env\": {\n        \"STATICBOT_API_KEY\": \"sk-your-api-key-here\"\n      }\n    }\n  }\n}\n```\n\nHosted Staticbot at `https://app.staticbot.dev` is the default. Do not set `STATICBOT_API_URL` for the hosted service; override it only when using a self-hosted or local Staticbot API.\n\nKeep the API key in your MCP client's secret or environment configuration. Do not paste it into chat or commit it to a repository.\n\n## What agents can do\n\nThe server groups its tools around user outcomes:\n\n- Inspect templates, stacks, deployments, and integration connections\n- Resolve the repository to work on from a connected GitHub or GitLab account, private repositories included\n- Create and monitor static-site and SSR deployments\n- Inspect deployment DNS, safely push deployment-owned records to linked Cloudflare zones, and recheck custom-hostname verification\n- Choose where a Cloudflare Workers app is hosted — Staticbot's account, or the user's own connected Cloudflare account — and check a hostname is deployable before creating anything\n- Choose whether an AWS-hosted static site is deployed into Staticbot's managed account or the user's own connected AWS account\n- Create a customer-owned Supabase project, wait until it is healthy, and use it as a migration target\n- Migrate Lovable, Bolt, Firebase, and Base44 projects to Supabase targets\n- Inspect migration discovery results and guide users through approval and choice gates\n- Create previews and download portable migration packages\n- Trigger, review, retry, or skip continuous-sync runs\n- Roll back or redeploy a website using valid pinned versions returned by Staticbot\n\nThe tool schemas and descriptions are the runtime contract seen by MCP clients. They contain the operational instructions an agent needs at the moment it selects a tool.\n\n## Example requests\n\n- “Deploy this repository with Staticbot and tell me what DNS records I need.”\n- “Push this deployment's required records to my linked Cloudflare zone, then recheck verification.”\n- “Migrate my Base44 app to my Supabase project. Stop for approval before making changes.”\n- “Show me what changed in the latest sync run and explain any destructive SQL.”\n- “List valid rollback versions for this deployment, but do not roll back yet.”\n\n## Safety contract\n\nStaticbot tools are designed around explicit human control:\n\n- Discovery results are presented before a migration is confirmed.\n- Choice gates are shown to the user instead of being silently defaulted.\n- Destructive sync changes pause for review.\n- Failed work is explained before an agent retries or skips it.\n- Rollbacks use an exact version returned by `list_rollback_versions` and require confirmation.\n- Long-running operations return durable state that can be resumed across agent sessions.\n- The hosted server acts strictly as the person who authorized it, within the permissions they\n  granted, and can reach nothing outside their own organization.\n\nWhen a migration response contains `pendingAction`, the client should treat it as the source of truth for the next step. Clients should not hard-code Staticbot's internal pipeline phases.\n\nMigration discovery can expose two additional reviewed actions. `preFlightGate` contains the exact\nexport-versus-replay choices an agent must present before calling `confirm_migration` with the\nselected `gateChoice`. `targetConflictReport` lists objects already present on the target and offers\ndatabase, Storage, or whole-project cleanup. `clean_migration_target` is irreversible and requires\nseparate confirmation of both the exact scope and returned target project ref.\n\n## Staticbot skills\n\nThe repository includes focused deployment, migration, and Continuous Sync skills plus a [general Staticbot Skill](https://github.com/bitfiction/staticbot-mcp/tree/main/skills/staticbot) for Codex or Claude environments that can operate the REST API directly without an MCP server. The direct-API workflow fetches the live OpenAPI contract and applies the same approval and credential-handling rules.\n\nUse the MCP package when your client supports MCP. Use the Skill when direct API access from a command-line agent is more appropriate.\n\n## Environment variables\n\nThese apply to the local server. The hosted server needs none of them.\n\n| Variable | Required | Default | Purpose |\n|---|---:|---|---|\n| `STATICBOT_API_KEY` | Yes | — | Authenticates requests to Staticbot |\n| `STATICBOT_API_URL` | No | `https://app.staticbot.dev` | Override only for a self-hosted or local API |\n\n## Documentation\n\n- [Staticbot website](https://www.staticbot.dev)\n- [Interactive API reference and API keys](https://app.staticbot.dev/developer)\n- [npm package](https://www.npmjs.com/package/@staticbot/mcp)\n- [Contributing and local verification](https://github.com/bitfiction/staticbot-mcp/blob/main/CONTRIBUTING.md)\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

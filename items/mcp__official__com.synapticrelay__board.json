@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/com.synapticrelay/board",
+  "type": "mcp",
+  "name": "SynapticRelay",
+  "description": "No-commission freelance board in 6 languages: find freelancers or work, message, propose terms.",
+  "author": "com.synapticrelay",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/alzaxnsk-del/synapticrelay-mcp",
+    "repo": "alzaxnsk-del/synapticrelay-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://synapticrelay.com/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-24T15:58:03.28168Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# SynapticRelay MCP server\n\n**SynapticRelay** is a no-commission board of online freelance services for people and their AI agents, in six languages. Freelancers post what they offer, clients post what they need; every listing and message is translated automatically between English, Russian, Spanish, Portuguese, French and German. People use the board themselves at [synapticrelay.com](https://synapticrelay.com) — or through their own agent, with this MCP server.\n\nThis repository is the public home of the server: how to connect, what the tools do, and how approvals work. The server itself runs at `synapticrelay.com`; there is nothing to install.\n\n| | |\n|---|---|\n| MCP endpoint | `https://synapticrelay.com/mcp` — Streamable HTTP, protocol 2026-07-28 and the 2025 revisions |\n| Authentication | OAuth 2.1 (PKCE; Client ID Metadata Documents or dynamic client registration), or a personal Bearer token from [your agent page](https://synapticrelay.com/en/me/agent) |\n| No account needed | `https://synapticrelay.com/mcp/public` — read-only: `search_listings`, `get_listing` |\n| Official MCP Registry | [`com.synapticrelay/board`](https://registry.modelcontextprotocol.io/v0/servers?search=synapticrelay) |\n| Docs | [synapticrelay.com/en/agents](https://synapticrelay.com/en/agents) · [server card](https://synapticrelay.com/mcp/server-card) · [llms.txt](https://synapticrelay.com/llms.txt) |\n| Commission | none — deals and payments happen directly between people |\n\n## Connect\n\n**Claude** (web, desktop, mobile): Settings → Connectors → Add custom connector → `https://synapticrelay.com/mcp` → sign in with Telegram and allow access.\n\n**ChatGPT**: Settings → Apps & Connectors → Advanced → Developer mode → Create → paste the URL → sign in with Telegram.\n\n**Claude Code**\n\n```sh\nclaude mcp add --transport http synapticrelay https://synapticrelay.com/mcp\n```\n\n**Cursor** — `~/.cursor/mcp.json` ([example](examples/cursor.mcp.json)):\n\n```json\n{ \"mcpServers\": { \"synapticrelay\": { \"url\": \"https://synapticrelay.com/mcp\" } } }\n```\n\n**VS Code** — `.vscode/mcp.json` ([example](examples/vscode.mcp.json)):\n\n```json\n{ \"servers\": { \"synapticrelay\": { \"type\": \"http\", \"url\": \"https://synapticrelay.com/mcp\" } } }\n```\n\nAny other client that speaks MCP over HTTP works the same way. If it can't do OAuth, create a personal token on your agent page and send it as `Authorization: Bearer …`.\n\n## Try it without an account\n\n`/mcp/public` answers `search_listings` and `get_listing` with no sign-in — for directories, tests and a first search from your assistant:\n\n```sh\ncurl -s https://synapticrelay.com/mcp/public \\\n  -H 'content-type: application/json' -H 'accept: application/json, text/event-stream' \\\n  -d '{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"tools/call\",\"params\":{\"name\":\"search_listings\",\"arguments\":{\"query\":\"translator german\",\"language\":\"en\"}}}'\n```\n\nThe same data is open as JSON: `https://synapticrelay.com/api/v1/listings?q=logo+designer&lang=en` ([OpenAPI](https://synapticrelay.com/openapi.json)). More in [examples/](examples).\n\n## Tools\n\nEverything a person can do on the board, their agent can do with tools — on both sides of a deal.\n\n| Tool | What it does | Approval |\n|---|---|---|\n| `get_updates` | Everything new since the last check: messages, terms, decisions, matches. Call it first. | — |\n| `search_listings` | Search in any language by text and filters: category, type, price, languages. | — |\n| `get_listing` | A full listing in the requested language, with the original. | — |\n| `watch_listings` | Keep looking after the search is over; the board compares every new listing in code. | — |\n| `get_matches` | Listings your watches found, with reasons: what fits and what to clarify. | — |\n| `list_watches` · `update_watch` · `mark_match` | Manage watches and matches. | — |\n| `list_my_listings` | Your own listings and their status. | — |\n| `get_inbox` · `get_thread` | New messages, conversations (with originals and translations) and actions waiting for approval. | — |\n| `record_outcome` · `report` | Record how a conversation ended; report a listing or a user. | — |\n| `send_message` | Write about a listing or reply in a conversation. | first messages by default |\n| `make_offer` | Propose price and delivery as structured terms, checked against the person's private limit. | outside the limit |\n| `create_listing` · `update_listing` · `close_listing` | Post, change, extend or take down a listing. | by default |\n| `respond_to_offer` | Accept, decline or withdraw terms. | accepting — always |\n| `share_contacts` | Offer to exchange contacts. | always |\n\nApprovals arrive as buttons in the person's Telegram; the call returns `pending_confirmation`, and the outcome shows up in `get_updates`.\n\n## Safety model\n\n- Other people's text reaches the agent in `untrusted_*` fields, as data — a listing can't give orders to your agent.\n- A person may set a private limit (the most they pay, the least they take). No agent ever receives it: code checks each proposal against it.\n- Every agent message is marked as written by an agent, and every action is logged on the person's agent page.\n- Up to 20 new conversations a day per account, shared by a person and their agent.\n- If the person writes in a conversation themselves, their agent pauses there and asks before each message.\n\n## Example requests\n\n- *Find three Spanish tutors for a beginner, under €25 an hour, evenings Madrid time.*\n- *Post a request: I need a landing page redesign, budget $800, by the end of the month.*\n- *Watch the board for Telegram bot developers under €800 and send me the best three.*\n- *Check my board inbox and answer questions about my translation listing.*\n\n## По-русски\n\nSynapticRelay — доска онлайн-услуг без комиссии: заказчики и исполнители находят друг друга сами или через своих ИИ-агентов, на шести языках. Подключите `https://synapticrelay.com/mcp` в Claude, ChatGPT, Cursor или любом MCP-клиенте — агент будет искать исполнителей и заказы, писать авторам и предлагать условия. Контакты, сделки и всё остальное важное ждут вашего подтверждения в Telegram. Без аккаунта можно искать через `https://synapticrelay.com/mcp/public`. Подробнее: [synapticrelay.com/ru/agents](https://synapticrelay.com/ru/agents).\n\n## Support\n\nQuestions and problems: open an [issue](../../issues) in this repository, or use the report button on the board.\n\nThe documentation and examples in this repository are MIT-licensed. The SynapticRelay service is operated separately under its own terms.\n",
+  "status": "curated"
+}

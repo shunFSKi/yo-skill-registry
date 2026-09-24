@@ -1,0 +1,84 @@
+{
+  "id": "mcp:official/io.github.dockndevai/mcp-laya",
+  "type": "mcp",
+  "name": "mcp-laya",
+  "description": "Safe-by-default MCP for Laya: fast, local, typed decisions (classify/score/yes-no), 100+ langs.",
+  "author": "io.github.dockndevai",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/dockndevai/mcp-laya",
+    "repo": "dockndevai/mcp-laya"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "mcp-laya"
+    ],
+    "env": [
+      {
+        "name": "LAYA_DEFAULT_MODEL",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "LAYA_MODELS",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "LAYA_ALLOW_DOWNLOAD",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "LAYA_MIN_CONFIDENCE",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "LAYA_DEVICE",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-24T17:52:15.468696Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# mcp-laya\n\n<!-- mcp-name: io.github.dockndevai/mcp-laya -->\n\n[![PyPI](https://img.shields.io/pypi/v/mcp-laya)](https://pypi.org/project/mcp-laya/)\n[![CI](https://github.com/dockndevai/mcp-laya/actions/workflows/ci.yml/badge.svg)](https://github.com/dockndevai/mcp-laya/actions/workflows/ci.yml)\n[![licence](https://img.shields.io/badge/licence-MIT-blue)](LICENSE)\n\nA **safe-by-default** [Model Context Protocol](https://modelcontextprotocol.io) server for [**Laya**](https://github.com/NandhaKishorM/laya) — a fast, non-autoregressive **System-1 decision engine**. It gives an agent a *thinking* primitive: typed decisions — **classify, score, yes/no** — over any state (text, an email, a ticket, a JSON object), in a **single local forward pass (~33 ms)**, across **100+ languages**, with **no text generation — nothing to parse and nothing to hallucinate**, and a **calibrated confidence** on every answer.\n\nInstead of burning a slow, costly LLM round-trip on \"which team should handle this? is it urgent? is this a refund request?\", the agent calls a typed tool that answers **locally, in milliseconds, offline**. It's the safest server in the suite — laya only *reads* a state and returns a decision; it changes nothing.\n\nPart of the [dockndevai MCP server suite](https://dockndevai.github.io/) — one governance model across all of them. (This is the first Python server in the suite; the rest are Node/TS.)\n\n## What it gives an agent\n\n| Tool | For |\n|---|---|\n| `decide` | answer several typed questions (choice/score/noul) in one pass — the full engine |\n| `classify` | assign the single best category (one `choice`) |\n| `score` | rate on an ordinal scale, e.g. urgency (one `score`) |\n| `check` | a yes/no/unknown gate for control flow (one `noul`) |\n| `triage` | a ready-made decision set via a laya preset (triage / email / moderation / guard) |\n| `detect_language` | script + language of a text (sub-ms, no model) |\n| `explain_routing` | which checkpoint would answer, without running inference |\n| `list_models` | the checkpoints available, default, device, offline status |\n\nThree checkpoints, auto-routed per request: **english** (ModernBERT-large), **multilingual** (mmBERT, 100+ languages), **typed-decisions**.\n\n## Install\n\n```bash\npipx install mcp-laya      # or: pip install mcp-laya\n```\n\nPython 3.10+. laya pulls in `torch`; the model checkpoints download **once** from Hugging Face (see below), after which it runs fully offline.\n\n## First run: fetch the model once\n\nDownloads are **off by default** (nothing leaves your machine at runtime). Pre-fetch the checkpoints one time with network access:\n\n```bash\nLAYA_ALLOW_DOWNLOAD=true python -c \"import laya; laya.Router(preload=True)\"\n```\n\nThen run the server offline.\n\n## Configure\n\n```json\n{\n  \"mcpServers\": {\n    \"laya\": {\n      \"command\": \"mcp-laya\",\n      \"env\": { \"LAYA_DEFAULT_MODEL\": \"auto\" }\n    }\n  }\n}\n```\n\nSee [docs/CLIENTS.md](docs/CLIENTS.md) for Claude Code / Cursor / Codex / VS Code / Windsurf, and [.env.example](.env.example) for every variable.\n\n## Example\n\nAsk your agent to *\"use laya to classify this ticket's department and whether it's a churn risk\"*:\n\n```jsonc\n// classify(state, criteria={billing, technical, sales, other})\n{ \"choice\": \"billing\", \"confidence\": 0.95, \"probabilities\": { \"billing\": 0.95, ... } }\n// check(state, \"Does the user threaten to cancel?\")\n{ \"answer\": \"yes\", \"probability_yes\": 0.91, \"confidence\": 0.91 }\n```\n\n## Safe by default\n\nlaya is read-only inference, so the guardrails (in [`src/mcp_laya/security.py`](src/mcp_laya/security.py)) are about privacy and resource control, not write-gating:\n\n- **Offline by default** — the model runs locally; nothing is sent anywhere. The one exception, the first-time checkpoint download, is disabled unless `LAYA_ALLOW_DOWNLOAD=true`.\n- **Model allowlist** — `LAYA_MODELS` pins which checkpoints may load.\n- **Input caps** — `LAYA_MAX_INPUT_CHARS` / `LAYA_MAX_QUESTIONS` bound each request.\n- **Confidence honesty** — `LAYA_MIN_CONFIDENCE` flags (never silently trusts) low-confidence answers; every answer already carries a calibrated `confidence`.\n- **Log privacy** — `LAYA_REDACT_STATE` keeps the input text out of the JSON audit log by default.\n\nThere's a bundled skill, [`laya-decisions`](.claude/skills/laya-decisions/SKILL.md), teaching an agent when to offload a decision to laya and how to phrase typed questions. See also [SECURITY.md](SECURITY.md).\n\n## Developing\n\n```bash\npython -m venv .venv && . .venv/bin/activate\npip install -e \".[dev]\"\nruff check src tests && mypy src && pytest      # the policy tests need no model\npython -m mcp_laya                              # run the server (stdio)\n```\n\n## Credits\n\nBuilt on **[laya](https://github.com/NandhaKishorM/laya)** by Convai Innovations (Apache-2.0). This server wraps that library; all model work is theirs. See [NOTICE](NOTICE).\n\n## Licence\n\nMIT\n",
+  "status": "curated"
+}
