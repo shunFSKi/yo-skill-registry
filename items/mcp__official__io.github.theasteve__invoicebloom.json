@@ -1,0 +1,61 @@
+{
+  "id": "mcp:official/io.github.theasteve/invoicebloom",
+  "type": "mcp",
+  "name": "InvoiceBloom",
+  "description": "Create, send and track invoices for freelancers and small businesses.",
+  "author": "io.github.theasteve",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/theasteve/invoicebloom-mcp",
+    "repo": "theasteve/invoicebloom-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://invoicebloom.io/mcp",
+    "env": [
+      {
+        "name": "Authorization",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-25T18:18:07.00191Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# InvoiceBloom MCP server\n\nCreate, send and track invoices from Claude, Cursor, or any [Model Context Protocol](https://modelcontextprotocol.io) client.\n\n[InvoiceBloom](https://invoicebloom.io) is a free invoicing app for freelancers and small businesses. Its MCP server is **hosted**: there is nothing to install or run. Point your client at the endpoint with an API token and start invoicing.\n\n- **Endpoint:** `https://invoicebloom.io/mcp` (Streamable HTTP, stateless)\n- **Auth:** bearer API token, minted at [Settings › Security](https://invoicebloom.io/settings/security) (free account)\n- **Docs:** https://invoicebloom.io/developers\n- **REST API:** `https://invoicebloom.io/api/v1` with the same token\n\n## Quick start\n\n### Claude Code\n\n```bash\nclaude mcp add --transport http invoicebloom https://invoicebloom.io/mcp \\\n  --header \"Authorization: Bearer ib_YOUR_TOKEN\"\n```\n\n### Cursor, Windsurf and other HTTP-capable clients\n\n```json\n{\n  \"mcpServers\": {\n    \"invoicebloom\": {\n      \"url\": \"https://invoicebloom.io/mcp\",\n      \"headers\": { \"Authorization\": \"Bearer ib_YOUR_TOKEN\" }\n    }\n  }\n}\n```\n\n### Claude Desktop (via mcp-remote)\n\n```json\n{\n  \"mcpServers\": {\n    \"invoicebloom\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"mcp-remote\", \"https://invoicebloom.io/mcp\",\n               \"--header\", \"Authorization: Bearer ib_YOUR_TOKEN\"]\n    }\n  }\n}\n```\n\nThen ask things like *\"Invoice Acme for 12 hours of consulting at $150 and send it\"* or *\"Which invoices are overdue?\"*.\n\n## Tools\n\n| Tool | What it does |\n|---|---|\n| `get_account` | Your business details, email-confirmation and payment status |\n| `list_clients` / `create_client` / `update_client` | Find or add the people you invoice |\n| `list_invoices` / `get_invoice` | Filter by status, client or overdue; full detail with line items and a shareable link |\n| `create_invoice` / `update_invoice` | Draft invoices with line items, tax and late fees; totals are computed server-side |\n| `send_invoice` | Emails the PDF to the client, with a Stripe payment link if connected |\n| `mark_invoice_paid` | Record a payment received outside the app |\n| `delete_invoice` | Remove an invoice |\n\n`send_invoice` and `delete_invoice` carry MCP annotations (`openWorldHint`, `destructiveHint`) so well-behaved assistants confirm with you before calling them.\n\n## Safety and limits\n\n- A token has the same rights as your account. Revoke it from Settings › Security the moment you think it leaked.\n- 120 requests per minute per token.\n- The same anti-abuse rules as the web app apply to sending: a confirmed email, at least one line item, and a daily send cap.\n- Unauthenticated requests get a JSON `401`.\n\n## Registry metadata\n\n[`server.json`](./server.json) follows the official MCP Registry schema for remote servers.\n\n## Support\n\nQuestions or a client you want supported: https://invoicebloom.io/contact\n",
+  "status": "curated"
+}

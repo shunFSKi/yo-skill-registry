@@ -1,0 +1,94 @@
+{
+  "id": "mcp:official/io.github.jeang42/codemem",
+  "type": "mcp",
+  "name": "codemem",
+  "description": "Shared memory for coding agents: projects, reusable code, sessions and commits across machines",
+  "author": "io.github.jeang42",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/jeang42/codemem",
+    "repo": "jeang42/codemem"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "codemem-mcp"
+    ],
+    "env": [
+      {
+        "name": "CODEMEM_DATA",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "CODEMEM_DB",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "CODEMEM_HOST",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "CODEMEM_PORT",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "OLLAMA_URL",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "CODEMEM_EMBED",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "GIT_ROOT",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-25T16:11:50.715859Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# codemem\n\n<!-- mcp-name: io.github.jeang42/codemem -->\n\n**Your coding agents keep rebuilding what you already have. codemem remembers what they built,\nacross every project and every machine, and scores each piece on evidence of whether it worked.**\n\nIt is an MCP server for Claude Code and other MCP clients. It knows what projects exist, where\nthey live, what reusable pieces they contain, what each session did and decided, every commit\npushed to the git host, and how to do recurring things. Everything is searchable from any\nmachine, from an agent, or from the web UI. It is written to *during* work, not after.\n\nOne Python process, SQLite, no external services required.\n\n## What makes it different\n\nInventory scripts snapshot a directory and you read the report once. Registries list what people\npublished. codemem does neither.\n\n- **Trust from evidence, not from stars.** Every project and asset gets a computed score from\n  how recently it changed, how much work went into it, whether it is actually deployed and\n  running, whether anything else imports it, and whether a human vouched for it. `verify` records\n  \"I ran it today and it works\" and restarts the freshness clock. Scores are recomputed on\n  every sync, so they decay when you stop touching something.\n- **It finds the copies you forgot.** Discovery mines every repo at HEAD for scripts, modules,\n  service units, Dockerfiles and MCP servers, hashes their functions, and links repos that share\n  code. It will tell you that you wrote the same retry wrapper in three places.\n- **Agents feed it automatically.** A session hook records what each Claude Code session did,\n  and gives the next session a brief on the project it just opened. The catalogue builds itself.\n- **Maturity is a first-class label.** `authoritative`, `usable`, `experimental`, `antiquated`,\n  `sunset`, `broken`, `junk`, each with a reason. Search ranks by it, and you can exclude the\n  ratings you should not build on.\n- **Your code stays where it is.** codemem stores metadata: names, descriptions, imports,\n  symbols, function hashes, commit records. It does not copy your source anywhere.\n\n## Endpoints\n\n| Endpoint | What |\n|---|---|\n| `http://<host>:8055/mcp` | MCP (streamable HTTP) for Claude Code and other MCP clients |\n| `http://<host>:8055/` | Web UI: search, projects, assets, notes, activity, docs. Dark mode. |\n| `http://<host>:8055/api/…` | JSON API used by the UI (see docs/architecture.md) |\n| `http://<host>:8055/health` | liveness |\n\nNormally runs on the git host, the machine holding the bare repos, so it can read them directly.\n\n> **Security: codemem has no authentication.** It is built for a trusted network, and anyone who\n> can reach the port can read and write everything. Do not expose it to the internet without an\n> authenticating proxy in front of it. See docs/architecture.md.\n\n## Requirements\n\nPython 3.11 or newer, and git. Optional: a git host with bare repos for the commit feed, Gitea\nfor descriptions and web links, and [Ollama](https://ollama.com) for semantic search, drafted\ndescriptions and the review pass. Everything works without the optional pieces; search falls\nback to BM25 alone.\n\n## Why\n\nA developer with many project folders across several machines has no way for a new Claude Code\nsession to know that a retry wrapper, a Gradio helper, a GPU monitor or a data pipeline already\nexists somewhere. So they get rebuilt. Snapshot inventory scripts (run, read, forget) do not fix\nthat. codemem is the live, writable layer: it is written to during work, not after.\n\nThe content is whatever is there. codemem does not filter or judge. Each project carries an\n`audience`: `unrestricted` (the default), `professional`, or `employer`, so a search or a view can\nexclude one when the context calls for it. Nothing is hidden unless asked, with one exception:\ncloned third-party repos are marked `origin = vendor` and stay out of search and lists until you\nask for them. See docs/USER_GUIDE.md.\n\n## Install from PyPI\n\nThe package is `codemem-mcp`; the command it installs is `codemem`.\n\n    pip install codemem-mcp          # or: uv tool install codemem-mcp / pipx install codemem-mcp\n    codemem serve                    # MCP at http://localhost:8055/mcp, web UI at http://localhost:8055/\n\n    uvx codemem-mcp serve            # or run it without installing\n\nData goes to `~/.codemem/` unless `CODEMEM_DB` or `CODEMEM_DATA` says otherwise. Register it with\nClaude Code:\n\n    claude mcp add --transport http --scope user codemem http://localhost:8055/mcp\n\nThat is the server alone. For the systemd units, the commit feed and the session hooks, use the\nquick start below from a clone of the repository.\n\n## Run with Docker\n\n    docker build -t codemem .\n    docker run --rm -p 127.0.0.1:8055:8055 codemem                        # throwaway database\n    docker run -d -p 127.0.0.1:8055:8055 -v codemem-data:/data codemem    # keep it in a volume\n\n> **No authentication.** Anyone who can reach the port can read and write everything. Keep the\n> `127.0.0.1:` in `-p`: a bare `-p 8055:8055` publishes the port on every interface, and Docker's\n> port rules bypass most host firewalls.\n\nThe image needs none of the optional pieces: embeddings are off (`CODEMEM_EMBED=0`) and there is no\ngit host. Pass `-e OLLAMA_URL=... -e CODEMEM_EMBED=1` to turn semantic search on.\n\n## Quick start\n\nServer (once, on the git host):\n\n    ./install.sh                # venv, user-scope systemd units, seed, backfill, gitea, scan, embed\n\nClient (each machine, once):\n\n    CODEMEM_URL=http://<host>:8055 client/install-client.sh    # Linux/macOS: MCP server + SessionStart/SessionEnd hooks\n    client\\install-client.ps1                                   # Windows PowerShell (set $env:CODEMEM_URL first)\n\nThen in any Claude Code session the `codemem` tools are available and every session starts with a\nbrief of the current project (if codemem knows it) and ends with an automatic session record.\n\n## What Claude sees\n\n| Tool | Use |\n|---|---|\n| `search` | hybrid BM25 + embedding search over everything. First call before building anything |\n| `project_brief` | everything about one project, by name or working directory |\n| `list_projects` | filter by status, tag, machine, audience, visibility |\n| `update_project` | description, purpose, status, tags, audience, origin (own/vendor), visibility, maturity |\n| `register_asset` | record a reusable script/module/prompt/skill/service with a one-line usage |\n| `find_assets` | search or list assets by kind/tag/project, or by imported library |\n| `log_session` | what was done, decided, used, abandoned, and what is next |\n| `add_note` | decision, howto, resource, issue, idea |\n| `delete_note` | remove a note written by mistake, with its index and embedding rows |\n| `link_items` | project uses / could-reuse / supersedes / derived-from another |\n| `rate` | maturity: authoritative, usable, experimental, antiquated, sunset, broken, junk, with a why |\n| `verify` | \"I ran it today and it works\": restarts the computed trust score's freshness clock |\n| `handoff` / `list_handoffs` | track one implementation replacing another through candidate, shadow, verified, promoted |\n| `howto` | how to publish, add a machine, use codemem, plus whatever docs are ingested |\n| `activity` | commits and sessions across all machines, last N days |\n| `add_scan_root` / `scan_path` | register a directory to scan; scan now (server machine) |\n| `stats` | counts, machines, index coverage |\n| `help` | workflow, tool list, label vocabularies. Also `/codemem` in Claude Code, `/codemem <query>` searches |\n\n## Where the data comes from\n\n- **Git host**: every bare repo in `GIT_ROOT` is backfilled; a post-receive hook posts each push to\n  `/ingest/push` so new commits appear within seconds. See docs/git-commit-feed.md.\n- **Gitea** (optional): descriptions, topics and web URLs, via its API with a read token.\n- **Local scan**: project directories under registered roots, per machine. On the server this\n  is automatic; other machines run `client/codemem_agent.py` once a root is registered.\n- **Discovery**: every own repo is mined at HEAD for scripts, modules, units, Dockerfiles,\n  prompts and MCP servers, recorded as `auto-discovered` assets, with shared-code links between repos.\n- **Docs**: markdown from `CODEMEM_DOC_SOURCES` (this repo by default), re-hashed every sync.\n- **Claude Code**: session records from the hook, plus whatever Claude writes with the tools.\n- **Local model** (optional, via Ollama): embeddings for semantic search, drafted descriptions,\n  and a targeted review of near-duplicate functions and thinly described code.\n\n## Layout\n\n    codemem/        the server package\n      config.py     every tunable, env-overridable\n      db.py         schema, connection, single FTS5 index\n      store.py      all writes (keeps the index in step)\n      search.py     BM25 + Ollama embeddings, reciprocal rank fusion\n      gitsync.py    bare-repo backfill, push ingest, push.log, Gitea\n      scan.py       project discovery + location records\n      discover*.py  asset discovery, shared-code linking (core is shared with the remote agent)\n      trust.py      computed trust scores\n      review.py     targeted model review\n      describe.py   model-drafted project descriptions\n      knowledge.py  doc ingest, howto/asset seed\n      server.py     MCP tools, HTTP routes, JSON API\n      cli.py        serve | backfill | gitea | docs | seed | scan | embed | reindex | backup | sync | discover | review | trust | describe | purge\n      web/          the single-file web UI (+ vendored marked.js)\n    client/         hook, remote scan agent, slash command, per-OS installers\n    systemd/        user-scope units: service, sync timer (6h), backup timer (02:45)\n    docs/           user guide, architecture, git-commit-feed, clients, operations, publishing, python-vs-typescript\n    server.json     MCP Registry entry (PyPI package codemem-mcp)\n    glama.json      Glama listing maintainers\n    Dockerfile      container image: throwaway /data, no optional services\n\nStorage: `$CODEMEM_DB` (default `~/.codemem/codemem.db`, SQLite, WAL). Backups: `$CODEMEM_BACKUP_DIR`\n(default `~/.codemem/backups/`).\n\n## Status and contributing\n\nExtracted from a system that has been running daily against 165 projects, 735 assets and 2,000+\ncommits across three machines. It is stable for that use, but it has had one operator, so expect\nrough edges the moment your layout differs from that one. Issues and pull requests welcome;\nplease open an issue before a large change so we can agree on the shape. See\n[CONTRIBUTING.md](CONTRIBUTING.md) for how to run it locally and the two rules that are not\nnegotiable, and [SECURITY.md](SECURITY.md) for what it stores and how to report a vulnerability.\n\nRun `scripts/smoke.sh` before pushing: it boots the server against a throwaway database and\nchecks that health, the web UI, the JSON API and the schema all come up.\n\n## License\n\nApache License 2.0. See LICENSE.\n\nCopyright © 2026 Jeff Angelcyk.\n",
+  "status": "curated"
+}

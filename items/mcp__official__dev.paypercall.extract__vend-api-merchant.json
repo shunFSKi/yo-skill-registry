@@ -6,8 +6,8 @@
   "author": "dev.paypercall.extract",
   "source": {
     "registry": "mcp-official",
-    "url": "https://extract.paypercall.dev/mcp",
-    "repo": null
+    "url": "https://github.com/dhyabi2/vend",
+    "repo": "dhyabi2/vend"
   },
   "license": null,
   "install": {
@@ -16,8 +16,8 @@
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-09-19T22:56:30.213037Z",
-    "score": 42
+    "pushed_at": "2026-09-25T17:37:42.633764Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -49,6 +49,6 @@
     "category": "编程",
     "featured": false
   },
-  "readme": null,
+  "readme": "# Vend — Autonomous API Merchant\n\nPay-per-call APIs settled in Nano (XNO). No signup, no API keys — just HTTP 402 with an x402 v2 challenge.\n\n---\n\n## Endpoints\n\n| Endpoint | Price (XNO) | What it does |\n|---|---|---|\n| `GET /api/v1/extract?url=` | 0.0001 | Extract clean text/markdown from any web page |\n| `GET /api/v1/check-link?url=` | 0.0001 | Check HTTP status, response time, redirect chain |\n| `GET /api/v1/status?url=` | 0.0001 | URL status, redirects, TLS expiry, content-drift |\n| `GET /api/v1/domain-info?domain=` | 0.0005 | Full domain intelligence: DNS, WHOIS, SSL, HTTP headers |\n| `GET /api/v1/web-search?q=` | 0.0001 | Web search via DuckDuckGo — titles, URLs, snippets |\n| `GET /api/v1/geoip?ip=` | 0.0001 | IP geolocation — country, city, coordinates, ISP, ASN |\n| `GET /api/v1/youtube-transcript?url=` | 0.0005 | Captions + timestamped transcript from a YouTube video |\n| `GET /api/v1/nano-info?account=` | 0.0005 | Nano account intelligence — balance, representative, block count, frontier, weight, pending |\n| `GET /api/v1/youtube-transcript?url=` | 0.0005 | Captions/transcript from a YouTube video |\n| `GET /api/v1/select?url=&selector=` | 0.0001 | CSS-selector structured field extraction from a page (prices, headings, links) |\n| `GET /api/v1/links?url=` | 0.0001 | Extract every anchor link on a page as structured JSON (crawl, audit, sitemap) |\n| `GET /api/v1/pdf-extract?url=` | 0.0005 | Extract text from a PDF URL, page-structured, ready for LLM consumption |\n| `GET /api/v1/ai-jobs?q=` | 0.0002 | Search 19,800+ live AI/AI-adjacent job postings with filters |\n| `GET /api/v1/arxiv-paper?arxiv_id=` | 0.0001 | Clean arXiv paper metadata by ID or search: title, authors, primary category, abstract, published, DOI, PDF link |\n\n## Quick buyer guide\n\n> **[BUYERS_GUIDE.md](BUYERS_GUIDE.md)** — full step-by-step walkthrough with curl, Python, JavaScript, and wallet instructions.  \n> The short version: call any endpoint -> get 402 -> send Nano -> retry with block hash.\n\n## How it works (buyer flow)\n\n```\n1. GET /api/v1/extract?url=https://example.com\n   → HTTP 402 with x402 payment challenge\n\n2. Send 0.0001 XNO to nano_1yo6c1t64ahfjdw1dxizmbbnpdmbrckwhw9phbg5pdkeubrizga4qhnjmnx7\n   → Get back a 64-char block hash\n\n3. GET /api/v1/extract?url=https://example.com  -H \"X-PAYMENT: <block-hash>\"\n   → HTTP 200 with the extracted text\n```\n\n### Python example\n\n```python\nimport httpx\n\n# Step 1: Probe unpaid\nresp = httpx.get(\"https://search.paypercall.dev/api/v1/web-search?q=nano\")\nassert resp.status_code == 402\nchallenge = resp.json()\n\n# Step 2: Extract payment info\naccept = challenge[\"accepts\"][0]\nprint(f\"Pay {challenge['price_xno']} XNO to {accept['payTo'][:15]}...\")\n\n# Step 3: Send Nano payment, get block hash (use your wallet)\n# Step 4: Retry with payment\nresult = httpx.get(\n    \"https://search.paypercall.dev/api/v1/web-search?q=nano\",\n    headers={\"X-PAYMENT\": \"your-64-char-block-hash\"}\n)\nprint(result.json())\n```\n\nSee `examples/python-buyer.py` for a full working script with error handling.\n\n## Conformance\n\nAll endpoints pass the Stelar x402 Doctor at 100.0/A:\n\n- extract: [https://api.stelardigital.com/doctor?url=https://extract.paypercall.dev/api/v1/extract](https://api.stelardigital.com/doctor?url=https://extract.paypercall.dev/api/v1/extract)\n- check-link: [https://api.stelardigital.com/doctor?url=https://check.paypercall.dev/api/v1/check-link](https://api.stelardigital.com/doctor?url=https://check.paypercall.dev/api/v1/check-link)\n- domain-info: [https://api.stelardigital.com/doctor?url=https://domain.paypercall.dev/api/v1/domain-info](https://api.stelardigital.com/doctor?url=https://domain.paypercall.dev/api/v1/domain-info)\n- web-search: [https://api.stelardigital.com/doctor?url=https://search.paypercall.dev/api/v1/web-search](https://api.stelardigital.com/doctor?url=https://search.paypercall.dev/api/v1/web-search)\n- geoip: [https://api.stelardigital.com/doctor?url=https://geoip.paypercall.dev/api/v1/geoip](https://api.stelardigital.com/doctor?url=https://geoip.paypercall.dev/api/v1/geoip)\n- nano-info: `https://extract.paypercall.dev/api/v1/nano-info` (nano.paypercall.dev DNS is still pointing at a dead deployment, so every advertised URL names this host)\n\nx402 v2 challenge in both header and body. Per-endpoint subdomains. Bazaar input schema on every endpoint.\n\n## Discovery\n\n- x402 manifest: `https://extract.paypercall.dev/.well-known/x402` (also at check, domain, search)\n- OpenAPI spec: `https://extract.paypercall.dev/openapi.json` (also at check, domain, search)\n- agent-tools.cloud: [https://agent-tools.cloud/services/extract-paypercall-dev-sub822](https://agent-tools.cloud/services/extract-paypercall-dev-sub822)\n\n## Running locally\n\n```bash\n# Our package is not on PyPI yet (the `vend` name on PyPI is an unrelated packaging tool).\n# Run from this repo instead:\nuv sync\nexport VEND_WALLET_ADDRESS=\"nano_...\"\nuv run python -m vend\n```\n\n## License\n\nMIT",
   "status": "curated"
 }

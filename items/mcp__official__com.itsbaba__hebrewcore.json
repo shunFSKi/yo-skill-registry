@@ -1,0 +1,61 @@
+{
+  "id": "mcp:official/com.itsbaba/hebrewcore",
+  "type": "mcp",
+  "name": "HebrewCore by baba Hebrew",
+  "description": "Hebrew translation that keeps prices, names and dates exact, RTL display, nikud, clinical Hebrew.",
+  "author": "com.itsbaba",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/isaachorowitz/hebrewcore",
+    "repo": "isaachorowitz/hebrewcore"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://hc.itsbaba.com/mcp",
+    "env": [
+      {
+        "name": "Authorization",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-25T17:46:12.427285Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "写作",
+    "featured": false
+  },
+  "readme": "# HebrewCore by [baba Hebrew](https://itsbaba.com)\n\n**The language API for products that work in Hebrew.** Translate between Hebrew, English and Russian with verified protected values, render mixed Hebrew and English lines correctly, detect code-switched languages, transliterate, and add verified nikud for text-to-speech.\n\n- Website: https://hc.itsbaba.com\n- Docs: https://hc.itsbaba.com/docs · API reference: https://hc.itsbaba.com/reference\n- OpenAPI: https://hc.itsbaba.com/openapi.json · llms.txt: https://hc.itsbaba.com/llms.txt\n- MCP server: `https://hc.itsbaba.com/mcp`\n- Status: https://hc-status.itsbaba.com · Pricing and access: https://hc.itsbaba.com/pricing\n- Made by [baba Hebrew](https://itsbaba.com)\n\n## What it does\n\n| Capability | Endpoint |\n|---|---|\n| Protected translation (he, en, ru): prices, doses, codes, dates, names and your terms kept exactly; every sentence verified | `POST /v1/translate`, `POST /v1/translate/batch` |\n| Domain modes: general, clinical, finance, legal; listener and speaker gender | `domain`, `listener_gender`, `speaker_gender` |\n| ICU MessageFormat plurals (Hebrew dual, Russian plural forms) | `message_format: \"icu\"` |\n| Render-ready RTL/LTR display and direction runs | `POST /v1/wrap`, `POST /v1/analyze` |\n| Language detection for code-switched text | `POST /v1/detect` |\n| Transliteration, nikud (vowel points) and nikud removal | `POST /v1/transliterate`, `POST /v1/nikud`, `POST /v1/strip-nikud` |\n| Account term list kept exactly in every translation | `GET/POST /v1/terms`, `DELETE /v1/terms/{id}` |\n| Clinical API with streaming (enabled per account) | `/v1/medical/*` |\n\n## Quick start\n\nGet a key in the console at https://hc.itsbaba.com/dashboard (access is by request at https://hc.itsbaba.com/pricing).\n\n```bash\ncurl https://hc.itsbaba.com/v1/translate \\\n  -H \"Authorization: Bearer $HEBREWCORE_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"text\":\"Your order #A-10234 ships on 04/03/2026 for $129.99.\",\"source_lang\":\"en\",\"target_lang\":\"he\",\"protect\":true,\"listener_gender\":\"female\",\"quality\":\"fast\"}'\n```\n\nMore in [examples/](examples): curl, Node.js and Python.\n\n## Use it from AI agents (MCP)\n\nHebrewCore is a remote MCP server (Streamable HTTP) with 16 tools. Authenticate with your API key.\n\n**Claude Code**\n```bash\nclaude mcp add --transport http hebrewcore https://hc.itsbaba.com/mcp --header \"Authorization: Bearer hc_live_...\"\n```\n\n**Cursor** (`~/.cursor/mcp.json`) and **VS Code** (`.vscode/mcp.json`): see [mcp/](mcp).\n\nTools: `translate`, `translate_batch`, `analyze_direction`, `detect_language`, `wrap_for_display`, `transliterate`, `add_nikud`, `strip_nikud`, `list_languages`, `list_terms`, `add_terms`, `delete_term`, `clinical_translate`, `clinical_query`, `clinical_verify`, `health`.\n\n## About\n\nHebrewCore is built by [baba Hebrew](https://itsbaba.com), the Hebrew translation and learning app. Questions: admin@itsbaba.com.\n\nThe examples in this repository are MIT licensed. The HebrewCore API is a commercial service; see https://hc.itsbaba.com/pricing.\n",
+  "status": "curated"
+}

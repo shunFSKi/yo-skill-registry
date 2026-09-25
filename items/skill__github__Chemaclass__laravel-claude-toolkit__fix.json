@@ -1,0 +1,60 @@
+{
+  "id": "skill:github/Chemaclass/laravel-claude-toolkit/fix",
+  "type": "skill",
+  "name": "fix",
+  "description": "Auto-fix all code quality issues in sequence.",
+  "author": "Chemaclass",
+  "source": {
+    "registry": "github-search",
+    "url": "https://github.com/Chemaclass/laravel-claude-toolkit/blob/HEAD/.agnostic-ai/skills/fix/SKILL.md",
+    "repo": "Chemaclass/laravel-claude-toolkit",
+    "path": ".agnostic-ai/skills/fix/SKILL.md"
+  },
+  "license": null,
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 5,
+    "pushed_at": "2026-09-25T10:14:15Z",
+    "score": 59,
+    "star_history": [
+      {
+        "d": "2026-09-25",
+        "s": 5
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# Laravel Claude Toolkit\n\nA Laravel starter kit for building scalable applications using **Modular Monolith**, **Hexagonal Architecture**, and **AI-assisted development**.\n\n[![PHP 8.5](https://img.shields.io/badge/PHP-8.5-777BB4?logo=php&logoColor=white)](https://php.net)\n[![Laravel 13](https://img.shields.io/badge/Laravel-13-FF2D20?logo=laravel&logoColor=white)](https://laravel.com)\n[![React 19](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)](https://react.dev)\n[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)\n\n---\n\n## Why This Toolkit?\n\n**The Problem:**\n> Laravel projects often start clean but grow into tangled monoliths where everything depends on everything. Adding features becomes risky, testing becomes painful, and onboarding new developers takes weeks.\n\n**The Solution:**\n> A structured approach combining proven patterns (Modular Monolith, Hexagonal Architecture, DDD) with AI-assisted development that enforces consistency and guides architectural decisions.\n\n**Who is this for?**\n- Teams wanting structure without microservices complexity\n- Developers learning DDD/Clean Architecture with real examples\n- Projects that might need to extract modules to services later\n\n---\n\n## Key Benefits\n\n### Architecture Benefits\n\n| Benefit | How |\n|---------|-----|\n| **Modularity** | Independent modules with clear boundaries |\n| **Testability** | Pure domain logic, interfaces enable easy mocking |\n| **Maintainability** | Predictable file locations, consistent patterns |\n| **Scalability** | Extract modules to microservices when needed |\n| **Team Autonomy** | Teams own modules without conflicts |\n\n### AI-Assisted Benefits\n\n| Benefit | How |\n|---------|-----|\n| **Consistency** | Commands generate code following established patterns |\n| **Guidance** | Agents help with architectural decisions |\n| **Speed** | Scaffold complete features with TDD in minutes |\n| **Learning** | Skills teach best practices in context |\n| **Quality** | Built-in SOLID and clean code checks |\n\n---\n\n## Architecture at a Glance\n\n```\nmodules/{Module}/\n├── Domain/           # Pure PHP: Entities, Value Objects, Repository interfaces\n├── Application/      # Use Cases: Command/Query handlers (CQRS)\n└── Infrastructure/   # Laravel: Controllers, Eloquent, HTTP layer\n```\n\n**Dependency Rule:** Domain → Application → Infrastructure (never the reverse)\n\n---\n\n## Quick Start\n\n```bash\n# Clone using GitHub CLI\ngh repo create my-app --template Chemaclass/laravel-claude-toolkit --public --clone\n\n# Setup the project\ncd my-app && composer setup\n\n# Start development server (Sail provides Docker containers)\nAPP_PORT=8085 ./vendor/bin/sail up -d\n\n# Optional: Remove template's GitHub Pages files\nrm index.html .nojekyll\n```\n\nAccess: http://localhost:8085\n\n**Stack:** PHP 8.5 | Laravel 13 | React 19 + Inertia.js | SQLite | Vite | Tailwind CSS 4 | Sail\n\n---\n\n## AI-Powered Workflow\n\nAgents, skills, rules, and hooks are defined once in `.agnostic-ai/` and emitted for **Claude Code** and **Codex** by [agnostic-ai](https://github.com/Chemaclass/agnostic-ai). Generated files (`.claude/`, `.codex/`, `.agents/`, `CLAUDE.md`, `AGENTS.md`) are gitignored; `composer setup` runs `npm run ai:sync` to create them. Edit specs in `.agnostic-ai/`, never the generated files, and re-run `npm run ai:sync`.\n\n### When to Use What\n\n| Tool | Purpose | Example |\n|------|---------|---------|\n| **Agents** | Architectural questions, code review | \"How should I structure the Order module?\" |\n| **Commands** | Scaffolding entities, use cases, controllers | `/create-entity Order Order` |\n| **Skills** | Reference material while coding | Pattern templates and best practices |\n\n### Example Feature Workflow\n\n```\n1. /create-module Order              → Module structure\n2. /create-entity Order Order        → Domain entity + test\n3. /create-repository Order Order    → Repository pattern\n4. /create-use-case Order Command CreateOrder → Handler\n5. /create-controller Order Order    → HTTP layer\n6. /tdd-cycle                        → Guide through TDD\n```\n\n### Available Agents\n\n| Agent | Purpose |\n|-------|---------|\n| `domain-architect` | DDD & hexagonal architecture guidance |\n| `tdd-coach` | Red-green-refactor workflow coaching |\n| `clean-code-reviewer` | SOLID principles & code smell detection |\n| `security-reviewer` | OWASP Top 10 & Laravel security analysis |\n\n### Available Commands\n\n| Command | Generates |\n|---------|-----------|\n| `/create-module` | Full module structure with all layers |\n| `/create-entity` | Domain entity + value objects + test |\n| `/create-value-object` | Immutable value object + validation + test |\n| `/create-repository` | Interface + Eloquent + InMemory implementations |\n| `/create-use-case` | Command/Query DTO + Handler + test |\n| `/create-controller` | Thin controller + request + resource |\n| `/tdd-cycle` | Interactive red-green-refactor guide |\n| `/refactor-check` | SOLID violations & improvement report |\n| `/code-review` | Code quality & architecture compliance review |\n| `/security-review` | Security analysis with OWASP checks |\n\n### Rules (Always Active)\n\n| Rule | Enforces |\n|------|----------|\n| `security` | Pre-commit security checks, no hardcoded secrets |\n| `testing` | 80% coverage minimum, TDD workflow |\n| `coding-style` | Immutability, file limits, naming conventions |\n| `git-workflow` | Conventional commits, PR process |\n| `performance` | Database optimization, caching patterns |\n\n---\n\n## Development Commands\n\n```bash\n# Start/Stop\n./vendor/bin/sail up -d       # Start dev environment\n./vendor/bin/sail down        # Stop all services\n\n# Development\n./vendor/bin/sail shell       # Open shell in container\n./vendor/bin/sail artisan     # Run artisan commands\n./vendor/bin/sail composer    # Run composer commands\n./vendor/bin/sail npm         # Run npm commands\n\n# Testing\n./vendor/bin/sail test        # Run all tests\n./vendor/bin/sail test tests/Unit      # Unit tests only\n./vendor/bin/sail test tests/Feature   # Feature tests only\n```\n\n**Tip:** `alias sail='./vendor/bin/sail'`\n\n---\n\n## Learn More\n\nSee [CLAUDE.md](CLAUDE.md) for:\n- Detailed architecture documentation\n- Module structure conventions\n- Inter-module communication patterns\n- TDD workflow guidelines\n- Complete command reference\n\n---\n\n## Credits\n\nClaude Code configuration patterns partially inspired by [everything-claude-code](https://github.com/affaan-m/everything-claude-code) - a comprehensive collection of Claude Code best practices for agents, rules, hooks, and skills.\n",
+  "status": "curated"
+}

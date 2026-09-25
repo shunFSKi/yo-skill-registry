@@ -1,0 +1,61 @@
+{
+  "id": "mcp:official/com.4bl1ty/mcp",
+  "type": "mcp",
+  "name": "4bl1ty",
+  "description": "Hire humans for physical-world tasks from your AI agent: missions, claims, proof, KYC status.",
+  "author": "com.4bl1ty",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/Brissux-Labs/4bl1ty-mcp",
+    "repo": "Brissux-Labs/4bl1ty-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://mcp.4bl1ty.com/mcp",
+    "env": [
+      {
+        "name": "Authorization",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-25T15:55:43.614112Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "办公",
+    "featured": false
+  },
+  "readme": "# 4bl1ty MCP server\n\n**AI needs humans. Rent one.** 4bl1ty lets an AI agent hire a verified human\nfor a task that software cannot do alone: be somewhere, see something, sign,\ncollect, check. The agent posts the mission and its budget, a person nearby\ncarries it out and submits proof, and the payment is released from escrow once\nthe work is validated.\n\nThis repository is the public entry point of the **hosted** MCP server. It\nholds no server code: the server runs at `https://mcp.4bl1ty.com/mcp` and is\ndocumented at <https://4bl1ty.com/mcp>.\n\n> **Status, stated plainly.** The integration is live — MCP and the REST API\n> answer — but the marketplace is not yet stocked: no mission is open and\n> payments run in Stripe test mode. Do not tell a user that a human can be\n> booked and paid today.\n\n## Connect\n\n| | |\n| --- | --- |\n| Endpoint | `https://mcp.4bl1ty.com/mcp` |\n| Transport | Streamable HTTP, stateless (one POST per message, no session) |\n| Authentication | `Authorization: Bearer 4bl_…` on every request |\n| API key | created from a signed-in 4bl1ty account with `POST https://api.4bl1ty.com/auth/api-keys` (human session required), revocable one by one |\n| Registry name | `com.4bl1ty/mcp` |\n| Server card | <https://mcp.4bl1ty.com/.well-known/mcp/server-card.json> |\n\nA request without a key is refused with `401`. An API key is never a legal\nidentity: every agent action is attached to the person or organisation that\nowns the account which created the key.\n\n### Claude Code\n\n```sh\nclaude mcp add --transport http 4bl1ty https://mcp.4bl1ty.com/mcp \\\n  --header \"Authorization: Bearer $FOURBL1TY_API_KEY\"\n```\n\n### Cursor\n\n`~/.cursor/mcp.json` — see [`examples/cursor.json`](examples/cursor.json).\n\n### VS Code\n\n`.vscode/mcp.json` — see [`examples/vscode.json`](examples/vscode.json). The key\nis prompted once and stored by VS Code, never written in the file.\n\n### Clients without custom-header support\n\nBridge through [`mcp-remote`](https://www.npmjs.com/package/mcp-remote) — see\n[`examples/claude-desktop.json`](examples/claude-desktop.json).\n\n## Tools\n\n12 tools, grouped by family. The authoritative reference, with parameters,\nHTTP routes and known gaps, is <https://4bl1ty.com/mcp/tools>.\n\n| Family | Tools |\n| --- | --- |\n| Session | `auth_login`, `auth_status`, `auth_clear` |\n| Missions | `missions_list`, `missions_get`, `missions_create` |\n| Claims and proof | `claim_mission`, `claims_list`, `claims_get`, `claims_update_status`, `claims_submit_proof` |\n| Verification | `kyc_status` |\n\nOn the hosted endpoint the identity comes from the API key of each request;\n`auth_login` only makes sense for a local stdio process. Funding a mission,\npaying and identity onboarding stay outside MCP.\n\n## Guardrails\n\n- A digital mission is accepted only as an explicitly authorised test on a\n  controlled hostname, with a reference and an attestation; anything else is\n  refused before it reaches the API. There is no generic way around third-party\n  protections.\n- The server never returns an access token or Stripe data.\n- Payment is in euros, held in Stripe escrow, released on validation; no\n  cryptocurrency.\n\n## Links\n\n- Documentation: <https://4bl1ty.com/mcp> · Quickstart: <https://4bl1ty.com/mcp/quickstart>\n- For teams building agents: <https://4bl1ty.com/rent-a-human>\n- For people who want to get paid (French): <https://4bl1ty.com/humains>\n- Machine-readable overview: <https://4bl1ty.com/llms.txt>\n\nPublished by [Bx Labs](https://bxlabs.ai), Paris. Contact: staff@4bl1ty.com.\n",
+  "status": "curated"
+}

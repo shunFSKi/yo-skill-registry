@@ -1,0 +1,65 @@
+{
+  "id": "mcp:official/io.github.zygiu-zygis/basecoat-ui-mcp",
+  "type": "mcp",
+  "name": "Basecoat UI MCP",
+  "description": "Offline stdio MCP for Basecoat UI templates, composition guidance, and static validation.",
+  "author": "io.github.zygiu-zygis",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/zygiu-zygis/basecoat-ui-mcp",
+    "repo": "zygiu-zygis/basecoat-ui-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@intellmedia/basecoat-ui-mcp"
+    ],
+    "env": [
+      {
+        "name": "BASECOAT_PROJECT_ROOT",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-25T15:29:54.647425Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "设计",
+    "featured": false
+  },
+  "readme": "# Basecoat UI MCP server for Astro and HTML\n\nA source-first, offline Model Context Protocol server for composing [Basecoat UI](https://basecoatui.com) interfaces in Astro, static HTML, and Tailwind CSS 4 projects.\n\nIt gives AI coding tools a small, deterministic Basecoat registry instead of making every client scrape documentation. The same local stdio configuration can be used by editors and agents, with each client starting its own server process; the server makes no runtime network requests. Composition follows a fixed order: content hierarchy, layout, component selection, spacing, typography, then final review.\n\n## Who should use it\n\n- Agents and editors that need bounded Basecoat templates and dependency guidance.\n- Astro or static HTML projects built with Tailwind CSS 4 and `basecoat-css`.\n- Teams that keep project-specific design tokens and density guidance in `DESIGN.md`.\n\n## Install and run\n\nRequires Node.js **22.14.0** or newer.\n\n### From npm\n\n```sh\nnpm install -g @intellmedia/basecoat-ui-mcp\n```\n\nConfigure an MCP client:\n\n```json\n{\n  \"mcpServers\": {\n    \"basecoat-ui\": {\n      \"command\": \"basecoat-ui-mcp\",\n      \"args\": [\n        \"--project-root\",\n        \"path/to/your/application\"\n      ]\n    }\n  }\n}\n```\n\nOr invoke the compiled entry directly:\n\n```json\n{\n  \"mcpServers\": {\n    \"basecoat-ui\": {\n      \"command\": \"node\",\n      \"args\": [\n        \"path/to/node_modules/@intellmedia/basecoat-ui-mcp/dist/server/stdio.js\",\n        \"--project-root\",\n        \"path/to/your/application\"\n      ]\n    }\n  }\n}\n```\n\nPublished tarballs include a prebuilt `dist/` (`prepublishOnly` runs `npm run build`). Git checkouts omit `dist/`; build locally before running from a clone.\n\n### From source\n\n```sh\ngit clone https://github.com/zygiu-zygis/basecoat-ui-mcp.git\ncd basecoat-ui-mcp\nnpm ci\nnpm run build\nnpm start -- --project-root path/to/your/application\n```\n\n`--project-root` overrides `BASECOAT_PROJECT_ROOT`, which overrides the launch directory. It selects the host application's `DESIGN.md`; it is not the MCP installation directory. The server exposes stdio only.\n\n## Basecoat MCP tools\n\n- `search_components` returns up to 8 compact `{id, name, intent}` summaries and never returns markup.\n- `get_component_details` returns one Astro or HTML template with dependencies and composition guidance. The complete JSON response must remain at or below **1,999 UTF-8 bytes**; oversized entries fail closed.\n- `validate_composition` statically checks up to **65,536 UTF-8 bytes** of HTML or Astro source and returns at most 24 issues.\n\n## Basecoat design resources\n\n- `basecoat://design/rhythm` provides content hierarchy, spacing, typography, component-family, and structural composition rules.\n- `basecoat://integration/astro` provides Astro, Vite, Tailwind CSS 4, selective Basecoat JavaScript, and native dialog setup.\n- `basecoat://project/context` reads the configured host project's `DESIGN.md` on demand. Output is capped at **6,000 UTF-8 bytes** and truncates on a newline or sentence boundary when possible. Symlinks and non-regular files are refused.\n\nRecommended flow:\n\n1. Read the rhythm and project-context resources.\n2. Decide content hierarchy and layout.\n3. Search summaries, then request details only for selected components.\n4. Read the Astro integration resource when connecting production assets.\n5. Validate the final source.\n\n## Minimal HTML example\n\nThe host application supplies its compiled Tailwind and Basecoat stylesheet:\n\n```html\n<link rel=\"stylesheet\" href=\"/assets/basecoat.css\">\n<button type=\"button\" class=\"btn\" data-variant=\"default\">Save changes</button>\n```\n\nBasecoat 1.x uses `btn` with `data-variant` and `data-size`. Interactive components list the granular JavaScript modules the host must load.\n\n## Registry and exclusions\n\nThe checked-in Basecoat 1.0.2 registry contains **39 curated templates**:\n\n`accordion`, `alert`, `alert-dialog`, `avatar`, `badge`, `breadcrumb`, `button`, `button-group`, `card`, `chart`, `checkbox`, `combobox`, `command`, `dialog`, `drawer`, `dropdown-menu`, `empty`, `field`, `input`, `input-group`, `item`, `kbd`, `label`, `native-select`, `popover`, `progress`, `radio-group`, `scroll-area`, `select`, `sidebar`, `skeleton`, `slider`, `switch`, `table`, `tabs`, `textarea`, `theme-switcher`, `toast`, `tooltip`\n\nThe maintenance snapshot records 41 discovered upstream components. `pagination` and `spinner` remain excluded from search and details until manually curated. Slider uses `basecoat-css/range`, not a `slider` module.\n\nThe runtime has no network client, remote documentation dependency, frontend framework runtime, remote media analysis, or bundled host assets. Generated templates may not use `basecoat-css/all`; each controller is imported explicitly. Search results do not contain markup, newly discovered components are never auto-promoted, and JSON or HTML is never sliced to fit a response budget.\n\n## Astro and static HTML use cases\n\nIn Astro, use the integration resource for Vite, Tailwind CSS 4, CSS ordering, selective controller imports, native `<dialog>` wiring, and ClientRouter hooks. In static HTML, copy the listed built controller files from `basecoat-css` into the host application's asset directory and preserve dependency order. Chart templates require host-supplied Chart.js.\n\nMaintainers can refresh the pinned upstream snapshot with `npm run sync`; this is the only command that uses HTTPS. It validates schema, exports, notices, response budgets, version direction, and atomic replacement before changing the registry.\n\n## Development and verification\n\n```sh\nnpm run typecheck\nnpm run test\nnpm run sync -- --check\n```\n\nDevelopment was AI-assisted. Behavior and documentation are verified against checked-in source, contract tests, and the pinned registry rather than generated claims.\n\nSee [ARCHITECTURE.md](ARCHITECTURE.md) for runtime boundaries, packaging, byte caps, and sync policy.\n\n## Author, license, and upstream attribution\n\nCreated and maintained by [Žygimantas Jasiulionis](https://zygimantas.jasiulionis.eu/) / Intellmedia under the [MIT License](LICENSE).\n\nBasecoat UI is an independent MIT-licensed project by Ronan Berder. Adapted templates and metadata retain the complete Basecoat notice in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Basecoat adapts design patterns from [shadcn/ui](https://ui.shadcn.com); the notice preserves that attribution. No Basecoat CSS or shadcn source is vendored here.\n",
+  "status": "curated"
+}

@@ -2,7 +2,7 @@
   "id": "mcp:official/com.neuronto/x402-payments-facilitator",
   "type": "mcp",
   "name": "Neuronto Payments: x402 facilitator",
-  "description": "x402 facilitator: settlement prices, live networks, a catalogue of paid resources, integration code",
+  "description": "Neuronto Pay: x402 facilitator on Base. Settlement prices, live networks, integration code",
   "author": "com.neuronto",
   "source": {
     "registry": "mcp-official",
@@ -16,8 +16,8 @@
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-09-23T12:24:40.843498Z",
-    "score": 42
+    "pushed_at": "2026-09-25T17:58:26.463704Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -49,6 +49,6 @@
     "category": "编程",
     "featured": false
   },
-  "readme": null,
+  "readme": "# x402 starters\n\nThe shortest working way to charge for an HTTP route, and to pay for one, using the official\n[x402](https://x402.org) SDKs. Every file here runs as it is; the only thing you must change is\nthe wallet that gets paid.\n\nx402 revives HTTP `402 Payment Required`. Your server answers an unpaid request with `402` and\nmachine-readable terms, the client signs a stablecoin payment, and a facilitator verifies the\nsignature and settles it on-chain. Your server never holds a key and never talks to a chain.\n\n## Pick one\n\n| Folder | Stack | What it is |\n|---|---|---|\n| [`express`](express) | Node, Express | One paid `GET /premium` route |\n| [`hono`](hono) | Node, Hono | The same route on Hono |\n| [`next`](next) | Next.js App Router | A paid API route |\n| [`fastapi`](fastapi) | Python, FastAPI | The same route in Python |\n| [`client`](client) | Node and Python | Paying for a 402 route from a script or an agent |\n\n## Run one in a minute\n\n```bash\ncd express\nnpm install\nexport MERCHANT=0xYourWalletAddress      # where the money goes, on Base\nnpm start\ncurl -i localhost:3000/premium           # 402 with terms\n```\n\nThen pay it with a client from [`client`](client), or point any x402 client at it.\n\n## The facilitator\n\nThese starters use `https://pay.neuronto.com` as the facilitator: the service that verifies the payer's\nsignature and broadcasts the settlement. It is one line in every file, and any x402 facilitator\ncan take its place:\n\n```js\nnew HTTPFacilitatorClient({ url: \"https://pay.neuronto.com\" })\n```\n\nBase mainnet (`eip155:8453`) is live there. `GET https://pay.neuronto.com/supported` lists every network,\nscheme and version it settles right now; a network that cannot settle disappears from that list\nbefore it starts refusing, so a server that reads `/supported` never advertises a price it\ncannot take.\n\n## Testing without spending anything\n\n`https://pay.neuronto.com/echo` is a live merchant that charges $0.001 and **sends it straight back** in the\nsame request, so a client can be run end to end for the cost of nothing:\n\n```bash\ncurl -i https://pay.neuronto.com/echo        # a real 402, with real terms\n```\n\nPoint any of the clients in [`client`](client) at that URL. The refund is automatic; the gas is\nnot yours.\n\n## What you need\n\n- A wallet address to be paid to. Nothing is installed on your side to receive money: payments\n  arrive as USDC transfers to the address you put in `MERCHANT`.\n- For a paying client, a funded key. Never put a real key in a file: every example here reads it\n  from the environment.\n\n## Licence\n\nApache-2.0.\n",
   "status": "curated"
 }

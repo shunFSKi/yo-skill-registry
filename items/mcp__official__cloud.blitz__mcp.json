@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/cloud.blitz/mcp",
+  "type": "mcp",
+  "name": "blitz.cloud",
+  "description": "Host apps in the EU from your assistant: App Store, Docker, GitHub, databases, logs.",
+  "author": "cloud.blitz",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/blitzworks-io/blitz-cloud-mcp",
+    "repo": "blitzworks-io/blitz-cloud-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://mcp.blitz.cloud/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-25T16:57:19.991377Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# blitz.cloud MCP server\n\nHost apps by asking your AI assistant.\n\n[blitz.cloud](https://blitz.cloud) is a hosting platform in the EU with a free plan. Its MCP server lets Claude, ChatGPT, Cursor, VS Code and any other MCP client do what you can do in the dashboard: put an app online from the App Store, a Docker image or a GitHub project, give it a database, change its settings, and read its logs when something goes wrong.\n\nAsk \"put Uptime Kuma online at uptime\" and your assistant installs it from the App Store under `uptime.<your name>.blitz.cloud`, with HTTPS, and tells you when it answers.\n\nThis repository has the setup for each client, examples for scripts, the tool reference, and how sign-in and permissions work. The server itself is hosted by blitz.cloud, so there is nothing here to install or run.\n\n## Connect in one minute\n\nYou need a blitz.cloud account with its address claimed. [Sign up](https://beta.blitz.cloud) for free if you don't have one. Your server address is `https://mcp.blitz.cloud/<your name>` and is shown on the [AI tools](https://beta.blitz.cloud/ai) page.\n\nMost clients sign in with your blitz.cloud account: you add the address, a browser window opens, you sign in and allow the app. There is no key to copy.\n\n**Claude (web and desktop)**\n\nSettings → Connectors → Add custom connector. Paste your server address, click Connect and sign in.\n\n**Claude Code**\n\n```sh\nclaude mcp add --transport http blitz https://mcp.blitz.cloud/<your name>\n```\n\nThen run `/mcp`, pick `blitz` and sign in.\n\n**Cursor**: add to `~/.cursor/mcp.json`\n\n```json\n{\n  \"mcpServers\": {\n    \"blitz\": { \"url\": \"https://mcp.blitz.cloud/<your name>\" }\n  }\n}\n```\n\n**VS Code**: add to `.vscode/mcp.json`\n\n```json\n{\n  \"servers\": {\n    \"blitz\": { \"type\": \"http\", \"url\": \"https://mcp.blitz.cloud/<your name>\" }\n  }\n}\n```\n\n**ChatGPT and other clients**: add a connector or remote MCP server with your server address and sign in when asked.\n\nReady-made files are in [`examples/`](examples).\n\n## Things to ask\n\n- \"What do I have running, and is anything broken?\"\n- \"Put Vaultwarden online at vault and tell me when it's up.\"\n- \"Deploy my GitHub repo acme/shop at shop, with a PostgreSQL database.\"\n- \"My blog stopped working. Look at its logs and tell me why.\"\n- \"Set SMTP_HOST on the blog to smtp.example.com.\"\n- \"Add a TXT record for _dmarc so my mail provider can verify me.\"\n- \"How much of my plan am I using?\"\n\n## What your assistant can do\n\n| Tools | What they do |\n|---|---|\n| `apps_*` | List apps, show one, deploy from the App Store, a Docker image or a GitHub project, change name, address, port or nightly updates, restart, pause, resume, delete |\n| `store_*` | Search the App Store and Docker Hub |\n| `builds_*` | Build a GitHub project again, list its builds and why one failed |\n| `dbs_*` | List, create, connect to an app, restart and delete PostgreSQL, MariaDB and Redis databases |\n| `env_*` | List, read, set and remove an app's environment variables |\n| `domains_*` | List, add and remove DNS records under your address |\n| `network_*` | See your private networks and make an app private or public |\n| `logs_tail` | The last lines an app printed, or what it printed before its last restart |\n| `usage_get` | Your plan and how much of it is used |\n\nEvery tool with its arguments is in [docs/tools.md](docs/tools.md). The server's own list, which is always current, is on the AI tools page in the dashboard.\n\n## You stay in control\n\n- **Deleting, restarting and pausing ask you first.** If your client can show a question from the server, the question goes to you and the assistant cannot answer it. Other clients have to repeat the call with `confirm: true`, which a well-behaved assistant only does after checking with you.\n- **The consent screen tells you who is asking.** Claude Code and VS Code are recognised by their publisher's domain. Any other app registered itself, and the page says its name is unchecked.\n- **Disconnect works immediately.** Every app you sign in is listed under Connected apps on the AI tools page. Disconnecting it stops the next request, not the next hour.\n- **Your plan is the limit.** An assistant can't put more apps online than you could, and it can't reach the dashboard's own API.\n- **Everything is on record.** Each change is logged under the app or key that made it.\n\nHow this works in detail, and how to report a security issue, is in [docs/security.md](docs/security.md) and [SECURITY.md](SECURITY.md).\n\n## Scripts and clients without sign-in\n\nMake an API key on the [AI tools](https://beta.blitz.cloud/ai) page and send it in the `Authorization` header:\n\n```sh\nclaude mcp add --transport http blitz https://mcp.blitz.cloud/<your name> \\\n  --header \"Authorization: Bearer $BLITZ_API_KEY\"\n```\n\nA key is shown once, only its hash is stored, and you can have five. [`examples/python`](examples/python) and [`examples/typescript`](examples/typescript) list your apps with the official MCP SDKs.\n\n## Limits\n\n- 120 calls a minute for each key or connected app, 20 of which may change something.\n- Changes need a confirmed email address.\n- Connecting a Tailscale or WireGuard network isn't a tool. It needs a secret or a config file, which belongs in the dashboard rather than in a chat.\n\n## Links\n\n- [Documentation](https://blitz.cloud/docs/ai-assistants/)\n- [What's live on blitz.cloud](https://blitz.cloud/whats-live/)\n- [Dashboard](https://beta.blitz.cloud)\n\n## License\n\nThe examples and documentation in this repository are released under the [MIT License](LICENSE). The blitz.cloud service is covered by its own terms.\n",
+  "status": "curated"
+}
