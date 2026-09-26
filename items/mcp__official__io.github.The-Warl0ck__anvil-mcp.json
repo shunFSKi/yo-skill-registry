@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.The-Warl0ck/anvil-mcp",
+  "type": "mcp",
+  "name": "Anvil",
+  "description": "Local physics/chemistry bench as MCP: plain words in, 12-domain simulations out.",
+  "author": "io.github.The-Warl0ck",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/The-Warl0ck/anvil-mcp",
+    "repo": "The-Warl0ck/anvil-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "anvil-mcp"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-26T17:06:22.684388Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "运维",
+    "featured": false
+  },
+  "readme": "# anvil-mcp\n\n**Anvil — a local physics/chemistry bench as an MCP server.**\n\nNo cloud. No Bridge. No API key. No LLM.\n\nType plain words → Anvil's offline intent kernel forges a simulation blueprint →\n12-domain physics solvers run it → you get back a simulation snapshot plus proof\nmetrics (pass / warn / fail).\n\n## 30 seconds\n\n```\nyou:    anvil.forge  { intent: \"5-stage CMOS ring oscillator at 7nm\" }\nanvil:  blueprint: silicon · 8 nodes · \"Offline kernel: 5-stage ring at 7 nm, VDD 0.75 V.\"\n\nyou:    anvil.solve  { blueprint }\nanvil:  [pass] Joule power = 0.0089 W — I²R on the extracted net.\n        [pass] Junction temperature = 21.85 °C — lumped thermal node per device, 300 K ambient.\n        [pass] EM MTTF (Black) = 1.58e15 yr — Black's equation, Ea = 0.9 eV, worst via.\n\nyou:    anvil.export { blueprint, format: \"stl\" }\nanvil:  532 triangles of ASCII STL, ready for a slicer.\n```\n\n## Install\n\nRequires Node ≥ 20. No build step needed for use:\n\n```sh\nnpx github:The-Warl0ck/anvil-mcp\n```\n\nOr clone and run:\n\n```sh\ngit clone https://github.com/The-Warl0ck/anvil-mcp\ncd anvil-mcp\nnpm install\nnpm run build\nnpm start\n```\n\n## Claude Desktop\n\nAdd to your `claude_desktop_config.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"anvil\": {\n      \"command\": \"npx\",\n      \"args\": [\"github:The-Warl0ck/anvil-mcp\"]\n    }\n  }\n}\n```\n\n## Tools\n\n| Tool | Input | Output |\n|---|---|---|\n| `anvil.domains` | `{}` | The 12 domains and what each simulates |\n| `anvil.forge` | `{ intent, domain? }` | Blueprint JSON + rationale (offline, no LLM) |\n| `anvil.solve` | `{ blueprint, steps? }` | SimSnapshot + ProofMetric[] with real numbers |\n| `anvil.export` | `{ blueprint, format }` | STL (ASCII) or OBJ text for 3D printing / CAD |\n\n## The 12 domains\n\nsilicon (nets, delay, heat, electromigration) · cellular (membranes, ions,\nmorphogens) · quantum (wells, tunneling, decoherence) · neural (spikes, region\nflows) · mechanical (stress, modes, yield) · chemistry (mass-action kinetics,\nΔH, equilibrium) · architecture (plans, interiors, circulation) · metallurgy\n(alloys, CE, melt, print window) · robotics (arms, torque, reach, payload) ·\nmachines (engines, gears, printable parts) · optics (geometry, gnomon, shadows,\nsundials) · sky (sun position / ephemeris)\n\n## How it works\n\n1. **`anvil.forge`** — `readIntent` scores your words against per-domain keyword\n   sets, picks a domain, and `forgeOffline` builds a schematic graph (nodes,\n   edges, physical params) from templates plus your numbers (e.g. \"7nm\",\n   \"5-stage\", \"0.75 V\"). Pure local compute.\n2. **`anvil.solve`** — `createSolver` dispatches to the domain solver\n   (Kirchhoff MNA for silicon, Euler–Bernoulli for mechanical, mass-action for\n   chemistry, …), steps it, and returns a snapshot plus proof metrics — checks\n   with real tolerances and statuses.\n3. **`anvil.export`** — blueprint geometry meshed to ASCII STL or OBJ text.\n\nEverything runs in-process. There is no network call anywhere in the default\npath.\n\n## Config\n\nOptional — nothing is required to run:\n\n```sh\nANVIL_HOME=~/.anvil   # where saved designs / assets / exports live (default ~/.anvil)\n```\n\n## Notes\n\n- Any OpenAI-compatible \"mouth\" (LM Studio, etc.) is a **future opt-in**, not\n  part of v1. The kernel speaks blueprints, not prose, and that's the point.\n- `anvil.solve` returns a deterministic snapshot after N steps of the solver's\n  recommended dt — no wall-clock randomness.\n- Apache-2.0. See [LICENSE](LICENSE).\n",
+  "status": "curated"
+}

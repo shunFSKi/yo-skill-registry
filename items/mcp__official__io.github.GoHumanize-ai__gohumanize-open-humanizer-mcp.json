@@ -1,0 +1,70 @@
+{
+  "id": "mcp:official/io.github.GoHumanize-ai/gohumanize-open-humanizer-mcp",
+  "type": "mcp",
+  "name": "GoHumanize Open Humanizer",
+  "description": "Rewrite AI-styled text into natural writing with a fine-tune model.",
+  "author": "io.github.GoHumanize-ai",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/GoHumanize-ai/gohumanize-open-humanizer-mcp",
+    "repo": "GoHumanize-ai/gohumanize-open-humanizer-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "gohumanize-open-humanizer-mcp"
+    ],
+    "env": [
+      {
+        "name": "OPEN_HUMANIZER_URL",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "OPEN_HUMANIZER_API_KEY",
+        "required": false,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-26T17:47:04.461317Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "写作",
+    "featured": false
+  },
+  "readme": "# GoHumanize Open Humanizer MCP server\n\n[![npm](https://img.shields.io/npm/v/gohumanize-open-humanizer-mcp)](https://www.npmjs.com/package/gohumanize-open-humanizer-mcp)\n[![Model on Hugging Face](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-model-yellow)](https://huggingface.co/gohumanize/gohumanize-open-humanizer)\n[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22843083.svg)](https://doi.org/10.5281/zenodo.22843083)\n[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)\n\nAn MCP (Model Context Protocol) server that lets AI assistants call the\nGoHumanize Open Humanizer: a small open model (Qwen3-4B fine-tune, Apache-2.0)\nthat rewrites AI-styled English text into more natural human prose.\n\nTools:\n\n- `humanize_text` rewrite a passage (50 to 400 words works best; longer texts\n  are processed paragraph by paragraph, up to 1,500 words).\n- `about_open_humanizer` what the model is and which endpoint is in use.\n\nThe model is educational and makes no claim about AI detectors. It is separate\nfrom the production models used by GoHumanize.ai.\n\n\n## Several rewrites, best one returned\n\nOn modern prose the model sometimes plays safe and hands the text back almost unchanged\n(about one try in six). Each call asks the endpoint for five rewrites (generated in\nparallel, so the wait is the same) and keeps the one that moved furthest from the input while\nstaying a sensible length. Set `OPEN_HUMANIZER_SAMPLES=1` for a single request.\n\n\n## Links\n\n| Resource | Link |\n| --- | --- |\n| Project page and browser demo | [gohumanize.ai/open-model](https://gohumanize.ai/open-model) |\n| GoHumanize (the product this research comes from) | [gohumanize.ai](https://gohumanize.ai/) |\n| Model weights and GGUF builds | [gohumanize/gohumanize-open-humanizer](https://huggingface.co/gohumanize/gohumanize-open-humanizer) |\n| Dataset, 3,257 pairs (CC-BY 4.0) | [gohumanize/gohumanize-open-humanizer-dataset](https://huggingface.co/datasets/gohumanize/gohumanize-open-humanizer-dataset) |\n| Code and full pipeline | [GoHumanize-ai/gohumanize-open-humanizer](https://github.com/GoHumanize-ai/gohumanize-open-humanizer) |\n| Write-up: every step, service and result | [docs/paper.md](https://github.com/GoHumanize-ai/gohumanize-open-humanizer/blob/main/docs/paper.md) |\n| Archived release, citable DOI | [10.5281/zenodo.22843083](https://doi.org/10.5281/zenodo.22843083) |\n| Python client and CLI | [pypi.org/project/gohumanize-open-humanizer](https://pypi.org/project/gohumanize-open-humanizer/) |\n| MCP server for AI assistants | [npm](https://www.npmjs.com/package/gohumanize-open-humanizer-mcp) · [source](https://github.com/GoHumanize-ai/gohumanize-open-humanizer-mcp) |\n| Training runs, loss curves and config | [Weights & Biases](https://wandb.ai/gohumanize/gohumanize-open-humanizer) |\n\n## Use\n\n```json\n{\n  \"mcpServers\": {\n    \"gohumanize-open-humanizer\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"gohumanize-open-humanizer-mcp\"]\n    }\n  }\n}\n```\n\n## Which endpoint\n\nThe model runs wherever you point the server. **Running it yourself needs no key**\nand is the recommended setup:\n\n```bash\nollama pull hf.co/gohumanize/gohumanize-open-humanizer:Q4_K_M\nexport OPEN_HUMANIZER_URL=http://localhost:11434/v1\nexport OPEN_HUMANIZER_MODEL=hf.co/gohumanize/gohumanize-open-humanizer:Q4_K_M\n```\n\n**The hosted endpoint sleeps when idle.** The first request after a quiet period waits\nfor a GPU cold start, measured at one to two minutes; afterwards a rewrite takes a\nsecond or two. MCP clients apply their own timeout, often 60 seconds, so the first\ncall through a client may fail even with a valid key and succeed on retry. Running the\nmodel locally avoids this entirely.\n\nThe endpoint the server falls back to is the one behind the browser demo on\n[gohumanize.ai/open-model](https://gohumanize.ai/open-model). It is rate-limited and\nrequires `OPEN_HUMANIZER_API_KEY`, so it is not open for general use; to try the\nmodel without installing anything, use the demo on that page.\n\nAny OpenAI-compatible server works:\n\n```json\n\"env\": {\n  \"OPEN_HUMANIZER_URL\": \"http://localhost:11434/v1\",\n  \"OPEN_HUMANIZER_MODEL\": \"gohumanize/open-humanizer\"\n}\n```\n\n`OPEN_HUMANIZER_API_KEY` sets a bearer token when the endpoint needs one.\n\n## Licence\n\nApache-2.0.\n",
+  "status": "curated"
+}

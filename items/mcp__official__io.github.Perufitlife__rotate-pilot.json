@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.Perufitlife/rotate-pilot",
+  "type": "mcp",
+  "name": "Rotate Pilot — FAA exam prep",
+  "description": "FAA written-test prep: practice questions, readiness diagnostic, METAR/TAF, drone airspace",
+  "author": "io.github.Perufitlife",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/Perufitlife/rotate-pilot-mcp",
+    "repo": "Perufitlife/rotate-pilot-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://rotatepilot.com/api/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-26T14:30:32.545905Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "写作",
+    "featured": false
+  },
+  "readme": "# Rotate Pilot — FAA exam prep MCP server\n\n**Practice for the FAA drone (Part 107) and pilot knowledge tests inside Claude, ChatGPT or any MCP client.**\n\nA remote, read-only [MCP](https://modelcontextprotocol.io) server from [Rotate Pilot](https://rotatepilot.com/?utm_source=github&utm_medium=readme&utm_campaign=rotate_mcp). No install, no API key, no sign-in.\n\n```\nEndpoint:  https://rotatepilot.com/api/mcp\nTransport: streamable HTTP (JSON responses)\nAuth:      none (public data only)\n```\n\n```\nyou:     \"Give me a 15-question Part 107 diagnostic\"\nclaude:  → 15 questions in the real test's 3-option format, spread by the official area weights\nyou:     \"1 A, 2 C, 3 B …\"\nclaude:  → 64% overall · Regulations 50% (48% of the real test) · Airspace 33% (20%) …\n           weakest areas first, with 14 CFR / AIM / ACS references\n```\n\n## Add it\n\n**Claude (claude.ai, desktop, mobile)** — it is in the Connectors Directory:\nCustomize → Connectors → search **\"Rotate Pilot\"** → Connect.\nOr add it by URL: Customize → Connectors → *Add custom connector* → `https://rotatepilot.com/api/mcp?client=claude`\n\n**Claude Code**\n\n```bash\nclaude mcp add --transport http rotate-pilot https://rotatepilot.com/api/mcp?client=claude\n```\n\n**Any other MCP client** (Cursor, VS Code, Windsurf…)\n\n```json\n{\n  \"mcpServers\": {\n    \"rotate-pilot\": { \"url\": \"https://rotatepilot.com/api/mcp\" }\n  }\n}\n```\n\nFull documentation: **[rotatepilot.com/developers/mcp](https://rotatepilot.com/developers/mcp?utm_source=github&utm_medium=readme&utm_campaign=rotate_mcp)**\n\n## Tools\n\nAll tools are read-only (`readOnlyHint: true`) and return structured content.\n\n| Tool | What it does |\n|---|---|\n| `practice_questions` | 1–10 questions in the real FAA 3-option format for Part 107, PPL, IFR, CPL or ATP, filtered by ACS area. Quiz mode hides the answer; study mode shows it with the explanation and references. |\n| `check_answer` | Grades one answer: correct or not, the right option, explanation and 14 CFR / AIM / ACS references. |\n| `diagnose` | A 10–20 question readiness diagnostic spread across the exam's areas (Part 107 weighted like the real test). |\n| `score_diagnostic` | Overall and per-area score against the 70% pass mark, weighted score for Part 107, weakest areas and a suggested next step. |\n| `exam_facts` | Questions, time limit, pass mark, minimum age, retest rules and 2025 national pass rates, with FAA sources. |\n| `cost_of_failing` | Fee per attempt, retest wait or endorsement, the 2025 failure rate and the expected cost of a failed attempt. |\n| `study_plan` | A dated study plan from today to your test day. |\n| `decode_metar` | Plain-English METAR decoding (raw text, or live from NOAA by ICAO code) with flight category and ceiling. |\n| `decode_taf` | Plain-English TAF periods (FM / BECMG / TEMPO / PROB) with the forecast category of each. |\n| `airspace_at` | Airspace class at drone altitudes (0–400 ft) for a US ZIP code or lat/lon, the controlled airspace overhead and the LAANC ceiling. |\n| `get_offer` | Rotate Pilot's current paid prep for an exam, its guarantee terms and links (only when you ask). |\n| `compare_prep_options` | Dated price comparison of common prep options plus free alternatives. |\n| `start_checkout` | The purchase link for Rotate Pilot's prep (only when you ask). |\n\nIn ChatGPT (`?client=chatgpt`) the last three tools are not exposed and results contain no prices or purchase links, following OpenAI's plugin guidelines.\n\n## Try it\n\n- \"Give me a 15-question Part 107 diagnostic\"\n- \"Quiz me on Class B airspace, 3 questions\"\n- \"Decode the METAR for KJFK\"\n- \"What airspace is ZIP 80202 in for my drone?\"\n- \"Make me a study plan, my Part 107 test is on October 20\"\n- \"How long is the FAA Private Pilot written test and what's the pass rate?\"\n\n## Privacy\n\nThe server logs the tool name, exam and outcome of each call to measure usage. It does not receive your conversation, and there is no account. Details: [rotatepilot.com/privacy#ai-connector](https://rotatepilot.com/privacy#ai-connector).\n\n## About this repository\n\nThis repository holds the public listing for the hosted server (`server.json` for the [official MCP Registry](https://registry.modelcontextprotocol.io)) and its documentation. The server itself runs on rotatepilot.com; there is nothing to self-host.\n\nRotate Pilot is independent and not affiliated with or endorsed by the FAA or PSI.\n\nSupport: hello@rotatepilot.com\n",
+  "status": "curated"
+}

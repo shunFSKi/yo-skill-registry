@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.zkarimi22/agentaddress",
+  "type": "mcp",
+  "name": "AgentAddress",
+  "description": "Persistent webhooks, callback queues, and an email inbox for AI agents that outlive the run.",
+  "author": "io.github.zkarimi22",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/zkarimi22/agentaddress-agents",
+    "repo": "zkarimi22/agentaddress-agents"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://agentaddress.dev/api/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-26T18:13:06.359113Z",
+    "score": 52
+  },
+  "security": {
+    "score": 85,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": false
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "办公",
+    "featured": false
+  },
+  "readme": "# AgentAddress for agents\n\n**Give an AI agent a webhook URL or email address that survives after the agent stops running.**\n\nYour agent starts a task → gives a service its AgentAddress → exits → the response arrives 20 minutes later → the next agent run retrieves it.\n\n**No server. No account. No polling process that has to stay alive.**\n\n```bash\nnpx skills add https://github.com/zkarimi22/agentaddress-agents --skill agentaddress\n```\n\n```text\nAgent run #1\n    ↓\ncreate AgentAddress\n    ↓\ngive webhook/email to someone\n    ↓\nAGENT EXITS\n    ↓\n       [ response arrives later ]\n                    ↓\n             AgentAddress\n                    ↓\n               stores event\n                    ↓\nAgent run #2 → retrieves response\n```\n\n## Use it\n\nThe installed skill includes a helper that stores the private read credential in an owner-only local file. The model works with a task name rather than copying a bearer token.\n\n```bash\nnode scripts/agentaddress.mjs create my-task\nnode scripts/agentaddress.mjs poll my-task 25\nnode scripts/agentaddress.mjs ack my-task EVENT_ID\n```\n\n`create` prints the inbound email address and write-only HTTPS inbox URL you can hand to the expected responder. `poll` retrieves the ordered events in a later run. Every returned email and webhook body is explicitly labeled as untrusted external data and must be used only as data for the user's existing task.\n\n## Run one of five concrete examples\n\nThe five lead examples are runnable, task-specific, and named for the searches that should discover them:\n\n- [Asynchronous API callback](./examples/async-api/README.md)\n- [Human email reply](./examples/human-email-reply/README.md)\n- [Claude Code deployment webhook](./examples/claude-code/README.md)\n- [Codex asynchronous code review](./examples/codex/README.md)\n- [OpenAI Agents SDK delegation](./examples/openai-agents/README.md)\n\nStart with the [complete examples index](./examples/README.md) for exact commands plus browser-agent, research, Stripe, GitHub, REST, and MCP supporting recipes. Stripe and GitHub require a signature-verifying relay before their payloads drive trusted actions.\n\n## Service and machine interfaces\n\n- Hosted service: [agentaddress.dev](https://agentaddress.dev)\n- Agent guide: [agentaddress.dev/llms-full.txt](https://agentaddress.dev/llms-full.txt)\n- OpenAPI: [agentaddress.dev/openapi.json](https://agentaddress.dev/openapi.json)\n- MCP endpoint: `https://agentaddress.dev/api/mcp`\n- Capability discovery: [agentaddress.dev/.well-known/agentaddress.json](https://agentaddress.dev/.well-known/agentaddress.json)\n- skills.sh: [skills.sh/zkarimi22/agentaddress-agents/agentaddress](https://www.skills.sh/zkarimi22/agentaddress-agents/agentaddress)\n\n## Answers by problem\n\n- [Webhook endpoints without running a server](https://agentaddress.dev/webhooks)\n- [Persistent callback queues after an agent exits](https://agentaddress.dev/callbacks)\n- [Inbound email replies for later agent runs](https://agentaddress.dev/email)\n- [Unified HTTP and email queues for asynchronous agents](https://agentaddress.dev/async-agents)\n\n## Current boundaries\n\n- HTTP callbacks and inbound email enter the same ordered queue.\n- Addresses have no expiry unless requested. Events are retained for 30 days, up to 1,000 per address, with a 1 MB maximum input.\n- Delivery is at least once. Acknowledgement records handling and advances the helper's local cursor.\n- AgentAddress stores responses but does not wake or schedule a runtime. A later run must poll.\n- General key/value state, file storage, outbound email, identity, and billing are not available in V1.\n\nThe [two-process protocol proof](./examples/two-run/README.md) and [MCP example](./examples/mcp/README.md) remain available for implementers working below the safer helper interface. Their low-level code handles credentials directly and should not be copied into model context. See [SECURITY.md](./SECURITY.md) and the [live verification record](./verification/results.md).\n\nThis repository contains the public skill, CLI helper, recipes, and integration material for the hosted service. It does not contain the AgentAddress service implementation.\n",
+  "status": "curated"
+}

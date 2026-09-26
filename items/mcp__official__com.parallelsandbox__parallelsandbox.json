@@ -6,8 +6,8 @@
   "author": "com.parallelsandbox",
   "source": {
     "registry": "mcp-official",
-    "url": "https://mcp.parallelsandbox.com/mcp",
-    "repo": null
+    "url": "https://github.com/parallel-sandbox/parallelsandbox-mcp",
+    "repo": "parallel-sandbox/parallelsandbox-mcp"
   },
   "license": null,
   "install": {
@@ -27,8 +27,8 @@
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-09-24T10:48:03.543911Z",
-    "score": 42
+    "pushed_at": "2026-09-26T15:36:32.049162Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -60,6 +60,6 @@
     "category": "运维",
     "featured": false
   },
-  "readme": null,
+  "readme": "# parallelsandbox-mcp\n\nstdio adapter for the ParallelSandbox MCP server. It exposes the same tools as `https://mcp.parallelsandbox.com/mcp`\n(`sandbox_*`, `logs_*`), forwarding every call with your API key, and implements `sandbox_sync` and `sandbox_pull`\nlocally: an agent can upload its working directory into a box without committing, and write files from the box back to\nits machine. Get an API key (`psbx_…`) in the app: https://app.parallelsandbox.com → Account → API keys.\n\n## Use\n\n```bash\nPARALLELSANDBOX_API_KEY=psbx_... npx parallelsandbox-mcp\n```\n\nClaude Code:\n\n```bash\nclaude mcp add parallelsandbox -e PARALLELSANDBOX_API_KEY=psbx_... -- npx -y parallelsandbox-mcp\n```\n\nAny other MCP client: run the command above as a stdio server.\n\nIf you never need `sandbox_sync` or `sandbox_pull`, you can skip this package and connect directly (over plain HTTP\nthose two tools return an error, because they read and write files on your machine):\n\n```bash\nclaude mcp add --transport http parallelsandbox https://mcp.parallelsandbox.com/mcp --header \"Authorization: Bearer psbx_...\"\n```\n\n## Environment\n\n| Variable | Default | Purpose |\n|---|---|---|\n| `PARALLELSANDBOX_API_KEY` | required | API key from the app |\n| `PARALLELSANDBOX_MCP_URL` | `https://mcp.parallelsandbox.com/mcp` | MCP endpoint |\n| `PARALLELSANDBOX_API_URL` | `https://api.parallelsandbox.com` | REST base used by `sandbox_sync` |\n| `PSBX_ADAPTER_SILENCE_MS` | `75000` | How long a call's connection may stay silent before the adapter gives up on it (see Timeouts) |\n\n## sandbox_sync\n\n`{\"id\": \"<box id>\", \"localPath\": \"/abs/path/to/repo\", \"dest\": \"repo\"}` syncs `localPath` into `/work/<dest>` on the box.\nPass an absolute path: a relative one resolves against this adapter's working directory (where your MCP client started\nit), which is not necessarily the agent's. In a git working tree it takes the tracked files plus the untracked files `.gitignore` does not\nexclude, asks the box which of them differ from what is already in `dest`, and uploads only those, so syncing after an edit\nsends just that edit. A file changed inside the box counts as different and gets the local version back. Outside git it\nuploads the whole directory, excluding `node_modules`, `.git`, `dist`, `build`, `coverage`, `.venv` and similar. Files\ndeleted locally stay in the box.\n\n## sandbox_pull\n\n`{\"id\": \"<box id>\", \"path\": \"<path under /work>\", \"localPath\": \"/abs/path/on/your/machine\"}` downloads a file or a\ndirectory from the box. A directory arrives as a tar.gz and is extracted into `localPath` (pass `\"extract\": false` to keep\nthe archive); a file is written to `localPath`. Relative paths resolve the same way as for `sandbox_sync`.\n\n## Which conversation is using a box\n\nEach time the adapter starts it picks a random id and sends it as `X-Psbx-Agent` on every call. After the first tool call\nit reports to `/v1/agents/<id>/heartbeat` once a minute, and when its conversation closes (stdin ends, or SIGTERM, SIGINT\nor SIGHUP) it reports `/v1/agents/<id>/leave`. The app uses this to tell a box the AI is still working in from one whose\nconversation was closed without `sandbox_review` or `sandbox_stop`; a conversation killed outright (no leave) counts as\ngone three minutes after its last heartbeat. Nothing else is sent: no prompt, no transcript.\n\n## Timeouts\n\n`sandbox_takeover` blocks until a person hands the box back, up to 30 minutes; the adapter waits 31 minutes for it and\n65 minutes for other calls (a foreground `sandbox_exec` runs at most 60 minutes).\n\nWhile a call runs, the server writes a \"still running\" line on its connection every 20 seconds (every 15 for\n`sandbox_takeover`). The adapter forwards those as MCP progress notifications when the client asked for progress, so\na client that cancels calls after a stretch of silence (Claude Code does after 30 minutes) keeps waiting for a long build.\nIf the connection ends without the result, or carries nothing for `PSBX_ADAPTER_SILENCE_MS`, the adapter returns an\nerror right away instead of waiting out the timeout. Read-only tools (`sandbox_status`, `sandbox_list`, `sandbox_get`,\nthe `logs_*` tools and the like) are retried once first. For anything else the error says the call may have run or\neven finished on the box: check `sandbox_status` (its `steps[]` lists what was run) before running it again.\n\n## Source and issues\n\nSource: https://github.com/parallel-sandbox/parallelsandbox-mcp. Report bugs there as issues, or from inside a session\nwith the `sandbox_feedback` tool. MIT licensed.\n",
   "status": "curated"
 }

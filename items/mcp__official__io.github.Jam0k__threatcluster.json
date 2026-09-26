@@ -1,0 +1,70 @@
+{
+  "id": "mcp:official/io.github.Jam0k/threatcluster",
+  "type": "mcp",
+  "name": "threatcluster",
+  "description": "Live threat intel for agents: incidents, actors, CVEs with KEV/EPSS, ransomware leak-site victims.",
+  "author": "io.github.Jam0k",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/Jam0k/Threat-Intelligence-MCP",
+    "repo": "Jam0k/Threat-Intelligence-MCP"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "threatcluster-mcp"
+    ],
+    "env": [
+      {
+        "name": "THREATCLUSTER_API_KEY",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "THREATCLUSTER_API_BASE",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-26T17:19:04.38212Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "运维",
+    "featured": false
+  },
+  "readme": "# Threat Intelligence MCP Server\n\nAn [MCP](https://modelcontextprotocol.io) server that gives Claude, Cursor, VS Code, Windsurf, Zed and any other MCP client live threat intelligence from [ThreatCluster](https://threatcluster.io): incident clusters (one deduplicated story per incident, with a threat score, timeline and extracted entities), entity profiles (actors, malware, tools, vendors, CVEs), CVE records with KEV / EPSS / exploit status, and ransomware leak-site victims.\n\nIt is a thin, auditable wrapper over the public REST API. Every tool call is one or two `GET`s to `https://threatcluster.io/api/public/v1` with **your** API key; nothing else leaves your machine, and there is no telemetry.\n\nPublished twice from one tool spec, so both are identical:\n\n| Runtime | Install | Package |\n|---|---|---|\n| Python 3.10+ | `uvx threatcluster-mcp` (or `pipx run threatcluster-mcp`) | [PyPI: threatcluster-mcp](https://pypi.org/project/threatcluster-mcp/) |\n| Node 18+ | `npx -y threatcluster-mcp` | [npm: threatcluster-mcp](https://www.npmjs.com/package/threatcluster-mcp) |\n\n## 1. Get a key\n\nFree keys carry the five read scopes, 100 credits a day, 30 requests a minute and a 7-day lookback: <https://threatcluster.io/api>. Put it in `THREATCLUSTER_API_KEY`. If you use the [`tc` CLI](https://threatcluster.io/cli) and have run `tc auth login`, the Python server picks that credential up automatically (keyring or the `~/.config/tc-cli/credentials` file); the Node server reads the file only.\n\n## 2. Add the server\n\n**Claude Code**\n\n```bash\nclaude mcp add threatcluster -e THREATCLUSTER_API_KEY=tc_live_... -- npx -y threatcluster-mcp\n# or the Python build:\nclaude mcp add threatcluster -e THREATCLUSTER_API_KEY=tc_live_... -- uvx threatcluster-mcp\n```\n\n**Claude Desktop** (`claude_desktop_config.json`, Settings > Developer > Edit Config)\n\n```json\n{\n  \"mcpServers\": {\n    \"threatcluster\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"threatcluster-mcp\"],\n      \"env\": { \"THREATCLUSTER_API_KEY\": \"tc_live_...\" }\n    }\n  }\n}\n```\n\n**Cursor** — one-click: see [`listings/cursor-deeplink.md`](listings/cursor-deeplink.md), or add to `~/.cursor/mcp.json` / `.cursor/mcp.json`:\n\n```json\n{ \"mcpServers\": { \"threatcluster\": { \"command\": \"npx\", \"args\": [\"-y\", \"threatcluster-mcp\"], \"env\": { \"THREATCLUSTER_API_KEY\": \"tc_live_...\" } } } }\n```\n\n**VS Code** (`.vscode/mcp.json`; the input prompts for the key instead of storing it in the file)\n\n```json\n{\n  \"inputs\": [{ \"type\": \"promptString\", \"id\": \"tc-key\", \"description\": \"ThreatCluster API key\", \"password\": true }],\n  \"servers\": {\n    \"threatcluster\": { \"type\": \"stdio\", \"command\": \"npx\", \"args\": [\"-y\", \"threatcluster-mcp\"], \"env\": { \"THREATCLUSTER_API_KEY\": \"${input:tc-key}\" } }\n  }\n}\n```\n\n**Windsurf** (`~/.codeium/windsurf/mcp_config.json`) — same `mcpServers` block as Claude Desktop.\n\n**Zed** (`settings.json`)\n\n```json\n{ \"context_servers\": { \"threatcluster\": { \"command\": { \"path\": \"npx\", \"args\": [\"-y\", \"threatcluster-mcp\"], \"env\": { \"THREATCLUSTER_API_KEY\": \"tc_live_...\" } } } } }\n```\n\nCheck a configuration without starting a client: `THREATCLUSTER_API_KEY=... npx -y threatcluster-mcp --check` (prints where the key came from and where it will be sent — never the key).\n\n## 3. Tools\n\nCosts are ThreatCluster API credits (free keys: 100 a day). Every result carries `cost` (credits this call spent), `budget` (remaining today, from the response headers), `as_of`, and `url` fields on every cluster, entity, victim and CVE for citation.\n\n| Tool | What it answers | API endpoint(s) | Credits |\n|---|---|---|---|\n| `search_threats` | Keyword search over incident clusters; phrase, then all words, then any word; `matched_stage` says which | `GET /threats?keyword=` per term | 1 per term (max 8 calls) |\n| `search_everything` | Clusters, entity profiles and dark-web hits in one call | `GET /search` | 5 |\n| `newest_threats` | What is new in 1h / 24h / 7d / 30d, by first report or by momentum | `GET /threats` | 1 |\n| `get_threat` | Full record for one cluster: summary, timeline, articles, entities; `include_iocs` adds validated indicators | `GET /threats/{id}` (+ `/iocs`) | 1 (+1) |\n| `leak_site_victims` | Ransomware leak-site listings by sector / group / country / victim, plus a tally of the whole window | `GET /darkweb/ransomware/victims` + `/facets` | 2 |\n| `lookup_entity` | Profile of an actor, malware, tool, vendor, product, country, industry or CVE | `GET /entities/search` + `GET /entities/{type}/{value}` | 2 |\n| `get_vulnerability` | One CVE: CVSS, EPSS, KEV with due date, exploits, vendors, products | `GET /vulnerabilities/{cve_id}` | 1 |\n| `exploited_vulnerabilities` | CVEs in a window filtered to KEV / public exploit / severity / vendor / product | `GET /vulnerabilities` | 1 |\n| `trending_entities` | Actors, malware, tools, vendors, CVEs, countries rising over a window | `GET /entities/trending` | 1 |\n| `api_budget` | Remaining credits and rate state from the last responses — no API call | — | 0 |\n\nOne prompt, `threatcluster_analyst`, carries the analyst rules (tools first, cite every fact with the returned `url`, say what period you searched, leak-site listings are claims).\n\nErrors come back as MCP tool errors with the API's own message: `401` tells the agent to set `THREATCLUSTER_API_KEY` and where a free key comes from, `429` carries the `Retry-After`, `403` names the missing scope or the lookback window and the plan that lifts it.\n\n## Security\n\n- The key is read from `THREATCLUSTER_API_KEY` (then `TC_REFRESH_TOKEN`, then the tc-cli store) and sent only as the `X-API-Key` header (or `Authorization: Bearer` for a JWT minted by `tc login`) to `THREATCLUSTER_API_BASE`.\n- It is never logged, never printed by `--check`, never written to disk, and scrubbed from every error string; the test suites assert the key is absent from all stdout and stderr bytes, including on a 401 whose body quotes it.\n- stdio only. No outbound connection other than the API. No analytics.\n- All tools are read-only (`readOnlyHint: true`) and validate arguments against the spec before any request is made.\n\n## Environment\n\n| Variable | Default | Purpose |\n|---|---|---|\n| `THREATCLUSTER_API_KEY` | — | your key (`tc_live_…`, `tc_agent_…`) or a bearer from `tc login` |\n| `THREATCLUSTER_API_BASE` | `https://threatcluster.io/api/public/v1` | API base (self-hosted or local test servers) |\n| `THREATCLUSTER_SITE` | `https://threatcluster.io` | base for the `url` fields in results |\n\n## Repository layout\n\n```\ntools/tools.json   the single source of truth: tools, schemas, endpoint mapping, credits, prompt\npython/            PyPI package (hatchling; mcp + httpx)          -> console script threatcluster-mcp\nnode/              npm package (TypeScript; @modelcontextprotocol/sdk + zod) -> bin threatcluster-mcp\ntests/fixtures/    recorded API responses and tool outputs; both packages must replay them identically\nlistings/          directory manifests and submission copy (Smithery, MCP registry, Glama, mcp.so, Cursor, VS Code)\n.github/workflows/ CI (both suites) and tag-triggered publishing (PyPI trusted publishing, npm provenance)\n```\n\n`python3 tools/sync_tools.py` copies the spec into both packages; CI fails if the copies drift.\n\n## Development\n\n```bash\npip install -e \"python/[test]\" && (cd python && pytest)\ncd node && npm install && npm test\n# live validation against a real API (spends ~30 credits, re-records tests/fixtures):\nTHREATCLUSTER_LIVE=1 THREATCLUSTER_API_KEY=... THREATCLUSTER_API_BASE=... pytest python/tests/test_live.py\n```\n\nRelated: the [`tc` CLI](https://threatcluster.io/cli), the [API reference](https://threatcluster.io/api/public/v1/docs), the [agent-tool recipe](https://threatcluster.io/build/agent-tool) for a bare tool-calling function, and the [integration guide](https://threatcluster.io/integrations/mcp).\n\nGPL-3.0-or-later © ThreatCluster Ltd.\n",
+  "status": "curated"
+}

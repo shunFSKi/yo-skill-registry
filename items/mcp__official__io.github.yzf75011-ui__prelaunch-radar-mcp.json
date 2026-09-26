@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.yzf75011-ui/prelaunch-radar-mcp",
+  "type": "mcp",
+  "name": "New Shopify Stores Radar",
+  "description": "New and pre-launch Shopify stores from public CT logs: RDAP date, niche, country. No PII.",
+  "author": "io.github.yzf75011-ui",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/yzf75011-ui/prelaunch-radar-mcp",
+    "repo": "yzf75011-ui/prelaunch-radar-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://mcp.apify.com/?tools=prelaunch-radar/new-shopify-stores-pre-launch-radar"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-26T15:14:38.066671Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "运维",
+    "featured": false
+  },
+  "readme": "# New Shopify Stores — MCP tool for AI agents\n\nGive your agent a live feed of **new Shopify stores, including pre-launch ones** (still behind\ntheir password page), plus a **Shopify checker** for any list of domains. One flat JSON object\nper store, pay per result, no personal data.\n\nThe tool runs on Apify and is served by the official Apify MCP server, so any MCP client\n(Claude Desktop, Claude Code, Cursor, VS Code, Windsurf, n8n, LangChain, CrewAI) can use it.\n\n> **Also in this repo:** [Brand Lookalike Watch](brand-lookalike-watch/) — phishing and\n> typosquatting domains imitating a brand, from the same CT logs, as an MCP tool.\n\n## Connect in one paste\n\n**Remote (recommended, sign in with Apify in the browser):** add this to your client's MCP config\n\n```json\n{\n  \"mcpServers\": {\n    \"new-shopify-stores\": {\n      \"url\": \"https://mcp.apify.com/?tools=prelaunch-radar/new-shopify-stores-pre-launch-radar\"\n    }\n  }\n}\n```\n\n**Local (stdio, with an Apify API token):** see [`clients/local-stdio.json`](clients/local-stdio.json).\n\nClaude Code: `claude mcp add --transport http new-shopify-stores \"https://mcp.apify.com/?tools=prelaunch-radar/new-shopify-stores-pre-launch-radar\"`\n\n## What the agent can ask\n\n- \"List today's new Shopify stores in the US that are still pre-launch.\" → `{\"mode\": \"feed\", \"sinceDays\": 1, \"status\": \"pre-launch\", \"countries\": [\"US\"]}`\n- \"Which of these domains run on Shopify, and when were they registered?\" → `{\"mode\": \"enrich\", \"domains\": [\"example.com\"]}`\n- `maxItems` caps billed results, so spend is bounded before the call.\n\nFields: `store_domain`, `store_name`, `status` (`live` | `pre-launch`), `niche`, `country`,\n`region`, `currency`, `products`, `collections`, `ships_to`, `product_types`, `sample_titles`,\n`domain_registered` (RDAP), `first_detected`.\n\n## Automate it: new stores into Clay, n8n, Make or your CRM\n\nNo server to run. Import [`integrations/n8n/new-shopify-stores-daily.json`](integrations/n8n/new-shopify-stores-daily.json)\ninto n8n (**Workflows → Import from file**):\n\n1. **Every morning** triggers the workflow at 08:00.\n2. **Get new Shopify stores** calls the Actor with `{\"mode\": \"feed\", \"sinceDays\": 1, \"maxItems\": 100}`.\n   Add a *Header Auth* credential: name `Authorization`, value `Bearer <your Apify API token>`.\n   `maxItems` caps what one run can bill.\n3. **Send each store to your webhook** posts one JSON object per store to any URL:\n   a Clay table webhook, a Make custom webhook, Slack, HubSpot, your own endpoint.\n\nFilters (`status`, `countries`, `niches`) go in the same JSON body. The feed holds\nbusiness-level public data only; any contact enrichment you add downstream is your own\nprocessing, under your own compliance.\n\n## Links\n\n- Apify Store page: https://apify.com/prelaunch-radar/new-shopify-stores-pre-launch-radar\n- Prefer a spreadsheet? Always-fresh CSV membership: https://slama13.gumroad.com/l/smjncx\n\n## How it works\n\nPublic Certificate Transparency logs (RFC 6962) → public DNS records pointing to Shopify →\nofficial RDAP registry → each store's public `/meta.json` and `/products.json`.\n\n## LEGAL DISCLAIMER\n\nThis dataset is provided for market research, trend analysis, and competitive intelligence\npurposes only, on an \"as-is\" and \"as-available\" basis without warranties of any kind.\nRecords originate exclusively from publicly accessible sources (Certificate Transparency\nlogs, public DNS and RDAP registries, and stores' public storefront metadata); no personally\nidentifiable information (PII) is collected or sold.\nIndependently developed, not affiliated with, authorized, or endorsed by Shopify Inc. or\nApify. By accessing this data, you agree that the provider shall not be liable for any direct\nor indirect damages resulting from its use; in any event, liability is limited to the purchase\nprice.\n",
+  "status": "curated"
+}

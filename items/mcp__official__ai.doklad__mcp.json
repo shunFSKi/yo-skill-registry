@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/ai.doklad/mcp",
+  "type": "mcp",
+  "name": "Doklad.ai",
+  "description": "Czech invoicing for freelancers and SMEs: invoices, customers, expenses, payments, cash flow.",
+  "author": "ai.doklad",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/vict0ry/doklad-ai-mcp",
+    "repo": "vict0ry/doklad-ai-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://doklad.ai/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-26T14:43:49.065978Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "金融",
+    "featured": false
+  },
+  "readme": "# Doklad.ai MCP Server\n\nConnect AI assistants to [Doklad.ai](https://doklad.ai), Czech invoicing software for freelancers (OSVČ) and small companies. The hosted Doklad.ai MCP server lets Claude, ChatGPT, Codex, Claude Code, Cursor, VS Code, Gemini CLI and other [Model Context Protocol](https://modelcontextprotocol.io) clients create and send invoices, manage customers, log expenses, record received payments and summarise cash flow in your Doklad.ai account.\n\n| | |\n|---|---|\n| Endpoint | `https://doklad.ai/mcp` |\n| Transport | Streamable HTTP |\n| Authentication | OAuth 2.1 (sign in with your Doklad.ai account; PKCE, dynamic client registration) or an API key `Authorization: Bearer dk_…` |\n| Price | Doklad.ai is currently free, MCP included |\n| Rate limit | 60 requests per minute per company |\n| Official MCP Registry | `ai.doklad/mcp` |\n| Setup guide (Czech) | https://doklad.ai/mcp-fakturace |\n\n> This repository holds documentation and client configuration only. The MCP server is hosted and operated by Doklad.ai, so there is nothing to install or run on your side.\n\n## Who it is for\n\n- Freelancers (OSVČ) and small Czech companies that invoice in Doklad.ai and want to work with invoices from their AI assistant.\n- Accountants and back-office teams automating routine invoicing and payment follow-up.\n- Developers building agents on top of Czech invoicing data.\n\n## What you can ask\n\n- \"Which invoices are overdue and how much is outstanding in total?\"\n- \"Create an invoice for Alfa s.r.o. for 12 hours of consulting at 1,500 CZK excl. VAT, due in 14 days.\"\n- \"Email invoice 2026-0142 to the customer.\"\n- \"Record a payment of 18,150 CZK received today for invoice 2026-0137.\"\n- \"Show revenue, expenses and profit for September.\"\n\n## Connect your client\n\nEvery client uses the same URL, `https://doklad.ai/mcp`. On first use the client opens Doklad.ai in your browser: sign in, pick the company and allow access. No key is copied anywhere. Only the owner or an admin of a company can grant access.\n\n### Claude (claude.ai, Claude Desktop, mobile)\n\n[Add the connector](https://claude.ai/customize/connectors?modal=add-custom-connector&connectorName=Doklad.ai&connectorUrl=https%3A%2F%2Fdoklad.ai%2Fmcp), or open **Customize → Connectors → Add custom connector**, enter `https://doklad.ai/mcp` and sign in. The connector then works on the web, in Claude Desktop and in the mobile app. Free plans allow one custom connector; on Team and Enterprise an Owner adds it under **Organization settings → Connectors**.\n\n### ChatGPT\n\nTurn on **Settings → Security and login → Developer mode**, then open [chatgpt.com/plugins](https://chatgpt.com/plugins), click **+**, enter `https://doklad.ai/mcp` with **OAuth** authentication and sign in. Developer mode is available on Plus, Pro, Business, Enterprise and Edu.\n\n### Claude Code\n\n```bash\nclaude mcp add --transport http --scope user doklad https://doklad.ai/mcp\n```\n\nThen run `/mcp`, select `doklad` and choose **Authenticate**.\n\n### Codex (CLI, IDE extension, ChatGPT desktop app)\n\n```bash\ncodex mcp add doklad --url https://doklad.ai/mcp\ncodex mcp login doklad\n```\n\n### Cursor\n\n[Install in Cursor](cursor://anysphere.cursor-deeplink/mcp/install?name=doklad&config=eyJ1cmwiOiJodHRwczovL2Rva2xhZC5haS9tY3AifQ==), or add to `~/.cursor/mcp.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"doklad\": { \"url\": \"https://doklad.ai/mcp\" }\n  }\n}\n```\n\n### VS Code (GitHub Copilot agent mode)\n\nAdd to `.vscode/mcp.json` (VS Code 1.99+):\n\n```json\n{\n  \"servers\": {\n    \"doklad\": { \"type\": \"http\", \"url\": \"https://doklad.ai/mcp\" }\n  }\n}\n```\n\n### Gemini CLI\n\n```bash\ngemini mcp add --scope user --transport http doklad https://doklad.ai/mcp\n```\n\nThen run `/mcp auth doklad`. This repository is also a Gemini CLI extension (`gemini-extension.json`).\n\n### API key (n8n, scripts, clients without OAuth)\n\nCreate a key in Doklad.ai under **Integrace → API klíče a webhooky → MCP server** and send it as `Authorization: Bearer dk_…`:\n\n```bash\nclaude mcp add --transport http doklad https://doklad.ai/mcp --header \"Authorization: Bearer $DOKLAD_API_KEY\"\n```\n\n```toml\n# ~/.codex/config.toml\n[mcp_servers.doklad]\nurl = \"https://doklad.ai/mcp\"\nbearer_token_env_var = \"DOKLAD_API_KEY\"\n```\n\nClaude Desktop's `claude_desktop_config.json` only runs local servers, so use the `mcp-remote` bridge (Node.js 20.18+):\n\n```json\n{\n  \"mcpServers\": {\n    \"doklad\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"mcp-remote\", \"https://doklad.ai/mcp\", \"--header\", \"Authorization:${DOKLAD_AUTH_HEADER}\"],\n      \"env\": { \"DOKLAD_AUTH_HEADER\": \"Bearer dk_YOUR_KEY\" }\n    }\n  }\n}\n```\n\n## Tools\n\n| Tool | What it does | Access |\n|---|---|---|\n| `list_invoices` | List invoices, filtered by status, customer, text search or date range | Read |\n| `get_invoice` | One invoice with line items and customer details | Read |\n| `create_invoice` | Create an invoice: customer, line items (description, quantity, unit price, VAT rate) and due date | Write |\n| `update_invoice` | Update an invoice; only the fields you pass change | Write |\n| `delete_invoice` | Delete an invoice (drafts and cancelled invoices only) | Destructive |\n| `send_invoice_email` | Email an invoice to the customer | Write, sends email |\n| `get_invoice_pdf_url` | Download URL of an invoice PDF | Read |\n| `record_payment` | Record a received payment against an invoice (bookkeeping entry, moves no money) | Write |\n| `list_customers` | Search customers by name, IČO or email | Read |\n| `get_customer` | One customer | Read |\n| `create_customer` | Create a customer | Write |\n| `update_customer` | Update a customer | Write |\n| `list_expenses` | List expenses, optionally by status | Read |\n| `get_expense` | One expense | Read |\n| `create_expense` | Record an expense | Write |\n| `get_invoice_stats` | Invoice counts: total, paid, sent, overdue, drafts | Read |\n| `get_cash_flow_summary` | Revenue, expenses and profit for a period | Read |\n\nEvery tool carries MCP annotations (`title`, `readOnlyHint`, `destructiveHint`, `openWorldHint`), so clients ask for confirmation before tools that change data or send email.\n\n## Security\n\n- OAuth 2.1 with PKCE (S256), dynamic client registration (RFC 7591), refresh-token rotation with reuse detection, RFC 9207 `iss`. Discovery: `https://doklad.ai/.well-known/oauth-protected-resource/mcp`.\n- Access is granted per company on a Doklad.ai consent page; only owners and admins can grant it. Connections are listed and revocable under **Integrace → API klíče a webhooky → Připojené aplikace**.\n- Every tool call is written to the company's audit log. Tokens and API keys are stored only as hashes.\n- 60 requests per minute per company.\n\n## Česky\n\nNávod k připojení v češtině: **https://doklad.ai/mcp-fakturace** (Claude, ChatGPT, Codex, Claude Code, Cursor, VS Code, Gemini CLI, n8n).\n\n## Support\n\npodpora@doklad.ai · https://doklad.ai\n\n## License\n\nThe documentation and configuration files in this repository are MIT licensed. The Doklad.ai service is subject to its [terms](https://doklad.ai/terms) and [privacy policy](https://doklad.ai/privacy).\n",
+  "status": "curated"
+}

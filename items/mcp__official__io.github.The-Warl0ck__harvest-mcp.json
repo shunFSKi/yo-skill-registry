@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.The-Warl0ck/harvest-mcp",
+  "type": "mcp",
+  "name": "Harvest",
+  "description": "Plain-English training-data scout: 12 experts sweep HuggingFace + GitHub, compose scored packs.",
+  "author": "io.github.The-Warl0ck",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/The-Warl0ck/harvest-mcp",
+    "repo": "The-Warl0ck/harvest-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@the_warl0ck/harvest-mcp"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-26T17:04:21.680741Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# harvest-mcp\n\n**Plain-English topic in → 12 experts fan out over Hugging Face + GitHub in parallel → coverage-scored training pack JSON out in ~30 seconds.**\n\nNo API keys. No Bridge. No account. It works out of the box.\n\nHarvest is a training-data scout: you describe what you want to train on in plain English\n(\"image classification\", \"medical question answering\"), and 12 domain experts —\ncode, math, science, language, vision, audio, medical, law, knowledge, safety, affect, systems —\neach sweep Hugging Face datasets and GitHub repos with their own curated queries. The local mixer\nthen composes the hits into a balanced, coverage-scored training library pack\n(`flare-harvest-library` v1 JSON) you can hand to any training pipeline.\n\n## Install\n\n```bash\nnpx github:The-Warl0ck/harvest-mcp\n```\n\nOr add it to Claude Desktop (`claude_desktop_config.json`):\n\n```json\n{\n  \"mcpServers\": {\n    \"harvest\": {\n      \"command\": \"npx\",\n      \"args\": [\"github:The-Warl0ck/harvest-mcp\"]\n    }\n  }\n}\n```\n\nWith optional tokens for higher rate limits:\n\n```json\n{\n  \"mcpServers\": {\n    \"harvest\": {\n      \"command\": \"npx\",\n      \"args\": [\"github:The-Warl0ck/harvest-mcp\"],\n      \"env\": {\n        \"HF_TOKEN\": \"hf_...\",\n        \"GITHUB_TOKEN\": \"ghp_...\"\n      }\n    }\n  }\n}\n```\n\nRequirements: Node.js ≥ 20.\n\n## Example session\n\n> **You:** find me training data for a small vision-language model\n\n> **harvest.search** `{ \"topic\": \"vision language instruction tuning\" }`\n> → ~40 hits: LLaVA-NeXT data, the Cauldron, DOCCI, LLaVA repo… plus the\n> 12-expert atlas sweep for breadth (code, math, safety…)\n\n> **harvest.compose** `{ \"goal\": \"small vision-language model\", \"catalog\": […] }`\n> → `{ \"title\": \"small vision-language model\", \"picks\": [ { \"id\": \"lmms-lab/LLaVA-NeXT-Data\", \"expert\": \"vision\", \"why\": \"Anchor Vision on Hugging Face\" }, … ], \"rationale\": \"Local mixer staged 22 items across 12/12 experts. No mouth required.\", \"engine\": \"local\" }`\n\n> **harvest.pack** `{ \"goal\": \"small vision-language model\", \"name\": \"VLM Mix v1\", \"catalog\": […] }`\n> → `flare-harvest-library` v1 JSON with `coverage: { filled: 12, totalExperts: 12, balance: 0.94 }`\n> and per-item `ingest: { type: \"hf-dataset\" | \"github-repo\", ref }` pointers.\n\n## Tools\n\n| Tool | What it does |\n|---|---|\n| `harvest.search` | `{topic, hf_token?, gh_token?}` — topic search + full 12-expert atlas sweep, deduplicated |\n| `harvest.expert` | `{expert, hf_token?, gh_token?}` — run one expert's curated queries (12 ids: `code`, `math`, `science`, `language`, `vision`, `audio`, `medical`, `law`, `knowledge`, `safety`, `affect`, `systems`) |\n| `harvest.latest` | `{}` — trending: recently-updated HF datasets, hot/recent GitHub repos |\n| `harvest.compose` | `{goal, catalog}` — local mixer composes a balanced set; picks + rationale, no LLM needed |\n| `harvest.pack` | `{goal, catalog, name}` — compose + entropy coverage scoring → `flare-harvest-library` v1 pack JSON |\n\n`catalog` items are `{ id, source, expert, description? }` — the objects `harvest.search` returns drop straight in.\n\n## Rate limits\n\nEverything hits the **public** Hugging Face and GitHub APIs. Unauthenticated, you get:\n\n- **Hugging Face:** generous anonymous quota on `/api/datasets` (occasional 429s on bursts; results are cached 12 min in-process)\n- **GitHub:** 60 requests/hour per IP for search — the 12-expert sweep is the hungriest call\n\nFor real use, set `HF_TOKEN` / `GITHUB_TOKEN` (free accounts) via env or the per-call\n`hf_token` / `gh_token` args. See `.env.example`.\n\n## Pack format\n\nPacks are `flare-harvest-library` v1 JSON — see [PACK-FORMAT.md](PACK-FORMAT.md).\n\n## How it works\n\n- `src/harvest/scan-core.ts` — parallel HF/GitHub scanning, 12-min result cache\n- `src/experts.ts` — the 12-expert atlas (curated queries + seed items)\n- `src/harvest/compose-local.ts` — the local mixer (\"No mouth required\"): anchors one item per expert, then balances HF/GitHub sources, then fills for coverage\n- `src/coverage.ts` — entropy-based coverage/balance scoring across the 12 experts\n- `src/harvest/compose-mouth.ts` — opt-in: compose via any OpenAI-compatible `/v1` endpoint (LM Studio, etc.) instead of the local mixer\n- `mcp/server.ts` — the MCP server (stdio, low-level SDK API, hand-written schemas)\n\n## License\n\nApache-2.0 — see [LICENSE](LICENSE).\n",
+  "status": "curated"
+}

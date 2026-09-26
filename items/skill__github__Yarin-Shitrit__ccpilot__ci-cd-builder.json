@@ -17,10 +17,10 @@
   "quality": {
     "stars": 1,
     "pushed_at": "2026-04-14T12:14:31Z",
-    "score": 35,
+    "score": 45,
     "star_history": [
       {
-        "d": "2026-09-25",
+        "d": "2026-09-26",
         "s": 1
       }
     ]
@@ -55,6 +55,6 @@
     "category": "编程",
     "featured": false
   },
-  "readme": null,
+  "readme": "# ccpilot\n\nZero-config auto-pilot for the Claude CLI. Installs a `UserPromptSubmit` hook that classifies each prompt, discovers available skills/MCP servers on the host, and injects a routing block so Claude automatically dispatches the right skills and subagents — no DSL, no learning curve.\n\n## Install\n\nRequires Python 3.9+. Works on Linux, macOS, Windows.\n\n```sh\ngit clone https://github.com/Yarin-Shitrit/ccpilot.git\ncd ccpilot\npython install.py --with-smart              # one-shot: hooks + skills + smart deps\n```\n\n`--with-smart` pip-installs `anthropic` (Haiku classifier escalation) and\n`model2vec` (dense skill embeddings). Skip it for a pure-stdlib install —\nccpilot falls back to hashed TF-IDF and regex heuristics.\n\nOther flags:\n\n```sh\npython install.py --dry-run                 # preview every file touched\npython install.py --with-learning           # also install PostToolUse verdict hook\npython install.py --with-openai             # add openai SDK (MiniMax, LiteLLM, etc)\npython install.py --no-skills --no-agents   # hooks only, bring your own skills\n```\n\nUninstall: remove the `ccpilot` entry from `~/.claude/settings.json`'s `UserPromptSubmit` hooks and delete `~/.claude/ccpilot/`.\n\n## What it does\n\n- Heuristic classifier scores each prompt (intent + complexity + confidence) with pure stdlib. No network required.\n- Optional Tier-2 escalation to a private Claude endpoint for low-confidence prompts. Fully configurable; off by default.\n- Dynamic registry scans `~/.claude/skills/*/SKILL.md`, `.mcp.json`, and plugins — works with whatever the host already has.\n- Swarm orchestrator spawns role-specialized subagents for complex prompts and reconciles via Raft-lite quorum consensus (opt-in Byzantine mode for high-stakes runs).\n- Bundled 30-skill pack installed non-destructively (`.ccpilot` suffix on name conflicts).\n\n## Configuration\n\n`~/.claude/ccpilot/config.toml` — see `ccpilot/config.sample.toml` for the full schema. All fields optional.\n\n### Disabling the hook (cost management)\n\nThree levels, from most to least ephemeral:\n\n```sh\nCCPILOT_DISABLED=1 claude              # one-shot: skip routing for this session\n```\n\n```toml\n# ~/.claude/ccpilot/config.toml — persistent off switch\n[router]\nenabled = false\n```\n\n```toml\n# Keep routing on but disable Tier-2 LLM escalation (the only outbound cost)\n[classifier]\nllm_escalation = false\n```\n\nOr remove the `ccpilot` entry from `~/.claude/settings.json`'s `UserPromptSubmit` hooks to fully uninstall.\n\n## Architecture\n\n- `ccpilot/route.py` — hook entrypoint.\n- `ccpilot/classifier.py` — heuristic + optional LLM classification.\n- `ccpilot/registry.py` — skills/MCP discovery.\n- `ccpilot/swarm/` — coordinator, consensus (Raft-lite), judge, roles.\n- `ccpilot/llm/client.py` — stdlib HTTP client for a private Claude endpoint.\n- `hooks/ccpilot.{sh,cmd}` — thin POSIX/Windows launchers.\n\n## Verify\n\n```sh\necho '{\"prompt\": \"audit this repo for security issues\"}' | python -m ccpilot route\npython -m ccpilot registry\npytest                           # smoke tests\n```\n\nLogs: `~/.claude/ccpilot/log.jsonl` (routing) and `~/.claude/ccpilot/swarm.jsonl` (consensus rounds).\n",
   "status": "curated"
 }

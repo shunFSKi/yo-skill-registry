@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/com.screenbrowser/screenbrowser",
+  "type": "mcp",
+  "name": "Screen Browser",
+  "description": "Narrated demo and tutorial videos of your web app, from a guide or your coding agent.",
+  "author": "com.screenbrowser",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/screenbrowser/skill",
+    "repo": "screenbrowser/skill"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://mcp.screenbrowser.com"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-26T17:52:38.676621Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "设计",
+    "featured": false
+  },
+  "readme": "# Screen Browser skill\n\nNarrated demo and tutorial videos of your web app, from a guide or your coding agent.\n\nAsk the agent that knows your codebase for a tutorial video of a feature. It writes the walkthrough\nin the words your buttons and fields use, [Screen Browser](https://screenbrowser.com) records a real\nbrowser following it against your deployed app, narrates it, adds the on-screen effects, and the\nagent hands you the MP4 with a GIF, subtitles and chapters. When the app changes, edit a line and\nask again.\n\n[![The first chapter of a tutorial video Claude Code made from one sentence: a campaign being created in Chatamatic, narrated and captioned](https://media.screenbrowser.com/guides/claude-code-demo-video/create-a-campaign-chapter-1-v14.gif)](https://screenbrowser.com/guides/claude-code-demo-video/)\n\nThat is the first chapter of a 66-second video made from the request *\"make a tutorial video of\ncreating a campaign\"*. The whole session, from that sentence to the finished video with the exact\nprompt and every screen along the way, is in the\n[Claude Code guide](https://screenbrowser.com/guides/claude-code-demo-video/).\n\nThis repository gives your agent two things:\n\n- **The `screenbrowser` skill** — how to read your codebase and write the two guides Screen Browser\n  needs (the login flow and the walkthrough), which effect fits which moment, how to check a guide\n  for free before recording, and how to review the video before handing it over.\n- **The MCP server configuration** — the tools the agent calls: create the project, upload guides,\n  check them, start the run, poll it, fetch the video. The server itself is part of your Screen\n  Browser account at `https://mcp.screenbrowser.com`.\n\nClaude Code, Codex, Cursor or any MCP client can use it. Sign-in happens in the browser; there is\nno key to paste.\n\n## Install (Claude Code)\n\nAdd this repository as a plugin marketplace and install the plugin:\n\n```bash\nclaude plugin marketplace add screenbrowser/skill\nclaude plugin install screenbrowser@screenbrowser\n```\n\nThe first time the agent reaches for a Screen Browser tool, Claude Code opens your browser: sign in\nto Screen Browser, approve the connection, and you are done. Nothing to copy. (If it does not\nprompt, run `/mcp` and pick **screenbrowser → Authenticate**.)\n\nWithout the plugin system, register the server yourself and copy the skill:\n\n```bash\nclaude mcp add --transport http screenbrowser https://mcp.screenbrowser.com\ncp -r skills/screenbrowser ~/.claude/skills/\n```\n\n### With an API key instead\n\nIf your agent cannot open a browser to sign in, create a key under **Settings → API keys** in\nScreen Browser and pass it as a bearer token:\n\n```bash\nclaude mcp add --transport http screenbrowser https://mcp.screenbrowser.com \\\n  --header \"Authorization: Bearer $SCREENBROWSER_API_KEY\"\n```\n\nAny MCP client works the same way: Streamable HTTP at `https://mcp.screenbrowser.com`, OAuth 2.1 with\ndynamic client registration for interactive sign-in, or `Authorization: Bearer <key>`.\n\n### Other agents\n\nThe skill is a plain `SKILL.md` in the open Agent Skills format, and the server is standard MCP over\nHTTP, so the same two pieces work outside Claude Code.\n\n**Cursor, VS Code, GitHub Copilot and other Agent Plugins clients** — this repository is also an\n[Agent Plugins](https://agent-plugins.org/) package (`plugin.json`, `mcp.json`, `skills/`), so\ninstall it as a plugin from the repository URL and sign in when the client offers. Cursor without\nthe plugin: add the server to `.cursor/mcp.json` (or the global one in Cursor settings), click\n**Sign in** next to it, and copy the skill into `.cursor/skills/`:\n\n```json\n{\n  \"mcpServers\": {\n    \"screenbrowser\": { \"url\": \"https://mcp.screenbrowser.com\" }\n  }\n}\n```\n\n```bash\nmkdir -p .cursor/skills && cp -r skills/screenbrowser .cursor/skills/\n```\n\n**OpenAI Codex CLI** — add the server to `~/.codex/config.toml`, sign in once, and copy the skill\ninto Codex's skills folder:\n\n```toml\n[mcp_servers.screenbrowser]\nurl = \"https://mcp.screenbrowser.com\"\n```\n\n```bash\ncodex mcp login screenbrowser\nmkdir -p ~/.codex/skills && cp -r skills/screenbrowser ~/.codex/skills/\n```\n\n**Anything else (Gemini CLI, Windsurf, a custom agent)** — register an HTTP MCP server with the URL\nthe way that tool documents it; a client that supports OAuth will sign you in, one that does not\ntakes the API key as an `Authorization: Bearer` header. Give the agent `skills/screenbrowser/SKILL.md`\nas instructions (paste it, or point the tool's rules file at it). The MCP server itself also carries\nthe guide syntax as a resource and a `write-tutorial-guide` prompt, so a client with MCP prompts can\nwork without the skill file at all.\n\n## Use\n\nVideos can be recorded on the desktop or as a phone or tablet (`device: iphone`, `android`, `ipad`,\n…), in a phone frame on a vertical 9:16 or widescreen 16:9 canvas or as the bare screen; one run is\none device.\n\nOpen your app's repository in Claude Code and ask:\n\n> Make a tutorial video of creating a campaign.\n\nThe agent will check credits, create the project (it will ask you for the deployed URL, a demo\nuser, and the legal attestation), write the guides from your routes and templates, validate them,\nshow them to you, start the run, and give you the video link a few minutes later.\n\nThe MCP server also ships a `write-tutorial-guide` prompt that walks any client through the same\nflow, and two resources: `screenbrowser://guide-syntax` and `screenbrowser://example-guides`.\n\n## What your app needs\n\n- A **demo user** that signs in with email and password: no OAuth, no 2FA, no captcha. Seed it with\n  realistic data.\n- The deployed URL to record (staging is fine) and every host the app talks to (API subdomain,\n  auth provider, CDN).\n- Confirmation that you are allowed to record the app (yours, a client's with permission, or an\n  internal tool).\n\n## What it costs\n\nPlans start at $49 a month, sized in minutes of finished video. Checking a guide before recording\nis free, and a run that fails is not charged. Videos are capped at five minutes; there is no free\nplan. Current prices are on the [pricing page](https://screenbrowser.com/pricing/).\n\n## Layout\n\n```\nplugin.json                        Agent Plugins manifest (Cursor, VS Code, Copilot, …)\nmcp.json                           Agent Plugins MCP config (the URL; sign-in is OAuth)\n.claude-plugin/plugin.json         Claude Code plugin manifest\n.claude-plugin/marketplace.json    lets this repo act as its own Claude Code marketplace\n.mcp.json                          Claude Code MCP server config\nskills/screenbrowser/SKILL.md      the skill\nskills/screenbrowser/references/   guide syntax reference, worked example\nexamples/chatamatic/               a real auth guide + main guide pair\n```\n\n## What a guide looks like\n\nPlain language, one step per line, naming things as they appear on screen. Screen Browser turns it\ninto the script — the narration, the highlights, the pacing — and resolves each step against the\nlive page:\n\n```\nGo to https://app.acme.test/campaigns\n\"Let's create a spring promotion.\"\nClick \"New campaign\"\nType \"Spring promo\" into the Name field\nClick \"Save\"\nConfirm text \"Campaign created\" is visible\n```\n\nIds and `name=` attributes are allowed when a step needs precision; class names generated by a build\ntool are refused. The full reference, including the optional effect directives, is in\n[`skills/screenbrowser/references/guide-syntax.md`](skills/screenbrowser/references/guide-syntax.md).\n\n## Documentation index for AI agents\n\nThe skill carries everything an agent needs to write a guide and run a recording. For anything else —\nprerequisites, costs, limitations, the API — https://screenbrowser.com/llms.txt is a Markdown index\nof the public documentation, and https://screenbrowser.com/docs/agents/ is the reference for this\nintegration.\n\n## Support\n\nIssues and ideas about the skill are welcome in this repository. Anything about your account or a\nparticular recording: use the contact form at https://screenbrowser.com/contact/.\n\n## License\n\nMIT. Screen Browser itself is a hosted service; this repository contains only the agent-facing\nskill, configuration and examples.\n",
+  "status": "curated"
+}

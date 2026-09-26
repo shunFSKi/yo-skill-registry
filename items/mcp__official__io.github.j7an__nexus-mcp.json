@@ -2,7 +2,7 @@
   "id": "mcp:official/io.github.j7an/nexus-mcp",
   "type": "mcp",
   "name": "nexus-mcp",
-  "description": "Invoke CLI agents (Codex, Claude, OpenCode) as MCP tools with parallel execution",
+  "description": "Delegate tasks to coding agents (Claude, Codex) from any MCP client",
   "author": "io.github.j7an",
   "source": {
     "registry": "mcp-official",
@@ -19,8 +19,8 @@
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-09-19T07:59:53.80614Z",
-    "score": 42
+    "pushed_at": "2026-09-26T14:29:32.01825Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -52,6 +52,6 @@
     "category": "编程",
     "featured": false
   },
-  "readme": null,
+  "readme": "# nexus-mcp\n<!-- mcp-name: io.github.j7an/nexus-mcp -->\n\nMCP server that delegates tasks to coding agents — [Claude Code](https://code.claude.com)\nvia the Claude Agent SDK and [Codex](https://developers.openai.com/codex) via the Codex App Server —\nfrom any MCP client.\n\n## Install\n\nBackends are optional extras; install the ones you use.\n\n| Extra | Backend | Adds |\n|---|---|---|\n| `claude` | Claude Agent SDK | `claude-agent-sdk` (bundles the Claude Code CLI, ~100 MB) |\n| `codex` | Codex App Server | `openai-codex` (bundles the Codex CLI, ~120–150 MB) |\n| `all` | every backend | |\n\n```bash\nuvx --with 'nexus-mcp[all]' nexus-mcp          # run directly\npip install 'nexus-mcp[claude]'                 # or install\npip install 'nexus-mcp[codex]'                  # Codex only\n```\n\nClaude Code MCP config:\n\n```json\n{ \"mcpServers\": { \"nexus\": { \"command\": \"uvx\", \"args\": [\"--with\", \"nexus-mcp[all]\", \"nexus-mcp\"] } } }\n```\n\nAuthentication is the agent's own: log in with `claude`, or set `ANTHROPIC_API_KEY`; for Codex,\nlog in with `codex login` (credentials in `~/.codex` are shared).\n\n**Windows:** recent `claude-agent-sdk` releases ship no Windows wheel with a bundled CLI;\ninstall Claude Code so `claude` is on `PATH`.\n\n## Tool: `prompt`\n\nRuns one agent turn and returns its final answer.\n\n| Parameter | Default | Meaning |\n|---|---|---|\n| `backend` | required | `claude` or `codex` |\n| `prompt` | required | Task for the agent |\n| `cwd` | required | Absolute project directory |\n| `profile` | `read_only` | Permission profile (below) |\n| `session_id` | — | Continue this conversation |\n| `fork` | `false` | Branch `session_id` into a new conversation |\n| `model` | provider default | Model id or alias |\n| `timeout` | `600` | Seconds before the turn is cancelled |\n\nReturns `{backend, session_id, output, usage}`. Conversations are stored by the agent itself\n(`~/.claude/projects`, `$CODEX_HOME/sessions`), so a `session_id` keeps working after nexus-mcp\nrestarts.\n\n### Permission profiles\n\nActions outside the chosen profile are denied automatically — nobody is prompted.\n\n| Profile | Allows |\n|---|---|\n| `read_only` | Read/Glob/Grep; `git diff`/`log`/`show` with `--no-ext-diff --no-textconv` |\n| `workspace_write` | Plus file edits inside `cwd` and Bash inside the OS sandbox |\n| `full_access` | Everything |\n\nCodex enforces profiles with its OS sandbox (`read-only`, `workspace-write`, `danger-full-access`)\nand never asks for approval.\n\n## Resource: `nexus://backends`\n\nJSON list of `{name, installed, models, hint}`; `hint` gives the install command for a\nmissing extra. Codex lists its models; Claude reports `null` (any id or alias the CLI accepts).\n\n## Configuration\n\n| Variable | Default | Meaning |\n|---|---|---|\n| `NEXUS_CLAUDE_SETTINGS_PROFILE` | `isolated` | Claude settings to load: `isolated` (none), `project` (project `.claude/`), `inherit` (all, including user settings). Profiles still bound every tool call. |\n\n## Migrating from v1\n\n| v1 | v2 |\n|---|---|\n| `prompt(cli=\"codex\")` (`codex exec`) | `prompt(backend=\"codex\", cwd=…)` (App Server) |\n| `prompt(cli=…, execution_mode=\"yolo\")` | `prompt(backend=…, profile=\"full_access\", cwd=…)` |\n| `batch_prompt` | Parallel `prompt` calls from the client |\n| `agent_start` / `agent_status` / `agent_result` | `prompt` (synchronous) |\n| `agent_continue` / `agent_fork` | `prompt(session_id=…)` / `prompt(session_id=…, fork=true)` |\n| `agent_review` | `prompt(profile=\"read_only\", prompt=\"Review …\")` |\n| `agent_cancel` | Cancel the tool call in the client |\n| `agent_respond`, elicitation | Removed — choose a profile instead |\n| Preferences, model tiers, MCP prompts | Removed |\n| OpenCode runners and tools | Removed |\n| `NEXUS_*` variables | Removed except `NEXUS_CLAUDE_SETTINGS_PROFILE` |\n\n## Development\n\n```bash\nuv sync --all-extras --all-groups\nuv run pytest                    # unit + e2e\nuv run pytest -m integration     # real CLI (slow, makes model calls)\nuv run mypy src/nexus_mcp && uv run ruff check . && uv run ruff format --check .\n```\n\n## License\n\nMIT\n",
   "status": "curated"
 }

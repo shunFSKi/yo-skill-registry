@@ -12,12 +12,12 @@
   "license": null,
   "install": {
     "kind": "remote",
-    "remote_url": "https://www.kadro.co/mcp"
+    "remote_url": "https://www.shootempire.com/kadro-mcp-relay/mcp"
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-09-25T11:25:56.833896Z",
-    "score": 42
+    "pushed_at": "2026-09-26T14:35:46.392023Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -49,6 +49,6 @@
     "category": "设计",
     "featured": false
   },
-  "readme": null,
+  "readme": "# kadro-mcp-server\n\nAn MCP (Model Context Protocol) server that lets AI assistants search Kadro\nphotographers/packages and book a guest reservation on a user's behalf,\nending with a payment link — the assistant never touches payment or login\nitself. It's a thin wrapper around Kadro's `Api::Agent::V1` REST API (see\nthe `Main-Rails` repo, `app/controllers/api/agent/v1/`).\n\n## Tools\n\n- `search_shoot_types` — list service types and their ids.\n- `search_photographers` — find photographers for a shoot_type_id (+ optional city_id).\n- `get_photographer_packages` — a photographer's real packages and prices.\n- `create_reservation` — place a 15-minute guest hold. No payment involved.\n- `get_payment_link` — a URL for the human to open themselves to verify their\n  phone and pay. This is the boundary: no tool here ever asks for or handles\n  card details, OTP codes, or passwords.\n- `get_reservation_status` — check payment/confirmation status. Paid is not\n  the same as confirmed — see the tool description.\n\n## Setup\n\n```bash\nnpm install\ncp .env.example .env\nnpm run register -- \"your-platform-name\" \"you@example.com\"   # prints a token\n# paste the printed KADRO_API_TOKEN into .env\nnpm run build\nnpm start   # listens on :3100 (or $PORT), MCP endpoint is POST /mcp\n```\n\nThe registration is self-service and instant, capped at a `daily_limit` of 5\nrequests/day by default (see `ApiPartner` in Main-Rails). Email Kadro to\nrequest a higher limit for this server's token once it's actually deployed.\n\n## Running with Docker\n\n```bash\ndocker build -t kadro-mcp-server .\ndocker run -p 3100:3100 --env-file .env kadro-mcp-server\n```\n\n## Deploying on the same server as the Rails app\n\nThis is a separate Node process from the Rails app — it does not go through\nCapistrano. A reasonable setup, matching this server's existing Docker usage\nfor other services (gitlab, typesense):\n\n1. Build and run the Docker image above on the server (or run\n   `npm run build && npm start` under a process manager like `systemd` or `pm2`).\n2. Point a path or subdomain at it through whatever already terminates TLS\n   for kadro.co (nginx, based on the existing setup). Example nginx snippet —\n   adjust to match the real server-block layout, this repo has no visibility\n   into it:\n\n   ```nginx\n   location /mcp {\n     proxy_pass http://127.0.0.1:3100/mcp;\n     proxy_set_header Host $host;\n     proxy_http_version 1.1;\n     proxy_set_header Connection \"\";\n   }\n   ```\n\n3. The public MCP endpoint ends up at something like `https://www.kadro.co/mcp`\n   or `https://mcp.kadro.co/mcp` — whichever this repo's operator prefers. Put\n   that URL in `public/llms.txt` (Main-Rails) once it's live, alongside the\n   plain REST API section already there.\n\n## Verifying it's alive\n\n```bash\ncurl https://<wherever-it's-deployed>/healthz   # -> ok\n```\n",
   "status": "curated"
 }

@@ -1,0 +1,57 @@
+{
+  "id": "mcp:official/io.github.RogueAlg0/taken",
+  "type": "mcp",
+  "name": "taken",
+  "description": "Check if a GitHub issue is taken before volunteering for it.",
+  "author": "io.github.RogueAlg0",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/RogueAlg0/taken",
+    "repo": "RogueAlg0/taken"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "taken-gh"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-26T16:54:11.392545Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# taken?\n\n[![PyPI](https://img.shields.io/pypi/v/taken-gh?cacheSeconds=3600)](https://pypi.org/project/taken-gh/)\n[![CI](https://github.com/RogueAlg0/taken/actions/workflows/ci.yml/badge.svg)](https://github.com/RogueAlg0/taken/actions)\n[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/RogueAlg0/taken/badge)](https://scorecard.dev/viewer/?uri=github.com/RogueAlg0/taken)\n[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/14960/badge)](https://www.bestpractices.dev/projects/14960)\n[![SonarCloud Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=RogueAlg0_taken&metric=alert_status)](https://sonarcloud.io/project/overview?id=RogueAlg0_taken)\n[![License: MIT](https://img.shields.io/github/license/RogueAlg0/taken)](LICENSE)\n<!-- Static python badge: shields' pypi/pyversions reads trove classifiers,\n     not requires-python, so it renders \"missing\" until a release ships with\n     the Python classifiers below. -->\n[![Python](https://img.shields.io/badge/python-%3E%3D3.10-blue)](https://pypi.org/project/taken-gh/)\n[![MCP Registry](https://img.shields.io/badge/MCP%20Registry-io.github.RogueAlg0%2Ftaken-blue)](https://registry.modelcontextprotocol.io)\n[![Hotspots](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FRogueAlg0%2Ftaken%2Fmain%2Fdocs%2Fbadges%2Fhotspot.json)](https://github.com/RogueAlg0/taken#hotspots)\n\n<!-- mcp-name: io.github.RogueAlg0/taken -->\n\n`taken?` answers one question before you volunteer for a GitHub issue: is it\nalready taken?\n\nThe catch it was built for: GitHub shows \"linked a pull request\" events in the\nissue timeline, but never in the comments. You can read every comment on an\nissue and still miss that someone already opened a PR for it. `taken?` checks\nthe timeline, scans comments for people claiming the work, looks at assignees,\nreads CONTRIBUTING.md for AI contribution policies, and checks whether the\nrepo is still active. Then it gives a verdict, GO, TAKEN, or CAUTION, with the\nevidence cited.\n\n## Requirements\n\n- Python 3.10 or newer\n- The [GitHub CLI](https://cli.github.com/) (`gh`), authenticated\n\n`taken?` only makes read-only API calls through your own `gh` login. It never\nsees or stores tokens, and it never writes anything to GitHub.\n\n## Install as a tool\n\n    uv tool install taken-gh\n    taken owner/repo#123\n\nOr with pipx:\n\n    pipx install taken-gh\n    taken owner/repo#123\n\n## Usage\n\n    uv run taken owner/repo#123\n\nA full issue URL works too:\n\n    uv run taken https://github.com/owner/repo/issues/123\n\nUseful flags:\n\n- `--json`: print the full findings as JSON instead of the human summary\n- `--me LOGIN`: ignore your own comments when scanning for claimants\n- `--file PATH`: read targets from a file, one per line\n- `--limit N`: scan mode checks at most N open issues per repo (default: 20)\n- `--label LABEL`: scan mode only considers open issues carrying this label\n- `--no-cache`: bypass the API response cache\n- `--clear-cache`: delete the API response cache and exit\n- `--version`, `--help`\n\nExit codes: 0 means GO, 1 means TAKEN, 2 means CAUTION, 3 means something\nbroke (bad target, no `gh`, API error). With several targets the exit code\nis 0 when every target produced a verdict and 3 when any target failed.\n\n## Batch mode and repo scans\n\nGive `taken` several targets and it prints one verdict line per target:\n\n    taken owner/repo#123 owner/repo#124 --me mylogin\n    TAKEN   owner/repo#123  assigned to: dk5488\n    GO      owner/repo#124  no linked PRs, no assignees, no claimants, repo is active\n\nA bare `owner/repo` scans the repo automatically: its open issues\n(most recently updated first, PRs excluded) are each checked:\n\n    taken django/django --label \"good first issue\" --limit 10\n\nAPI responses are cached for one hour in `~/.cache/taken`\n(override with `TAKEN_CACHE_DIR`), so repeated scans stay cheap.\n`--no-cache` skips the cache; `--clear-cache` deletes it.\n\n## Discover mode\n\n`taken --discover` finds contribution candidates across GitHub. It\npiggybacks on GitHub's issue search API (the same source the web\naggregators use) for raw candidates, then runs taken's full verification\non each one and ranks the survivors. Only GO verdicts make the list.\n\n    taken --discover --language python --min-contributors 3 --limit 10\n      6  octocat/hello-world#42  maintainer replied; updated 1d ago; repo pushed 0d ago\n      4  octocat/other-repo#7    updated 3d ago; repo pushed 2d ago\n\nCandidates are scored on the signal no aggregator filters on: maintainer\nresponsiveness. A non-author, non-bot comment scores +3; an issue updated\nin the last 7 days scores +2; a repo pushed in the last 7 days scores +1.\nEach line explains its own score. `--label` restricts the search to one\nlabel instead of the default set (`good first issue`, `good-first-issue`,\n`beginner friendly`, `help wanted`).\n\nEvery candidate is also marked for first-time friendliness: the issue's\nown labels (e.g. `[good first issue]`) plus repo-level signs that\ncontributions are welcome (`[has CONTRIBUTING.md]`, recent merged PRs).\nRepo scans annotate the GO recommendations the same way, friendliest\nfirst:\n\n    taken octocat/hello-world\n      GO      octocat/hello-world#42  no claimant found\n      ...\n      1 GO candidate: octocat/hello-world#42 (good first issue)\n\nCandidates are verified in parallel (8 workers by default; `--jobs N`\ntunes it). A progress bar on stderr shows live feedback during the run;\n`--no-progress` hides it. The bar never touches stdout, so `--json`\nstays script-friendly.\n\n## JSON output\n\n`taken --json owner/repo#123` prints an object with three keys:\n\n- `verdict`: one of `GO`, `TAKEN`, `CAUTION`\n- `reasons`: list of human-readable strings explaining the verdict\n- `findings`: the raw check results:\n  - `target`: e.g. `owner/repo#123`\n  - `issue`: `number`, `state`, `title`, `labels`, `assignees`,\n    `comment_count`, `author`, `url`, `created_at`\n  - `linked_prs`: list of `number`, `title`, `state`, `merged`, `author`, `url`\n  - `claimants`: list of `author`, `date`, `pattern`, `snippet`, `url`\n  - `ai_policy`: `verdict` (`ban`, `disclosure-required`, or `none-found`),\n    `snippet`, `source`\n  - `repo_health`: `pushed_at`, `pushed_recently`, `recent_merges`, `stars`\n\n## MCP server\n\n`taken` also ships as an MCP server, so coding agents can check issues with a\ntool call instead of shelling out to the CLI. It needs the same setup: `gh`\ninstalled and authenticated, and it only makes read-only API calls through\nyour own login.\n\nRun it directly (the MCP server needs the optional `mcp` dependency):\n\n    uvx --from \"taken-gh[mcp]\" taken-mcp\n\nOr add it to your MCP client config:\n\n    {\n      \"mcpServers\": {\n        \"taken\": {\n          \"command\": \"uvx\",\n          \"args\": [\"--from\", \"taken-gh\", \"taken-mcp\"]\n        }\n      }\n    }\n\nThree tools:\n\n- `check_issue(owner, repo, issue_number, me?)`: GO/TAKEN/CAUTION verdict with\n  reasons and full findings for one issue.\n- `scan_repo(owner, repo, limit?, label?, me?)`: the repo's open issues with\n  verdicts, GO first, plus `recommendations` (just the GO targets), a\n  verdict `summary`, and per-issue `friendly_labels` / `welcoming` markers\n  so the safest issues to adopt stand out.\n- `discover_candidates(limit?, language?, label?, min_contributors?, me?)`:\n  good-first-issue style candidates, verified and ranked, each marked with\n  its first-time-friendly labels and contribution-welcome signals.\n\n`scan_repo` and `discover_candidates` include `effective_parameters` in every\nresponse so clients can see the resolved defaults and filters behind the\nresults. Their MCP input schemas also describe each optional parameter's\ndefault.\n\n`taken` is published in the official\n[MCP Registry](https://registry.modelcontextprotocol.io) as\n`io.github.RogueAlg0/taken`.\n\n## Examples\n\nAn issue with a PR already fixing it:\n\n    $ uv run taken Exodus-Privacy/exodus#300\n    taken? Exodus-Privacy/exodus#300\n    verdict: TAKEN\n      ...\n      why:\n        - open PR #700 already covers this: https://github.com/Exodus-Privacy/exodus/pull/700\n\nAn issue someone is already assigned to:\n\n    $ uv run taken chahe-dridi/vscode-agent-bell#200\n    taken? chahe-dridi/vscode-agent-bell#200\n    verdict: TAKEN\n      ...\n      why:\n        - assigned to: dk5488\n\nA clean issue, with your own volunteering comment filtered out:\n\n    $ uv run taken snowflakedb/snowflake-cli#3145 --me RogueAlg0\n    taken? snowflakedb/snowflake-cli#3145\n    verdict: GO\n      ...\n      why:\n        - no linked PRs, no assignees, no claimants, repo is active\n\n## How the verdict works\n\nTAKEN wins over CAUTION, which wins over GO.\n\n- TAKEN: the issue is closed, an open PR links to it, or someone is assigned.\n- CAUTION: a comment says someone wants it (soft claim, they may have moved\n  on), a linked PR was merged but the issue is still open, the repo has an AI\n  policy to respect, or the repo looks inactive.\n- GO: none of the above.\n\nThe claimant scan is a heuristic over comment text, not proof. The verdict\nalways prints its evidence so you can judge for yourself.\n\n## Development\n\n    uv sync          # install dev tools (ruff, pytest)\n    uv run pytest\n    uv run ruff check\n    uv run ruff format --check\n\n## Hotspots\n\nThe hotspots badge tracks files that are both complex and frequently changed:\ncomplexity is cyclomatic complexity summed per file (via radon); churn is the\nnumber of commits touching the file. A file needs attention when it has\ncomplexity >= 50 and >= 5 commits; these are the files where refactoring pays\noff most.\n\nTo regenerate the badge data locally:\n\n    uv run --python 3.12 --with radon scripts/hotspots.py\n\n## AI assistance\n\nThis project is built with AI assistance, and says so openly. Every\ncontribution is reviewed and understood by its author before it lands.\n",
+  "status": "curated"
+}

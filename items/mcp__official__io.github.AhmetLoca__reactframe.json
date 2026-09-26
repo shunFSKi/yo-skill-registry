@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.AhmetLoca/reactframe",
+  "type": "mcp",
+  "name": "ReactFrame",
+  "description": "Search ReactFrame's React + Tailwind + Motion components, install free ones and price premium picks.",
+  "author": "io.github.AhmetLoca",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/AhmetLoca/reactframe-public",
+    "repo": "AhmetLoca/reactframe-public"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "reactframe-mcp"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-26T16:24:04.812151Z",
+    "score": 55
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# ReactFrame\n\nOpen-source, shadcn/ui-compatible component registry. React + TypeScript +\nTailwind CSS + Motion. Every component installs with:\n\n```bash\nnpx shadcn@latest add https://reactframe.com/r/[slug].json\n```\n\n## Structure\n\n```\nregistry.json                        # root registry manifest (shadcn schema)\nregistry/new-york/[slug]/[slug].tsx  # component source, one folder per item\nsrc/registry-preview/index.tsx       # slug -> live preview element (docs site only)\nsrc/lib/catalog-data.ts              # slug -> display metadata (name, description, category)\nsrc/app/components/[slug]/page.tsx   # docs page: install command + live preview + code tab\npublic/r/[slug].json                 # generated — do not edit, do not commit\n```\n\n`npm run registry:build` (also runs automatically before `dev`/`build`) reads\n`registry.json` + the files it points to and writes the consumable\n`public/r/*.json` files via the `shadcn build` CLI.\n\n## Adding a component (migrating from Frameze)\n\nEach of the ~130 Framer components gets converted once, by hand, following\nthis checklist:\n\n1. **Convert the source.** Start from the Framer `.tsx`, strip\n   `addPropertyControls` / `useIsStaticRenderer` / Framer-only APIs, replace\n   inline `style={{}}` with Tailwind classes, and rebuild interactive/canvas\n   demo panels as plain props instead. Reference\n   `registry/new-york/animated-stats/animated-stats.tsx` as the pattern:\n   `\"use client\"`, named export, a typed `Props` interface, `cn()` from\n   `@/lib/utils`, and the shared `paper` / `ink` / `border` / `ease-signature`\n   tokens from `globals.css` instead of hardcoded colors.\n2. **Save it** to `registry/new-york/[slug]/[slug].tsx`.\n3. **Register it** — add an entry to `registry.json` (`name`, `type:\n   \"registry:component\"`, `title`, `description`, `files`, plus\n   `registryDependencies`/`dependencies` if it needs other registry items or\n   npm packages).\n4. **Preview it** — add `\"[slug]\": () => <Component />` to\n   `src/registry-preview/index.tsx` with sensible example props.\n5. **List it** — add an entry to `components` in `src/lib/catalog-data.ts`\n   (drives the `/components` grid and the detail page's title/description).\n6. Run `npm run registry:build` and `npm run dev`, check\n   `/components/[slug]` renders and animates correctly in both themes.\n7. Sanity-check the real install path: `npx shadcn@latest add\n   http://localhost:3000/r/[slug].json` in a scratch Next.js project.\n\n## Design system\n\n`paper` / `ink` / `glass` — carried over from Frameze for brand consistency.\nLight theme = paper (`#f5f4f1`) background, near-black ink (`#0a0a0a`) text.\nDark theme = near-black paper (`#0e0e0e`), near-white ink (`#f5f4f1`) text\n(class `.dark`, via `next-themes`). `.glass` is the translucent blurred-panel\nutility. `ease-signature` (`cubic-bezier(0.16,1,0.3,1)`) / `animate-rise` are\nthe shared motion tokens — use them instead of ad-hoc easing curves so every\ncomponent feels like part of one family. `--shadow-soft` is the ambient\n\"floating card\" shadow (soft blur + hairline ring, tuned per theme) — apply\nvia `style={{ boxShadow: \"var(--shadow-soft)\" }}`. All defined in\n`src/app/globals.css`.\n\nComponents that ship their own self-contained light/dark palette (product\ncards, testimonial/marketing sections meant to drop into any page — see\n`testimonial-slider.tsx` as the reference) should use these exact hex values\nrather than inheriting the host project's shadcn tokens, so the component\nkeeps its ReactFrame look regardless of what theme the consumer's project has.\nSmall utility/primitive components (toggle, badge, rating) can instead use\nsemantic Tailwind classes (`bg-background`, `text-foreground`, `border`) so\nthey blend into the consumer's own theme — see `README` \"Adding a component\"\nstep 1 for which pattern applies.\n\nRecurring visual patterns — reuse these, don't reinvent them per component:\n\n- **Eyebrow / section label**: a `✦` glyph (not an icon font) + uppercase\n  text at `11px`, `font-semibold`, `tracking-wider`, at ~38% ink opacity in\n  light / ~36% in dark. The `✦` itself sits at higher opacity (near-solid).\n- **Nav button pair**: secondary/prev = low-opacity ink fill (`~7-8%`) with a\n  mid-opacity icon (`~50%`); primary/next = solid ink fill with a paper\n  (inverted) icon. Both `whileHover={{ scale: 1.1 }}` / `whileTap={{ scale:\n  0.91 }}` via `motion`.\n- **Decorative giant quote mark**: a literal `\"` character (not an SVG) at a\n  very large font size, colored at ~4-4.5% ink opacity, positioned absolute\n  and layered behind the real text.\n- **Dividers**: 1px hairline at ink 7-8% opacity — never a visible gray line.\n- **Counters / metadata text**: tabular-nums, ink at ~26-32% opacity.\n- Keep it monochrome. Accent color, when a component needs one at all, comes\n  from a single `accentColor`-style prop the consumer sets — don't invent\n  multi-hue palettes (rainbow tone kits, neon gradients, mood themes) inside\n  a component's own defaults. If in doubt, look at how spare the reference\n  components are before adding another color.\n",
+  "status": "curated"
+}

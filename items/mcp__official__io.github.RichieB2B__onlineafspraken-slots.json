@@ -1,0 +1,57 @@
+{
+  "id": "mcp:official/io.github.RichieB2B/onlineafspraken-slots",
+  "type": "mcp",
+  "name": "OnlineAfspraken Slots",
+  "description": "Read available slots from a public OnlineAfspraken widget URL without an account.",
+  "author": "io.github.RichieB2B",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/RichieB2B/onlineafspraken-slots-mcp",
+    "repo": "RichieB2B/onlineafspraken-slots-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "onlineafspraken-slots-mcp"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-26T16:04:35.123973Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# OnlineAfspraken slots MCP\n\n<!-- mcp-name: io.github.RichieB2B/onlineafspraken-slots -->\n\nRead available slots from a public OnlineAfspraken widget URL without an account.\nThis local MCP server reads availability only; it cannot make a booking.\n\n## Get started\n\nYou need Python 3.10 or newer and an MCP client. The commands below use a Unix\nshell (macOS or Linux).\n\n1. Download or clone this repository.\n2. In its directory, install the package and its dependencies:\n\n   ```sh\n   sh setup.sh\n   ```\n\n3. Register the server with your MCP client using one of the examples below.\n   Replace `/absolute/path/to/onlineafspraken-slots-mcp` with the full path to\n   your downloaded copy.\n4. Start a new chat and provide a public OnlineAfspraken widget URL. For\n   example: “Show today's available times for this widget: [paste the full\n   widget URL here].”\n\nYou can also pass the URL of a public booking page that embeds one\nOnlineAfspraken widget. If the page has several widgets, use the direct URL of\nthe one you want.\n\n## Connect your MCP client\n\n### Codex\n\n```sh\ncodex mcp add onlineafspraken-slots -- /absolute/path/to/onlineafspraken-slots-mcp/run.sh\ncodex mcp list\n```\n\n### Claude Code\n\n```sh\nclaude mcp add --scope user --transport stdio onlineafspraken-slots -- /absolute/path/to/onlineafspraken-slots-mcp/run.sh\nclaude mcp list\n```\n\nThe user scope makes the server available in all your Claude Code projects.\nSee the [Claude Code MCP documentation](https://code.claude.com/docs/en/mcp)\nfor other scopes.\n\n### Claude Desktop\n\nAdd this entry under `mcpServers` in your Claude Desktop configuration, then\nrestart Claude Desktop:\n\n```json\n{\n  \"mcpServers\": {\n    \"onlineafspraken-slots\": {\n      \"command\": \"/absolute/path/to/onlineafspraken-slots-mcp/run.sh\"\n    }\n  }\n}\n```\n\nIf you already have an `mcpServers` object, add just the\n`onlineafspraken-slots` entry to it. The [Claude Desktop local server\nguide](https://support.claude.com/en/articles/10949351-getting-started-with-local-mcp-servers-on-claude-desktop)\nexplains where to manage local servers and check their connection status.\n\n### OpenCode\n\n```sh\nopencode mcp add onlineafspraken-slots --global -- /absolute/path/to/onlineafspraken-slots-mcp/run.sh\nopencode mcp list\n```\n\nThe global option makes the server available in every OpenCode project. See\nthe [OpenCode MCP documentation](https://opencode.ai/v2/docs/mcp-servers) for\nproject-specific configuration.\n\nAfter the first PyPI release, clients that support a package runner can launch\nthe `onlineafspraken-slots-mcp` command from that package instead of using a\nlocal checkout.\n\n## Tool inputs\n\nThe server exposes `get_available_slots`:\n\n| Input | Required | Meaning |\n| --- | --- | --- |\n| `booking_page` | Yes | Full HTTPS URL of a public OnlineAfspraken widget or a page that embeds it. |\n| `date_iso` | No | Date in `YYYY-MM-DD` format. Defaults to today in Europe/Amsterdam. |\n| `room` | No | Part of an appointment type name to filter the results. |\n\nResults include the appointment type names, available start times, date,\ntimezone, and the time the availability was checked. The `room` input is named\nfor the original use case; it works with any appointment type.\n\n## Limitations\n\nThe server uses the widget's public, undocumented read endpoint. A provider\nchange may require an update. A booking page must expose its widget URL in a\nscript, iframe, or link for automatic discovery. Available slots can change\nbetween lookup and booking.\n\n## License\n\n[MIT](LICENSE)\n\n## Publishing a release\n\nFor maintainers: keep the version in `pyproject.toml` and `server.json` in\nsync. To publish the first release, [configure a pending PyPI trusted\npublisher](https://docs.pypi.org/trusted-publishers/creating-a-project-through-oidc/)\nwith these values:\n\n| PyPI field | Value |\n| --- | --- |\n| PyPI project name | `onlineafspraken-slots-mcp` |\n| Owner | `RichieB2B` |\n| Repository | `onlineafspraken-slots-mcp` |\n| Workflow | `publish-pypi.yml` |\n| Environment | `pypi` |\n\nThen publish a GitHub release tagged `v0.1.0`. The\n[release workflow](.github/workflows/publish-pypi.yml) builds and checks the\ndistributions, uploads them to PyPI through trusted publishing, and publishes\nthe matching version to the official MCP Registry through GitHub OIDC.\n\nThe [official MCP Registry guide](https://github.com/modelcontextprotocol/registry/blob/main/docs/modelcontextprotocol-io/quickstart.mdx)\nexplains the publishing process. The registry checks the `mcp-name` marker\nabove against the README included in the PyPI release.\n",
+  "status": "curated"
+}

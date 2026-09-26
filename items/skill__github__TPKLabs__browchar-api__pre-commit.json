@@ -17,10 +17,10 @@
   "quality": {
     "stars": 1,
     "pushed_at": "2026-07-28T17:37:10Z",
-    "score": 43,
+    "score": 53,
     "star_history": [
       {
-        "d": "2026-09-25",
+        "d": "2026-09-26",
         "s": 1
       }
     ]
@@ -55,6 +55,6 @@
     "category": null,
     "featured": false
   },
-  "readme": null,
+  "readme": "- This project is a WIP -\n\n# Browchar — Backend\n\nBackend para gestionar hojas de personaje multi-sistema (PBTA, D&D, Vampiro, etc.) con **Campaigns** (mesas/campañas), **Players** (membresías por campaña) y roster de **PCs/NPCs**.\n\n---\n\n## Requisitos\n\n- Node.js >=22.19 (ver `.nvmrc`; lo exige el e2e con Testcontainers)\n- Docker + Docker Compose\n- Git\n\n---\n\n## Stack\n\n- **NestJS + TypeScript**\n- **PostgreSQL**\n- **Prisma ORM**\n\n---\n\n## Cómo levantar la API\n\n```bash\nnpm install                # instala deps (incluye workspaces, ej. packages/contracts)\ncp .env.example .env       # completar variables si hace falta (DATABASE_URL, PORT, etc.)\ndocker compose up -d       # levanta Postgres\nnpx prisma migrate dev     # aplica migraciones y regenera el Prisma Client\nnpx prisma db seed         # opcional: carga playbooks/datos iniciales\nnpm run start:dev          # levanta la API con watch (corre contracts:build antes)\n```\n\nLa API queda escuchando en `PORT` (por defecto `3000`, ver `.env.example`).\n\nOtras variantes de arranque:\n\n- `npm run start` — sin watch\n- `npm run start:debug` — con debugger e inspector (`--inspect-brk`)\n- `npm run build && npm run start:prod` — build de producción\n\n---\n\n### PRISMA\n\nFormatear schema:\n`npx prisma format`\n\nValidar schema:\n`npx prisma validate`\n\nGenerar Prisma Client:\n`npx prisma generate`\n\nAplicar migraciones:\n`npx prisma migrate dev`\n\nAbrir Prisma Studio:\n`npx prisma studio`\n\n### DB\n\nChequeá si el contenedor está corriendo:\n`docker ps`\n\n`docker compose ps`\n\nCorrer la DB:\n`docker compose up -d`\n\nDetén y borra los volúmenes:\n`docker compose down -v`\n\nSeedear la base de datos:\n`npx prisma db seed`\n(esto sólo la va a popular con lo que está declarado en el archivo prisma\\seed.ts)\n\n---\n\n## Modelo de datos (resumen)\n\n#### User\n\n- Cuenta global del sistema.\n- Dueño de personajes (Characters)\n- Puede crear y administrar Campaigns\n- Participa en Campaigns como Player\n\n#### System\n\n- Familia de reglas / motor base el juego.\n  Ejemplos: PBTA, DND5E, VTM5\n\n#### Game\n\n- Juego concreto dentro de un System.\n  Ejemplos: Masks, Apocalypse World, D&D 5e, Vampiro 5e\n\n#### Playbook\n\n- Definición de hoja / playbook.\n- Contiene el schema JSON que define campos y validaciones\n- Versionado para evitar romper personajes existentes\n\n#### Player\n\n- Membresía de un User dentro de una Campaign, puede tener un Character asignado o no\n- Define el rol (GM / Player)\n\n#### Character\n\n- Instancia de personaje basado en un Playbook.\n- Pertenece a un User\n- Puede reutilizarse en múltiples Campaigns\n\n#### CampaignCharacter\n\n- Asocia Characters a una Campaign.\n- Permite NPCs (Characters sin Player)\n- Guarda metadata contextual (ej. notas, flags)\n\n#### Campaign\n\n- Instancia de juego en curso (mesa/campaña).\n- Pertenece a un Game\n- Tiene un owner (User)\n- Mantiene un roster de PCs y NPCs\n\n---\n\n## Flujos principales\n\n- Crear Campaign: el owner se convierte automáticamente en GM\n\n- Crear Character: se crea desde un Playbook y se valida contra su schema\n\n- Agregar NPC: se asocia un Character a una Campaign como NPC\n\n- Asignar Character: un Player asigna su personaje dentro de la Campaign\n\n---\n\n## Documentation\n\n- [MVP](./docs/product/mvp.md)\n- [REST conventions](./docs/api/rest-conventions.md)\n- [Frontend/backend repo architecture](./docs/architecture/frontend-backend-integration.md)\n",
   "status": "curated"
 }

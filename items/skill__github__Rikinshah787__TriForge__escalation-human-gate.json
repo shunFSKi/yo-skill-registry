@@ -17,10 +17,10 @@
   "quality": {
     "stars": 1,
     "pushed_at": "2026-09-22T22:04:37Z",
-    "score": 45,
+    "score": 55,
     "star_history": [
       {
-        "d": "2026-09-25",
+        "d": "2026-09-26",
         "s": 1
       }
     ]
@@ -55,6 +55,6 @@
     "category": null,
     "featured": false
   },
-  "readme": null,
+  "readme": "# MedForge\n\nMissed-dose safety for elders: **reminder call → listen → live TrueForge investigators → risk score → call the caregiver if severity is high.**\n\n![MedForge Care Command dashboard](docs/medforge-dashboard.png)\n\n## Why it exists\n\nPill-reminder apps nag. Critical misses (e.g. apixaban) need a different path: talk to the elder, check the chart (don’t make them recall every pill), run specialist agents, and escalate to a human caregiver only when risk is high.\n\n## Stack\n\n| Layer | What |\n|---|---|\n| **UI** | Care Command dashboard (`http://localhost:3000`) — Run / Patient / Agents / TrueForge tabs |\n| **Agents** | 8 TrueForge agents (conversation, schedule, clinical, pharmacy, wellness, correlation, escalation, orchestrator) |\n| **Tools** | MedForge MCP (`/mcp`) — dose log, RxNav/openFDA, refill, SMS/voice |\n| **Voice** | Twilio Gather speech → fast ack → background investigation pipeline |\n| **Data** | Local demo chart + today’s dose log (taken / due / missed) |\n\n## Quick start\n\n1. Run **TrueForge** on `http://localhost:8790`\n2. Copy `.env.example` → `.env` and fill Twilio / TrueForge settings as needed\n3. Register agents:\n\n```powershell\n.\\scripts\\create-medforge-agents.ps1\n```\n\n4. Start MedForge:\n\n```powershell\nnpm start\n# → http://localhost:3000\n```\n\n5. Optional live phone: expose the server (ngrok) and set `TWILIO_WEBHOOK_BASE_URL` in `.env`\n\n## Demo · 3 use cases\n\nOpen the **Run** tab and use the demo buttons:\n\n| Button | Story | Outcome |\n|---|---|---|\n| **A · Feeling fine** | Elder confirms / feels OK | Conversation → risk stays low → **no caregiver call** |\n| **B · No answer** | No response after reminder | Schedule + Clinical + Pharmacy + Wellness → risk score → **call if high** |\n| **C · Dizzy / missed** | Symptoms + missed critical dose | Live investigators → **higher risk** → caregiver call |\n\nLive phone path: **Live reminder call** → say something like *“I missed it and feel dizzy”* → phone acknowledges → agents run → Anika is called when risk is high.\n\n## Flow\n\n1. **Reminder call** (Twilio) — talk / listen  \n2. **Ack** — “OK, we’ll check” (fast TwiML; work continues in background)  \n3. **Live agents** — chart + dose log + TrueForge investigators → one risk score  \n4. **Call caregiver** — only if severity is high  \n\n## What’s live vs demo\n\n| Piece | Live? |\n|---|---|\n| TrueForge agents & sessions | **Yes** |\n| Clinical RxNav + openFDA | **Yes** (public APIs) |\n| Twilio voice / SMS | **Yes** with credentials + webhook |\n| Patient chart / pharmacy stock | Demo data via MCP |\n| Dose log | Local JSON, updated by call + chart |\n\n## Repo layout\n\n```\nserver.js          # HTTP + MCP + Twilio webhooks + demo APIs\nlib/               # dose-log, memory, trueforge, twilio-voice\nskills/            # Agent skill cards\nscripts/           # Register MedForge agents on TrueForge\ndocs/              # Screenshots\nindex.html         # Care Command UI\n```\n\n## API smoke checks\n\n```powershell\n# Use case A\nInvoke-RestMethod -Method Post -Uri http://localhost:3000/api/demo/usecase `\n  -ContentType 'application/json' -Body '{\"useCase\":\"confirmed\"}'\n\n# Use case B\nInvoke-RestMethod -Method Post -Uri http://localhost:3000/api/demo/usecase `\n  -ContentType 'application/json' -Body '{\"useCase\":\"no_response\"}'\n\n# Use case C\nInvoke-RestMethod -Method Post -Uri http://localhost:3000/api/demo/usecase `\n  -ContentType 'application/json' -Body '{\"useCase\":\"distress\"}'\n```\n\n## Note\n\nHackathon / local demo — not a production clinical system. No real EHR; risk scoring is heuristic for the demo story.\n",
   "status": "curated"
 }

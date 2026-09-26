@@ -1,0 +1,64 @@
+{
+  "id": "mcp:official/io.github.raulkivi/synth-mcp",
+  "type": "mcp",
+  "name": "MusicXML Synthesizer",
+  "description": "Synthesizes audio from MusicXML, with voice-part selection and tempo control",
+  "author": "io.github.raulkivi",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/raulkivi/sheet-music-mcp",
+    "repo": "raulkivi/sheet-music-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "synth-mcp"
+    ],
+    "env": [
+      {
+        "name": "SYNTH_SOUNDFONT_PATH",
+        "required": true,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-26T14:07:14.252235Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "生活",
+    "featured": false
+  },
+  "readme": "# sheet-music-mcp\n\n[![Tests](https://github.com/raulkivi/sheet-music-mcp/actions/workflows/tests.yml/badge.svg)](https://github.com/raulkivi/sheet-music-mcp/actions/workflows/tests.yml)\n[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/raulkivi/sheet-music-mcp/badge)](https://scorecard.dev/viewer/?uri=github.com/raulkivi/sheet-music-mcp)\n[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)\n\nSix MCP servers that let an AI assistant work with sheet music: read a photo of a score, render it, play single voice parts, edit it as text, compare editions and follow a singer in real time. Built for choir rehearsal.\n\n> \"Here is a photo of page 1. Convert it to MusicXML and play me the alto part at 80% tempo.\"\n\nThe assistant calls `omr-mcp` to recognise the page, then `synth-mcp` to render the alto line to a WAV file.\n\n## Servers\n\nEach server is a separate PyPI package, listed in the [MCP Registry](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.raulkivi) as `io.github.raulkivi/<server>`.\n\n| Server | What it does | Run | Needs |\n|---|---|---|---|\n| [omr-mcp](omr-mcp/) | Photo or scan of printed sheet music → MusicXML (oemer, or Audiveris for SATB scores) | `uvx omr-mcp` | ~100 MB model download on first use |\n| [render-mcp](render-mcp/) | MusicXML → PDF, PNG or SVG | `uvx render-mcp` | Cairo (`libcairo2`) |\n| [synth-mcp](synth-mcp/) | MusicXML → WAV, selected voice parts, adjustable tempo | `uvx synth-mcp` | FluidSynth, an SF2 soundfont |\n| [musicxml-abc-mcp](musicxml-abc-mcp/) | MusicXML ↔ ABC notation, so the model can read and edit the score as text | `uvx musicxml-abc-mcp` | |\n| [pitch-mcp](pitch-mcp/) | Follows a singer through a score from the microphone; reports position and pitch accuracy | `uvx pitch-mcp` | Python 3.12+, PortAudio, a microphone |\n| [comparer-mcp](comparer-mcp/) | Music-aware diff of two MusicXML files: editions, arrangements, OMR output against a reference | `uvx comparer-mcp` | |\n\nAll servers use stdio and need Python 3.11+ (3.12+ for `pitch-mcp`) and [uv](https://docs.astral.sh/uv/).\n\n## Quick start\n\nAdd the servers you need to your MCP client configuration (`claude_desktop_config.json`, Cursor's `mcp.json` and similar):\n\n```json\n{\n  \"mcpServers\": {\n    \"omr\": { \"command\": \"uvx\", \"args\": [\"omr-mcp\"] },\n    \"render\": { \"command\": \"uvx\", \"args\": [\"render-mcp\"] },\n    \"synth\": {\n      \"command\": \"uvx\",\n      \"args\": [\"synth-mcp\"],\n      \"env\": { \"SYNTH_SOUNDFONT_PATH\": \"/path/to/soundfont.sf2\" }\n    }\n  }\n}\n```\n\nClaude Code:\n\n```sh\nclaude mcp add omr -- uvx omr-mcp\n```\n\nEach server's `SETUP.md` walks through installation for non-developers, and `examples/` has ready-made configs for Claude Desktop, Cursor, Windsurf, Continue and Zed. Every server has a `health_check` tool that reports missing system libraries or files.\n\n## Security\n\n- PyPI releases use [Trusted Publishing](https://docs.pypi.org/trusted-publishers/) from GitHub Actions and carry PEP 740 attestations; no API tokens are stored.\n- Workflow actions are pinned to commit SHAs; Dependabot keeps them and the Python dependencies current.\n- Pull requests run CodeQL, a Claude security review and [unicode-smuggling-guard](https://github.com/raulkivi/unicode-smuggling-guard), which blocks hidden Unicode in code, docs and agent files.\n- Secret scanning and push protection are on.\n- Report vulnerabilities privately: see [SECURITY.md](SECURITY.md).\n\n---\n\n## Background\n\nThe project started as a choir assistant: help singers digitize, practice with, and navigate sheet music on their phones.\n\n### Goals\n\n1. Digitize paper sheet music (photograph → digital score)\n2. Export sheet music as a PDF\n3. Play sheet music in individual voices (Soprano, Alto, Tenor, Bass) or combined\n4. Show the current position in the score while singing (tempo tracking)\n5. Show pitch accuracy in real time (too high / too low / on pitch)\n6. Identify where in a score a singer currently is based on a hummed or sung melody\n7. Compare two scores (editions, arrangements, OMR output vs. reference) and report structured diffs\n\n### Delivery phases\n\n| Phase | Description | Status |\n|-------|-------------|--------|\n| **Phase 1 — MCP servers** | Six independent MCP servers, each covering one capability | ✅ All six released on PyPI; see known limitation below |\n| **Phase 2 — Web PoC** | Web app orchestrating the MCP servers for full UX validation | Planned |\n| **Phase 3 — Android app** | Native Kotlin app for rehearsal use on phones | Planned |\n\nKnown limitation: `omr-mcp`'s default engine (oemer) flattens multi-staff SATB scores into one part. Pass `engine=\"audiveris\"` for choir scores; it needs 300+ DPI images.\n\n### Data flow\n\n```\nPaper score\n    │  (photo)\n    ▼\n[omr-mcp]\n    │  MusicXML\n    ├──────────────────────────► [render-mcp] ──► PDF / PNG         (goal 2)\n    │\n    ├──────────────────────────► [synth-mcp]                        (goal 3)\n    │                                │  voice selection + tempo\n    │                                ▼\n    │                            Audio file\n    │\n    ├──────────────────────────► [musicxml-abc-mcp]\n    │                                │  ABC text\n    │                                ▼\n    │                            Claude (reads / edits)\n    │                                │  ABC text (edited)\n    │                                ▼\n    │                            [musicxml-abc-mcp]\n    │                                │  MusicXML (AI-edited)\n    │                                ▼\n    │                            (back into pipeline)\n    │\n    ├──────────────────────────► [pitch-mcp]\n    │                                │  loads reference score\n    │                                ▲  microphone audio stream\n    │                                │\n    │                            score position + pitch accuracy    (goals 4, 5, 6)\n    │\n    └──────────────────────────► [comparer-mcp]  (also compares against any MusicXML)\n                                     │  reference score\n                                     ▲  second MusicXML (edition / arrangement / OMR output)\n                                     │\n                                 structured diff                    (goal 7)\n```\n\n### Why ABC notation?\n\nABC is a compact, text-based music notation format that LLMs can read and edit directly (unlike the\nverbose XML of MusicXML). The `musicxml-abc-mcp` server enables AI-assisted score editing:\nMusicXML → ABC → Claude edits → ABC → MusicXML.\n\n---\n\n## Technology stack\n\n| Layer | Choice | Rationale |\n|-------|--------|-----------|\n| Language | Python 3.11+ (3.12+ for pitch-mcp) | Best library ecosystem for music, audio, and ML |\n| Package manager | uv | Fast, reproducible builds |\n| MCP framework | `mcp` Python SDK 2.x | Official SDK; stdio transport for local deployment |\n| OMR | oemer on ONNX Runtime; Audiveris (opt-in) | Sheet music recognition; Audiveris keeps SATB parts apart |\n| Rendering | Verovio + cairosvg + pypdf | No external CLI dependency |\n| Synthesis | pyfluidsynth + music21 | In-process, no subprocess |\n| Pitch detection | librosa pYIN + sounddevice | Pure Python, excellent for singing voice |\n| Comparison | music21 | Structural / musical diffing of scores |\n| Testing | pytest + pytest-asyncio | Standard async-capable testing |\n\n---\n\n## Development\n\nEach server has its own virtual environment managed by [uv](https://docs.astral.sh/uv/). Never share venvs between servers, and use `uv sync` / `uv add` rather than `pip install`.\n\n```bash\ncd synth-mcp\nuv sync --extra dev\nuv run pytest -m \"not integration\"   # what CI runs, on Python 3.12 and 3.13\nuv run pytest -m integration         # needs the real OMR/audio backends\n```\n\nSystem libraries for local development:\n\n| Library | Package (Debian/Ubuntu) | Used by |\n|---------|-------------------------|---------|\n| FluidSynth | `libfluidsynth3` | synth-mcp |\n| Cairo | `libcairo2` | render-mcp |\n| PortAudio | `libportaudio2` | pitch-mcp |\n\nFree SF2 soundfonts are listed in [synth-mcp/README.md](synth-mcp/README.md).\n\nReleases: bump the version in `pyproject.toml`, `__init__.py`, `uv.lock` and `server.json`, then push a `<server>/vX.Y.Z` tag. [publish.yml](.github/workflows/publish.yml) publishes to PyPI and the MCP Registry.\n\n---\n\n## Documentation\n\n- [docs/conventions.md](docs/conventions.md) — coding and structural conventions shared across all servers\n- [docs/sources.md](docs/sources.md) — references and sources\n- [docs/SETUP_UX_PLAN.md](docs/SETUP_UX_PLAN.md) — end-user packaging plan (PyPI, installers, setup docs)\n- Each server has its own `docs/` folder with `PLAN.md`, `HANDOVER.md`, `requirements.md`, and `architecture.md`\n\n## License\n\n[MIT](LICENSE)\n",
+  "status": "curated"
+}

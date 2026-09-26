@@ -2,12 +2,12 @@
   "id": "mcp:official/io.stackcut/stackcut",
   "type": "mcp",
   "name": "Stackcut",
-  "description": "Cut SaaS spend: your savings plan with proof, cheaper alternatives, the cheapest stack to build on.",
+  "description": "Cut SaaS spend: checked savings, right-sized plans, cheaper alternatives, the cheapest stack.",
   "author": "io.stackcut",
   "source": {
     "registry": "mcp-official",
-    "url": "https://github.com/msanchezgrice/stackcut",
-    "repo": "msanchezgrice/stackcut"
+    "url": "https://github.com/Stackcut/stackcut-plugin",
+    "repo": "Stackcut/stackcut-plugin"
   },
   "license": null,
   "install": {
@@ -16,8 +16,8 @@
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-09-25T15:59:13.466082Z",
-    "score": 42
+    "pushed_at": "2026-09-26T15:46:09.68155Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -49,6 +49,6 @@
     "category": null,
     "featured": false
   },
-  "readme": null,
+  "readme": "# Stackcut plugin for Grok Bot and Cursor\n\nCut SaaS spend from chat. The plugin connects your agent to the [Stackcut](https://stackcut.io) MCP server and adds a\nskill that knows how to use it.\n\n- **Your savings plan, with proof.** Make a read-only code on stackcut.io (your plan → Send to my agent) and ask:\n  `@stackcut walk me through my plan, code sca_…`. Every line comes with the receipts and sourced prices behind it,\n  plus the steps.\n- **Cheaper ways out.** `@stackcut what's the cheapest way to replace Typeform if I only use forms and webhooks?`\n  Recipes cover switching vendor, a cheaper plan, open source, pay per use, an agent skill, or building it, with\n  how-to-leave steps (export, cancel, refunds, notice) and step-by-step playbooks. Some paths are tested end to end by\n  Stackcut.\n- **The cheapest stack at your volume.** `@stackcut pick a database and an email provider for 20k users and 40k emails\n  a month`. A tier only counts when its published limit covers your volume.\n- **Audit a codebase.** The skill scans a repo locally for paid services and sends Stackcut only vendor and feature\n  names, never code or secrets. The audit checks your usage against each plan's limits, finds right-sized plans and\n  idle projects to pause, and says what a cheaper plan leaves out.\n\n## Install\n\n- **Grok Bot:** Plugins → search \"Stackcut\" → Add. Or ask the bot: *Add a custom MCP server called stackcut at\n  https://stackcut.io/mcp*.\n- **Cursor:** install from the Cursor Marketplace, or add `mcp.json` from this repo to your MCP settings.\n\nNo API key, and the server is free. It stores the arguments agents send to its tools (redacted, never IP addresses) to\nimprove recommendations, so don't put personal data or secrets in them. `get_my_plan` reads only a plan you share with\na code that expires in 7 days and can be revoked. Details: https://stackcut.io/privacy\n\n## Network and credentials\n\nThe plugin's MCP server is `https://stackcut.io/mcp` (HTTPS, no credentials). The skill's local scanner reads files in\nthe repo you point it at and prints a summary (vendor ids, feature names, counts) that the agent can send to Stackcut;\nit never reads `.env` files, and code, file contents and secret values stay on your machine. With `--latest` the\nscanner also downloads the public detection rules from `https://stackcut.io/data/detect.json`; without it, it uses\nthe bundled copy.\n\n## What's inside\n\n| Path | What |\n|---|---|\n| `.grok-plugin/plugin.json` | Plugin manifest for Grok Bot and Grok Build (xAI plugin marketplace format) |\n| `.cursor-plugin/plugin.json` | Plugin manifest for the Cursor Marketplace |\n| `.mcp.json` | Remote MCP server, Grok format |\n| `mcp.json` | Remote MCP server: `https://stackcut.io/mcp` (Streamable HTTP) |\n| `skills/stackcut/` | The Stackcut skill, plus a local scanner (`scripts/detect.mjs`) and its rules (`detect.json`) |\n| `assets/logo.svg` | Logo |\n\nTools: `get_my_plan`, `choose_stack`, `plan_stack_from_spec`, `list_stack_jobs`, `audit_stack`, `get_usage_questions`,\n`get_detection_rules`, `find_alternatives`, `search_recipes`, `get_recipe`, `get_build_packet`, `leaderboard`,\n`list_categories`, `report_outcome`.\nDocs: https://stackcut.io/agents · Grok Bot guide: https://stackcut.io/grok\n\nSavings are modeled from public prices, not guaranteed. Grok Bot is a product of xAI; Stackcut is not affiliated with\nor endorsed by xAI.\n\nMIT License.\n",
   "status": "curated"
 }
