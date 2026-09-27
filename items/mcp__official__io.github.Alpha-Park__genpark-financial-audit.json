@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.Alpha-Park/genpark-financial-audit",
+  "type": "mcp",
+  "name": "genpark-financial-audit",
+  "description": "Arithmetic consistency checks for supplied financial statement data.",
+  "author": "io.github.Alpha-Park",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/Alpha-Park/genpark-complex-financial-formula-audit-validator-skill",
+    "repo": "Alpha-Park/genpark-complex-financial-formula-audit-validator-skill"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "https://github.com/Alpha-Park/genpark-complex-financial-formula-audit-validator-skill/releases/download/v1.0.1/genpark-financial-audit.mcpb"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-27T16:44:28.781284Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "金融",
+    "featured": false
+  },
+  "readme": "# genpark-financial-audit\n\nArithmetic consistency checks for supplied financial statement data.\n\nThis checks supplied numbers and a simplified income-statement model. It does not extract PDFs, verify source authenticity, check accounting compliance, or provide an audit opinion. Monetary values must use consistent units; tolerance defaults to 0.5 of those units.\n\n## Install from the GitHub release\n\nPython 3.9 or newer. The library and stdio MCP server have no runtime dependencies.\n\n```sh\npython -m pip install https://github.com/Alpha-Park/genpark-complex-financial-formula-audit-validator-skill/releases/download/v1.0.1/genpark_financial_audit-1.0.1-py3-none-any.whl\n```\n\nPyPI publication is pending account setup. The intended PyPI project is `genpark-financial-audit`;\ndo not assume `pip install genpark-financial-audit` is available until the project is published.\n\n## Python usage\n\n```python\nfrom genpark_financial_audit import FinancialFormulaAuditValidator\nclient = FinancialFormulaAuditValidator()\nprint(client.run_benchmark_financial_audit())\n```\n\n## MCP stdio configuration\n\nAfter installing the wheel, configure your MCP client with the installed command:\n\n```json\n{\n  \"mcpServers\": {\n    \"genpark-financial-audit\": {\n      \"command\": \"genpark-financial-audit\",\n      \"args\": []\n    }\n  }\n}\n```\n\nIf the command is not on PATH, use its absolute path or `python -m genpark_financial_audit`\nwith the same interpreter where you installed the wheel.\nThe GitHub release also contains a `.mcpb` bundle for clients supporting desktop extensions.\nThat bundle requires a Python 3.9+ interpreter on PATH; it bundles the server source.\n\nAvailable tools: `audit_balance_sheet`, `audit_income_statement`, `audit_cross_footing`, `run_benchmark_financial_audit`.\n`tools/list` returns required arguments and JSON schemas.\nEach MCP process holds its own state. Benchmark tools use isolated instances.\n\n## Development\n\n```sh\npython -m unittest discover -s tests\npython -m pip install mcp\npython tests/check_mcp.py\npython -m pip install build twine\npython -m build\npython -m twine check dist/*\n```\n\n`python mcp_server.py --test` runs the deterministic example; it is not a protocol conformance test.\nThe MCP client check exercises initialize, tools/list, tools/call and ping over stdio.\n\n## Distribution\n\nGitHub source and release artifacts are the primary distribution until PyPI is configured.\nRegistry submissions are tracked separately; a manifest is not proof of registry acceptance.\nSee [PUBLISHING.md](PUBLISHING.md) for the repeatable PyPI workflow.\n\nMIT license. Maintained by [GenPark](https://genpark.ai).\n\n<!-- mcp-name: io.github.Alpha-Park/genpark-financial-audit -->\n",
+  "status": "curated"
+}

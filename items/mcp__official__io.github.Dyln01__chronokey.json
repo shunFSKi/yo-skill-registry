@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.Dyln01/chronokey",
+  "type": "mcp",
+  "name": "ChronoKey",
+  "description": "Timestamps, UUIDs, gas, domain intel, memory, and text extraction.",
+  "author": "io.github.Dyln01",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/Dyln01/ChronoKey",
+    "repo": "Dyln01/ChronoKey"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://bot.chronokey.workers.dev/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-27T14:21:03.996103Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "AI",
+    "featured": false
+  },
+  "readme": "<div align=\"center\">\n\n<img src=\"logo.png\" alt=\"ChronoKey logo\" width=\"160\" />\n\n# ChronoKey\n\nTimestamps, UUIDs, gas prices, domain intelligence, agent memory, and text-to-structure extraction for AI agents. Paid via x402 or MPP.\n\n[View full pricing](https://bot.chronokey.workers.dev/.well-known/mcp-pricing)\n\n</div>\n\n---\n\n## What This Is\n\nChronoKey is a hosted MCP server that provides 15 utility tools AI agents need on nearly every run. Payment is handled via the x402 protocol (USDC on Base, Polygon, or Arbitrum) or MPP (pathUSD on Tempo). Any MCP-compatible client can connect and call the tools.\n\n## Endpoint\n\n    https://bot.chronokey.workers.dev/mcp\n\n- Transport: Streamable HTTP\n- Method: POST\n- Required header: Accept: application/json, text/event-stream\n- Content-Type: application/json\n\n## Tools\n\n### health (free)\n\nReturns `\"OK\"`. Use it to verify the server is reachable.\n\n### timestamp\n\nReturns the current time in multiple formats.\n\nInput: `{ \"timezone\": \"America/New_York\" }` — timezone is optional (IANA name). Defaults to UTC.\n\nPricing: First 10 calls per day per session free, then Pro subscription, then $0.001 USD.\n\n### uuid\n\nGenerates 1-100 UUIDs.\n\nInput: `{ \"count\": 5, \"version\": \"v7\" }`\n\n- count (optional): 1-100, defaults to 1\n- version (optional): \"v4\" (random) or \"v7\" (time-ordered), defaults to \"v4\"\n\nPricing: First 10 calls per day per session free, then Pro subscription, then $0.001 USD.\n\n### text.structure\n\nExtracts structured entities from unstructured text into a strict, stable JSON schema.\n\nInput:\n\n    {\n      \"text\": \"Contact alice@example.com on 2026-09-26 about the $42 invoice.\",\n      \"mode\": \"standard\",\n      \"include_referrals\": false\n    }\n\n- mode (optional): \"standard\" (default) or \"deep\"\n- include_referrals (optional): append complementary service suggestions\n\nDeep output adds currencies, organizations, persons, and embedded JSON blobs.\n\nPricing: Standard $0.008 USD (Pro-covered), Deep $0.020 USD.\n\n### text.structure.deep\n\nConvenience alias for text.structure with mode \"deep\". Costs $0.020 USD.\n\n### extract.and.fetch\n\nExtracts entities then fetches the first URL found and returns its content. $0.012 USD.\n\n### extract.and.summarize\n\nExtracts entities then returns a grouped summary. $0.010 USD.\n\n### extract.verified\n\nVerified extraction. Returns standard entities plus a verification_token. $0.005 USD base.\n\n### extract.confirm\n\nConfirms whether a previous extract.verified result was accurate. $0.010 USD on accurate=true. Free on accurate=false.\n\n### gas.price\n\nReal-time EIP-1559 gas prices across Base, Polygon, Arbitrum, Ethereum, and Optimism. Pro-covered or $0.003 USD.\n\n### domain.intel\n\nOne call returns WHOIS, DNS, and SSL certificate data for any domain. Pro-covered or $0.005 USD.\n\n### memory.store\n\nStores a value under a namespaced key with optional TTL. Pro-covered or $0.005 USD.\n\n### memory.recall\n\nRetrieves a value by key. Pro-covered or $0.005 USD.\n\n### memory.search\n\nFull-text search across a namespace using SQLite FTS5 with BM25 ranking. $0.010 USD.\n\n### subscribe\n\nSubscribe to ChronoKey Pro for $5.00 USD for 30 days. Covers timestamp, uuid, text.structure (standard mode), gas.price, domain.intel, memory.store, and memory.recall.\n\n### subscription.status\n\nCheck the status of the Pro subscription bound to the current MCP session. Free.\n\n## Pricing Summary\n\n| Tool | Price (USD) | Pro-covered | Free tier |\n|---|---|---|---|\n| health | Free | - | - |\n| timestamp | $0.001 | yes | 10/day |\n| uuid | $0.001 | yes | 10/day |\n| text.structure (standard) | $0.008 | yes | - |\n| text.structure (deep) | $0.020 | no | - |\n| extract.and.fetch | $0.012 | no | - |\n| extract.and.summarize | $0.010 | no | - |\n| extract.verified | $0.005 | no | - |\n| extract.confirm | $0.010 | no | - |\n| gas.price | $0.003 | yes | - |\n| domain.intel | $0.005 | yes | - |\n| memory.store | $0.005 | yes | - |\n| memory.recall | $0.005 | yes | - |\n| memory.search | $0.010 | no | - |\n| subscribe | $5.00 / 30d | - | - |\n| subscription.status | Free | - | - |\n\n## Freemium\n\nThe first 10 calls per day per MCP session are free for timestamp and uuid.\n\n## Pro Subscription\n\n$5.00 USD for 30 days. Covers timestamp, uuid, text.structure (standard mode), gas.price, domain.intel, memory.store, and memory.recall. Reuse the same MCP session across calls to benefit.\n\n## Supported Payment Protocols\n\n**x402:** USDC on Base (eip155:8453), Polygon (eip155:137), or Arbitrum (eip155:42161).\n\n**MPP:** pathUSD on Tempo.\n\n## How Payment Works\n\n1. Send the request without payment.\n2. Receive a 402 with both an x402 challenge (PAYMENT-REQUIRED header) and an MPP challenge (WWW-Authenticate header).\n3. Sign a payment authorization.\n4. Retry with the credential.\n5. Receive the tool result once the payment is settled.\n\n## Discovery\n\n- /.well-known/x402 — discovery manifest\n- /.well-known/mcp-pricing — tool pricing\n- /.well-known/mcp/server-card.json — Smithery server card\n- /.well-known/agent-card.json — A2A agent card\n- /openapi.json — OpenAPI 3.1 spec\n- /llms.txt — plain-text summary for agent frameworks\n\n## Connecting an MCP Client\n\n### Claude Desktop / Cursor\n\n    {\n      \"mcpServers\": {\n        \"chronokey\": {\n          \"url\": \"https://bot.chronokey.workers.dev/mcp\"\n        }\n      }\n    }\n\n### MCP Inspector\n\n    npx @modelcontextprotocol/inspector@latest\n\nEnter the endpoint URL and click Connect.\n\n## Support\n\nFor questions, issues, or custom integrations, contact the maintainer.\n\n## Terms\n\nChronoKey is a proprietary hosted service. All rights reserved.\n",
+  "status": "curated"
+}

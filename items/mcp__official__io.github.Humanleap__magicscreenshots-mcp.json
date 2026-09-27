@@ -1,0 +1,61 @@
+{
+  "id": "mcp:official/io.github.Humanleap/magicscreenshots-mcp",
+  "type": "mcp",
+  "name": "MagicScreenshots",
+  "description": "Search real App Store screenshots and preview videos; generate and localize your own.",
+  "author": "io.github.Humanleap",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/Humanleap/magicscreenshots-mcp",
+    "repo": "Humanleap/magicscreenshots-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://www.magicscreenshots.com/api/mcp",
+    "env": [
+      {
+        "name": "Authorization",
+        "required": false,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-27T15:32:47.750017Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "设计",
+    "featured": false
+  },
+  "readme": "# MagicScreenshots for agents\n\nGive your AI agent a library of real App Store screenshots and preview videos\nfrom thousands of top apps, updated daily, then let it generate and localize\nyour own App Store screenshots.\n\n- **Library**: the top 100 free and top-grossing apps in every Apple category,\n  with screenshots, preview videos and listing history.\n- **Search** by category, today's chart, look (dark, headline, device frame,\n  lifestyle, ...) or app name.\n- **Generate**: restyle your screenshots like any app in the library, or\n  translate them into 40+ languages at App Store resolution.\n\nSetup guides for every agent: https://www.magicscreenshots.com/agents\n\nMCP endpoint (Streamable HTTP): `https://www.magicscreenshots.com/api/mcp`\n\n## Install\n\nSearching needs no key. Generation, video downloads and listing history need\nan API key: ask your agent to call `create_api_key`, or create one in\nSettings > API on magicscreenshots.com, then set `MAGICSCREENSHOTS_API_KEY`.\n\n### Any agent with skills (Claude Code, Codex, Cursor, Cline, Windsurf, ...)\n\n```sh\nnpx skills add Humanleap/magicscreenshots-mcp\n```\n\nThis installs the skill only. Add the MCP server too (below) so the agent can\ncall the tools.\n\n### Claude Code\n\nPlugin (skill + MCP server):\n\n```\n/plugin marketplace add Humanleap/magicscreenshots-mcp\n/plugin install magicscreenshots@magicscreenshots\n```\n\nOr just the MCP server:\n\n```sh\nclaude mcp add --transport http magicscreenshots https://www.magicscreenshots.com/api/mcp \\\n  --header \"Authorization: Bearer $MAGICSCREENSHOTS_API_KEY\"\n```\n\nThe plugin sends `Authorization: Bearer ${MAGICSCREENSHOTS_API_KEY}`. Set the\nvariable before starting Claude Code. With no key set, search still works, but\n`get_app_videos`, `get_app_history` and generation return an auth error. For\nfully keyless use, delete the `headers` block from the plugin's `.mcp.json`.\n\n### Cursor\n\nInstall the plugin from the Cursor Marketplace, or add this to\n`.cursor/mcp.json` (project) or `~/.cursor/mcp.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"magicscreenshots\": {\n      \"url\": \"https://www.magicscreenshots.com/api/mcp\",\n      \"headers\": { \"Authorization\": \"Bearer ${env:MAGICSCREENSHOTS_API_KEY}\" }\n    }\n  }\n}\n```\n\nWithout `MAGICSCREENSHOTS_API_KEY` set, leave out `headers` (same reason as\nClaude Code above).\n\n### Codex\n\n```sh\ncodex mcp add magicscreenshots --url https://www.magicscreenshots.com/api/mcp\n```\n\nFor generation, set the key in `config.toml`:\n\n```toml\n[mcp_servers.magicscreenshots]\nurl = \"https://www.magicscreenshots.com/api/mcp\"\nbearer_token_env_var = \"MAGICSCREENSHOTS_API_KEY\"\n```\n\n### Gemini CLI\n\nExtension (skill + MCP server, search tools):\n\n```sh\ngemini extensions install https://github.com/Humanleap/magicscreenshots-mcp\n```\n\nWith a key:\n\n```sh\ngemini mcp add --transport http --header \"Authorization: Bearer $MAGICSCREENSHOTS_API_KEY\" \\\n  magicscreenshots https://www.magicscreenshots.com/api/mcp\n```\n\n### Any other MCP client\n\n```json\n{\n  \"mcpServers\": {\n    \"magicscreenshots\": {\n      \"type\": \"http\",\n      \"url\": \"https://www.magicscreenshots.com/api/mcp\",\n      \"headers\": { \"Authorization\": \"Bearer ms_live_...\" }\n    }\n  }\n}\n```\n\nSome clients call the URL field `serverUrl` (Windsurf) or `httpUrl` (Gemini).\nLeave out `headers` to use search only.\n\n### Command line\n\n```sh\nnpx magic-screenshots search --category finance --chart grossing\nnpx magic-screenshots app duolingo\nnpx magic-screenshots screens duolingo --out ./reference\nnpx magic-screenshots videos instagram\n```\n\n## Tools\n\n| Tool | Key | What it does |\n|---|---|---|\n| `list_directory_apps` | no | Search the library by text, category, look, chart, or apps with preview videos |\n| `list_directory_categories` | no | Apple categories with app counts |\n| `list_directory_tags` | no | Listing looks (headline, device-frame, dark, ...) with app counts |\n| `get_directory_app` | no | One app: developer, chart ranks, looks, screenshots, video posters |\n| `get_directory_screens` | no | Ordered screenshots as images your agent can look at |\n| `get_app_videos` | Pro for files | Preview video posters; mp4 downloads with Pro |\n| `get_app_history` | Pro | Past versions of a listing |\n| `create_api_key` | no | Mint a key; you claim it in the browser |\n| `get_screenshots` | for live lookup | Your app's current App Store screenshots |\n| `create_restyle` | yes | Restyle your screenshots like a library app |\n| `create_localize` | yes | Translate your screenshots into other languages |\n| `get_job_group`, `approve_restyle`, `list_results` | yes | Follow and approve generation jobs |\n\nThe skill in [`skills/magicscreenshots/SKILL.md`](skills/magicscreenshots/SKILL.md)\ntells the agent how to run an inspiration review, make App Store screenshots,\nlocalize, and study preview videos.\n\n## Pricing\n\n- **Free**: search the library and view screenshots.\n- **Library Pro**: $19, adds preview video downloads and listing history.\n- **Team**: $49 per seat.\n- **Image credits**: generation (restyle and localize) is paid per image.\n\nCurrent prices: https://www.magicscreenshots.com/pricing\n\n## Legal\n\nScreenshots and preview videos in the library belong to their developers.\nMagicScreenshots shows them for reference and research. Don't reuse them as\nyour own App Store assets.\n\n## Maintaining\n\nThe web copy at `public/.well-known/agent-skills/magicscreenshots/SKILL.md` in\nthe MagicScreenshots app repo is the source. Copy it here unchanged:\n\n```sh\ncp public/.well-known/agent-skills/magicscreenshots/SKILL.md kit/skills/magicscreenshots/SKILL.md\n```\n\nThe app repo's `scripts/agent-cli.test.mjs` fails if the two copies differ or\nif the digest in `agent-skills/index.json` is stale.\n\n## License\n\nMIT © Humanleap. See [LICENSE](LICENSE).\n",
+  "status": "curated"
+}

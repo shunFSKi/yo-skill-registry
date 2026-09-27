@@ -1,0 +1,64 @@
+{
+  "id": "mcp:official/io.github.pratham-jain33/hackerearth-mcp",
+  "type": "mcp",
+  "name": "HackerEarth MCP",
+  "description": "Give any AI assistant a code run button via HackerEarth. 24 languages, zero setup.",
+  "author": "io.github.pratham-jain33",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/pratham-jain33/hackerearth-mcp",
+    "repo": "pratham-jain33/hackerearth-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "hackerearth-mcp"
+    ],
+    "env": [
+      {
+        "name": "HACKEREARTH_KEY",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-27T15:33:12.15401Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# hackerearth-mcp\n\nmcp-name: io.github.pratham-jain33/hackerearth-mcp\n\n[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)\n[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)\n[![MCP Compatible](https://img.shields.io/badge/MCP-compatible-green.svg)](https://modelcontextprotocol.io/)\n[![Version](https://img.shields.io/badge/version-v0.2.1-orange.svg)](https://github.com/pratham-jain33/hackerearth-mcp/releases)\n[![PyPI](https://img.shields.io/pypi/v/hackerearth-mcp.svg)](https://pypi.org/project/hackerearth-mcp/)\n[![Stars](https://img.shields.io/github/stars/pratham-jain33/hackerearth-mcp.svg)](https://github.com/pratham-jain33/hackerearth-mcp/stargazers)\n[![Tests](https://github.com/pratham-jain33/hackerearth-mcp/actions/workflows/test.yml/badge.svg)](https://github.com/pratham-jain33/hackerearth-mcp/actions)\n\nGive any AI assistant a code **run button**.\n\n> **Unofficial community project.** Not made by, endorsed by, or affiliated with HackerEarth. You bring your own free HackerEarth API key.\n\n## Why\n\nAI assistants are great at writing code and terrible at knowing whether it works. They guess. This server plugs into any MCP-compatible assistant (Claude Desktop, Claude Code, Cursor, and more) and lets it **actually run code** in 24 programming languages on HackerEarth's sandboxed servers, then read the real output. No local toolchains to install. Nothing untrusted ever touches your machine.\n\n## Tools\n\n| Tool | Description |\n|------|-------------|\n| `run_code` | Sends code plus a language to HackerEarth, waits for it to run, and returns the printed output and any error messages. |\n| `list_languages` | Lists every language HackerEarth can run, with the exact identifiers to pass to `run_code`. Takes no inputs. |\n\n## Quickstart\n\n**1. Get a free HackerEarth API key**\n\nRegister a client in the [HackerEarth developer dashboard](https://www.hackerearth.com) to receive a `client-secret`. The free tier includes a generous request quota.\n\n**2. Install**\n\nNo cloning needed:\n\n```bash\nuvx hackerearth-mcp\n```\n\nor with pip:\n\n```bash\npip install hackerearth-mcp\n```\n\nFrom source instead:\n\n```bash\ngit clone https://github.com/pratham-jain33/hackerearth-mcp\ncd hackerearth-mcp\npython -m venv .venv\n.venv/bin/pip install -e .\n```\n\n**3. Connect your assistant**\n\nClaude Desktop config file:\n\n- macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`\n- Windows: `%APPDATA%\\Claude\\claude_desktop_config.json`\n\n```json\n{\n  \"mcpServers\": {\n    \"hackerearth\": {\n      \"command\": \"uvx\",\n      \"args\": [\"hackerearth-mcp\"],\n      \"env\": {\n        \"HACKEREARTH_KEY\": \"paste-your-client-secret-here\"\n      }\n    }\n  }\n}\n```\n\nFrom source, point at your checkout instead:\n\n```json\n{\n  \"mcpServers\": {\n    \"hackerearth\": {\n      \"command\": \"/absolute/path/to/hackerearth-mcp/.venv/bin/python\",\n      \"args\": [\"/absolute/path/to/hackerearth-mcp/server.py\"],\n      \"env\": {\n        \"HACKEREARTH_KEY\": \"paste-your-client-secret-here\"\n      }\n    }\n  }\n}\n```\n\nRestart Claude Desktop, then try: *\"run this Python program and tell me what it prints: `print(6 * 7)`\"*\n\n## Configuration\n\n| Variable | Required | Description |\n|----------|----------|-------------|\n| `HACKEREARTH_KEY` | Yes | Your HackerEarth `client-secret`. Read from the environment, never hardcoded, never sent to the assistant in chat. |\n\n## How it works\n\n*(This section is written by the project's author.)*\n\n1. You ask the assistant to run some code.\n2. The assistant calls `run_code` with the code and the language.\n3. The server sends it to HackerEarth with your key and gets back a tracking token.\n4. The server polls HackerEarth until the run finishes.\n5. HackerEarth runs the code in a sealed sandbox on their machines.\n6. The server hands the output back to the assistant, which explains it to you.\n\n## Example session\n\n```\nYou:    Is this Fibonacci function correct? Run it and show me the first 10 numbers.\n        def fib(n):\n            a, b = 0, 1\n            for _ in range(n):\n                print(a, end=\" \")\n                a, b = b, a + b\n        fib(10)\n\nClaude: [calls run_code with your function]\n        It works. The output is: 0 1 1 2 3 5 8 13 21 34\n```\n\n## Roadmap\n\n- [x] v0.1 — code submission, status polling, output download, compile/runtime error reporting, 24-language list\n- [x] v0.2 — PyPI packaging, install and run with a single `uvx hackerearth-mcp` command, `server.json` for the official MCP registry\n- [ ] Submission to the official MCP registry and community directories\n\n## Contributing\n\nIssues and pull requests are welcome. If you add a tool, write its description the way you'd explain it to a smart friend who has never seen it — the assistant reads that text to decide when to use it.\n\n## License\n\nMIT © Pratham Jain. See [LICENSE](LICENSE).\n\n## Acknowledgments\n\nBuilt on [HackerEarth's](https://www.hackerearth.com) code execution API and the [Model Context Protocol](https://modelcontextprotocol.io/). Thanks to HackerEarth for a genuinely developer-friendly free tier.\n",
+  "status": "curated"
+}

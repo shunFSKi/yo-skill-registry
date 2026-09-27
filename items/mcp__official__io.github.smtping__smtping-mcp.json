@@ -1,0 +1,65 @@
+{
+  "id": "mcp:official/io.github.smtping/smtping-mcp",
+  "type": "mcp",
+  "name": "SMTPing Email Verification",
+  "description": "Verify email addresses, clean lists and check spamtrap, disposable, spambot and complainer lists.",
+  "author": "io.github.smtping",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/smtping/smtping-mcp",
+    "repo": "smtping/smtping-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@smtping/mcp"
+    ],
+    "env": [
+      {
+        "name": "SMTPING_API_KEY",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-27T17:30:53.360016Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "办公",
+    "featured": false
+  },
+  "readme": "# SMTPing MCP server\n\nOfficial [Model Context Protocol](https://modelcontextprotocol.io) server for [SMTPing](https://smtping.com). It lets Claude, Cursor, VS Code, Windsurf and any MCP client verify email addresses in a conversation.\n\n> \"Verify these 40 leads and tell me which ones are safe to email.\"\n\n## Tools\n\n| tool | what it does | credits |\n| --- | --- | --- |\n| `verify_email` | Verifies one address: status plus band (safe, avoid, judgement) | 1 |\n| `verify_list` | Verifies a list as one bulk job (up to 100,000), waits for results | 1 per unique address |\n| `get_bulk_job` | Progress and results of a bulk job | 0 |\n| `check_threat` | Looks up one address in the spamtrap, disposable, spambot or complainer list | 1 |\n| `get_credits` | Remaining credits and plan | 0 |\n\n## Setup\n\nCreate an API key in the [SMTPing dashboard](https://app.smtping.com), then add the server to your client. Node 18 or later is required.\n\n### Claude Desktop\n\nSettings > Developer > Edit Config, then add to `claude_desktop_config.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"smtping\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@smtping/mcp\"],\n      \"env\": { \"SMTPING_API_KEY\": \"sk_live_your_key_here\" }\n    }\n  }\n}\n```\n\nRestart Claude Desktop.\n\n### Claude Code\n\n```bash\nclaude mcp add smtping -e SMTPING_API_KEY=sk_live_your_key_here -- npx -y @smtping/mcp\n```\n\n### Cursor\n\n`~/.cursor/mcp.json` (or `.cursor/mcp.json` in a project): same JSON block as Claude Desktop.\n\n### VS Code\n\n`.vscode/mcp.json`:\n\n```json\n{\n  \"servers\": {\n    \"smtping\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@smtping/mcp\"],\n      \"env\": { \"SMTPING_API_KEY\": \"sk_live_your_key_here\" }\n    }\n  }\n}\n```\n\n### Windows\n\nIf `npx` is not found, use `\"command\": \"cmd\"` and `\"args\": [\"/c\", \"npx\", \"-y\", \"@smtping/mcp\"]`.\n\n## Privacy\n\nAddresses are sent to the SMTPing API only when a tool is called. See the [privacy policy](https://smtping.com/privacy).\n\n## Links\n\n- [MCP page](https://smtping.com/email-verification-mcp)\n- [API documentation](https://smtping.com/docs)\n- [Pricing](https://smtping.com/pricing)\n- Support: support@smtping.com\n\nMIT License\n",
+  "status": "curated"
+}
