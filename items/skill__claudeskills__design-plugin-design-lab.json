@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/design-plugin-design-lab",
+  "type": "skill",
+  "name": "design-lab",
+  "description": "Conduct design interviews, generate five distinct UI variations in a temporary design lab, collect feedback, and produce implementation plans. Use when the user wants to explore UI design options, redesign existing components, or create new UI with multiple approaches to compare.",
+  "author": "0xdesign",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/0xdesign/design-plugin/tree/HEAD/design-and-refine/skills/design-lab",
+    "repo": "0xdesign/design-plugin"
+  },
+  "license": null,
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 757,
+    "pushed_at": null,
+    "score": 61,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 757
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "设计",
+    "featured": false
+  },
+  "readme": "# Design and Refine\n\nA Claude Code plugin that helps you make confident UI design decisions through rapid iteration.\n\n## What It Does\n\nDesign and Refine generates multiple distinct UI variations for any component or page, lets you compare them side-by-side in your browser, collects your feedback on what you like about each, and synthesizes a refined version—repeating until you're confident in the result.\n\nInstead of guessing at the right design or going back-and-forth on revisions, you see real options, pick what works, and iterate quickly.\n\n## When to Use It\n\n- **Starting a new component or page** — explore different approaches before committing\n- **Redesigning existing UI** — see alternatives to what you have today\n- **Stuck on a design direction** — generate options when you're not sure what you want\n- **Getting stakeholder buy-in** — show concrete variations instead of describing ideas\n- **Learning what works** — see how different layouts, densities, and patterns feel in your actual codebase\n\n## Why Use It\n\n1. **Uses your existing design system** — infers colors, typography, spacing from your Tailwind config, CSS variables, or component library\n2. **Generates real code** — not mockups, actual working components in your framework\n3. **Side-by-side comparison** — view all variations at `/__design_lab` in your dev server\n4. **Iterative refinement** — tell it what you like about each, get a synthesized version\n5. **Clean handoff** — outputs `DESIGN_PLAN.md` with implementation steps when you're done\n6. **No mess left behind** — automatically cleans up all temporary files\n\n---\n\n## Setup\n\n### 1. Add the marketplace\n\nIn Claude Code, run:\n\n```\n/plugin marketplace add 0xdesign/design-plugin\n```\n\n### 2. Install the plugin\n\n```\n/plugin install design-and-refine@design-plugins\n```\n\nThat's it. The plugin is now available in any project.\n\n---\n\n## Usage\n\n### Start a session\n\n```\n/design-and-refine:start\n```\n\nOr with a specific target:\n\n```\n/design-and-refine:start ProfileCard\n```\n\n### What happens next\n\n1. **Preflight** — detects your framework (Next.js, Vite, etc.) and styling system (Tailwind, MUI, etc.)\n\n2. **Style inference** — reads your existing design tokens from Tailwind config, CSS variables, or theme files\n\n3. **Interview** — asks about:\n   - What you're designing (component vs page, new vs redesign)\n   - Pain points and what should improve\n   - Visual and interaction inspiration\n   - Target user and key tasks\n\n4. **Generation** — creates 5 distinct variations exploring different:\n   - Information hierarchy\n   - Layout models (cards, lists, tables, split-pane)\n   - Density (compact vs spacious)\n   - Interaction patterns (modal, inline, drawer)\n   - Visual expression\n\n5. **Review** — open `http://localhost:3000/__design_lab` (or your dev server port) to see all variations side-by-side\n\n6. **Feedback** — use the interactive feedback overlay or describe what you like:\n   - Click **\"Add Feedback\"** to enter feedback mode\n   - Click any element to leave a comment (Figma-style)\n   - Click **\"Submit Feedback\"** to copy to clipboard, then paste in terminal\n   - Or just describe what you like about each variation in chat\n\n7. **Iterate** — repeat until you're confident\n\n8. **Finalize** — all temp files are deleted, `DESIGN_PLAN.md` is generated with implementation steps\n\n### Clean up manually (if needed)\n\n```\n/design-and-refine:cleanup\n```\n\n---\n\n## Supported Frameworks\n\n- Next.js (App Router & Pages Router)\n- Vite (React, Vue)\n- Remix\n- Astro\n- Create React App\n\n## Supported Styling\n\n- Tailwind CSS\n- CSS Modules\n- Material UI (MUI)\n- Chakra UI\n- Ant Design\n- styled-components\n- Emotion\n\n---\n\n## Interactive Feedback\n\nThe Design Lab includes a Figma-style feedback overlay for precise comments:\n\n1. **Enter feedback mode** — click the \"💬 Add Feedback\" button (bottom-right)\n2. **Click any element** — a comment panel appears near your click\n3. **Type your feedback** — \"Make this button larger\" or \"Love this spacing\"\n4. **Save** — click Save or press ⌘+Enter\n5. **Repeat** — add comments to multiple elements across different variants\n6. **Submit** — fill in \"Overall Direction\" and click \"Submit Feedback\"\n7. **Paste** — the formatted feedback is copied to clipboard, paste it in your terminal\n\nClaude receives structured feedback with element selectors, so it knows exactly which elements you're referring to.\n\n---\n\n## Tips for Best Results\n\n**Be specific in the interview.** The more context you give about pain points, target users, and inspiration, the more distinct and useful the variations will be.\n\n**Reference products you admire.** \"Like Linear's density\" or \"Stripe's clarity\" gives Claude concrete direction.\n\n**Don't settle on round one.** The synthesis step is where it gets good—describe what you like about each variant and let it combine them.\n\n**Keep your dev server running.** The plugin won't start it for you (that would block). Just have it running in another terminal.\n\n**Check the DESIGN_PLAN.md.** After finalizing, this file contains the implementation steps, component API, accessibility checklist, and testing guidance.\n\n---\n\n## What Gets Created (Temporarily)\n\nDuring the session:\n- `.claude-design/` — variants, previews, design brief\n- `app/__design_lab/` or `pages/__design_lab.tsx` — the comparison route\n\nAll of this is deleted when you finalize or abort. Nothing is left behind.\n\n## What Gets Created (Permanently)\n\nAfter finalizing:\n- `DESIGN_PLAN.md` — implementation plan for your chosen design\n- `DESIGN_MEMORY.md` — captured style decisions (speeds up future sessions)\n\n---\n\n## License\n\nMIT\n\n---\n\nMade by [0xdesigner](https://github.com/0xdesign)\n",
+  "status": "curated"
+}

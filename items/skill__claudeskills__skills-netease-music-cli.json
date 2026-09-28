@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/skills-netease-music-cli",
+  "type": "skill",
+  "name": "netease-music-cli",
+  "description": "agent skills",
+  "author": "netease",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/netease/skills/tree/HEAD/netease-music-cli",
+    "repo": "netease/skills"
+  },
+  "license": null,
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 242,
+    "pushed_at": null,
+    "score": 46,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 242
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# 网易云音乐 Agent Skills\n\n基于 `ncm-cli` 的网易云音乐 AI Agent 技能包。\n\n**温馨提示**：使用前请完成ncm-cli的安装（[安装指南](https://www.npmjs.com/package/@music163/ncm-cli)\n）与入驻（[入驻指南](https://developer.music.163.com/st/developer/document?docId=9504d35aa41a47c6ac9830b2dbf48f94)），并完成配置。\n\n## 技能概览\n\n| 技能                      | 说明           | 触发场景        |\n|-------------------------|--------------|-------------|\n| ncm-cli-setup           | 安装配置 ncm-cli | 工具未安装时自动引导  |\n| netease-music-cli       | 执行音乐操作       | 搜索、歌单管理、推荐等 |\n| netease-music-assistant | 智能音乐助手       | 个性化推荐       |\n\n三个技能的依赖关系：\n\n```\nnetease-music-assistant（智能助手）\n    │\n    │  调用\n    ▼\nnetease-music-cli（CLI 操作层）\n    │\n    │  依赖\n    ▼\nncm-cli-setup（安装配置）\n```\n\n---\n\n## 前置条件\n\nncm-cli 的所有命令调用依赖 API\nKey。请先前往[网易云音乐开放平台](https://developer.music.163.com/st/developer/apply/account?type=INDIVIDUAL)完成入驻并申请\nAPI Key（appId 和 privateKey），并在安装后通过 `ncm-cli configure` 完成配置。\n\n---\n\n## ncm-cli-setup\n\n**安装和配置 ncm-cli 工具。**\n\n- 环境要求：Node.js >= 18\n- 安装方式：`npm install -g @music163/ncm-cli`\n- 安装后需执行 `ncm-cli configure` 完成配置\n- 安装后需执行 `ncm-cli login` 完成登录授权\n\n常见问题：\n\n| 问题                           | 解决方法                     |\n|------------------------------|--------------------------|\n| `ncm-cli: command not found` | 检查 npm 全局 bin 是否在 PATH 中 |\n| 登录超时                         | 重新执行 `ncm-cli login`     |\n\n---\n\n## netease-music-cli\n\n**通过 ncm-cli 执行网易云音乐操作。**\n\n核心能力：\n\n- 搜索歌曲/歌单/专辑\n- 歌单管理（创建、添加歌曲、查看）\n- 获取每日推荐\n- 查看用户信息\n\n关键规则：\n\n- 返回结果时提供可点击的链接（`https://music.163.com/#/song?id=<明文ID>`）\n- 遇到未授权提示时自动执行 `ncm-cli login` 引导登录\n\n---\n\n## netease-music-assistant\n\n**以模型判断为核心的智能音乐助手。**\n\n触发条件：消息中包含\"网易云\"或\"云音乐\"，或用户表达听歌、推荐、偏好分析等意图。\n\n### 核心能力\n\n```\n理解需求 → 分析偏好 → 制定搜索策略 → 执行搜索 → 筛选结果 → 语义化推荐 → 推送 + 可选建单\n```\n\n### 主要功能\n\n**1. 偏好分析**\n\n分析用户红心歌单，从多维度生成用户画像：\n\n- 内容维度：曲风标签统计、情绪方向、语言偏好、代表艺人\n- 时间维度：高频红心时段、周期规律\n- 近期趋势：最近红心的偏好变化\n\n**2. 智能推荐**\n\n- 自动决策搜索类型（歌单/专辑/单曲或混合）\n- 多关键词并行搜索（2~4 次），自动去重已推荐和已收藏内容\n",
+  "status": "curated"
+}

@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/wechat-article-extractor-skill-wechat-article-extractor",
+  "type": "skill",
+  "name": "wechat-article-extractor",
+  "description": "Extract metadata and content from WeChat Official Account articles. Use when user needs to parse WeChat article URLs (mp.weixin.qq.com), extract article info (title, author, content, publish time, cover image), or convert WeChat articles to structured data. Supports various article types including posts, videos, images, voice messages, and reposts.",
+  "author": "freestylefly",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/freestylefly/wechat-article-extractor-skill",
+    "repo": "freestylefly/wechat-article-extractor-skill"
+  },
+  "license": null,
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 133,
+    "pushed_at": null,
+    "score": 54,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 133
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "设计",
+    "featured": false
+  },
+  "readme": "# WeChat Article Extractor\n\n[![Node.js](https://img.shields.io/badge/Node.js-14+-green.svg)](https://nodejs.org/)\n[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)\n\n一个 Claude Code Skill，用于提取微信公众号文章的元数据和内容。支持多种文章类型，包括图文、视频、图片集、语音和转载文章。当用户需要提供微信公众号文章链接（mp.weixin.qq.com）时，Claude 会自动触发此 Skill 来提取文章信息。\n\n## 功能特性\n\n- 解析微信公众号文章 URL (`mp.weixin.qq.com`)\n- 提取文章元数据：标题、作者、摘要、发布时间\n- 获取公众号信息：名称、头像、微信号、功能介绍\n- 提取文章内容（HTML 格式）\n- 获取封面图片 URL\n- 支持多种文章类型：图文、视频、图片集、语音、纯文字、转载\n- 处理各种异常情况：内容删除、链接过期、访问限制、账号迁移等\n- 支持搜狗微信搜索结果的解析 (`weixin.sogou.com`)\n- 可选提取文章标签和内嵌链接\n\n## 安装\n\n这是一个 Claude Code Skill，可以通过以下方式安装：\n\n### 通过 Claude Code 安装（推荐）\n\n在 Claude Code 中运行：\n\n```\n/skill install wechat-article-extractor\n```\n\n或指定目录安装：\n\n```\n/skill install /path/to/wechat-article-extractor-skill\n```\n\n### 手动克隆安装\n\n```bash\ngit clone https://github.com/yourusername/wechat-article-extractor-skill.git\ncd wechat-article-extractor-skill\nnpm install\n```\n\n然后在 Claude Code 中将该目录作为 Skill 加载。\n\n## 使用方法\n\n### 基本用法 - 从 URL 提取\n\n```javascript\nconst { extract } = require('./scripts/extract.js');\n\nasync function main() {\n  const url = 'https://mp.weixin.qq.com/s?__biz=...&mid=...&idx=...&sn=...';\n  const result = await extract(url);\n\n  if (result.done) {\n    console.log('文章标题:', result.data.msg_title);\n    console.log('公众号:', result.data.account_name);\n    console.log('发布时间:', result.data.msg_publish_time_str);\n  } else {\n    console.error('提取失败:', result.msg);\n  }\n}\n\nmain();\n```\n\n### 从 HTML 内容提取\n\n如果你已经获取了页面 HTML，可以直接传入：\n\n```javascript\nconst { extract } = require('./scripts/extract.js');\n\nasync function main() {\n  const html = await fetch(url).then(r => r.text());\n  const result = await extract(html, { url: sourceUrl });\n\n  console.log(result);\n}\n\nmain();\n```\n\n### 高级选项\n\n```javascript\nconst result = await extract(url, {\n  shouldReturnContent: true,      // 返回 HTML 内容（默认：true）\n  shouldReturnRawMeta: false,     // 返回原始元数据（默认：false）\n  shouldFollowTransferLink: true, // 自动跟随迁移后的公众号链接（默认：true）\n  shouldExtractMpLinks: false,    // 提取内嵌的微信公众号链接（默认：false）\n  shouldExtractTags: false,       // 提取文章标签（默认：false）\n  shouldExtractRepostMeta: false  // 提取转载来源信息（默认：false）\n});\n```\n\n## 响应格式\n\n### 成功响应\n\n```javascript\n{\n  done: true,\n  code: 0,\n  data: {\n    // 公众号信息\n    account_name: \"公众号名称\",\n    account_alias: \"微信号\",\n    account_avatar: \"头像URL\",\n    account_description: \"功能介绍\",\n    account_id: \"原始ID\",\n    account_biz: \"biz参数\",\n    account_biz_number: 1234567890,\n    account_qr_code: \"二维码URL\",\n\n    // 文章信息\n    msg_title: \"文章标题\",\n    msg_desc: \"文章摘要\",\n    msg_content: \"HTML内容\",\n    msg_cover: \"封面图URL\",\n    msg_author: \"作者\",\n    msg_type: \"post\", // post|video|image|voice|text|repost\n    msg_has_copyright: true,\n    msg_publish_time: Date,\n    msg_publish_time_str: \"2024/01/15 10:30:00\",\n\n    // 链接参数\n    msg_link: \"文章链接\",\n    msg_source_url: \"阅读原文链接\",\n    msg_sn: \"sn参数\",\n    msg_mid: 1234567890,\n    msg_idx: 1\n  }\n}\n```\n\n### 错误响应\n\n```javascript\n{\n  done: false,\n  code: 1001,\n  msg: \"无法获取文章信息\"\n}\n```\n\n## 错误代码表\n\n| 代码 | 错误信息 | 说明 |\n|------|----------|------|\n| 1000 | 文章获取失败 | 一般性失败 |\n| 1001 | 无法获取文章信息 | 缺少标题或发布时间 |\n| 1002 | 请求失败 | HTTP 请求失败 |\n| 1003 | 响应为空 | 空响应 |\n| 1004 | 访问过于频繁 | 被限流 |\n| 1005 | 脚本解析失败 | 页面脚本解析错误 |\n| 1006 | 公众号已迁移 | 账号已迁移，包含新链接 |\n| 2001 | 请提供文章内容或链接 | 缺少输入参数 |\n| 2002 | 链接已过期 | 链接已失效 |\n| 2003 | 内容涉嫌侵权 | 内容因侵权被移除 |\n| 2004 | 无法获取迁移后的链接 | 迁移链接获取失败 |\n| 2005 | 内容已被发布者删除 | 作者已删除内容 |\n| 2006 | 内容因违规无法查看 | 内容被平台屏蔽 |\n| 2007 | 内容发送失败 | 发送失败 |\n| 2008 | 系统出错 | 系统错误 |\n| 2009 | 不支持的链接 | URL 格式不支持 |\n| 2010 | 内容获取失败 | 内容获取失败 |\n| 2011 | 涉嫌过度营销 | 营销/垃圾内容 |\n| 2012 | 账号已被屏蔽 | 账号被封禁 |\n| 2013 | 账号已自主注销 | 账号已注销 |\n| 2014 | 内容被投诉 | 内容被举报 |\n| 2015 | 账号处于迁移流程中 | 账号正在迁移 |\n| 2016 | 冒名侵权 | 冒充侵权 |\n\n## 支持的文章类型\n\n| 类型 | 说明 | msg_type |\n|------|------|----------|\n| 图文 | 普通图文文章 | `post` |\n| 视频 | 视频内容 | `video` |\n| 图片集 | 多张图片展示 | `image` |\n| 语音 | 音频内容 | `voice` |\n| 纯文字 | 无标题文字内容 | `text` |\n| 转载 | 转载他人文章 | `repost` |\n\n## 项目结构\n\n```\nwechat-article-extractor-skill/\n├── scripts/\n│   ├── extract.js    # 核心提取逻辑\n│   └── errors.js     # 错误代码定义\n├── SKILL.md          # Skill 定义文件（Claude Skill 格式，包含触发条件和描述）\n├── package.json      # 项目配置\n└── README.md         # 本文件\n```\n\n## 依赖项\n\n- `cheerio` - 服务端 HTML 解析\n- `dayjs` - 日期格式化\n- `request-promise` - HTTP 请求\n- `qs` - 查询字符串解析\n- `lodash.unescape` - HTML 实体解码\n\n## 注意事项\n\n1. **频率限制**: 频繁请求可能会导致 IP 被暂时封禁，建议添加适当的延迟\n2. **页面结构**: 微信页面结构可能会变化，如遇问题请检查是否为最新版本\n3. **Cookie**: 某些文章可能需要登录才能访问完整内容\n4. **反爬措施**: 请遵守微信的使用条款，合理使用本工具\n\n## 示例应用\n\n### 批量提取文章\n\n```javascript\nconst { extract } = require('./scripts/extract.js');\n\nasync function batchExtract(urls) {\n  const results = [];\n\n  for (const url of urls) {\n    try {\n      const result = await extract(url);\n      if (result.done) {\n        results.push({\n          title: result.data.msg_title,\n          author: result.data.account_name,\n          publishTime: result.data.msg_publish_time_str\n        });\n      }\n      // 添加延迟避免被限流\n      await new Promise(r => setTimeout(r, 1000));\n    } catch (err) {\n      console.error(`提取失败: ${url}`, err.message);\n    }\n  }\n\n  return results;\n}\n\nconst urls = [\n  'https://mp.weixin.qq.com/s?__biz=...',\n  'https://mp.weixin.qq.com/s?__biz=...'\n];\n\nbatchExtract(urls).then(console.log);\n```\n\n### 保存为 Markdown\n\n```javascript\nconst { extract } = require('./scripts/extract.js');\nconst fs = require('fs');\n\nasync function saveAsMarkdown(url, filename) {\n  const result = await extract(url);\n\n  if (!result.done) {\n    console.error('提取失败:', result.msg);\n    return;\n  }\n\n  const { data } = result;\n  const markdown = `\n# ${data.msg_title}\n\n> 作者: ${data.msg_author || data.account_name}\n> 公众号: ${data.account_name}\n> 发布时间: ${data.msg_publish_time_str}\n\n${data.msg_content}\n\n---\n原文链接: [${data.msg_link}](${data.msg_link})\n`;\n\n  fs.writeFileSync(filename, markdown);\n  console.log(`已保存: ${filename}`);\n}\n\nsaveAsMarkdown('https://mp.weixin.qq.com/s?__biz=...', 'article.md');\n```\n\n## 许可证\n\n[MIT](LICENSE)\n\n## 贡献\n\n欢迎提交 Issue 和 Pull Request！\n\n## 更新日志\n\n### v1.0.0\n- 初始版本发布\n- 支持基本的文章信息提取\n- 支持多种文章类型\n- 完善的错误处理机制\n",
+  "status": "curated"
+}

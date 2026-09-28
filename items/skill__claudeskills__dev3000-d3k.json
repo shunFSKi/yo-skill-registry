@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/dev3000-d3k",
+  "type": "skill",
+  "name": "d3k",
+  "description": "Use when the user asks to use d3k, run/dev/test/debug a web project with d3k, or reproduce a browser issue. Own the runtime: reuse or background-start d3k non-interactively, wait for readiness, use its project-stable managed Chrome profile, and inspect unified browser/server evidence.",
+  "author": "vercel-labs",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/vercel-labs/dev3000/tree/HEAD/skills/d3k",
+    "repo": "vercel-labs/dev3000"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 1582,
+    "pushed_at": null,
+    "score": 64,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 1582
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# d3k (dev3000)\n\nd3k is an agent-first local web debugging runtime. It starts your dev server, opens a monitored browser with a project-stable Chrome profile, and gives your coding agent one timeline of server logs, browser errors, network activity, interactions, and screenshots.\n\nEvery app gets a stable Portless URL by default, so browser state and callbacks do not move when the underlying development port changes.\n\nThe primary interface is the d3k skill: tell your agent what you want, and let it own the runtime.\n\n> \"Let me test this project with d3k.\"\n>\n> \"Debug the checkout flow with d3k.\"\n>\n> \"Run this app with d3k and watch for errors while I reproduce the bug.\"\n\nThe TUI is still available for people who want a standalone terminal dashboard, but it is not required for the agent workflow.\n\n## Install\n\nNode.js 24 or newer is required.\n\nInstall the runtime globally:\n\n```bash\nbun install -g dev3000\n```\n\nnpm also works:\n\n```bash\nnpm install -g dev3000\n```\n\nInstall the d3k skill for your coding agents:\n\n```bash\nbunx skills add vercel-labs/dev3000 --skill d3k --agent '*' -g -y\n```\n\nThe skill teaches agents to start d3k non-interactively, retain the background process, reuse the managed browser, and inspect the unified evidence instead of launching a separate dev server or browser.\n\n## The Agent Workflow\n\nWhen you ask to use d3k, the agent should:\n\n1. Run `d3k portless status --json` and complete `d3k portless setup` if required.\n2. Run `d3k status --json` and reuse only a ready Portless project session.\n3. Start `d3k -t` in a retained background tool session when needed.\n4. Wait for d3k to report a port-free HTTPS URL and managed browser.\n5. Either hand the headed browser to you or drive it with `d3k agent-browser`, depending on your request.\n6. Read `d3k errors --context` and the unified logs after reproduction.\n7. Keep the same runtime and project-stable Chrome profile alive across edits and retests.\n\nThat gives the user one stable URL, one browser, one evidence stream, and one dev server.\n\n### \"Let me test\" vs. \"Test this\"\n\n\"Let me test with d3k\" means the agent prepares the headed monitored browser and hands control to you. It should wait while you reproduce the issue, then inspect what d3k captured.\n\n\"Test/debug this with d3k\" means the agent can drive the managed browser and investigate autonomously.\n\n## Agent Commands\n\n```bash\n# Is this project's runtime ready?\nd3k status --json\n\n# Is canonical Portless HTTPS ready?\nd3k portless status --json\n\n# Start the runtime manually in agent-safe mode (non-TUI default)\nd3k -t\n\n# Inspect unified evidence\nd3k errors --context\nd3k logs -n 200\nd3k logs --type browser\nd3k logs --type server\n\n# Drive the exact browser d3k is monitoring\nd3k agent-browser snapshot -i\nd3k agent-browser click @e2\nd3k agent-browser fill @e3 \"text\"\nd3k agent-browser --require-d3k-browser open https://my-app.localhost\n```\n\nDo not run `npm run dev` or `bun run dev` alongside d3k. d3k is the dev-server owner for the session.\n\nPortless is required by default and only counts as ready when it provides a genuinely port-free URL such as `https://my-app.localhost`. `d3k portless setup` performs one-time administrator authorization to generate/trust the local HTTPS CA and install a root-owned startup service on port 443. After setup, every d3k server registers behind that proxy and the managed browser opens the Portless URL. d3k fails before starting the app when canonical Portless is unavailable; use `--no-portless` only when direct localhost routing is specifically required.\n\n## Why the Managed Browser Matters\n\nEach project gets a persistent Chrome profile under `~/.d3k/<project>/chrome-profile/`. Login state, cookies, and local storage survive across debugging sessions.\n\nd3k also connects browser activity to server output, so an agent can see the interaction that preceded an error instead of reasoning from disconnected terminal and browser snapshots.\n\nFor OAuth and other auth-sensitive flows, let d3k launch Chrome. A separate Playwright, browser MCP, raw Chrome, or custom `agent-browser --profile` session is a different browser identity and can break sign-in flows.\n\n## What d3k Captures\n\n- Development-server output\n- Browser console messages and exceptions\n- Network requests and responses\n- User interactions\n- Navigation and error screenshots\n- Chrome DevTools Protocol events\n- A session manifest that agents can discover with `d3k status --json`\n\nArtifacts are stored per project:\n\n| Artifact | Location |\n| --- | --- |\n| Active session | `~/.d3k/<project>/session.json` |\n| Consolidated log | `~/.d3k/<project>/d3k.log` or `logs/` |\n| Screenshots | `~/.d3k/<project>/screenshots/` |\n| Chrome profile | `~/.d3k/<project>/chrome-profile/` |\n| Crash log | `~/.d3k/crash.log` |\n\n## Standalone TUI\n\nRun `d3k` directly when you want the interactive terminal experience:\n\n```bash\nd3k\n```\n\nYou can also launch an agent beside the TUI in tmux:\n\n```bash\nd3k --with-agent claude\nd3k --with-agent codex\nd3k --with-agent opencode\n```\n\nThe split-screen workflow requires tmux. The agent-first background workflow does not.\n\n## Runtime Options\n\n```bash\nd3k --help\n```\n\n| Option | Purpose |\n| --- | --- |\n| `-p, --port <port>` | Override the detected dev-server port |\n| `-s, --script <script>` | Override the detected package script |\n| `-c, --command <command>` | Run a custom dev-server command |\n| `--app-url <url>` | Open a specific URL in the managed browser |\n| `--profile-dir <dir>` | Override the project Chrome profile |\n| `--no-portless` | Disable the default stable Portless URL |\n| `--headless` | Run Chrome headlessly for CI |\n| `--servers-only` | Intentionally disable browser monitoring |\n| `--tui` | Enable the interactive dashboard (off by default) |\n| `--no-agent` | Skip the standalone agent-selection prompt |\n| `-t, --tail` | Stream the consolidated log |\n| `--debug` | Print verbose runtime diagnostics |\n\nPrefer auto-detection. Use overrides only when the project has an unusual dev command, port, or target URL.\n\n## Diagnostic Commands\n\n```bash\nd3k errors\nd3k errors --context\nd3k errors --all\n\nd3k logs\nd3k logs --type browser\nd3k logs --type server\nd3k logs --json\n\nd3k fix\nd3k fix --focus build\n\nd3k crawl\nd3k crawl --depth all\n```\n\n## Supported Projects\n\nd3k detects common web projects, including:\n\n- Next.js, Vite, React, Vue, Svelte, and Astro\n- Django, Flask, and FastAPI\n- Rails\n- Custom servers supplied through `--command`\n\n## Development\n\nUse d3k itself as the local runtime for this repository:\n\n```bash\nd3k -t\n```\n\nAfter code changes:\n\n```bash\nbun run lint\nbun run typecheck\n```\n\nFor CLI or TUI changes under `src/`:\n\n```bash\nbun run canary\n```\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

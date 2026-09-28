@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/skill-codex-codex",
+  "type": "skill",
+  "name": "codex",
+  "description": "Use when the user asks to run Codex CLI (codex exec, codex resume) or references OpenAI Codex for code analysis, refactoring, or automated editing",
+  "author": "skills-directory",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/skills-directory/skill-codex/tree/HEAD/plugins/skill-codex/skills/codex",
+    "repo": "skills-directory/skill-codex"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 1450,
+    "pushed_at": null,
+    "score": 63,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 1450
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "Note: If you want a more autonomous setup for agentic workflows, check out [klaudworks/ralph-meets-rex](https://github.com/klaudworks/ralph-meets-rex).\n\n# Codex Integration for Claude Code\n\n<img width=\"2288\" height=\"808\" alt=\"skillcodex\" src=\"https://github.com/user-attachments/assets/85336a9f-4680-479e-b3fe-d6a68cadc051\" />\n\n\n## Purpose\nEnable Claude Code to invoke the Codex CLI (`codex exec` and session resumes) for automated code analysis, refactoring, and editing workflows.\n\n## Prerequisites\n- `codex` CLI installed and available on `PATH`.\n- Codex configured with valid credentials and settings.\n- Confirm the installation by running `codex --version`; resolve any errors before using the skill.\n\n## Installation\n\nThis repository is structured as a [Claude Code Plugin](https://code.claude.com/docs/en/plugins) with a marketplace. You can install it as a **plugin** (recommended) or extract it as a **standalone skill**.\n\n### Option 1: Plugin Installation (Recommended)\n\nInstall via Claude Code's plugin system for automatic updates:\n\n```\n/plugin marketplace add skills-directory/skill-codex\n/plugin install skill-codex@skill-codex\n```\n\n### Option 2: Standalone Skill Installation\n\nExtract the skill folder manually:\n\n```\ngit clone --depth 1 git@github.com:skills-directory/skill-codex.git /tmp/skills-temp && \\\nmkdir -p ~/.claude/skills && \\\ncp -r /tmp/skills-temp/plugins/skill-codex/skills/codex ~/.claude/skills/codex && \\\nrm -rf /tmp/skills-temp\n```\n\n## Usage\n\n### Important: Thinking Tokens\nBy default, this skill suppresses thinking tokens (stderr output) using `2>/dev/null` to avoid bloating Claude Code's context window. If you want to see the thinking tokens for debugging or insight into Codex's reasoning process, explicitly ask Claude to show them.\n\n### Example Workflow\n\n**User prompt:**\n```\nUse codex to analyze this repository and suggest improvements for my claude code skill.\n```\n\n**Claude Code response:**\nClaude will activate the Codex skill and:\n1. Ask which model to use (`gpt-6-astra` by default; `gpt-5.6-sol`, `gpt-5.6-terra`, `gpt-5.6-luna`; or a legacy model such as `gpt-5.5`) unless already specified in your prompt.\n2. Ask which reasoning effort level (`low`, `medium`, `high`, `xhigh`, `max`, or `ultra`, subject to the model's ceiling) unless already specified in your prompt.\n3. Select appropriate sandbox mode (defaults to `read-only` for analysis)\n4. Run a command like:\n```bash\ncodex exec -m gpt-6-astra \\\n  --config model_reasoning_effort=\"high\" \\\n  --sandbox read-only \\\n  --full-auto \\\n  --skip-git-repo-check \\\n  \"Analyze this Claude Code skill repository comprehensively...\" 2>/dev/null\n```\n\n**Result:**\nClaude will summarize the Codex analysis output, highlighting key suggestions and asking if you'd like to continue with follow-up actions.\n\n### Detailed Instructions\nSee [`plugins/skill-codex/skills/codex/SKILL.md`](plugins/skill-codex/skills/codex/SKILL.md) for complete operational instructions, CLI options, and workflow guidance.\n",
+  "status": "curated"
+}

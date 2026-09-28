@@ -1,0 +1,57 @@
+{
+  "id": "mcp:official/io.github.qso-graph/qsp-client",
+  "type": "mcp",
+  "name": "qsp-client",
+  "description": "QSP — relay MCP tools to any OpenAI-compatible local LLM (llama.cpp, Ollama, vLLM)",
+  "author": "io.github.qso-graph",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/qso-graph/qsp-client",
+    "repo": "qso-graph/qsp-client"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "qsp-client"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-28T19:50:52.391235Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "AI",
+    "featured": false
+  },
+  "readme": "<!-- mcp-name: io.github.qso-graph/qsp-client -->\n# qsp-client\n\n[![PyPI](https://img.shields.io/pypi/v/qsp-client?label=PyPI&color=blue)](https://pypi.org/project/qsp-client/)\n[![MCP Registry](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fregistry.modelcontextprotocol.io%2Fv0%2Fservers%3Fsearch%3Dio.github.qso-graph%2Fqsp-client%26version%3Dlatest&query=%24.servers%5B0%5D.server.version&label=MCP%20Registry&color=blue)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.qso-graph/qsp-client&version=latest)\n\n**QSP** — relay MCP tools to any OpenAI-compatible local LLM endpoint.\n\nNamed after the Q-signal **QSP** (\"Will you relay?\"), qsp-client relays tool calls between a local LLM and [MCP](https://modelcontextprotocol.io/) servers. It is an MCP **client**: any model with function calling gains access to the [qso-graph](https://qso-graph.io) servers' tools, from local weights, not from cloud.\n\n**Formerly `qsp-mcp`.** See [Moving from qsp-mcp](#moving-from-qsp-mcp).\n\n## Install\n\n```bash\npip install qsp-client\n```\n\n## Quick Start\n\n```bash\n# Interactive mode\nqsp-client --config ~/.config/qsp-client/config.json\n\n# Single query\nqsp-client --query \"What bands are open from DN13 to JN48 right now?\"\n\n# Direct endpoint (no config file needed if no MCP servers configured)\nqsp-client --endpoint http://localhost:8000/v1/chat/completions --api-key sk-xxx\n```\n\n## Configuration\n\nThe config format is **Claude Desktop compatible** — copy your existing `mcpServers` block directly:\n\n```json\n{\n  \"mcpServers\": {\n    \"ionis\": {\n      \"command\": \"ionis-mcp\",\n      \"env\": { \"IONIS_DATA_DIR\": \"/path/to/datasets/v1.0\" }\n    },\n    \"solar\": {\n      \"command\": \"solar-mcp\"\n    },\n    \"wspr\": {\n      \"command\": \"wspr-mcp\"\n    }\n  },\n  \"bridge\": {\n    \"endpoint\": \"http://localhost:8000/v1/chat/completions\",\n    \"model\": \"AstroSage-70B\",\n    \"temperature\": 0.3,\n    \"system_prompt\": \"You are an expert ham radio operator and RF engineer.\",\n    \"max_tool_calls_per_turn\": 5,\n    \"profiles\": {\n      \"contest\": {\n        \"servers\": [\"n1mm\", \"ionis\", \"solar\", \"wspr\"],\n        \"temperature\": 0.2,\n        \"system_prompt\": \"You are a contest advisor. Be concise.\"\n      },\n      \"propagation\": {\n        \"servers\": [\"ionis\", \"solar\", \"wspr\"],\n        \"temperature\": 0.3\n      },\n      \"full\": {\n        \"servers\": \"*\",\n        \"temperature\": 0.3\n      }\n    },\n    \"server_timeouts\": {\n      \"ionis\": 1,\n      \"solar\": 8,\n      \"qrz\": 5\n    }\n  }\n}\n```\n\nThe `mcpServers` block uses the exact same format as Claude Desktop. The `bridge` section is qsp-client specific (ignored by Claude Desktop).\n\n## CLI Options\n\n```\nqsp-client [OPTIONS]\n\nOptions:\n  -c, --config PATH       Config file path (default: ~/.config/qsp-client/config.json)\n  -e, --endpoint URL      LLM endpoint URL (overrides config)\n  -k, --api-key KEY       API key for the LLM endpoint\n  -m, --model NAME        Model name (overrides config)\n  -p, --profile NAME      Tool profile (contest, dx, propagation, full)\n  -q, --query TEXT        Single query mode — ask one question and exit\n  --enable-writes         Enable write-capable tools (disabled by default)\n  --list-tools            List available tools and exit\n  --version               Show version\n```\n\n## Interactive Commands\n\n| Command | Action |\n|---------|--------|\n| `/tools` | List available tools |\n| `/help` | Show help |\n| `quit` | Exit (also: `exit`, `q`, `73`) |\n\n## Design\n\nqsp-client is a **strict, stateless pipe** between an LLM and MCP tools:\n\n- No caching, no shared state, no health polling\n- All state lives in MCP servers\n- All inference optimization lives in the inference server (prefix caching, KV-cache)\n- qsp-client just connects the two sides\n\nWorks with any OpenAI-compatible endpoint: [llama.cpp](https://github.com/ggml-org/llama.cpp), [Ollama](https://ollama.ai), [vLLM](https://github.com/vllm-project/vllm), [SGLang](https://github.com/sgl-project/sglang).\n\n## Security\n\n- Write-capable tools disabled by default (`--enable-writes` opt-in)\n- Credentials stay inside MCP servers (OS keyring) — never exposed to qsp-client or the LLM\n- No subprocess, no shell execution, no eval\n- All external connections HTTPS only (LAN endpoints exempted)\n\n## Moving from qsp-mcp\n\nqsp-client is qsp-mcp, renamed: in the MCP world, `-mcp` names mark servers, and this is a client.\n\n- Install the new name: `pip uninstall qsp-mcp && pip install qsp-client`.\n- Your config keeps working: `~/.config/qsp-mcp/config.json` and `~/.qsp-mcp.json` are still read, after the new\n  `~/.config/qsp-client/config.json` and `~/.qsp-client.json`.\n- The `qsp-mcp` command still works, and says it has moved. Use `qsp-client`.\n\n## License\n\nMIT — see [LICENSE](LICENSE).\n\n## Part of the qso-graph ecosystem\n\n[qso-graph.io](https://qso-graph.io) — MCP servers for amateur radio.\n",
+  "status": "curated"
+}

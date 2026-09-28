@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/self-learning-skills-self-learning",
+  "type": "skill",
+  "name": "self-learning",
+  "description": "Capture a hard-won \"golden path\" from the current session as a reusable Agent Skill, so future sessions start already knowing it. Use it (1) right after non-trivial debugging, after working out a multi-step operational workflow, or after rediscovering project facts you didn't know up front — e.g. how to reach the dev/prod database, where credentials and env vars live, how to deploy, run migrations, or verify a change live; and (2) whenever the user says \"remember this\", \"save this as a skill\", \"make a skill for this\", \"don't make me re-explain this next time\", or otherwise wants a workflow preserved across sessions. Proactively recognize the moment even when unprompted: if a task took several attempts before it worked, used non-obvious tooling, or is likely to recur, harvest it without asking first. Delegates to a subagent when your tool supports one, or works inline, to extract the proven procedure into a new project-local or global skill.",
+  "author": "kulaxyz",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/kulaxyz/self-learning-skills/tree/HEAD/skills/self-learning",
+    "repo": "kulaxyz/self-learning-skills"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 960,
+    "pushed_at": null,
+    "score": 62,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 961
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# self-learning-skills\n\n**A self-improving skill for AI coding agents.** Works with Claude Code, Cursor,\nand any agent that reads an `AGENTS.md` / standing-instructions file.\n\nEvery session you do hard debugging or rediscover the same thing — *how do I\nreach the prod DB? where do the creds live? what's the deploy command? how do I\nverify this live?* — and that hard-won knowledge evaporates when the session\nends. The next session starts from zero and re-learns it.\n\n**self-learning** fixes that. It teaches your agent to recognize the moment it\nhas just earned a reusable **golden path** and persist it where the tool will\nauto-load it next time — so the next session starts already knowing the route\ninstead of rediscovering it.\n\nIt's a *meta-skill*: it doesn't do the work, it captures **how** the work got\ndone — including the **failures**, since skipping a known dead-end next session\nis often worth more than the win itself.\n\n## The loop (same everywhere)\n\n1. **Recognize the moment** — a task that only worked after several tries, a\n   non-obvious command, a project fact you didn't know up front, an operational\n   workflow likely to recur, or you simply saying *\"remember this\"*.\n2. **Capture it, no prompt needed** — it acts on the cue immediately, picks the\n   scope/name itself, and tells you afterward. The *procedure* is captured (not\n   a one-off answer), plus a \"what didn't work\" note.\n3. **Reuse** — next session the entry loads automatically, by skill/rule\n   description or because the instructions file is always read.\n\nWhat differs per tool is only *where* knowledge is persisted and *how* it's\nauto-loaded:\n\n| Tool | Persists golden paths to | Auto-loads via |\n|---|---|---|\n| Claude Code, Codex, Agent Skills clients | a new `skills/<name>/SKILL.md` | skill description matching |\n| Cursor | a new `.cursor/rules/learned/<name>.mdc` | rule description / globs |\n| Zed, Aider, Gemini CLI, … | `AGENTS.md` (or project notes/memory) | always-read instructions |\n\n## Install\n\n### `npx` — recommended (works with 70+ agents)\n\nUses the community [`skills`](https://github.com/vercel-labs/skills) CLI, which\ninstalls into whatever agents it detects — Claude Code, Cursor, Codex, Cline,\nOpenCode, and more:\n\n```bash\nnpx skills add kulaxyz/self-learning-skills                 # this project (auto-detects agents)\nnpx skills add kulaxyz/self-learning-skills -g              # global — all your projects\nnpx skills add kulaxyz/self-learning-skills -a claude-code  # a specific agent\n```\n\nTry it once without installing:\n\n```bash\nnpx skills use kulaxyz/self-learning-skills --skill self-learning | claude\n```\n\n### Claude Code plugin\n\n```\n/plugin marketplace add kulaxyz/self-learning-skills\n/plugin install self-learning@self-learning-skills\n```\n\n### Manual\n\n<details>\n<summary>Copy the files into place yourself</summary>\n\n```bash\ngit clone https://github.com/kulaxyz/self-learning-skills\n\n# Claude Code — global (or into a project's .claude/skills/ to share via git)\ncp -R self-learning-skills/skills/self-learning ~/.claude/skills/\n\n# Cursor — auto-loads .cursor/rules/ (harvested rules land in .cursor/rules/learned/)\nmkdir -p .cursor/rules\ncp self-learning-skills/.cursor/rules/self-learning.mdc .cursor/rules/\n\n# Any AGENTS.md agent (Codex, Zed, Aider, Gemini CLI, …)\ncurl https://raw.githubusercontent.com/kulaxyz/self-learning-skills/main/AGENTS.md >> AGENTS.md\n```\n</details>\n\n## Triage: skill, memory, or skip?\n\nIt won't bloat your config with one-liners. Each lesson is routed:\n\n| Lesson | Where it goes |\n|---|---|\n| A multi-step, reusable **procedure/workflow** | a new skill / rule |\n| A single **fact or one-line correction** | lightweight notes/memory (e.g. a `MEMORY.md`) |\n| A genuine **one-off** | skipped |\n\n## Promotion rule (don't enshrine guesses)\n\nTriage decides *granularity*; the promotion rule decides *confidence*. A skill is\nauthoritative — the next session trusts it without re-deriving it — so a session\nis only promoted to a skill when **all three** hold:\n\n1. **A passing check** — the path was actually verified (a test passed, a clean\n   exit, a green build, a reproduced repro). \"Seemed to work\" doesn't count.\n2. **A named failure pattern** — the failure it avoids or diagnoses, named.\n3. **At least one ruled-out dead-end** — a concrete approach tried and eliminated.\n\nMiss any one and it stays a tentative memory note (or is skipped) rather than a\nskill. This keeps confident-but-unverified guesses out of the skill set.\n_(Promotion rule suggested by community feedback.)_\n\n## Safety\n\nHarvested skills/rules get committed and shared, so this is built to **never\nwrite secret values** — no passwords, tokens, connection strings, or API keys.\nIt records only *where* to find a secret (env var name, a client/selector\nfunction, an MCP tool, a secret manager). Reproducing a secret into a shared\nfile leaks it.\n\n## Repo layout\n\n```\nself-learning-skills/\n├── AGENTS.md                          # generic, cross-tool version of the loop\n├── skills.sh.json                     # registry manifest for `npx skills` / skills.sh\n├── .claude-plugin/\n│   └── marketplace.json               # Claude Code plugin manifest\n├── skills/\n│   └── self-learning/                 # Agent Skills standard (Claude Code + clients)\n│       ├── SKILL.md                   # recognize-the-moment + harvest procedure\n│       ├── references/\n│       │   └── skill-authoring.md     # condensed spec the writer loads to author a good skill\n│       └── assets/\n│           └── SKILL.template.md      # fill-in template for harvested skills\n└── .cursor/\n    └── rules/\n        ├── self-learning.mdc          # Cursor adapter (always-applied rule)\n        └── learned/                   # harvested Cursor rules land here\n```\n\nBuilt on the open [Agent Skills](https://agentskills.io) standard.\n\n## License\n\n[MIT](LICENSE) © kulaxyz\n",
+  "status": "curated"
+}

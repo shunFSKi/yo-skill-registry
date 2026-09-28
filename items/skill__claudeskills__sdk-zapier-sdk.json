@@ -1,0 +1,53 @@
+{
+  "id": "skill:claudeskills/sdk-zapier-sdk",
+  "type": "skill",
+  "name": "zapier-sdk",
+  "description": "Zapier SDK for TypeScript. Programmatic access to 9,000+ apps on a user's behalf via Zapier's OAuth and audit layer. Use when writing code that needs to run actions in third-party apps (send an email, upsert a CRM record, look up a spreadsheet row, post to a chat) without managing per-app OAuth or vendor SDKs. Triggers: \"zapier sdk\", \"zapier-sdk\", \"@zapier/zapier-sdk\", \"runAction\", \"run zapier action\", \"connect to app via zapier\", \"zapier connection\", \"zapier tables\", \"list actions for zapier app\", \"getActionInputFieldsSchema\", \"createZapierSdk\".",
+  "author": "zapier",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/zapier/sdk/tree/HEAD/skills/zapier-sdk",
+    "repo": "zapier/sdk"
+  },
+  "license": null,
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 257,
+    "pushed_at": null,
+    "score": 57
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "<div align=\"center\">\n  <img src=\"assets/readme/banner.svg\" width=\"100%\" alt=\"Zapier SDK — let your agent connect to anything; Zapier handles the keys. A pixel-art key on a keyring of app-colored charms.\">\n</div>\n\nLet your agent connect to anything. Zapier handles the keys.\n\nProgrammatic access to Zapier's full app ecosystem via [`@zapier/zapier-sdk`](https://www.npmjs.com/package/@zapier/zapier-sdk) on npm. Any API call, on behalf of a user.\n\nThis repo bundles the SDK's docs, verified examples, and installable agent skills.\n\n![Terminal demo: zapier-sdk discovers Notion's search actions from the live catalog, then run-action calls one through an existing OAuth connection and returns matching pages as JSON](assets/readme/demo.svg)\n\n<sub>Captured CLI output, replayed — not a mockup. The copyable commands are in <a href=\"#getting-started\">Getting started</a> below; the capture provenance lives in <a href=\".github/scripts/readme-art/transcript.mjs\"><code>transcript.mjs</code></a>.</sub>\n\n## Getting started\n\nPrefer to let your AI coding assistant handle setup? [Install as a plugin instead](#install-with-your-favorite-ai-coding-assistant).\n\n### 1. Install\n\n```bash\nnpm install @zapier/zapier-sdk\nnpm install -D @zapier/zapier-sdk-cli @types/node typescript\n```\n\n### 2. Authenticate\n\nLog in once. Your credentials get stored on your machine and picked up automatically the next time you call `createZapierSdk()`.\n\n```bash\nnpx zapier-sdk login\nnpx zapier-sdk get-profile\n```\n\n### 3. Connect an app\n\nEvery action needs a *connection*: an OAuth grant Zapier holds for the app you're calling. Add one (or several) for whichever apps you want to try. Each `create-connection` command opens a browser for OAuth.\n\n```bash\nnpx zapier-sdk list-connections\nnpx zapier-sdk create-connection notion\nnpx zapier-sdk create-connection gmail\nnpx zapier-sdk create-connection google-sheets\nnpx zapier-sdk create-connection airtable\n```\n\nAny of Zapier's 9,000+ apps works. Swap `notion` for the slug you need.\n\n### 4. Fire an action\n\nOnce you have a connection, `run-action` calls any action from the CLI.\n\n```bash\n# Search Notion pages by title\nnpx zapier-sdk run-action notion search page_by_title \\\n  --inputs '{\"title\":\"Meeting Notes\",\"exact_match\":\"no\"}'\n\n# Search Gmail with the standard Gmail query syntax\nnpx zapier-sdk run-action gmail search message \\\n  --inputs '{\"query\":\"from:receipts@stripe.com\"}'\n\n# Look up a Google Sheets row by column value\nnpx zapier-sdk run-action google-sheets search lookup_row \\\n  --inputs '{\"spreadsheet\":\"<sheet-id>\",\"worksheet\":\"<tab-id>\",\"lookup_key\":\"Email\",\"lookup_value\":\"jane@example.com\"}'\n\n# Find an Airtable record by field\nnpx zapier-sdk run-action airtable search findRecord \\\n  --inputs '{\"applicationId\":\"<base-id>\",\"tableName\":\"Leads\",\"searchByField\":\"Email\",\"searchByValue\":\"jane@example.com\"}'\n```\n\nSee more actions in [`examples/by-app/`](./examples/by-app). Full API reference at [docs.zapier.com/sdk/reference](https://docs.zapier.com/sdk/reference). Want to see more examples in this repo? [Open a PR](./CONTRIBUTING.md) — contributions welcome.\n\n## Examples\n\nThe [`examples/`](./examples) directory is the heart of this repo — indexed three ways:\n\n- **[`by-app/`](./examples/by-app)** — plain single-action SDK examples, one authenticated call.\n- **[`by-domain/`](./examples/by-domain)** — curation-only READMEs mapping a domain (engineering, real estate, ...) to the examples that matter.\n- **[`by-pattern/`](./examples/by-pattern)** — end-to-end automations by shape (notify-on-event, data-sync, lead-routing, scheduled-report).\n\n## How it fits together\n\nYour code calls one npm package; Zapier holds the OAuth grants and resolves action schemas at runtime, so your code never touches a token.\n\n![Architecture: your agent, your backend, and the zapier-sdk CLI call @zapier/zapier-sdk; the SDK talks HTTPS to the Zapier platform, which holds the OAuth connections and the live action catalog, with sdk.fetch as the escape hatch for any HTTP API](assets/readme/architecture.svg)\n\n## Install with your favorite AI coding assistant\n\nDrop every best practice for writing Zapier SDK code straight into your agent's context. Your agent picks up:\n\n- **The `zapier-sdk` skill**: how to authenticate, discover apps and actions at runtime, run actions without inventing method names, and reach for the right escape hatch when there's no first-class action.\n- **The `zapier-sdk-explorer` subagent**: a read-only investigator that resolves exact app / action / field IDs against the live Zapier catalog before your agent writes a line of code.\n- **The verified examples corpus**: every action key checked against `listActions` on the way in, so your agent has canonical, copy-paste-ready patterns to grep.\n\nResult: fewer round trips to the docs, no more invented action keys, and workflows that work the first time.\n\n### Claude Code\n\n```\n/plugin marketplace add zapier/marketplace\n/plugin install sdk@zapier\n```\n\n### OpenAI Codex\n\n```\ncodex plugin marketplace add zapier/marketplace\ncodex plugin add sdk@zapier\n```\n\nOr open the in-CLI picker with `/plugins` and toggle the SDK plugin on.\n\n### GitHub Copilot CLI\n\n```\ncopilot plugin marketplace add zapier/marketplace\ncopilot plugin install sdk@zapier\n```\n\n### Cursor and other assistants\n\nThe [skill](./skills/zapier-sdk/) conforms to [agentskills.io](https://agentskills.io) so any conformant runtime can load it directly. For tools without native agentskills.io support, clone the repo and reference `skills/zapier-sdk/SKILL.md` from your assistant's rules or instructions file (`.cursorrules`, `AGENTS.md`, `.github/copilot-instructions.md`, etc.):\n\n```\ngit clone https://github.com/zapier/sdk.git\n```\n\n## Learn more\n\n- **[zapier.com/sdk](https://zapier.com/sdk)** — product page, pricing, and what the SDK unlocks.\n- **[docs.zapier.com/sdk](https://docs.zapier.com/sdk)** — SDK guides and tutorials.\n- **[docs.zapier.com/sdk/reference](https://docs.zapier.com/sdk/reference)** — full method reference.\n- **[docs.zapier.com/sdk/cli-reference](https://docs.zapier.com/sdk/cli-reference)** — CLI reference for `zapier-sdk`.\n- **[`skills/zapier-sdk/references/cli-commands.md`](./skills/zapier-sdk/references/cli-commands.md)** — full CLI command inventory in-repo, generated from `zapier-sdk --help`.\n- **[`@zapier/zapier-sdk`](https://www.npmjs.com/package/@zapier/zapier-sdk)** — runtime SDK on npm.\n- **[`@zapier/zapier-sdk-cli`](https://www.npmjs.com/package/@zapier/zapier-sdk-cli)** — CLI companion on npm.\n- **[Zapier MCP](https://github.com/zapier/zapier-mcp)** — the MCP-server alternative for tool-calling from Cursor, Claude Desktop, or Codex.\n- **[`llms.txt`](./llms.txt)** — this repo's LLM-friendly index of the skill, examples, and agents.\n- **[docs.zapier.com/llms.txt](https://docs.zapier.com/llms.txt)** — LLM-friendly index of the docs.\n- **[docs.zapier.com](https://docs.zapier.com)** — everything else Zapier.\n\n## Contributing\n\nPRs and feature requests welcome. Start with [CONTRIBUTING.md](./CONTRIBUTING.md). For SDK security issues, email **security@zapier.com** — don't open a public issue.\n\n## Trademarks\n\nProduct and company names used in these examples are trademarks of their respective owners and are used only to identify the service each example integrates with. These examples are not affiliated with, endorsed by, or sponsored by those companies.\n\n## License\n\nMIT (see [LICENSE](./LICENSE)) — covers the code only. Using the Zapier service and APIs through this SDK is governed separately by the [Zapier Terms of Service](https://zapier.com/legal/terms-of-service) or your other agreement with Zapier for use of the Zapier service.\n",
+  "status": "curated"
+}

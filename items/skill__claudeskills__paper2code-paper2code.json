@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/paper2code-paper2code",
+  "type": "skill",
+  "name": "paper2code",
+  "description": "Converts an arxiv paper into a minimal, citation-anchored Python implementation. Trigger when user runs /paper2code with an arxiv URL or paper ID, says \"implement this paper\", or pastes an arxiv link asking for implementation. Flags all ambiguities honestly. Never invents implementation details not stated in the paper.",
+  "author": "prathamlearnstocode",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/prathamlearnstocode/paper2code/tree/HEAD/skills/paper2code",
+    "repo": "prathamlearnstocode/paper2code"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 1522,
+    "pushed_at": null,
+    "score": 64,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 1522
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# paper2code\n\n> **arxiv URL in → citation-anchored implementation out**\n\n```\n┌─────────────────────────────┐         ┌──────────────────────────────────────┐\n│                             │         │  {paper_slug}/                       │\n│  /paper2code                │         │  ├── README.md                       │\n│  https://arxiv.org/abs/     │  ───▶   │  ├── REPRODUCTION_NOTES.md          │\n│  1706.03762                 │         │  ├── requirements.txt               │\n│                             │         │  ├── src/                            │\n│                             │         │  │   ├── model.py     # §3.2 cited  │\n│                             │         │  │   ├── loss.py      # §3.4 cited  │\n│                             │         │  │   ├── train.py     # §4.1 cited  │\n│                             │         │  │   ├── data.py                    │\n│                             │         │  │   ├── evaluate.py                │\n│                             │         │  │   └── utils.py                   │\n│                             │         │  ├── configs/                        │\n│                             │         │  │   └── base.yaml   # all params   │\n│                             │         │  └── notebooks/                      │\n│                             │         │      └── walkthrough.ipynb           │\n└─────────────────────────────┘         └──────────────────────────────────────┘\n```\n\n*[placeholder: animated GIF showing the full pipeline — paper fetch → parsing → ambiguity audit → code generation → walkthrough notebook]*\n\n---\n\n## Why this exists\n\n**The problem:** ML papers are vague. Critical hyperparameters are buried in appendices or omitted entirely. Prose contradicts equations. \"Standard settings\" refers to nothing specific. When you implement a paper, you spend more time detective-working than coding.\n\n**What LLMs get wrong:** Naive code generation fills in every gap silently and confidently. You get something that runs but doesn't match the paper. Worse, you can't tell which parts are from the paper and which were invented by the model.\n\n**What paper2code does differently:**\n\n1. **Citation anchoring** — every line of generated code references the exact paper section and equation it implements (`§3.2, Eq. 4`)\n2. **Ambiguity auditing** — before writing a single line of code, every implementation choice is classified as `SPECIFIED`, `PARTIALLY_SPECIFIED`, or `UNSPECIFIED`\n3. **Honest uncertainty** — unspecified choices are flagged with `[UNSPECIFIED]` comments at the exact line where the choice is made, with common alternatives listed\n4. **Appendix mining** — appendices, footnotes, and figure captions are treated as first-class sources, not ignored\n\nThe result: code you can trust because you can verify every decision against the paper.\n\n---\n\n## Install\n\n```bash\nnpx skills add PrathamLearnsToCode/paper2code/skills/paper2code\n```\n\nYou'll be prompted to:\n1. **Select agents** — pick the coding agents you want to use this skill with (e.g., Claude Code)\n2. **Choose scope** — Global (recommended) or project-level\n3. **Choose method** — Symlink (recommended) or copy\n\nOnce installed, open your agent and run the skill:\n\n```bash\nclaude  # or your preferred agent\n```\n\n---\n\n## Usage\n\n### Basic — generate a minimal implementation\n\n```\n/paper2code https://arxiv.org/abs/1706.03762\n```\n\n### Specify framework\n\n```\n/paper2code https://arxiv.org/abs/2006.11239 --framework jax\n```\n\n### Full mode — includes training loop and data pipeline\n\n```\n/paper2code 2106.09685 --mode full\n```\n\n### Educational mode — extra comments and pedagogical notebook\n\n```\n/paper2code https://arxiv.org/abs/2010.11929 --mode educational\n```\n\n### Using bare arxiv ID\n\n```\n/paper2code 1706.03762\n```\n\n---\n\n## What you get\n\n```\nattention_is_all_you_need/\n├── README.md                    # Paper summary, contribution statement, quick-start\n├── REPRODUCTION_NOTES.md        # Ambiguity audit, unspecified choices, known deviations\n├── requirements.txt             # Pinned dependencies\n├── src/\n│   ├── model.py                 # Architecture — every layer cited to paper section\n│   ├── loss.py                  # Loss functions with equation references\n│   ├── data.py                  # Dataset class skeleton with preprocessing TODOs\n│   ├── train.py                 # Training loop (if in scope)\n│   ├── evaluate.py              # Metric computation code\n│   └── utils.py                 # Shared utilities (masking, positional encoding, etc.)\n├── configs/\n│   └── base.yaml                # All hyperparams — each one cited or flagged [UNSPECIFIED]\n└── notebooks/\n    └── walkthrough.ipynb        # Pedagogical notebook linking paper sections → code → sanity checks\n```\n\n### Key files explained\n\n| File | Purpose |\n|------|---------|\n| `model.py` | Architecture only. Each class maps to a paper section. Variable names match paper notation. |\n| `REPRODUCTION_NOTES.md` | The ambiguity audit. Lists every choice, whether the paper specified it, and what alternatives exist. |\n| `base.yaml` | Single source of truth for all hyperparameters. |\n| `walkthrough.ipynb` | Runnable on CPU with toy dimensions. Quotes paper passages, shows corresponding code, runs shape checks. |\n\n---\n\n## What this skill will NOT do\n\n- **Won't guarantee correctness.** The implementation matches what the paper describes. If the paper is wrong, the code is wrong. If the paper is vague, the code flags it.\n- **Won't invent details.** If the paper doesn't specify a hyperparameter, the code uses a common default and marks it `[UNSPECIFIED]`. It will never silently fill in gaps.\n- **Won't download datasets.** The `data.py` provides a `Dataset` class skeleton with clear instructions on where to get the data and how to preprocess it.\n- **Won't set up training infrastructure.** No distributed training, no experiment tracking, no checkpointing beyond what the paper's contribution requires.\n- **Won't implement baselines.** Only the core contribution of the paper is implemented.\n- **Won't reimplement standard components.** If the paper says \"standard transformer encoder,\" the code imports it or notes the dependency — it doesn't reimplement attention from scratch.\n\n---\n\n## Design principles\n\n### Citation anchoring convention\n\nEvery non-trivial code decision is anchored to the paper:\n\n```python\n# §3.2 — \"We apply layer normalization before each sub-layer\" (Pre-LN variant)\nclass TransformerBlock(nn.Module):\n    def forward(self, x):\n        # §3.2, Eq. 2 — attention_weights = softmax(QK^T / sqrt(d_k))\n        attn_out = self.attention(self.norm1(x))  # (batch, seq_len, d_model)\n        x = x + attn_out  # §3.2 — residual connection\n```\n\n### The UNSPECIFIED flag system\n\n```python\n# [UNSPECIFIED] Paper does not state epsilon for LayerNorm — using 1e-6 (common default)\n# Alternatives: 1e-5 (PyTorch default), 1e-8 (some implementations)\nself.norm = nn.LayerNorm(d_model, eps=1e-6)\n```\n\n```python\n# [ASSUMPTION] Using pre-norm based on \"we found pre-norm more stable\" in §4.1\n# The paper uses post-norm in Figure 1 but pre-norm in experiments — ambiguous\n```\n\n### Ambiguity classification\n\n| Tag | Meaning |\n|-----|---------|\n| `§X.Y` | Directly specified in paper section X.Y |\n| `§X.Y, Eq. N` | Implements equation N from section X.Y |\n| `[UNSPECIFIED]` | Paper does not state this — our choice with alternatives listed |\n| `[PARTIALLY_SPECIFIED]` | Paper mentions this but is ambiguous — quote included |\n| `[ASSUMPTION]` | Reasonable inference from paper context — reasoning explained |\n| `[FROM_OFFICIAL_CODE]` | Taken from the authors' official implementation |\n\n---\n\n## Contributing\n\n### Adding worked examples\n\nWorked examples are the most trust-building part of this project. To add one:\n\n1. Pick a well-known paper (people should be able to verify the output)\n2. Run the skill: `/paper2code https://arxiv.org/abs/XXXX.XXXXX`\n3. Save the full output to `skills/paper2code/worked/{paper_slug}/`\n4. Write a `review.md` that honestly evaluates:\n   - What the skill got right\n   - What it correctly flagged as unspecified\n   - Any mistakes it made\n   - Any edge cases it handled well or poorly\n5. Submit a PR with all of the above\n\n### Improving guardrails\n\nIf you find a pattern where the skill hallucinates or makes a silent assumption, add it to the appropriate file in `guardrails/`.\n\n### Adding domain knowledge\n\nIf papers in your subfield consistently reference components that the skill doesn't know about (e.g., graph neural network primitives, RL components), add a knowledge file in `knowledge/`.\n\n---\n\n## Worked examples\n\nThis repo includes fully worked examples to demonstrate output quality:\n\n| Paper | Type | Command |\n|-------|------|---------|\n| Attention Is All You Need (1706.03762) | Architecture | `/paper2code https://arxiv.org/abs/1706.03762` |\n| DDPM (2006.11239) | Training method | `/paper2code https://arxiv.org/abs/2006.11239` |\n\nEach includes the complete generated output plus an honest `review.md` evaluating what the skill got right and wrong.\n\n---\n",
+  "status": "curated"
+}

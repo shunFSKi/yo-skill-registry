@@ -1,0 +1,69 @@
+{
+  "id": "mcp:official/io.github.exoma-ch/hyrr",
+  "type": "mcp",
+  "name": "HYRR",
+  "description": "Radio-isotope production, activity and dose for charged-particle beams on stacked targets",
+  "author": "io.github.exoma-ch",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/exoma-ch/hyrr",
+    "repo": "exoma-ch/hyrr"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "hyrr-mcp"
+    ],
+    "env": [
+      {
+        "name": "HYRR_DATA",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "HYRR_LIBRARY",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-28T19:40:08.022734Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# HYRR\n\n**Hierarchical Yield and Radionuclide Rates**\n\nA pure Python package for predicting radio-isotope production in stacked\ntarget assemblies, using TENDL cross-section data and NIST stopping power\ntables.\n\n**[Web App](https://exoma-ch.github.io/hyrr/)** | **[Desktop App](https://github.com/exoma-ch/hyrr/releases)** | **[Documentation](https://exoma-ch.github.io/hyrr/docs/)**\n\nTry it now — full simulation runs in the browser, no install, no data leaves your machine. Need offline access? Download the [desktop app](https://github.com/exoma-ch/hyrr/releases) for Windows, macOS, or Linux.\n\n## What it does\n\n- Stopping power via PSTAR/ASTAR table lookup (replaces Bethe-Bloch)\n- Energy-integrated production rates for any projectile (p, d, t, ³He, α)\n- Bateman equations for activity, yield, and decay chains\n- Compound materials with natural or enriched isotopic composition\n- Stacked layer geometries (windows, targets, degraders, backings)\n- Depth-resolved heat and activity profiles\n\n## Performance\n\nHYRR is designed for interactive use — simulations are fast enough for real-time parameter sweeps:\n\n| Operation | Time |\n|---|---|\n| Single isotope production rate | ~56 µs |\n| Full layer simulation (all isotopes) | ~1.6 ms |\n\nCompared to tools like Isotopia, HYRR is significantly faster and lighter: pure NumPy/SciPy with Parquet-backed nuclear data (no heavy ORM, no database server). The browser frontend achieves similar performance with a pure TypeScript compute engine.\n\n## Installation\n\n```bash\nuv add git+https://github.com/exoma-ch/hyrr.git\n```\n\n## Quick start\n\n```python\nfrom hyrr import TargetStack, Layer, Beam\n\nstack = TargetStack(\n    beam=Beam(projectile=\"p\", energy_MeV=30.0, current_mA=0.15),\n    layers=[\n        Layer(material=havar, thickness_cm=0.0025),\n        Layer(material=enriched_mo100, energy_out_MeV=12.0),\n        Layer(material=copper, thickness_cm=0.5),\n    ],\n)\n\nresult = stack.run(irradiation_time_s=86400, cooling_time_s=86400)\nresult.summary()\n```\n\n## Frontend\n\n**[exoma-ch.github.io/hyrr](https://exoma-ch.github.io/hyrr/)** — hosted on GitHub Pages, zero backend.\n\nThe browser frontend (`frontend/`) is a standalone Svelte 5 + TypeScript app with a pure-TS physics engine (no Python/WASM). Nuclear data is lazy-loaded from Parquet files via hyparquet. All computation runs locally — no server, no data upload.\n\nThe physics engine is also published as `@hyrr/compute` (npm workspace under `packages/compute/`) for use in Node.js tools and the MCP server.\n\nKey frontend features:\n- **Repeating layer groups** — wrap layers into groups repeated N times or until beam energy drops below a threshold\n- **Undo/redo** — Cmd+Z / Cmd+Shift+Z with 50-deep history\n- **Simulation mode** — Auto (live) or Manual (run on demand) with status indicator\n- **URL sharing + sessions** — full config (including groups) encoded in URL hash; session tabs persist across reloads\n- **Isotope filter** — shared filter bar above activity plots and activity table\n\n## Install channels\n\nHYRR ships through one channel per surface. Pick the one that matches what you actually want:\n\n| You want… | Use | Command |\n|---|---|---|\n| The desktop GUI | GitHub Releases | [Download installer](https://github.com/exoma-ch/hyrr/releases) (`.dmg` / `.msi` / `.deb` / `.AppImage`) |\n| The MCP server, no GUI | uvx (PyPI) | `claude mcp add hyrr -- uvx hyrr-mcp` |\n| The MCP server, already have desktop | desktop binary | `claude mcp add hyrr -- /Applications/HYRR.app/Contents/MacOS/hyrr --mcp` |\n| The Python library | pip / uv | `pip install hyrr` |\n| The browser app | static GitHub Pages | [hyrr.app](https://exoma-ch.github.io/hyrr/) |\n| Build the MCP from source (devs) | cargo, from a checkout | `cd hyrr-mcp && cargo build --release` → `./target/release/hyrr-mcp` |\n\nSee [docs/adr/0001-mcp-single-ssot-and-install-channels.md](docs/adr/0001-mcp-single-ssot-and-install-channels.md) for the rationale behind the split.\n\n## MCP Server\n\nAgent-driven irradiation analysis via the Model Context Protocol. Listed in the\n[official MCP Registry](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.exoma-ch/hyrr)\nas `io.github.exoma-ch/hyrr`, so registry-aware clients can find and install it\nwithout this README; each `hyrr-mcp-v*` release updates the listing. All entry points share the same Rust codepath (`core/src/mcp/`) — adding a tool means editing one file and every surface picks it up on next build.\n\nTools: `simulate`, `list_materials`, `list_reaction_channels`, `get_decay_data`, `compare_simulations`, `get_stack_energy_budget`, `get_stopping_power`, `get_isotope_production_curve`. Every response footer carries `*Library: <id> · data release: <ver>*` so agents see which nuclear data fed the calculation — a library id alone does not identify it, since the same library at two data releases is two different sets of numbers (#681). Referrals to `nucl-parquet-mcp` for deeper data carry the same pair: the two servers resolve their data independently and nothing compares them.\n\n## Desktop App\n\n**[Download](https://github.com/exoma-ch/hyrr/releases)** — available for Windows, macOS (Apple Silicon & Intel), and Linux.\n\nThe desktop app (`desktop/`) wraps the same frontend in a native window using [Tauri v2](https://v2.tauri.app/). All nuclear data (~68 MB Parquet) is bundled, so it works fully offline on air-gapped machines. Built with the system webview — the installer is ~15 MB.\n\n| Platform | Artifact |\n|---|---|\n| Windows 10+ | `.msi` installer + `.exe` (NSIS) |\n| macOS 10.15+ | `.dmg` (Apple Silicon) / `.dmg` (Intel) |\n| Ubuntu 22.04+ | `.deb` + `.AppImage` |\n\nReleases are built automatically via GitHub Actions on version tags (`v*`).\n\n## Development\n\n```bash\ngit clone --recurse-submodules https://github.com/exoma-ch/hyrr.git\ncd hyrr\nuv sync --all-extras\nuv run pytest\n```\n\nFrontend:\n\n```bash\ncd frontend\nnpm ci\nnpm run dev\nnpm test          # vitest\nnpm run check     # svelte-check (TypeScript)\n```\n\nDesktop (requires [Tauri CLI](https://v2.tauri.app/start/prerequisites/) and Rust):\n\n```bash\nnpm install -g @tauri-apps/cli\ncd desktop && npx tauri dev\n```\n\n## Contributing\n\n1. Fork and create a feature branch\n2. **Python:** `uv sync --all-extras`, then `uv run pytest` and `uv run ruff check src/`\n3. **Frontend:** `cd frontend && npm ci`, then `npm test` and `npm run check`\n4. Commit format: `type(scope): description`\n5. Open a PR against `main`\n\n## Dependencies\n\n- numpy, scipy — numerics\n- polars — data access (Parquet backend)\n- matplotlib — plotting\n- py-mat — material definitions\n- nucl-parquet — evaluated nuclear data (TENDL, ENDF/B, JENDL, JEFF, EXFOR)\n\n## About eXoma\n\n**eXoma** — *Exotic Matter Applications* — is a research group at ETH Zürich focused on novel radioisotope production methods and targetry.\n\n## License & legal\n\n- **Code:** [MIT](LICENSE).\n- **Bundled nuclear data** (via the `nucl-parquet` submodule): third-party — each\n  library keeps its own terms and required citation. See\n  [nucl-parquet/ATTRIBUTION.md](nucl-parquet/ATTRIBUTION.md); HYRR does not\n  relicense the data.\n- **Disclaimer:** results carry evaluated-data uncertainties and are **not\n  validated** for clinical, safety, or regulatory use — see [DISCLAIMER](DISCLAIMER.md).\n- [Privacy](PRIVACY.md) · [Terms](TERMS.md) · [How to cite](CITATION.cff) · [Compliance](COMPLIANCE.md) · [Contributing](CONTRIBUTING.md)\n",
+  "status": "curated"
+}

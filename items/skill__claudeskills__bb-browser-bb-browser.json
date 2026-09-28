@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/bb-browser-bb-browser",
+  "type": "skill",
+  "name": "bb-browser",
+  "description": "Your browser is the API. CLI + MCP server for AI agents to control Chrome with your login state.",
+  "author": "epiral",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/epiral/bb-browser/tree/HEAD/skills/bb-browser",
+    "repo": "epiral/bb-browser"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 6232,
+    "pushed_at": null,
+    "score": 66,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 6232
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "<div align=\"center\">\n\n# bb-browser\n\n### BadBoy Browser\n\n**Your browser is the API. No keys. No bots. No scrapers.**\n\n[![npm](https://img.shields.io/npm/v/bb-browser?color=CB3837&logo=npm&logoColor=white)](https://www.npmjs.com/package/bb-browser)\n[![Node.js](https://img.shields.io/badge/Node.js-18+-339933?logo=node.js&logoColor=white)](https://nodejs.org)\n[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)\n\n[English](README.md) · [中文](README.zh-CN.md)\n\n</div>\n\n---\n\nYou're already logged into Twitter, Reddit, YouTube, Zhihu, Bilibili, LinkedIn, GitHub — bb-browser lets AI agents **use that directly**.\n\n```bash\nbb-browser site twitter/search \"AI agent\"       # search tweets\nbb-browser site zhihu/hot                        # trending on Zhihu\nbb-browser site arxiv/search \"transformer\"       # search papers\nbb-browser site eastmoney/stock \"茅台\"            # real-time stock quote\nbb-browser site boss/search \"AI engineer\"        # search jobs\nbb-browser site wikipedia/summary \"Python\"       # Wikipedia summary\nbb-browser site youtube/transcript VIDEO_ID      # full transcript\nbb-browser site stackoverflow/search \"async\"     # search SO questions\n```\n\n**103 commands across 36 platforms.** All using your real browser's login state. [Full list →](https://github.com/epiral/bb-sites)\n\n## The idea\n\nThe internet was built for browsers. AI agents have been trying to access it through APIs — but 99% of websites don't offer one.\n\nbb-browser flips this: **instead of forcing websites to provide machine interfaces, let machines use the human interface directly.** The adapter runs `eval` inside your browser tab, calls `fetch()` with your cookies, or invokes the page's own webpack modules. The website thinks it's you. Because it **is** you.\n\n| | Playwright / Selenium | Scraping libs | bb-browser |\n|---|---|---|---|\n| Browser | Headless, isolated | No browser | Your real Chrome |\n| Login state | None, must re-login | Cookie extraction | Already there |\n| Anti-bot | Detected easily | Cat-and-mouse | Invisible — it IS the user |\n| Complex auth | Can't replicate | Reverse engineer | Page handles it itself |\n\n## Quick Start\n\n### Install\n\n```bash\nnpm install -g bb-browser\n```\n\n### Use\n\n```bash\nbb-browser site update        # pull community adapters\nbb-browser site recommend     # see which adapters match your browsing habits\nbb-browser site zhihu/hot     # go\n```\n\n### OpenClaw (no extension needed)\n\nIf you use [OpenClaw](https://openclaw.ai), bb-browser runs directly through OpenClaw's built-in browser — no Chrome extension or daemon required:\n\n```bash\nbb-browser site reddit/hot --openclaw\nbb-browser site xueqiu/hot-stock 5 --openclaw --jq '.items[] | {name, changePercent}'\n```\n\nSkill on ClawHub: [bb-browser-openclaw](https://clawhub.ai/yan5xu/bb-browser)\n\n### MCP (Claude Code / Cursor)\n\n```json\n{\n  \"mcpServers\": {\n    \"bb-browser\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"bb-browser\", \"--mcp\"]\n    }\n  }\n}\n```\n\n## 36 platforms, 103 commands\n\nCommunity-driven via [bb-sites](https://github.com/epiral/bb-sites). One JS file per command.\n\n| Category | Platforms | Commands |\n|----------|-----------|----------|\n| **Search** | Google, Baidu, Bing, DuckDuckGo, Sogou WeChat | search |\n| **Social** | Twitter/X, Reddit, Weibo, Xiaohongshu, Jike, LinkedIn, Hupu | search, feed, thread, user, notifications, hot |\n| **News** | BBC, Reuters, 36kr, Toutiao, Eastmoney | headlines, search, newsflash, hot |\n| **Dev** | GitHub, StackOverflow, HackerNews, CSDN, cnblogs, V2EX, Dev.to, npm, PyPI, arXiv | search, issues, repo, top, thread, package |\n| **Video** | YouTube, Bilibili | search, video, transcript, popular, comments, feed |\n| **Entertainment** | Douban, IMDb, Genius, Qidian | movie, search, top250 |\n| **Finance** | Xueqiu, Eastmoney, Yahoo Finance | stock, hot stocks, feed, watchlist, search |\n| **Jobs** | BOSS Zhipin, LinkedIn | search, detail, profile |\n| **Knowledge** | Wikipedia, Zhihu, Open Library | search, summary, hot, question |\n| **Shopping** | SMZDM | search deals |\n| **Tools** | Youdao, GSMArena, Product Hunt, Ctrip | translate, phone specs, trending products |\n\n## 10 minutes to add any website\n\n```bash\nbb-browser guide    # full tutorial\n```\n\nTell your AI agent: *\"turn XX website into a CLI\"*. It reads the guide, reverse-engineers the API with `network --with-body`, writes the adapter, tests it, and submits a PR. All autonomously.\n\nThree tiers of adapter complexity:\n\n| Tier | Auth method | Example | Time |\n|------|-------------|---------|------|\n| **1** | Cookie (fetch directly) | Reddit, GitHub, V2EX | ~1 min |\n| **2** | Bearer + CSRF token | Twitter, Zhihu | ~3 min |\n| **3** | Webpack injection / Pinia store | Twitter search, Xiaohongshu | ~10 min |\n\nWe tested this: **20 AI agents ran in parallel, each independently reverse-engineered a website and produced a working adapter.** The marginal cost of adding a new website to the agent-accessible internet is approaching zero.\n\n## What this means for AI agents\n\nWithout bb-browser, an AI agent's world is: **files + terminal + a few APIs with keys.**\n\nWith bb-browser: **files + terminal + the entire internet.**\n\nAn agent can now, in under a minute:\n\n```bash\n# Cross-platform research on any topic\nbb-browser site arxiv/search \"retrieval augmented generation\"\nbb-browser site twitter/search \"RAG\"\nbb-browser site github search rag-framework\nbb-browser site stackoverflow/search \"RAG implementation\"\nbb-browser site zhihu/search \"RAG\"\nbb-browser site 36kr/newsflash\n```\n\nSix platforms, six dimensions, structured JSON. Faster and broader than any human researcher.\n\n## Also a full browser automation tool\n\n```bash\nbb-browser open https://example.com\nbb-browser snapshot -i                # accessibility tree\nbb-browser click @3                   # click element\nbb-browser fill @5 \"hello\"            # fill input\nbb-browser eval \"document.title\"      # run JS\nbb-browser fetch URL --json           # authenticated fetch\nbb-browser network requests --with-body --json  # capture traffic\nbb-browser screenshot                 # take screenshot\n```\n\nAll commands support `--json` output, `--jq <expr>` for inline filtering, and `--tab <id>` for concurrent multi-tab operations.\n\n```bash\nbb-browser site xueqiu/hot-stock 5 --jq '.items[] | {name, changePercent}'\n# {\"name\":\"云天化\",\"changePercent\":\"2.08%\"}\n# {\"name\":\"东芯股份\",\"changePercent\":\"-7.60%\"}\n\nbb-browser site info xueqiu/stock   # view adapter args, example, domain\n```\n\n## Daemon configuration\n\nThe daemon binds to `127.0.0.1:19824` by default. You can customize the host with `--host`:\n\n```bash\nbb-browser daemon --host 127.0.0.1    # IPv4 only (fix macOS IPv6 issues)\nbb-browser daemon --host 0.0.0.0      # listen on all interfaces (for Tailscale / ZeroTier remote access)\n```\n\n## Architecture\n\n```\nAI Agent (Claude Code, Codex, Cursor, etc.)\n       │ CLI or MCP (stdio)\n       ▼\nbb-browser CLI ──HTTP──▶ Daemon ──CDP WebSocket──▶ Your Real Browser\n                           │\n                    ┌──────┴──────┐\n                    │ Per-tab     │\n                    │ event cache │\n                    │ (network,   │\n                    │  console,   │\n                    │  errors)    │\n                    └─────────────┘\n```\n\n## License\n\n[MIT](LICENSE)\n",
+  "status": "curated"
+}

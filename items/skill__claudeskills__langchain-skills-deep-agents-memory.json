@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/langchain-skills-deep-agents-memory",
+  "type": "skill",
+  "name": "deep-agents-memory",
+  "description": "INVOKE THIS SKILL when your Deep Agent needs memory, persistence, or filesystem access. Covers StateBackend (ephemeral), StoreBackend (persistent), FilesystemMiddleware, and CompositeBackend for routing.",
+  "author": "langchain-ai",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/langchain-ai/langchain-skills/tree/HEAD/config/skills/deep-agents-memory",
+    "repo": "langchain-ai/langchain-skills"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 1254,
+    "pushed_at": null,
+    "score": 63,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 1255
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "AI",
+    "featured": false
+  },
+  "readme": "# LangChain Skills\n\n> **⚠️** — This project is in early development. APIs and skill content may change.\n\nAgent skills for building agents with LangChain, LangGraph, and Deep Agents.\n\n> For LangSmith-specific trace and dataset workflows, use [langsmith-skills](https://github.com/langchain-ai/langsmith-skills).\n\n## Supported Coding Agents\n\nThese skills can be installed via [`npx skills`](https://github.com/vercel-labs/skills) for any agent that supports the [Agent Skills specification](https://skills.sh), including Claude Code, Cursor, Windsurf, and more.\n\n## Installation\n\n### Quick Install\n\nUsing [`npx skills`](https://github.com/vercel-labs/skills):\n\n**Local** (current project):\n\n```bash\nnpx skills add langchain-ai/langchain-skills --skill '*' --yes\n```\n**Global** (all projects):\n\n```bash\nnpx skills add langchain-ai/langchain-skills --skill '*' --yes --global\n```\nTo link skills to a specific agent (e.g. Claude Code):\n\n```bash\nnpx skills add langchain-ai/langchain-skills --agent claude-code --skill '*' --yes --global\n```\n\n---\n\n### Claude Code Plugin\n\nInstall directly as a [Claude Code plugin](https://code.claude.com/docs/en/plugins):\n\n```bash\n/plugin marketplace add langchain-ai/langchain-skills\n/plugin install langchain-skills@langchain-skills\n```\n\n---\n\n### Install Script (Claude Code & Deep Agents CLI only)\n\nAlternatively, clone the repo and use the install script:\n\n```bash\n# Install for Claude Code in current directory (default)\n./install.sh\n\n# Install for Claude Code in a specific project directory\n./install.sh ~/my-project\n\n# Install for Claude Code globally\n./install.sh --global\n\n# Install for Deep Agents CLI in a specific project directory\n./install.sh --deepagents ~/my-project\n\n# Install for Deep Agents CLI globally (includes agent persona)\n./install.sh --deepagents --global\n```\n\n| Flag / Argument | Description |\n|------|-------------|\n| `DIRECTORY` | Target project directory (default: current directory, ignored with `--global`) |\n| `--claude` | Install for Claude Code (default) |\n| `--deepagents` | Install for Deep Agents CLI |\n| `--global`, `-g` | Install globally instead of current directory |\n| `--force`, `-f` | Overwrite skills with same names as this package |\n| `--yes`, `-y` | Skip confirmation prompts |\n\n## Usage\n\nAfter installation, set your API keys:\n\n```bash\nexport OPENAI_API_KEY=<your-key>      # For OpenAI models\nexport ANTHROPIC_API_KEY=<your-key>   # For Anthropic models\n```\n\nThen run your coding agent from the directory where you installed (for local installs) or from anywhere (for global installs).\n\n### Eval Engineering\n\nTo install only the eval-engineering skill:\n\n```bash\nnpx skills add langchain-ai/langchain-skills --skill eval-engineering --yes\n```\n\nOr ask Codex: “Install the `eval-engineering` skill from `langchain-ai/langchain-skills`.”\n\nEval tasks require [Harbor](https://www.harborframework.com/docs). Run Harbor locally with Docker or use a supported cloud environment.\n\nThen ask your coding agent:\n\n```text\nUse the eval-engineering skill to create a new eval Task for this project. Review the current repository and existing evals. Traces for this agent can be found here [optional Tracing Project/Location].\n```\n\n## Available Skills (21)\n\n### Getting Started\n- **ecosystem-primer** - Start-here primer: framework selection (LangChain vs LangGraph vs Deep Agents), env setup, and which skill to load next\n- **langchain-dependencies** - Full package version and dependency management reference (Python + TypeScript)\n\n### Quickstarts (local)\nThin wrappers around the official Mintlify quickstarts — ask for provider/model (default `anthropic:claude-sonnet-5`), new directory, provider API key only:\n- **langchain-python-quickstart** / **langchain-typescript-quickstart** → [Python](https://docs.langchain.com/oss/python/langchain/quickstart) / [JS](https://docs.langchain.com/oss/javascript/langchain/quickstart) (weather)\n- **langgraph-python-quickstart** / **langgraph-typescript-quickstart** → [Python](https://docs.langchain.com/oss/python/langgraph/quickstart) / [JS](https://docs.langchain.com/oss/javascript/langgraph/quickstart) (math)\n- **deepagents-python-quickstart** / **deepagents-typescript-quickstart** → [Python](https://docs.langchain.com/oss/python/deepagents/quickstart) / [JS](https://docs.langchain.com/oss/javascript/deepagents/quickstart) (research; provider web search instead of Tavily)\n\n### Deep Agents\n- **deep-agents-core** - Agent architecture, harness setup, and SKILL.md format\n- **deep-agents-memory** - Memory, persistence, filesystem middleware\n- **deep-agents-orchestration** - Subagents, task planning, human-in-the-loop\n- **managed-deep-agents** - Managed Deep Agents: deploy with the CLI, use the SDKs, stream runs, connect MCP tools, and build React `useStream` UIs\n\n### LangChain\n- **langchain-fundamentals** - Agents with create_agent, tools, structured output, middleware basics\n- **langchain-middleware** - Human-in-the-loop approval, custom middleware, Command resume patterns\n- **langchain-rag** - RAG pipeline (document loaders, embeddings, vector stores)\n\n### LangGraph\n- **langgraph-fundamentals** - StateGraph, nodes, edges, state reducers\n- **langgraph-persistence** - Checkpointers, thread_id, cross-thread memory\n- **langgraph-cli** - CLI lifecycle: scaffold, dev, build, deploy, langgraph.json config\n- **langgraph-human-in-the-loop** - Interrupts, human review, approval workflows\n\n### Evaluation\n- **eval-engineering** - Design and audit Harbor Tasks while building reusable project World knowledge with human review\n\n### Utilities\n- **swarm** - Dispatch independent work items in parallel and aggregate the results\n",
+  "status": "curated"
+}

@@ -1,0 +1,53 @@
+{
+  "id": "skill:claudeskills/openclaw-xhs-xiaohongshu",
+  "type": "skill",
+  "name": "xiaohongshu",
+  "description": "openclaw-xhs — agent skills repository.",
+  "author": "zhjiang22",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/zhjiang22/openclaw-xhs",
+    "repo": "zhjiang22/openclaw-xhs"
+  },
+  "license": null,
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 123,
+    "pushed_at": null,
+    "score": 48
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# XHS AI Toolkit\n\n<p align=\"center\">\n  <b>Make AI understand your Xiaohongshu (RedNote)</b>\n</p>\n\n<p align=\"center\">\n  <a href=\"README_CN.md\">简体中文</a> | English\n</p>\n\n<p align=\"center\">\n  <img alt=\"License\" src=\"https://img.shields.io/badge/license-MIT-blue.svg\">\n  <img alt=\"Platform\" src=\"https://img.shields.io/badge/platform-Linux%20%7C%20macOS-lightgrey.svg\">\n  <img alt=\"Python\" src=\"https://img.shields.io/badge/python-3.10+-green.svg\">\n  <img alt=\"MCP\" src=\"https://img.shields.io/badge/MCP-compatible-purple.svg\">\n</p>\n\n---\n\nAI-powered toolkit for **Xiaohongshu (小红书 / RedNote)** that turns your favorite posts into AI memory.\n\n- **MCP Integration** — Search, browse, comment via AI assistants\n- **Trend Tracking** — Auto-generate topic reports with engagement analytics\n- **Memory Export** — Convert your liked/saved posts into AI-searchable knowledge base\n\nBuilt on [xiaohongshu-mcp](https://github.com/xpzouying/xiaohongshu-mcp) and [XHS-Downloader](https://github.com/JoeanAmier/XHS-Downloader).\n\n## Features\n\n| Feature | Description |\n|---------|-------------|\n| Search | Search posts by keywords |\n| Feed | Get homepage recommendations |\n| Post Details | Fetch post content, comments, engagement stats |\n| Comment | Post comments to notes |\n| User Profile | Get user info and their posts |\n| Trend Tracking | Auto-generate topic analysis reports |\n| Long Image Export | Export posts as annotated JPG long images |\n| Memory Export | Export liked/saved posts as Markdown for AI memory |\n\n## Quick Start\n\n### 1. Install xiaohongshu-mcp\n\nDownload from [GitHub Releases](https://github.com/xpzouying/xiaohongshu-mcp/releases):\n\n```bash\n# Linux x64\nwget https://github.com/xpzouying/xiaohongshu-mcp/releases/latest/download/xiaohongshu-mcp-linux-amd64.tar.gz\nwget https://github.com/xpzouying/xiaohongshu-mcp/releases/latest/download/xiaohongshu-login-linux-amd64.tar.gz\n\n# macOS ARM\nwget https://github.com/xpzouying/xiaohongshu-mcp/releases/latest/download/xiaohongshu-mcp-darwin-arm64.tar.gz\nwget https://github.com/xpzouying/xiaohongshu-mcp/releases/latest/download/xiaohongshu-login-darwin-arm64.tar.gz\n```\n\nInstall:\n\n```bash\nmkdir -p ~/.local/bin\ntar -xzf xiaohongshu-mcp-*.tar.gz -C ~/.local/bin/\ntar -xzf xiaohongshu-login-*.tar.gz -C ~/.local/bin/\n\ncd ~/.local/bin\nmv xiaohongshu-mcp-* xiaohongshu-mcp\nmv xiaohongshu-login-* xiaohongshu-login\nchmod +x xiaohongshu-mcp xiaohongshu-login\n```\n\n### 2. Install This Toolkit\n\n```bash\n# Clone to OpenClaw workspace\ngit clone https://github.com/zhjiang22/openclaw-xhs.git\ncp -r openclaw-xhs ~/.openclaw/workspace/skills/xiaohongshu\n\n# Or use symlink\nln -s /path/to/openclaw-xhs ~/.openclaw/workspace/skills/xiaohongshu\n\n# Verify installation\ncd ~/.openclaw/workspace/skills/xiaohongshu/scripts\n./install-check.sh\n```\n\n### 3. Login (Get Cookies)\n\n**Option A: Desktop Environment**\n\n```bash\n./login.sh  # Opens browser, scan QR code with Xiaohongshu app\n```\n\n**Option B: Headless Server**\n\nGet cookies on your local machine, then copy to server:\n\n```bash\n# On local machine with GUI\n./xiaohongshu-login\n# Cookies saved to /tmp/cookies.json\n\n# Copy to server\nscp /tmp/cookies.json user@server:~/.xiaohongshu/cookies.json\n```\n\n### 4. Start Service\n\n```bash\n./start-mcp.sh              # Headless mode\n./start-mcp.sh --headless=false  # Show browser (debug)\n```\n\nService runs at `http://localhost:18060/mcp`.\n\n#### Server Deployment (Headless Linux)\n\nOn servers without a desktop environment, the underlying browser requires a virtual display.\n`start-mcp.sh` **auto-detects** the environment — if no display is found, it starts Xvfb automatically. Just install it first:\n\n```bash\n# Debian/Ubuntu\nsudo apt-get install -y xvfb\n\n# CentOS/RHEL\nsudo yum install -y xorg-x11-server-Xvfb\n```\n\nNo extra configuration needed. The script handles:\n- Detecting the `DISPLAY` environment variable\n- Auto-starting `Xvfb :99` when no display is available\n- Cleaning up Xvfb when `stop-mcp.sh` is called\n\n> **Note**: Without Xvfb, login and search will fail on headless servers. See [Issue #3](https://github.com/zhjiang22/openclaw-xhs/issues/3).\n\n## Usage\n\n### Basic Commands\n\n```bash\n./status.sh                    # Check login status\n./search.sh \"coffee\"           # Search posts\n./recommend.sh                 # Get recommendations\n./post-detail.sh <id> <token>  # Get post details\n./comment.sh <id> <token> \"Great post!\"  # Comment\n./user-profile.sh <user_id> <xsec_token>  # Get user profile\n```\n\n### Trend Tracking\n\nAuto-search trending posts and generate analysis reports:\n\n```bash\n./track-topic.sh \"AI\" --limit 10\n./track-topic.sh \"travel\" --limit 5 --output report.md\n./track-topic.sh \"iPhone\" --limit 5 --feishu  # Export to Feishu\n```\n\n### MCP Tools\n\n| Tool | Description |\n|------|-------------|\n| `check_login_status` | Check login status |\n| `search_feeds` | Search posts |\n| `list_feeds` | Get homepage feed |\n| `get_feed_detail` | Get post details & comments |\n| `post_comment_to_feed` | Post comment |\n| `user_profile` | Get user profile |\n| `like_feed` | Like/unlike post |\n| `favorite_feed` | Save/unsave post |\n| `publish_content` | Publish image post |\n| `publish_with_video` | Publish video post |\n\n### Long Image Export\n\nExport posts as annotated JPG long images (white background, black text):\n\n```bash\n# Prepare posts.json\ncat > posts.json << 'EOF'\n[\n  {\n    \"title\": \"Post title\",\n    \"author\": \"Author\",\n    \"stats\": \"13k likes 100 saves\",\n    \"desc\": \"Post summary\",\n    \"images\": [\"https://...webp\"],\n    \"per_image_text\": {\"1\": \"Caption for 2nd image\"}\n  }\n]\nEOF\n\n./export-long-image.sh --posts-file posts.json -o output.jpg\n```\n\nRequires: Python 3.10+, Pillow (`pip install Pillow`)\n\n## Memory Export (Turn Likes into AI Memory)\n\nExport your liked/saved posts as a searchable knowledge base for AI assistants.\n\n### 1. Install XHS-Downloader\n\n```bash\ngit clone https://github.com/JoeanAmier/XHS-Downloader.git\ncd XHS-Downloader\npip install -r requirements.txt\n```\n\n### 2. Extract Post Links (Tampermonkey Script)\n\n1. Install [Tampermonkey](https://www.tampermonkey.net/)\n2. Install [XHS-Downloader UserScript](https://raw.githubusercontent.com/JoeanAmier/XHS-Downloader/refs/heads/master/static/XHS-Downloader.js)\n3. Go to Xiaohongshu web → Profile → Liked/Saved\n4. Click Tampermonkey menu → \"Extract liked posts\" or \"Extract saved posts\"\n5. Links auto-copied to clipboard\n6. Paste into `links.md`\n\n### 3. Download & Export\n\n```bash\n# Copy helper scripts\ncp tools/xhs-downloader/*.py /path/to/XHS-Downloader/\n\n# Download posts\ncd /path/to/XHS-Downloader\npython batch_download.py links.md\n\n# Export to workspace\npython export_to_workspace.py\n# Output: ~/.openclaw/workspace/xhs-memory/\n```\n\n### 4. Configure OpenClaw Memory Search\n\nEdit `~/.openclaw/openclaw.json`:\n\n```json\n{\n  \"memorySearch\": {\n    \"extraPaths\": [\n      \"~/.openclaw/workspace/xhs-memory\"\n    ]\n  }\n}\n```\n\nNow your AI assistant can search your Xiaohongshu favorites!\n\n## Project Structure\n\n```\nopenclaw-xhs/\n├── README.md             # English docs\n├── README_CN.md          # Chinese docs\n├── LICENSE\n├── SKILL.md              # Skill manifest\n├── scripts/              # MCP wrapper scripts\n│   ├── install-check.sh\n│   ├── start-mcp.sh\n│   ├── stop-mcp.sh\n│   ├── login.sh\n│   ├── mcp-call.sh\n│   ├── status.sh\n│   ├── search.sh\n│   ├── recommend.sh\n│   ├── post-detail.sh\n│   ├── comment.sh\n│   ├── user-profile.sh\n│   ├── track-topic.sh\n│   ├── track-topic.py\n│   ├── export-long-image.sh\n│   └── export-long-image.py\n└── tools/\n    └── xhs-downloader/   # Memory export tools\n        ├── README.md\n        ├── batch_download.py\n        ├── export_memory.py\n        └── export_to_workspace.py\n```\n\n## Security\n\nThis project implements the following security measures:\n\n- **Cookie protection**: Cookie files are copied with `600` permissions (owner-only read/write)\n- **Injection prevention**: All shell scripts use `jq` to build JSON payloads instead of string interpolation, preventing shell injection\n- **Tool name validation**: MCP tool names are restricted to alphanumeric characters and underscores\n- **Path validation**: Cross-skill script calls validate that target paths are within allowed directories\n- **Third-party content**: Content fetched from Xiaohongshu is user-generated; exercise appropriate caution\n\n\n## Disclaimer\n\nThis project is a **wrapper layer** for [xiaohongshu-mcp](https://github.com/xpzouying/xiaohongshu-mcp).\n\n- Does NOT contain xiaohongshu-mcp source code\n- Users must download xiaohongshu-mcp binaries separately\n- Scripts communicate via HTTP protocol only\n\n## Acknowledgments\n\n- [@xpzouying](https://github.com/xpzouying) — [xiaohongshu-mcp](https://github.com/xpzouying/xiaohongshu-mcp)\n- [@JoeanAmier](https://github.com/JoeanAmier) — [XHS-Downloader](https://github.com/JoeanAmier/XHS-Downloader) (GPL-3.0)\n\n## License\n\nMIT License (wrapper scripts only)\n\n**Note:** xiaohongshu-mcp has no declared license. Please respect the author's terms.\n\n---\n\n<p align=\"center\">\n  <b>If this project helps you, please give it a ⭐!</b>\n</p>\n",
+  "status": "curated"
+}

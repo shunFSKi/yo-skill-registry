@@ -1,0 +1,53 @@
+{
+  "id": "skill:claudeskills/agnes-ai-generation-skill-agnes-ai-generation",
+  "type": "skill",
+  "name": "agnes-ai-generation",
+  "description": "Call Agnes AI / Sapiens AI generation APIs for text, image, and video. Use when the user asks to use Agnes models, Agnes Image, Agnes Video, Agnes 2.0 Flash, apihub.agnes-ai.com, or to generate text, images, edit images, create videos, animate images, create keyframe videos, or test Agnes API calls.",
+  "author": "yacey",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/yacey/agnes-ai-generation-skill",
+    "repo": "yacey/agnes-ai-generation-skill"
+  },
+  "license": null,
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 419,
+    "pushed_at": null,
+    "score": 59
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "设计",
+    "featured": false
+  },
+  "readme": "# Agnes AI Generation Skill\n\n[English](README_EN.md)\n\n用于 Agent Skills 的 Agnes AI 生成技能，封装 Agnes 官方文本、图片、视频 API。它采用标准 `SKILL.md` 结构，可安装到 Codex、Claude Code、OpenClaw、Cursor、Windsurf 等支持 Agent Skills 的客户端。安装后，你可以让 AI 直接调用 Agnes 模型完成文生图、图生图、文生视频、图生视频、多图视频、关键帧动画等操作。\n\n官网与 API 平台：[https://platform.agnes-ai.com/](https://platform.agnes-ai.com/)\n\n最新版本：[v0.1.0 - Agnes Generation Skill](https://github.com/Yacey/agnes-ai-generation-skill/releases/tag/v0.1.0)\n\n本版本重点修复：Agnes Video V2.0 优先使用新版 `video_id` 查询接口；生成图片/视频后默认只返回 `urls`，不主动下载媒体；明确 Agnes Responses API 多轮函数调用暂不适合作为 agent 自动工具循环。完整说明见 [Releases](https://github.com/Yacey/agnes-ai-generation-skill/releases)。\n\n## 功能\n\n- 文本生成：`agnes-2.0-flash`\n- 流式文本响应\n- OpenAI 兼容的工具调用请求结构\n- 文生图：`agnes-image-2.1-flash`\n- 图生图 / 图片编辑：`agnes-image-2.1-flash`\n- 高信息密度图片生成\n- 文本转视频：`agnes-video-v2.0`\n- 图像转视频：`agnes-video-v2.0`\n- 多图像视频生成\n- 关键帧动画\n- 基于提示词的运动与场景控制\n- 电影感视觉输出\n- 异步视频任务创建\n- 轮询式视频结果检索\n- 基于 seed 的可重复生成\n- 自动将非英文图片/视频提示词翻译为英文提示词，提高 Agnes 视频生成稳定性\n\n## 快速开始\n\n### 1. 申请 Agnes API Key\n\n1. 打开 Agnes API 平台：[https://platform.agnes-ai.com/](https://platform.agnes-ai.com/)\n2. 注册或登录账号。\n3. 在平台中申请 / 创建 API Key。\n4. 拿到 API Key 后，可以在可信任的当前 AI 会话里发送给 AI，或配置为本机环境变量。\n\n安全提醒：不要把 API Key 写入 Git 仓库、README、截图或公开聊天记录。\n\n### 2. 安装本 Skill\n\n安装到当前 Agent：\n\n```powershell\nnpx skills add Yacey/agnes-ai-generation-skill\n```\n\n安装到所有支持的 Agent：\n\n```powershell\nnpx skills add Yacey/agnes-ai-generation-skill --all\n```\n\n安装后，当你要求已安装的 AI Agent 使用 Agnes 生成图片或视频时，AI 会自动触发本 skill。\n\n### 3. 配置 API Key\n\n临时配置当前 PowerShell 会话：\n\n```powershell\n$env:AGNES_API_KEY=\"YOUR_API_KEY\"\n```\n\nWindows 用户级持久配置：\n\n```powershell\n[Environment]::SetEnvironmentVariable(\"AGNES_API_KEY\", \"YOUR_API_KEY\", \"User\")\n```\n\n脚本也会识别以下变量名：\n\n- `AGNES_API_KEY`\n- `AGNES_API_TOKEN`\n- `APIHUB_AGNES_API_KEY`\n\n### 4. 开始使用\n\n你可以直接对 AI 说：\n\n```text\n使用 Agnes 帮我生成一张高信息密度的未来城市图片。\n```\n\n或：\n\n```text\n使用 Agnes 把这张图片生成一段电影感视频。\n```\n\n如果你已经把 API Key 发送给当前 AI，AI 可以配置环境变量并调用本 skill。之后即可解锁生图、生视频等相关操作。\n\n## 命令示例\n\n文本生成：\n\n```powershell\npython scripts/agnes_api.py text --prompt \"Write a concise product tagline for an AI assistant.\"\n```\n\n文生图：\n\n```powershell\npython scripts/agnes_api.py image --prompt \"A luminous floating city above a misty canyon at sunrise, cinematic realism\" --size 1024x768\n```\n\n中文提示词文生图，脚本会先自动翻译成英文：\n\n```powershell\npython scripts/agnes_api.py image --prompt \"一座高信息密度的未来城市集市，拥挤人群，飞行汽车，全息招牌，电影感写实风格\"\n```\n\n图生图：\n\n```powershell\npython scripts/agnes_api.py image --prompt \"Turn the scene into a rainy cyberpunk night while preserving composition\" --image https://example.com/input.png\n```\n\n文生视频：\n\n```powershell\npython scripts/agnes_api.py video --prompt \"A cinematic shot of a cat walking on the beach at sunset\" --poll\n```\n\n视频命令默认使用 `--num-frames 121 --frame-rate 24`，以减少缺少关键视频参数导致的不稳定。脚本会在请求前检查 `num_frames` 是否满足 `8n + 1` 且不超过 `441`，并检查帧率、尺寸等基础参数。\n\n图生视频：\n\n```powershell\npython scripts/agnes_api.py video --prompt \"Animate subtle camera movement and natural lighting\" --image https://example.com/image.png --poll\n```\n\n多图 / 关键帧视频：\n\n```powershell\npython scripts/agnes_api.py video --prompt \"Create a smooth cinematic transition between the two keyframes\" --image https://example.com/a.png --image https://example.com/b.png --mode keyframes --poll\n```\n\n查询视频任务：\n\n```powershell\npython scripts/agnes_api.py video-get video_123456\n```\n\n默认输出会整理出常用字段，例如 `content`、`urls`、`translated_prompt`、`next_steps`，同时保留 `raw` 原始响应，方便 AI 和人工继续处理。\n\n默认情况下，生成图片或视频后直接返回 `urls` 即可；除非用户明确要求下载、保存或检查本地文件，否则不需要把媒体下载到本地。\n\n流式文本也会聚合输出 `content`，同时保留事件数量、是否完成和原始响应前缀，便于快速判断流式接口是否正常。\n\n视频创建接口如果返回 `video_id`，脚本会优先使用新版 `video_id` 查询接口：`/agnesapi?video_id=...`。如果旧响应没有 `video_id`，脚本才回退到兼容的 `task_id` 查询接口。视频完成后，脚本会从 `video_url`、`url` 或 Agnes 实测返回中的 `remixed_from_video_id` 提取可直接访问的 mp4 链接，并放入 `urls`。\n\n注意：Agnes Responses API 的多轮函数调用目前不适合作为 Codex / Claude Code 这类 agent 的自动工具循环模型。本 skill 的脚本使用 chat completions 路径；工具调用只应视为请求结构兼容能力，而不是稳定的多轮工具执行能力。\n\n若只想看 Agnes 原始响应，可以加：\n\n```powershell\n--raw\n```\n\n运行测试：\n\n```powershell\npython scripts/agnes_api.py smoke-test\n```\n\n默认测试覆盖文本、流式文本、工具调用请求结构和文生图，不会创建视频任务。工具调用请求有时会被 Agnes 接收但不返回 `tool_calls`，默认只输出 warning；如果你想把这种情况视为失败，可以使用：\n\n```powershell\npython scripts/agnes_api.py smoke-test --strict-tools\n```\n\n测试图生图：\n\n```powershell\npython scripts/agnes_api.py smoke-test --include-image-edit\n```\n\n单独测试某个视频能力，避免一次创建太多视频任务：\n\n```powershell\npython scripts/agnes_api.py smoke-test --video-case text-to-video\n```\n\n可选的视频测试项：\n\n- `text-to-video`\n- `image-to-video`\n- `multi-image`\n- `keyframes`\n\n## 提示词语言策略\n\nAgnes 视频生成使用英文提示词更稳定。因此本 skill 的脚本默认会检测图片/视频提示词中的非英文字符，并先调用 `agnes-2.0-flash` 翻译成英文生成提示词，再调用图片或视频 API。\n\n翻译时会保留：\n\n- 主体\n- 场景\n- 风格\n- 光照\n- 构图\n- 镜头运动\n- 动作描述\n- 负面提示词或约束\n\n如果你确实想跳过自动翻译，可以加：\n\n```powershell\n--no-translate-prompt\n```\n\n示例：\n\n```powershell\npython scripts/agnes_api.py video --prompt \"中文提示词\" --no-translate-prompt\n```\n\n## 测试状态\n\n已通过真实 API 测试：\n\n- 基础文本生成\n- 流式文本\n- 工具调用请求结构\n- 文生图\n- 图生图\n- 高信息密度文生图\n- 中文提示词自动翻译后文生图\n- 中文提示词自动翻译后文生视频任务创建\n- 文生视频完成并返回 mp4 URL\n- 图生视频完成并返回 mp4 URL\n\n已支持但本轮未完整端到端重测：\n\n- 多图视频\n- 关键帧视频\n\n尚未完整端到端验证：\n\n- 每一种多图视频 / 关键帧视频任务都成功返回最终视频 URL\n\n说明：曾有一次真实文生视频任务在查询时返回 Agnes 服务端 `division by zero` 错误；后续短文生视频任务已成功完成并返回 mp4 URL。因此视频能力在 skill 中已支持，但仍建议逐个模式测试并保留 provider 错误信息。\n\n## 仓库结构\n\n```text\n.\n├── SKILL.md\n├── README.md\n├── README_EN.md\n├── LICENSE\n├── agents/\n│   └── openai.yaml\n├── references/\n│   └── api.md\n└── scripts/\n    └── agnes_api.py\n```\n\n## 许可证\n\nMIT License. See [LICENSE](LICENSE).\n",
+  "status": "curated"
+}

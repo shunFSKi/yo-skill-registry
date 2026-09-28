@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/claude-deep-research-skill-deep-research",
+  "type": "skill",
+  "name": "deep-research",
+  "description": "Use when the user needs multi-source research with citation tracking, evidence persistence, and structured report generation. Triggers on \"deep research\", \"comprehensive analysis\", \"research report\", \"compare X vs Y\", \"analyze trends\", or \"state of the art\". Not for simple lookups, debugging, or questions answerable with 1-2 searches.",
+  "author": "199-biotechnologies",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/199-biotechnologies/claude-deep-research-skill",
+    "repo": "199-biotechnologies/claude-deep-research-skill"
+  },
+  "license": null,
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 1150,
+    "pushed_at": null,
+    "score": 63,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 1152
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# Deep Research Skill for Claude Code\n\nEnterprise-grade research engine for Claude Code. Produces citation-backed reports with source credibility scoring, multi-provider search, and automated validation.\n\n## Installation\n\n```bash\n# Clone into Claude Code skills directory\ngit clone https://github.com/199-biotechnologies/claude-deep-research-skill.git ~/.claude/skills/deep-research\n```\n\nNo additional dependencies required for basic usage.\n\n### Optional: search-cli (multi-provider search)\n\nFor aggregated search across Brave, Serper, Exa, Jina, and Firecrawl:\n\n```bash\nbrew tap 199-biotechnologies/tap && brew install search-cli\nsearch config set keys.brave YOUR_KEY  # configure at least one provider\n```\n\n## Usage\n\n```\ndeep research on the current state of quantum computing\n```\n\n```\ndeep research in ultradeep mode: compare PostgreSQL vs Supabase for our stack\n```\n\n## Research Modes\n\n| Mode | Phases | Duration | Best For |\n|------|--------|----------|----------|\n| Quick | 3 | 2-5 min | Initial exploration |\n| Standard | 6 | 5-10 min | Most research questions |\n| Deep | 8 | 10-20 min | Complex topics, critical decisions |\n| UltraDeep | 8+ | 20-45 min | Comprehensive reports, maximum rigor |\n\n## Pipeline\n\nScope &rarr; Plan &rarr; **Retrieve** (parallel search + agents) &rarr; Triangulate &rarr; Outline Refinement &rarr; Synthesize &rarr; Critique (with loop-back) &rarr; Refine &rarr; Package\n\nKey features:\n- **Step 0**: Retrieves current date before searches (prevents stale training-data year assumptions)\n- **Parallel retrieval**: 5-10 concurrent searches + 2-3 focused sub-agents returning structured evidence objects\n- **First Finish Search**: Adaptive quality thresholds by mode\n- **Critique loop-back**: Phase 6 can return to Phase 3 with delta-queries if critical gaps found\n- **Multi-persona red teaming**: Skeptical Practitioner, Adversarial Reviewer, Implementation Engineer (Deep/UltraDeep)\n- **Disk-persisted citations**: `sources.json` survives context compaction and continuation agents\n\n## Output\n\nReports saved to `~/Documents/[Topic]_Research_[Date]/`:\n- Markdown (primary source of truth)\n- HTML (McKinsey-style, auto-opened in browser)\n- PDF (professional print via WeasyPrint)\n\nReports >18K words auto-continue via recursive agent spawning with context preservation.\n\n## Quality Standards\n\n- 10+ sources, 3+ per major claim\n- Executive summary 200-400 words\n- Findings 600-2,000 words each, prose-first (>=80%)\n- Full bibliography with URLs, no placeholders\n- Automated validation: `validate_report.py` (9 checks) + `verify_citations.py` (DOI/URL/hallucination detection)\n- Validation loop: validate &rarr; fix &rarr; retry (max 3 cycles)\n\n## Search Tools\n\n| Tool | Priority | Setup |\n|------|----------|-------|\n| search-cli | **Primary** — all searches go here first | `brew install search-cli` + API keys |\n| WebSearch | Fallback — if search-cli fails or rate-limited | None (built-in) |\n| Exa MCP | Optional — semantic/neural search alongside search-cli | MCP config |\n\n## Architecture\n\n```\ndeep-research/\n├── SKILL.md                          # Skill entry point (lean, ~100 lines)\n├── reference/\n│   ├── methodology.md                # 8-phase pipeline details\n│   ├── report-assembly.md            # Progressive generation strategy\n│   ├── quality-gates.md              # Validation standards\n│   ├── html-generation.md            # McKinsey HTML conversion\n│   ├── continuation.md               # Auto-continuation protocol\n│   └── weasyprint_guidelines.md      # PDF generation\n├── templates/\n│   ├── report_template.md            # Report structure template\n│   └── mckinsey_report_template.html # HTML report template\n├── scripts/\n│   ├── validate_report.py            # 9-check structure validator\n│   ├── verify_citations.py           # DOI/URL/hallucination checker\n│   ├── source_evaluator.py           # Source credibility scoring\n│   ├── citation_manager.py           # Citation tracking\n│   ├── md_to_html.py                 # Markdown to HTML converter\n│   ├── verify_html.py                # HTML verification\n│   └── research_engine.py            # Core orchestration engine\n└── tests/\n    └── fixtures/                     # Test report fixtures\n```\n\n## Version History\n\n| Version | Date | Changes |\n|---------|------|---------|\n| 2.3.1 | 2026-03-19 | Template/validator harmonization, structured evidence, critique loop-back, multi-persona red teaming |\n| 2.3 | 2026-03-19 | Contract harmonization, search-cli integration, dynamic year detection, disk-persisted citations, validation loops |\n| 2.2 | 2025-11-05 | Auto-continuation system for unlimited length |\n| 2.1 | 2025-11-05 | Progressive file assembly |\n| 1.0 | 2025-11-04 | Initial release |\n\n## License\n\nMIT - modify as needed for your workflow.\n",
+  "status": "curated"
+}

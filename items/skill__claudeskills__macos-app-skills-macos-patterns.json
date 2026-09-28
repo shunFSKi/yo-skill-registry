@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/macos-app-skills-macos-patterns",
+  "type": "skill",
+  "name": "macos-patterns",
+  "description": "Essential native macOS development patterns that web developers don't know about. Use this skill whenever the user is building a macOS app and needs guidance on native patterns, or when they ask about menu bar apps, floating panels, window levels, keyboard shortcuts, file pickers, clipboard, drag and drop, screen capture, activation policy, Quick Look, launch at login, or any macOS-specific API. Also trigger when the user seems to be applying web development patterns to macOS (e.g., using z-index thinking for windows, expecting simple clipboard APIs, or not understanding focus/activation). This is the \"how things actually work on macOS\" reference that prevents the AI from generating confident but wrong code. Use this skill proactively whenever building any native macOS app.",
+  "author": "fayazara",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/fayazara/macos-app-skills/tree/HEAD/macos-patterns",
+    "repo": "fayazara/macos-app-skills"
+  },
+  "license": null,
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 674,
+    "pushed_at": null,
+    "score": 60,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 674
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# macOS App Skills\n\n[![skills.sh](https://skills.sh/b/fayazara/macos-app-skills)](https://skills.sh/fayazara/macos-app-skills)\n\nAI coding agent skills for building, shipping, and maintaining native macOS apps with SwiftUI + AppKit.\n\n```bash\nnpx skills add fayazara/macos-app-skills\n```\n\nThese skills are designed for [OpenCode](https://opencode.ai), [Claude Code](https://docs.anthropic.com/en/docs/claude-code), [Cursor](https://cursor.sh), and any AI coding agent that supports skills. They encode hard-won patterns for building production macOS apps -- the kind of stuff that's underdocumented, spread across WWDC sessions, and easy to get wrong.\n\n## Skills\n\n### `build/` -- Build macOS App\n\nBuild any native macOS Xcode project from the command line using `xcodebuild`. Handles project discovery, scheme detection, beta toolchains, and common build failures.\n\n### `settings-ui/` -- Settings Window with Liquid Glass\n\nCreate a proper macOS settings/preferences window with liquid glass support for macOS 26 (Tahoe). Uses `NSWindowController` with `.fullSizeContentView` for the rounded liquid glass window chrome, `NavigationSplitView` with sidebar, grouped Forms with transparent backgrounds, and back/forward toolbar navigation.\n\nIncludes complete reference Swift files you can copy into any project.\n\n### `auto-update/` -- Sparkle Auto-Update\n\nAdd [Sparkle](https://sparkle-project.org/) auto-update support to a macOS app distributed outside the Mac App Store. Covers SPM dependency setup, the `UpdaterManager` singleton pattern, Info.plist configuration, EdDSA key generation, and UI integration (settings toggle + menu bar button).\n\nIncludes a reference `UpdaterManager.swift` ready to drop into any project.\n\n### `macos-patterns/` -- Native Patterns for Web Developers\n\nThe \"how things actually work on macOS\" reference. Covers menu bar apps (MenuBarExtra vs NSStatusItem vs NSPopover), activation policy (Dock icon toggling), NSPanel vs NSWindow, window levels and collection behaviors, screen geometry (frame vs visibleFrame, Y-axis flip, multi-monitor), keyboard shortcuts (3 tiers: SwiftUI, NSEvent monitors, Carbon hotkeys), file pickers, clipboard/pasteboard, drag and drop, NavigationSplitView + inspector layout, launch at login, Quick Look, NSWorkspace, ScreenCaptureKit, and UserDefaults/@AppStorage.\n\nThis is the skill to load proactively on any macOS project to prevent the AI from applying web patterns that don't work.\n\n### `notch-ui/` -- Dynamic Island / Notch Extender\n\nCreate a Dynamic Island-style overlay that extends from the MacBook's hardware notch. Uses a borderless NSPanel at `CGShieldingWindowLevel` positioned flush against the top of the screen, with a custom `NotchShape` that has concave Bezier \"ear\" curves matching the hardware notch. Includes spring animations for the expand/collapse effect and a fallback pill mode for non-notch Macs.\n\nIncludes reference `NotchWindow.swift` (the panel) and `NotchShape.swift` (the shape).\n\n### `release/` -- Release Pipeline + CLI Tool\n\nRelease a macOS app to GitHub with DMG packaging and Sparkle appcast updates. Covers the full pipeline: version bump, archive, notarize, export, DMG creation via `create-dmg`, EdDSA signing via Sparkle's `sign_update`, appcast.xml updates, and GitHub release creation via `gh`.\n\nIncludes a **Go CLI tool** (`release/cli/`) that automates the entire pipeline in a single command. Just add a `release.json` to your project root and run:\n\n```bash\ngo run github.com/fayazara/macos-app-skills/release/cli@latest\n```\n\n## Installation\n\n### OpenCode (per-project)\n\nCopy the skills you need into your project's `.agents/skills/` directory:\n\n```bash\n# Copy all skills\ncp -r build settings-ui auto-update release notch-ui /path/to/your/project/.agents/skills/\n\n# Or just the ones you need\ncp -r settings-ui /path/to/your/project/.agents/skills/\n```\n\n### OpenCode (global)\n\nCopy into your global skills directory:\n\n```bash\ncp -r build settings-ui auto-update release notch-ui ~/.config/opencode/skills/\n```\n\n### Other AI agents\n\nEach skill is a self-contained directory with a `SKILL.md` file and optional `references/` folder. The `SKILL.md` is a markdown file with YAML frontmatter -- adapt to your agent's skill format.\n\n## What These Skills Solve\n\nBuilding native macOS apps with AI coding agents is great until you hit the parts where the AI confidently generates code that doesn't work:\n\n- **Settings windows** look wrong because SwiftUI's `Window` scene doesn't support `.fullSizeContentView`, which is required for liquid glass on macOS 26\n- **Sparkle integration** has subtle timing requirements (`SPUStandardUpdaterController` must be created before `applicationDidFinishLaunching` returns) that are easy to miss\n- **Release pipelines** involve 8+ manual steps that are error-prone and tedious to explain every time\n- **`xcodebuild`** invocations have enough flags and edge cases that the AI frequently gets them wrong\n- **Notch overlays** require specific NSPanel configuration, screen geometry math, and a custom shape with concave Bezier curves that no AI gets right from scratch\n- **Native patterns** like NSPanel vs NSWindow, activation policy toggling, window levels, Carbon hotkeys, pasteboard clearing, and screen geometry have no web equivalents and the AI defaults to web-like approaches that don't work\n\nThese skills encode the correct patterns so the AI gets it right the first time.\n\n## Requirements\n\n- macOS 14+ (macOS 26+ for liquid glass features, with graceful fallbacks)\n- Xcode 15+ (Xcode 26 beta for Tahoe SDK features)\n- Swift 5.9+\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

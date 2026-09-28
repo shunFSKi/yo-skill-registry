@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/erduo-skills-gemini-watermark-remover",
+  "type": "skill",
+  "name": "gemini-watermark-remover",
+  "description": "Remove the visible Gemini AI watermark from images using reverse alpha blending. Use when asked to strip Gemini watermarks, batch-process Gemini images, or build/modify a CLI script that removes the bottom-right Gemini watermark without HTML or server-side components.",
+  "author": "rookie-ricardo",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/rookie-ricardo/erduo-skills/tree/HEAD/skills/gemini-watermark-remover",
+    "repo": "rookie-ricardo/erduo-skills"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 935,
+    "pushed_at": null,
+    "score": 62,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 935
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "设计",
+    "featured": false
+  },
+  "readme": "# Erduo Skills / 耳朵技能库\n\n[English](README_EN.md)\n\n> 为 AI Agent 赋能，提供结构化能力与智能工作流。\n\n**Erduo Skills** 是一个 AI Agent 技能库，收录了一系列可被 Agent 直接调用的结构化技能。每个技能都是独立的、可组合的工作流单元，覆盖信息获取、内容处理、图像工具等场景。\n\n## 安装\n\n### 快捷安装（推荐）\n\n```bash\nnpx skills add rookie-ricardo/erduo-skills\n```\n\n## 技能一览\n\n| 技能 | 简介 | 调用方式 |\n|------|------|----------|\n| [每日日报](#-每日日报) | 多源抓取 + 智能筛选，自动生成技术日报 | Agent 调用 |\n| [AK RSS Digest](#-ak-rss-digest) | 固定 RSS 源精选摘要，10 分制打分过滤 | Agent 调用 / CLI |\n| [转录精修师](#-转录精修师) | 语音转录文本 → 可读文章，保留原汁原味 | Agent 调用 |\n| [翻译精修师](#-翻译精修师) | 四步精翻工作流，支持中英 / 中日双向精翻 | Agent 调用 |\n| [Web To Markdown](#-web-to-markdown) | URL 路由抓取 + Readability 清洗，输出干净 Markdown | Agent 调用 / CLI |\n| [Anthropic 风格图表](#-anthropic-风格图表) | SVG 画架构图/流程图，自动审计版式并导出 PNG | Agent 调用 / CLI |\n| [Gemini 水印移除](#-gemini-水印移除) | 逆向 Alpha 混合去除 Gemini 图片水印 | CLI |\n\n---\n\n## 🗞 每日日报\n\n```bash\nnpx skills add rookie-ricardo/erduo-skills --skill daily-news-report\n```\n\n自动从多个优质信源抓取、筛选并总结技术新闻，生成结构化日报。\n\n采用 Master-Worker 架构：主 Agent 负责调度与决策，子 Agent 并行抓取，支持无头浏览器处理 JS 渲染页面。\n\n```mermaid\ngraph TD\n    User((User)) -->|Start| Master[Master Agent<br>调度/监控/决策]\n\n    subgraph Execution Layer [SubAgent 执行层]\n        WorkerA[Worker A<br>WebFetch]\n        WorkerB[Worker B<br>WebFetch]\n        Browser[Browser Worker<br>Headless Chrome]\n    end\n\n    Master -->|Dispatch Tier 1| WorkerA\n    Master -->|Dispatch Tier 2| WorkerB\n    Master -->|Dispatch JS Pages| Browser\n\n    WorkerA -->|Result| Master\n    WorkerB -->|Result| Master\n    Browser -->|Result| Master\n\n    Master -->|Filter & Dedup| Report[Generate Report<br>生成日报]\n    Master -->|Update| Cache[Smart Cache<br>智能缓存]\n```\n\n- 聚合 HackerNews、HuggingFace Papers、ProductHunt 等多层级信源\n- 10 分制打分 + 内容去重（URL + 内容哈希双重校验）\n- 早停机制：收集到 20+ 高质量条目即停止，节省资源\n- 输出 Markdown 日报至 `NewsReport/` 目录\n\n*提示词示例：*\n> \"生成今天的日报。\"\n\n---\n\n## 📰 AK RSS Digest\n\n```bash\nnpx skills add rookie-ricardo/erduo-skills --skill ak-rss-digest\n```\n\n从固定 RSS/Atom 源中精选高质量文章，聚焦 AI agent、前沿 AI 判断、深度访谈等高信息密度内容。\n\n- 预设信源清单，默认抓取最近 7 天\n- 10 分制打分，仅输出 7 分以上内容\n- 过滤纯论文摘要、厂商营销、SEO 水文\n- 中文日报口吻输出：标题、评分、推荐语、摘要、链接\n\n```bash\n# 也可直接运行抓取脚本\npython skills/ak-rss-digest/scripts/fetch_today_feed_items.py --format json\n\n# 指定某一天\npython skills/ak-rss-digest/scripts/fetch_today_feed_items.py --date 2026-03-18 --days 1\n```\n\n*提示词示例：*\n> \"用 `$ak-rss-digest` 拉取最近一周的 RSS，筛出 7 分以上的文章，按中文日报格式输出。\"\n\n---\n\n## ✍️ 转录精修师\n\n```bash\nnpx skills add rookie-ricardo/erduo-skills --skill transcript-polisher\n```\n\n将语音转录文本（访谈、演讲、播客、会议）精修为高可读性文章。核心原则：文字精修师，不是内容概括师——保留原句原词，拒绝高度概括。\n\n- 自动识别\"单人表达\"或\"多人对谈\"模式\n- 精准降噪：删除口水词（然后、那个、呃）、无意义附和（对对对、没错）\n- 同音字纠错 + 专有名词修正\n- 语义呼吸分段：按意群重组段落，而非机械按长度切割\n- 长文本自动分 chunk（~5000 字），子 Agent 并行处理后合并\n\n输入格式：\n\n```\n视频标题：xxx\n视频作者：xxx\n视频时长：xxx\n\n--- 字幕内容 ---\n<字幕文本>\n```\n\n输出格式：\n\n```\n## 视频信息\n标题 / 作者 / 时长\n\n## 导读\n核心思想总结\n\n## 正文\n精修后的全文\n```\n\n---\n\n## 🌐 翻译精修师\n\n```bash\nnpx skills add rookie-ricardo/erduo-skills --skill translate-polisher\n```\n\n用于高质量文章翻译与本地化，采用 **分析 → 初译 → 审校 → 终稿** 四步工作流。仅支持 `ZH↔EN`、`ZH↔JA` 双向翻译，不支持 `EN↔JA` 直译。\n\n- 支持文件路径、URL 或直接粘贴正文作为输入；URL 默认通过 `r.jina.ai` 抓正文，抓不到则终止并提示用户自行提供正文\n- 支持 `--from`、`--to`、`--audience`、`--style`、`--glossary` 参数\n- 翻译前先做术语提取、修辞映射、读者理解障碍分析\n- 内置 `EN↔ZH`、`ZH↔JA` 术语表，可与自定义术语表合并\n- 长文本会自动分块，由子 Agent 并行翻译后再合并审校\n- 内置 9 种风格预设，默认 `auto`，也支持自定义风格描述\n\n```\n/translate [--from <lang>] [--to <lang>] [--audience <audience>] [--style <style>] [--glossary <file>] <source>\n```\n\n*提示词示例：*\n> \"翻译这篇文章 https://example.com/article\"\n> \"把这篇中文文章翻成英文，面向技术读者 --style technical\"\n\n---\n\n## 🔗 Web To Markdown\n\n```bash\nnpx skills add rookie-ricardo/erduo-skills --skill web-to-markdown\n```\n\n将 URL 按站点类型路由到对应抓取策略，统一输出可读 Markdown，适合给后续 Agent 继续分析、翻译或摘要。\n\n- 通用网页与 X/Twitter 默认走 `r.jina.ai`\n- YouTube 链接走 `defuddle.md` 提取字幕/正文\n- 微信公众号、知乎、飞书走 `cuimp` Chrome 指纹 HTTP 抓取，失败时自动降级浏览器提取\n- 内置通用兜底链路：`r.jina.ai` 失败后会尝试直连抓取 + Mozilla Readability，再尝试浏览器提取\n- 支持 `--json` 输出策略、来源与归一化 URL 等元数据\n\n```bash\ncd skills/web-to-markdown\nnpm install\nnode scripts/url_to_markdown.mjs <url>\nnode scripts/url_to_markdown.mjs <url> --json\n```\n\n---\n\n## 📐 Anthropic 风格图表\n\n```bash\nnpx skills add rookie-ricardo/erduo-skills --skill anthropic-style-diagram\n```\n\n用 Anthropic / Claude 的视觉语言画技术图，画完自动渲染并保存成图片。\n\n- 只写几何和语义类名（`th` / `ts` / `box` / `arr` / `c-blue` …），配色、明暗、字体全部由渲染脚本注入\n- 渲染前自动审计三类致命版式问题：文字溢出盒子、盒子互相重叠、连线穿过无关节点\n- 自动按真实墨迹边界裁剪 viewBox，不会再出现内容被切掉或大片留白\n- 导出时把计算样式烘焙成字面量，产出的 SVG 不依赖任何 CSS，可直接丢进 Figma / Illustrator\n- `--theme both` 一次产出亮色与暗色两张图\n\n```bash\ncd skills/anthropic-style-diagram\nnpm install   # 若全局已装 playwright 可跳过\nnode scripts/render.mjs diagram.svg -o ~/Downloads/architecture.png\nnode scripts/render.mjs diagram.svg -o out.png --theme both --scale 3 --svg\nnode scripts/render.mjs diagram.svg --check   # 只审计版式，不产出文件\n```\n\n设计规范见 `references/design-system.md`，图表类型选择与代码片段见 `references/diagram-types.md`。\n\n---\n\n## 🖼 Gemini 水印移除\n\n```bash\nnpx skills add rookie-ricardo/erduo-skills --skill gemini-watermark-remover\n```\n\n利用逆向 Alpha 混合算法去除 Gemini 生成图片右下角的水印，像素级还原。\n\n- 纯 Python 实现，仅依赖 Pillow\n- 预制 Alpha 遮罩：48px（小图）/ 96px（>1024x1024 大图）\n- 算法原理：`original = (watermarked - alpha × logo) / (1 - alpha)`\n\n```bash\npython skills/gemini-watermark-remover/scripts/remove_watermark.py <输入图片> <输出图片>\n```\n\n算法细节参见 `skills/gemini-watermark-remover/references/algorithm.md`\n\n---\n\n## 📂 项目结构\n\n```\nerduo-skills/\n├── .claude/\n│   └── agents/                     # Agent 定义\n├── skills/\n│   ├── daily-news-report/          # 每日日报\n│   │   ├── SKILL.md\n│   │   ├── sources.json\n│   │   └── cache.json\n│   ├── ak-rss-digest/             # RSS 精选摘要\n│   │   ├── SKILL.md\n│   │   ├── scripts/\n│   │   └── references/feeds.opml\n│   ├── transcript-polisher/        # 转录精修师\n│   │   ├── SKILL.md\n│   │   └── references/\n│   ├── translate-polisher/         # 翻译精修师\n│   │   ├── SKILL.md\n│   │   └── references/\n│   ├── web-to-markdown/            # Web To Markdown\n│   │   ├── SKILL.md\n│   │   ├── scripts/\n│   │   └── references/\n│   ├── anthropic-style-diagram/    # Anthropic 风格图表\n│   │   ├── SKILL.md\n│   │   ├── scripts/render.mjs\n│   │   ├── assets/diagram.css\n│   │   └── references/\n│   └── gemini-watermark-remover/   # Gemini 水印移除\n│       ├── SKILL.md\n│       ├── scripts/\n│       ├── assets/\n│       └── references/\n├── NewsReport/                     # 生成的日报存档\n├── README.md\n└── README_EN.md\n```\n\n## Claude Code 安装补充\n\n本仓库支持作为 Claude Code plugin marketplace 注册。\n\n### Claude Code 原生命令\n\n先添加 marketplace：\n\n```bash\n/plugin marketplace add rookie-ricardo/erduo-skills\n```\n\n再按功能安装 plugin bundle：\n\n```bash\n/plugin install research-workflows@erduo-skills\n/plugin install writing-workflows@erduo-skills\n/plugin install image-tools@erduo-skills\n```\n\n各 bundle 包含的 skills：\n\n- `research-workflows`：`ak-rss-digest`、`daily-news-report`\n- `writing-workflows`：`transcript-polisher`、`translate-polisher`、`web-to-markdown`\n- `image-tools`：`anthropic-style-diagram`、`gemini-watermark-remover`\n\n本地测试可直接使用仓库路径：\n\n```bash\n/plugin marketplace add ./\n/plugin install research-workflows@erduo-skills\n```\n\n如果你使用 `skills` CLI，也可以直接添加当前仓库：\n\n```bash\nnpx skills add rookie-ricardo/erduo-skills\n```\n\n## 🤝 贡献\n\n欢迎贡献新技能！每个技能是 `skills/` 下的独立目录，包含 `SKILL.md`（技能定义）和相关脚本/资源。\n\n## 📄 许可协议\n\n[MIT](LICENSE) © Erduo\n\n<a href=\"https://www.star-history.com/#rookie-ricardo/erduo-skills&amp;Date\">\n  <img alt=\"Star History Chart\" src=\"assets/star-history.png\" width=\"720\">\n</a>\n\n---\n\n*Created with ❤️ by Erduo*\n",
+  "status": "curated"
+}

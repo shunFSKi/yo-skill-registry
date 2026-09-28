@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/skills-tavily-search",
+  "type": "skill",
+  "name": "tavily-search",
+  "description": "Search the web with LLM-optimized results via the Tavily CLI. Use this skill when the user wants to search the web, find articles, look up information, get recent news, discover sources, or says \"search for\", \"find me\", \"look up\", \"what's the latest on\", \"find articles about\", or needs current information from the internet. Returns relevant results with content snippets, relevance scores, and metadata — optimized for LLM consumption. Supports domain filtering, time ranges, and multiple search depths.",
+  "author": "tavily-ai",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/tavily-ai/skills/tree/HEAD/skills/tavily-search",
+    "repo": "tavily-ai/skills"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 486,
+    "pushed_at": null,
+    "score": 59,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 486
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "设计",
+    "featured": false
+  },
+  "readme": "# Tavily Agent Skills\n\nWeb search, content extraction, site crawling, URL discovery, and deep research — powered by the Tavily CLI.\n\n## Installation\n\n### Recommended: guided CLI setup\n\nInstall the [Tavily CLI](https://github.com/tavily-ai/tavily-cli):\n\n```bash\ncurl -fsSL https://cli.tavily.com/install.sh | bash\n```\n\nOn a fresh interactive desktop install, the installer starts `tvly init`\nautomatically. Otherwise run it after installation:\n\n```bash\ntvly init\n\n# Prefer to open the sign-in link yourself\ntvly init --no-browser\n```\n\n`tvly init` authenticates, detects Claude Code, Codex, and Cursor, installs\nthese skills, and verifies a live search. It reuses an existing credential and\nis safe to rerun. Skills installed this way are pinned to the CLI release, so\nrun `tvly update` before `tvly init` when refreshing them.\n\n`tvly search` and `tvly extract` also work without authentication, subject to\na keyless rate-limit cap. Use `tvly init --skip-auth` to keep keyless mode while\ninstalling the skills. `map`, `crawl`, and `research` require authentication.\n\nBrowser-based OAuth is the preferred interactive sign-in method. `--no-browser`\nsimply prints the sign-in link instead of opening it automatically; the flow\nstill returns to a localhost callback on the machine running `tvly`. In remote\nsessions, make sure that callback is reachable (SSH may require port\nforwarding). For unattended agents or CI, authenticate beforehand or provide\n`TAVILY_API_KEY` securely so the process does not wait for human input.\n\n### Manual skill installation\n\nFor other agents, or when you only want to install the skills:\n\n```bash\nnpx skills add https://github.com/tavily-ai/skills\n```\n\nInstall the CLI separately if needed:\n\n```bash\nuv tool install tavily-cli   # or: pip install tavily-cli\n```\n\nThen use `tvly init --skip-skills` for guided authentication and verification,\nor `tvly login` when you only need to authenticate.\n\n### Keep the CLI current\n\n```bash\ntvly update --check\ntvly update\n```\n\n## Available Skills\n\n| Skill | Description |\n|-------|-------------|\n| **[tavily-search](skills/tavily-search/SKILL.md)** | Search the web with LLM-optimized results. Supports domain filtering, time ranges, and multiple search depths. |\n| **[tavily-extract](skills/tavily-extract/SKILL.md)** | Extract clean markdown/text content from specific URLs. Handles JS-rendered pages. |\n| **[tavily-crawl](skills/tavily-crawl/SKILL.md)** | Crawl websites and extract content from multiple pages. Save as local markdown files. |\n| **[tavily-map](skills/tavily-map/SKILL.md)** | Discover all URLs on a website without extracting content. Faster than crawling. |\n| **[tavily-research](skills/tavily-research/SKILL.md)** | Comprehensive AI-powered research with citations. Multi-source synthesis in 30-120s. |\n| **[tavily-dynamic-search](skills/tavily-dynamic-search/SKILL.md)** | Filter and deduplicate large search or extraction results without flooding agent context. |\n| **[tavily-cli](skills/tavily-cli/SKILL.md)** | Overview skill with workflow guide, install/auth instructions. |\n| **[tavily-best-practices](skills/tavily-best-practices/SKILL.md)** | Reference docs for building production-ready Tavily integrations. |\n\n## Workflow\n\nStart simple, escalate when needed:\n\n1. **Search** — Find pages on a topic (`tvly search \"query\" --json`)\n2. **Extract** — Get content from a specific URL (`tvly extract \"https://...\" --json`)\n3. **Map** — Discover URLs on a site (`tvly map \"https://...\" --json`)\n4. **Crawl** — Bulk extract from a site section (`tvly crawl \"https://...\" --output-dir ./docs/`)\n5. **Research** — Deep multi-source analysis (`tvly research \"topic\" --model pro`)\n",
+  "status": "curated"
+}

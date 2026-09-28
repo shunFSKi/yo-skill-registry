@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/dispatch-dispatch",
+  "type": "skill",
+  "name": "dispatch",
+  "description": "Dispatch background AI worker agents to execute tasks via checklist-based plans.",
+  "author": "bassimeledath",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/bassimeledath/dispatch/tree/HEAD/.agents/skills/dispatch",
+    "repo": "bassimeledath/dispatch"
+  },
+  "license": null,
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 410,
+    "pushed_at": null,
+    "score": 56,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 410
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "办公",
+    "featured": false
+  },
+  "readme": "<h1>/dispatch&nbsp;<img src=\"skills/dispatch/assets/logo.svg\" alt=\"Dispatch logo\" height=\"56\" /></h1>\n\n**Dispatch 10x's Claude Code's effective context window size.** Instead of filling your session with implementation, `/dispatch` turns it into a lightweight orchestrator — work fans out to background agents, each with their own full context window.\n\n<p align=\"center\">\n  <img src=\"skills/dispatch/assets/before-after.jpg\" alt=\"Before: a single session where context fills up fast doing tasks sequentially, with the user overwhelmed tracking everything. After: dispatch keeps your main session lean while workers execute in parallel with their own fresh contexts, and the dispatcher carries the cognitive load.\" width=\"900\" />\n</p>\n\n> **Without dispatch:** You ask Claude to review code, refactor a module, write tests, and update docs. Each task fills the context window. By task 3, Claude is losing track. By task 5, you're starting a new session.\n>\n> **With dispatch:** You describe all 5 tasks. Workers execute in parallel with fresh contexts. Your main session stays lean. Questions surface to you when needed — no polling, no context lost.\n\n```\n/dispatch use sonnet to find better design patterns for the auth module\n```\n\n---\n\n## Why dispatch\n\n### Your session stays lean\n\nDispatch inverts the usual model: the main session becomes a **mediator**, not the thinker. It writes a checklist and hands it off. The actual implementation — reading code, reasoning about edge cases, writing tests — happens in fresh worker contexts that each get their own full window. Your main session's context is preserved for orchestration.\n\n### The dispatcher carries the cognitive load\n\nWith `claude --background`, multiple terminals, or fire-and-forget agent runners — _you_ are the orchestrator. You track what's running, check on progress, notice failures, and context-switch between outputs.\n\nWith dispatch, the AI dispatcher tracks all workers, surfaces questions, reports completions, handles errors, and offers recovery. Your job reduces to: **(a)** describe what you want, **(b)** answer questions when asked.\n\n### Workers ask questions back\n\nWhen a `/dispatch` worker gets stuck, it doesn't silently fail or hallucinate. It **asks a clarifying question** — the dispatcher surfaces it to you, you answer, and the worker continues **without losing context**. No restart, no re-explaining, no lost work.\n\n```\nWorker is asking: \"requirements.txt doesn't exist. What feature should I implement?\"\n> Add a /health endpoint that returns JSON with uptime and version.\n\nAnswer sent. Worker is continuing.\n```\n\n### Non-blocking — you never wait\n\nThe moment a worker is dispatched, your session is **immediately free**. Dispatch another task. Ask a question. Write code. Workers run in parallel and results arrive as they complete.\n\n### Any model, one interface\n\nMix models per task. Claude for deep reasoning, GPT for broad generation, Gemini for speed. Reference any model by name — if it's not in your config, `/dispatch` auto-discovers and adds it. If multiple models are named in one prompt, dispatch uses the last one mentioned. If no model is specified, dispatch confirms your default before proceeding.\n\n```\n/dispatch use opus to review this PR for edge cases\n/dispatch use gemini to refactor the config parser — it's getting unwieldy\n```\n\n---\n\n> **Requires [Claude Code](https://docs.anthropic.com/en/docs/claude-code) as your host session.** Dispatch is a skill that runs _inside_ Claude Code — the host plans tasks and spawns workers. Other CLIs like [Cursor](https://docs.cursor.com/) and [Codex](https://github.com/openai/codex) work as **workers only** (background agents that execute subtasks).\n\n## Install\n\n```bash\nnpx skills add bassimeledath/dispatch -g     # user-level (all projects)\nnpx skills add bassimeledath/dispatch        # project-level (team-shared)\n```\n\n## How it works\n\n1. You run `/dispatch task description`\n2. A checklist plan is created — *the only context your main session needs*\n3. A background worker picks it up in a **fresh, full context window** and checks off items as it goes\n4. If the worker has a question, it asks — you answer — it continues *(no context lost in either direction)*\n5. You get results when it's done, or ask for status anytime — *your main session is still lean*\n\n## Complex example\n\nExample — pre-launch sweep for a fullstack SaaS app:\n\n```\n/dispatch we launch Thursday, need a full pre-launch sweep:\n\n1) security audit the auth flow (JWT, sessions, password reset) and the\n   stripe payment integration. use opus, do it in a worktree\n\n2) performance - load test the top 5 API endpoints, find N+1 queries,\n   check db indexes on users/orders/products tables. sonnet in a worktree\n\n3) frontend audit - accessibility (WCAG 2.1 AA), bundle size, flag any\n   components missing error boundaries. dispatch sonnet\n\n4) generate OpenAPI specs for every endpoint that's missing one. use gemini\n\n5) error handling audit - find uncaught exceptions, missing try/catch,\n   inconsistent error response formats across all API routes. sonnet, worktree\n\nask me if anything is unclear. security is highest priority - flag\nanything critical immediately\n```\n\nDispatch reads the prompt, creates 5 plans, and fans out:\n\n```\nAll 5 workers dispatched with their monitors. Here's the summary:\n\nSecurity (worktree):\n  ● security-audit — Opus 4-6 (worktree): Full auth + payment security review\n\nPerformance (worktree):\n  ● perf-audit — Sonnet 4-6 (worktree): API load testing + DB index review\n\nFrontend (single worker):\n  ● frontend-audit — Sonnet 4-6: Accessibility, bundle size, error boundaries\n\nDocs (single worker):\n  ● api-docs — Gemini 2.5 Flash: Generate missing OpenAPI specs\n\nError handling (worktree):\n  ● error-handling — Sonnet 4-6 (worktree): Uncaught exceptions + error format audit\n\nAll running in background. Five workers, three models, three worktrees —\nyour session wrote five checklists and is idle. Dispatch more work or say\n\"status\" anytime.\n```\n\n## Best practice: warm up at session start\n\nRun `/dispatch` with no arguments at the beginning of a session to pre-load your config:\n\n```\n/dispatch\n```\n\nThis reads `~/.dispatch/config.yaml` into the dispatcher's context so subsequent dispatches are faster and don't need confirmation prompts. It's a good habit to add as a [Claude Code memory](https://docs.anthropic.com/en/docs/claude-code/memory) so you remember to do it each session:\n\n> \"Run /dispatch at the start of each session to warm up the config.\"\n\n## Setup\n\nOn first run, `/dispatch` auto-detects your CLIs (`claude`, `agent`, `codex`), discovers available models, and generates `~/.dispatch/config.yaml`. No manual config needed.\n\n## Configuration\n\nThree sections in `~/.dispatch/config.yaml`:\n\n**Backends** — CLI commands for each provider:\n```yaml\nbackends:\n  claude:\n    command: >\n      env -u CLAUDE_CODE_ENTRYPOINT -u CLAUDECODE\n      claude -p --dangerously-skip-permissions\n  cursor:\n    command: >\n      agent -p --force --workspace \"$(pwd)\"\n  codex:\n    command: >\n      codex exec --full-auto -C \"$(pwd)\"\n```\n\n**Models** — one line each, mapped to a backend:\n```yaml\nmodels:\n  opus:            { backend: claude }\n  sonnet:          { backend: claude }\n  gpt-5.3-codex:  { backend: codex }\n  gemini-3.1-pro:  { backend: cursor }\n```\n\n**Aliases** — named shortcuts with optional role prompts:\n```yaml\naliases:\n  security-reviewer:\n    model: opus\n    prompt: >\n      You are a security-focused reviewer. Prioritize OWASP Top 10.\n```\n\n## Prerequisites\n\n**Host (required):**\n- [Claude Code](https://docs.anthropic.com/en/docs/claude-code) (`claude`)\n\n**Workers (optional — for multi-model dispatch):**\n- [Cursor CLI](https://docs.cursor.com/) (`agent`)\n- [Codex CLI](https://github.com/openai/codex) (`codex`)\n- Any CLI that accepts a prompt argument\n\n## Updating\n\n**Skills CLI (recommended):**\n\n```bash\nnpx skills update\n```\n\nThis updates all installed skills to their latest versions. Run `npx skills check` first to see what's changed.\n\n**Symlinked to a local clone?** If your `.claude/skills/dispatch` is a symlink to a local git checkout, just pull:\n\n```bash\ncd /path/to/your/dispatch && git pull\n```\n\nChanges are picked up immediately — Claude Code hot-reloads skills from disk.\n\n## Architecture\n\nThe dispatcher reads your config, creates a checklist plan, then spawns a background worker and monitor. The worker executes each item and checks it off. If it needs clarification, it writes a question to the IPC directory — the monitor detects it and notifies the dispatcher, which surfaces it to you and relays your answer back, all without the worker losing context.\n\n<p align=\"center\">\n  <img src=\"skills/dispatch/assets/architecture.png\" alt=\"Sequence diagram showing the dispatch flow: user triggers dispatch, dispatcher creates plan and spawns worker + monitor, worker executes checklist items, IPC handles questions and answers, monitor detects completion and notifies dispatcher.\" width=\"900\" />\n</p>\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

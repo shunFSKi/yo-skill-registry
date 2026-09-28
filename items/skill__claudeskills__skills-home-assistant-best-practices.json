@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/skills-home-assistant-best-practices",
+  "type": "skill",
+  "name": "home-assistant-best-practices",
+  "description": "Best practices for HA automations, helpers, scripts, controls, and dashboards. TRIGGER THIS SKILL WHEN: - Creating or editing automations, scripts, scenes, or dashboards - Choosing between template sensors and built-in helpers - Restructuring triggers, conditions, or automation modes - Setting up Zigbee button/remote automations - Renaming entities or migrating device_id to entity_id - Configuring dashboard cards or selecting helpers - Looking up card types or domain docs - Writing or reviewing AppDaemon apps - Authoring or editing reusable Blueprints SYMPTOMS: - Agent uses Jinja2 templates where native options exist - Agent uses device_id instead of entity_id - Agent changes entity IDs without checking consumers - Wrong automation mode - Agent hard-codes values or uses raw sensor over helper - Agent edits .storage, writes YAML, or generates YAML snippets - Agent tells user to edit configuration.yaml for UI integrations - Agent hardcodes entities in a Blueprint or uses free-text input over a selector",
+  "author": "homeassistant-ai",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/homeassistant-ai/skills/tree/HEAD/skills/home-assistant-best-practices",
+    "repo": "homeassistant-ai/skills"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 793,
+    "pushed_at": null,
+    "score": 61,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 801
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "写作",
+    "featured": false
+  },
+  "readme": "# Home Assistant Agent Skills\n\n[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)\n[![Agent Skills](https://img.shields.io/badge/Agent_Skills-agentskills.io-blue)](https://agentskills.io)\n\nAn **Agent Skill** is a portable Markdown knowledge pack that teaches AI coding agents best practices for a specific technology. This repository provides one for Home Assistant, following the open [Agent Skills standard](https://agentskills.io/specification). Install it and your agent applies Home Assistant best practices in every session.\n\n## Included Skill\n\n**[home-assistant-best-practices](skills/home-assistant-best-practices/)** — a decision workflow and anti-pattern table in `SKILL.md`, backed by reference files the agent loads on demand. It covers:\n\n- **Authoring** — native triggers and conditions over templates, helper selection, automation modes, device control and button/remote patterns, scenes, blueprints\n- **Dashboards** — layout, views, cards, badges, custom cards\n- **Operations** — YAML-only integration management, backups and recovery, safe refactoring of existing config\n- **AppDaemon** — when to use it over native HA, and how to structure apps\n\nAgents make a predictable set of mistakes with Home Assistant config — Jinja templates where a native trigger, condition, or helper exists, `device_id` where `entity_id` belongs, `mode: single` on a motion light, renames that silently break dashboards and scripts — and the anti-pattern table names each one with its fix. A typical entry:\n\n```yaml\n# Without the skill — template condition: a typo or wrong entity ID surfaces only when it runs\ncondition: template\nvalue_template: \"{{ states('sensor.living_room_temperature') | float > 25 }}\"\n\n# With the skill — native condition: config validated when the automation loads\ncondition: numeric_state\nentity_id: sensor.living_room_temperature\nabove: 25\n```\n\nSee [Skill Contents](#skill-contents) for the file-by-file map.\n\n## Installation\n\n### Agent Skills installer\n\nRequires [Node.js 22.20+](https://nodejs.org/).\n\n```bash\nnpx skills add homeassistant-ai/skills\n```\n\nWorks with AI coding agents that support the [Agent Skills standard](https://agentskills.io): Claude Code, Codex, Cursor, GitHub Copilot, Gemini CLI, and 70+ others. To update: `npx skills update`\n\n### Claude Code plugin\n\nClaude Code also accepts the installer above, which places the skill files in your `.claude/skills/` directory. The commands below install it as a plugin instead, kept in Claude Code's own plugin cache.\n\nRun each command separately inside Claude Code:\n\n```\n/plugin marketplace add homeassistant-ai/skills\n```\n```\n/plugin install home-assistant-skills@home-assistant-skills\n```\n\nRun `/reload-plugins` or restart Claude Code for the skill to take effect.\n\nAuto-update is off by default for third-party marketplaces. To turn it on, run `/plugin`, open **Marketplaces**, choose `home-assistant-skills`, and select **Enable auto-update**. To update by hand instead, run `claude plugin update home-assistant-skills` from a shell, then `/reload-plugins`.\n\n### Claude Desktop / claude.ai\n\nBoth apps share the same Customize UI, reached via the left sidebar (Claude Desktop) or [claude.ai/customize](https://claude.ai/customize) (browser).\n\n1. Enable code execution: Settings → Capabilities → turn on **Cloud code execution and file creation** (required for skills)\n2. Customize → Plugins → Add → Add marketplace → Add from a repository\n3. Select or enter `homeassistant-ai/skills` (or the full URL, `https://github.com/homeassistant-ai/skills`) → Sync\n\nThis installs the skill as a plugin synced from this repo — no download or zip needed. **Sync automatically** is on by default, so later updates arrive on their own.\n\n<details>\n<summary>Alternative: upload the skill manually as a zip</summary>\n\n1. Enable code execution: Settings → Capabilities → turn on **Cloud code execution and file creation** (required for skills)\n2. Download or clone this repository\n3. Zip the skill folder: `cd skills && zip -r home-assistant-best-practices.zip home-assistant-best-practices/`\n4. Customize → Skills → Add → Upload a skill\n\n</details>\n\n## Usage\n\nOnce installed, the skill loads on its own whenever the agent works on automations, scripts, scenes, helpers, dashboards, blueprints, or backups — it needs no explicit invocation. Try:\n\n> Create an automation that turns on the hallway light when motion is detected and turns it off five minutes after the motion stops.\n\n## Skill Contents\n\nThe `home-assistant-best-practices` skill includes:\n\n| File | Purpose |\n|------|---------|\n| [`SKILL.md`](skills/home-assistant-best-practices/SKILL.md) | Decision workflow, anti-pattern table, and pointers to the reference files below |\n| [`references/safe-refactoring.md`](skills/home-assistant-best-practices/references/safe-refactoring.md) | Safe workflow for renaming entities and their display names, replacing helpers, restructuring automations; display-name override, config-entry, and storage-dashboard blind spots |\n| [`references/triggers-and-conditions.md`](skills/home-assistant-best-practices/references/triggers-and-conditions.md) | Purpose-specific and native triggers/conditions, `for:` durations, trigger IDs |\n| [`references/automation-actions.md`](skills/home-assistant-best-practices/references/automation-actions.md) | Waits, variables, automation modes, control flow (choose, repeat, parallel), error handling (`continue_on_error`, admin-only actions), disabling automations |\n| [`references/helper-selection.md`](skills/home-assistant-best-practices/references/helper-selection.md) | Built-in helpers vs template sensors (with decision matrix) |\n| [`references/template-guidelines.md`](skills/home-assistant-best-practices/references/template-guidelines.md) | When to use templates, when to avoid them, template sensor best practices, reusable `custom_templates` macros |\n| [`references/yaml-only-integrations.md`](skills/home-assistant-best-practices/references/yaml-only-integrations.md) | YAML-only integration types, post-edit actions (reload vs restart) |\n| [`references/device-control.md`](skills/home-assistant-best-practices/references/device-control.md) | Actions and targeting, entity_id vs device_id, buttons and remotes, domain-specific patterns |\n| [`references/scenes.md`](skills/home-assistant-best-practices/references/scenes.md) | Scene authoring: config shape, snapshot/restore, snapshot-vs-script distinction |\n| [`references/dashboard-guide.md`](skills/home-assistant-best-practices/references/dashboard-guide.md) | Dashboard layout, view types, strategies, sections, cards, badges, custom cards, CSS styling, HACS |\n| [`references/dashboard-cards.md`](skills/home-assistant-best-practices/references/dashboard-cards.md) | Card type lookup and card-specific documentation |\n| [`references/domain-docs.md`](skills/home-assistant-best-practices/references/domain-docs.md) | Integration and domain documentation (actions, entity attributes); doc pages for specific triggers, conditions, and actions |\n| [`references/examples.yaml`](skills/home-assistant-best-practices/references/examples.yaml) | Compound examples combining multiple best practices |\n| [`references/appdaemon.md`](skills/home-assistant-best-practices/references/appdaemon.md) | AppDaemon apps: when to use vs. native HA, app structure, actions, scheduling, error handling, safe refactoring impact |\n| [`references/blueprint-guide.md`](skills/home-assistant-best-practices/references/blueprint-guide.md) | Blueprint authoring: metadata & `source_url`, inputs & selectors, `target` vs `entity`, defaults, `!input` templating, versioning |\n| [`references/backups.md`](skills/home-assistant-best-practices/references/backups.md) | Full instance backups vs rolling one object back, when an operation needs a backup first, what an archive contains, encryption keys, restore verification, backup deletion, why a git config repo does not replace a full backup |\n\n## Contributing\n\nSee [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on writing and submitting skills.\n\nSkill misled your agent? Open an issue with the [Report Bad Skill Advice](https://github.com/homeassistant-ai/skills/issues/new?template=skill-rca.md) template and let the agent fill it in — it holds the context to trace the failure to its source in the skill.\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

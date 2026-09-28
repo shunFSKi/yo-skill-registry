@@ -1,0 +1,53 @@
+{
+  "id": "skill:claudeskills/douyin-mcp-server-douyin-video",
+  "type": "skill",
+  "name": "douyin-video",
+  "description": "douyin-mcp-server — agent skills repository.",
+  "author": "yzfly",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/yzfly/douyin-mcp-server/tree/HEAD/douyin-video",
+    "repo": "yzfly/douyin-mcp-server"
+  },
+  "license": null,
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 1273,
+    "pushed_at": null,
+    "score": 60
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "设计",
+    "featured": false
+  },
+  "readme": "# 短视频文案提取器\n\n[![PyPI version](https://badge.fury.io/py/douyin-mcp-server.svg)](https://badge.fury.io/py/douyin-mcp-server)\n[![Python version](https://img.shields.io/pypi/pyversions/douyin-mcp-server.svg)](https://pypi.org/project/douyin-mcp-server/)\n[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)\n\n从短视频分享链接下载无水印视频，AI 自动提取语音文案。\n\n![WebUI 界面预览](douyin-video.png)\n\n<a href=\"https://glama.ai/mcp/servers/@yzfly/douyin-mcp-server\">\n  <img width=\"380\" height=\"200\" src=\"https://glama.ai/mcp/servers/@yzfly/douyin-mcp-server/badge\" alt=\"douyin-mcp-server MCP server\" />\n</a>\n\n## ✨ 功能特性\n\n- 🎬 **无水印视频** - 获取高质量无水印视频下载链接\n- 🎙️ **AI 语音识别** - 使用硅基流动 SenseVoice 自动提取文案\n- 📑 **大文件支持** - 自动分段处理超过 1 小时或 50MB 的音频\n- 🌐 **WebUI** - 现代化浏览器界面，无需命令行\n- 🔌 **MCP 集成** - 支持 Claude Desktop 等 AI 应用\n\n---\n\n## 📦 使用方式\n\n| 方式 | 适用场景 | 特点 |\n|------|----------|------|\n| [**WebUI**](#-webui-推荐) | 普通用户 | 浏览器操作，最简单 |\n| [**MCP Server**](#-mcp-server) | Claude Desktop 用户 | AI 对话中直接调用 |\n| [**命令行**](#️-命令行工具) | 开发者 | 批量处理，脚本集成 |\n\n---\n\n## 🌐 WebUI (推荐)\n\n最简单的使用方式，打开浏览器即可使用。\n\n### 快速开始\n\n```bash\n# 1. 克隆项目\ngit clone https://github.com/yzfly/douyin-mcp-server.git\ncd douyin-mcp-server\n\n# 2. 安装依赖\nuv sync\n\n# 3. 启动服务\nuv run python web/app.py\n```\n\n打开浏览器访问 **http://localhost:8080**\n\n### 配置 API Key\n\n有两种方式配置 API Key：\n\n**方式一：浏览器内配置（推荐）**\n\n1. 打开 WebUI 页面\n2. 点击顶部的「API 未配置」按钮\n3. 在弹窗中输入 API Key 并保存\n4. API Key 保存在浏览器本地，刷新页面后仍有效\n\n**方式二：环境变量**\n\n```bash\nexport API_KEY=\"sk-xxxxxxxxxxxxxxxx\"\nuv run python web/app.py\n```\n\n> 💡 获取免费 API Key：[硅基流动](https://cloud.siliconflow.cn/i/TxUlXG3u)（新用户有免费额度）\n\n### 功能说明\n\n| 操作 | 说明 | 需要 API |\n|------|------|:--------:|\n| **获取信息** | 解析视频标题、ID，获取无水印下载链接 | ❌ |\n| **提取文案** | 下载视频 → 提取音频 → AI 语音识别 | ✅ |\n| **下载视频** | 点击下载链接保存无水印视频 | ❌ |\n| **复制/下载文案** | 一键复制或下载 Markdown 格式文案 | - |\n\n### 使用步骤\n\n1. **粘贴链接** - 将分享链接粘贴到输入框\n2. **点击按钮** - 选择「获取信息」或「提取文案」\n3. **查看结果** - 右侧显示视频信息和提取的文案\n4. **导出** - 复制文案或下载 Markdown 文件\n\n---\n\n## 🚀 MCP Server\n\n在 Claude Desktop、Cherry Studio 等支持 MCP 的应用中使用。\n\n### 配置方法\n\n编辑 MCP 配置文件，添加：\n\n```json\n{\n  \"mcpServers\": {\n    \"douyin-mcp\": {\n      \"command\": \"uvx\",\n      \"args\": [\"douyin-mcp-server\"],\n      \"env\": {\n        \"API_KEY\": \"sk-xxxxxxxxxxxxxxxx\"\n      }\n    }\n  }\n}\n```\n\n> 💡 `API_KEY` 填写[硅基流动](https://cloud.siliconflow.cn/i/TxUlXG3u)的密钥。也兼容旧版配置：设置 `DASHSCOPE_API_KEY`（阿里云百炼密钥）同样可用，两者设其一即可。\n\n### 可用工具\n\n| 工具名 | 功能 | 需要 API |\n|--------|------|:--------:|\n| `parse_douyin_video_info` | 解析视频信息 | ❌ |\n| `get_douyin_download_link` | 获取下载链接 | ❌ |\n| `extract_douyin_text` | 提取视频文案 | ✅ |\n| `recognize_audio_file` | 识别本地音频文件 | ✅ (百炼) |\n| `recognize_audio_url` | 识别在线音频链接 | ✅ (百炼) |\n\n### 对话示例\n\n```\n用户：帮我提取这个视频的文案 https://v.douyin.com/xxxxx/\n\nClaude：我来帮你提取视频文案...\n[调用 extract_douyin_text 工具]\n提取完成，文案内容如下：\n...\n```\n\n---\n\n## 🛠️ 命令行工具\n\n适合开发者和批量处理场景。\n\n### 安装\n\n```bash\ngit clone https://github.com/yzfly/douyin-mcp-server.git\ncd douyin-mcp-server\nuv sync\n```\n\n### 命令说明\n\n```bash\n# 查看帮助\nuv run python douyin-video/scripts/douyin_downloader.py --help\n\n# 获取视频信息（无需 API）\nuv run python douyin-video/scripts/douyin_downloader.py -l \"分享链接\" -a info\n\n# 下载无水印视频\nuv run python douyin-video/scripts/douyin_downloader.py -l \"分享链接\" -a download -o ./videos\n\n# 提取文案（需要 API_KEY）\nexport API_KEY=\"sk-xxx\"\nuv run python douyin-video/scripts/douyin_downloader.py -l \"分享链接\" -a extract -o ./output\n\n# 提取文案并保存视频\nuv run python douyin-video/scripts/douyin_downloader.py -l \"分享链接\" -a extract -o ./output --save-video\n```\n\n### 输出格式\n\n```\noutput/\n└── 7600361826030865707/\n    ├── transcript.md    # 文案文件\n    └── *.mp4            # 视频文件（可选）\n```\n\n**transcript.md 内容：**\n\n```markdown\n# 视频标题\n\n| 属性 | 值 |\n|------|-----|\n| 视频ID | `7600361826030865707` |\n| 提取时间 | 2026-01-30 14:19:00 |\n| 下载链接 | [点击下载](url) |\n\n---\n\n## 文案内容\n\n这里是 AI 识别的语音文案...\n```\n\n---\n\n## 📋 系统要求\n\n| 依赖 | 说明 | 安装方式 |\n|------|------|----------|\n| uv | Python 包管理 | `curl -LsSf https://astral.sh/uv/install.sh \\| sh` |\n| Python | 3.10+ | `uv python install 3.12` |\n| FFmpeg | 音视频处理 | `brew install ffmpeg` (macOS) <br> `apt install ffmpeg` (Ubuntu) |\n\n---\n\n## 🔧 技术说明\n\n### 大文件处理\n\n当音频文件超过 API 限制时（1 小时或 50MB），自动执行：\n\n1. 检测音频时长和文件大小\n2. 使用 FFmpeg 分割成 9 分钟的片段\n3. 逐段调用 API 转录\n4. 合并所有文本结果\n\n### API 说明\n\n语音识别使用 [硅基流动 SenseVoice API](https://cloud.siliconflow.cn/)：\n\n- 模型：`FunAudioLLM/SenseVoiceSmall`\n- 限制：单次最大 1 小时 / 50MB（已自动处理）\n- 费用：新用户有免费额度\n\n---\n\n## 📝 更新日志\n\n### v1.4.1 (最新)\n\n- 🔧 **MCP Server 修复** - `API_KEY` 现在正确对应硅基流动密钥，与文档一致；同时兼容旧版 `DASHSCOPE_API_KEY` 配置\n- ♻️ **恢复工具** - 恢复 `recognize_audio_file` / `recognize_audio_url` 工具及 `extract_douyin_text` 的 `context` 参数\n- 🛡️ **WebUI 安全加固** - 下载接口不再代理任意 URL，默认仅监听本机\n- ⚡ **WebUI 性能** - 提取文案不再阻塞其他请求\n- 📦 **依赖精简** - WebUI 依赖改为可选安装（`pip install \"douyin-mcp-server[web]\"`）\n\n### v1.4.0\n\n- 🌐 **WebUI** - 新增浏览器可视化界面\n- 🔑 **浏览器配置 API Key** - 无需环境变量\n- 📑 **大文件支持** - 自动分段处理长音频\n\n### v1.3.0\n\n- ✨ Claude Code Skill 支持\n- 📄 Markdown 格式输出\n\n### v1.2.0\n\n- 🔄 API 升级\n\n### v1.0.0\n\n- 🎉 首次发布\n\n---\n\n## ⚠️ 免责声明\n\n- 本项目仅供学习和研究使用\n- 使用者需遵守相关法律法规\n- 禁止用于侵犯知识产权的行为\n- 作者不对使用本项目产生的损失承担责任\n\n---\n\n## 📄 许可证\n\nApache License 2.0\n\n## 👨‍💻 作者\n\n**yzfly** - [GitHub](https://github.com/yzfly) | [Email](mailto:yz.liu.me@gmail.com)\n",
+  "status": "curated"
+}

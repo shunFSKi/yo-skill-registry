@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/duckdb-skills-query",
+  "type": "skill",
+  "name": "query",
+  "description": "Run SQL queries against the attached DuckDB database or ad-hoc against files. Accepts raw SQL or natural language questions. Uses DuckDB Friendly SQL idioms.",
+  "author": "duckdb",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/duckdb/duckdb-skills/tree/HEAD/skills/query",
+    "repo": "duckdb/duckdb-skills"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 592,
+    "pushed_at": null,
+    "score": 60,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 592
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# duckdb-skills\n\nA [Claude Code](https://claude.ai/code) plugin that adds DuckDB-powered skills for data exploration and session memory.\n\n## Installation\n\n### From the Discover tab (coming soon)\n\nWe are working on submitting this plugin to the official Anthropic marketplace. Once listed, it will appear in the **Discover** tab when you run `/plugin` inside Claude Code.\n\n### From GitHub (available now)\n\nAdd the repository as a plugin source and install:\n\n```\n/plugin marketplace add duckdb/duckdb-skills\n```\n```\n/plugin install duckdb-skills@duckdb-skills\n```\n\nThis registers the GitHub repo as a marketplace and installs the plugin. Skills will be available as `/duckdb-skills:<skill-name>` in all future sessions.\n\n### Updating\n\nTo pull the latest version, update the marketplace first and then the plugin:\n\n```\n/plugin marketplace update duckdb-skills\n/plugin update duckdb-skills@duckdb-skills\n```\n\n## Skills\n\n### `attach-db`\nAttach a DuckDB database file for interactive querying. Explores the schema (tables, columns, row counts) and writes a SQL state file so all other skills can restore the session automatically. You can choose to store state in the project directory (`.duckdb-skills/state.sql`) or in your home directory (`~/.duckdb-skills/<project>/state.sql`).\n\n```\n/duckdb-skills:attach-db my_analytics.duckdb\n```\n\nSupports multiple databases — running `attach-db` again can append to the existing state file.\n\n### `query`\nRun SQL queries against attached databases or ad-hoc against files. Accepts raw SQL or natural language questions. Uses DuckDB's Friendly SQL dialect. Automatically picks up session state from `attach-db`.\n\n```\n/duckdb-skills:query FROM sales LIMIT 10\n/duckdb-skills:query \"what are the top 5 customers by revenue?\"\n/duckdb-skills:query FROM 'exports.csv' WHERE amount > 100\n```\n\n### `read-file`\nRead and explore any data file — CSV, JSON, Parquet, Avro, Excel, spatial, SQLite, Jupyter notebooks, and more — locally or from remote storage (S3, GCS, Azure, HTTPS). Auto-detects the format by file extension using a built-in `read_any` table macro. Suggests `query` for further exploration.\n\n```\n/duckdb-skills:read-file variants.parquet what columns does it have?\n/duckdb-skills:read-file s3://my-bucket/data.parquet describe the schema\n/duckdb-skills:read-file https://example.com/data.csv how many rows?\n```\n\n### `duckdb-docs`\nSearch DuckDB and DuckLake documentation and blog posts using full-text search against the hosted search indexes. No local setup required — queries run over HTTPS by default, with an option to cache the index locally for faster offline searches.\n\n```\n/duckdb-skills:duckdb-docs window functions\n/duckdb-skills:duckdb-docs \"how do I read a CSV with custom delimiters?\"\n```\n\n### `read-memories`\nSearch past Claude Code session logs to recover context from previous conversations — decisions made, patterns established, open TODOs. Offloads large result sets to a temporary DuckDB file for interactive drill-down.\n\n```\n/duckdb-skills:read-memories duckdb --here\n```\n\n### `install-duckdb`\nInstall or update DuckDB extensions. Supports `name@repo` syntax for community extensions and a `--update` flag that also checks whether your DuckDB CLI is on the latest stable version.\n\n```\n/duckdb-skills:install-duckdb spatial httpfs\n/duckdb-skills:install-duckdb gcs@community\n/duckdb-skills:install-duckdb --update\n```\n\n## Session state\n\nAll skills share a single `state.sql` file per project — a plain SQL file containing ATTACH/USE/LOAD statements, secrets, and macros. When state is first needed, you'll be asked where to store it:\n\n1. **In the project directory** (`.duckdb-skills/state.sql`) — colocated with the project, optionally gitignored\n2. **In your home directory** (`~/.duckdb-skills/<project>/state.sql`) — keeps the repo clean\n\nThe file is append-only and idempotent. Any skill restores the session via `duckdb -init state.sql`.\n\n## Local development\n\nTo test skills locally from a clone of this repo:\n\n```bash\n# 1. Clone the repo\ngit clone https://github.com/duckdb/duckdb-skills.git\ncd duckdb-skills\n\n# 2. Launch Claude Code with the local plugin directory\nclaude --plugin-dir .\n```\n\nThis loads the plugin from disk instead of the marketplace, so any edits to `skills/*/SKILL.md` take effect immediately — just start a new conversation (or re-run the slash command) to pick up changes.\n\nYou can test individual skills directly:\n\n```\n/duckdb-skills:read-file some_local_file.parquet\n/duckdb-skills:duckdb-docs pivot unpivot\n/duckdb-skills:query SELECT 42\n```\n\n**Prerequisites:** DuckDB CLI must be installed. If it isn't, the skills will offer to install it via `/duckdb-skills:install-duckdb`.\n\n## How the skills work together\n\nSkills reference each other where it makes sense:\n\n- `read-file` suggests `query` for follow-up exploration and `attach-db` for persisting large files\n- `query`, `read-file`, and `read-memories` all use `duckdb-docs` to troubleshoot DuckDB errors automatically\n- All skills share the same `state.sql` — secrets and macros set up by `read-file` are reused by `query`, and databases attached by `attach-db` are available everywhere\n\n## Platform support\n\nThese skills have been tested on **macOS** and **Linux**. Windows is not yet fully supported — some shell commands and path handling may not work as expected. We plan to improve Windows compatibility in a future release.\n\n## Reporting issues & suggestions\n\nFound a bug or have an idea for improvement? Open an issue at:\n\n**https://github.com/duckdb/duckdb-skills/issues**\n\nFor DuckDB-specific bugs (extension loading, SQL errors), please include the DuckDB version (`duckdb --version`) and the full error message.\n",
+  "status": "curated"
+}

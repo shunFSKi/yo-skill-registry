@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/vibe-security-skill-vibe-security",
+  "type": "skill",
+  "name": "vibe-security",
+  "description": "Audits codebases for common security vulnerabilities that AI coding assistants introduce in \"vibe-coded\" applications. Checks for exposed API keys, broken access control (Supabase RLS, Firebase rules), missing auth validation, client-side trust issues, insecure payment flows, and more. Use this skill whenever the user asks about security, wants a code review, mentions \"vibe coding\", or when you're writing or reviewing code that handles authentication, payments, database access, API keys, secrets, or user data — even if they don't explicitly mention security. Also trigger when the user says things like \"is this safe?\", \"check my code\", \"audit this\", \"review for vulnerabilities\", or \"can someone hack this?\".",
+  "author": "raroque",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/raroque/vibe-security-skill/tree/HEAD/vibe-security",
+    "repo": "raroque/vibe-security-skill"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 1054,
+    "pushed_at": null,
+    "score": 62,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 1055
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "<p align=\"center\">\n    <img src=\"https://img.shields.io/badge/security-vibe--coded%20apps-DC2626.svg\" alt=\"Security for vibe-coded apps\" />\n    <img src=\"https://img.shields.io/badge/license-MIT-blue.svg\" alt=\"MIT License\" />\n    <a href=\"https://twitter.com/raroque\">\n        <img src=\"https://img.shields.io/badge/Contact-@raroque-95a5a6.svg?style=flat\" alt=\"Twitter: @raroque\" />\n    </a>\n</p>\n\n<h1 align=\"center\">Vibe Security - Agent Skill for AI Coding Assistants</h1>\n\nAn agent skill that helps secure vibe-coded apps - or honestly any app - from common security vulnerability patterns. Built by [Chris Raroque](https://www.youtube.com/@raroque) ([@raroque](https://twitter.com/raroque)) in collaboration with my colleagues at [Aloa](https://aloa.co).\n\nAI assistants are great at building features fast but consistently get security wrong: hardcoding secrets, skipping row-level security, trusting client-submitted prices, storing tokens in localStorage. This skill catches those patterns before they ship.\n\n**Need help building AI apps, custom agents, or implementing AI at your company?** Work with Chris and the team at [Aloa](https://aloa.co).\n\n## Background\n\nThis skill was built specifically to address the security issues that keep showing up in vibe-coded applications. When you're building fast with AI, security fundamentals get skipped - and the AI assistants themselves are often the ones introducing the vulnerabilities. This skill gives your agent the knowledge to catch and prevent those patterns.\n\nIt uses the [Agent Skills](https://agentskills.io/home) format, so it works with Claude Code, OpenAI Codex, and other compatible agents.\n\nThe security rules are organized as reference files that the agent loads based on what technologies your project uses. If you're using Supabase, it checks RLS policies. If you're using Stripe, it checks payment flows. If you're using React Native, it checks for secrets in the JS bundle. No wasted context on irrelevant checks.\n\n## Installing Vibe Security\n\n### Claude Code\n\n```bash\nnpx skills add https://github.com/raroque/vibe-security-skill --skill vibe-security\n```\n\nIf `npx` isn't available, install Node.js first: `brew install node` (macOS) or download from [nodejs.org](https://nodejs.org).\n\n### OpenAI Codex\n\n```bash\nnpx skills add https://github.com/raroque/vibe-security-skill --skill vibe-security\n```\n\nSelect \"Codex\" when prompted for the agent platform.\n\n### Manual Installation (Claude Code)\n\nClone this repo and copy the `vibe-security/` folder to your project or global skills directory:\n\n```bash\n# Project-level (applies to one project)\ncp -r vibe-security/ .claude/skills/vibe-security/\n\n# Global (applies to all projects)\ncp -r vibe-security/ ~/.claude/skills/vibe-security/\n```\n\n## Using Vibe Security\n\n**Claude Code:** Use `/vibe-security` to trigger a full security audit, or just ask naturally - \"check my code for security issues\", \"is this safe?\", \"audit this project\".\n\n**Codex:** Use `$vibe-security` or describe what you need - \"review this for vulnerabilities\", \"check my Supabase RLS\".\n\nThe skill also activates automatically when you're writing or reviewing code that handles authentication, payments, database access, API keys, or user data.\n\n## What It Checks\n\n| Category | What It Catches |\n|----------|----------------|\n| **Secrets & Env Vars** | Hardcoded API keys, secrets in `NEXT_PUBLIC_`/`VITE_`/`EXPO_PUBLIC_` vars, missing `.gitignore` |\n| **Database Security** | Disabled Supabase RLS, `USING (true)` policies, missing `WITH CHECK`, exposed sensitive fields, Firebase `allow: if true` rules, Convex missing auth |\n| **Auth & Authorization** | `jwt.decode()` without verify, middleware-only auth, unprotected Server Actions, tokens in localStorage |\n| **Rate Limiting** | Missing limits on auth/AI/email endpoints, client-tamperable rate counters, no billing caps |\n| **Payments** | Client-submitted prices, missing webhook signature verification, stale subscription checks |\n| **Mobile** | API keys in JS bundle, `AsyncStorage` for tokens, unsafe deep links, weak biometric auth |\n| **AI / LLM** | Exposed AI API keys, no usage caps, prompt injection, unsafe output rendering |\n| **Deployment** | Debug mode in production, exposed source maps, missing security headers, `.git` accessible |\n| **Data Access** | SQL injection, Prisma operator injection, `$queryRawUnsafe`, mass assignment |\n\n## Contributing\n\nContributions, corrections, and improvements are very welcome! This is meant to be a community resource. If you've found a security anti-pattern that AI assistants keep introducing, please add it.\n\nSee [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.\n\n## License\n\nVibe Security is available under the MIT License. See [LICENSE](LICENSE) for details.\n\nCreated by [Chris Raroque](https://www.youtube.com/@raroque) ([@raroque](https://twitter.com/raroque)) and the team at [Aloa](https://aloa.co).\n",
+  "status": "curated"
+}

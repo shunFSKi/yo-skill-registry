@@ -1,0 +1,53 @@
+{
+  "id": "skill:claudeskills/repo-analyzer-repo-analyzer",
+  "type": "skill",
+  "name": "repo-analyzer",
+  "description": "AI coding agent skill for deep architectural analysis of open-source projects | 开源项目深度架构分析，一句话生成专业级分析报告",
+  "author": "yzddmr6",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/yzddmr6/repo-analyzer/tree/HEAD/skills/repo-analyzer",
+    "repo": "yzddmr6/repo-analyzer"
+  },
+  "license": null,
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 492,
+    "pushed_at": null,
+    "score": 59
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Repo Analyzer\n\nAn AI coding agent skill for deep architectural analysis of open-source projects. Generates professional-grade architecture reports with design insights, trade-off analysis, and Mermaid diagrams.\n\nCompatible with [Claude Code](https://claude.ai/claude-code), [Codex](https://github.com/openai/codex), [OpenClaw](https://github.com/anthropics/openclaw), and any AI coding agent that supports the skills format.\n\n**[中文文档](README.zh.md)**\n\n## Related Articles\n\n- [一键生成专业级分析报告：迭代20多轮的深度架构分析Skill，我决定开源了](https://mp.weixin.qq.com/s/sOPHFaNS8pIkhB4F-FysTQ)\n- [Claude Code 源码深度架构分析](https://mp.weixin.qq.com/s/GjZ-tFBVwfJwK11F1lP5TQ)\n\n## Quick Install\n\n**npx (Recommended)**\n\n```bash\nnpx skills add yzddmr6/repo-analyzer\n```\n\n**Plugin Marketplace**\n\n```\n/plugin marketplace add yzddmr6/repo-analyzer\n/plugin install repo-analyzer@repo-analyzer\n```\n\n**Manual (Git Clone)**\n\n```bash\n# macOS / Linux\ngit clone https://github.com/yzddmr6/repo-analyzer.git ~/.claude/skills/repo-analyzer\n\n# Windows\ngit clone https://github.com/yzddmr6/repo-analyzer.git %USERPROFILE%\\.claude\\skills\\repo-analyzer\n```\n\n## Features\n\n- **Architecture-level analysis** — Focuses on *why* things are designed the way they are, not just *what* the code does\n- **Adaptive report structure** — No fixed template; chapters are designed based on each project's unique characteristics\n- **Parallel subagent analysis** — Spawns multiple agents to analyze core modules concurrently for large codebases\n- **Competitive positioning** — Compares design philosophy and technical trade-offs against similar projects\n- **Mermaid diagrams** — Architecture overviews, data flows, and per-module sequence diagrams throughout the report\n- **Interactive workflow** — Asks targeted questions based on project traits before diving into analysis\n\n## Usage\n\nSimply ask Claude Code to analyze a project:\n\n```\n分析项目 https://github.com/astral-sh/ruff\n```\n\n```\n分析一下 ollama/ollama 这个仓库的架构\n```\n\n```\n对比分析 express 和 fastify\n```\n\nThe skill also accepts `owner/repo` shorthand, full GitHub/GitLab/Gitee URLs, or local paths.\n\n### Trigger Keywords\n\nThe skill activates automatically when you mention:\n\n`分析项目` `分析仓库` `分析 GitHub` `项目分析` `源码分析` `架构分析` `代码分析` `学习这个项目` `研究这个框架` `看看这个库怎么实现的` `对比两个项目` `项目评测` `框架评测`\n\n> **Note:** The skill outputs reports in Chinese by default. If you ask in another language, it follows your language.\n\n## Analysis Modes\n\nAfter scanning the codebase, the skill asks you to choose a depth level:\n\n| Mode | Core Module Coverage | Secondary Coverage | Best For |\n|------|---------------------|-------------------|----------|\n| **Quick** | >= 30% | >= 10% | Getting a high-level overview |\n| **Standard** (default) | >= 60% | >= 30% | Regular architecture analysis |\n| **Deep** | >= 90% | >= 60% | Studying every design decision |\n\n## How It Works\n\n1. **Clone & Scan** — Clones the repo (or uses a local path), counts effective lines of code by module\n2. **External Research** — Web searches for reviews, comparisons, and architecture discussions; crawls the official website\n3. **Adaptive Q&A** — Generates targeted questions based on project characteristics, not a fixed checklist\n4. **Dynamic Report Structure** — Designs chapter layout based on your answers and project traits\n5. **Parallel Deep Analysis** — Spawns subagents for each core module, analyzing them concurrently\n6. **Cross-Validation** — Verifies conclusions across modules, checks code read coverage\n7. **Multi-Source Fusion** — Merges research, module analyses, and insights into a cohesive narrative\n8. **Final Report** — Outputs a single Markdown file with Mermaid diagrams\n\n## Report Output\n\nThe final report is saved as a single Markdown file at:\n\n```\n~/repo-analyses/{project-name}-{date}/ANALYSIS_REPORT.md\n```\n\nEvery report includes (adapted per project):\n\n- **Problem Context** — What problem does this solve? Why do existing solutions fall short?\n- **Competitive Positioning** — Design philosophy differences vs. alternatives (not feature checklists)\n- **Project Overview** — Architecture at a glance\n- **Deep Module Analysis** — Why > What analysis with trade-offs and industry comparisons\n- **Evaluation & Takeaways** — Honest assessment of strengths, weaknesses, and lessons learned\n- **Architecture Diagrams** — Mermaid charts for system overview and per-module flows\n\n## Optional Dependencies\n\nThe skill works with Claude Code's built-in tools out of the box. For enhanced research capabilities, these MCP servers are optional:\n\n- [Tavily MCP](https://github.com/tavily-ai/tavily-mcp) — Website crawling via `tavily_crawl`\n- [Brave Search MCP](https://github.com/anthropics/anthropic-quickstarts/tree/main/brave-search-mcp) — Alternative web search provider\n\n## File Structure\n\n```\nrepo-analyzer/\n├── .claude-plugin/\n│   └── plugin.json                         # Plugin metadata\n├── package.json                            # Package manifest\n├── skills/\n│   └── repo-analyzer/\n│       ├── SKILL.md                        # Main skill definition\n│       └── references/\n│           ├── analysis-guide.md           # Analysis philosophy & evaluation framework\n│           └── module-analysis-guide.md    # Module analysis guide & subagent templates\n├── README.md                               # English documentation\n├── README.zh.md                            # Chinese documentation\n└── LICENSE                                 # MIT License\n```\n\n## Contributing\n\nContributions are welcome! Feel free to open issues or submit pull requests.\n\nIf you'd like to improve the analysis workflow, the core logic lives in `skills/repo-analyzer/SKILL.md`. The evaluation framework and subagent templates are in the `references/` directory.\n\n## License\n\n[MIT](LICENSE)\n",
+  "status": "curated"
+}

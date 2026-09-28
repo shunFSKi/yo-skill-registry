@@ -1,0 +1,61 @@
+{
+  "id": "mcp:official/com.relvato/relvato",
+  "type": "mcp",
+  "name": "Relvato",
+  "description": "Website monitoring: list sites and checks, run scans, read results and fix prompts.",
+  "author": "com.relvato",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/Relvato/relvato-mcp",
+    "repo": "Relvato/relvato-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://app.relvato.com/api/mcp",
+    "env": [
+      {
+        "name": "Authorization",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-28T16:17:59.711479Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "AI",
+    "featured": false
+  },
+  "readme": "<p align=\"center\">\n  <img src=\"https://www.relvato.com/logo-512.png\" alt=\"Relvato\" width=\"96\" height=\"96\">\n</p>\n\n<h1 align=\"center\">Relvato MCP server</h1>\n\n<p align=\"center\">\n  Website monitoring your AI agent can run: add a site, pick its checks, run them and explain what broke.<br>\n  <a href=\"https://www.relvato.com/developers\">Developer docs</a> ·\n  <a href=\"https://registry.modelcontextprotocol.io/v0/servers?search=com.relvato\">Official MCP Registry</a> ·\n  <a href=\"https://www.relvato.com\">relvato.com</a>\n</p>\n\n---\n\n[Relvato](https://www.relvato.com) monitors websites in a real browser. It checks sign-ups, logins, checkout, payments,\npage speed, search visibility and security, and re-checks them every time the site changes. It works on any website and\ngoes deepest on WordPress & WooCommerce.\n\nThis is Relvato's **hosted** [Model Context Protocol](https://modelcontextprotocol.io) server. There's nothing to\ninstall or run: point your MCP client at the URL and authenticate with a Relvato API key. This repository holds the\nconnection details and the registry entry ([`server.json`](server.json)). The server itself runs at Relvato.\n\n| | |\n| --- | --- |\n| **Endpoint** | `https://app.relvato.com/api/mcp` |\n| **Transport** | Streamable HTTP (stateless JSON-RPC over POST) |\n| **Auth** | Relvato API key: `Authorization: Bearer rlv_…` (or `x-api-key: rlv_…`) |\n| **Registry name** | `com.relvato/relvato` |\n\n## Get an API key\n\n1. [Sign up](https://app.relvato.com/sign-up) (there's a free plan) or sign in.\n2. Open **API access** from the account menu, or go to [app.relvato.com/api-access](https://app.relvato.com/api-access).\n3. Create a key:\n   - **Full access** lets the agent add sites and checks, change schedules and run scans.\n   - **Read-only** lets it read sites, runs, health overviews, fix briefs and alert settings. With a read-only key the\n     client only sees the read tools.\n\nA key is shown once. Keep it out of files you commit.\n\n## Connect\n\n### Claude Code\n\n```bash\nclaude mcp add --transport http relvato https://app.relvato.com/api/mcp --header \"Authorization: Bearer rlv_your_key\"\n```\n\n### Cursor\n\nIn `~/.cursor/mcp.json` (all projects) or `.cursor/mcp.json` (one project):\n\n```json\n{\n  \"mcpServers\": {\n    \"relvato\": {\n      \"url\": \"https://app.relvato.com/api/mcp\",\n      \"headers\": {\n        \"Authorization\": \"Bearer rlv_your_key\"\n      }\n    }\n  }\n}\n```\n\n### VS Code\n\nIn `.vscode/mcp.json`. VS Code asks for the key once and stores it securely, so it never sits in the file:\n\n```json\n{\n  \"inputs\": [\n    { \"type\": \"promptString\", \"id\": \"relvato-key\", \"description\": \"Relvato API key (rlv_…)\", \"password\": true }\n  ],\n  \"servers\": {\n    \"relvato\": {\n      \"type\": \"http\",\n      \"url\": \"https://app.relvato.com/api/mcp\",\n      \"headers\": {\n        \"Authorization\": \"Bearer ${input:relvato-key}\"\n      }\n    }\n  }\n}\n```\n\n### Cline\n\nIn `cline_mcp_settings.json` (MCP Servers → Configure):\n\n```json\n{\n  \"mcpServers\": {\n    \"relvato\": {\n      \"type\": \"streamableHttp\",\n      \"url\": \"https://app.relvato.com/api/mcp\",\n      \"headers\": {\n        \"Authorization\": \"Bearer rlv_your_key\"\n      }\n    }\n  }\n}\n```\n\nAgents that set servers up themselves can follow [`llms-install.md`](llms-install.md).\n\n### Any other client\n\nAdd a remote **HTTP** (streamable HTTP) server with the endpoint above and an `Authorization: Bearer rlv_…` header.\nIn the common `mcp.json` format:\n\n```json\n{\n  \"mcpServers\": {\n    \"relvato\": {\n      \"type\": \"http\",\n      \"url\": \"https://app.relvato.com/api/mcp\",\n      \"headers\": {\n        \"Authorization\": \"Bearer rlv_your_key\"\n      }\n    }\n  }\n}\n```\n\nRelvato uses API keys, not OAuth, so a client needs to be able to send a custom header. Clients that accept only a bare\nURL can list the tools but can't call them.\n\n## Tools\n\n| Tool | What it does | Key needed |\n| --- | --- | --- |\n| `list_sites` | List the account's websites and whether each is ready to run checks. | read-only |\n| `site_overview` | Plain-language health verdict: what needs attention, every check with its latest run and schedule, and plan usage. | read-only |\n| `list_checks` | The checks you can add to a site: what each catches, whether your plan includes it, and which are recommended. | read-only |\n| `list_runs` | Recent runs, newest first, optionally for one site. | read-only |\n| `get_run` | One run in detail: status, error, warnings, steps, visual comparisons and the dashboard link. | read-only |\n| `get_fix_prompt` | For a run that found a problem: the same brief Relvato's own AI answers, to reason about the likely cause and fixes. | read-only |\n| `get_alert_settings` | Who is told about what: frequency, severity, each channel's state and routing. No URLs or secrets. | read-only |\n| `add_site` | Add a website and get its setup step: connect the WordPress plugin, or verify the domain. | full access |\n| `verify_site` | Check that setup step: the plugin connection, or the domain-verification DNS record or meta tag. | full access |\n| `add_checks` | Add checks to a site. Each one reports added, already there, or why not. | full access |\n| `update_check` | Turn a check on or off, or change its schedule. | full access |\n| `trigger_scan` | Run a site's checks now, or a single check, and get the run IDs back. Uses the monthly run quota. | full access |\n\n`initialize` and `tools/list` answer without a key, so directories and clients can show what the server offers. Every\ntool call needs one.\n\n## Things to ask\n\n- \"Set up monitoring for example.com and tell me what I need to do to connect it.\"\n- \"Why did checkout fail on my shop last night, and how do I fix it?\"\n- \"Who gets alerted when a Security check fails, and on which channels?\"\n- \"Run the checks on my site now and tell me if anything broke.\"\n\n## What an agent can't do\n\nThese stay in the Relvato dashboard, with a person looking:\n\n- **Skip ownership.** A new site runs no checks until its WordPress plugin is connected or its domain is verified.\n- **Accept changes.** Accepting new visual baselines and ignoring warnings are done in the dashboard.\n- **Apply fixes.** No fixes are applied to your site.\n- **Touch secrets.** Connect tokens, signing secrets and webhook URLs are never exposed.\n- **Go past your plan.** Plan limits apply exactly as in the dashboard.\n\n## Limits\n\nRequests are rate-limited per account, per minute, counted across the REST API and MCP together:\n\n| Plan | Requests per minute |\n| --- | --- |\n| Free | 30 |\n| Pro | 120 |\n| Business | 600 |\n| Agency | 2,400 |\n\nRuns started with `trigger_scan` count toward the same monthly run quota as scheduled checks. See\n[pricing](https://www.relvato.com/pricing).\n\n## Also available\n\n- **REST API.** The same data at `https://app.relvato.com/api/v1`, using the same keys. See the\n  [developer docs](https://www.relvato.com/developers).\n- **Webhooks.** A signed JSON event for every alert (Pro and up).\n\n## Support\n\n- Questions and bug reports: [relvato.com/contact](https://www.relvato.com/contact), or open an issue here.\n- Service status: [relvato.com/status](https://www.relvato.com/status).\n- Security issues: please use the contact page, not a public issue.\n\nThis repository contains documentation and configuration only. The Relvato service is proprietary and covered by its\n[terms](https://www.relvato.com/terms). The contents of this repository are MIT-licensed (see [LICENSE](LICENSE)), so\ncopy the config snippets freely.\n",
+  "status": "curated"
+}

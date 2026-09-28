@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/aigc-weekly-chinese-writing",
+  "type": "skill",
+  "name": "chinese-writing",
+  "description": "aigc-weekly — agent skills repository.",
+  "author": "miantiao-me",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/miantiao-me/aigc-weekly/tree/HEAD/agent/.opencode/skills/chinese-writing",
+    "repo": "miantiao-me/aigc-weekly"
+  },
+  "license": "AGPL-3.0",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 563,
+    "pushed_at": null,
+    "score": 54,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 563
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "写作",
+    "featured": false
+  },
+  "readme": "# Agili 的 AIGC 周刊\n\n一个由 Agentic AI Agent 驱动的 AIGC（人工智能生成内容）精选周刊。本项目利用最新的 AI 和 Serverless 技术，为您提供最新的资讯、工具和资源。\n\n---\n\n**在线阅读**: <https://aigc-weekly.agi.li>\n\n**RSS订阅**: <https://aigc-weekly.agi.li/rss.xml>\n\n![aigc-weekly](https://socialify.git.ci/miantiao-me/aigc-weekly/image?description=1&forks=1&name=1&owner=1&pattern=Circuit+Board&stargazers=1&theme=Auto)\n\n## 🚀 特性\n\n- **AI 智能策展**：利用 Agentic AI Agent 自动发现和筛选内容。\n- **现代技术栈**：基于 Next.js 15、Payload CMS 3.0 和 Cloudflare 边缘基础设施构建。\n- **Serverless 架构**：完全部署在 Cloudflare (Workers, D1, R2, Containers) 上，实现高性能和低延迟。\n- **Agent MCP 集成**：使用模型上下文协议 (MCP) 允许 AI Agent 直接与 CMS 交互。\n\n## 🛠 技术栈\n\n- **框架**：[Next.js](https://nextjs.org/) (App Router) & [OpenNext](https://opennext.js.org/)\n- **CMS**：[Payload CMS](https://payloadcms.com/) (Headless)\n- **数据库**：[Cloudflare D1](https://developers.cloudflare.com/d1/) (SQLite)\n- **存储**：[Cloudflare R2](https://developers.cloudflare.com/r2/) (对象存储)\n- **Agent 框架**：[OpenCode](https://opencode.ai/)\n- **Agent 运行时**：[Cloudflare Containers](https://developers.cloudflare.com/containers/) （需要付费套餐，或者在本地运行）\n- **边缘运行时**：[Cloudflare Workers](https://workers.cloudflare.com/)\n\n## 🏗 架构\n\n本项目包含三个主要组件：\n\n1. **Next.js 应用 (`app/`)**：负责面向读者的前端页面以及 Payload CMS 管理界面。\n2. **OpenCode Agent (`agent/`)**：一个独立的 Agent 服务，运行在 **Cloudflare Containers** 上，负责收集信息并通过 MCP 更新 CMS。\n3. **Cloudflare Worker (`worker/`)**：转发请求到 Container 并控制其生命周期。\n\n## 🏁 快速开始\n\n### 前置要求\n\n- **Node.js**：v22 或更高版本\n- **pnpm**：v10 或更高版本\n- **Cloudflare 账号**：用于 D1、R2 和 Workers 部署。\n\n### 安装\n\n1. 克隆仓库：\n\n   ```bash\n   git clone https://github.com/miantiao-me/aigc-weekly.git\n   cd aigc-weekly\n   ```\n\n2. 安装依赖：\n   ```bash\n   pnpm install\n   ```\n\n### 配置\n\n1. **环境变量**：\n   配置必要的环境变量：\n   - 复制 `.env.example` 为 `.env.local` 并填写相应值。\n   - 复制 `worker/.env.example` 为 `worker/.env.local` 并填写相应值。\n\n   确保你已经配置了必要的 Cloudflare 绑定, 你需要在 `wrangler.jsonc` 中配置以下绑定：\n   - `D1`：数据库\n   - `R2`：对象存储\n   - `PAYLOAD_SECRET`：一个安全的随机字符串。\n\n2. **生成类型**：\n\n   ```bash\n   pnpm generate:types\n   ```\n\n3. **配置 MCP 和 Agent**：\n   你可以在 `agent/opencode.json` 配置 MCP Server 和模型，在 `agent/.opencode/` 目录修改 Agent 的技能、子 Agent 和命令等配置。\n\n   项目使用 [**Firecrawl**](https://firecrawl.link/playground) 进行网页爬取和信息提取, 你需要在 Firecrawl 注册账号并获取 API Key，然后在 `worker/.env.local` 中配置 `FIRECRAWL_API_KEY`。\n\n### 本地运行\n\n- **Next.js 应用**：\n\n  ```bash\n  pnpm dev\n  ```\n\n  访问应用：`http://localhost:3000` 和 `http://localhost:3000/admin`。\n\n- **Cloudflare Worker（包含 Agent）**：\n\n  ```bash\n  pnpm dev:worker\n  ```\n\n  需要安装 Docker 以运行本地沙箱。Worker 会自动启动 OpenCode Agent 容器。\n\n## 🚀 部署\n\n本项目设计为部署在 Cloudflare 上。\n\n1. **部署数据库和应用**：\n\n   ```bash\n   pnpm deploy\n   ```\n\n   此命令会运行 `deploy:database`（迁移）和 `deploy:app`（OpenNext 构建与上传）。\n\n2. **部署 Worker**：\n   ```bash\n   pnpm deploy:worker\n   ```\n\n## 📂 项目结构\n\n- `app/`：Next.js 应用源代码。\n- `agent/`：OpenCode Agent 配置和技能定义。\n- `worker/`：Cloudflare Worker 源代码。\n- `collections/`：Payload CMS 数据模型。\n- `migrations/`：数据库迁移文件。\n- `public/`：静态资源。\n\n## 🤖 AI 代码助手\n\n本项目包含 [AGENTS.md](AGENTS.md) 文件，为 AI 代码助手（如 Claude Code、Cursor、Copilot 等）提供开发指南，包括命令、代码风格和架构信息。\n\n## 📄 许可证\n\n本项目采用 [GNU Affero General Public License v3.0](LICENSE) 许可证。\n",
+  "status": "curated"
+}

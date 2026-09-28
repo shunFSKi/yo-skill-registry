@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/claude-code-bmad-skills-builder",
+  "type": "skill",
+  "name": "builder",
+  "description": "Meta-skill for scaffolding and validating custom PLANNING/ORCHESTRATION skills within the BMAD Planning & Orchestrator plugin. Produces the full skill directory: SKILL.md, scripts, and templates — all pre-targeted at this plugin's path conventions. Includes a scope-violation checker so newly created skills never drift into dev/lint/build/coverage territory. Use when the user says \"create a skill\", \"scaffold a skill\", \"build a new planning skill\", \"add a skill to the orchestrator\", \"extend BMAD planning\", \"custom orchestration skill\", \"validate this skill\", \"check this skill for scope violations\", \"new skill for the planner\", or \"bmad-builder\". Supports three intents: Create (new skill skeleton), Validate (check an existing SKILL.md), Scaffold (directory structure only). This skill plans and scaffolds only — it NEVER writes application code, runs tests, lints, or builds.",
+  "author": "aj-geddes",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/aj-geddes/claude-code-bmad-skills/tree/HEAD/bmad-planning-orchestrator/skills/bmad-builder",
+    "repo": "aj-geddes/claude-code-bmad-skills"
+  },
+  "license": "NOASSERTION",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 488,
+    "pushed_at": null,
+    "score": 59,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 487
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# BMAD Planning & Orchestrator — a Claude Code plugin\n\n[![Run in Smithery](https://smithery.ai/badge/skills/aj-geddes)](https://smithery.ai/skills?ns=aj-geddes&utm_source=github&utm_medium=badge)\n[![BMAD Method](https://img.shields.io/badge/method-BMAD%20v6.x-orange.svg)](https://github.com/bmad-code-org/BMAD-METHOD)\n[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)\n\n> This repository is a **Claude Code plugin marketplace**. It ships one plugin —\n> **BMAD Planning & Orchestrator** — that harnesses the **BMAD Method** to\n> **plan, document, and orchestrate** software work as conflict-free parallel\n> workstreams, then hands implementation off to your dev tools.\n>\n> **It plans and orchestrates. It does not write the code.**\n\nDocumentation site: https://aj-geddes.github.io/claude-code-bmad-skills\n\n---\n\n## 🎯 Attribution & Credit\n\nThe **BMAD Method™** (Breakthrough Method for Agile AI-Driven Development) is\ncreated and maintained by the **BMAD Code Organization**. This repository is an\n**independent Claude Code harness** for the method — not an official BMAD product,\nand no endorsement is implied. **All methodology credit belongs to the BMAD Code\nOrganization.**\n\n- **Repository:** https://github.com/bmad-code-org/BMAD-METHOD\n- **Documentation:** https://docs.bmad-method.org/\n- **Website:** https://bmadcodes.com/bmad-method/\n- **YouTube:** [@BMadCode](https://www.youtube.com/@BMadCode) · **Discord:** https://discord.gg/gk8jAdXWmj\n\nThe methodology, agent roles, workflow patterns, document shapes, and all BMAD\nconcepts are the intellectual property of the BMAD Code Organization. See\n[`bmad-planning-orchestrator/ATTRIBUTION.md`](bmad-planning-orchestrator/ATTRIBUTION.md).\n\n---\n\n## Install\n\n```text\n/plugin marketplace add aj-geddes/claude-code-bmad-skills\n/plugin install bmad-planning-orchestrator@bmad-method-harness\n```\n\nThen `/reload-plugins` (or restart Claude Code). That's it — no installer script,\nno `npx`, no copying into `~/.claude`. Updates flow through the marketplace.\n\n**Local development:** `claude --plugin-dir ./bmad-planning-orchestrator`\n\n---\n\n## What you get\n\nThe plugin runs the BMAD lifecycle — **Analysis → Planning → Solutioning →\nImplementation-handoff** — right-sized by an interactive **track** (Quick Flow /\nBMad Method / Enterprise), and stops at a `ready-for-dev` story file plus a\ntool-agnostic handoff manifest.\n\nIts signature contribution is **making parallel AI development safe**:\n\n- **One architecture** prevents *semantic* conflicts (API style, data model,\n  naming, security) across agents.\n- **Stories scoped to disjoint files**, dependency-ordered into parallel\n  **waves**, prevent *file/merge* conflicts.\n- **`handoff-manifest.json`** lets any dev runner pick up the work.\n\nFull skill catalog, flow diagram, and the handoff contract are in the plugin\nREADME: **[`bmad-planning-orchestrator/README.md`](bmad-planning-orchestrator/README.md)**.\n\n---\n\n## Why a plugin (and why planning-only)?\n\nThis project began as a suite of Claude Code *skills* installed by a bash/\nPowerShell script. Two things changed:\n\n1. **Claude Code added plugins + marketplaces** — a first-class way to\n   distribute and version a bundle of skills, agents, and hooks. We adopted it.\n2. **The BMAD Method advanced to a skills-centric v6.x** and the broader\n   ecosystem grew capable dev tools. So we refocused: BMAD does what it is best\n   at — **planning and orchestration** — and lets specialized tools do the\n   coding. The `developer`/`dev-story`/lint/coverage pieces were removed.\n\nIf you used the old skills install, see [MIGRATION.md](MIGRATION.md).\n\n---\n\n## Repository layout\n\n```\nclaude-code-bmad-skills/\n├── .claude-plugin/\n│   └── marketplace.json          # the marketplace (one plugin)\n├── bmad-planning-orchestrator/   # ← the plugin\n│   ├── .claude-plugin/plugin.json\n│   ├── skills/                   # 20 planning/orchestration skills\n│   ├── agents/                   # planning subagents\n│   ├── hooks/                    # next-step nudges\n│   ├── scripts/  resources/      # shared utils + guides\n│   ├── README.md  ATTRIBUTION.md  LICENSE  CHANGELOG.md\n├── docs/                         # GitHub Pages site\n├── CLAUDE.md  CONTRIBUTING.md  MIGRATION.md  LICENSE\n```\n\n---\n\n## Contributing\n\nSee [CONTRIBUTING.md](CONTRIBUTING.md). The one rule that defines this project:\n**every contribution stays on the planning/orchestration side of the line —\nnothing here writes, runs, tests, or reviews application code.**\n\n## License\n\nMIT — see [LICENSE](LICENSE). The BMAD Method™ name and methodology belong to the\nBMAD Code Organization; this license covers only the Claude Code plugin\nimplementation.\n",
+  "status": "curated"
+}

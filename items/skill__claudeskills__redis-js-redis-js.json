@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/redis-js-redis-js",
+  "type": "skill",
+  "name": "redis-js",
+  "description": "Work with the Upstash Redis JavaScript/TypeScript SDK for serverless Redis operations. Use for caching, session storage, rate limiting, leaderboards, full-text search (querying, filtering, aggregating with @upstash/redis search extension), and all Redis data structures. Supports automatic serialization/deserialization of JavaScript types. Search also available via @upstash/search-redis and @upstash/search-ioredis adapters for TCP clients.",
+  "author": "upstash",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/upstash/redis-js/tree/HEAD/skills",
+    "repo": "upstash/redis-js"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 974,
+    "pushed_at": null,
+    "score": 62,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 974
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# Upstash Redis\n\n`@upstash/redis` is an HTTP/REST based Redis client for typescript, built on top\nof [Upstash REST API](https://docs.upstash.com/features/restapi).\n\n[![Tests](https://github.com/upstash/upstash-redis/actions/workflows/tests.yaml/badge.svg)](https://github.com/upstash/upstash-redis/actions/workflows/tests.yaml)\n![npm (scoped)](https://img.shields.io/npm/v/@upstash/redis)\n![npm bundle size](https://img.shields.io/bundlephobia/minzip/@upstash/redis)\n\n> [!NOTE]  \n> **This project is in GA Stage.**\n>\n> The Upstash Professional Support fully covers this project. It receives regular updates, and bug fixes. The Upstash team is committed to maintaining and improving its functionality.\n\nIt is the only connectionless (HTTP based) Redis client and designed for:\n\n- Serverless functions (AWS Lambda ...)\n- Cloudflare Workers (see\n  [the example](https://github.com/upstash/upstash-redis/tree/main/examples/cloudflare-workers))\n- Fastly Compute@Edge (see\n  [the example](https://github.com/upstash/upstash-redis/tree/main/examples/fastly))\n- Next.js, Jamstack ...\n- Client side web/mobile applications\n- WebAssembly\n- and other environments where HTTP is preferred over TCP.\n\nSee\n[the list of APIs](https://upstash.com/docs/redis/overall/rediscompatibility)\nsupported.\n\n> [!TIP]\n> **Need a Redis database fast?** Skip the signup and dashboard — POST to [`https://upstash.com/start-redis`](https://upstash.com/start-redis) to get an endpoint and token in a single HTTP request. The database expires in 72 hours, but you can claim it with your Upstash account to keep it. Especially useful for AI agents that need scratch storage on the fly.\n\n## Quick Start\n\n### Install\n\n#### Node.js\n\n```bash\nnpm install @upstash/redis\n```\n\n#### Deno\n\n```ts\nimport { Redis } from \"https://esm.sh/@upstash/redis\";\n```\n\n### Create database\n\nCreate a new redis database on [upstash](https://console.upstash.com/)\n\n## Basic Usage:\n\n```ts\nimport { Redis } from \"@upstash/redis\"\n\nconst redis = new Redis({\n  url: <UPSTASH_REDIS_REST_URL>,\n  token: <UPSTASH_REDIS_REST_TOKEN>,\n})\n\n// string\nawait redis.set('key', 'value');\nlet data = await redis.get('key');\nconsole.log(data)\n\nawait redis.set('key3', 'value3', {ex: 1});\n\n// sorted set\nawait redis.zadd('scores', { score: 1, member: 'team1' })\ndata = await redis.zrange('scores', 0, 100 )\nconsole.log(data)\n\n// list\nawait redis.lpush('elements', 'magnesium')\ndata = await redis.lrange('elements', 0, 100 )\nconsole.log(data)\n\n// hash\nawait redis.hset('people', {name: 'joe'})\ndata = await redis.hget('people', 'name' )\nconsole.log(data)\n\n// sets\nawait redis.sadd('animals', 'cat')\ndata  = await redis.spop('animals', 1)\nconsole.log(data)\n```\n\n## Troubleshooting\n\nWe have a\n[dedicated page](https://docs.upstash.com/redis/sdks/javascriptsdk/troubleshooting)\nfor common problems. If you can't find a solution, please\n[open an issue](https://github.com/upstash/upstash-redis/issues/new).\n\n## Docs\n\nSee [the documentation](https://upstash.com/docs/redis/sdks/ts/overview) for\ndetails.\n\n## Resources\n\n- [Examples](https://github.com/upstash/redis-js/tree/main/examples) — runnable usage examples across runtimes and frameworks\n- [xadd](https://www.xadd.dev/) — engineering blog about Redis\n- [Search Upstash Redis docs with AI](https://context7.com/websites/upstash_redis) — query the docs via Context7\n\n## Release Workflow\n\n### Stable Release\n\n1. Create a changeset (`pnpm changeset`) describing your changes and merge it to `main`\n2. **Changeset** workflow runs on push to `main`. If changesets are pending, it opens a \"Version Packages\" PR. When that PR is merged, the workflow runs again, publishes git tags, creates GitHub releases, and uploads a `release-meta` artifact\n3. **Router** workflow detects the Changeset completion via `workflow_run`, downloads the `release-meta` artifact, and calls the **npm Publish** workflow with `prerelease: false` and the resolved version\n4. **npm Publish** checks out the released commit, builds, and publishes to npm under the `latest` tag\n\n### Canary Release\n\n1. Trigger the **Canary Release** workflow manually from the Actions tab, selecting the package\n2. It creates a snapshot version (`x.y.z-canary.{timestamp}`), creates a GitHub prerelease, and uploads a `release-meta` artifact\n3. **Router** picks it up the same way, calling **npm Publish** with `prerelease: true`\n4. **npm Publish** publishes to npm under the `canary` tag\n\n### CI Tests\n\nOn every pull request, push to `main`, and daily schedule, the **Router** workflow runs the **Tests** workflow (unit tests, lint, build, and example integration tests).\n\n## Contributing\n\n### [Install Bun](https://bun.sh/docs/installation)\n\n### Database\n\nCreate a new redis database on [upstash](https://console.upstash.com/) and copy\nthe url and token\n\n### Running tests\n\n```sh\nbun run test\n```\n\n### Building\n\n```sh\nbun run build\n```\n\n### Telemetry\n\nThis library sends anonymous telemetry data to help us improve your experience.\nWe collect the following:\n\n- SDK version\n- Platform (Deno, Cloudflare, Vercel)\n- Runtime version (node@18.x)\n- Retry count of retried requests (to measure retry rates)\n\nYou can opt out by setting the `UPSTASH_DISABLE_TELEMETRY` environment variable\nto any truthy value.\n\n```sh\nUPSTASH_DISABLE_TELEMETRY=1\n```\n\nAlternatively, you can pass `enableTelemetry: false` when initializing the Redis client:\n\n```ts\nconst redis = new Redis({\n  // ...,\n  enableTelemetry: false,\n});\n```\n",
+  "status": "curated"
+}

@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/mini-browser-mini-browser",
+  "type": "skill",
+  "name": "mini-browser",
+  "description": "Browser automation skill for AI agents using the mb CLI. Use when the agent needs to browse the web, take screenshots, scrape text, fill forms, click elements, record screencasts, run JS in pages, or audit designs. Triggers on: \\\"browse\\\", \\\"open a page\\\", \\\"take a screenshot\\\", \\\"scrape\\\", \\\"fill form\\\", \\\"click button\\\", \\\"web automation\\\", \\\"record screen\\\", \\\"design audit\\\", \\\"accessibility check\\\".",
+  "author": "runablehq",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/runablehq/mini-browser/tree/HEAD/skill",
+    "repo": "runablehq/mini-browser"
+  },
+  "license": null,
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 184,
+    "pushed_at": null,
+    "score": 55,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 184
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "设计",
+    "featured": false
+  },
+  "readme": "# mb · mini-browser for agents\n\nBrowser CLI for agents. Each command is a small Unix tool — reads args, writes stdout, composes with pipes and `&&`.\n\n<p align=\"center\">\n  <img src=\"assets/demo.gif\" alt=\"mb demo — install, browse, snap, screenshot\" width=\"860\" />\n</p>\n\n<p align=\"center\">\n  <a href=\"https://www.npmjs.com/package/@runablehq/mini-browser\"><img alt=\"npm\" src=\"https://img.shields.io/npm/v/@runablehq/mini-browser\"></a>\n  <a href=\"https://runable.com/npm/@runablehq/mini-browser\"><img alt=\"runable\" src=\"https://img.shields.io/badge/runable.com-try%20it-blue\"></a>\n  <a href=\"https://skills.sh/runablehq/mini-browser/mini-browser\"><img alt=\"skills.sh\" src=\"https://img.shields.io/badge/skills.sh-install-green\"></a>\n</p>\n\n## Setup\n\n### As an agent skill (recommended)\n\n```bash\nnpx skills add runablehq/mini-browser --all --global\n```\n\nThis installs the `mini-browser` skill for all your agents via [skills.sh](https://skills.sh/runablehq/mini-browser/mini-browser). Your agent will automatically know how to use `mb` commands.\n\n### As a global CLI\n\n```bash\nnpm install -g @runablehq/mini-browser\n```\n\n### Then start Chrome\n\n```bash\nmb-start-chrome            # starts Chrome with --remote-debugging-port=9222\nmb go \"https://example.com\"\n```\n\n> **Try it online** at [runable.com](https://runable.com/npm/@runablehq/mini-browser) — no install needed.\n\nAlso ships `mb-restart-chrome` to kill and relaunch the debug Chrome instance.\n\nFor local development: `bun install && bun run build`, then use `node dist/mb.js`.\n\n### Chrome scripts\n\n| Script | What it does |\n|---|---|\n| `mb-start-chrome` | Launches Chrome with `--remote-debugging-port=9222`. No-ops if already running. Creates a fresh profile each time so `--window-size=1024,768` is always respected. |\n| `mb-restart-chrome` | Kills the running instance (via PID file) then calls `mb-start-chrome`. |\n\nBoth scripts honour these environment variables:\n\n| Variable | Default |\n|---|---|\n| `CHROME_PORT` | `9222` |\n| `CHROME_BIN` | auto-detected (`google-chrome-stable`, `chromium`, …) |\n| `CHROME_PID_FILE` | `<scripts>/.chrome-pid` |\n| `CHROME_USER_DATA_DIR` | `<scripts>/.chrome-profile` |\n\n## Commands\n\n```\nNavigation:\n  go <url>                    Navigate (waits for networkidle)\n  url                         Print current URL\n  back / forward              History navigation\n\nObserve:\n  text [selector]             Visible text (selector uses querySelector, default: body)\n  shot [file]                 Screenshot (default: ./shot.png)\n                              --width/--height temporarily resize viewport for the shot\n  snap                        Interactive elements via Accessibility Tree\n\nInteract:\n  click <x> <y>               Click at coordinates\n  type [x y] <text>           Type text (with coords: triple-clicks to select first)\n  fill <k=v...>               Fill form fields by label/name/placeholder/selector\n  key <key...>                Press keys — supports combos: Meta+a, Ctrl+Shift+T\n  move <x> <y>                Hover\n  drag <x1> <y1> <x2> <y2>   Drag between points\n  scroll [dir] [px]           Scroll (default: down 500)\n\nRecording:\n  record start <file>         Start recording (.webm, .mp4, .gif)\n  record stop                 Stop recording and save\n  record status               Check recording status\n\nTabs:\n  tab list / new [url] / close [id]\n\nOther:\n  js <code>                   Eval JS in page — strings print raw, objects print JSON\n  wait <ms|selector|networkidle|url:pattern>\n  audit                       Design audit (colors, fonts, contrast, SEO, a11y)\n  logs                        Stream console logs (Ctrl+C to stop)\n\nFlags:\n  --timeout <ms>   (default: 30000)\n  --tab <id>       target tab by stable Chrome id (default: first page)\n  --json           structured output (snap, tab list, logs, audit)\n  --right          right-click\n  --double         double-click\n  --width <px>     screenshot viewport width\n  --height <px>    screenshot viewport height\n  --fps <n>        recording frame rate (default: 30)\n  --scale <n>      recording scale factor (default: 1)\n```\n\n## Notes\n\nAll output goes to stdout. Pipe to grep, jq, wc, or redirect to files as usual.\n\n### Navigation\n\n`go` waits for `networkidle0` before returning, so SPAs render before the next\ncommand runs. For heavy SPAs that fetch data after mount, follow up with\n`wait \".selector\"` for a content element.\n\n### Observation\n\n`shot --width <px> --height <px>` temporarily resizes the viewport to the\ngiven dimensions for the screenshot, then restores the original viewport.\n\n`text` calls `querySelector` — returns first match only. `text \"p\"` may return\nempty if the first `<p>` on the page is empty. Use a scoped selector like\n`text \"main\"` or `text \"#content\"` for better results on noisy pages.\n\n`snap` output format:\n```\n[0] button \"Submit\" (512, 380)\n[1] textbox \"Email\" (512, 245) [disabled=true]\n```\nIt returns role, accessible name, center (x,y) coords, and state flags (checked,\nexpanded, disabled, selected, pressed, haspopup). Only elements in the current\nviewport are returned — scroll down and snap again to find more.\n\n### Interaction\n\n`click` supports `--right` for right-click and `--double` for double-click.\n\n`type` without coordinates types at current focus. With coordinates it\ntriple-clicks the field first (selects all existing text) then types the\nreplacement.\n\n`fill` matches fields by accessible name, `aria-label`, placeholder, `name`\nattribute, id, then label text in that order. Use `fill \"#my-input=value\"` to\ntarget by CSS selector when labels are missing.\n\n`scroll` defaults to `scroll down 500` if called with no args.\n\n### JavaScript\n\n`js` reads from stdin with `-`:\n```bash\necho 'document.title' | mb js -\ncat scrape.js | mb js -\n```\n\n### Recording\n\n`record start <file>` spawns a background daemon that captures the active tab\nvia Chrome's screencast API. Supported formats: `.webm`, `.mp4`, `.gif`.\nUse `--fps` and `--scale` to control frame rate and resolution.\n\n`record stop` sends SIGTERM to the daemon and waits up to 60 s for encoding to\nfinish.\n\n`record status` prints whether a recording is in progress and how long it has\nbeen running.\n\nState is stored in `~/.mb-recorder.json`.\n\n### Wait\n\n`wait` picks its strategy from the argument format:\n```\nwait 2000           sleep (ms)\nwait \".modal\"       wait for selector\nwait networkidle    wait for no network activity\nwait url:/dashboard wait for URL to contain string\n```\n\n### Audit\n\n`audit` collects palette, typography, spacing, contrast (via CDP), accessibility\nchecks, and basic SEO metadata in a single pass. Pass `--json` for structured\noutput.\n\n### Tabs\n\nEvery tab has a stable id (Chrome's CDP `targetId`) that survives other tabs\nopening or closing. Use `--tab <id>` to target a specific tab from any\ncommand. Without `--tab`, commands operate on the first open page.\n\n`tab list` prints id, URL, and title for each open tab.  \n`tab new [url]` opens a new tab (optionally navigating) and prints its id.  \n`tab close [id]` closes a tab by id (default: last opened). Cannot close the\nlast remaining tab.\n\n```bash\nID=$(mb tab new https://example.com)\nmb --tab \"$ID\" shot example.png\nmb tab close \"$ID\"\n```\n\n### JSON output\n\n`--json` on `snap` returns `[{role, name, x, y, state}]`.  \n`--json` on `tab list` returns `[{id, url, title}]`.  \n`--json` on `logs` emits JSON lines `{tab, type, time, message}`.  \n`--json` on `audit` returns the full audit data as a JSON object.\n\n### Overlays\n\nOverlays (cookie banners, modals) block clicks on elements underneath. Dismiss\nthem first, or remove via JS:\n```bash\nmb js 'document.querySelector(\"[class*=cookie]\")?.remove()'\nmb js 'document.body.style.overflow=\"auto\"'\n```\n",
+  "status": "curated"
+}

@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/builder-os-design-system",
+  "type": "skill",
+  "name": "design-system",
+  "description": "Translates an image (or a set of image references — screenshots, mockups, Figma URLs, live websites) into two mirrored design-system artifacts: `docs/design.md` (YAML tokens + prose, following Google's open [design.md](https://github.com/google-labs-code/design.md) format, for the coding agent) and `docs/design.html` (a self-contained, token-driven style guide rendering every token and component live, for the human to read). Reads the imagery, asks targeted clarifying questions, derives the design tokens (colors, typography, spacing, rounded, components), and writes both files. Fully standalone — requires no other document or skill. Use when the founder says \"create a design system\", \"design from image\", \"translate image to design\", \"create design.md\", \"image to design system\", \"extract design tokens\", or shares an image with no other clear intent.",
+  "author": "buildgreatproducts",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/buildgreatproducts/builder-os/tree/HEAD/skills/design-system",
+    "repo": "buildgreatproducts/builder-os"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 224,
+    "pushed_at": null,
+    "score": 56,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 224
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "设计",
+    "featured": false
+  },
+  "readme": "# BuilderOS\n\n> **Formerly PLAID.** BuilderOS is the successor to [PLAID — Product Led AI Development](https://github.com/BuildGreatProducts/plaid). The PLAID skills have been refactored into standalone BuilderOS skills; new development happens here.\n\n**An operating system for builders.** BuilderOS is a collection of agent skills that give product builders a repeatable system for ideating, designing, and building software products with AI — turning coding agents from autocomplete into disciplined collaborators that ship reviewed, tested work.\n\n## Why\n\nAI coding agents are fast, but speed without discipline produces features that \"compile\" rather than features that work. BuilderOS encodes the habits of strong product teams — plan-driven work, mandatory review, end-to-end testing, honest reporting — as skills your agent follows automatically.\n\n## How it works\n\nEach skill is a `SKILL.md` file that teaches an AI coding agent a workflow. Install the skills into your project (see [Installation](#installation)), then trigger them with natural prompts. Every skill is **fully standalone** — but they're designed to chain: each one writes its output as a document in your project's `docs/` folder, and downstream skills pick those documents up automatically.\n\n```\nIdeate                Plan & Design              Build                  Launch\n─────────             ─────────────              ─────────              ─────────\nIdea Generator   →    Product Planner       →    Build Loop        →    Launch Checklist\nIdea Validator        Design System              Design Better\n   │                     │                          │                      │\n   ▼                     ▼                          ▼                      ▼\ndocs/                 docs/                      working,               docs/\nproduct-idea.md       product-vision.md          reviewed,              launch-checklist.md\nvalidation-report.md  prd.md                     tested\n                      product-roadmap.md         product\n                      design.md\n```\n\n## Skills\n\n### Ideate\n\n| Skill | What it does | Output |\n|---|---|---|\n| [Idea Generator](skills/idea-generator/SKILL.md) | Guided discovery of a product idea by mining what you already know or do — business or expertise. Captures context, synthesizes 3–5 candidate directions, scores them on a five-axis scorecard, and sharpens the winner. | `docs/product-idea.md` |\n| [Idea Validator](skills/idea-validator/SKILL.md) | Pressure-tests an idea before you invest in building. Finds the core assumption, ranks fatal flaws, maps real competition (including \"doing nothing\"), plans your first 10 customers, defines a 2-week MVP test, and delivers a blunt strong / weak / pivot verdict. | `docs/validation-report.md` |\n\n### Plan & Design\n\n| Skill | What it does | Output |\n|---|---|---|\n| [Product Planner](skills/product-planner/SKILL.md) | A structured vision-intake conversation (8 sections, AI-suggested answers throughout) followed by generation of your three core product documents: strategy & brand, a coding-agent-ready technical spec, and a phased build plan with task checkboxes. Picks up `docs/product-idea.md` automatically if it exists. | `docs/VISION.md`, `docs/product-vision.md`, `docs/prd.md`, `docs/product-roadmap.md` |\n| [Design System](skills/design-system/SKILL.md) | Translates images (screenshots, mockups, Figma URLs) into a design system in [Google's open design.md format](https://github.com/google-labs-code/design.md) — YAML tokens plus prose rationale any coding agent can implement from, alongside a mirrored, self-contained `design.html` style guide that renders every token and component live for humans to read. | `docs/design.md`, `docs/design.html` |\n\n### Build\n\n| Skill | What it does | Output |\n|---|---|---|\n| [Build MVP](skills/build-mvp/SKILL.md) | Executes the entire roadmap end to end: works through every task in `docs/product-roadmap.md` in order — implementing, testing, and verifying each before moving on — marking checkboxes and updating the status line until the magic moment works. Finishes by initializing git with an initial commit and offering to connect a remote repo. Agent-agnostic. | Working code, completed roadmap, initial git commit |\n\nFor tighter, review-gated increments, use a **Build Loop** instead: nothing ships on \"it compiles\" — every increment is **built → reviewed → tested end to end → fixed** before the agent reports \"done.\" Works from the Product Planner's roadmap or a direct prompt. Available in three flavors, adapted to each agent's native review tooling:\n\n| Skill | Agent | Review mechanism |\n|---|---|---|\n| [Build Loop – Claude Code](skills/build-loop-claude-code/SKILL.md) | Claude Code | `/review`, plus `/security-review` for sensitive surfaces |\n| [Build Loop – Codex](skills/build-loop-codex/SKILL.md) | OpenAI Codex CLI | `/review` on uncommitted changes, plus a custom security pass |\n| [Build Loop – Cursor](skills/build-loop-cursor/SKILL.md) | Cursor | Cursor's `/review` |\n\n**Trigger with:** \"run the build loop\", \"build the next task\", \"continue the plan\", or \"build this feature properly\".\n\nWhichever build path you take, pair it with the craft layer:\n\n| Skill | What it does | Pairs with |\n|---|---|---|\n| [Design Better](skills/design-better/SKILL.md) | A craft layer for generating or reviewing UI that's *designed*, not just functional — 50 numbered UX/UI heuristics across hierarchy, layout, typography, color & contrast, interaction, forms, the four data states, motion, accessibility (WCAG 2.2 AA), mobile/touch, cognitive load, and AI-product patterns, plus a pre-flight checklist. `docs/design.md` owns **style** (tokens); this skill owns **craft**. References design tokens by name and flags missing ones as New Patterns instead of inventing values. Standalone — falls back to the codebase's existing conventions when no `docs/design.md` exists. | `docs/design.md`, any Build Loop |\n\n**Trigger with:** \"design better\", \"make this UI feel more designed\", \"apply design polish\", or \"review this for craft\".\n\n### Launch\n\n| Skill | What it does | Output |\n|---|---|---|\n| [Launch Checklist](skills/launch-checklist/SKILL.md) | Audits your actual codebase — stack, services, env vars, payments, deploy config — then writes a plain-English, step-by-step path from \"works on my machine\" to \"customers can use it.\" Every step is marked 🧑 you / 🤖 agent / 🤝 together, with time estimates, costs, and a \"you'll know it worked when...\" check. | `docs/launch-checklist.md` |\n\n## The docs/ folder\n\nAll skills read and write a shared `docs/` folder at your project root. Run them in any order — each skill works alone, but when an upstream document exists, the next skill uses it to pre-fill its questions:\n\n| Document | Written by | Consumed by |\n|---|---|---|\n| `product-idea.md` | Idea Generator | Idea Validator, Product Planner |\n| `validation-report.md` | Idea Validator | you |\n| `VISION.md` | Product Planner (intake) | Product Planner (generation), Design System |\n| `product-vision.md` | Product Planner | Design System, Build MVP, Build Loop, Design Better |\n| `prd.md` | Product Planner | Build MVP, Build Loop |\n| `product-roadmap.md` | Product Planner | Build MVP, Build Loop (progress tracked via checkboxes) |\n| `design.md` | Design System | Product Planner, Build MVP, Build Loop, Design Better |\n| `design.html` | Design System | you (human-readable mirror of `design.md`) |\n| `launch-checklist.md` | Launch Checklist | you |\n\n## Installation\n\nBuilderOS uses the [skills CLI](https://github.com/vercel-labs/skills). Run these from your project's root directory.\n\n### Everything in one go\n\n```sh\nnpx skills add BuildGreatProducts/builder-os\n```\n\nInstalls every BuilderOS skill at once. Use this if you want the full ideate → plan → design → build → launch pipeline.\n\n### Individual skills\n\n```sh\nnpx skills add BuildGreatProducts/builder-os/skills/idea-generator\nnpx skills add BuildGreatProducts/builder-os/skills/idea-validator\nnpx skills add BuildGreatProducts/builder-os/skills/product-planner\nnpx skills add BuildGreatProducts/builder-os/skills/design-system\nnpx skills add BuildGreatProducts/builder-os/skills/build-mvp\nnpx skills add BuildGreatProducts/builder-os/skills/build-loop-claude-code\nnpx skills add BuildGreatProducts/builder-os/skills/build-loop-codex\nnpx skills add BuildGreatProducts/builder-os/skills/build-loop-cursor\nnpx skills add BuildGreatProducts/builder-os/skills/design-better\nnpx skills add BuildGreatProducts/builder-os/skills/launch-checklist\n```\n\nEvery skill is fully self-contained — install just the Design System to turn a screenshot into design tokens, or just a Build Loop to execute a roadmap someone else wrote. You only need the Build Loop for the coding agent you actually use.\n\n### By skill name\n\n```sh\nnpx skills add BuildGreatProducts/builder-os --skill product-planner\n```\n\n### Manual installation\n\nClone this repo and copy the skill folders you want into your project's skills directory (e.g. `.claude/skills/` for Claude Code).\n\n## Getting started\n\n1. Install the skills (see above).\n2. Start anywhere in the lifecycle:\n   - Have nothing? → \"help me find an idea\"\n   - Have an idea? → \"validate my idea\"\n   - Idea validated? → \"plan my product\"\n   - Have a reference design? → \"create a design system from this image\"\n   - Docs ready? → \"build my MVP\" (whole roadmap) or \"run the build loop\" (task by task)\n   - Building UI? → \"design better\" / \"make this feel more designed\"\n   - Product built? → \"create my launch checklist\"\n\n## Changelog\n\nSee [CHANGELOG.md](CHANGELOG.md).\n",
+  "status": "curated"
+}

@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/helmor-helmor-cli",
+  "type": "skill",
+  "name": "helmor-cli",
+  "description": "Use the Helmor CLI to remote-control Helmor from the terminal. Use when the user asks to inspect Helmor data/settings, manage repositories/workspaces/sessions/files, send prompts to agents, list models, use GitHub integration, inspect scripts, run Helmor as an MCP server, generate shell completions, quit a running app, check/install/update the Helmor CLI beta, install/update Helmor skills through the beta app flow, or needs the Helmor command reference. Also plan and build a large change as a stack of dependent PRs (`/helmor-cli stack`), split a change you've already written into a stack (`/helmor-cli break`), and re-sync a stack after lower layers change or merge (`/helmor-cli restack`).",
+  "author": "dohooo",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/dohooo/helmor/tree/HEAD/.agents/skills/helmor-cli",
+    "repo": "dohooo/helmor"
+  },
+  "license": "Apache-2.0",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 1307,
+    "pushed_at": null,
+    "score": 63,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 1307
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "<p align=\"center\">\n  <img src=\"src/assets/helmor-logo-light.png\" alt=\"Helmor logo\" width=\"120\" />\n</p>\n\n<h1 align=\"center\">Helmor</h1>\n\n<p align=\"center\">\n  The local-first workbench for orchestrating coding agents.\n</p>\n\n<p align=\"center\">\n  <a href=\"https://github.com/dohooo/helmor/releases\"><img src=\"https://img.shields.io/github/v/release/dohooo/helmor?style=flat&label=Release&color=0A7CFF\" alt=\"Latest release\" /></a>\n  <a href=\"https://discord.gg/ukyyuNfnDp\"><img src=\"https://img.shields.io/discord/1499667625267957920?style=flat&logo=discord&label=Discord&color=5865F2\" alt=\"Discord\" /></a>\n  <a href=\"https://docs.helmor.ai\"><img src=\"https://app.dosu.dev/api/images/badge?h=20&message=Docs\" alt=\"Docs\" /></a>\n  <a href=\"./LICENSE\"><img src=\"https://img.shields.io/badge/License-Apache_2.0-3DA639\" alt=\"License: Apache 2.0\" /></a>\n</p>\n\n<picture>\n  <source media=\"(prefers-color-scheme: dark)\" srcset=\"src/assets/helmor-screenshot-dark.png\" />\n  <img src=\"src/assets/helmor-screenshot-light.png\" alt=\"Helmor screenshot\" width=\"100%\" />\n</picture>\n\n> AI made coding faster.\n>\n> Helmor is about finishing the rest of the loop —\n> orchestrating, reviewing, testing, merging, and actually shipping software.\n\nHelmor runs many coding agents in parallel, each in its own isolated git\nworkspace — conversation, diffs, editor, terminals, and one-click PR actions\nin one window. Everything lives locally under `~/helmor/`.\n\n## Features\n\n- **Isolated workspaces** — one git worktree and branch per task; agents never step on each other.\n- **Bring your own agents** — Claude Code, Codex, Cursor, OpenCode, and Kimi Code; your logins, API keys, and custom providers.\n- **Review without leaving** — diffs, Monaco editor, and terminals beside the conversation.\n- **Ship from one button** — create PR/MR, merge, fix CI, resolve conflicts, stacked PRs; GitHub and GitLab.\n- **Terminal Mode** — run prompts in the agent's native TUI, or resume a GUI chat in the terminal.\n- **Quick panel** — ⇧⌥Space opens a floating window to start a workspace and chat from anywhere.\n- **Scriptable** — `helmor` CLI and MCP server; your terminal or another agent can drive Helmor.\n- **Skills** — install from onboarding or **Settings → Helmor Components**; browse with `/` in the composer.\n- **Mobile companion** *(experimental)* — Cloudflare tunnel to your desktop; start tasks from your phone's browser.\n\n*More on the way — Slack & GitHub context, plan mode, and agent-driven orchestration.*\n\n## How it works\n\n```mermaid\nflowchart LR\n  A[Add a repository] --> B[Create a workspace]\n  B --> C[Prompt an agent]\n  C --> D[Review and ship]\n  D -.->|repeat in parallel| B\n```\n\n1. **Add a repository** — link a local clone, or clone from a URL.\n2. **Create a workspace** — fresh git worktree and branch under `~/helmor/workspaces/`.\n3. **Prompt an agent** — describe the task and move on while it runs.\n4. **Review and ship** — read the diff, run tests, create and merge the PR.\n\n## Get started\n\n[**Download Helmor →**](https://github.com/dohooo/helmor/releases)\n\nmacOS (Apple Silicon & Intel) · Windows (x64)\n\n[**Read the docs →**](https://docs.helmor.ai)\n\nOn first launch, connect GitHub or GitLab and sign in to your first agent. Agent\nCLIs are bundled — nothing else to install.\n\n## CLI\n\nInstall from **Settings → Experimental → Command Line Tool**. Works against the\nsame local database as the app — even while it is running.\n\n```bash\nhelmor repo add /path/to/repo\nhelmor workspace new --repo myapp\nhelmor workspace list\nhelmor send --workspace myapp/feature-x \"Add a test for the parser edge case.\"\nhelmor workspace status myapp/feature-x\nhelmor workspace run-action myapp/feature-x   # create PR, merge, fix CI, …\nhelmor mcp                                    # MCP server over stdio\n```\n\nWorkspaces use `repo-name/directory-name` shorthand. Every command supports\n`--json`. Run `helmor --help` for the full reference.\n\n**Example — an agent ships a fix:**\n\n```bash\nhelmor workspace new --repo myapp --name fix-auth\nhelmor send --workspace myapp/fix-auth \"Add tests for the token refresh path.\"\nhelmor workspace status myapp/fix-auth\nhelmor workspace run-action myapp/fix-auth\n```\n\n## Contributing\n\nArchitecture, commands, and test layout live in **[AGENTS.md](AGENTS.md)**.\nTo get started locally: `bun install && bun run dev`.\n\nOr —\n\nOpen Helmor, Import Helmor, Ask Helmor:\n\n> _\"How do I contribute to Helmor?\"_\n\nThat's the guide.\n\n## Community\n\n- [Discord](https://discord.gg/ukyyuNfnDp) — questions, feedback, release chat\n- [GitHub Issues](https://github.com/dohooo/helmor/issues) — bugs and feature requests\n- Or use the feedback button at the bottom of Helmor's sidebar\n\n## License\n\n[Apache 2.0](./LICENSE)\n",
+  "status": "curated"
+}

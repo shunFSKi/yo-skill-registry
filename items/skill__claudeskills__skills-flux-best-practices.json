@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/skills-flux-best-practices",
+  "type": "skill",
+  "name": "flux-best-practices",
+  "description": "Comprehensive guide for BFL FLUX image generation models. Covers prompting, T2I, I2I, structured JSON, hex colors, typography, multi-reference editing, and model-specific best practices for FLUX.2 and FLUX.1 families.",
+  "author": "black-forest-labs",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/black-forest-labs/skills/tree/HEAD/skills/flux-best-practices",
+    "repo": "black-forest-labs/skills"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 122,
+    "pushed_at": null,
+    "score": 54,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 122
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "设计",
+    "featured": false
+  },
+  "readme": "<h1 align=\"center\">BFL Skills</h1>\n\n<h4 align=\"center\">Official <a href=\"https://blackforestlabs.ai\">Black Forest Labs</a> skills for FLUX image and video generation.</h4>\n\n<p align=\"center\">\n  <a href=\"#installation\">Installation</a> •\n  <a href=\"#whats-inside\">What's inside</a> •\n  <a href=\"#flux-3-quick-reference\">FLUX 3 reference</a> •\n  <a href=\"#flux-image-quick-reference\">Image reference</a> •\n  <a href=\"#documentation\">Documentation</a> •\n  <a href=\"#license\">License</a>\n</p>\n\n---\n\nEach skill teaches your coding agent how to prompt a FLUX model well and drive the [BFL API](https://docs.bfl.ai) correctly, following the [agentskills.io](https://agentskills.io) specification.\n\nEvery clip in the reel below came out of FLUX 3 in one request, sound and all: a night-market conversation in Thai, a honey macro, a paper boat in stop motion, sparklers on Super 8, rain in a noir alley.\n\n<p align=\"center\">\n  <a href=\"https://cdn.sanity.io/files/2gpum2i6/production/1e6e576489baa4e734bbae4cb62dcd383151e030.mp4\"><img src=\"https://cdn.sanity.io/images/2gpum2i6/production/c7ef05daf120891bdc96e5e2a9c2b9947d206d65-1920x1088.jpg?w=600\" alt=\"FLUX 3 style reel: five styles, one model, audio on every shot\"></a>\n</p>\n\n## Installation\n\nEverything at once:\n\n```bash\nnpx skills add black-forest-labs/skills\n```\n\nOr start with one skill and add specialists as you need them:\n\n```bash\n# FLUX 3 video: the router pulls in the right specialist per request\nnpx skills add black-forest-labs/skills --skill flux-3-video\n\n# Image prompting for every FLUX model\nnpx skills add black-forest-labs/skills --skill flux-image-best-practices\n\n# BFL API integration (polling, webhooks, error handling)\nnpx skills add black-forest-labs/skills --skill bfl-api\n```\n\n<details>\n<summary>Install individual FLUX 3 specialists</summary>\n\n```bash\nnpx skills add black-forest-labs/skills --skill flux-3-prompt-doctor\nnpx skills add black-forest-labs/skills --skill flux-3-cinematic-inserts\nnpx skills add black-forest-labs/skills --skill flux-3-keyframes-continuation\nnpx skills add black-forest-labs/skills --skill flux-3-audio-dialogue\nnpx skills add black-forest-labs/skills --skill flux-3-generate\nnpx skills add black-forest-labs/skills --skill flux-3-archival-formats\nnpx skills add black-forest-labs/skills --skill flux-3-product-ads\n```\n\n</details>\n\n### Claude Code plugin\n\n```bash\n/plugin marketplace add black-forest-labs/skills\n# Image skills\n/plugin install flux-image-best-practices@black-forest-labs\n# FLUX 3 video suite\n/plugin install flux-3-video@black-forest-labs\n```\n\n## What's inside\n\n| Skill | What it teaches your agent |\n| --- | --- |\n| `flux-image-best-practices` | Prompting for every FLUX model: T2I and I2I patterns, JSON structured prompts, hex colors, typography, multi-reference editing, model selection |\n| `bfl-api` | The BFL API end to end: endpoints, async polling, rate limits, error recovery, webhooks, Python and TypeScript clients |\n| `flux-3-video` (suite, below) | Video generation with native audio, from a single shot to a finished product ad |\n\n### The FLUX 3 video suite\n\nEight skills that hand off to each other. Install the router alone and it names the specialist a request needs; install only the specialists you use.\n\n| Skill | Use it to |\n| --- | --- |\n| `flux-3-video` | Route a general FLUX 3 request to the right specialist |\n| `flux-3-prompt-doctor` | Get a readiness verdict (`READY` / `NEEDS INFO` / `REVISE`) before spending a generation |\n| `flux-3-cinematic-inserts` | Write text-to-video prompts with real shot craft, from a field guide of proven concepts |\n| `flux-3-keyframes-continuation` | Build from your own images (`i2v`) or continue a clip (`v2v`) |\n| `flux-3-audio-dialogue` | Direct speech, voiceover, ambience, effects, and music |\n| `flux-3-generate` | Construct requests, poll, download, and validate the result |\n| `flux-3-archival-formats` | Give a shot a period look by naming the format: Super 8, VHS, 16mm, Hi8 |\n| `flux-3-product-ads` | Assemble a finished product ad: voiceover, action-to-word sync, QC gates |\n\n## FLUX 3 quick reference\n\n### Modes\n\nEvery request names its `mode` and carries the matching media field:\n\n| `mode` | Media field | What the model does |\n| --- | --- | --- |\n| `t2v` | none | Generates the clip from your text alone |\n| `i2v` | `keyframes` | Puts your images on screen, pixel-exact, as pinned frames |\n| `v2v` | `start_video` | Continues from the final frames of your clip |\n| `draft_enhance` | `draft_cache` | Replays a chosen draft at full quality |\n\n### Draft, then commit\n\nA full render takes several minutes. Adding `draft: true` returns a fast, low-step preview plus a `draft_cache`, so you can settle concept and composition cheaply before paying for finish. `draft_enhance` then replays that cache at full quality with the same prompt and settings, so the final render is the shot you approved rather than a fresh attempt.\n\nJudge a draft on event legibility, composition, and continuity. Softness and coarse texture are artifacts of low-step rendering and resolve at full quality.\n\n## FLUX image quick reference\n\nFour FLUX.2 [max] generations, one prompt each, no retries. Clockwise from top left: exact quoted typography, hex-specified colors (`#2F5D50`, `#E8A13D`, `#F2EDE4`), flat-vector illustration, photoreal macro detail.\n\n<table>\n  <tr>\n    <td><img src=\"https://cdn.sanity.io/images/2gpum2i6/production/00787272007afd69df1dd1098ea898639e8d7171-1920x1088.jpg?w=800\" alt=\"Letterpress storefront with exact quoted lettering: INK & QUARREL, EST. 1962 - FINE PRINTING\"></td>\n    <td><img src=\"https://cdn.sanity.io/images/2gpum2i6/production/4a4555f9ff1a03fea72d57b51ff0173554060a39-1920x1088.jpg?w=800\" alt=\"Ceramic pour-over set with hex-specified green, amber, and off-white palette\"></td>\n  </tr>\n  <tr>\n    <td><img src=\"https://cdn.sanity.io/images/2gpum2i6/production/a642526cd6e434a09a014efafeb5e9e515057807-1920x1088.jpg?w=800\" alt=\"Photoreal beekeeper close-up with bees in flight at golden hour\"></td>\n    <td><img src=\"https://cdn.sanity.io/images/2gpum2i6/production/921b94de38e77ef516f71442c1ccd245db9fb6a9-1920x1088.jpg?w=800\" alt=\"Isometric flat-vector cutaway of a lighthouse interior\"></td>\n  </tr>\n</table>\n\n### Model selection\n\n| Model          | Best for                          | Pricing               |\n| -------------- | --------------------------------- | --------------------- |\n| FLUX.2 [klein] | Fastest generation, real-time     | from $0.014/image     |\n| FLUX.2 [pro]   | Production balanced               | from $0.03/MP         |\n| FLUX.2 [flex]  | Typography/text                   | from $0.06/MP         |\n| FLUX.2 [max]   | Highest quality, grounding search | from $0.07/MP         |\n| FLUX.2 [dev]   | Local development                 | Free (non-commercial) |\n\nAll FLUX.2 models handle both text-to-image and image editing natively. FLUX.1 models are also available.\n\n### Prompt structure\n\n```\n[Subject] + [Action] + [Style] + [Context] + [Lighting] + [Technical]\n```\n\n### Core rules\n\n1. **No negative prompts.** FLUX doesn't support them; describe what you want instead.\n2. **Be specific.** More detail yields better results.\n3. **Use natural language.** Prose beats keyword lists.\n4. **Specify lighting.** It has the biggest impact on quality.\n5. **Quote text.** Use \"quoted text\" for typography.\n6. **Hex colors.** Use #RRGGBB alongside color names.\n\n### API quick start\n\n```python\nimport requests\nimport time\n\nAPI_KEY = \"your-api-key\"\nBASE_URL = \"https://api.bfl.ai\"\n\n# Submit request\nresponse = requests.post(\n    f\"{BASE_URL}/v1/flux-2-pro\",\n    headers={\"x-key\": API_KEY},\n    json={\"prompt\": \"A serene mountain landscape\"}\n)\npolling_url = response.json()[\"polling_url\"]\n\n# Poll for result\nwhile True:\n    result = requests.get(polling_url, headers={\"x-key\": API_KEY})\n    data = result.json()\n    if data[\"status\"] == \"Ready\":\n        print(f\"Result: {data['result']}\")  # Expires in 10 min\n        break\n    time.sleep(2)\n```\n\n## Documentation\n\n- [BFL Documentation](https://docs.bfl.ai)\n- [API Reference](https://docs.bfl.ai/api)\n- [Prompting Guides](https://docs.bfl.ai/guides)\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

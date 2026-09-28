@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/wechat-article-to-markdown-wechat-article-to-markdown",
+  "type": "skill",
+  "name": "wechat-article-to-markdown",
+  "description": "Fetch WeChat Official Account (微信公众号) articles from mp.weixin.qq.com and convert to Markdown. 微信文章转 Markdown 工具。",
+  "author": "jackwener",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/jackwener/wechat-article-to-markdown",
+    "repo": "jackwener/wechat-article-to-markdown"
+  },
+  "license": null,
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 1041,
+    "pushed_at": null,
+    "score": 62,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 1041
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "写作",
+    "featured": false
+  },
+  "readme": "# wechat-article-to-markdown\n\nFetch WeChat Official Account articles and convert them to clean Markdown.\n\n[English](#features) | [中文](#功能特性)\n\n## Features\n\n- Anti-detection fetching with Camoufox\n- Extract article metadata (title, account name, publish time, source URL)\n- Convert WeChat article HTML to Markdown\n- Download article images to local `images/` and rewrite links\n- Handle WeChat `code-snippet` blocks with language fences\n\n## Installation\n\n```bash\n# Recommended: uv tool (fast, isolated)\nuv tool install wechat-article-to-markdown\n\n# Or: pipx\npipx install wechat-article-to-markdown\n```\n\nOr from source:\n\n```bash\ngit clone git@github.com:jackwener/wechat-article-to-markdown.git\ncd wechat-article-to-markdown\nuv sync\n```\n\n## Usage\n\n```bash\n# Installed CLI\nwechat-article-to-markdown \"https://mp.weixin.qq.com/s/xxxxxxxx\"\n\n# Run in repo with uv\nuv run wechat-article-to-markdown \"https://mp.weixin.qq.com/s/xxxxxxxx\"\n\n# Backward-compatible local entry\nuv run main.py \"https://mp.weixin.qq.com/s/xxxxxxxx\"\n```\n\nOutput structure:\n\n```text\noutput/\n└── <article-title>/\n    ├── <article-title>.md\n    └── images/\n        ├── img_001.png\n        ├── img_002.png\n        └── ...\n```\n\n\n## Testing\n\n```bash\n# Unit tests (default CI path)\nuv run --with pytest pytest -q -m \"not e2e\"\n\n# Live E2E against real WeChat articles\nWECHAT_E2E_URLS=\"https://mp.weixin.qq.com/s/Y7dyRC7CJ09miHWU6LBzBA,https://mp.weixin.qq.com/s/xxxxxxxx\" \\\n  uv run --with pytest pytest -q -m e2e -s\n```\n\n`e2e` tests require network and browser runtime, so they run via manual GitHub Actions workflow `.github/workflows/e2e.yml`.\n\n## Use as AI Agent Skill\n\nThis project ships with [`SKILL.md`](./SKILL.md), so AI agents can discover and use this tool workflow.\n\n### [Skills CLI](https://github.com/vercel-labs/skills) (Recommended)\n\n```bash\nnpx skills add jackwener/wechat-article-to-markdown\n```\n\n| Flag | Description |\n| --- | --- |\n| `-g` | Install globally (user-level, shared across projects) |\n| `-a claude-code` | Target a specific agent |\n| `-y` | Non-interactive mode |\n\n### Manual Install\n\n```bash\nmkdir -p .agents/skills\ngit clone git@github.com:jackwener/wechat-article-to-markdown.git \\\n  .agents/skills/wechat-article-to-markdown\n```\n\n```bash\n# Claude Code user-level skills directory (global)\nmkdir -p ~/.claude/skills/wechat-article-to-markdown\ncurl -o ~/.claude/skills/wechat-article-to-markdown/SKILL.md \\\n  https://raw.githubusercontent.com/jackwener/wechat-article-to-markdown/main/SKILL.md\n```\n\nAfter adding the file, restart Claude Code to reload skills.\n\n### ~~OpenClaw / ClawHub~~ (Deprecated)\n\n> ⚠️ ClawHub install method is deprecated and no longer supported. Use [Skills CLI](#skills-cli-recommended) or Manual Install above.\n\n## PyPI Publishing (GitHub Actions)\n\nRepository: `jackwener/wechat-article-to-markdown`\nWorkflow: `.github/workflows/release.yml`\nEnvironment: `pypi`\n\n`release.yml` triggers on `v*` tags, runs unit tests + live e2e tests, then publishes to PyPI with trusted publishing (`id-token: write`).\n\nFor release e2e targets, set repository variable `RELEASE_E2E_URLS` (comma-separated article URLs).  \nIf not set, workflow falls back to `https://mp.weixin.qq.com/s/Y7dyRC7CJ09miHWU6LBzBA`.\n\n---\n\n## 功能特性\n\n- 使用 Camoufox 进行反检测抓取\n- 提取标题、公众号名称、发布时间、原文链接\n- 将微信公众号文章 HTML 转换为 Markdown\n- 下载图片到本地 `images/` 并自动替换链接\n- 处理微信 `code-snippet` 代码块并保留语言标识\n\n## 安装\n\n```bash\n# 推荐：uv tool\nuv tool install wechat-article-to-markdown\n\n# 或者：pipx\npipx install wechat-article-to-markdown\n```\n\n## 使用示例\n\n```bash\nwechat-article-to-markdown \"https://mp.weixin.qq.com/s/xxxxxxxx\"\n```\n\n## 作为 AI Agent Skill 使用\n\n项目自带 [`SKILL.md`](./SKILL.md)，可供支持 `.agents/skills/` 约定的 Agent 自动发现。\n\n### [Skills CLI](https://github.com/vercel-labs/skills)（推荐）\n\n```bash\nnpx skills add jackwener/wechat-article-to-markdown\n```\n\n| 参数 | 说明 |\n| --- | --- |\n| `-g` | 全局安装（用户级别，跨项目共享） |\n| `-a claude-code` | 指定目标 Agent |\n| `-y` | 非交互模式 |\n\n### 手动安装\n\n```bash\nmkdir -p ~/.claude/skills/wechat-article-to-markdown\ncurl -o ~/.claude/skills/wechat-article-to-markdown/SKILL.md \\\n  https://raw.githubusercontent.com/jackwener/wechat-article-to-markdown/main/SKILL.md\n```\n\n### ~~OpenClaw / ClawHub~~（已过时）\n\n> ⚠️ ClawHub 安装方式已过时，不再支持。请使用上方的 Skills CLI 或手动安装。\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

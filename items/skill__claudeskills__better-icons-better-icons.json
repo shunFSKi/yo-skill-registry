@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/better-icons-better-icons",
+  "type": "skill",
+  "name": "better-icons",
+  "description": "Use when working with icons in any project. Provides CLI for searching 200+ icon libraries (Iconify) and retrieving SVGs. Commands: `better-icons search <query>` to find icons, `better-icons get <id>` to get SVG. Also available as MCP server for AI agents.",
+  "author": "better-auth",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/better-auth/better-icons/tree/HEAD/skills",
+    "repo": "better-auth/better-icons"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 1293,
+    "pushed_at": null,
+    "score": 63,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 1293
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "设计",
+    "featured": false
+  },
+  "readme": "# Better Icons\n\nSearch and retrieve 200,000+ icons from 150+ icon collections. Works as an MCP server for AI agents or CLI tool.\n\n## Quick Start\n\n### Add Skills\n\nEnable the `better-icons` CLI features in your agent environment (matches all examples below):\n\n```bash\nnpx skills add better-auth/better-icons\n```\n\n### Direct CLI Installation\n\nAlternatively, install the CLI globally for direct non-agent use:\n\n```bash\n# Using npm\nnpm install -g better-icons\n\n# Using Bun (faster)\nbun add -g better-icons\n```\n\n---\n\n### MCP Server (AI Agents)\n\nConfigure the MCP server to enable icon tools in your AI coding agents.\n\n```bash\nnpx better-icons setup\n```\n\nThis interactively configures the MCP server for:\n- **Cursor**\n- **Claude Code**\n- **OpenCode**\n- **Windsurf**\n- **VS Code (Copilot)**\n- **Google Antigravity**\n\nOr [configure manually](#manual-installation).\n\n### CLI (Direct Usage)\n\nUse the CLI to search and retrieve icons directly from your terminal.\n\n```bash\n# 1. Search for icons (finds icons across 150+ collections)\nnpx better-icons search arrow --limit 10\nnpx better-icons search home --prefix lucide\n\n# 2. Get icon SVG (outputs raw code or saves to file)\nnpx better-icons get lucide:home > icon.svg\nnpx better-icons get mdi:account --color '#333' --size 24\n\n# 3. JSON output for scripting\nnpx better-icons search settings --json | jq '.icons[:5]'\nnpx better-icons get heroicons:check --json\n```\n\n\n\n## Why?\n\nIcons are a common pain point in AI-assisted coding. Models often struggle to know which icons are available, generate correct SVG code, maintain consistent styles, and organize icons properly. Inline SVGs also consume unnecessary tokens.\n\n## Features\n\n- **200,000+ Icons** - Search across 150+ icon collections (Lucide, Heroicons, Material Design, etc.)\n- **Auto-Learning** - Remembers which icon collections you use and prioritizes them in future searches\n- **Project Sync** - Icons are written directly to your icons file (`.tsx`, `.ts`, `.js`) instead of pasting SVG into chat (saves tokens!)\n- **Batch Retrieval** - Get multiple icons at once\n- **Similar Icons** - Find the same icon across different collections and styles\n- **Recent Icons** - Quick access to icons you've used before\n- **Multi-Framework** - React, Vue, Svelte, Solid, and raw SVG exports\n\n## Manual Installation\n\n### Cursor\n\nAdd to `~/.cursor/mcp.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"better-icons\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"better-icons\"]\n    }\n  }\n}\n```\n\n### Claude Code (CLI)\n\nAdd to `~/.claude/settings.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"better-icons\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"better-icons\"]\n    }\n  }\n}\n```\n\n### Google Antigravity\n\nAdd to `~/.gemini/antigravity/mcp_config.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"better-icons\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"better-icons\"]\n    }\n  }\n}\n```\n\n## MCP Tools\n\nThe following tools are available when using the MCP server with AI agents.\n\n### `search_icons`\n\nSearch for icons across 150+ icon collections.\n\n```\nSearch for \"arrow\" icons\nSearch for \"home\" icons in the lucide collection\n```\n\n**Parameters:**\n- `query` (required): Search query (e.g., 'arrow', 'home', 'user')\n- `limit` (optional): Maximum results (1-999, default: 32)\n- `prefix` (optional): Filter by collection (e.g., 'mdi', 'lucide')\n- `category` (optional): Filter by category\n\n### `get_icon`\n\nGet the SVG code for a specific icon with multiple usage formats.\n\n```\nGet the SVG for mdi:home\nGet a URL for mdi:home\nGet lucide:arrow-right with size 24\n```\n\n**Parameters:**\n- `icon_id` (required): Icon ID in format 'prefix:name' (e.g., 'mdi:home')\n- `color` (optional): Icon color (e.g., '#ff0000', 'currentColor')\n- `size` (optional): Icon size in pixels\n- `format` (optional): 'svg' (default) or 'url'\n\n**Returns:**\n- Raw SVG code\n- React/JSX component code\n- Iconify component usage\n- Direct SVG URL (when `format: \"url\"`)\n\n### `list_collections`\n\nList available icon collections/libraries.\n\n```\nList all icon collections\nSearch for \"material\" collections\n```\n\n**Parameters:**\n- `category` (optional): Filter by category\n- `search` (optional): Search collections by name\n\n### `recommend_icons`\n\nGet icon recommendations for a specific use case.\n\n```\nWhat icon should I use for a settings button?\nRecommend icons for user authentication\n```\n\n**Parameters:**\n- `use_case` (required): Describe what you need\n- `style` (optional): 'solid', 'outline', or 'any'\n- `limit` (optional): Number of recommendations (1-20)\n\n### `get_icon_preferences`\n\nView your learned icon collection preferences with usage statistics.\n\n```\nShow my icon preferences\nWhat icon collections do I use most?\n```\n\n### `clear_icon_preferences`\n\nReset all learned icon preferences to start fresh.\n\n```\nClear my icon preferences\nReset icon preferences\n```\n\n### `find_similar_icons`\n\nFind similar icons or variations of a given icon across different collections and styles.\n\n```\nFind icons similar to lucide:home\nWhat other arrow icons are there like mdi:arrow-right?\n```\n\n**Parameters:**\n- `icon_id` (required): Icon ID to find variations of\n- `limit` (optional): Maximum number of similar icons (1-50, default: 10)\n\n### `get_icons`\n\nGet multiple icons at once (batch retrieval). More efficient than multiple `get_icon` calls.\n\n```\nGet these icons: lucide:home, lucide:settings, lucide:user\n```\n\n**Parameters:**\n- `icon_ids` (required): Array of icon IDs (max 20)\n- `color` (optional): Color for all icons\n- `size` (optional): Size in pixels for all icons\n\n### `get_recent_icons`\n\nView your recently used icons for quick reuse.\n\n```\nShow my recent icons\nWhat icons have I used recently?\n```\n\n**Parameters:**\n- `limit` (optional): Number of recent icons to show (1-50, default: 20)\n\n### `sync_icon`\n\nGet an icon AND automatically add it to your project's icons file. The recommended way to add icons.\n\n```\nSync the lucide:home icon to my project\nAdd a settings icon to my icons file\n```\n\n**Parameters:**\n- `icons_file` (required): Absolute path to the icons file\n- `framework` (required): 'react', 'vue', 'svelte', 'solid', or 'svg'\n- `icon_id` (required): Icon ID in format 'prefix:name'\n- `component_name` (optional): Custom component name\n- `color` (optional): Icon color\n- `size` (optional): Icon size in pixels\n\n**Returns:**\n- Confirmation that icon was added (or already exists)\n- Import statement to use\n- Usage example\n\n### `scan_project_icons`\n\nScan an icons file to see what icons are already available.\n\n```\nWhat icons are already in my project?\nScan my icons file\n```\n\n**Parameters:**\n- `icons_file` (required): Absolute path to the icons file\n\n## Popular Icon Collections\n\n| Prefix | Name | Style | Icons |\n|--------|------|-------|-------|\n| `mdi` | Material Design Icons | Solid | 7,000+ |\n| `lucide` | Lucide Icons | Outline | 1,500+ |\n| `heroicons` | Heroicons | Both | 300+ |\n| `tabler` | Tabler Icons | Outline | 5,000+ |\n| `ph` | Phosphor Icons | Multiple | 9,000+ |\n| `ri` | Remix Icons | Both | 2,800+ |\n| `fa6-solid` | Font Awesome 6 | Solid | 2,000+ |\n| `simple-icons` | Simple Icons | Logos | 3,000+ |\n\n## CLI Reference\n\n### Search Icons\n\nSearch across 150+ icon collections.\n\n```bash\nbetter-icons search <query> [options]\n```\n\n| Option | Description |\n|--------|-------------|\n| `-p, --prefix <prefix>` | Filter by collection (e.g., `lucide`, `mdi`) |\n| `-l, --limit <number>` | Maximum results (default: 32) |\n| `--json` | Output as JSON for scripting |\n\n### Get Icon\n\nRetrieve a single icon's SVG code.\n\n```bash\nbetter-icons get <icon-id> [options]\n```\n\n| Option | Description |\n|--------|-------------|\n| `-c, --color <color>` | Icon color (e.g., `#ff0000`, `currentColor`) |\n| `-s, --size <pixels>` | Icon size in pixels |\n| `--json` | Output as JSON with metadata |\n\nThe icon ID format is `prefix:name` (e.g., `lucide:home`, `mdi:arrow-right`).\n\n### Setup Commands\n\n```bash\nbetter-icons setup              # Interactive setup wizard\nbetter-icons setup -y           # Auto-confirm (global scope)\nbetter-icons setup -s project   # Setup for current project only\nbetter-icons config             # Show manual config instructions\n```\n\n| Option | Description |\n|--------|-------------|\n| `-y, --yes` | Skip confirmation prompts |\n| `-a, --agent <agents...>` | Specify agents (cursor, claude-code, opencode, windsurf, vscode, antigravity) |\n| `-s, --scope <scope>` | Config scope: `global` (default) or `project` |\n\n## Development\n\n```bash\n# Install dependencies\nbun install\n\n# Run locally\nbun run dev\n\n# Build\nbun run build\n```\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

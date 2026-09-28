@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/guard-skills-clean-code-guard",
+  "type": "skill",
+  "name": "clean-code-guard",
+  "description": "Review generated or changed production code before it ships, using Clean Code, SOLID, DRY, KISS, YAGNI, and LLM-specific failure-mode checks in any programming language. Best used reactively after an agent writes, edits, refactors, or fixes code, before presenting, committing, or merging the result. Use when the user asks \"review this PR\", \"is this safe to merge?\", \"make this cleaner\", \"audit this code\", \"refactor this\", \"fix this bug\", or after a coding agent produced implementation code. Can also guide writing when explicitly invoked before a risky edit. Invoke it on your own initiative the moment you finish writing, editing, or refactoring non-trivial production code, before presenting or committing — don't wait to be asked. DO NOT USE for factual/conceptual questions, CI/tooling config, git workflow, running/debugging tests, pure architecture discussion, prose writing, data analysis, or test-code review (use test-guard).",
+  "author": "amelnagdy",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/amelnagdy/guard-skills/tree/HEAD/skills/clean-code-guard",
+    "repo": "amelnagdy/guard-skills"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 1253,
+    "pushed_at": null,
+    "score": 63,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 1253
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# guard-skills\n\n[![skills.sh](https://skills.sh/b/amElnagdy/guard-skills)](https://skills.sh/amElnagdy/guard-skills)\n\nFocused **guard skills** for coding agents: second-pass quality gates that catch the systematic failure modes of AI-generated code, tests, and docs before they ship.\n\nBest use: let your agent do the work, then invoke the relevant guard on the diff before you present, commit, or merge it. These skills can guide writing when you explicitly ask for that, but they are strongest as reactive review passes.\n\n## Install\n\nBrowse the package first:\n\n```bash\nnpx skills add amElnagdy/guard-skills --list\n```\n\nInstall the package:\n\n```bash\nnpx skills add amElnagdy/guard-skills\n```\n\nOr install one guard:\n\n```bash\nnpx skills add amElnagdy/guard-skills --skill clean-code-guard\nnpx skills add amElnagdy/guard-skills --skill test-guard\nnpx skills add amElnagdy/guard-skills --skill docs-guard\nnpx skills add amElnagdy/guard-skills --skill wp-guard\nnpx skills add amElnagdy/guard-skills --skill woo-guard\n```\n\nInstall for a specific agent:\n\n```bash\nnpx skills add amElnagdy/guard-skills --skill clean-code-guard --agent codex\nnpx skills add amElnagdy/guard-skills --skill test-guard --agent claude-code\nnpx skills add amElnagdy/guard-skills --skill '*' --agent cursor\n```\n\nInstall globally:\n\n```bash\nnpx skills add amElnagdy/guard-skills --global\n```\n\nWorks with Claude Code, Codex, Cursor, OpenCode, and other supported agents via the [Skills CLI](https://github.com/vercel-labs/skills).\n\n## Updating\n\nSkills install as a copy, so a new version here does not reach your agent until you update. Refresh them with the Skills CLI:\n\n```bash\nnpx skills update                 # all installed skills (alias: upgrade)\nnpx skills update clean-code-guard\n```\n\nAdd `--global` for global installs or `--project` for project installs. Re-running `npx skills add amElnagdy/guard-skills` also re-fetches the latest.\n\n## How to use them\n\nRun a guard after your agent produces work:\n\n```text\nUse $clean-code-guard on the diff you just produced.\nUse $test-guard on the tests you just wrote.\nUse $docs-guard on this README update before we ship it.\nUse $wp-guard on this WordPress plugin change.\nUse $woo-guard on this WooCommerce checkout change.\n```\n\nUse a guard up front only when you want that constraint active while writing:\n\n```text\nUse $wp-guard while implementing this REST endpoint, then self-check before delivery.\n```\n\n## Which guard to run\n\n| Guard | Use after the agent changed | Catches | Pair with |\n| --- | --- | --- | --- |\n| `clean-code-guard` | Production code in any language | LLM code smells, over-abstraction, broad error swallowing, bad names, SOLID/DRY/KISS/YAGNI violations | Platform-specific guards |\n| `test-guard` | Test code | Mock abuse, duplicate tests, implementation-detail assertions, tests that catch nothing | `clean-code-guard` when test helpers contain real logic |\n| `docs-guard` | READMEs, docstrings, API docs, changelogs, tutorials | Hallucinated symbols, broken samples, docs-vs-code drift, unverifiable claims | Any guard whose behavior is documented |\n| `wp-guard` | WordPress plugin, theme, block, REST, AJAX, shortcode, query, or WP-CLI code | Escaping, sanitization, nonces, capabilities, prepared queries, i18n, query/caching mistakes | `clean-code-guard`; `woo-guard` when Woo APIs appear |\n| `woo-guard` | WooCommerce extension, checkout, order, product, gateway, shipping, or HPOS code | Direct order meta, HPOS breakage, missing compatibility declarations, checkout bypasses, money errors | `wp-guard` for the WordPress layer |\n\n## The skills\n\n### clean-code-guard\n\nApplies Clean Code, SOLID, DRY/KISS/YAGNI to generated or changed code in any language, plus an AI-specific layer most rule packs miss: catch-all error swallowing, hardcoded \"success\" returns, hallucinated APIs, premature abstraction, comment pollution, and copy-from-similar bugs.\n\nWhy the AI layer matters: the skill references published research on duplication growth, package hallucination, and agents declaring success despite failed tests.\n\n**You'll feel it when:** your agent refactors without silently changing behavior, asks before changing a contract, justifies what it deliberately left out, and stops wrapping everything in `try/catch -> return ok`.\n\n### test-guard\n\nA quality gate for generated or changed test code in any language: pytest, PHPUnit/Pest, Jest/Vitest, Go tests, WordPress/WooCommerce tests, and more. Nine universal rules catch AI test bloat: mock only at system boundaries, never mock your own state objects, parametrize instead of copy-pasting, delete tests that catch nothing, and treat production regression tests as sacred.\n\nFramework specifics live in progressive-disclosure references the agent loads only when relevant, including a dedicated reference for LLM applications.\n\n**You'll feel it when:** a generated test file with `MagicMock()` state, duplicated test bodies, and log-message assertions comes back as \"do not merge\" with rule-by-rule fixes.\n\n### docs-guard\n\nA documentation accuracy gate for READMEs, API references, docstrings, PHPDoc/JSDoc, changelogs, and tutorials. Its core move: treat documentation as a list of claims and verify every one against the codebase.\n\n**You'll feel it when:** a generated README stops referencing functions that do not exist, `@param` tags match the real signature, samples run on a clean machine, and \"blazingly fast\" leaves the building.\n\n### wp-guard\n\nA WordPress shipping guard for generated or changed plugins, themes, blocks, REST endpoints, AJAX handlers, shortcodes, WP-CLI commands, and queries. It enforces the layer generic clean-code guidance misses: escaping and sanitization, nonce plus capability checks, prepared database queries, core APIs before custom plumbing, translation-ready strings, and query/caching discipline.\n\n**You'll feel it when:** a generated plugin stops echoing raw request data, a writing REST route gets a real permission callback, every string ships translation-ready, and a million-row site does not get handed `posts_per_page => -1`.\n\n### woo-guard\n\nA WooCommerce shipping guard for generated or changed extensions, payment and shipping integrations, checkout customizations, and order/product logic. It sits on top of `wp-guard` and enforces what is WooCommerce-specific: HPOS-safe order access, CRUD over direct meta, truthful feature-compatibility declarations, server-side checkout validation, money-handling discipline, and hooks over template overrides.\n\n**You'll feel it when:** order code survives HPOS, stock updates stop racing, checkout rules hold without JavaScript, and `'$' . $amount` never reaches a store that sells in dirhams.\n\n## How this differs\n\nThis is not a full process framework and not a broad platform catalog. Repos like [WordPress/agent-skills](https://github.com/WordPress/agent-skills) teach agents how to build across the WordPress ecosystem. `guard-skills` is narrower: it gives agents review gates to run after they have produced work, so common AI failure modes get caught before the work reaches your repo.\n\n## Repository shape\n\nEach skill is a folder with a `SKILL.md` entrypoint, lightweight agent metadata, and progressive-disclosure references:\n\n```text\nskills/\n├── clean-code-guard/\n│   ├── SKILL.md\n│   ├── agents/openai.yaml\n│   └── references/\n├── docs-guard/\n│   ├── SKILL.md\n│   ├── agents/openai.yaml\n│   └── references/\n├── test-guard/\n│   ├── SKILL.md\n│   ├── agents/openai.yaml\n│   └── references/\n├── woo-guard/\n│   ├── SKILL.md\n│   ├── agents/openai.yaml\n│   └── references/\n└── wp-guard/\n    ├── SKILL.md\n    ├── agents/openai.yaml\n    └── references/\n```\n\nThe `SKILL.md` stays small so it loads cheaply; deeper guidance loads only when the task needs it.\n\n## Trust and validation\n\nThis package is intentionally inspectable:\n\n- Skill content is Markdown plus lightweight `agents/openai.yaml` metadata.\n- There are no executable scripts, network calls, MCP server dependencies, or credentials.\n- External source URLs live in each skill's `references/sources.md`.\n\nMaintainer checks before publishing:\n\n```bash\nnpx skills add . --list --full-depth\n```\n\nThis lists every skill the CLI discovers by scanning `skills/`, with its references, so you can confirm structure and discovery before publishing.\n\n## License\n\nMIT — see [LICENSE](LICENSE).\n",
+  "status": "curated"
+}

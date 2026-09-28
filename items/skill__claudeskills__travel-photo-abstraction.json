@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/travel-photo-abstraction",
+  "type": "skill",
+  "name": "travel-photo-abstraction",
+  "description": "Analyze the photograph uploaded by the user, deconstruct its visual evidence, abstract and distill the essential relationships, then reconstruct them as a new nonliteral lower-panel composition guided by 19 bundled references. Use for CLEAN upper-photo/lower-abstraction editorial artworks with a number, date, and short phrase in the lower panel. This is abstraction and reconstruction, never style conversion or a miniature redraw. Preserve the exact user-uploaded photograph unchanged above.",
+  "author": "Evianis",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/Evianis/travel-photo-abstraction/tree/HEAD/travel-photo-abstraction",
+    "repo": "Evianis/travel-photo-abstraction"
+  },
+  "license": "NOASSERTION",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 774,
+    "pushed_at": null,
+    "score": 61,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 774
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "设计",
+    "featured": false
+  },
+  "readme": "# Travel Photo Abstraction Skill\n\nA Codex skill that analyzes a travel or everyday photograph as a visual system, then turns its most distinctive shapes, counts, positions, proportions, colors, directions, depth, and spatial rhythm into a sparse editorial abstraction.\n\nThe repository includes the bundled reference library used by the skill and a separate set of watermarked showcase outputs. Users provide their own source photographs when running the skill.\n\n## What it does\n\n- inventories observable visual evidence before generation;\n- maps each retained source fact to a minimal abstract mark;\n- preserves spatial relationships, asymmetry, occlusion, count groups, and negative space;\n- slightly favors distinct source-sampled accent colors when they clarify different visual facts;\n- generates a CLEAN abstract panel as a temporary asset, then uses a fail-closed finalizer to compose and pixel-verify the untouched original photograph;\n- avoids generic filters, decorative filler, and invented visual content.\n\n## Showcase\n\nThe examples below demonstrate different kinds of visual evidence the skill can preserve. During generation, the skill selects 2–4 structurally relevant examples from all 19 bundled references using `references/structural-reference-index.md`. Their relationship logic is binding; obsolete texture, grading, text, and proportions are not.\n\n### Form and silhouette\n\nReduce a distinctive subject to the smallest recognizable mass, contour, axis, and accent while preserving its position and scale.\n\n| Isolated form | Architectural silhouette | Stable structure + transient light |\n|:---:|:---:|:---:|\n| ![A hot-air balloon reduced to nested circular color fields](showcase/sky-balloon.png) | ![A harbour vessel reduced to a dark silhouette and reflected strokes](showcase/harbour-silhouette.png) | ![A night castle and fireworks reduced to a stable silhouette and crossing light paths](showcase/night-castle.png) |\n\n### Repetition and spatial rhythm\n\nPreserve count groups, uneven intervals, density, depth, motion, and color ratios rather than turning repeated subjects into a regular pattern.\n\n| Quiet crossings | Bloom veil | Cross current |\n|:---:|:---:|:---:|\n| ![Several lake boats preserved through their relative positions, scales, and reflections](showcase/quiet-crossings.png) | ![A bouquet reduced to layered color masses, stems, and small accents](showcase/bloom-veil.png) | ![A dense school of fish sampled into directional repeated marks](showcase/cross-current.png) |\n\n### Space, viewpoint, and atmosphere\n\nLet negative space carry the composition while retaining the source horizon, focal coordinates, directional lines, and human scale.\n\n| City below | Rocky coast | Winter tower |\n|:---:|:---:|:---:|\n| ![A city viewpoint reduced to horizon arcs, tower axis, skyline marks, and a bench](showcase/city-below.png) | ![A coastal fishing scene reduced to horizon bands, figure, rocks, and rod diagonals](showcase/rocky-coast.png) | ![A winter tower and crowd reduced to tiered roof strokes and irregular human marks](showcase/winter-tower.png) |\n\n## Requirements\n\n- Codex with skill support;\n- access to the built-in image generation tool;\n- Python with Pillow for objective output checks (recommended; the visual review remains mandatory);\n- a photograph that you have the right to use.\n\nThe skill deliberately stops when the built-in image generation tool is unavailable. Pillow is used only for deterministic composition, exact microtype, and validation—never to draw the abstract motif.\n\n## Install\n\nDownload or clone this repository, then copy the `travel-photo-abstraction` folder into your Codex skills directory.\n\n```bash\ngit clone https://github.com/Evianis/travel-photo-abstraction.git\n```\n\nWindows PowerShell:\n\n```powershell\nCopy-Item -Recurse \".\\travel-photo-abstraction\" \"$env:USERPROFILE\\.codex\\skills\\travel-photo-abstraction\"\n```\n\nmacOS or Linux:\n\n```bash\ncp -R ./travel-photo-abstraction ~/.codex/skills/travel-photo-abstraction\n```\n\nStart a new Codex task after installation so the skill can be discovered.\n\nVerify that the complete reference library was installed:\n\n```bash\npython travel-photo-abstraction/scripts/check_installation.py travel-photo-abstraction\n```\n\nFinalize an artwork with mandatory original-photo validation:\n\n```bash\npython travel-photo-abstraction/scripts/finalize_artwork.py original.jpg abstract-panel.png final.png --number \"NO. 001\" --date \"03 AUG 2026\" --phrase \"QUIET STRUCTURE\"\n```\n\n## Example prompt\n\n```text\nUse $travel-photo-abstraction to analyze my uploaded photograph. Map its most distinctive observable facts to minimal abstract marks, then generate a faithful photo-plus-abstraction editorial study.\n```\n\n中文示例：\n\n```text\n使用 $travel-photo-abstraction 分析我上传的照片。先把最有辨识度的视觉事实映射为极简抽象符号，再生成照片与抽象图形组合图。\n```\n\n## Repository contents\n\n```text\ntravel-photo-abstraction/\n├── SKILL.md\n├── agents/openai.yaml\n├── assets/style-references/\n│   └── memory-reference-* (19-image structural library)\n├── scripts/\n│   ├── check_installation.py\n│   ├── compose_artwork.py\n│   ├── finalize_artwork.py\n│   └── validate_output.py\n└── references/\n    ├── analysis-method.md\n    ├── structural-reference-index.md\n    ├── run-log-template.md\n    └── style-guide.md\n\nshowcase/\n└── watermarked output examples\n```\n\n## License\n\nThis project is source-available, not open source under the OSI definition. You may install and use an unmodified copy. Modification, derivative works, redistribution, republication, sublicensing, and resale are prohibited. See [LICENSE](LICENSE).\n\nThe license does not claim ownership of photographs supplied by users or of generated outputs. Rights in those materials remain subject to their respective owners and applicable platform terms.\n\nThe showcase images are provided only as examples of this project's output. Their embedded repository watermark must not be removed.\n",
+  "status": "curated"
+}

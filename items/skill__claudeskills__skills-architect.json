@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/skills-architect",
+  "type": "skill",
+  "name": "architect",
+  "description": "Run /architect when choosing between approaches, designing a feature or page, picking a tech stack, or when /develop says a decision is owed, anytime a load bearing technical decision is unmade. Asks deep questions, recommends an answer, and writes a build spec to docs/specs/. Owns all spec files.",
+  "author": "jsmastery-pro",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/jsmastery-pro/skills/tree/HEAD/skills/architect",
+    "repo": "jsmastery-pro/skills"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 1361,
+    "pushed_at": null,
+    "score": 63,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 1361
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "写作",
+    "featured": false
+  },
+  "readme": "# Engineering Workflow Skills\n\nA set of [Agent Skills](https://agentskills.io) that take a change from a vague idea to shipped, verified, documented code, for any AI coding agent. One skill per phase. Run only the ones a change needs, in any order.\n\nThe state lives in files (a scope, specs, AGENTS.md, tests), not in a chat session. So work survives across sessions, picks up where it left off, and works for a whole team.\n\n```\nidea → /scope → /audit → /architect → /develop → /check verify → /test → /check review → /document → /sync\n```\n\nRun `/debug` anytime something breaks. Run a bare `/scope` anytime to see where things stand.\n\n> 📖 **Want the full picture?** Read the **[Workflow Guide](docs/workflow-guide.md)** — a plain-language walkthrough of every skill, the files that carry the work, who owns what, and one idea followed all the way from scope to shipped.\n\n## The skills\n\n| Skill | What it does |\n|---|---|\n| `scope` | Turns a product idea into a living, coarse scope and keeps it current as you ship. |\n| `audit` | Writes the AGENTS.md context files every other skill reads. |\n| `architect` | Makes a load bearing decision and writes it as a build spec in `docs/specs/`. |\n| `develop` | Builds a feature, UI or backend, from its spec. Gates to `/architect` if a decision is owed. |\n| `check` | Confirms a change before merge. `/check verify` runs the real app; `/check review` reads the code on a second model. |\n| `test` | Writes a test suite for the code you just changed. |\n| `document` | Writes the PR text, changelog, release note, or postmortem from the real diff. |\n| `sync` | Keeps AGENTS.md, the scope, and spec statuses current after a change. |\n| `debug` | Finds and fixes the root cause of a bug, then hands a regression test to `/test`. |\n\nHardening (systems level failure mode analysis) is temporarily removed and will return as a system design specialization.\n\n## Install\n\nUses [npx skills](https://github.com/vercel-labs/skills). Pick your agent:\n\n```bash\n# Claude Code (installs into .claude/skills, then restart Claude Code)\nnpx skills@latest add jsmastery-pro/skills -a claude-code\n\n# Generic .agents/skills, read by Codex and other agents\nnpx skills@latest add jsmastery-pro/skills\n```\n\nWorks on any Agent Skills client (Claude Code, Cursor, Codex, Gemini CLI, and [more](https://agentskills.io/clients)). Commit the installed skills folder to share the workflow with your team.\n\nEach skill's instructions live in its `SKILL.md`, which is what every client reads. The `agents/openai.yaml` beside it is interface metadata only (the name, blurb, and opening prompt Codex shows in its agent picker); it carries no logic of its own.\n\n## Where to start\n\n**New product (greenfield):** `/scope` the idea, then `/architect` the stack, then scaffold the project, then `/audit` to seed AGENTS.md from the real project, then the feature loop. The stack is decided and the project scaffolded before `/audit` runs, so it reads a real project, not an empty one.\n\n**Existing codebase (brownfield):** `/audit` first so every skill understands your project, then `/scope` the next slice on top of what exists, then the feature loop.\n\n**Any single change:** run only what it needs. A bug goes straight to `/debug`. A small change can be `/develop` then `/check verify`.\n\n**Monorepo:** everything scopes to the target workspace, which has its own AGENTS.md, scope, stack, and commands.\n\n### The feature loop\n\n```\n/architect → /develop → /check verify → /test → /check review → /document → /sync\n```\n\nAt the end of `/scope` you also pick a **workflow depth** for the project (override per feature anytime): `Prototype` (just `/develop`, self-checked, for throwaway work), `Alpha` (adds `/check verify`), `Beta` (adds `/test`), or `GA` (adds a fresh-model `/check review` and `/document`). The depth is a *suggested* checking tail after `/develop`, never a track you're locked onto: you're in charge, you run or skip any step and mark a feature `done` when you decide it is. The one thing the workflow asks — at every depth — is that a load-bearing decision gets written down (`/architect`), not that any check be run.\n\n`/scope` fixes what to build. `/architect` designs how, as a spec whose acceptance criteria are the contract; every later step traces back to that contract. `/develop` gates on the spec: if building would mean inventing an undecided design, provider, or data model, it stops and routes you to `/architect`. You can override and build anyway, but the override is not free: the assumption is recorded as an `Assumed` spec in `docs/specs/` and flagged on the feature until `/architect` ratifies it. The flag doesn't block you from marking `done` — it's a standing reminder that a decision still owes ratification, so it never gets silently lost in chat.\n\nThe gate is layered, not magic: `/architect` names the source of every value a feature must produce (so gaps surface at design time), `/develop` checks that coverage again before building, and at Beta+ `/architect` recommends running an independent cross-model critic over the spec for decisions it never settled (you decide, and you decide on any gaps it finds). It's a strong, defense-in-depth gate that catches the vast majority — not an absolute guarantee, no prompt can be. Behavioral correctness is caught by the `/check verify` and `/test` layers.\n\n## What gets written, and where\n\n| Artifact | Path | Owner |\n|---|---|---|\n| Scope | `docs/scope/` | scope |\n| Specs | `docs/specs/` | architect |\n| Context files | AGENTS.md (plus a thin CLAUDE.md pointer) | audit, kept current by sync |\n| Design system | `design.md` (art direction; token values live in CSS) | develop |\n| Review findings | `docs/reviews/` | check |\n| Tests | your test dirs | test |\n| App code | your source tree | develop |\n| Human docs | PR body, CHANGELOG.md, `docs/releases/`, `docs/postmortems/` | document |\n\nIf `docs/` is a published docs site, these move to `.workflow/` so they do not ship with your site. Because state lives in files, each skill suggests `/clear` at handoffs, so a fresh session reads from disk again and long chats do not pile up cost.\n\n## Skill reference\n\nFor each skill: what it does, and when to run it.\n\n**scope**: Turns an idea into a living, coarse plan of what to build, in order.\nWhen: to start a new product or plan the next slice. Greenfield: run it first. Brownfield: it enrolls what already exists, then plans the new work. Monorepo: writes one scope per workspace.\n\n**audit**: Writes the AGENTS.md context files that give every skill your project's stack, commands, and conventions.\nWhen: brownfield, run it first. Greenfield, run it after the stack is chosen and the project is scaffolded. Monorepo: gives each workspace its own nested AGENTS.md.\n\n**architect**: Runs a deep design conversation and writes the decision as a build spec.\nWhen: a load bearing choice is unmade (a stack, a data model, a provider, a page design), or `/develop` says a decision is owed. Greenfield: it decides the stack first. Monorepo: reads the target workspace's stack.\n\n**develop**: Builds a feature, UI or backend, from its spec, runs migrations, and advances the scope.\nWhen: after the decision exists. It gates to `/architect` if a design is owed. Monorepo: builds inside the target workspace using its commands.\n\n**check**: Confirms a change before merge, in two modes.\nWhen: `/check verify` after `/develop` to run the real app and prove the feature works against the spec; `/check review` before a PR for a senior review on a different model than wrote the code. Any project type.\n\n**test**: Writes a senior test suite for your uncommitted change and saves your framework choice.\nWhen: after building a feature or fixing a bug. Monorepo: resolves the framework per package.\n\n**document**: Writes the human facing prose (PR, changelog, release note, postmortem) from the real diff.\nWhen: a finished change needs writing up. Any project type.\n\n**sync**: Reconciles AGENTS.md, the scope, and spec statuses to what the repo now shows.\nWhen: the last step around merge. Monorepo: reconciles the right workspace.\n\n**debug**: Runs a disciplined root cause loop and hands a regression test to `/test`.\nWhen: anytime something is failing, throwing, or behaving wrong. Not tied to project type.\n\n## Learn more\n\nThe **[Workflow Guide](docs/workflow-guide.md)** is the deep dive: how the scope, specs, AGENTS.md, and design system live and who is allowed to change them; the acceptance-criteria thread that ties every stage together; a full worked example from idea to shipped; the debug loop; and how the same flow runs on an existing codebase and in a monorepo.\n\n---\n\nBuilt with the [Agent Skills](https://agentskills.io) open format.\n",
+  "status": "curated"
+}

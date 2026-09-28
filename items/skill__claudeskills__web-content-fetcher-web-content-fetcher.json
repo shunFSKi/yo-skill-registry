@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/web-content-fetcher-web-content-fetcher",
+  "type": "skill",
+  "name": "web-content-fetcher",
+  "description": "Extract article content from any URL as clean Markdown. Uses Scrapling script as primary method (with auto fast→stealth fallback), Jina Reader as alternative for simple pages. Preserves headings, links, images, lists, and code blocks. Use this skill whenever the user wants to fetch, read, extract, scrape, or summarize content from a URL — including blog posts, news articles, WeChat articles (微信公众号), documentation pages, or any web page. Also trigger when the user says things like \"帮我读一下这篇文章\", \"抓取这个网页\", \"提取正文\", or \"read this page for me\".",
+  "author": "shirenchuang",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/shirenchuang/web-content-fetcher",
+    "repo": "shirenchuang/web-content-fetcher"
+  },
+  "license": null,
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 611,
+    "pushed_at": null,
+    "score": 60,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 611
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "写作",
+    "featured": false
+  },
+  "readme": "<div align=\"center\">\n\n# Web Content Fetcher\n\n**网页正文提取 · 永久免费 · 支持微信公众号**\n\n[![Python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python&logoColor=white)](https://www.python.org/)\n[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)\n\n</div>\n\n---\n\n## 简介\n\nWeb Content Fetcher 是一个轻量级的网页正文提取工具，能够自动将任意网页转换为干净的 Markdown 格式，保留标题、链接、图片和列表结构。\n\n**核心优势：**\n- Scrapling 优先提取，内置 fast / stealth 双模式，自动降级\n- Jina Reader 作为二级备选\n- 完美支持微信公众号、掘金、CSDN 等国内平台\n- 返回标准 Markdown 格式，便于后续处理\n- 零配置，开箱即用\n\n---\n\n## 安装\n\n### 方式一：一键安装（推荐）\n\n访问 [skills.sh](https://skills.sh/shirenchuang/web-content-fetcher/web-content-fetcher) 页面，按提示一键安装。\n\n### 方式二：命令行安装\n\n```bash\nnpx skills add https://github.com/shirenchuang/web-content-fetcher --skill web-content-fetcher\n```\n\n### 方式三：手动安装\n\n```bash\n# Clone\ngit clone https://github.com/shirenchuang/web-content-fetcher.git\n\n# Copy to Claude Code skills directory\ncp -r web-content-fetcher ~/.claude/skills/\n```\n\n### 安装 Python 依赖\n\n```bash\npip install scrapling html2text\n```\n\n> **注意**：在系统管理的 Python (macOS/Linux) 上，加 `--break-system-packages` 或使用 venv。\n\n---\n\n## 使用方式\n\n### 在 Claude Code 中使用\n\n直接告诉 AI 你要读取的 URL，会自动选择最佳方案：\n\n```\n帮我读取这篇文章：https://mp.weixin.qq.com/s/EwVItQH4JUsONqv_Fmi4wQ\nExtract the content from https://openai.com/blog/gpt-4o\n```\n\n### 命令行单独使用\n\n```bash\n# 基础用法（自动选择 fast 或 stealth 模式）\npython3 scripts/fetch.py https://sspai.com/post/73145\n\n# 强制 stealth 模式（用于 JS 渲染页面）\npython3 scripts/fetch.py https://mp.weixin.qq.com/s/xxx --stealth\n\n# 限制输出字符数（默认 30000）\npython3 scripts/fetch.py https://example.com/article 15000\n\n# JSON 输出（含 url, mode, selector, content_length）\npython3 scripts/fetch.py https://example.com --json\n\n# 输出到文件\npython3 scripts/fetch.py https://example.com/article > output.md\n```\n\n---\n\n## 提取策略\n\n```\nURL 输入\n    │\n    ▼\n┌─────────────────────────────────────┐\n│  1. Scrapling（首选）                │\n│     · fast 模式：~1-3s，大部分网站   │\n│     · stealth 模式：~5-15s，JS 渲染  │\n│     · 内容太少时自动 fast → stealth   │\n└─────────────────────────────────────┘\n    │ 失败 / 未安装依赖\n    ▼\n┌─────────────────────────────────────┐\n│  2. Jina Reader（备选）              │\n│     · 速度快（~1-2s），格式干净      │\n│     · 免费额度：200次/天             │\n│     · 不支持：微信公众号、部分国内站  │\n└─────────────────────────────────────┘\n```\n\n### 域名路由\n\n| 域名 | 模式 | 说明 |\n|------|------|------|\n| `mp.weixin.qq.com` | `--stealth` | JS 渲染内容 |\n| `zhuanlan.zhihu.com` | `--stealth` | 反爬 + JS |\n| `juejin.cn` | `--stealth` | JS 渲染 SPA |\n| `sspai.com` | fast | 静态 HTML |\n| `blog.csdn.net` | fast | 静态 HTML |\n| 其他 | fast | 自动降级 |\n\n---\n\n## 支持平台\n\n### 国内平台\n\n| 平台 | 模式 | 状态 | 说明 |\n|------|------|:----:|------|\n| 微信公众号 (mp.weixin.qq.com) | fast | ✅ | 正文完整提取 |\n| 掘金 (juejin.cn) | stealth (auto) | ✅ | 自动降级到 stealth |\n| CSDN (blog.csdn.net) | fast | ✅ | 正文精准提取 |\n| 少数派 (sspai.com) | fast | ✅ | article 选择器命中 |\n| 博客园 (cnblogs.com) | fast | ✅ | 文章列表和正文 |\n| 知乎 (zhihu.com) | stealth | ✅ | 需有效 URL |\n| 36氪 (36kr.com) | fast | ✅ | 需有效文章 URL |\n| 今日头条 (toutiao.com) | stealth | ✅ | JS 渲染，需有效文章 URL |\n| InfoQ 中文 (infoq.cn) | stealth (auto) | ✅ | 需有效文章 URL |\n| 网易 (163.com) | fast | ✅ | 需有效文章 URL |\n| 小红书 | - | ❌ | 需登录态 |\n\n### 海外平台\n\n| 平台 | 模式 | 状态 | 说明 |\n|------|------|:----:|------|\n| OpenAI Blog | fast | ✅ | article 选择器命中 |\n| Google Blog | fast | ✅ | article 选择器命中 |\n| Nature | fast | ✅ | 论文摘要完整 |\n| arXiv | fast | ✅ | 标题/作者/摘要 |\n| GitHub | fast | ✅ | README 完整提取 |\n| Next.js Blog | fast | ✅ | article 选择器命中 |\n| React Docs (react.dev) | fast | ✅ | 文档正文清晰 |\n| MDN Web Docs | fast | ✅ | main 选择器命中 |\n| Python Docs | fast | ✅ | 目录和正文 |\n| Paul Graham Essays | fast | ✅ | 经典静态页 |\n| 阮一峰博客 | fast | ✅ | 周刊完整提取 |\n| Claude Code Docs | fast | ✅ | 文档正文 |\n| Product Hunt | stealth | ⚠️ | Cloudflare 验证拦截 |\n| more... | | | |\n\n---\n\n## 输出格式\n\n返回标准 Markdown，自动保留：\n\n- **标题层级**：`# ## ###`\n- **超链接**：`[文字](url)`\n- **图片**：`![alt](url)`（data-src 懒加载自动处理）\n- **列表、代码块、引用块**\n\n---\n\n## 相关项目\n\n### [Kuaifa（快发）](https://github.com/shirenchuang/kuaifa) — 公众号一键排版发布\n\n如果你需要将 Markdown 文章发布到微信公众号，推荐使用 **Kuaifa**：\n\n- 一键 Markdown 排版，支持多种主题\n- 自动上传图片到 CDN\n- 一键创建公众号草稿\n- 支持预览和发布\n\n```bash\npip install kuaifa\nkuaifa publish your-article.md\n```\n\n---\n\n## 作者\n\n<div align=\"center\">\n\n**石臻说AI**\n\nAI科技博主 · 10+年大厂AI提效专家\n\n专注于个人提效、超级个体、AI 资讯\n\n<img src=\"qrcode_for_shizhen.jpg\" width=\"200\" alt=\"公众号二维码\"/>\n\n*扫码关注公众号*\n\n</div>\n\n---\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

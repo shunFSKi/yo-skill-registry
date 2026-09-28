@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/webgpu-claude-skill-webgpu-threejs-tsl",
+  "type": "skill",
+  "name": "webgpu-threejs-tsl",
+  "description": "Comprehensive guide for developing WebGPU-enabled Three.js applications using TSL (Three.js Shading Language). Covers WebGPU renderer setup, TSL syntax and node materials, compute shaders, post-processing effects, and WGSL integration. Use this skill when working with Three.js WebGPU, TSL shaders, node materials, or GPU compute in Three.js.",
+  "author": "dgreenheck",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/dgreenheck/webgpu-claude-skill/tree/HEAD/skills/webgpu-threejs-tsl",
+    "repo": "dgreenheck/webgpu-claude-skill"
+  },
+  "license": null,
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 1223,
+    "pushed_at": null,
+    "score": 63,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 1223
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# WebGPU Three.js TSL Skill\n\nAn Agent Skill for developing WebGPU-enabled Three.js applications using TSL (Three.js Shading Language).\n\n**Last updated:** April 1, 2026 — aligned with Three.js r183+ API changes.\n\n## Overview\n\nThis skill provides Claude with comprehensive knowledge for:\n\n- Setting up Three.js with WebGPU renderer\n- Writing shaders using TSL (Three.js Shading Language)\n- Creating node-based materials\n- Building GPU compute shaders\n- Implementing post-processing effects\n- Integrating custom WGSL code\n\n## Installation\n\nThis repo ships the same content in two formats so it works in both Claude Code (as an Agent Skill) and Cursor (as project rules). The Claude skill under `skills/` is the source of truth; the Cursor rules under `.cursor/rules/` are thin shims that `@file`-reference those same docs, so edits flow through automatically.\n\n### Claude Code\n\n```bash\n# Install from this repository\n/skill install webgpu-threejs-tsl@<your-github-username>/webgpu-claude-skill\n```\n\nOr manually copy the `skills/webgpu-threejs-tsl` folder to:\n- **Global**: `~/.claude/skills/`\n- **Project**: `<project>/.claude/skills/`\n\n### Cursor\n\nClone this repo and open it directly — Cursor picks up `.cursor/rules/` automatically.\n\nTo use the rules in your own project, copy **both** directories into your project root, preserving the paths:\n\n```\nyour-project/\n├── .cursor/rules/              # from this repo\n└── skills/webgpu-threejs-tsl/  # from this repo (referenced by the rules)\n```\n\nThe `.mdc` files use `@file` references pointing at `skills/webgpu-threejs-tsl/...`, so the `skills/` directory must travel with them. If you'd rather not keep the `skills/` folder, inline the referenced content into each `.mdc` file.\n\nThe rules are scoped by globs and auto-attach only on relevant files:\n\n- `webgpu-threejs-tsl.mdc` — entry point, JS/TS files\n- `compute-shaders.mdc` — files matching `*compute*` or `*particle*`\n- `post-processing.mdc` — files matching `*post*`, `*effect*`, `*bloom*`\n- `wgsl-integration.mdc` — `.wgsl` files and `*wgsl*` JS/TS\n- `device-loss-and-limits.mdc` — files matching `*renderer*` or `*webgpu*`\n\n## Skill Structure\n\n```\nskills/webgpu-threejs-tsl/\n├── SKILL.md                    # Entry point with overview\n├── REFERENCE.md                # Quick reference cheatsheet\n├── docs/\n│   ├── core-concepts.md        # Types, operators, uniforms, control flow\n│   ├── materials.md            # Node materials and properties\n│   ├── compute-shaders.md      # GPU compute documentation\n│   ├── post-processing.md      # Built-in and custom effects\n│   ├── wgsl-integration.md     # Custom WGSL functions\n│   └── device-loss.md          # GPU device loss handling and recovery\n├── examples/\n│   ├── basic-setup.js          # Minimal WebGPU project\n│   ├── custom-material.js      # Custom shader material\n│   ├── particle-system.js      # GPU compute particles\n│   ├── post-processing.js      # Effect pipeline\n│   └── earth-shader.js         # Complete Earth with atmosphere\n└── templates/\n    ├── webgpu-project.js       # Starter project template\n    └── compute-shader.js       # Compute shader template\n```\n\n## Topics Covered\n\n### Core Concepts\n- Types and constructors (float, vec2, vec3, vec4, color, uniform)\n- Vector swizzling\n- Operators and math functions\n- Control flow (If, Loop, Fn)\n- Time and animation\n\n### Materials\n- All node material types\n- Material properties (color, roughness, metalness, etc.)\n- Physical material features (clearcoat, transmission, iridescence)\n- Vertex displacement\n\n### Compute Shaders\n- Instanced array buffers\n- Parallel physics simulation\n- Particle systems\n- Atomic operations and barriers\n\n### Post-Processing\n- Built-in effects (bloom, blur, FXAA, DOF)\n- Custom effects with Fn()\n- Effect chaining\n- Multiple render targets\n\n### WGSL Integration\n- Custom WGSL functions with wgslFn()\n- Hybrid TSL/WGSL approaches\n- Performance optimization\n\n### Device Loss Handling\n- Detecting GPU device loss\n- Recovery strategies\n- Testing with destroy() and Chrome GPU crash\n- State preservation and restoration\n\n## Quick Example\n\n```javascript\nimport * as THREE from 'three/webgpu';\nimport { color, time, oscSine, normalWorld, cameraPosition, positionWorld, Fn, float } from 'three/tsl';\n\n// WebGPU renderer\nconst renderer = new THREE.WebGPURenderer();\nawait renderer.init();\n\n// TSL material with animated fresnel\nconst material = new THREE.MeshStandardNodeMaterial();\n\nmaterial.colorNode = color(0x0066ff);\n\nmaterial.emissiveNode = Fn(() => {\n  const viewDir = cameraPosition.sub(positionWorld).normalize();\n  const fresnel = float(1).sub(normalWorld.dot(viewDir).saturate()).pow(3);\n  return color(0x00ffff).mul(fresnel).mul(oscSine(time));\n})();\n```\n\n## Compatibility\n\n- **Recommended Three.js version**: r171+\n- **Target browsers**: Chrome 113+, Edge 113+, Firefox (behind flag), Safari (WebGPU preview)\n\n### Version Notes\n\n- **r178+**: `PI2` deprecated (use `TWO_PI`), `transformedNormalView/World` renamed to `normalView/World`\n- **r171+**: Stable TSL API, requires `three/webgpu` import map entry\n\n## Resources\n\n- [Three.js TSL Documentation](https://threejs.org/docs/pages/TSL.html)\n- [Three.js Shading Language Wiki](https://github.com/mrdoob/three.js/wiki/Three.js-Shading-Language)\n- [Three.js WebGPU Examples](https://github.com/mrdoob/three.js/tree/master/examples)\n- [WebGPU Best Practices](https://toji.dev/webgpu-best-practices/)\n- [Agent Skills Specification](https://github.com/anthropics/skills)\n\n## License\n\nMIT License\n\nCode examples derived from [Three.js](https://github.com/mrdoob/three.js) (MIT License).\n",
+  "status": "curated"
+}

@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/golang-skills-go-code-review",
+  "type": "skill",
+  "name": "go-code-review",
+  "description": "Use when reviewing Go code or checking code against community style standards. Also use proactively before submitting a Go PR or when reviewing any Go code changes, even if the user doesn't explicitly request a style review. Does not cover language-specific syntax — delegates to specialized skills.",
+  "author": "cxuu",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/cxuu/golang-skills/tree/HEAD/skills/go-code-review",
+    "repo": "cxuu/golang-skills"
+  },
+  "license": "Apache-2.0",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 164,
+    "pushed_at": null,
+    "score": 55,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 164
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# Agent Skills For Go\n\nAI [Agent Skills](https://agentskills.io/) for writing idiomatic,\nproduction-quality Go code. 20 modular skills teach AI coding assistants Go\nbest practices derived from:\n\n- [Google Go Style Guide](https://google.github.io/styleguide/go/)\n- [Effective Go](https://go.dev/doc/effective_go)\n- [Uber Go Style Guide](https://github.com/uber-go/guide/blob/master/style.md)\n- [Go Wiki CodeReviewComments](https://github.com/golang/go/wiki/CodeReviewComments)\n\nSkills are tuned following\n[agentskills.io best practices](https://agentskills.io/skill-creation/best-practices):\ncontent the agent already knows is omitted, procedural decision trees guide\nmulti-step tasks, 48 reference files load on demand via progressive disclosure,\n8 bundled scripts automate common checks, and 4 asset templates ensure\nconsistent output.\n\n## Skills Included\n\n| Skill | Description |\n|-------|-------------|\n| **go-code-review** | Systematic checklist for reviewing Go code and PR submissions |\n| **go-concurrency** | Goroutine lifecycle, channels, mutexes, parallelization, thread-safety |\n| **go-context** | Context.Context placement, cancellation, deadlines, request-scoped data |\n| **go-control-flow** | Idiomatic conditionals, loops, switch/break behavior, guard clauses |\n| **go-data-structures** | Slices, maps, arrays — allocation with new vs make, append, copying |\n| **go-declarations** | Variable/const/type declarations, var vs :=, iota enums, shadowing |\n| **go-defensive** | API boundary hardening, defer cleanup, Must functions, time handling |\n| **go-documentation** | Doc comments, package docs, godoc formatting, runnable examples |\n| **go-error-handling** | Error strategy decisions, wrapping (%v vs %w), sentinels, logging patterns |\n| **go-functional-options** | Functional options pattern for constructors with optional config |\n| **go-functions** | Function ordering, signature formatting, Printf verbs, Stringer interface |\n| **go-generics** | When to use generics, constraints, common pitfalls, type aliases |\n| **go-interfaces** | Interface design, abstractions, embedding, \"accept interfaces return structs\" |\n| **go-linting** | Linters, golangci-lint setup, nolint directives, CI/CD integration |\n| **go-logging** | Structured logging with slog, log levels, request-scoped context, migration |\n| **go-naming** | Naming decision flow for packages, types, functions, variables, receivers |\n| **go-packages** | Package organization, imports, package size, CLI/flag patterns |\n| **go-performance** | String optimization, capacity hints, benchmarking, strconv over fmt |\n| **go-style-core** | Formatting, nesting reduction, style principles, fallback style guide |\n| **go-testing** | Table-driven tests, subtests, test helpers, assertions, test organization |\n\n## Bundled Scripts\n\n8 scripts automate common Go checks. All support `--help`, `--json` for\nstructured output, and meaningful exit codes (0 = clean, 1 = issues found,\n2 = error). Analysis scripts support `--limit` to cap output size, and\ndestructive scripts require `--force` to overwrite existing files.\n\n| Script | Skill | Purpose |\n|--------|-------|---------|\n| `pre-review.sh` | go-code-review | Run gofmt + go vet + golangci-lint before review |\n| `check-naming.sh` | go-naming | Detect SCREAMING_SNAKE, Get-prefixed getters, bad package names |\n| `check-docs.sh` | go-documentation | Find exported symbols missing doc comments |\n| `check-errors.sh` | go-error-handling | Catch bare returns, string comparison on errors, log-and-return |\n| `check-interface-compliance.sh` | go-interfaces | Find interfaces missing compile-time verification |\n| `bench-compare.sh` | go-performance | Run benchmarks with optional benchstat comparison |\n| `setup-lint.sh` | go-linting | Generate .golangci.yml with recommended linters |\n| `gen-table-test.sh` | go-testing | Scaffold a table-driven test file |\n\n## Quick Install\n\n### Using npx skills (Recommended)\n\nThe easiest way to install across **any** AI coding agent. Supports Cursor,\nCodex, OpenCode, Cline, GitHub Copilot, Windsurf, Roo Code, and [25+ more\nagents](https://github.com/vercel-labs/skills#supported-agents).\n\n```bash\nnpx skills add cxuu/golang-skills --all\n```\n\n### Claude Code\n\n```bash\n# Add the marketplace (one time)\n/plugin marketplace add cxuu/golang-skills\n\n# Install the skills\n/plugin install golang-skills@cxuu-golang-skills\n```\n\n### Cursor (Native Remote Rule)\n\n1. Open **Cursor Settings** (Cmd+Shift+J on Mac, Ctrl+Shift+J on Windows/Linux)\n2. Navigate to **Rules** → **Add Rule** → **Remote Rule (Github)**\n3. Enter: `https://github.com/cxuu/golang-skills`\n\n## How It Works\n\nThese skills follow the [Agent Skills open standard](https://agentskills.io/),\nwhich works across multiple AI coding tools. When you're writing Go code:\n\n1. **Automatic activation**: The AI agent loads relevant skills based on context\n   (e.g., `go-naming` when you're writing a new function)\n2. **Procedural guidance**: Decision trees and step-by-step procedures for\n   multi-step tasks like code review and error strategy selection\n3. **Progressive disclosure**: Core rules load immediately; 48 reference files\n   load on demand when specific situations arise\n4. **Automation**: 8 bundled scripts handle repetitive checks so the agent\n   focuses on higher-level guidance\n5. **Conditional cross-references**: Skills link to each other with \"when\"\n   conditions to avoid unnecessary context loading\n6. **Rule ownership**: `docs/RULE_OWNERSHIP.md` keeps duplicated guidance out\n   of non-owner skills\n\n## Project Structure\n\n```\n.\n├── skills/\n│   └── go-*/\n│       ├── SKILL.md      # Core rules (< 225 lines each)\n│       ├── references/   # Detailed guidance, loaded on demand\n│       ├── scripts/      # Automation scripts and helpers\n│       └── assets/       # Output templates (4 skills)\n├── evals/\n│   ├── evals.json        # Trigger and quality eval definitions\n│   ├── files/            # Sample Go files for quality evals\n│   └── fixtures/         # Test fixtures for script/eval coverage\n├── docs/                 # Repository maintenance notes\n├── .github/workflows/    # CI validation\n└── source/               # Original style guide sources\n```\n\n## Provenance and Compatibility\n\nBundled upstream source snapshots live under `source/`. Each source file keeps\nits own inline provenance header, and [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)\nsummarizes the source path, upstream project, URL, license, and copyright at the\nrepository level.\n\nGo-version-sensitive guidance is tracked in [COMPATIBILITY.md](COMPATIBILITY.md).\nWhen a skill recommends a standard-library API that depends on a specific Go\nrelease, the guidance should name the minimum Go version and include an older\nfallback where that helps users on maintained but older toolchains.\n\n## License\n\nProject-authored skill files, scripts, assets, docs, and evals are licensed\nunder the Apache License, Version 2.0. See [LICENSE](LICENSE) for details.\nBundled upstream snapshots under `source/` retain their upstream licenses; see\n[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).\n",
+  "status": "curated"
+}

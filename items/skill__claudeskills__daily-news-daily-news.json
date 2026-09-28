@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/daily-news-daily-news",
+  "type": "skill",
+  "name": "daily-news",
+  "description": "Daily news and hot topics via the 6551 API. Supports news categories, hot news articles, and trending tweets by category.",
+  "author": "6551team",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/6551team/daily-news/tree/HEAD/openclaw-skill/daily-news",
+    "repo": "6551team/daily-news"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 353,
+    "pushed_at": null,
+    "score": 58,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 353
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "<p align=\"center\">\n  <b>Daily News MCP Server</b><br>\n  News Categories · Hot News · Trending Tweets · Crypto Intelligence\n</p>\n\n<p align=\"center\">\n  <a href=\"./docs/README_ZH.md\">中文</a> | <a href=\"./docs/README_JA.md\">日本語</a> | <a href=\"./docs/README_KO.md\">한국어</a>\n</p>\n\n---\n\n## Quick Install\n\n### Claude Code\n\n```bash\nclaude mcp add daily-news \\\n  -- uv --directory /path/to/daily-news run daily-news-mcp\n```\n\n> Replace `/path/to/daily-news` with your local project path.\n\n### OpenClaw\n\n```bash\ncp -r openclaw-skill/daily-news ~/.openclaw/skills/6551-daily-news\n```\n\n---\n\n## Let AI Review & Install For You\n\nNot sure if this MCP is safe? Paste the prompt below to your AI assistant — it will review the source code first, then install if safe:\n\n> **Copy this prompt and send it to your AI assistant (replace `<project-path>` with actual value):**\n\n```text\nPlease review and install the daily-news-mcp MCP server for me. The project is at <project-path>.\n\nSteps:\n1. Review these files for security:\n   - src/daily_news_mcp/api_client.py — Confirm it only connects to ai.6551.io, no data sent elsewhere\n   - src/daily_news_mcp/config.py — Confirm no hardcoded secrets or leaks\n   - src/daily_news_mcp/tools.py — Confirm all tools only perform API queries, no file writes, command execution, or dangerous operations\n   - pyproject.toml — Confirm dependencies are only mcp, httpx, no suspicious packages\n2. Tell me your conclusion: safe / risky / problematic, with specific reasons\n3. If safe, run the install:\n   claude mcp add daily-news -- uv --directory <project-path> run daily-news-mcp\n```\n\n---\n\n## What Can It Do?\n\nOnce connected, just ask your AI assistant:\n\n| You say | It does |\n|---------|---------|\n| \"Show me all news categories\" | List all available categories and subcategories |\n| \"What's hot in DeFi today?\" | Get hot news and tweets for the DeFi category |\n| \"Get crypto market news\" | Fetch trending news for the crypto market category |\n| \"Show me AI-related news and tweets\" | Get combined news + tweets for AI subcategory |\n\n---\n\n## Available Tools\n\n| Tool | Description |\n|------|-------------|\n| `get_news_categories` | Get all available news categories and subcategories |\n| `get_hot_news` | Get hot news and tweets by category/subcategory |\n\n---\n\n## Configuration\n\n| Variable | Required | Description |\n|----------|----------|-------------|\n| `DAILY_NEWS_API_BASE` | No | Override REST API URL (default: `https://ai.6551.io`) |\n| `DAILY_NEWS_MAX_ROWS` | No | Max results per query (default: 100) |\n\nAlso supports `config.json` in the project root (env vars take precedence):\n\n```json\n{\n  \"api_base_url\": \"https://ai.6551.io\",\n  \"max_rows\": 100\n}\n```\n\n---\n\n## API Endpoints\n\n| Endpoint | Method | Parameters | Description |\n|----------|--------|------------|-------------|\n| `/open/free_categories` | GET | — | Get all news categories |\n| `/open/free_hot` | GET | `category`, `subcategory` | Get hot news + tweets |\n\n### Response: free_categories\n\n```json\n[\n  {\n    \"key\": \"crypto\",\n    \"name\": \"Crypto\",\n    \"name_zh\": \"加密货币\",\n    \"description\": \"...\",\n    \"subcategories\": [\n      {\n        \"key\": \"defi\",\n        \"name\": \"DeFi\",\n        \"name_zh\": \"去中心化金融\",\n        \"description\": \"...\"\n      }\n    ]\n  }\n]\n```\n\n### Response: free_hot\n\n```json\n{\n  \"success\": true,\n  \"category\": \"crypto\",\n  \"subcategory\": \"defi\",\n  \"news\": {\n    \"success\": true,\n    \"count\": 10,\n    \"items\": [\n      {\n        \"id\": 123,\n        \"title\": \"...\",\n        \"source\": \"...\",\n        \"link\": \"https://...\",\n        \"score\": 85,\n        \"grade\": \"A\",\n        \"signal\": \"bullish\",\n        \"summary_zh\": \"...\",\n        \"summary_en\": \"...\",\n        \"coins\": [\"BTC\", \"ETH\"],\n        \"published_at\": \"2026-03-17T10:00:00Z\"\n      }\n    ]\n  },\n  \"tweets\": {\n    \"success\": true,\n    \"count\": 5,\n    \"items\": [\n      {\n        \"author\": \"Vitalik Buterin\",\n        \"handle\": \"VitalikButerin\",\n        \"content\": \"...\",\n        \"url\": \"https://...\",\n        \"metrics\": { \"likes\": 1000, \"retweets\": 200, \"replies\": 50 },\n        \"posted_at\": \"2026-03-17T09:00:00Z\",\n        \"relevance\": \"high\"\n      }\n    ]\n  }\n}\n```\n\n---\n\n<details>\n<summary><b>Other Clients — Manual Install</b> (click to expand)</summary>\n\n> In all configs below, replace `/path/to/daily-news` with your actual local project path.\n\n### Claude Desktop\n\nEdit config (macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`, Windows: `%APPDATA%\\Claude\\claude_desktop_config.json`):\n\n```json\n{\n  \"mcpServers\": {\n    \"daily-news\": {\n      \"command\": \"uv\",\n      \"args\": [\"--directory\", \"/path/to/daily-news\", \"run\", \"daily-news-mcp\"]\n    }\n  }\n}\n```\n\n### Cursor\n\n`~/.cursor/mcp.json` or Settings > MCP Servers:\n\n```json\n{\n  \"mcpServers\": {\n    \"daily-news\": {\n      \"command\": \"uv\",\n      \"args\": [\"--directory\", \"/path/to/daily-news\", \"run\", \"daily-news-mcp\"]\n    }\n  }\n}\n```\n\n### Windsurf\n\n`~/.codeium/windsurf/mcp_config.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"daily-news\": {\n      \"command\": \"uv\",\n      \"args\": [\"--directory\", \"/path/to/daily-news\", \"run\", \"daily-news-mcp\"]\n    }\n  }\n}\n```\n\n</details>\n\n---\n\n## Supported Clients\n\n| Client | Config | Status |\n|--------|--------|--------|\n| Claude Code | CLI | Supported |\n| Claude Desktop | JSON config | Supported |\n| Cursor | JSON config | Supported |\n| Windsurf | JSON config | Supported |\n| Cherry Studio | GUI | Supported |\n| Zed | JSON config | Supported |\n\n---\n\n## Development\n\n```bash\ncd /path/to/daily-news\nuv sync\nuv run daily-news-mcp\n```\n\n```bash\n# MCP Inspector\nnpx @modelcontextprotocol/inspector uv --directory /path/to/daily-news run daily-news-mcp\n```\n\n### Project Structure\n\n```\n├── README.md                  # English\n├── docs/\n│   ├── README_ZH.md           # 中文\n│   ├── README_JA.md           # 日本語\n│   └── README_KO.md           # 한국어\n├── openclaw-skill/daily-news/     # OpenClaw Skill\n├── pyproject.toml\n├── config.json\n└── src/daily_news_mcp/\n    ├── server.py              # Entry point\n    ├── app.py                 # FastMCP instance\n    ├── config.py              # Config loader\n    ├── api_client.py          # HTTP client\n    └── tools.py               # 2 tools\n```\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

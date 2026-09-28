@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/waza-health",
+  "type": "skill",
+  "name": "health",
+  "description": "Runs a budget-aware agent-assisted engineering health audit for instruction/config drift, hooks/MCP, verifier surfaces, and AI maintainability. Use when users ask in any language to audit Claude, Codex, Pi, agent instructions, MCP or hooks, verifier coverage, or AI-maintainability drift. Not for debugging application code or reviewing PRs.",
+  "author": "tw93",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/tw93/waza/tree/HEAD/skills/health",
+    "repo": "tw93/waza"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 7095,
+    "pushed_at": null,
+    "score": 70,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 7096
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "<div align=\"center\">\n  <img src=\"https://gw.alipayobjects.com/zos/k/2h/waza.svg\" width=\"120\" />\n  <h1>Waza</h1>\n  <p><b>Engineering habits you already know, turned into skills AI agents can run.</b></p>\n  <p><a href=\"llms.txt\">LLM guide</a></p>\n  <a href=\"https://github.com/tw93/Waza/actions/workflows/test.yml\"><img src=\"https://img.shields.io/github/actions/workflow/status/tw93/Waza/test.yml?branch=main&style=flat-square&label=tests\" alt=\"Tests\"></a>\n  <a href=\"https://github.com/tw93/Waza/stargazers\"><img src=\"https://img.shields.io/github/stars/tw93/Waza?style=flat-square\" alt=\"Stars\"></a>\n  <a href=\"https://github.com/tw93/Waza/releases\"><img src=\"https://img.shields.io/github/v/tag/tw93/Waza?label=version&style=flat-square\" alt=\"Version\"></a>\n  <a href=\"LICENSE\"><img src=\"https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square\" alt=\"License\"></a>\n  <a href=\"https://twitter.com/HiTw93\"><img src=\"https://img.shields.io/badge/follow-Tw93-red?style=flat-square&logo=Twitter\" alt=\"Twitter\"></a>\n</div>\n\n<br/>\n\n<div align=\"center\">\n  <img src=\"assets/waza_skills.svg\" width=\"1000\" />\n</div>\n\n## Skills\n\nEach engineering habit gets an installed skill. In Claude Code, type the slash command. In Codex, invoke the installed skill by name and follow the same playbook.\n\n| Skill | When | What it does |\n| :--- | :--- | :--- |\n| [`/think`](skills/think/SKILL.md) | Before building anything new | Challenges the problem, pressure-tests the design, and produces a decision-complete plan another agent can implement. |\n| [`/ui`](skills/ui/SKILL.md) | Building frontend interfaces | Produces distinctive UI, including screenshot-driven aesthetic iteration, with a committed direction rather than generic defaults. |\n| [`/check`](skills/check/SKILL.md) | After a task, before merging or release | Reviews the diff against project constraints, verifies the result, and handles approved release and maintainer actions. |\n| [`/hunt`](skills/hunt/SKILL.md) | Any bug, regression, or unexpected behavior | Systematic debugging. Root cause confirmed before any fix is applied, especially when something used to work. |\n| [`/write`](skills/write/SKILL.md) | Writing or editing prose | Rewrites prose to sound natural in Chinese and English. Cuts stiff, formulaic phrasing. |\n| [`/learn`](skills/learn/SKILL.md) | Diving into an unfamiliar domain | Six-phase research workflow: collect, digest, outline, fill in, refine, then self-review and publish. |\n| [`/read`](skills/read/SKILL.md) | Any URL or PDF | Returns a concise summary, or clean Markdown for conversion, quotes, citations, saving, or further research. |\n| [`/health`](skills/health/SKILL.md) | Auditing Agent Health | Checks Codex, Claude Code, project instructions, verifier output, and AI maintainability with a budget-aware summary pass before deep inspection. |\n\nEach skill is a folder with reference docs, helper scripts, and gotchas from real failures.\n\n## Install\n\n**Claude Code, Codex, Cursor, and other agents**\n\n```bash\nnpx skills add tw93/Waza -a claude-code codex cursor -g -y\n```\n\nOne copy lands in `~/.agents/skills`, the shared skills directory. Claude Code is symlinked in; Codex, Cursor, Gemini CLI, Copilot, Amp, Kimi Code CLI, and every other agent that reads that directory picks the eight skills up as `/check`, `/think`, and so on. Agents with a private skills directory take their id after `-a` (for example `antigravity-cli` or `qwen-code`). Update with `npx skills update -g -y`.\n\n**Host plugin**, if you prefer the host's own update command (skills are namespaced, `/waza:check`)\n\n```bash\n# Claude Code (update: claude plugin update waza)\n/plugin marketplace add tw93/Waza\n/plugin install waza@waza\n\n# Codex (update: codex plugin marketplace upgrade waza, then codex plugin add waza@waza)\ncodex plugin marketplace add tw93/Waza\ncodex plugin add waza@waza\n```\n\n**Claude Desktop**: download [waza.zip](https://github.com/tw93/Waza/releases/latest/download/waza.zip), open Customize > Skills > \"+\" > Create skill, and upload the ZIP. To update, click \"...\" on the skill card, choose Replace, and upload the latest ZIP.\n\n**Pi**: `pi install npm:@tw93/waza`, update with `pi update npm:@tw93/waza`.\n\n## Chaining Skills\n\nYou decide how skills chain together. Each skill stops at the requested outcome; an explicitly authorized workflow continues without asking you to approve every transition.\n\n**Common workflows:**\n\n- **Plan a feature**: `/think` → approve → say \"implement X\" → `/check` → merge\n- **Ship a fix**: `/hunt` → fix → `/check` → release/publish/push/issue follow-through\n- **Research and write**: `/read` (fetch sources) → `/learn` (synthesize) → `/write` (polish)\n- **Debug and verify**: `/hunt` (find root cause) → fix → `/check` (review changes)\n\n## Project Context\n\nWaza ships only generic engineering habits. `/check` becomes project-aware at runtime by reading the target repository's public context (READMEs, package manifests, Makefiles, CI workflows) and your task constraints, never private paths, credentials, or tokens. See [`skills/check/references/project-context.md`](skills/check/references/project-context.md) for the review context template.\n\n## Extras\n\n### Statusline\n\nA minimal statusline for Claude Code: context window, 5-hour quota, and 7-day quota. Color-coded by usage, no progress bars, no noise.\n\n<div align=\"center\">\n  <img src=\"https://gw.alipayobjects.com/zos/k/y9/RUgevg.png\" width=\"1000\" />\n</div>\n\n```bash\n(\n  set -e\n  WAZA_STATUSLINE_SCRIPT=\"$(mktemp -t waza-statusline.XXXXXX)\"\n  trap 'rm -f \"$WAZA_STATUSLINE_SCRIPT\"' EXIT\n  curl -fL https://github.com/tw93/Waza/releases/latest/download/setup-statusline.sh -o \"$WAZA_STATUSLINE_SCRIPT\"\n  # review it first: less \"$WAZA_STATUSLINE_SCRIPT\"\n  bash \"$WAZA_STATUSLINE_SCRIPT\"\n)\n```\n\n**Codex** has native statusline items. Add to `~/.codex/config.toml`:\n\n```toml\n[tui]\nstatus_line = [\"model-with-reasoning\", \"current-dir\", \"context-used\", \"five-hour-limit\", \"weekly-limit\"]\nstatus_line_use_colors = true\n```\n\nCodex shows remaining quota; the Claude Code statusline above shows used percentage (upstream does not yet expose `five-hour-used` / `weekly-used`).\n\n### Optional Rules\n\nThree independent toggles. Copy the ones you want (swap `claude-code` for `codex` or `antigravity-cli` on those agents):\n\n```bash\n(\n  set -e\n  WAZA_RULE_SCRIPT=\"$(mktemp -t waza-rule.XXXXXX)\"\n  trap 'rm -f \"$WAZA_RULE_SCRIPT\"' EXIT\n  curl -fL https://github.com/tw93/Waza/releases/latest/download/setup-rule.sh -o \"$WAZA_RULE_SCRIPT\"\n  # review it first: less \"$WAZA_RULE_SCRIPT\"\n\n  # English coaching: appends a short 😇 correction when your prompt has an English mistake\n  bash \"$WAZA_RULE_SCRIPT\" english claude-code\n\n  # Anti-patterns: always-on cross-skill guardrails (read before acting, no scope creep, no unsolicited summaries)\n  bash \"$WAZA_RULE_SCRIPT\" anti-patterns claude-code\n\n  # Routing hint: tells non-Claude hosts to prefer Waza skills when a request matches their triggers\n  bash \"$WAZA_RULE_SCRIPT\" waza-routing claude-code\n)\n```\n\n<div align=\"center\">\n  <img src=\"https://gw.alipayobjects.com/zos/k/24/vfkGOi.png\" width=\"1000\" />\n</div>\n\nCurl URLs use the latest GitHub release asset. Set `WAZA_REF=main` before the command if you want bleeding-edge scripts.\n\n## Why\n\nWaza (技, わざ) is a Japanese martial arts term for technique: a move practiced until it becomes instinct.\n\nA good engineer does more than write code. They pressure-test requirements, debug to root cause, review their own diffs, and read primary sources. AI has the raw output for all of it, but without structure that output drifts into generic, imprecise work. Each Waza skill states the outcome, the red lines, and how the result gets verified, then steps back and lets the model choose the path. As models improve, that restraint pays compound interest.\n\nTools like Superpowers and gstack are powerful but heavy: too many skills, too much configuration. Waza stays small, eight skills for the habits that actually matter, each with one job and a clear trigger. Built from real projects and refined through 300+ sessions across 7 projects, every gotcha traces to a real failure. The `/health` skill grew from the six-layer Claude Code framework in [this post](https://tw93.fun/en/2026-03-12/claude.html).\n\nPart of a trilogy: [Kaku](https://github.com/tw93/Kaku) (書く) writes code, [Waza](https://github.com/tw93/Waza) (技) drills habits, [Kami](https://github.com/tw93/Kami) (紙) ships documents. Think of them as a family: Kaku is the dad, Waza the big sister, Kami the little sister.\n\n## Uninstall\n\n```bash\nnpx skills remove tw93/Waza -g\nrm -f ~/.claude/statusline.sh\nrm -f ~/.claude/rules/english.md\nrm -f ~/.claude/rules/anti-patterns.md\nrm -f ~/.claude/rules/waza-routing.md\n```\n\nFor Claude Desktop, delete Waza from Customize > Skills. For Codex rule installs, remove the marked Waza blocks from `~/.codex/AGENTS.md`.\n\n## Support\n\n- The most direct way to support me is getting [Mole for Mac](https://mole.fit), my paid Mac cleanup app.\n- If Waza helped you, give it a star, [share it](https://twitter.com/intent/tweet?url=https://github.com/tw93/Waza&text=Waza%20-%20AI%20coding%20skills%20for%20the%20complete%20engineer.), or open an issue or PR.\n- I have two cats, TangYuan and Coke. If you think Waza delights your life, you can feed them <a href=\"https://cats.tw93.fun?name=Waza\" target=\"_blank\">canned food 🥩</a>.\n\n<details>\n<summary>These lovely people already did 🐱</summary>\n<br/>\n<div align=\"center\">\n  <a href=\"https://cats.tw93.fun?name=Waza\"><img src=\"https://cdn.jsdelivr.net/gh/tw93/sponsors@main/assets/sponsors.svg\" width=\"1000\" loading=\"lazy\" /></a>\n</div>\n</details>\n\n## License\n\nMIT License. Feel free to use Waza and contribute.\n",
+  "status": "curated"
+}

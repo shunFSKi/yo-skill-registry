@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/xiaohongshu-skills-xiaohongshu-skills",
+  "type": "skill",
+  "name": "xiaohongshu-skills",
+  "description": "xiaohongshu-skills",
+  "author": "autoclaw-cc",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/autoclaw-cc/xiaohongshu-skills",
+    "repo": "autoclaw-cc/xiaohongshu-skills"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 1927,
+    "pushed_at": null,
+    "score": 55,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 1927
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# xiaohongshu-skills\n\n小红书自动化 Skills，直接使用你已登录的浏览器和真实账号，以普通用户的方式操作小红书。\n\n支持 [OpenClaw](https://github.com/anthropics/openclaw) 及所有兼容 `SKILL.md` 格式的 AI Agent 平台（如 Claude Code）。\n\n> **⚠️ 使用建议**：虽然本项目使用真实的用户浏览器和账号环境，但仍建议**控制使用频率**，避免短时间内大量操作。频繁的自动化行为可能触发小红书的风控机制，导致账号受限。\n\n> 📰 作者也在运营一个 AI 资讯网站 [![LLM大模型邮报 - 中文 AI 资讯快报：大模型动态、工程实践与行业观察](https://img.shields.io/badge/官网-llmposts.com-2563eb?style=flat-square&logo=googlenews&logoColor=white)](https://llmposts.com?utm_source=github&utm_medium=readme&utm_campaign=xiaohongshu-skills&utm_content=readme_intro \"LLM大模型邮报 - 中文 AI 资讯快报：大模型动态、工程实践与行业观察\") — 欢迎关注。\n\n\n## 功能概览\n\n| 技能 | 说明 | 核心能力 |\n|------|------|----------|\n| **xhs-auth** | 认证管理 | 登录检查、扫码登录、手机验证码登录 |\n| **xhs-publish** | 内容发布 | 图文 / 视频 / 长文发布、定时发布、分步预览 |\n| **xhs-explore** | 内容发现 | 关键词搜索、笔记详情、用户主页、首页推荐 |\n| **xhs-interact** | 社交互动 | 评论、回复、点赞、收藏 |\n| **xhs-content-ops** | 复合运营 | 竞品分析、热点追踪、批量互动、内容创作 |\n\n支持**连贯操作** — 你可以用自然语言下达复合指令，Agent 会自动串联多个技能完成任务。例如：\n\n> \"搜索刺客信条最火的图文帖子，收藏它，然后告诉我讲了什么\"\n\nAgent 会自动执行：搜索 → 筛选图文 → 按点赞排序 → 收藏 → 获取详情 → 总结内容。\n\n## 安装\n\n### 前置条件\n\n- Python >= 3.11\n- [uv](https://docs.astral.sh/uv/) 包管理器\n- Google Chrome 浏览器\n\n### 第一步：安装项目\n\n**方法一：下载 ZIP（推荐）**\n\n1. 在 GitHub 仓库页面点击 **Code → Download ZIP**，下载并解压到你的 Agent skills 目录：\n\n```\n# OpenClaw 示例\n<openclaw-project>/skills/xiaohongshu-skills/\n\n# Claude Code 示例\n<your-project>/.claude/skills/xiaohongshu-skills/\n```\n\n**方法二：Git Clone**\n\n```bash\ncd <your-agent-project>/skills/\ngit clone https://github.com/autoclaw-cc/xiaohongshu-skills.git\n```\n\n2. 安装 Python 依赖：\n\n```bash\ncd xiaohongshu-skills\nuv sync\n```\n\n### 第二步：安装浏览器扩展\n\n扩展让 AI 能够在你的浏览器中以你的身份操作小红书，使用的是你真实的登录状态和账号信息。\n\n1. 打开 Chrome，地址栏输入 `chrome://extensions/`\n2. 右上角开启**开发者模式**\n3. 点击**加载已解压的扩展程序**，选择本项目的 `extension/` 目录\n4. 确认扩展 **XHS Bridge** 已启用\n\n安装完成后即可使用 — 所有操作都发生在你自己的浏览器里，使用你的真实账号和浏览器环境。\n\n## 使用方式\n\n### 作为 AI Agent 技能使用（推荐）\n\n安装到 skills 目录后，直接用自然语言与 Agent 对话即可。Agent 会根据你的意图自动路由到对应技能。\n\n**认证登录：**\n> \"登录小红书\" / \"检查登录状态\"\n\n**搜索浏览：**\n> \"搜索关于露营的笔记\" / \"查看这条笔记的详情\"\n\n**发布内容：**\n> \"帮我发一条图文笔记，标题是…，配图是…\"\n\n**社交互动：**\n> \"给这条笔记点赞\" / \"收藏这条帖子\" / \"评论：写得太好了\"\n\n**复合操作：**\n> \"搜索竞品账号最近的爆款笔记，分析他们的选题方向\"\n\n### 作为 CLI 工具使用\n\n所有功能也可以通过命令行直接调用，输出 JSON 格式，便于脚本集成。\n\n```bash\n# 检查登录状态\npython scripts/cli.py check-login\n\n# 扫码登录\npython scripts/cli.py login\n\n# 搜索笔记\npython scripts/cli.py search-feeds --keyword \"关键词\"\n\n# 带筛选条件\npython scripts/cli.py search-feeds \\\n  --keyword \"关键词\" \\\n  --sort-by \"最多点赞\" \\\n  --note-type \"图文\"\n\n# 查看笔记详情\npython scripts/cli.py get-feed-detail \\\n  --feed-id FEED_ID --xsec-token XSEC_TOKEN\n\n# 图文发布（分步：填写 → 预览 → 确认）\npython scripts/cli.py fill-publish \\\n  --title-file title.txt \\\n  --content-file content.txt \\\n  --images \"/abs/path/pic1.jpg\" \"/abs/path/pic2.jpg\"\npython scripts/cli.py click-publish\n\n# 一步发布图文\npython scripts/cli.py publish \\\n  --title-file title.txt \\\n  --content-file content.txt \\\n  --images \"/abs/path/pic1.jpg\" \\\n  --tags \"标签1\" \"标签2\"\n\n# 视频发布\npython scripts/cli.py publish-video \\\n  --title-file title.txt \\\n  --content-file content.txt \\\n  --video \"/abs/path/video.mp4\"\n\n# 点赞 / 收藏 / 评论\npython scripts/cli.py like-feed --feed-id FEED_ID --xsec-token XSEC_TOKEN\npython scripts/cli.py favorite-feed --feed-id FEED_ID --xsec-token XSEC_TOKEN\npython scripts/cli.py post-comment --feed-id FEED_ID --xsec-token XSEC_TOKEN --content \"评论内容\"\n```\n\n> 第一次运行时，若 Chrome 未打开，CLI 会自动启动它。\n\n## CLI 命令参考\n\n| 子命令 | 说明 |\n|--------|------|\n| `check-login` | 检查登录状态，返回用户昵称和小红书号 |\n| `login` | 获取登录二维码，等待扫码，登录后返回用户信息 |\n| `delete-cookies` | 清除 cookies（退出登录） |\n| `list-feeds` | 获取首页推荐 Feed |\n| `search-feeds` | 关键词搜索笔记（支持排序/类型/时间/范围/位置筛选） |\n| `get-feed-detail` | 获取笔记完整内容和评论 |\n| `user-profile` | 获取用户主页信息和帖子列表 |\n| `post-comment` | 对笔记发表评论 |\n| `reply-comment` | 回复指定评论 |\n| `like-feed` | 点赞 / 取消点赞 |\n| `favorite-feed` | 收藏 / 取消收藏 |\n| `publish` | 一步发布图文 |\n| `publish-video` | 一步发布视频 |\n| `fill-publish` | 填写图文表单（不发布，供预览） |\n| `fill-publish-video` | 填写视频表单（不发布，供预览） |\n| `click-publish` | 确认发布（点击发布按钮） |\n| `save-draft` | 保存为草稿 |\n| `long-article` | 长文模式：填写 + 一键排版 |\n| `select-template` | 选择长文排版模板 |\n| `next-step` | 长文下一步 + 填写描述 |\n\n退出码：`0` 成功 · `1` 未登录 · `2` 错误\n\n## 项目结构\n\n```\nxiaohongshu-skills/\n├── extension/                      # Chrome 扩展\n│   ├── manifest.json\n│   ├── background.js\n│   └── content.js\n├── scripts/                        # Python 自动化引擎\n│   ├── xhs/                        # 核心自动化包\n│   │   ├── bridge.py               # 扩展通信客户端\n│   │   ├── selectors.py            # CSS 选择器（集中管理）\n│   │   ├── login.py                # 登录 + 用户信息获取\n│   │   ├── feeds.py                # 首页 Feed\n│   │   ├── search.py               # 搜索 + 筛选\n│   │   ├── feed_detail.py          # 笔记详情 + 评论加载\n│   │   ├── user_profile.py         # 用户主页\n│   │   ├── comment.py              # 评论、回复\n│   │   ├── like_favorite.py        # 点赞、收藏\n│   │   ├── publish.py              # 图文发布\n│   │   ├── publish_video.py        # 视频发布\n│   │   ├── publish_long_article.py # 长文发布\n│   │   ├── types.py                # 数据类型\n│   │   ├── errors.py               # 异常体系\n│   │   ├── urls.py                 # URL 常量\n│   │   ├── cookies.py              # Cookie 持久化\n│   │   └── human.py                # 行为模拟\n│   ├── cli.py                      # 统一 CLI 入口\n│   ├── bridge_server.py            # 本地通信服务\n│   ├── image_downloader.py         # 媒体下载（SHA256 缓存）\n│   ├── title_utils.py              # UTF-16 标题长度计算\n│   └── run_lock.py                 # 单实例锁\n├── skills/                         # Claude Code Skills 定义\n│   ├── xhs-auth/SKILL.md\n│   ├── xhs-publish/SKILL.md\n│   ├── xhs-explore/SKILL.md\n│   ├── xhs-interact/SKILL.md\n│   └── xhs-content-ops/SKILL.md\n├── SKILL.md                        # 技能统一入口（路由到子技能）\n├── CLAUDE.md                       # 项目开发指南\n├── pyproject.toml\n└── README.md\n```\n\n## 开发\n\n```bash\nuv sync                    # 安装依赖\nuv run ruff check .        # Lint 检查\nuv run ruff format .       # 代码格式化\nuv run pytest              # 运行测试\n```\n\n## License\n\nMIT\n\n## Star History\n\n[![Star History Chart](https://api.star-history.com/image?repos=autoclaw-cc/xiaohongshu-skills&type=date&legend=top-left)](https://www.star-history.com/?repos=autoclaw-cc%2Fxiaohongshu-skills&type=date&legend=top-left)\n",
+  "status": "curated"
+}

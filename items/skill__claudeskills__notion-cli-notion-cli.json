@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/notion-cli-notion-cli",
+  "type": "skill",
+  "name": "notion-cli",
+  "description": "Work with Notion from the terminal using the `notion` CLI. Use when the user needs to read, create, update, query, or manage Notion pages, databases, blocks, comments, users, or files programmatically. Covers the entire Notion API with 50+ commands. Triggers: Notion workspace automation, database queries, page creation, block manipulation, comment threads, file uploads, relation management, database export, multi-workspace management, or any Notion API interaction from the command line.",
+  "author": "4ier",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/4ier/notion-cli/tree/HEAD/skills/notion-cli",
+    "repo": "4ier/notion-cli"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 247,
+    "pushed_at": null,
+    "score": 57,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 247
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "办公",
+    "featured": false
+  },
+  "readme": "<h1 align=\"center\">\n  notion-cli\n</h1>\n\n<p align=\"center\">\n  <b>Like <code>gh</code> for GitHub, but for Notion. 39 commands. One binary.</b>\n</p>\n\n<p align=\"center\">\n  <a href=\"https://github.com/4ier/notion-cli/releases\"><img src=\"https://img.shields.io/github/v/release/4ier/notion-cli?style=flat-square\" alt=\"Release\"></a>\n  <a href=\"https://github.com/4ier/notion-cli/actions\"><img src=\"https://img.shields.io/github/actions/workflow/status/4ier/notion-cli/test.yml?style=flat-square&label=tests\" alt=\"Tests\"></a>\n  <a href=\"https://github.com/4ier/notion-cli/blob/main/LICENSE\"><img src=\"https://img.shields.io/github/license/4ier/notion-cli?style=flat-square\" alt=\"License\"></a>\n  <a href=\"https://goreportcard.com/report/github.com/4ier/notion-cli\"><img src=\"https://goreportcard.com/badge/github.com/4ier/notion-cli?style=flat-square\" alt=\"Go Report Card\"></a>\n</p>\n\n---\n\nA full-featured command-line interface for [Notion](https://notion.so). Manage pages, databases, blocks, comments, users, and files — all from your terminal. Built for developers and AI agents who need programmatic access without the browser.\n\n## Install\n\n### Homebrew (macOS/Linux)\n```sh\nbrew install 4ier/tap/notion-cli\n```\n\n### Go\n```sh\ngo install github.com/4ier/notion-cli@latest\n```\n\n### npm\n```sh\nnpm install -g @4ier/notion-cli\n```\n\n### Scoop (Windows)\n```powershell\nscoop bucket add 4ier https://github.com/4ier/scoop-bucket\nscoop install notion-cli\n```\n\n### Docker\n```sh\ndocker run --rm -e NOTION_TOKEN ghcr.io/4ier/notion-cli search \"meeting\"\n```\n\n### Binary\n\nDownload from [GitHub Releases](https://github.com/4ier/notion-cli/releases) — available for Linux, macOS, and Windows (amd64/arm64).\n\n## How does this compare to Notion's official `ntn` CLI?\n\nNotion launched an [official CLI named `ntn`](https://ntn.dev) in 2026. They're both real, both useful, and they overlap less than the names suggest.\n\n|  | `notion-cli` (this) | `ntn` (official) |\n|---|---|---|\n| **Maintainer** | Open source, MIT, fully on GitHub | Notion (core binary not open source) |\n| **Status** | Stable releases since v0.1.0 | Public Beta |\n| **Auth** | Internal integration token (`NOTION_TOKEN` or `auth login --with-token`) | Browser OAuth login + keychain, or `NOTION_API_TOKEN` |\n| **Platforms** | Linux, macOS, **Windows** | Linux, macOS (Windows not supported) |\n| **API surface** | Full CRUD across pages, databases, blocks, comments, users, search, files | Pages (Markdown round-trip), data source query, files, raw `api` |\n| **Workers / runtime** | Out of scope | First-class (`ntn workers new/deploy`) |\n| **Design intent** | Ergonomic resource access for humans, scripts, and AI agents | Build and deploy Notion Workers, plus convenience access to a few resources |\n\n**Pick `ntn` if** you want OAuth login, you're building [Notion Workers](https://developers.notion.com/), or you prefer a first-party tool on macOS/Linux.\n\n**Pick `notion-cli` if** you need broad resource CRUD (blocks, comments, users, search, full database CRUD), you're on Windows, you prefer a fully open-source binary, or you're driving Notion from scripts and AI agents using a long-lived integration token.\n\nThe two tools coexist on the same machine without conflict — `ntn` calls itself `ntn`, this one calls itself `notion`.\n\n## Quick Start\n\n```sh\n# Authenticate\necho \"ntn_xxxxx\" | notion auth login --with-token\n\n# Search your workspace\nnotion search \"meeting notes\"\n\n# Query a database with filters\nnotion db query <db-id> --filter 'Status=Done' --sort 'Date:desc'\n\n# Create a page in a database\nnotion page create <db-id> --db \"Name=Weekly Review\" \"Status=Todo\"\n\n# Read page content as Markdown\nnotion block list <page-id> --depth 3 --md\n\n# Append blocks from a Markdown file\nnotion block append <page-id> --file notes.md\n\n# Raw API escape hatch\nnotion api GET /v1/users/me\n```\n\n## Commands\n\n| Group | Commands | Description |\n|-------|----------|-------------|\n| **auth** | `login` `logout` `status` `switch` `doctor` | Authentication & diagnostics |\n| **search** | `search` | Search pages and databases |\n| **page** | `view` `list` `create` `delete` `restore` `move` `open` `set` `props` `link` `unlink` | Full page lifecycle |\n| **db** | `list` `view` `query` `create` `update` `add` `add-bulk` `open` | Database CRUD + query |\n| **block** | `list` `get` `append` `insert` `update` `delete` | Content block operations |\n| **comment** | `list` `add` `get` | Discussion threads |\n| **user** | `me` `list` `get` | Workspace members |\n| **file** | `list` `upload` | File management |\n| **api** | `<METHOD> <path>` | Raw API escape hatch |\n\n**39 subcommands** covering 100% of the Notion API.\n\n## Features\n\n### Human-Friendly Filters\nNo JSON needed for 90% of queries:\n```sh\nnotion db query <id> --filter 'Status=Done' --filter 'Priority=High' --sort 'Date:desc'\n```\n\nFor complex queries (OR, nesting), use the JSON escape hatch:\n```sh\nnotion db query <id> --filter-json '{\"or\":[{\"property\":\"Status\",\"status\":{\"equals\":\"Done\"}},{\"property\":\"Status\",\"status\":{\"equals\":\"Cancelled\"}}]}'\n```\n\n### Schema-Aware Properties\nProperty types are auto-detected from the database schema:\n```sh\nnotion page create <db-id> --db \"Name=Sprint Review\" \"Date=2026-03-01\" \"Points=8\" \"Done=true\"\n```\n\n### Smart Output\n- **Terminal**: Colored tables, formatted text\n- **Pipe/Script**: Clean JSON for `jq`, scripts, and AI agents\n```sh\n# Pretty table in terminal\nnotion db query <id>\n\n# JSON when piped\nnotion db query <id> | jq '.results[].properties.Name'\n```\n\n### Markdown I/O\n```sh\n# Read blocks as Markdown\nnotion block list <page-id> --md --depth 3\n\n# Write Markdown to Notion\nnotion block append <page-id> --file document.md\n```\nSupports headings, bullets, numbered lists, todos, quotes, code blocks, and dividers.\n\n### External Images\nInsert or append an image block by URL (no upload — points to externally hosted image):\n```sh\n# Insert after a specific block (e.g. next to a \"TODO: add figure\" placeholder)\nnotion block insert <page-id> --after <block-id> \\\n  --image-url https://example.com/diagram.png \\\n  --caption \"Figure 1 — architecture\"\n\n# Append to end of page\nnotion block append <page-id> --image-url https://example.com/diagram.png\n```\n\n### Recursive Block Reading\n```sh\nnotion block list <page-id> --depth 5 --all\n```\n\n### URL or ID — Your Choice\n```sh\n# Both work\nnotion page view abc123def\nnotion page view https://notion.so/My-Page-abc123def456\n```\n\n### Actionable Error Messages\n```\nobject_not_found: Could not find page with ID abc123\n  → Check the ID is correct and the page/database is shared with your integration\n```\n\n## For AI Agents\n\nThis CLI is designed to be agent-friendly:\n- **JSON output** when piped — no parsing needed\n- **Schema-aware** — agents don't need to know property types\n- **URL resolution** — paste Notion URLs directly\n- **Single binary** — no runtime dependencies\n- **Exit codes** — 0 for success, non-zero for errors\n\nInstall as an agent skill:\n```sh\nnpx skills add 4ier/notion-cli\n```\n\n## Configuration\n\n```sh\n# Token is stored in ~/.config/notion-cli/config.json (mode 0600)\necho \"ntn_xxxxx\" | notion auth login --with-token\n\n# Or use environment variable\nexport NOTION_TOKEN=ntn_xxxxx\n\n# Check authentication\nnotion auth status\nnotion auth doctor\n```\n\n## Troubleshooting\n\n### Windows: MSYS / Git Bash path mangling\n\nIn MSYS-based shells (Git Bash, MSYS2), arguments starting with `/` are silently rewritten to Windows paths. This breaks API path arguments:\n\n```sh\n# ✗ /v1/users/me becomes C:/Program Files/Git/v1/users/me\nnotion api GET /v1/users/me\n```\n\n**Fix:** disable MSYS path conversion:\n\n```sh\nMSYS_NO_PATHCONV=1 notion api GET /v1/users/me\n```\n\nOr export it for the session: `export MSYS_NO_PATHCONV=1`\n\n> This is a shell-level issue, not a bug in notion-cli. PowerShell and cmd.exe are not affected.\n\n## Contributing\n\nIssues and PRs welcome at [github.com/4ier/notion-cli](https://github.com/4ier/notion-cli).\n\n## License\n\n[MIT](LICENSE)\n",
+  "status": "curated"
+}

@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/skills-cc-webup-statusline",
+  "type": "skill",
+  "name": "webup-statusline",
+  "description": "Generate and install a custom Claude Code status line with selectable columns (model, context, effort level, git, dir, worktree, vim) and a color theme. Context and effort elements color-change based on level. Triggers on \"status line\", \"statusline\", \"customize status\", \"status bar\", \"effort level display\", \"状态栏\", \"ステータスライン\", or similar.",
+  "author": "webup",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/webup/skills-cc/tree/HEAD/skills/webup-statusline",
+    "repo": "webup/skills-cc"
+  },
+  "license": null,
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 130,
+    "pushed_at": null,
+    "score": 54,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 130
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# 🛠️ webup-skills-cc\n\nClaude Code utility skills for customization and hacks.\n\n[中文](README.zh.md) | [日本語](README.ja.md)\n\n## 📦 Install\n\n🔍 Browse & pick skills interactively:\n```bash\nnpx skills find webup/skills-cc\n```\n🌐 Install all skills globally:\n```bash\nnpx skills add webup/skills-cc -g\n```\n🎯 Install a single skill globally:\n```bash\nnpx skills add webup/skills-cc -s webup-statusline -g\n```\n\n## 🎮 Skills\n\n### 📊 webup-statusline\n\nGenerate and install a custom Claude Code status line. Pick your **columns**, pick a **theme** — that's it. Two columns (`context` and `effort`) also **change color based on level**, so the bar tells you at a glance where you stand.\n\n#### What it looks like\n\nFull setup (all columns), 49% context remaining, session cost $0.42, `effortLevel: high`, output style `Explanatory`, inside a worktree:\n\n<img src=\"./docs/examples/dracula-full.svg\" alt=\"Dracula theme with all columns: purple model, yellow context bar, gold cost, bold-red effort, purple output style, cyan dir, pink worktree, orange git branch\" />\n\n*Dracula theme — yellow bar (caution), gold `$0.42` (session spend), bold-red `↯ high` (pressure), purple `❋ Explanatory` (output style), pink worktree label.*\n\n<details><summary>Plain text</summary>\n\n```\n◈ Opus 4.7 | [■■■■■■■■■■□□□□□□□□□□] 49% | $0.42 | ↯ high | ❋ Explanatory | ⌂ clawmaster | ⊕ worktree:46a6 | ⎇ feat/xyz\n```\n\n</details>\n\nHealthy session — 88% remaining, `effortLevel: medium`, default output style (hidden):\n\n<img src=\"./docs/examples/gruvbox-healthy.svg\" alt=\"Gruvbox theme healthy session: teal model, green context bar at 12% used, yellow effort medium, green dir, blue git main\" />\n\n*Gruvbox Dark — green bar (relaxed), yellow effort; output-style column hidden because it's `default`.*\n\n<details><summary>Plain text</summary>\n\n```\n✦ Opus 4.7 | [■■□□□□□□□□□□□□□□□□□□] 12% | ↯ medium | ⌂ skills-cc | ⎇ main\n```\n\n</details>\n\n#### Invoke in Claude Code\n\n```\n# Interactive — skill prompts for columns and theme\n/webup-statusline\n\n# Quick theme selection\n/webup-statusline dracula\n\n# Natural language\n/webup-statusline minimal with git and context bar\n```\n\n#### Columns you can display (multi-select)\n\n| Column | What it shows | When visible |\n|--------|---------------|--------------|\n| `model` | Active model name | Always |\n| `context` | Context window progress bar + percentage — **color scales with remaining capacity** | Always |\n| `cost` | Session API spend as `$X.XX` in gold (e.g. `$0.42`) | When `cost.total_cost_usd` rounds to ≥ $0.01 |\n| `effort` | Reasoning effort level — **colored by intensity** (supports `low`/`medium`/`high`/`xhigh`/`max`) | When `effortLevel` is set in `~/.claude/settings.json` |\n| `style` | Output style name (e.g. `Explanatory`, `Learning`) — shown in purple to match Claude's brand hue | When `output_style.name` is anything other than `default` |\n| `dir` | Repo directory basename (original repo when inside a worktree) | Always |\n| `worktree` | Bold **`worktree:<id>`** label | Only inside a git worktree (detected via input JSON or `git` CLI) |\n| `git` | Git branch name (yellow when dirty) | Only in a git repo |\n| `vim` | Vim mode indicator | Only when vim keybindings are active |\n\n#### Color-changing columns (unified palette)\n\nBoth `context` and `effort` use the same traffic-light policy — green = relaxed, yellow = caution, red = pressure. One glance tells you if something is off.\n\n| Intensity | Color | `context` (remaining) | `effort` (level) |\n|-----------|-------|------------------------|-------------------|\n| 🟢 relaxed | green | **> 50%** — plenty left | `low` (also `xlow`, `minimal`) |\n| 🟡 caution | yellow | **20–50%** — watch out | `medium` |\n| 🔴 pressure | red (bold for effort) | **< 20%** — nearly full, compact soon | `high` (also `xhigh`, `max`) |\n\nEach theme maps its own green/yellow/red shades from its palette, so the policy is consistent but the look fits the theme.\n\n#### Themes\n\n| Theme | Vibe | Icons rendered in the bar |\n|-------|------|----------------------------|\n| `gruvbox` | Warm retro, muted | `✦` model · `↯` effort · `❋` style · `⌂` dir · `⊕` worktree · `⎇` git · `⌨` vim |\n| `dracula` | Modern dark, high saturation | `◈` model · `↯` effort · `❋` style · `⌂` dir · `⊕` worktree · `⎇` git · `⌨` vim |\n| `robbyrussell` | Classic oh-my-zsh | no prefix icons — color + labels only |\n| `minimal` | Terminal defaults | no prefix icons — plain text |\n\nThe `context` column intentionally has no prefix icon in any theme — the colored progress bar carries the visual weight.\n\n**Override the effort icon** via `--effort-icon`. Presets: `arrow` (`↯`, default), `bolt` (`ϟ`), `flash` (`⚡`), `reason` (`∴`), `dot` (`◉`), `none` (hide). A raw character is also accepted.\n\n> ⚠️ **Note:** The generated script requires `jq` for JSON parsing. On Windows, it auto-detects jq installed via WinGet or scoop; if jq is still not found, add its directory to your PATH manually. The skill writes to `~/.claude/scripts/statusline.sh` and updates `~/.claude/settings.json` — restart Claude Code to see it.\n\n### 🎰 webup-buddy-reroll\n\nReroll your `/buddy` companion to any species and rarity — including ✨ legendary. Also rename your companion and give it a custom personality.\n\nClaude Code's buddy system is deterministic: `hash(userID + SALT)` always produces the same pet. This skill brute-forces a userID that maps to your desired combination.\n\n> **API users**: works directly. **Pro/Max subscribers**: the skill auto-detects `accountUuid` and walks you through an OAuth setup that bypasses the lock — no manual steps needed.\n\n**Invoke in Claude Code:**\n\n```\n# Interactive — choose species, rarity, name, personality\n/webup-buddy-reroll\n\n# Reroll only\n/webup-buddy-reroll dragon legendary\n\n# Reroll + rename in one shot\n/webup-buddy-reroll dragon legendary 沧海九粟 爱打盹的小龙\n\n# Rename only (natural language)\n/webup-buddy-reroll rename to Nimbus, personality: sarcastic robot\n```\n\n**🐾 18 Species:**\n\n| | | | | | |\n|---|---|---|---|---|---|\n| 🦆 duck | 🪿 goose | 🫧 blob | 🐱 cat | 🐉 dragon | 🐙 octopus |\n| 🦉 owl | 🐧 penguin | 🐢 turtle | 🐌 snail | 👻 ghost | 🦎 axolotl |\n| 🦫 capybara | 🌵 cactus | 🤖 robot | 🐰 rabbit | 🍄 mushroom | 🐷 chonk |\n\n**💎 5 Rarities:** ★ common (60%) · ★★ uncommon (25%) · ★★★ rare (10%) · ★★★★ epic (4%) · ★★★★★ legendary (1%)\n\nAfter reroll, restart Claude Code and run `/buddy` to meet your new companion! 🎉\n\n> ⚠️ **Note:** Requires Bun runtime (`Bun.hash()` matches Claude Code's internal hashing). Node.js will produce wrong results.\n\n## 📄 License\n\nMIT\n",
+  "status": "curated"
+}

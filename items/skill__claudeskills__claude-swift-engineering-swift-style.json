@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/claude-swift-engineering-swift-style",
+  "type": "skill",
+  "name": "swift-style",
+  "description": "Swift code style conventions for clean, readable code. Use when writing Swift code to ensure consistent formatting, naming, organization, and idiomatic patterns.",
+  "author": "johnrogers",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/johnrogers/claude-swift-engineering/tree/HEAD/plugins/swift-engineering/skills/swift-style",
+    "repo": "johnrogers/claude-swift-engineering"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 231,
+    "pushed_at": null,
+    "score": 56,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 231
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# claude-swift-engineering\n\n[![License](https://img.shields.io/badge/license-MIT-green)](#) [![Platform](https://img.shields.io/badge/platform-iOS%2026%2B%20%7C%20macOS-blue)](#)\n\n> Claude Code plugin marketplace for modern Swift/SwiftUI development\n\nA specialized AI toolkit for building professional iOS/macOS features with modern Swift 6.2, TCA (The Composable Architecture), and SwiftUI. This plugin provides ultra-specialized agents that orchestrate planning, implementation, testing, and deployment.\n\n## Swift Engineering Plugin\n\nThe **swift-engineering plugin** is a production-ready toolkit for professional Swift development:\n\n- **12 Ultra-Specialized Agents** — Planning (Opus), implementation (Inherit), utilities (Haiku) with clear handoffs\n- **TCA Support** — Full workflow from architecture design to testing for The Composable Architecture\n- **Modern Swift 6.2** — iOS 26+ with strict concurrency, async/await, actors, Sendable\n- **Code Quality** — Integrated code review, accessibility compliance, and performance checks\n- **Knowledge Skills** — 18 specialized knowledge bases covering architecture patterns, frameworks, design, and development tools\n\n## Quick Start\n\n### Installation\n\nAdd the plugin to Claude Code:\n\n```bash\n# Add marketplace source\n/plugin marketplace add https://github.com/johnrogers/claude-swift-engineering\n\n# Install swift-engineering plugin\n/plugin install swift-engineering\n```\n\n### Hooks (Optional)\n\nEnable skill/agent evaluation hooks for better workflow discipline:\n\n```bash\n# 1. Symlink hooks-scripts to ~/.claude\nln -s /path/to/claude-swift-engineering/plugins/swift-engineering/hooks-scripts ~/.claude/hooks-scripts\n\n# 2. Add to ~/.claude/settings.json\n{\n  \"hooks\": {\n    \"UserPromptSubmit\": [\n      {\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"cat ~/.claude/hooks-scripts/UserPromptSubmit/skill-forced-eval-hook.sh\"\n          },\n          {\n            \"type\": \"command\",\n            \"command\": \"cat ~/.claude/hooks-scripts/UserPromptSubmit/agent-forced-eval-hook.sh\"\n          }\n        ]\n      }\n    ]\n  }\n}\n```\n\nSee [plugins/swift-engineering/hooks-scripts/README.md](plugins/swift-engineering/hooks-scripts/README.md) for complete hook documentation.\n\nSee [plugins/swift-engineering/README.md](plugins/swift-engineering/README.md) for complete documentation on using agents and available workflows.\n\n## What's Included\n\n### 12 Specialized Agents\n\n| Type | Agents | Responsibility |\n|------|--------|-----------------|\n| **Planning** | @swift-ui-design, @swift-architect, @tca-architect | Architecture decisions (Opus, read-only) |\n| **Implementation** | @tca-engineer, @swift-engineer, @swiftui-specialist, @swift-test-creator, @documentation-generator, @swift-code-reviewer, @swift-modernizer | Code creation and review (Inherit) |\n| **Utilities** | @swift-documenter, @search | API documentation and code search (Haiku) |\n\n### 18 Knowledge Skills\n\nArchitecture patterns (TCA, SwiftUI, modern Swift, advanced gestures), frameworks (SQLite, GRDB, StoreKit, networking), platform design (iOS 26, HIG, localization, haptics), and development tools (testing, style, diagnostics). Each skill provides deep guidance on modern patterns and best practices.\n\n## For Contributors\n\n### Repository Structure\n\n```\nclaude-swift-engineering/\n├── .claude-plugin/\n│   └── marketplace.json                    # Marketplace configuration\n├── .github/workflows/                      # CI/CD pipelines\n├── plugins/\n│   └── swift-engineering/                  # Main plugin\n│       ├── agents/                         # 12 specialized agents\n│       ├── skills/                         # 18 comprehensive skills\n│       ├── hooks-scripts/                  # Hooks system\n│       ├── scripts/                        # Helper utilities\n│       ├── rules/                          # Development rules\n│       └── README.md                       # Plugin documentation\n└── worktrees/                              # Git worktrees for features\n```\n\n### Development Workflow\n\n#### Bumping Version\n\nWhen making changes, increment the plugin version:\n\n```bash\nbash plugins/swift-engineering/scripts/bump-plugin-version.sh <new-version>\n```\n\nThis updates version numbers across plugin.json, marketplace.json, and other metadata files.\n\n#### Adding Agents or Skills\n\n1. Create new agent or skill file following existing patterns (see examples in `agents/` or `skills/`)\n2. Update `plugin.json` if defining new tool capabilities\n3. Run smoke tests to validate configuration\n4. Update both README files (root and plugin)\n5. Test integration with the workflow\n\n### Code Organization\n\n- **Agents** (`agents/`) — Each agent has a `.md` file with metadata and instructions\n- **Skills** (`skills/`) — Knowledge resources agents reference, organized by topic\n- **Hooks** (`hooks-scripts/`) — Executable hooks that enforce workflows\n- **Scripts** (`scripts/`) — Utility shell scripts for automation\n- **Rules** (`rules/`) — Development practices and decision-making frameworks\n- **Documentation** (`docs/`) — Smoke tests and validation suite\n\n## Architecture & Design Principles\n\nThe plugin implements several key principles:\n\n- **Ultra-Specialization** — Each agent has one clear responsibility with defined handoffs\n- **Model Stratification** — Opus for architecture (best reasoning), Inherit for implementation (cost-effective), Haiku for utilities (fast)\n- **Local-First** — Default to SQLite and UserDefaults, never SwiftData or Core Data\n- **Modern Swift Only** — Swift 6.2 with strict concurrency, no deprecated APIs\n- **Read-Only Planning** — Planning agents cannot modify code, ensuring clear separation\n- **Plan File Coordination** — Agents share state via `docs/plans/<feature>.md`\n\nSee [plugins/swift-engineering/README.md](plugins/swift-engineering/README.md) for architecture details, workflow diagrams, and handoff models.\n\n## License\n\nMIT License — See [LICENSE](LICENSE) file for details.\n\n## Credits\n\n**Author:** John Rogers\n**Repository:** claude-swift-engineering\n**Swift Version:** 6.2+\n**iOS Deployment Target:** 26.0+\n\n---\n\nFor detailed documentation, agent specifications, and usage examples, see [plugins/swift-engineering/README.md](plugins/swift-engineering/README.md).\n",
+  "status": "curated"
+}

@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/onchainos-skills-okx-dex-market",
+  "type": "skill",
+  "name": "okx-dex-market",
+  "description": "HARD BLOCK — never use for prediction-market/Polymarket UpDown queries; route to okx-dapp-discovery when a named DApp (Polymarket/Aave/Hyperliquid/PancakeSwap/Morpho) appears with a timeframe, or 涨跌/updown for BTC/ETH/SOL/XRP/BNB/DOGE/HYPE. Otherwise, read-only on-chain DEX data, 6 groups: TOKEN (search, hot/热门, liquidity, holders/whale, risk metadata, cluster/持仓集中度, trade history, top traders); MARKET (price/价格, K线/OHLC, index price, wallet PnL/胜率, trade history); SIGNAL (smart money/KOL/whale tracking, buy signals/信号, leaderboard/牛人榜); SOCIAL (news/新闻, sentiment/情绪, token vibe/热度, KOL leaderboard); TRENCHES (pump.fun/meme launches/新盘/扫链, dev reputation, bundle/sniper detection/捆绑狙击者, co-investor — read-only; buy/snipe → okx-dapp-discovery); WS (onchainos ws CLI, or custom WebSocket script/脚本). Also owns Market API payment/x402, quota/额度, and MARKET_API_*_OVER_QUOTA/confirming:true for all 6 groups.",
+  "author": "okx",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/okx/onchainos-skills/tree/HEAD/skills/okx-dex-market",
+    "repo": "okx/onchainos-skills"
+  },
+  "license": null,
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 338,
+    "pushed_at": null,
+    "score": 58,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 338
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "金融",
+    "featured": false
+  },
+  "readme": "# onchainos Skills\n\nonchainos skills for AI coding assistants. Provides token search, market data, wallet balance queries, swap execution, transaction broadcasting, leaderboard rankings, token cluster analysis, and direct third-party DApp routing across 20+ blockchains.\n\n## Available Skills\n\n| Skill | Description |\n|-------|-------------|\n| `okx-agentic-wallet` | Wallet lifecycle (auth, balance, portfolio PnL, send, tx history, contract call), Gas Station, DEX swap, cross-chain bridge, limit-order strategy, transaction gateway (gas / simulate / broadcast / track order), public-address portfolio, security scanning (token risk, DApp phishing, tx & signature checks, approvals), audit log |\n| `okx-dex-market` | Read-only on-chain DEX data: real-time prices/K-line/index/wallet PnL, address tracker activities, smart money/whale/KOL signal tracking + leaderboard rankings, token search/metadata/market cap/rankings/liquidity/hot tokens/holder & cluster analysis/top traders/trade history, crypto news/sentiment/vibe/KOL leaderboard, meme pump/trenches scanning/dev reputation/bundle detection (read-only), and WS/script real-time streaming |\n| `okx-agent-payments-protocol` | Unified payment dispatcher across x402 (`exact` / `aggr_deferred` schemes — TEE or local-key sign), MPP (`charge` / `session` intents — open / voucher / topUp / close, transaction or hash mode), and a2a-pay (paymentId-based create / pay / status). Routes to per-scheme/intent references. |\n| `okx-defi` | OKX-aggregated DeFi: product discovery, deposit, withdraw, claim rewards across Aave, Lido, PancakeSwap, Kamino, NAVI and more, plus positions and holdings overview across protocols and chains |\n| `okx-ai` | ERC-8004 on-chain Agent identity (register/update/search/rate/service-list) + agent task marketplace (publish/accept/deliver/dispute) + live task-progress monitor |\n| `okx-guide` | Onboarding & guide hub (merges former okx-how-to-play + okx-ai-guide + okx-ai-support): Onchain OS onboarding + welcome banner, OKX.AI intro & role-registration routing, customer-support / Help Center guidance |\n| `okx-dapp-discovery` | Third-party DApp discovery and direct plugin routing — currently supports Polymarket, Aave V3, Hyperliquid, PancakeSwap V3 AMM, Morpho V1 Optimizer |\n\n## Supported Chains\n\nXLayer, Solana, Ethereum, Base, BSC, Arbitrum, Polygon, and 20+ other chains.\n\n## Prerequisites\n\n- Git\n- Node.js (includes `npx`)\n\n## Installation\n\nInstall the CLI, skills, and A2A runtime together:\n\n```bash\nnpx -y @okxweb3/onchainos-installer install\n```\n\nInstall the beta channel:\n\n```bash\nnpx -y @okxweb3/onchainos-installer install --beta\n```\n\n## Skill Workflows\n\nThe skills work together in typical DeFi flows:\n\n**Search and Buy**: `okx-dex-market` (find token) -> `okx-agentic-wallet` (check funds + execute trade)\n\n**Portfolio Overview**: `okx-agentic-wallet` (holdings) -> `okx-dex-market` (enrich with analytics + price charts)\n\n**Market Research**: `okx-dex-market` (trending/rankings + candles/history) -> `okx-agentic-wallet` (trade)\n\n**Swap and Broadcast**: `okx-agentic-wallet` (get quote -> swap -> broadcast -> track order)\n\n**Full Trading Flow**: `okx-dex-market` (search + price/chart) -> `okx-agentic-wallet` (check balance -> swap -> simulate + broadcast + track)\n\n**Leaderboard → Research → Trade**: `okx-dex-market` (top traders by PnL/win rate + token analytics) -> `okx-agentic-wallet` (execute trade)\n\n**Follow Smart Money**: `okx-dex-market` (KOL/smart money buys + token details + holder cluster + price chart) -> `okx-agentic-wallet` (trade)\n\n## Workflows\n\nPre-built workflow orchestrations in `workflows/` compose multiple skills into complete operations. The agent reads `workflows/INDEX.md` to route requests, then follows the step-by-step instructions in the matched workflow file.\n\n| Workflow | What it does | CLI command |\n|----------|-------------|-------------|\n| **Token Research** | Price, security, holders, cluster, smart money signals, optional launchpad deep-dive | `onchainos workflow token-research --address <addr>` |\n| **Daily Brief** | Market pulse + smart money + new token activity + portfolio alerts | — |\n| **Smart Money Signals** | SM signal list aggregated by token + per-token due diligence | `onchainos workflow smart-money` |\n| **New Token Screening** | MIGRATED launchpad scan + safety & dev enrichment for top 10 | `onchainos workflow new-tokens` |\n| **Wallet Analysis** | 7d/30d PnL, trading behaviour, recent on-chain activity | `onchainos workflow wallet-analysis --address <addr>` |\n| **Portfolio Check** | Balances, total value, 30d PnL overview | `onchainos workflow portfolio --address <addr>` |\n| **Wallet Monitor** | In-session polling — alert on new trades from watched wallets | — |\n| **Wallet Monitor (WS)** | Background WebSocket session for offline wallet monitoring | — |\n\n### Composite CLI commands\n\nSingle commands that replace multiple individual tool calls:\n\n```bash\n# Token report: info + price + advanced-info + security scan (parallel)\nonchainos token report --address <addr> --chain solana\n\n# Full workflow commands\nonchainos workflow token-research --address <addr> [--chain solana]\nonchainos workflow smart-money [--chain solana]\nonchainos workflow new-tokens [--chain solana] [--stage MIGRATED]\nonchainos workflow wallet-analysis --address <addr> [--chain ethereum]\nonchainos workflow portfolio --address <addr> [--chains ethereum,solana]\n```\n\n## MCP Server\n\nThe `onchainos` CLI doubles as a native MCP server exposing tools to any MCP-compatible client.\n\n### Claude Code\n\n```bash\nclaude mcp add --scope user onchainos-cli onchainos mcp\n```\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

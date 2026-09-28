@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/skills-building-pydantic-ai-agents",
+  "type": "skill",
+  "name": "building-pydantic-ai-agents",
+  "description": "Build AI agents with Pydantic AI — tools, capabilities (including on-demand loading), structured output, streaming, testing, and multi-agent patterns. Use when the user mentions Pydantic AI, imports pydantic_ai, or asks to build an AI agent, add tools/capabilities, defer capability loading, stream output, define agents from YAML, or test agent behavior.",
+  "author": "pydantic",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/pydantic/skills/tree/HEAD/plugins/ai/skills/building-pydantic-ai-agents",
+    "repo": "pydantic/skills"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 138,
+    "pushed_at": null,
+    "score": 54,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 138
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# Pydantic Skills\n\nLogfire, Pydantic AI, and Pydantic plugins for [Claude Code](https://claude.com/claude-code), [Codex](https://openai.com/codex), and [Cursor](https://cursor.com). Instrument your code with Logfire, query and export the resulting telemetry, build LLM agents with Pydantic AI, and validate data with Pydantic.\n\n## Plugins\n\n| Plugin                                        | Hosts                      | Description                                         | Capabilities                                                                         |\n| --------------------------------------------- | -------------------------- | --------------------------------------------------- | ------------------------------------------------------------------------------------ |\n| [logfire](plugins/logfire/)                   | Claude Code, Codex, Cursor | Add Logfire observability and query/debug telemetry | Claude commands `/instrument`, `/debug`, `/query`; Codex/Cursor skills and MCP tools |\n| [logfire-exporter](plugins/logfire-exporter/) | Codex                      | Export Codex activity traces to Logfire             | Codex lifecycle hooks                                                                |\n| [ai](plugins/ai/)                             | Claude Code                | Build AI agents with Pydantic AI                    | Pydantic AI skill docs                                                               |\n| [pydantic-ai-harness](plugins/pydantic-ai-harness/) | Claude Code          | Extend Pydantic AI agents with harness capabilities (Code Mode) | Pydantic AI Harness skill docs                                           |\n| [pydantic](plugins/pydantic/)                 | Claude Code                | Validate and serialize data with Pydantic           | Pydantic skill docs                                                                  |\n\n## Install In Claude Code\n\nAdd this marketplace to Claude Code:\n\n```\nclaude plugin marketplace add pydantic/skills\n```\n\nThen install a plugin:\n\n```\nclaude plugin install logfire@pydantic-skills\nclaude plugin install ai@pydantic-skills\nclaude plugin install pydantic-ai-harness@pydantic-skills\nclaude plugin install pydantic@pydantic-skills\n```\n\n## Install In Codex\n\nAdd the published Pydantic marketplace to Codex:\n\n```bash\ncodex plugin marketplace add pydantic/skills\n```\n\nThen open Codex's plugin UI and enable the plugins you want from the **Pydantic** marketplace:\n\n- **Logfire** - installs Logfire skills and the hosted Logfire MCP server.\n- **Logfire Exporter** - installs Codex lifecycle hooks that export completed Codex turns and tool calls to Logfire.\n\nConfigure **Logfire Exporter** with a Logfire write token in your environment or\n`${XDG_CONFIG_HOME:-~/.config}/logfire-exporter/config.env`. Restart Codex after configuration, and run `/hooks` if\nCodex asks you to review or trust the new hooks.\n\nTo use the EU Logfire MCP endpoint in Codex without editing plugin files, replace the MCP entry and re-authenticate:\n\n```bash\ncodex mcp remove logfire\ncodex mcp add logfire --url https://logfire-eu.pydantic.dev/mcp\ncodex mcp login logfire\ncodex mcp get logfire\n```\n\nStart a new Codex conversation after switching so the MCP tools reload.\n\n## Install In Cursor\n\nInstall the Logfire plugin from the published [pydantic/skills](https://github.com/pydantic/skills) repository:\n\n```bash\ngit clone https://github.com/pydantic/skills.git\nmkdir -p ~/.cursor/plugins/local\ncp -R skills/plugins/logfire ~/.cursor/plugins/local/logfire\n```\n\nThen restart Cursor or run **Developer: Reload Window**. The plugin configures:\n\n- display name **Logfire**\n- Logfire skills for instrumentation, querying, and UI-opening workflows\n- hosted Logfire MCP server from `mcp.json`\n\nThe Logfire MCP server requires normal Logfire authentication, such as `logfire auth` or a suitable `LOGFIRE_TOKEN`.\n\n## Cross-Agent Skills\n\nThe `skills/` directory contains standalone SKILL.md files compatible with 30+ agents via the [agentskills.io](https://agentskills.io) standard - including Codex, Cursor, Gemini CLI, and Claude Code.\n\nReleased skills are also published through the [Agent Skills Discovery](https://github.com/cloudflare/agent-skills-discovery-rfc) API at\n[`pydantic.dev/.well-known/agent-skills`](https://pydantic.dev/.well-known/agent-skills). After a change reaches `main` and passes this repository's sync check, CI asks\n`pydantic/unified-docs` to build and verify immutable, content-addressed artifacts from that exact commit. The generated discovery index and archives are deployment\nartifacts; do not maintain copies in this repository.\n\n| Skill                                                              | Description                                                                         |\n| ------------------------------------------------------------------ | ----------------------------------------------------------------------------------- |\n| [logfire-setup](skills/logfire-setup/)                             | Set up Logfire by routing application, infrastructure, and eval projects            |\n| [logfire-instrumentation](skills/logfire-instrumentation/)         | Add Logfire observability to Python, JS/TS, and Rust apps                           |\n| [logfire-infrastructure](skills/logfire-infrastructure/)           | Monitor hosts, containers, Kubernetes, databases, and cloud infrastructure          |\n| [logfire-evals](skills/logfire-evals/)                             | Add dataset-based evaluations for AI and agent behavior                             |\n| [logfire-query](skills/logfire-query/)                             | Query and analyze Logfire traces, logs, spans, metrics, and activity data           |\n| [logfire-ui](skills/logfire-ui/)                                   | Open Logfire project pages, live views, traces, and Explore filters                 |\n| [building-pydantic-ai-agents](skills/building-pydantic-ai-agents/) | Build LLM-powered agents with Pydantic AI — tools, capabilities, streaming, testing |\n| [pydantic-ai-harness](skills/pydantic-ai-harness/)                 | Extend Pydantic AI agents with harness capabilities like Code Mode (sandboxed `run_code`) |\n| [pydantic](skills/pydantic/)                                       | Validate and serialize data with Pydantic models, constraints, and custom validators |\n",
+  "status": "curated"
+}

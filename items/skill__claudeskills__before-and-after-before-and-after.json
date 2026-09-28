@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/before-and-after-before-and-after",
+  "type": "skill",
+  "name": "before-and-after",
+  "description": "Captures before/after screenshots of web pages or elements for visual comparison. Use when user says \"take before and after\", \"screenshot comparison\", \"visual diff\", \"PR screenshots\", \"compare old and new\", or needs to document UI changes. Accepts two URLs (file://, http://, https://) or two image paths.",
+  "author": "vercel-labs",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/vercel-labs/before-and-after/tree/HEAD/skill",
+    "repo": "vercel-labs/before-and-after"
+  },
+  "license": "NOASSERTION",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 384,
+    "pushed_at": null,
+    "score": 58,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 384
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "设计",
+    "featured": false
+  },
+  "readme": "# before-and-after\n\nAn agent skill that attaches existing screenshots and screen recordings to a GitHub pull request as a before/after block.\n\nBrowser work belongs to [agent-browser](https://agentbrowser.dev) and its bundled skills. Uploads belong to `gh --attach`. This skill owns the workflow between them and one dependency-free script that formats media and replaces a marked block in the PR body.\n\n![before-and-after](https://jm.sv/before-and-after/opengraph-image.png)\n\n## Install\n\n```bash\nnpx skills add vercel-labs/before-and-after#main\n```\n\nRequires `agent-browser` and GitHub CLI 2.99+ (for `gh --attach`).\n\n## What it produces\n\n- Side-by-side image tables for before/after pairs, with equal-height full-page captures so tops align.\n- `Preview` blocks for after-only media.\n- Own-line videos that GitHub renders as players, and a two-step HTML video table once attachment URLs exist.\n- Idempotent replacement of one `<!-- before-and-after:start/end -->` block; the rest of the PR description is untouched.\n- Placement guidance that keeps real visual proof near the top and ahead of clearly labeled supplemental demos.\n\nSee `skill/SKILL.md` for the workflow.\n\n## Verification\n\nEach layer answers one question. Details in `VERIFICATION.md`.\n\n| Command | Runs | Proves | Needs |\n|---|---|---|---|\n| `pnpm test` | CI, every PR | `format.mjs` markup and marker replacement, including error paths | nothing |\n| `pnpm verify:skill` | CI, every PR | package ships only `skill/`; every `--flag` in SKILL.md exists in `format.mjs` and vice versa | `npm` |\n| `pnpm verify:local` | CI, every PR | with the installed agent-browser: the padding recipe yields equal-height pairs, the recorder produces real frames at the stated fps, `record start` drops headers as SKILL.md warns | `agent-browser`, `ffprobe` |\n| `pnpm verify:github` | CI weekly and on non-fork PRs once `FIXTURE_GITHUB_TOKEN` is set; local otherwise | GitHub renders what SKILL.md claims (cell mapping, top alignment, playable video) and the exact `gh pr edit --attach` publish sequence works, twice, preserving prose | `gh`, `agent-browser`, fixture PR |\n| `pnpm verify:agent` | local, before releases | Claude Code following SKILL.md unassisted produces a correct PR | `claude`, ~$2 |\n\n`pnpm verify` runs the first three.\n\n## Scope\n\nDoes not wrap `agent-browser`, capture URLs, manage Vercel authentication, convert video, or host media.\n",
+  "status": "curated"
+}

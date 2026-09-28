@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/nexus-skills-nexus-mapper",
+  "type": "skill",
+  "name": "nexus-mapper",
+  "description": "Generate a persistent .nexus-map/ knowledge base that lets any AI session instantly understand a codebase's architecture, systems, dependencies, and change hotspots. Use when starting work on an unfamiliar repository, onboarding with AI-assisted context, preparing for a major refactoring initiative, or enabling reliable cold-start AI sessions across a team. Produces INDEX.md, systems.md, concept_model.json, git_forensics.md and more. Requires shell execution and Python 3.10+. For ad-hoc file queries or instant impact analysis during active development, use nexus-query instead.",
+  "author": "haaaiawd",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/haaaiawd/nexus-skills/tree/HEAD/skills/nexus-mapper",
+    "repo": "haaaiawd/nexus-skills"
+  },
+  "license": null,
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 165,
+    "pushed_at": null,
+    "score": 55,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 165
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "<p align=\"center\">\n  <img src=\"Icon.png\" alt=\"nexus-skills\" width=\"96\" height=\"96\">\n</p>\n\n<h1 align=\"center\">nexus-skills</h1>\n\n<p align=\"center\">\n  为 AI Agent 生成可持续复用的代码仓库知识库，并提供精准的代码结构查询能力。<br>\n  Build a persistent knowledge map of any codebase. Query its structure with precision. Every AI session starts smarter.\n</p>\n\n<p align=\"center\">\n  <a href=\"README.zh-CN.md\">中文文档</a>\n</p>\n\n---\n\n## Two Skills, One Philosophy\n\n| Skill | What It Does | When to Use |\n|-------|-------------|-------------|\n| **nexus-mapper** | Analyzes the full repository and writes a persistent `.nexus-map/` knowledge base for future AI sessions | When starting on an unfamiliar repo, onboarding a team, or preparing for major architectural work |\n| **nexus-query** | Queries file structure, reverse dependencies, change impact radius, and coupling hotspots directly from AST data | During active development — before interface changes, refactoring sprints, or legacy codebase navigation |\n\nBoth skills use the same underlying scripts. `nexus-query` can reuse a `.nexus-map/` produced by `nexus-mapper`, or generate its own `ast_nodes.json` on demand.\n\n---\n\n## nexus-mapper\n\nnexus-mapper is a repository-mapping skill for AI agents. It analyzes a local codebase, writes a persistent `.nexus-map/` knowledge base, and gives the next session a concrete place to start instead of forcing it to rediscover architecture from scratch.\n\nThis is not a generic \"summarize the repo\" prompt. The skill runs a gated PROBE workflow, challenges its own first-pass assumptions, and only then writes final assets. That design matters: it reduces the usual AI failure mode of turning first impressions into fake certainty.\n\nWhen the repository contains noisy folders such as third-party static assets, generated trees, or language toolchains, the shared `extract_ast.py` scanner supports explicit filtering:\n\n- `--exclude-dirs django_static,.go_root,third_party/assets` excludes directory names or repo-relative paths\n- `--use-gitignore` applies `<repo_path>/.gitignore` rules and ignores the files and directories declared there\n- `--no-gitignore` disables only `.gitignore` rules; built-in noise exclusions and `--exclude-dirs` still apply\n\n```\n.nexus-map/\n├── INDEX.md              ← Load this first. Full architectural context, under 2000 tokens.\n├── arch/\n│   ├── systems.md        ← Every subsystem: what it owns, exactly where it sits in the repo.\n│   ├── dependencies.md   ← How components connect. Rendered as a Mermaid dependency graph.\n│   └── test_coverage.md  ← Static test surface: what is tested, what is not, and where evidence is thin.\n├── concepts/\n│   ├── concept_model.json ← Machine-readable knowledge graph. Structured for programmatic use.\n│   └── domains.md        ← The domain language this codebase speaks, in plain terms.\n├── hotspots/             ← Present when git metadata is available.\n│   └── git_forensics.md  ← Files that change constantly, and pairs that always change together.\n└── raw/                  ← Source data: AST nodes, git statistics, filtered file tree.\n```\n\n`INDEX.md` is the entry point and routing hub. After reading it, load all five companion files before taking action — they are intentionally kept short (typically under 5000 tokens combined).\n\n---\n\n## nexus-query\n\nnexus-query gives precise, instant answers to structural questions during active development — without reading the entire codebase.\n\n```bash\n# File skeleton: classes, methods, line numbers, imports\npython skills/nexus-query/scripts/query_graph.py ast_nodes.json --file src/core/vision.py\n\n# Reverse dependency: who imports this module?\npython skills/nexus-query/scripts/query_graph.py ast_nodes.json --who-imports src.core.vision\n\n# Impact radius: upstream dependencies + downstream dependents\npython skills/nexus-query/scripts/query_graph.py ast_nodes.json --impact src/core/vision.py \\\n  --git-stats git_stats.json\n\n# Architectural hub analysis: highest fan-in / fan-out modules\npython skills/nexus-query/scripts/query_graph.py ast_nodes.json --hub-analysis\n\n# Per-directory structural summary\npython skills/nexus-query/scripts/query_graph.py ast_nodes.json --summary\n```\n\nZero extra dependencies. Pure Python stdlib. The `ast_nodes.json` can come from an existing `.nexus-map/raw/` or from a fresh `extract_ast.py` run.\n\n**When it matters most:**\n- Before any interface change: `--who-imports` tells you exactly what breaks\n- Before a sprint: `--impact --git-stats` quantifies risk and work scope\n- In a legacy codebase: `--file` gives you a skeleton map without reading 3000 lines\n- At architecture review: `--hub-analysis` finds the real coupling hotspots, not just the ones named `core/`\n\n---\n\n## Why They Are Different\n\n- **Phase-gated**: nexus-mapper's PROFILE, REASON, OBJECT, BENCHMARK, and EMIT are not optional.\n- **Honest provenance**: Both skills distinguish `implemented`, `planned`, and `inferred`. If parsing is partial, it says so.\n- **Composable**: nexus-query works standalone or on top of a nexus-mapper map.\n- **Optimized for future sessions**: every artifact is designed to be loaded next time, not just this time.\n\n---\n\n## Prerequisites\n\n| Requirement | Check |\n|-------------|-------|\n| Python 3.10+ | `python --version` |\n| Shell execution | Your AI client must support running terminal commands |\n\nA git repository is recommended but not required. Without git history, hotspot analysis is skipped and the rest still runs.\n\n**Install script dependencies:**\n\n```bash\n# nexus-mapper\npip install -r skills/nexus-mapper/scripts/requirements.txt\n\n# nexus-query (same dependencies)\npip install -r skills/nexus-query/scripts/requirements.txt\n```\n\n---\n\n## Install\n\n```bash\n# Full suite\nnpx skills add haaaiawd/nexus-skills\n\n# Or just the skill you need\nnpx skills add haaaiawd/nexus-skills/skills/nexus-mapper\nnpx skills add haaaiawd/nexus-skills/skills/nexus-query\n```\n\nWorks with Claude Code, GitHub Copilot, Cursor, Cline, and any client that reads `SKILL.md`.\n\n---\n\n## How To Use nexus-mapper\n\nPoint your AI at a local repository path:\n\n```\nAnalyze /Users/me/projects/my-app and generate a knowledge map\n```\n\nThe AI runs the protocol and writes `.nexus-map/` into the repository root. The next time you work on that codebase, start with:\n\n```\nRead .nexus-map/INDEX.md\n```\n\nFor the best long-term behavior, add a short persistent instruction to your host tool's memory file such as `AGENTS.md` or `CLAUDE.md`:\n\n```md\n.nexus-map/ exists: read INDEX.md to restore context, and follow its routing block for next steps.\n.nexus-map/ missing: propose running nexus-mapper before making cross-module or interface changes. If proceeding immediately, run query_graph.py --summary first.\nStructural queries: always use query_graph.py to validate dependencies, radius, or boundaries. Never guess from directory names.\nSyncing: if a task changes system boundaries, entrypoints, or dependencies, evaluate updating .nexus-map before delivery.\n```\n\n---\n\n## Language Support\n\nParses 30+ languages automatically by file extension.\n\nPython · JavaScript · JSX · TypeScript · TSX · Bash · Java · Go · Rust · C++ · C · C# · Kotlin · Ruby · Swift · Scala · PHP · Lua · Elixir · GDScript · Dart · Haskell · Clojure · SQL · Proto · Solidity · Vue · Svelte · R · Perl\n\nNot every listed language has the same depth. Some are full structural parses, some are module-only. The output metadata tells you which is which.\n\n### Extending language support\n\n```bash\npython skills/nexus-mapper/scripts/extract_ast.py <repo_path> \\\n  --add-extension .templ=templ \\\n  --add-query templ struct \"(component_declaration name: (identifier) @class.name) @class.def\"\n```\n\n---\n\n## Repository Structure\n\n```\nnexus-skills/\n├── README.md\n├── README.zh-CN.md\n├── Icon.png\n└── skills/\n    ├── nexus-mapper/\n    │   ├── SKILL.md              ← Protocol, guardrails, output schema\n    │   ├── scripts/\n    │   │   ├── extract_ast.py    ← Multi-language AST extractor\n    │   │   ├── query_graph.py    ← On-demand AST query tool\n    │   │   ├── git_detective.py  ← Git hotspot and coupling analysis\n    │   │   ├── languages.json    ← Language config\n    │   │   └── requirements.txt\n    │   └── references/\n    │       ├── probe-protocol.md     ← Full PROBE execution blueprint\n    │       ├── output-schema.md      ← JSON/Markdown schema specs\n    │       └── language-customization.md  ← Extending language support\n    └── nexus-query/\n        ├── SKILL.md              ← Query modes, guardrails, use cases\n        └── scripts/\n            ├── extract_ast.py\n            ├── query_graph.py\n            ├── git_detective.py\n            ├── languages.json\n            └── requirements.txt\n```\n\n---\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

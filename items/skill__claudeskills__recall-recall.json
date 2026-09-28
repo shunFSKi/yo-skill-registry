@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/recall-recall",
+  "type": "skill",
+  "name": "recall",
+  "description": "Search past Claude Code, Codex, and pi sessions. Triggers: /recall, \"search old conversations\", \"find a past session\", \"recall a previous conversation\", \"search session history\", \"what did we discuss\", \"remember when we\"",
+  "author": "arjunkmrm",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/arjunkmrm/recall",
+    "repo": "arjunkmrm/recall"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 144,
+    "pushed_at": null,
+    "score": 54,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 144
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# recall\n\nEver lost a conversation session with Claude Code, Codex, pi or Grok and wish you could resume it? This skill lets your agents search across all your past conversations with full-text search. Builds a SQLite FTS5 index over `~/.claude/projects/`, `~/.codex/sessions/`, `~/.pi/agent/sessions/`, and `~/.grok/sessions/` with BM25 ranking, Porter stemming, CJK support, and incremental updates.\n\n## Install\n\n```bash\nnpx skills add arjunkmrm/recall\n```\n\nThen use `/recall` in Claude Code (or Codex, pi, or Grok) or ask \"find a past session where we talked about foo\" (you might need to restart your agent).\n\n## How it works\n### Index\n\n```\n  ~/.claude/projects/**/*.jsonl ──┐\n                                  │\n  ~/.codex/sessions/**/*.jsonl ───┼─▶ Index ──▶ ~/.recall.db (SQLite FTS5)\n                                  │   [incremental - mtime-based]\n  ~/.pi/agent/sessions/**/*.jsonl │\n  ~/.grok/sessions/**/chat_history.jsonl ┘\n```\n### Query\n```\n  Query ──▶ Detect CJK? ──▶ FTS5 Match ──▶ BM25 rank ──▶ Recency boost ──▶ Results\n                │                           [half-life: 30 days]\n                │\n          ┌─────┴──────┐\n          │            │\n     No CJK        Has CJK\n     porter         trigram\n     unicode61      table\n          │            │\n          └─────┬──────┘\n                ▼\n         snippet extraction\n         highlighted excerpts\n```\n\n- Indexes user/assistant messages into a SQLite FTS5 database at `~/.recall.db`\n- First run indexes all sessions (a few seconds); subsequent runs only process new/modified files\n- Dual-table FTS: Porter stemming for English, trigram tokenizer for CJK (Japanese, Chinese, Korean)\n- CJK messages are selectively indexed into the trigram table; query routing is automatic\n- Skips tool_use, tool_result, thinking, and image blocks\n- Results ranked by BM25 with a slight recency bias (recent sessions get up to a 20% boost, decaying with a 30-day half-life)\n- Results tagged `[claude]`, `[codex]`, `[pi]`, or `[grok]` with highlighted excerpts\n- No dependencies — Python 3.9+ stdlib only (sqlite3, json, argparse)\n\n## Tests\n\n```bash\npython3 -m unittest discover tests -v\n```\n\nStdlib `unittest` only — no test deps. Synthetic JSONL fixtures generated\nin `tmpdir` from the suite itself (no fixture files committed). An\nintegration test runs against any real pi sessions in `~/.pi/agent/sessions/`\non the host and is skipped if none are present.\n\n## Contributing\n\nFound a bug or have an idea? [Open an issue](https://github.com/arjunkmrm/recall/issues) or submit a pull request — contributions are welcome!\n\n",
+  "status": "curated"
+}

@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/libtv-skills-libtv-skill",
+  "type": "skill",
+  "name": "libtv-skill",
+  "description": "libtv-skills — agent skills repository.",
+  "author": "libtv-labs",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/libtv-labs/libtv-skills/tree/HEAD/skills/libtv-skill",
+    "repo": "libtv-labs/libtv-skills"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 1111,
+    "pushed_at": null,
+    "score": 56,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 1111
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# 🎬 libtv-skills\n\n> AI Agent Skills for [LibLib.tv](https://www.liblib.tv) — 让你的 AI Agent 轻松调用 LibTV 的生图、生视频等 AIGC 能力。\n\n[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)\n[![Python 3.6+](https://img.shields.io/badge/Python-3.6+-green.svg)](https://python.org)\n\n## ✨ 简介\n\n**libtv-skills** 是一组面向 AI Agent 的技能包（Skills），通过 [LibLib.tv](https://www.liblib.tv) 的 OpenAPI 提供 **AI 生图**、**AI 生视频** 等 AIGC 能力。Agent 可以通过这些技能创建会话、发送创作指令、查询生成进展，并获取最终的图片/视频结果。\n\n本项目遵循 [OpenClaw](https://github.com/anthropics/openclaw) 技能规范，可被支持该规范的 AI Agent 平台直接识别和调用。\n\n## 📦 技能列表\n\n| 技能 | 描述 | 脚本 |\n|------|------|------|\n| **libtv-skill** | Agent-IM 会话技能 — 创建会话、发送生图/生视频消息、上传文件、查询进展、批量下载结果 | `create_session.py` `query_session.py` `change_project.py` `upload_file.py` `download_results.py` |\n\n## 📥 快速安装\n\n通过 `npx skills` 一键安装技能到你的项目中：\n\n```bash\n# 交互式选择要安装的技能\nnpx skills add libtv-labs/libtv-skills\n\n# 直接安装指定技能\nnpx skills add libtv-labs/libtv-skills --skill libtv-skill\n```\n\n安装完成后，设置环境变量即可使用：\n\n```bash\nexport LIBTV_ACCESS_KEY=\"your-access-key\"\n```\n\n> 🎉 **就这么简单！** 技能文件会被添加到你的项目中，AI Agent 将自动识别并调用，无需手动执行任何脚本。\n\n可选配置（一般无需修改）：\n\n| 变量 | 必填 | 默认值 | 说明 |\n|------|------|--------|------|\n| `LIBTV_ACCESS_KEY` | ✅ | — | LibTV API 鉴权密钥 |\n| `OPENAPI_IM_BASE` | ❌ | `https://im.liblib.tv` | IM 服务地址 |\n| `IM_BASE_URL` | ❌ | `https://im.liblib.tv` | IM 服务地址（备选） |\n\n## 🛠️ 手动使用 / 调试\n\n<details>\n<summary>如果你需要手动调用脚本或调试，点击展开查看详细用法</summary>\n\n### 前置要求\n\n- **Python 3.6+**（仅使用标准库，无需安装额外依赖）\n- **`LIBTV_ACCESS_KEY`** 环境变量已设置\n\n### 创建会话 & 发送生成指令\n\n```bash\n# 创建新会话，发送「生一个动漫视频」\npython3 skills/libtv-skill/scripts/create_session.py \"生一个动漫视频\"\n\n# 向已有会话追加消息\npython3 skills/libtv-skill/scripts/create_session.py \"再生成一张风景图\" --session-id <SESSION_ID>\n\n# 只创建/绑定会话，不发消息\npython3 skills/libtv-skill/scripts/create_session.py\n```\n\n**输出示例：**\n\n```json\n{\n  \"projectUuid\": \"aa3ba04c5044477cb7a00a9e5bf3b4d0\",\n  \"sessionId\": \"90f05e0c-5d08-4148-be40-e30fc7c7bedf\",\n  \"projectUrl\": \"https://www.liblib.tv/canvas?projectId=aa3ba04c5044477cb7a00a9e5bf3b4d0\"\n}\n```\n\n### 查询会话进展\n\n```bash\n# 查询会话消息列表\npython3 skills/libtv-skill/scripts/query_session.py <SESSION_ID>\n\n# 增量拉取（只返回 seq > N 的新消息，适合轮询）\npython3 skills/libtv-skill/scripts/query_session.py <SESSION_ID> --after-seq 5\n\n# 附带项目地址\npython3 skills/libtv-skill/scripts/query_session.py <SESSION_ID> --project-id <PROJECT_UUID>\n```\n\n**输出示例：**\n\n```json\n{\n  \"messages\": [\n    { \"id\": \"msg-xxx\", \"role\": \"user\", \"content\": \"生一个动漫视频\" },\n    { \"id\": \"msg-yyy\", \"role\": \"assistant\", \"content\": \"...\" }\n  ],\n  \"projectUrl\": \"https://www.liblib.tv/canvas?projectId=...\"\n}\n```\n\n### 切换项目\n\n```bash\n# 切换当前 accessKey 绑定的项目\npython3 skills/libtv-skill/scripts/change_project.py\n```\n\n**输出示例：**\n\n```json\n{\n  \"projectUuid\": \"新项目UUID\",\n  \"projectUrl\": \"https://www.liblib.tv/canvas?projectId=新项目UUID\"\n}\n```\n\n### 上传文件\n\n```bash\n# 上传图片\npython3 skills/libtv-skill/scripts/upload_file.py /path/to/image.png\n\n# 上传视频\npython3 skills/libtv-skill/scripts/upload_file.py /path/to/video.mp4\n```\n\n**输出示例：**\n\n```json\n{\n  \"url\": \"https://libtv-res.liblib.art/claw/{projectUuid}/{uuid}.png\"\n}\n```\n\n### 下载结果\n\n```bash\n# 从会话自动提取并下载所有图片/视频\npython3 skills/libtv-skill/scripts/download_results.py <SESSION_ID>\n\n# 指定输出目录\npython3 skills/libtv-skill/scripts/download_results.py <SESSION_ID> --output-dir ~/Desktop/my_project\n\n# 指定文件名前缀（如 storyboard_01.png, storyboard_02.png ...）\npython3 skills/libtv-skill/scripts/download_results.py <SESSION_ID> --prefix \"storyboard\"\n\n# 直接下载指定 URL 列表（无需 session_id）\npython3 skills/libtv-skill/scripts/download_results.py --urls URL1 URL2 URL3 --output-dir ./output\n```\n\n**输出示例：**\n\n```json\n{\n  \"output_dir\": \"/Users/xxx/Downloads/libtv_results\",\n  \"downloaded\": [\"/Users/xxx/Downloads/libtv_results/01.png\", \"...\"],\n  \"total\": 9\n}\n```\n\n</details>\n\n## 📁 项目结构\n\n```\nlibtv-skills/\n├── README.md\n├── LICENSE\n└── skills/\n    └── libtv-skill/                  # Agent-IM 会话技能\n        ├── SKILL.md                # 技能描述文件（OpenClaw 规范）\n        └── scripts/\n            ├── _common.py          # 公共模块（鉴权、HTTP 请求、API 封装）\n            ├── create_session.py   # 创建会话 / 发送消息\n            ├── query_session.py    # 查询会话消息进展\n            ├── change_project.py   # 切换绑定项目\n            ├── upload_file.py      # 上传图片 / 视频文件到 OSS\n            └── download_results.py # 批量下载生成结果到本地\n```\n\n## 🔧 API 参考\n\n### 鉴权\n\n所有 API 请求通过 HTTP Header 进行 Bearer Token 鉴权：\n\n```\nAuthorization: Bearer <LIBTV_ACCESS_KEY>\n```\n\n### 接口列表\n\n| 方法 | 路径 | 说明 |\n|------|------|------|\n| `POST` | `/openapi/session` | 创建会话 / 发送消息 |\n| `GET` | `/openapi/session/:sessionId` | 查询会话消息列表 |\n| `POST` | `/openapi/session/change-project` | 切换绑定项目 |\n| `POST` | `/openapi/file/upload` | 上传图片 / 视频文件到 OSS |\n\n### 请求 & 响应\n\n<details>\n<summary><b>POST /openapi/session</b> — 创建会话 / 发送消息</summary>\n\n**Request Body:**\n\n```json\n{\n  \"sessionId\": \"（可选）已有会话 ID\",\n  \"message\": \"（可选）要发送的消息内容\"\n}\n```\n\n**Response:**\n\n```json\n{\n  \"data\": {\n    \"projectUuid\": \"aa3ba04c5044477cb7a00a9e5bf3b4d0\",\n    \"sessionId\": \"90f05e0c-5d08-4148-be40-e30fc7c7bedf\"\n  }\n}\n```\n\n</details>\n\n<details>\n<summary><b>GET /openapi/session/:sessionId</b> — 查询会话消息</summary>\n\n**Query Params:**\n\n| 参数 | 类型 | 说明 |\n|------|------|------|\n| `afterSeq` | int | 可选，只返回 seq 大于该值的消息（增量拉取） |\n\n**Response:**\n\n```json\n{\n  \"data\": {\n    \"messages\": [\n      { \"id\": \"msg-xxx\", \"role\": \"user\", \"content\": \"生一个动漫视频\" },\n      { \"id\": \"msg-yyy\", \"role\": \"assistant\", \"content\": \"...\" }\n    ]\n  }\n}\n```\n\n</details>\n\n<details>\n<summary><b>POST /openapi/session/change-project</b> — 切换项目</summary>\n\n**Request Body:** `{}`（空）\n\n**Response:**\n\n```json\n{\n  \"data\": {\n    \"projectUuid\": \"新项目UUID\"\n  }\n}\n```\n\n</details>\n\n<details>\n<summary><b>POST /openapi/file/upload</b> — 上传文件</summary>\n\n**Request Body:** `multipart/form-data`，包含 `file` 字段（图片或视频文件）\n\n**Response:**\n\n```json\n{\n  \"data\": {\n    \"url\": \"https://libtv-res.liblib.art/claw/{projectUuid}/{uuid}.png\"\n  }\n}\n```\n\n> 仅支持图片（`image/*`）和视频（`video/*`）类型，其他类型会被拒绝。\n\n</details>\n\n## 🤖 Agent 集成指南\n\n本技能包设计为被 AI Agent 自动调用。典型的工作流如下：\n\n```\n用户指令 → Agent 解析意图 → 调用 create_session.py 发送指令\n                                    ↓\n                          获取 sessionId + projectUuid\n                                    ↓\n                          轮询 query_session.py 获取结果\n                                    ↓\n                     download_results.py 批量下载到本地\n                                    ↓\n                      向用户展示：生成结果 + 项目画布链接\n```\n\n### 最佳实践\n\n- **自动下载**：任务完成后，使用 `download_results.py` 将图片/视频批量下载到本地，再同时向用户展示 **本地文件路径** 和 **项目画布链接**（`projectUrl`）\n- **增量轮询**：使用 `--after-seq` 参数进行增量拉取，避免重复获取已处理的消息\n- **项目管理**：当需要隔离不同任务时，使用 `change_project.py` 切换到新项目\n- **文件上传**：在发送生图/生视频指令前，可先用 `upload_file.py` 上传参考图片或素材，获取 OSS 地址后再一并传入消息\n\n## 🤝 贡献\n\n欢迎提交 Pull Request 来添加新的技能或改进现有技能！\n\n### 添加新技能\n\n1. 在 `skills/` 目录下创建新的技能文件夹\n2. 编写 `SKILL.md` 技能描述文件（遵循 OpenClaw 规范）\n3. 在 `scripts/` 子目录中实现功能脚本\n4. 更新本 README 的技能列表\n\n## 📄 License\n\n本项目采用 [MIT License](LICENSE) 开源。\n\nCopyright © 2026 [libtv-labs](https://github.com/libtv-labs)",
+  "status": "curated"
+}

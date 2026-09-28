@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/pcb-datasheet-reader",
+  "type": "skill",
+  "name": "datasheet-reader",
+  "description": "Read datasheets and technical PDF documents with `pcb scan`. Use when the user gives a local PDF path or an `http(s)` datasheet/document URL, when a task requires reading, summarizing, extracting information from, or answering questions about a datasheet or technical PDF, or when a KiCad symbol / `.kicad_sym` provides a `Datasheet` property to resolve. Run `pcb scan <input>` in bash, treat stdout as the generated `.md` path, then read that markdown file.",
+  "author": "diodeinc",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/diodeinc/pcb/tree/HEAD/skills/datasheet-reader",
+    "repo": "diodeinc/pcb"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 454,
+    "pushed_at": null,
+    "score": 59,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 454
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "办公",
+    "featured": false
+  },
+  "readme": "# pcb\n\n`pcb` is a command-line tool for circuit board projects written in Zener.\nZener is a Starlark-based language for describing PCB schematics; `pcb` builds\nthose designs, manages dependencies, and generates KiCad layout files.\n\n[Documentation](https://docs.pcb.new) | [Language reference](https://docs.pcb.new/pages/spec)\n\n## Installation\n\nInstall the `pcb` launcher on macOS, Linux, or WSL2:\n\n```bash\ncurl -fsSL https://raw.githubusercontent.com/diodeinc/pcb/main/install.sh | bash\n```\n\nFor native Windows, run this command in PowerShell:\n\n```powershell\npowershell -ExecutionPolicy Bypass -c \"irm https://raw.githubusercontent.com/diodeinc/pcb/main/install.ps1 | iex\"\n```\n\nThe launcher downloads the toolchain selected by each project. KiCad 10.x is\nrequired for layouts, but not for building Zener designs. Native Windows support\nis experimental; use WSL2 if needed.\n\n## Quick start\n\nCreate `blinky.zen`:\n\n[embed-readme]:# (examples/blinky.zen python)\n```python\n# ```pcb\n# [workspace]\n# pcb-version = \"0.4\"\n# ```\n\nResistor = Module(\"@stdlib/generics/Resistor.zen\")\nLed = Module(\"@stdlib/generics/Led.zen\")\n\nVCC = Power()\nGND = Ground()\nLED_ANODE = Net()\n\nResistor(name=\"R1\", value=\"1kohm\", package=\"0402\", P1=VCC, P2=LED_ANODE)\nLed(name=\"D1\", package=\"0402\", color=\"red\", A=LED_ANODE, K=GND)\nBoard(name=\"blinky\", layers=4, layout_path=\"layout/blinky\")\n```\n\nBuild the design and generate a KiCad layout:\n\n```bash\npcb build blinky.zen\npcb layout blinky.zen\n```\n\nSee [Getting Started](https://docs.pcb.new/pages/quickstart) for board setup,\ntoolchains, and CI authentication, and [Packages](https://docs.pcb.new/pages/packages)\nfor repository structure and dependencies. Run `pcb help` for commands.\n\n## Developing from source\n\n```bash\ngit clone https://github.com/diodeinc/pcb.git\ncd pcb\n./install.sh --local\n```\n\nRequires Rust. See [AGENTS.md](AGENTS.md) for test commands and repository conventions.\n\n## License\n\nDiode-authored code and docs are licensed under the MIT License except where\notherwise noted. See [LICENSE](LICENSE) and\n[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).\n\n## Acknowledgments\n\n- Made possible by the excellent [KiCad](https://kicad.org/) PCB design suite.\n- Built on [starlark-rust](https://github.com/facebookexperimental/starlark-rust) by Meta.\n- Inspired by [atopile](https://github.com/atopile/atopile),\n  [tscircuit](https://github.com/tscircuit/tscircuit), and others.\n",
+  "status": "curated"
+}

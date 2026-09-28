@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/motel-motel-debug",
+  "type": "skill",
+  "name": "motel-debug",
+  "description": "Debug applications with motel, a local OpenTelemetry ingest and query server. Use when the user wants runtime-evidence debugging with traces or logs, wants temporary debug instrumentation that can be removed later, or needs a repo wired to send OTLP/HTTP telemetry to a local motel server. If the target repo uses Effect or @effect/*, also read references/effect.md.",
+  "author": "kitlangton",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/kitlangton/motel/tree/HEAD/skills/motel-debug",
+    "repo": "kitlangton/motel"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 297,
+    "pushed_at": null,
+    "score": 57,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 297
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# motel\n\nA local OpenTelemetry ingest + TUI viewer for development, backed by\nSQLite. Point your app's OTLP/HTTP exporters at the local motel server\nand debug with real runtime evidence — from a terminal, the built-in web\nUI, or directly from an AI coding agent.\n\n## For agents: install the motel-debug skill\n\n`motel` ships a companion skill that teaches Claude Code, OpenCode,\nCursor, Codex, and 40+ other agents how to debug with runtime evidence\nby querying motel's local OTLP store. Install it once and any future\nagent session in the project will know how to use it.\n\n```bash\n# Project-local (adds to .claude/skills, .agents/skills, etc.)\nnpx skills add kitlangton/motel --skill motel-debug\n\n# Or globally, for every project\nnpx skills add kitlangton/motel --skill motel-debug -g\n```\n\nSee the full skill at [`skills/motel-debug/SKILL.md`](skills/motel-debug/SKILL.md).\n\n## For humans: install and run the TUI\n\nmotel is distributed on npm as `@kitlangton/motel`. The binary is a Bun\nscript, so Bun must be on your `PATH` at runtime:\n\n```bash\n# one-off (no install)\nbunx @kitlangton/motel\n\n# or install globally\nbun add -g @kitlangton/motel\nmotel\n\n# npm also works (Bun still required to run it)\nnpm install -g @kitlangton/motel\n```\n\nDon't have Bun?\n\n```bash\ncurl -fsSL https://bun.sh/install | bash\n```\n\n`motel` starts the local OTLP ingest server on\n`http://127.0.0.1:27686` and launches the TUI. Press `?` once inside for\nthe keyboard cheat sheet, or `c` to copy paste-ready setup instructions\nfor any Effect/OTEL app you want to trace.\n\nRequirements: [Bun](https://bun.sh/) v1.1 or newer.\n\n## How your app connects\n\nOnce motel is running, point your app's OTLP/HTTP exporters at these\nlocal endpoints:\n\n```\nhttp://127.0.0.1:27686/v1/traces\nhttp://127.0.0.1:27686/v1/logs\n```\n\nMotel keeps everything in a machine-global local SQLite database at\n`${XDG_STATE_HOME:-~/.local/state}/motel/telemetry.sqlite`. One managed\ndaemon is shared across local projects. No Docker, no cloud account.\n\nThe store retains seven days of telemetry by default and targets a 1 GB\nactive-data ceiling using bounded background batches. Recent data is preserved while\nthe oldest completed traces and logs are removed first. Configure the policy\nwith `MOTEL_OTEL_RETENTION_HOURS`, `MOTEL_OTEL_MAX_DB_SIZE_MB`,\n`MOTEL_OTEL_RETENTION_TRACE_BATCH`, `MOTEL_OTEL_RETENTION_LOG_BATCH`, and\n`MOTEL_OTEL_RETENTION_INTERVAL_SECONDS`. Existing databases created without\nincremental auto-vacuum are never silently rewritten at startup; deleted pages\nare reused, but shrinking such a historical file requires an explicit offline\nSQLite `VACUUM` chosen by the user.\n\n## How agents connect\n\nAgents with the `motel-debug` skill installed will automatically use\nmotel's HTTP API. The full OpenAPI spec is at\n`http://127.0.0.1:27686/openapi.json` — the key endpoints are:\n\n```\nGET /api/health                              liveness check\nGET /api/services                            services reporting telemetry\nGET /api/traces?service=<service>            recent traces for a service\nGET /api/traces/<trace-id>                   full trace tree\nGET /api/spans/<span-id>                     single span + logs\nGET /api/logs?service=<service>              recent logs\nGET /api/traces/search?...                   structured trace search\nGET /api/logs/search?...                     structured log search\nGET /api/ai/calls                            AI SDK call inspector\n```\n\n## TUI keys\n\n- `?` — keyboard cheat sheet\n- `j` / `k` or `↑` / `↓` — move selection\n- `enter` / `esc` — drill in / back out (trace → waterfall → span detail)\n- `[` / `]` — switch service\n- `tab` — toggle service logs\n- `/` — filter traces\n- `s` — cycle sort (recent → slowest → errors)\n- `t` — cycle theme\n- `c` — copy paste-ready setup instructions for another app\n- `o` — open selected trace in the browser\n- `q` — quit\n\n## Privacy note\n\nmotel is a local development tool, but your app can emit sensitive\ntelemetry. Correlated logs may include secrets, tokens, or PII if your\napp logs them; AI call traces may include full prompt content and\nresponse text. Treat the local SQLite store as sensitive development\ndata when pointing motel at real workloads.\n",
+  "status": "curated"
+}

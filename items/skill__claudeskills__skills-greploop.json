@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/skills-greploop",
+  "type": "skill",
+  "name": "greploop",
+  "description": "Iteratively improves a PR (GitHub), MR (GitLab), or shelved changelist (Perforce) until Greptile gives it a 5/5 confidence score with zero unresolved comments. Triggers Greptile review, fixes all actionable comments, pushes/re-shelves, re-triggers review, and repeats. Use when the user wants to fully optimize a PR/MR/CL against Greptile's code review standards.",
+  "author": "greptileai",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/greptileai/skills/tree/HEAD/greploop",
+    "repo": "greptileai/skills"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 406,
+    "pushed_at": null,
+    "score": 58,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 406
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# greptile skills\n\n[Agent Skills](https://agentskills.io) for automated PR review workflows. Supports GitHub, GitLab, Perforce, and local Greptile CLI reviews. Requires `git` + `gh` CLI (GitHub), `glab` CLI (GitLab), `p4` CLI (Perforce), or the Greptile CLI for local reviews.\n\n## Skills\n\n| Skill | Description |\n|-------|-------------|\n| [`check-pr`](check-pr/) | Check a PR/MR/CL for unresolved comments, failing checks, incomplete description. Fix and resolve. |\n| [`cli-review`](cli-review/) | Run a Greptile CLI review from the current checkout and summarize findings. |\n| [`greploop`](greploop/) | Loop: trigger Greptile review, fix comments, re-review — until 5/5 confidence and zero comments. |\n\n`check-pr` and `greploop` auto-detect the platform (GitHub, GitLab, or Perforce) from the environment. `cli-review` runs against the current local git checkout with the Greptile CLI.\n\n## Requirements\n\n| Platform | CLI tool | Install |\n|----------|----------|---------|\n| GitHub | `gh` | [cli.github.com](https://cli.github.com) |\n| GitLab | `glab` | [gitlab.com/gitlab-org/cli](https://gitlab.com/gitlab-org/cli) |\n| Perforce | `p4` | [perforce.com/downloads](https://www.perforce.com/downloads/helix-command-line-client-p4) |\n| Greptile | `greptile` | [greptile.com/cli](https://www.greptile.com/cli) |\n\nAuthenticate before use: `gh auth login`, `glab auth login`, configure `P4PORT`/`P4USER`/`P4CLIENT` for Perforce, or `greptile login`.\n\n## Install\n\n```bash\ngit clone https://github.com/greptileai/skills.git ~/.claude/skills/greptile\ncd ~/.claude/skills\nln -s greptile/check-pr check-pr\nln -s greptile/cli-review cli-review\nln -s greptile/greploop greploop\n```\n\nOr as a submodule:\n\n```bash\ngit submodule add https://github.com/greptileai/skills.git .skills/greptile\nln -s greptile/check-pr .skills/check-pr\nln -s greptile/cli-review .skills/cli-review\nln -s greptile/greploop .skills/greploop\n```\n\nClaude Code discovers skills by looking for `SKILL.md` files at `~/.claude/skills/<skill-name>/SKILL.md`. Since this is a multi-skill repo, symlinks are needed to expose each sub-skill at the expected depth.\n\n## Usage\n\nInvoke by name in your agent (e.g. `/check-pr 123`, `/cli-review`, or `/greploop`). If no PR/MR/CL number is given, `check-pr` and `greploop` auto-detect the PR/MR for the current branch, or the pending changelist for Perforce.\n\nFor self-hosted GitLab instances whose hostname doesn't contain \"gitlab\", pass `--vcs gitlab` explicitly. For Perforce, pass `--vcs perforce` if auto-detection fails.\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

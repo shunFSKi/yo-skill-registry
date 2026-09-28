@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/dagster-expert",
+  "type": "skill",
+  "name": "dagster-expert",
+  "description": "Expert guidance for working with Dagster and the dg CLI. ALWAYS use before doing any task that requires",
+  "author": "dagster-io",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/dagster-io/skills/tree/HEAD/skills/dagster-expert/skills/dagster-expert",
+    "repo": "dagster-io/skills"
+  },
+  "license": "Apache-2.0",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 210,
+    "pushed_at": null,
+    "score": 56,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 210
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "<div align=\"center\">\n  <img width=\"auto\" height=\"38px\" alt=\"dagster-hearts-claude\" src=\"https://github.com/user-attachments/assets/b162dddf-6a7e-459e-be06-29d34d637650\" />\n</div>\n\n# Dagster Skills\n\nAI assistant skills for building workflows and data pipelines using Dagster. It bundles the `dagster-expert` skill for authoring pipelines and the [Dagster+ MCP server](https://docs.dagster.io/getting-started/ai-tools/dagster-mcp) for access to your Dagster+ deployment.\n\n**Compatible with Claude Code, Cursor, OpenAI Codex, GitHub Copilot, OpenCode, Pi, and other Agent Skills-compatible tools.**\n\nAll install paths below deliver the `release-stable` branch, which moves to each weekly Dagster\nrelease. The `dagster` marketplace entry itself points at that branch, so the marketplace can be\nadded from `master` and still install released content.\n\n## Installation\n\n### Claude Code\n\nInstall using the\n[Claude plugin marketplace](https://code.claude.com/docs/en/discover-plugins#add-from-github):\n\n```\n/plugin marketplace add dagster-io/skills\n\n/plugin install dagster@dagster\n\n/dagster-expert \"What's an asset?\"\n```\n\nAuto-update is off by default for third-party marketplaces. To pick up new releases without\nreinstalling, run `/plugin`, open **Marketplaces**, select `dagster`, and enable auto-update.\n\nThe plugin includes the\n[Dagster+ MCP server](https://docs.dagster.io/getting-started/ai-tools/dagster-mcp), giving the skill direct\naccess to your deployed organization: runs, assets, deployments, code locations, alert policies,\nIssues, and insights metrics. Run `/mcp` to authenticate.\n\n```\n/mcp\n# authenticate dagster-plus\n\nFetch the run logs for the most recent run failure.\n```\n\nThe MCP URL points at the US region by default. If your organization is in the EU region, set the following environment variable before launching Claude Code:\n\n```bash\nexport DAGSTER_CLOUD_MCP_URL=https://mcp.agent.eu.dagster.cloud/mcp\n```\n\n### Using `npx skills`\n\nInstall using the [`npx skills`](https://skills.sh/) command-line:\n\n```bash\nnpx skills add dagster-io/skills#release-stable\n```\n\nThis installs the skill into every agent it detects (Claude Code, Codex, Cursor, Copilot, OpenCode,\nPi, and others). It copies skills only; the bundled MCP server is not configured this way.\n\n### OpenAI Codex\n\nCodex reads the same marketplace manifest as Claude Code:\n\n```bash\ncodex plugin marketplace add dagster-io/skills --ref release-stable\ncodex plugin add dagster@dagster\n```\n\n### GitHub Copilot CLI\n\nCopilot's marketplace schema has no `git-subdir` source, so install the plugin directly:\n\n```bash\ncopilot plugin install dagster-io/skills:plugins/dagster\n```\n\nThis tracks `master`; Copilot has no documented way to target a branch.\n\n### Manual Installation\n\n<details>\n<summary>See full instructions...</summary>\n\nClone the repository and copy skills to your tool's skills directory:\n\n**OpenCode:**\n\n```bash\ngit clone --branch release-stable https://github.com/dagster-io/skills.git\ncp -r skills/plugins/dagster/skills/* ~/.config/opencode/skill/\n```\n\n**Pi Agent:**\n\n```bash\ngit clone --branch release-stable https://github.com/dagster-io/skills.git\ncp -r skills/plugins/dagster/skills/* ~/.pi/agent/skills/\n```\n\n</details>\n\n## Upgrading from `dagster-expert`\n\nThe Dagster skill now ships in a plugin named `dagster` rather than `dagster-expert`. The skill\nitself is unchanged and is still invoked with `/dagster-expert`.\n\n`dagster-expert` remains installable for now, but has become a stub that carries no Dagster guidance and only points here. To migrate:\n\n```\n/plugin install dagster@dagster\n\n/plugin uninstall dagster-expert\n```\n\nIf you install `dagster` without uninstalling `dagster-expert`, two plugins\nprovide a skill named `dagster-expert` and the deprecated stub may be used instead of the real one.\n\nThe `dagster-expert` plugin will be removed in a future release. After that, installations of it\nreport `Plugin dagster-expert not found in marketplace dagster` and stop loading.\n\n## Skills\n\n### `dagster-expert`\n\nExpert guidance for building production-quality Dagster projects, covering CLI commands, asset patterns, automation strategies, and implementation workflows.\n\n**What you can do:**\n\n- Create and scaffold projects, assets, schedules, and sensors\n- Understand asset patterns (dependencies, partitions, multi-assets, metadata)\n- Implement automation (declarative automation, schedules, sensors)\n- Use CLI commands (launch, list, check, scaffold, logs)\n- Design project structure and configure environments\n- Follow implementation workflows and best practices\n- Debug issues and validate project configuration\n\n**Example prompts:**\n\n```\nCreate a new Dagster project called analytics\nHow do I scaffold a new asset?\nShow me how to set up declarative automation\nWhat's the proper way to partition my assets?\nHelp me debug why my materialization failed\nHow should I structure my project for multiple pipelines?\nLaunch all assets tagged with priority=high\n```\n\n## Dagster+ MCP\n\nDirect access to Dagster+ data about your deployment, including run logs, Insights, and select actions to remediate failures.\n\nThe MCP server uses your user permissions when determining the MCP server permissions. To use custom permissions, see the documentation for alternative authentication methods [here](https://docs.dagster.io/getting-started/ai-tools/dagster-mcp#connecting-to-the-mcp-server)\n\n**What you can do:**\n\n- Launch runs, materialize assets, re-run runs and backfills\n- Fetch run logs\n- Fetch asset definitions and metadata\n- Fetch deployments and deployment information.\n- Create and update alert policies and fetch their notifications\n- Fetch Insights metrics for assets, jobs, and deployments\n\n**Example prompts:**\n\n```\nFetch the logs for run <run id>, investigate why it failed, and propose a solution.\nWhat is the materialization success rate over the past month?\nHow often has the customer_returns_job failed in the past quarter?\nWhat assets in my deployment are not covered by an alert policy?\n```\n\n## Contributing\n\nSee [CONTRIBUTING.md](./CONTRIBUTING.md).\n\n<div align=\"center\">\n  <img alt=\"dagster logo\" src=\"https://github.com/user-attachments/assets/6fbf8876-09b7-4f4a-8778-8c0bb00c5237\" width=\"auto\" height=\"16px\">\n</div>\n",
+  "status": "curated"
+}

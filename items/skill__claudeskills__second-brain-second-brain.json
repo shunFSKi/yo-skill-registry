@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/second-brain-second-brain",
+  "type": "skill",
+  "name": "second-brain",
+  "description": "Set up a new Obsidian knowledge base with the LLM Wiki pattern. Use when the user wants to create a second brain, initialize a vault, set up a personal knowledge base, or says \"onboard\". Guides through an interactive wizard to configure vault name, location, domain, agent support, and tooling.",
+  "author": "nicholasspisak",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/nicholasspisak/second-brain/tree/HEAD/skills/second-brain",
+    "repo": "nicholasspisak/second-brain"
+  },
+  "license": null,
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 729,
+    "pushed_at": null,
+    "score": 61,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 729
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "AI",
+    "featured": false
+  },
+  "readme": "# Second Brain\n\nAn LLM-maintained personal knowledge base built on the [LLM Wiki pattern](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f). Drop raw sources into a folder, let the LLM compile them into a structured wiki, and browse it all in Obsidian.\n\n![Second Brain Overview](docs/assets/second-brain-overview.png)\n\n## How It Works\n\nYou feed raw material (articles, papers, notes, transcripts) into a `raw/` folder. The LLM reads everything, writes structured wiki pages, creates cross-references, and maintains an index. You browse the results in Obsidian — following links, exploring the graph view, and asking questions.\n\nThe LLM is the librarian. You're the curator.\n\n## Prerequisites\n\n- **[Obsidian](https://obsidian.md)** — the markdown editor you'll browse your wiki in\n- **An AI coding agent** — [Claude Code](https://claude.ai/code), [Codex](https://openai.com/codex), [Cursor](https://cursor.com), [Gemini CLI](https://github.com/google-gemini/gemini-cli), or any agent that supports [Agent Skills](https://agentskills.io)\n- **[Node.js](https://nodejs.org)** — required for installing the skills via npm\n\n## Install\n\n```bash\nnpx skills add NicholasSpisak/second-brain\n```\n\nThis installs four skills into your AI agent (Claude Code, Codex, Cursor, Gemini CLI, and 40+ others):\n\n| Skill | What it does |\n|---|---|\n| `/second-brain` | Set up a new vault (guided wizard) |\n| `/second-brain-ingest` | Process raw sources into wiki pages |\n| `/second-brain-query` | Ask questions against your wiki |\n| `/second-brain-lint` | Health-check the wiki |\n\n## Quick Start\n\n1. **Install the skills** (see above)\n2. **Run the wizard:** type `/second-brain` in your AI agent — it walks you through naming, location, domain, and tooling\n3. **Install Web Clipper:** [Obsidian Web Clipper](https://chromewebstore.google.com/detail/obsidian-web-clipper/cnjifjpddelmedmihgijeibhnjfabmlf) — configure it to save to your vault's `raw/` folder\n4. **Open in Obsidian** — launch Obsidian, choose \"Open folder as vault\", select your vault folder\n5. **Clip your first article** to `raw/`, then run `/second-brain-ingest` — the LLM will discuss key takeaways and build wiki pages\n6. **Browse your wiki** in Obsidian — follow `[[wikilinks]]`, explore the graph view, check `wiki/index.md`\n7. **Keep going** — `/second-brain-query` to ask questions, `/second-brain-lint` to health-check\n\n## What You Get\n\n```\nyour-vault/\n├── raw/                    # Your inbox — drop sources here\n│   └── assets/             # Images and attachments\n├── wiki/                   # LLM-maintained wiki\n│   ├── sources/            # One summary per ingested source\n│   ├── entities/           # People, orgs, products, tools\n│   ├── concepts/           # Ideas, frameworks, theories\n│   ├── synthesis/          # Comparisons, analyses, themes\n│   ├── index.md            # Master catalog of all pages\n│   └── log.md              # Chronological operation record\n├── output/                 # Reports and generated artifacts\n└── CLAUDE.md               # Agent config (varies by agent)\n```\n\n## Optional Tools\n\nThe wizard offers to install these. All optional but recommended:\n\n- **[summarize](https://github.com/steipete/summarize)** — summarize links, files, and media from the CLI\n- **[qmd](https://github.com/tobi/qmd)** — local search engine for markdown files (useful as wiki grows)\n- **[agent-browser](https://github.com/vercel-labs/agent-browser)** — browser automation for web research\n\n## FAQ\n\n**The wizard failed or I need to re-run setup.**\nRun `/second-brain` again — the onboarding script is idempotent. It won't overwrite existing files, so your data is safe. If you need a fresh start, delete the vault folder and re-run.\n\n**I accidentally modified a file in `raw/`.**\nThat's OK. The wiki was built from the original content. If you need the original back, check your git history (if the vault is a git repo) or re-clip the source. The wiki pages are unaffected.\n\n**`wiki/index.md` is out of sync with actual pages.**\nRun `/second-brain-lint` — it checks index consistency and offers to fix mismatches.\n\n**Wikilinks are broken after renaming a page.**\nRun `/second-brain-lint` — it scans for broken `[[wikilinks]]` and reports which files need updating.\n\n**The wiki is getting large and queries are slow.**\nInstall `qmd` (`npm i -g @tobilu/qmd`). The query skill uses it automatically when available. It provides fast hybrid search across your wiki files.\n\n**Can I use this with multiple AI agents?**\nYes. The wizard generates config files for each agent you select. They all follow the same wiki schema, so multiple agents can work on the same vault.\n\n**How do I handle images in clipped articles?**\nIn Obsidian, set Settings → Files and links → Attachment folder path to `raw/assets/`. After clipping an article, use \"Download attachments for current file\" to save images locally.\n\n**How often should I lint?**\nAfter every 10 ingests or monthly — whichever comes first. Also run it before any major query or synthesis work.\n\n## Based On\n\n- [Andrej Karpathy's LLM Wiki pattern](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)\n- [Agent Skills open standard](https://agentskills.io)\n- [Blueprint & origin story](docs/REQUIREMENTS.md) — the founding document for this project\n\n---\n\n<p align=\"center\">Want to learn how to build projects like this with AI? Join the <a href=\"https://www.skool.com/buildwithai/about\">Build With AI</a> community.</p>\n",
+  "status": "curated"
+}

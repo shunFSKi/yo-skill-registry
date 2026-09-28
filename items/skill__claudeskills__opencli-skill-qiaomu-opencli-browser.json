@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/opencli-skill-qiaomu-opencli-browser",
+  "type": "skill",
+  "name": "qiaomu-opencli-browser",
+  "description": "Make websites accessible for AI agents. Navigate, click, type, extract, wait — using Chrome with existing login sessions. No LLM API key needed.",
+  "author": "joeseesun",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/joeseesun/qiaomu-opencli-skills/tree/HEAD/qiaomu-opencli-browser",
+    "repo": "joeseesun/qiaomu-opencli-skills"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 992,
+    "pushed_at": null,
+    "score": 62,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 992
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# Qiaomu OpenCLI Skills\n\n> 基于 [jackwener/opencli](https://github.com/jackwener/opencli) 的 Claude Code Skills 集合\n\n[![Upstream](https://img.shields.io/badge/upstream-jackwener%2Fopencli-blue)](https://github.com/jackwener/opencli)\n[![Version](https://img.shields.io/badge/version-1.6.9-green)](https://github.com/jackwener/opencli/releases)\n[![License](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)\n\n将 79+ 网站和桌面应用转化为 CLI 接口，让 AI Agent 能够直接操作浏览器、搜索内容、发布推文、下载视频等。\n\n## 🎯 核心能力\n\n- **79+ 网站适配器**：Bilibili、Twitter、Reddit、小红书、知乎、YouTube、HackerNews 等\n- **桌面应用控制**：Cursor、Codex、ChatGPT、Notion、微信等 Electron 应用\n- **浏览器自动化**：通过 CDP 直接控制 Chrome，复用登录状态\n- **智能搜索路由**：自动选择最佳数据源（AI 源 + 专用源）\n- **适配器生成**：从任意 URL 自动生成 CLI 适配器\n- **自动修复**：损坏的适配器自动诊断和修复\n\n## 📦 Skills 列表\n\n| Skill | 描述 | 使用场景 |\n|-------|------|----------|\n| **qiaomu-opencli-usage** | 79+ 适配器的完整命令参考 | 查询热门、搜索、发布、下载等日常操作 |\n| **qiaomu-opencli-browser** | 浏览器自动化控制 | 需要直接操作浏览器时（点击、输入、截图） |\n| **qiaomu-opencli-explorer** | 适配器创建完整指南 | 为新网站创建 CLI 适配器 |\n| **qiaomu-opencli-oneshot** | 快速生成单个命令 | 从 URL 快速生成一次性适配器 |\n| **qiaomu-opencli-autofix** | 适配器自动修复 | 适配器失效时自动诊断修复 |\n| **qiaomu-smart-search** | 智能搜索路由器 | 自动选择最佳搜索源 |\n\n## 🚀 快速开始\n\n### 1. 安装 OpenCLI\n\n```bash\nnpm install -g @jackwener/opencli\n```\n\n### 2. 安装浏览器扩展\n\n1. 从 [Releases](https://github.com/jackwener/opencli/releases) 下载 `opencli-extension.zip`\n2. 解压后在 `chrome://extensions` 加载解压后的文件夹\n3. 确保 Chrome 已登录目标网站\n\n### 3. 安装 Skills\n\n```bash\n# 安装所有 skills\nnpx skills add joeseesun/qiaomu-opencli-skills\n\n# 或单独安装\nnpx skills add joeseesun/qiaomu-opencli-skills --skill qiaomu-opencli-usage\nnpx skills add joeseesun/qiaomu-opencli-skills --skill qiaomu-smart-search\n```\n\n### 4. 验证安装\n\n```bash\nopencli doctor\nopencli list\nopencli hackernews top --limit 5\n```\n\n## 💡 使用示例\n\n### 热门内容\n\n```bash\n# B站热门\nopencli bilibili hot --limit 10 -f json\n\n# Twitter 趋势\nopencli twitter trending -f json\n\n# HackerNews 头条\nopencli hackernews top --limit 20 -f json\n\n# 小红书 feed\nopencli xiaohongshu feed -f json\n```\n\n### 搜索\n\n```bash\n# 搜索 B站\nopencli bilibili search --keyword \"AI\" -f json\n\n# 搜索知乎\nopencli zhihu search --keyword \"大模型\" -f json\n\n# 搜索 YouTube\nopencli youtube search --query \"LLM tutorial\" -f json\n```\n\n### 发布内容\n\n```bash\n# 发推\nopencli twitter post --text \"Hello from CLI!\"\n\n# 回复推文\nopencli twitter reply --url \"https://x.com/.../status/123\" --text \"Great!\"\n```\n\n### 下载\n\n```bash\n# 下载小红书图片\nopencli xiaohongshu download --note-id abc123 --output ./xhs\n\n# 下载 B站视频\nopencli bilibili download --bvid BV1xxx --output ./bilibili\n```\n\n### 桌面应用控制\n\n```bash\n# Cursor\nopencli cursor send \"refactor this function\"\n\n# ChatGPT\nopencli chatgpt ask \"explain quantum computing\"\n\n# Notion\nopencli notion search --keyword \"meeting notes\"\n```\n\n### 智能搜索\n\n```bash\n# 自动路由到最佳数据源\nopencli smart-search \"最新 AI 论文\"\nopencli smart-search \"React 最佳实践\"\n```\n\n## 🏗️ 架构\n\n```\nqiaomu-opencli-skills/\n├── qiaomu-opencli-usage/       # 主要使用技能\n│   ├── SKILL.md\n│   └── commands.md             # 完整命令参考\n├── qiaomu-opencli-browser/     # 浏览器自动化\n│   └── SKILL.md\n├── qiaomu-opencli-explorer/    # 适配器创建\n│   └── SKILL.md\n├── qiaomu-opencli-oneshot/     # 快速生成\n│   └── SKILL.md\n├── qiaomu-opencli-autofix/     # 自动修复\n│   └── SKILL.md\n└── qiaomu-smart-search/        # 智能搜索\n    ├── SKILL.md\n    └── references/             # 数据源配置\n```\n\n## 🔧 认证体系\n\nOpenCLI 支持 5 级认证：\n\n1. **public** - 公开 API，无需认证\n2. **cookie** - 复用浏览器 Cookie（最常用）\n3. **header** - 需要 API Token\n4. **intercept** - 拦截请求获取 Token\n5. **ui** - 桌面应用 CDP 控制\n\n## 📚 支持的网站（部分）\n\n### 社交媒体\nTwitter/X, Reddit, 小红书, 知乎, 微博, Instagram, Facebook, Bluesky\n\n### 视频平台\nBilibili, YouTube, TikTok, 抖音\n\n### 技术社区\nHackerNews, V2EX, Linux.do, Stack Overflow, GitHub\n\n### AI 工具\nGrok, Doubao, ChatGPT, Gemini, Cursor, Codex, NotebookLM\n\n### 金融\n雪球, Yahoo Finance, Barchart, 新浪财经, Bloomberg\n\n### 其他\nGoogle, Wikipedia, arXiv, Medium, Substack, BOSS直聘, LinkedIn\n\n## 🤝 贡献\n\n本项目基于 [jackwener/opencli](https://github.com/jackwener/opencli)，主要贡献应提交到上游仓库。\n\n本仓库专注于：\n- 为 Claude Code 优化 Skills 文档\n- 添加中文使用示例\n- 维护 qiaomu 前缀的 Skills 版本\n\n## 📄 许可证\n\nMIT License - 详见 [LICENSE](./LICENSE)\n\n## 📱 关注作者\n\n如果这个项目对你有帮助，欢迎关注我获取更多技术分享：\n\n- **X (Twitter)**: [@vista8](https://x.com/vista8)\n- **微信公众号「向阳乔木推荐看」**\n\n## 🔗 相关链接\n\n- [上游项目](https://github.com/jackwener/opencli)\n- [OpenCLI 文档](https://github.com/jackwener/opencli#readme)\n- [Claude Code Skills](https://github.com/anthropics/claude-code)\n",
+  "status": "curated"
+}

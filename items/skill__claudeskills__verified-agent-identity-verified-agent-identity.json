@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/verified-agent-identity-verified-agent-identity",
+  "type": "skill",
+  "name": "verified-agent-identity",
+  "description": "Manage decentralized identities (DIDs) on the Billions Network — create, list, link to a human owner, and verify ownership.",
+  "author": "billionsnetwork",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/billionsnetwork/verified-agent-identity/tree/HEAD/reference/identity",
+    "repo": "billionsnetwork/verified-agent-identity"
+  },
+  "license": null,
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 757,
+    "pushed_at": null,
+    "score": 61,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 757
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Verified Agent Identity\n\nA decentralized identity management toolkit for AI agents using iden3 protocol on Billions Network.\n\n## Overview\n\nThis skill enables AI agents to create, manage, link, prove and verify ownership of decentralized identities (DIDs) using cryptographic signatures.\n\n## Installation\n\n### Agent CTA:\n\n1. Ask bot to install the skill:\n\n   Install with clawhub:\n\n   ```plaintext\n   Install the skill `npx clawhub@latest install verified-agent-identity`\n   ```\n\n   Or install with skills.sh:\n\n   ```plaintext\n   Intall the skill `npx skills add BillionsNetwork/verified-agent-identity`\n   ```\n\n   Or\n\n   ```plaintext\n   Install the `verified-agent-identity` skill from the OpenClaw clawhub.ai.\n   ```\n\n2. (Optional) If the verification process did not start automatically after installation, ask your bot to initialize the process by sending a message like:\n\n   ```plaintext\n   Please link your agent identity to me.\n   ```\n\n### Human CTA:\n\n1. Install the skill:\n\n   Use clawhub to install the skill:\n\n   ```bash\n   npx clawhub@latest install verified-agent-identity\n   ```\n\n   Use skills.sh to install the skill:\n\n   ```bash\n   npx skills add BillionsNetwork/verified-agent-identity\n   ```\n\n2. Create a new identity:\n\n   ```bash\n   # Generate a new key and create a new identity\n   node scripts/createNewEthereumIdentity.js\n   ```\n\n   Or\n\n   ```bash\n   # Use an existing private key to create an identity\n   BILLIONS_NETWORK_MASTER_KMS_KEY=\"<your-strong-secret>\" node scripts/createNewEthereumIdentity.js --key <your-ethereum-private-key>\n   ```\n\n   > **Warning**: Only pass a **dedicated identity key** to `--key` — never an Ethereum wallet key that holds assets. If the key file is exposed, any key stored here could be used to impersonate the agent or, if reused, to control the associated wallet.\n\n3. Generate a verification link to connect your human identity to the agent:\n\n   ```bash\n   node scripts/manualLinkHumanToAgent.js --challenge '{\"name\": \"Agent Name\", \"description\": \"Short description of the agent\"}'\n   ```\n\n   This prints the verification URL to the console. Open it in your browser to complete the identity linking process.\n\n## Features\n\n- **Identity Creation**: Generate new DIDs with random or existing Ethereum private keys\n- **Identity Management**: List and manage multiple identities with default identity support\n- **Human-Agent Linking**: Link a human identity to an agent's DID through signed challenges\n- **Proof Generation**: Generate cryptographic proofs to authenticate as a specific identity\n- **Proof Verification**: Verify proofs to confirm identity ownership\n\n## Architecture\n\n### Runtime Requirements\n\n- **Node.js `>= v20`** and **npm** are required to run the scripts.\n\n### Dependency Surface\n\nnpm dependencies are intentionally minimal and scoped to well-established, audited packages:\n\n| Package                | Purpose                                                      |\n| ---------------------- | ------------------------------------------------------------ |\n| `@0xpolygonid/js-sdk`  | iden3/Privado ID cryptographic primitives and key management |\n| `@iden3/js-iden3-core` | DID and identity core types                                  |\n| `@iden3/js-iden3-auth` | JWS/JWA authorization response construction and verification |\n| `ethers`               | Ethereum key utilities                                       |\n| `uuid`                 | UUID generation for protocol message IDs                     |\n\nCore libraries governing identity management use pinned, well-tested versions to ensure stability and security.\n\n### Key Storage and Isolation\n\nAll cryptographic material is persisted to `$HOME/.openclaw/billions/` — a directory that lives **outside the agent's workspace**:\n\n| File               | Contents                                                                           |\n| ------------------ | ---------------------------------------------------------------------------------- |\n| `kms.json`         | Private keys — per-entry versioned format; keys are plain or AES-256-GCM encrypted |\n| `identities.json`  | Identity metadata                                                                  |\n| `defaultDid.json`  | Active DID and associated public key                                               |\n| `challenges.json`  | Per-DID challenge history                                                          |\n| `credentials.json` | Verifiable credentials                                                             |\n\nAfter the first run, restrict access to this directory: `chmod 700 ~/.openclaw/billions`\n\nThere are several ways of storing private keys, to enable master key encryption as described in the **KMS Encryption** section below.\n\n### KMS Encryption\n\n> See [SECURITY.md](SECURITY.md) for the full threat model, the rationale for shipping a plaintext storage mode, and the operator hardening checklist.\n\nSet the environment variable `BILLIONS_NETWORK_MASTER_KMS_KEY` to enable AES-256-GCM at-rest encryption for the private keys inside `kms.json`. When set, every key value is individually encrypted on write; when absent, keys are stored as plain hex strings.\n\n**`kms.json` entry format**\n\nEach entry in the array is versioned. The `alias` is always stored in plaintext — only the `key` value is encrypted:\n\n```json\n[\n  {\n    \"version\": 1,\n    \"provider\": \"plain\",\n    \"data\": {\n      \"alias\": \"secp256k1:abc123\",\n      \"key\": \"deadbeef...\",\n      \"createdAt\": \"2026-03-12T13:46:04.094Z\"\n    }\n  },\n  {\n    \"version\": 1,\n    \"provider\": \"encrypted\",\n    \"data\": {\n      \"alias\": \"secp256k1:xyz456\",\n      \"key\": \"<iv_hex>:<authTag_hex>:<ciphertext_hex>\",\n      \"createdAt\": \"2026-02-11T13:00:02.032Z\"\n    }\n  }\n]\n```\n\n**Behavior summary**\n\n| `BILLIONS_NETWORK_MASTER_KMS_KEY` | `provider` on disk | `key` value on disk     |\n| --------------------------------- | ------------------ | ----------------------- |\n| Not set                           | `\"plain\"`          | Raw hex string          |\n| Set                               | `\"encrypted\"`      | `iv:authTag:ciphertext` |\n\n> **Backward compatibility** — the legacy format `[ { \"alias\": \"...\", \"privateKeyHex\": \"...\" } ]` is still read correctly. On the first write the file is automatically migrated to the new per-entry format. No manual step is required.\n\n**How to set the variable**\n\n_Option 1 — openclaw skill config (recommended for agent deployments):_\n\nAdd an `env` block for the skill inside your openclaw config:\n\n```json\n\"skills\": {\n  \"entries\": {\n    \"verified-agent-identity\": {\n      \"env\": {\n        \"BILLIONS_NETWORK_MASTER_KMS_KEY\": \"<your-strong-secret>\"\n      }\n    }\n  }\n}\n```\n\n_Option 2 — shell or process environment:_\n\n```bash\nexport BILLIONS_NETWORK_MASTER_KMS_KEY=\"<your-strong-secret>\"\nnode scripts/createNewEthereumIdentity.js\nnode scripts/manualLinkHumanToAgent.js --challenge '{\"name\": \"Agent Name\", \"description\": \"Short description of the agent\"}'\n```\n\nFor all other ways to pass environment variables to a skill see the [OpenClaw environment documentation](https://docs.openclaw.ai/help/environment).\n\n**CRITICAL**: Save master keys securely and do not share them. If the master key is lost, all encrypted keys will be lost.\n\n### Network and External Binary Policy\n\n- All external https calls will be made to trusted resources. Signed JWS attestation (proof of agent ownership) is encoded securely by utilizing robust security practices. It requires an explicit user consent to pass it to any other source.\n- All network calls are directed to legitimate DID resolvers (resolver.privado.id) or the project's own infrastructure (billions.network). These network calls cannot exfiltrate signed attestations or identity data to other third-party services by skill design. Wallet interaction is possible only through explicit action from the user side with consent. Also attestation contains only publicly verifiable information.\n- Whitelisted domains:\n  - `resolver.privado.id` (DID resolution)\n  - `billions.network` (Billions Network interactions)\n  - `polygonid.me` (Polygon ID interactions)\n\n## Documentation\n\nSee [SKILL.md](SKILL.md) for detailed usage instructions and examples.\n",
+  "status": "curated"
+}

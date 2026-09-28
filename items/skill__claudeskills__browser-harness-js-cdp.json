@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/browser-harness-js-cdp",
+  "type": "skill",
+  "name": "cdp",
+  "description": "Drive Chrome via the DevTools Protocol from JavaScript. Run JS snippets through the `browser-harness-js` CLI — it auto-spawns a long-lived bun HTTP server holding a fully-typed CDP `Session`, and every call (`browser-harness-js 'await session.Page.navigate(...)'`) executes against the same persistent connection. Session, active target, and globals survive across calls. Use when the user wants to automate, script, or inspect a Chrome browser via CDP — single tab or multi-tab, attach to existing Chrome or to a new one launched with --remote-debugging-port.",
+  "author": "browser-use",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/browser-use/browser-harness-js",
+    "repo": "browser-use/browser-harness-js"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 489,
+    "pushed_at": null,
+    "score": 59,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 489
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "<img src=\"https://r2.browser-use.com/github/asbfgihsbfbaosfjla.png\" alt=\"Browser Harness\" width=\"100%\" />\n\n# Browser Harness JS ♞\n\nThe thinnest possible bridge from the LLM to Chrome. **No harness, no recipes, no rails** — just every CDP method as a typed JS call.\n\nOne persistent WebSocket, 56 domains, 652 typed wrappers, zero wrapping of what Chrome already does.\n\n```\n  ● agent: wants to click a button\n  │\n  ● no click() helper, no upload_file(), no goto()\n  │\n  ● agent writes the CDP call itself        await session.Input.dispatchMouseEvent({...})\n  │                                          await session.DOM.setFileInputFiles({...})\n  ✓ done — same pattern for all 652 methods\n```\n\n**The protocol is the API.** If Chrome can do it, you can call it.\n\n## Installation\n\n```bash\nnpx skills add https://github.com/browser-use/browser-harness-js --skill cdp\n```\n\nOr paste this into your agent — it'll install the skill, put the CLI on your PATH, and run a first task:\n\n```text\nRun `npx skills add https://github.com/browser-use/browser-harness-js --skill cdp`, then\nsymlink `browser-harness-js` into a directory on my PATH, then use the cdp skill to drive\nmy browser: look at all the tabs I have open, group them by topic, and screenshot the most\ninteresting one.\n```\n\n(The CLI auto-installs [`bun`](https://bun.sh) on first run if it's missing. Set `BROWSER_HARNESS_SKIP_BUN_INSTALL=1` to opt out.)\n\nIf Chrome asks you to tick a remote-debugging checkbox, do it — that's how the agent attaches:\n\n<img src=\"docs/setup-remote-debugging.png\" alt=\"Remote debugging setup\" width=\"520\" style=\"border-radius: 12px;\" />\n\nSee [interaction-skills/](interaction-skills/) for recipes on the mechanics that are not obvious from the CDP method list alone.\n\n## Files\n\n- `SKILL.md` — day-to-day usage; how to connect, pick a tab, call methods, persist state\n- `sdk/browser-harness-js` — tiny CLI that auto-spawns the server and forwards snippets\n- `sdk/repl.ts` — Bun HTTP server holding one persistent `Session`\n- `sdk/session.ts` — the `Session` class: transport, connect, target routing, events\n- `sdk/gen.ts` — codegen: reads `browser_protocol.json` + `js_protocol.json` → typed wrappers\n- `sdk/generated.ts` — every CDP method as `session.<Domain>.<method>(params)` (generated)\n\nNo helpers file. No `click()`, no `goto()`, no `upload_file()` — just the protocol, typed.\n\n## Why no pre-baked helpers?\n\nEvery helper is a lie about what CDP already gives you. `click(x, y)` hides `Input.dispatchMouseEvent` — which has 14 parameters the LLM might need (button, clickCount, modifiers, pointerType, force, tangentialPressure, …). A harness that exposes three of them quietly limits what the agent can do.\n\n- Types are the docs. `session.Page.navigate(` triggers autocomplete with the exact params — same JSDoc as the CDP reference.\n- No version drift. The SDK is regenerated from the upstream protocol JSON; new Chrome methods appear as soon as you swap the JSON.\n- No \"helper doesn't handle my case\" detours. If CDP can do it, the agent can call it — directly, typed, today.\n\nThe only \"helpers\" you'll find are things CDP itself is missing:\n- `listPageTargets()` — filters `chrome://` / `devtools://` out of `Target.getTargets`\n- `resolveWsUrl({wsUrl|port|profileDir})` — reads `DevToolsActivePort` for Chrome 144+\n- `session.use(targetId)` / `session.waitFor(method, pred, timeout)` — the two routing primitives you genuinely need\n\n## Contributing\n\nPRs welcome. The best way to help: **contribute a new interaction skill** under [interaction-skills/](interaction-skills/) when you figure out the CDP recipe for something non-obvious (a dropdown framework, a shadow-DOM trap, a network-wait pattern).\n\n- Keep recipes in **pure CDP** — `session.Domain.method(...)`, not wrapped helpers.\n- Lead with the shortest method call that works; add the workaround or trap afterwards.\n- Small and focused beats comprehensive. One mechanic per file.\n- Bug fixes, codegen improvements, and `session.ts` refinements are equally welcome.\n\n---\n\n[Bitter lesson](https://browser-use.com/posts/bitter-lesson-agent-frameworks) · [Skills](https://browser-use.com/posts/web-agents-that-actually-learn)\n",
+  "status": "curated"
+}

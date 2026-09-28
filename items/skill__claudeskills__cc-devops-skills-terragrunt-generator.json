@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/cc-devops-skills-terragrunt-generator",
+  "type": "skill",
+  "name": "terragrunt-generator",
+  "description": "Generate/create/scaffold Terragrunt HCL files — root.hcl, terragrunt.hcl, child modules, stacks, multi-env layouts.",
+  "author": "akin-ozer",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/akin-ozer/cc-devops-skills/tree/HEAD/devops-skills-plugin/skills/terragrunt-generator",
+    "repo": "akin-ozer/cc-devops-skills"
+  },
+  "license": "Apache-2.0",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 315,
+    "pushed_at": null,
+    "score": 57,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 315
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# DevOps skills for Claude Code and Codex\n\n[![Mentioned in Awesome Claude Code](https://awesome.re/mentioned-badge-flat.svg)](https://github.com/hesreallyhim/awesome-claude-code)\n\nA practical skill pack for DevOps work in Claude Code and Codex desktop.\n\nThis repository ships **31 skills**:\n- **16 generators** for scaffolding production-ready configs\n- **14 validators** for linting, security checks, and dry-run validation\n- **1 debugger** (`k8s-debug`) for cluster troubleshooting\n\nThe goal is simple: make infra and pipeline work faster without skipping correctness checks.\n\n## Quick Install\n\n### Claude Code Plugin Marketplace\n\n```bash\n/plugin marketplace add akin-ozer/cc-devops-skills\n/plugin install devops-skills@akin-ozer\n```\n\n### Codex Desktop\n\nSkills only:\n\n```bash\n$skill-installer install https://github.com/akin-ozer/cc-devops-skills/tree/main/devops-skills-plugin/skills\n```\n\nManual plugin install:\n\n1. Clone the repo and link the packaged plugin into your local Codex plugin directory:\n\n```bash\ngit clone https://github.com/akin-ozer/cc-devops-skills.git ~/.codex/devops-skills\nmkdir -p ~/plugins ~/.agents/plugins\nln -s ~/.codex/devops-skills/devops-skills-plugin ~/plugins/devops-skills\n```\n\n2. Create or update `~/.agents/plugins/marketplace.json` so Codex can discover the plugin:\n\n```json\n{\n  \"name\": \"local-plugins\",\n  \"interface\": {\n    \"displayName\": \"Local Plugins\"\n  },\n  \"plugins\": [\n    {\n      \"name\": \"devops-skills\",\n      \"source\": {\n        \"source\": \"local\",\n        \"path\": \"./plugins/devops-skills\"\n      },\n      \"policy\": {\n        \"installation\": \"AVAILABLE\",\n        \"authentication\": \"ON_INSTALL\"\n      },\n      \"category\": \"Productivity\"\n    }\n  ]\n}\n```\n\nIf you already use `~/.agents/plugins/marketplace.json`, append the `devops-skills` entry instead of replacing the file.\n\nThe packaged Codex manifest lives at `devops-skills-plugin/.codex-plugin/plugin.json`. It exists alongside the Claude manifest and points at the same `skills/` directory.\n\n### Team Rollout\n\nAdd this to project-level `.claude/settings.json`:\n\n```json\n{\n  \"extraKnownMarketplaces\": {\n    \"devops-skills\": {\n      \"source\": {\n        \"source\": \"github\",\n        \"repo\": \"akin-ozer/cc-devops-skills\"\n      }\n    }\n  }\n}\n```\n\n## Drop-In GitHub Action Wrapper\n\nThis repository also publishes a **drop-in wrapper** around `anthropics/claude-code-action@v1`.\n\nReplace:\n\n```yaml\nuses: anthropics/claude-code-action@v1\n```\n\nWith:\n\n```yaml\nuses: akin-ozer/cc-devops-skills@v1\n```\n\nBehavior stays compatible with upstream `v1`, and DevOps skills are injected by default through:\n\n- Marketplace: `https://github.com/akin-ozer/cc-devops-skills.git`\n- Plugin: `devops-skills@akin-ozer`\n\nTag policy:\n\n- `akin-ozer/cc-devops-skills@v1` tracks this wrapper's latest `v1.x.y` release.\n- The wrapper internally calls `anthropics/claude-code-action@v1` (tag), not a pinned SHA.\n\nTo run as pure passthrough (no auto-injection):\n\n```yaml\nuses: akin-ozer/cc-devops-skills@v1\nwith:\n  inject_devops_skills: \"false\"\n```\n\nDocs and examples:\n\n- Wrapper details: [`docs/drop-in-wrapper.md`](docs/drop-in-wrapper.md)\n- IaC PR review workflow: [`examples/github-actions/iac-pr-review.yml`](examples/github-actions/iac-pr-review.yml)\n- Compatibility drift check: [`scripts/check_upstream_action_surface.sh`](scripts/check_upstream_action_surface.sh)\n\n## How people use this repo\n\nMost workflows are generator + validator loops.\n\n```mermaid\nflowchart LR\n  A[\"Ask for generator skill\"] --> B[\"Create artifact\"]\n  B --> C[\"Run matching validator\"]\n  C --> D{\"Passes checks?\"}\n  D -- \"No\" --> E[\"Patch + re-run checks\"]\n  D -- \"Yes\" --> F[\"Ship to PR/CI\"]\n```\n\nTypical prompts:\n\n```text\nUse terraform-generator to scaffold a reusable AWS VPC module with outputs and examples.\nValidate ./infra/vpc with terraform-validator and list only high-severity findings.\nUse k8s-debug to diagnose pods stuck in Pending in namespace payments.\n```\n\n## What makes these skills useful\n\n- **Local-first validation pipelines**: many validator skills run shell/Python checks directly from their `scripts/` folders.\n- **Tool-aware workflows**: validators integrate with real tools like `terraform`, `tflint`, `checkov`, `helm`, `kubeconform`, `actionlint`, and `act`.\n- **CRD/provider documentation lookup**: Kubernetes/Helm/Terraform/Terragrunt/Ansible flows include explicit doc lookup paths for custom resources.\n- **Fallback behavior is defined**: when a tool is missing, many skills degrade gracefully and tell you exactly what was skipped.\n\n## Skill catalog (31)\n\n### Infrastructure as code (6)\n\n| Skill | Primary use |\n|---|---|\n| `ansible-generator` | Scaffold playbooks, roles, inventories, and vars |\n| `ansible-validator` | Validate/lint/security-check playbooks, roles, and inventories |\n| `terraform-generator` | Generate Terraform modules/resources/variables/outputs |\n| `terraform-validator` | Run Terraform validation, linting, security audit, and planning |\n| `terragrunt-generator` | Scaffold Terragrunt root/child/stack layouts |\n| `terragrunt-validator` | Validate Terragrunt HCL, stacks, and module wiring |\n\n### CI/CD pipelines (8)\n\n| Skill | Primary use |\n|---|---|\n| `azure-pipelines-generator` | Generate `azure-pipelines.yml` and reusable templates |\n| `azure-pipelines-validator` | Validate syntax/security/best-practice rules for Azure Pipelines |\n| `github-actions-generator` | Scaffold workflows and `action.yml` actions |\n| `github-actions-validator` | Validate and test workflows under `.github/workflows` |\n| `gitlab-ci-generator` | Generate `.gitlab-ci.yml` pipelines and job stages |\n| `gitlab-ci-validator` | Validate and secure GitLab CI configs |\n| `jenkinsfile-generator` | Generate declarative/scripted Jenkinsfiles |\n| `jenkinsfile-validator` | Validate Jenkinsfiles and shared-library pipeline code |\n\n### Containers and Kubernetes (7)\n\n| Skill | Primary use |\n|---|---|\n| `dockerfile-generator` | Create production-friendly Dockerfiles |\n| `dockerfile-validator` | Lint and security-check Dockerfiles |\n| `helm-generator` | Scaffold Helm charts, values, and templates |\n| `helm-validator` | Validate chart structure, templates, schemas, and CRD usage |\n| `k8s-yaml-generator` | Generate Kubernetes manifests (including CRDs) |\n| `k8s-yaml-validator` | Validate/lint/dry-run Kubernetes YAML |\n| `k8s-debug` | Troubleshoot runtime cluster failures |\n\n### Observability and Logging (6)\n\n| Skill | Primary use |\n|---|---|\n| `fluentbit-generator` | Generate Fluent Bit pipelines (`INPUT`/`FILTER`/`OUTPUT`) |\n| `fluentbit-validator` | Validate Fluent Bit config quality and safety |\n| `logql-generator` | Build LogQL queries and alert expressions |\n| `loki-config-generator` | Generate Loki server configs for common deployment modes |\n| `promql-generator` | Generate PromQL queries, recording rules, and alerts |\n| `promql-validator` | Validate and optimize PromQL queries/alerts |\n\n### Scripting and Build (4)\n\n| Skill | Primary use |\n|---|---|\n| `bash-script-generator` | Create shell scripts and CLI helpers |\n| `bash-script-validator` | Validate shell scripts with ShellCheck-oriented checks |\n| `makefile-generator` | Generate Makefiles with reusable targets |\n| `makefile-validator` | Validate Makefile correctness and anti-patterns |\n\n## Validator Internals (examples)\n\nThese are real execution patterns inside the skill instructions and scripts:\n\n| Skill | Validation pattern |\n|---|---|\n| `terraform-validator` | `terraform fmt` -> `tflint` -> `terraform validate` -> Checkov -> optional `terraform plan` |\n| `k8s-yaml-validator` | CRD detection -> `kubeconform` schema checks -> `kubectl --dry-run` flow |\n| `helm-validator` | `helm lint` -> `helm template` -> `kubeconform` -> optional cluster dry-run |\n| `github-actions-validator` | `actionlint` static checks + `act` runtime workflow tests |\n| `gitlab-ci-validator` | syntax + best-practice + security checks with strict/test-only modes |\n| `ansible-validator` | syntax/lint/check-mode + role tests + security checks |\n| `dockerfile-validator` | scripted lint/security path with fallback scanning modes |\n\n## Requirements\n\nYou do not need every tool for every skill. Install the tools for the domains you use.\n\n### Baseline\n\n- `bash`\n- `python3` (3.8+ recommended; 3.9+ for some security tooling)\n\n### Common Toolchain by Domain\n\n| Domain | Common tools |\n|---|---|\n| Terraform/Terragrunt | `terraform`, `tflint`, `terragrunt`, `checkov` |\n| Kubernetes/Helm | `kubectl`, `kubeconform`, `helm`, `yamllint` |\n| Docker | `hadolint` |\n| GitHub Actions | `actionlint`, `act` |\n| Shell scripting | `shellcheck` |\n| Prometheus | `promtool` |\n\n### Quick Install (macOS example)\n\n```bash\nbrew install terraform tflint terragrunt helm kubeconform kubectl hadolint\nbrew install actionlint act shellcheck prometheus yq fluent-bit\npipx install ansible ansible-lint checkov yamllint molecule\nhelm plugin install https://github.com/databus23/helm-diff\n```\n\n## Repo Layout\n\n```text\ncc-devops-skills/\n├── action.yml\n├── README.md\n├── LICENSE\n├── docs/\n│   └── drop-in-wrapper.md\n├── examples/\n│   └── github-actions/\n│       └── iac-pr-review.yml\n├── scripts/\n│   └── check_upstream_action_surface.sh\n├── .github/workflows/\n│   └── compat-check.yml\n└── devops-skills-plugin/\n    ├── .claude-plugin/plugin.json\n    ├── .codex-plugin/plugin.json\n    └── skills/\n        └── <skill-name>/\n            ├── SKILL.md\n            ├── scripts/\n            ├── references/\n            ├── assets/\n            ├── examples/\n            └── tests/ (or test/)\n```\n\n## Contributing\n\nSee [`CONTRIBUTING.md`](CONTRIBUTING.md) for the skill folder contract, required `SKILL.md` frontmatter, and generator/validator pairing conventions.\n\nContributions are welcome for:\n- new skills in adjacent DevOps domains\n- better validator coverage and safer defaults\n- test fixtures and regression tests\n- improved docs/examples for real production scenarios\n\n## License\n\nApache-2.0\n",
+  "status": "curated"
+}

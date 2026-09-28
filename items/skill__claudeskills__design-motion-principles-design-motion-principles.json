@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/design-motion-principles-design-motion-principles",
+  "type": "skill",
+  "name": "design-motion-principles",
+  "description": "Motion and interaction design expert based on Emil Kowalski, Jakub Krehel, and Jhey Tompkins' techniques. Two modes — build interactive components with purposeful motion, or audit existing animations to catch AI-slop motion patterns (audit emits a branded HTML report with looping demos). Use when creating, adding, animating, or reviewing UI motion: transitions, hover states, micro-interactions, enter/exit animations, or any motion design work in React, Framer Motion, CSS, or HTML. Provides per-designer perspectives with context-aware weighting.",
+  "author": "kylezantos",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/kylezantos/design-motion-principles/tree/HEAD/skills/design-motion-principles",
+    "repo": "kylezantos/design-motion-principles"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 1151,
+    "pushed_at": null,
+    "score": 63,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 1153
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "设计",
+    "featured": false
+  },
+  "readme": "# Design Motion Principles\n\nA motion and interaction design skill with **two modes** — **build** interactive components with purposeful motion, or **audit** existing animations. Both modes give context-aware, per-designer guidance drawn from three distinct motion-design lenses.\n\nDistilled from the publicly published work of **Emil Kowalski**, **Jakub Krehel**, and **Jhey Tompkins** (see [Credits](#credits)).\n\n## Installation\n\n```bash\nnpx skills add kylezantos/design-motion-principles\n```\n\nWorks with Claude Code, Cursor, Windsurf, and other AI coding assistants.\n\n## What It Does\n\nThe skill applies three distinct motion-design philosophies, weighted by your project's context:\n\n| Lens | Philosophy | Key question | Best for |\n|------|-----------|--------------|----------|\n| **Emil Kowalski** | Restraint & speed | \"Should this animate at all?\" | Productivity tools, high-frequency interactions |\n| **Jakub Krehel** | Production polish | \"Is this subtle enough?\" | Shipped consumer apps, professional refinement |\n| **Jhey Tompkins** | Creative experimentation | \"What could this become?\" | Kids apps, portfolios, playful contexts |\n\nThe point isn't a single set of rules — it's the productive tension between three lenses that genuinely disagree. Emil would cut an animation Jhey would add. The skill weights them to your context instead of applying one philosophy everywhere.\n\n### Two Modes\n\n**Create** — Build interactive components with motion baked in. The skill runs a light discovery (project context + which lenses to weight), then generates components — React, Framer Motion, CSS, or HTML — applying the right recipes, accessibility, and performance defaults.\n\n**Audit** — Review existing motion design. The skill does reconnaissance on your project, runs a motion-gap analysis (finds UI that *should* animate but doesn't), checks the code against an anti-AI-slop checklist (pulsing indicators, hover-scale-on-everything, stagger-spam, and other 2026 AI-generated motion tells), proposes a per-lens weighting, and delivers a **branded HTML report** with auto-looping CSS demos beside each Critical and Important finding. Pass `--terminal` for the inline markdown report instead.\n\nThe skill detects which mode you want from your request. If it's ambiguous, it asks.\n\n### Key Features\n\n1. **Context-aware weighting** — Maps your project type (productivity tool, kids app, marketing site, dashboard…) to a primary/secondary/selective lens weighting before doing anything.\n\n2. **Motion gap analysis** (Audit) — Searches for conditional UI that should be animated but isn't: conditional renders without `AnimatePresence`, dynamic styles without transitions, instant state swaps.\n\n3. **Anti-AI-slop checklist** (Audit) — A quality gate that flags the recognizable motion fingerprints of AI-generated UIs: pulsing indicators, blur-everywhere entrances, hover-scale-on-everything, stagger-spam, bouncy springs on utility actions, uniform fade-ins, motion-on-mount for static content. Each category has a frequency heuristic so single intentional uses don't trip it.\n\n4. **Branded HTML report** (Audit) — The default audit output is a self-contained HTML file with auto-looping CSS demos beside each Critical and Important finding, so you can *see* the recommended motion instead of reading code. Writes to `motion-audits/`, opens in your browser. `--terminal` falls back to the inline markdown report for headless/CI use.\n\n5. **Motion cookbook** (Create) — A single, consolidated recipe library: enter/exit animations, easing, springs, clip-path, `@property`, shared-layout/FLIP, scroll-driven animation.\n\n6. **Creation gotchas** (Create) — Built-in self-check against the common failure modes of AI-generated motion: decorative-by-default animation, `scale(0)` starts, bare `ease`, missing `prefers-reduced-motion`.\n\n## Usage\n\nOnce installed, just ask in natural language.\n\n**To build:**\n```\nAdd a polished enter/exit animation to this modal\nBuild an animated toast component for this dashboard\n```\n\n**To audit:**\n```\nAudit the motion design in this codebase\nReview the animations in this component\n```\n\n### Example: Audit output\n\n```\n## Reconnaissance Complete\n\n**Project type**: Kids educational app, mobile-first PWA\n**Existing animation style**: Spring animations (500-600ms), framer-motion\n**Motion gaps found**: 4 conditional renders without AnimatePresence\n\n**Proposed perspective weighting**:\n- **Primary**: Jakub Krehel — Production polish for a shipped consumer app\n- **Secondary**: Jhey Tompkins — Playful experimentation for kids\n- **Selective**: Emil Kowalski — Only for high-frequency game interactions\n\nDoes this approach sound right?\n```\n\n## What's Included\n\n```\nskills/\n  └── design-motion-principles/\n      ├── SKILL.md                     # Router: mode detection + shared principles\n      ├── workflows/\n      │   ├── create.md                # Build interactive components\n      │   └── audit.md                 # Review existing motion design\n      └── references/\n          ├── motion-cookbook.md       # All motion recipes (single source of truth)\n          ├── creation-gotchas.md      # Failure modes when generating motion\n          ├── audit-checklist.md       # Structured audit criteria\n          ├── anti-checklist.md        # Quality gate: AI-slop categories + anti-patterns\n          ├── demo-shell.html          # Minimal single-card template for HTML-report demos\n          ├── report-template.html     # Full worked-example audit report (HTML output reference)\n          ├── emil-kowalski.md         # Emil's philosophy & decision frameworks\n          ├── jakub-krehel.md          # Jakub's philosophy & decision frameworks\n          ├── jhey-tompkins.md         # Jhey's philosophy & decision frameworks\n          ├── accessibility.md         # Motion accessibility guidelines\n          ├── performance.md           # Performance best practices\n          └── output-format.md         # Report template (HTML + terminal modes)\n```\n\n## Manual Installation\n\nIf you prefer not to use `npx skills add`:\n\n**Global (all projects):**\n```bash\ngit clone https://github.com/kylezantos/design-motion-principles.git\ncp -r design-motion-principles/skills/design-motion-principles ~/.claude/skills/\n```\n\n**For Cursor:**\n```bash\ncp -r design-motion-principles/skills/design-motion-principles ~/.cursor/skills/\n```\n\n## Credits\n\nThis skill is an interpretation and distillation of motion-design principles from the **publicly published** work — courses, articles, talks, and open-source projects — of three designers. The three-lens weighting framework and the \"through X's lens\" framing are this skill's own synthesis, named in tribute. The skill is **not authored or endorsed** by the designers below; for their actual work, go to the source:\n\n- **Emil Kowalski** — [emilkowal.ski](https://emilkowal.ski), [animations.dev](https://animations.dev), [Sonner](https://sonner.emilkowal.ski), [Vaul](https://vaul.emilkowal.ski)\n- **Jakub Krehel** — [krehel.com](https://krehel.com)\n- **Jhey Tompkins** — [jhey.dev](https://jhey.dev), [@jh3yy](https://twitter.com/jh3yy)\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

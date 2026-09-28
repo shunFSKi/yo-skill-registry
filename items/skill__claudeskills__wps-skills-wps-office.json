@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/wps-skills-wps-office",
+  "type": "skill",
+  "name": "wps-office",
+  "description": "WPS Skills | WPS Office 智能助手 | WPS Office AI Assistant",
+  "author": "lc2panda",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/lc2panda/wps-skills/tree/HEAD/skills/wps-office",
+    "repo": "lc2panda/wps-skills"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 630,
+    "pushed_at": null,
+    "score": 57,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 630
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# WPS Skills\n\n> 此项目的任何功能、架构更新，必须在结束后同步更新相关文档。这是我们契约的一部分。\n\nAI编程助手通过自然语言操控WPS Office的MCP工具集。\n\n## 项目定位\n\n本项目是MCP Server + Skills框架，让AI助手（Claude Code/Cursor/Augment等）能操控WPS Office。\n- 231个MCP专业工具 + 12个内置工具 = 243个\n- 支持Excel(82工具) / Word(28工具) / PPT(112工具) / 通用(9工具)\n- 支持macOS、Windows、Linux\n\n## 前提条件\n\n- 已安装 WPS Office（https://www.wps.cn/ 或 https://www.wps.com/）\n- Node.js >= 18.0.0\n- Git\n\n## 自动安装（AI执行）\n\n以下步骤由AI助手自动执行。需要人类交互的步骤标注 ⚠️。\n\n### 步骤1: 克隆项目\n\n```bash\ngit clone https://github.com/lc2panda/wps-skills.git\ncd wps-skills\n```\n\n如果项目已存在，跳过此步。\n\n### 步骤2: 安装依赖并编译\n\n```bash\ncd wps-office-mcp\nnpm install\nnpm run build\ncd ..\n```\n\n### 步骤3: 配置MCP Server\n\n根据使用的AI工具，将以下配置写入对应文件。注意将路径替换为实际的项目绝对路径。\n\n**Claude Code** — 写入 `~/.claude/settings.json`：\n```json\n{\n  \"mcpServers\": {\n    \"wps-office\": {\n      \"command\": \"node\",\n      \"args\": [\"/你的路径/wps-skills/wps-office-mcp/dist/index.js\"]\n    }\n  }\n}\n```\n\n**Cursor** — 写入项目根目录 `.cursor/mcp.json`：\n```json\n{\n  \"mcpServers\": {\n    \"wps-office\": {\n      \"command\": \"node\",\n      \"args\": [\"/你的路径/wps-skills/wps-office-mcp/dist/index.js\"]\n    }\n  }\n}\n```\n\n**OpenAI Codex CLI** — 写入 `~/.codex/config.toml`：\n```toml\n[mcp_servers.wps-office]\ncommand = \"node\"\nargs = [\"/你的路径/wps-skills/wps-office-mcp/dist/index.js\"]\n```\n或命令行注册：`codex mcp add wps-office -- node /你的路径/wps-skills/wps-office-mcp/dist/index.js`\n\n**Augment / 其他MCP兼容IDE** — 参考各IDE的MCP Server配置文档，使用相同的command和args。本项目 MCP Server 为标准 stdio 实现（spec 2025-11-25），与所有 MCP 一等客户端（Claude Code / Cursor / Codex CLI / GitHub Copilot CLI / Windsurf 等）兼容。\n\n### 步骤4: 安装WPS加载项\n\n⚠️ 需要人工操作（AI无法直接操作WPS应用）：\n\n```bash\n# macOS\nbash scripts/auto-install-mac.sh\n\n# Windows (PowerShell)\npowershell scripts/install.ps1\n\n# Linux\nbash scripts/install.sh\n```\n\n⚠️ 安装后必须重启WPS Office才能生效。\n\n### 步骤5: 安装Skills（仅Claude Code需要）\n\n```bash\n# 创建skills目录（如不存在）\nmkdir -p ~/.claude/skills\n\n# 创建符号链接\nln -sf \"$(pwd)/skills/wps-excel\" ~/.claude/skills/wps-excel\nln -sf \"$(pwd)/skills/wps-word\" ~/.claude/skills/wps-word\nln -sf \"$(pwd)/skills/wps-ppt\" ~/.claude/skills/wps-ppt\nln -sf \"$(pwd)/skills/wps-office\" ~/.claude/skills/wps-office\n```\n\n### 步骤6: 验证安装\n\n```bash\n# 验证MCP Server可启动\nnode wps-office-mcp/dist/index.js &\n# 应看到 \"MCP Server started successfully\" 日志\nkill %1 2>/dev/null\n```\n\n## 架构\n\n```\nSkills层(SKILL.md自然语言指导)\n  ↓ Claude Code调用\nMCP Server层(239个工具)\n  ↓ wpsClient.executeMethod()\n执行层\n  ├── macOS: wps-claude-assistant (227 action, HTTP轮询)\n  └── Windows: wps-com.ps1 (231 action, COM接口)\n```\n\n## 工具清单\n\n| 应用 | 工具数 | 主要能力 |\n|------|--------|---------|\n| Excel | 82 | 公式/数据/图表/透视表/工作表/格式/工作簿/行列/批注保护/图片导出 |\n| Word | 28 | 格式/内容/文档管理/页眉页脚/批注/模板填写/段落结构 |\n| PPT | 112 | 幻灯片/形状/图片/表格/美化/动画/图表/3D/数据可视化/图片导出 |\n| 通用 | 9 | 保存/连接检测/文本选取/格式转换 |\n| 内置 | 12 | 连接检查/万能方法调用/数据缓存 |\n\n## 故障排除\n\n| 问题 | 解决方案 |\n|------|---------|\n| MCP连接失败 | 确认 `npm install && npm run build` 已执行，检查dist/index.js存在 |\n| WPS未响应 | 重启WPS Office，确认加载项已安装 |\n| \"arguments error\" | 重新运行安装脚本，重启WPS |\n| Linux找不到插件 | 查看INSTALL.md中的Linux专用指南 |\n| 工具调用返回null | 确认WPS中已打开对应类型的文档 |\n\n## 许可证\n\nMIT\n",
+  "status": "curated"
+}

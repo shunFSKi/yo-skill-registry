@@ -1,0 +1,69 @@
+{
+  "id": "mcp:official/io.github.sangaraju1988/amu-pgvector",
+  "type": "mcp",
+  "name": "amu-pgvector",
+  "description": "Lineage-gated agent memory tools on Postgres + pgvector, enforced by row-level security.",
+  "author": "io.github.sangaraju1988",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/sangaraju1988/amu-pgvector",
+    "repo": "sangaraju1988/amu-pgvector"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "amu-pgvector"
+    ],
+    "env": [
+      {
+        "name": "AMU_PGVECTOR_DSN",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "AMU_PGVECTOR_EMBEDDING_DIM",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-28T20:10:29.441635Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "AI",
+    "featured": false
+  },
+  "readme": "# amu-pgvector\n\nReference implementation of **Lineage-Aware Memory Governance**\n(Sangaraju & Vissa, *IEEE Access*, [10.1109/ACCESS.2026.3730363](https://doi.org/10.1109/ACCESS.2026.3730363))\non PostgreSQL + [pgvector](https://github.com/pgvector/pgvector).\n\n## The problem\n\nSay Finance computes `avg(income)` for a customer segment and caches the\nresult so the next agent that asks the same question doesn't have to\nrecompute it. Later, a Marketing agent asks a semantically similar\nquestion -- \"what's the average customer income by segment?\" -- and a\nnaive shared memory, gated only on the metric's name or content tags,\nserves back Finance's cached result. Marketing was never permitted to see\n`income`. The result itself doesn't *look* like income -- it's a number --\nbut it was **derived from** a column Marketing isn't permitted to touch,\nand nothing about matching on metric name or content catches that. That's\nthe leak this project closes: gating reuse on *how a result was derived*,\nnot on what it looks like.\n\n## 60-second quickstart\n\n```bash\ngit clone https://github.com/sangaraju1988/amu-pgvector.git\ncd amu-pgvector\ndocker compose up -d\npsql -h localhost -p 5433 -U amu_owner -d amu_dev -f sql/amu_pgvector.sql\n# password: amu_owner_password\n```\n\n```bash\nuv sync --all-packages --all-extras   # or: pip install amu-pgvector\n```\n\n```python\nfrom amu_pgvector import AMUStore\nfrom amu_pgvector.embeddings import fake_embedder\n\nDSN = \"postgresql://amu_owner:amu_owner_password@localhost:5433/amu_dev\"\nembed = fake_embedder(dim=1536)  # swap for a real embedding model in production\n\nadmin = AMUStore(DSN)\nadmin.register_sensitive_column(\"income\")\nadmin.grant_department_permission(\"Finance\", \"income\")\nadmin.create_agent_role(\"finance_agent\", \"Finance\", \"finance_pw\")\nadmin.create_agent_role(\"marketing_agent\", \"Marketing\", \"marketing_pw\")\n\nadmin.record(\n    \"SELECT avg(income) FROM customers\",\n    {\"avg\": 82000},\n    metric_name=\"avg_income\",\n    description=\"average customer income\",\n    owner_department=\"Finance\",\n    embed_fn=embed,\n)\n\nfinance_dsn = \"postgresql://finance_agent:finance_pw@localhost:5433/amu_dev\"\nmarketing_dsn = \"postgresql://marketing_agent:marketing_pw@localhost:5433/amu_dev\"\n\nAMUStore(finance_dsn).search(\"average customer income\", k=5, embed_fn=embed)\n# -> [SearchResult(metric_name='avg_income', ...)]\n\nAMUStore(marketing_dsn).search(\"average customer income\", k=5, embed_fn=embed)\n# -> [] -- Marketing was never granted `income`, so Postgres itself\n#          never returns the row, regardless of how the query is asked.\n```\n\nEvery line above was run against this exact repo before being written\nhere (see `docs/design.md` for what a from-scratch install actually looks\nlike). `amu_owner`/`amu_owner_password` is the docker-compose default --\nchange it for anything beyond local development.\n\n## How the gate works\n\n`amu.memory_units` is a normal Postgres table with `FORCE ROW LEVEL\nSECURITY` enabled. Every write goes through a trigger that extracts the\nlineage of the SQL that actually produced the cached result (via\n[amu-governance](https://github.com/sangaraju1988/amu-governance)'s\n`sql_lineage` module -- not self-reported by the agent), closes it over any\nregistered materialized-view/derived-table edges, and computes S(a): the\nset of sensitive columns that lineage actually touches. A `SELECT` policy\nenforces `S(a) ⊆ P(d)` -- the row is visible only if every column in S(a)\nis in the requesting role's permitted set P(d) -- for every query against\nthe table, from every client: raw SQL, `amu.search()`, the Python client,\nthe LangChain integration, and the MCP server all go through the same\npolicy, because it's the table's policy, not any one client's filter.\n\n```mermaid\nsequenceDiagram\n    participant Writer as amu_writer role<br/>(trusted interception layer)\n    participant PG as Postgres: amu.memory_units<br/>(FORCE ROW LEVEL SECURITY)\n    participant Trigger as BEFORE INSERT trigger\n    participant Finance as finance_agent role\n    participant Marketing as marketing_agent role\n\n    Writer->>PG: INSERT ... lineage = {\"steps\":[{\"table\":\"customers\",\"columns_used\":[\"income\"]}]}\n    PG->>Trigger: compute lineage_columns, S(a), lineage_status\n    Trigger-->>PG: sensitive_columns = {income}, resolved\n\n    Finance->>PG: SELECT ... (session_user = finance_agent)\n    PG->>PG: S(a)={income} subset P(Finance)={income,...}? yes\n    PG-->>Finance: row returned\n\n    Marketing->>PG: SELECT ... (session_user = marketing_agent)\n    PG->>PG: S(a)={income} subset P(Marketing)={...}? no\n    PG-->>Marketing: row not returned\n```\n\nSee [`docs/design.md`](docs/design.md) for how every paper concept maps to\na specific SQL object, and [`docs/sql-reference.md`](docs/sql-reference.md)\nfor an exhaustive reference of every table, function, role and policy.\n\n## Security model and limits\n\n**Protected:** cross-department leakage of a cached result's derivation\ncolumns (the core guarantee, enforced by RLS); silent metric-definition\nconflicts (`amu.check_conflict()`); a column reclassified as sensitive\n*after* AMUs already exist (a trigger recomputes affected rows, no\nrewrite needed); lineage closure that silently truncates a long or cyclic\nderivation chain (fails closed -- marks the AMU unresolved and invisible,\nrather than serving a partially-traced result).\n\n**Explicitly out of scope:** a writer that lies about lineage (the SQL\ngate trusts `amu_writer`'s input by design); inference by combining\nseveral individually-permitted AMUs; Postgres superusers, who always\nbypass RLS; timing side channels; a \"convenience mode\" identity option\n(off by default) that's only as safe as the boundary between trusted\napplication code and agent-influenced code on a pooled connection.\n\nFull writeup: [`docs/threat-model.md`](docs/threat-model.md).\n\n## Benchmarks\n\nEvery number below is quoted directly from\n[`results/SUMMARY.md`](results/SUMMARY.md), generated by\n`benchmarks/generate_summary.py` from committed `results/<name>/<timestamp>/`\nruns (git SHA, Postgres/pgvector versions, hardware, seed and parameters\nin each run's `manifest.json`). Re-run the benchmark scripts yourself to\nreproduce or challenge these; nothing here is estimated.\n\n**Leak rate** (2000 requests over 600 synthetic AMUs, Finance/Marketing/Support):\n\n| Condition | Served | Cross-department leaks | Leak rate |\n|---|---|---|---|\n| Naive (content-gated, no lineage check) | 2000 | 1010 | 50.5% |\n| amu-pgvector (RLS-gated) | 990 | 0 | 0.0% |\n\n**Latency** (p50/p95 at k=10; RLS and `hnsw.iterative_scan` each on/off,\nsame role/queries/data per row):\n\n| n | RLS | iterative_scan | p50 (ms) | p95 (ms) |\n|---|---|---|---|---|\n| 10,000 | on | on (`amu.search()` default) | 66.8 | 70.2 |\n| 10,000 | on | off | 81.9 | 88.2 |\n| 10,000 | off | on | 19.5 | 21.8 |\n| 10,000 | off | off | 49.2 | 52.3 |\n| 100,000 | on | on (`amu.search()` default) | 712.9 | 851.2 |\n| 100,000 | on | off | 43.4 | 65.7 |\n| 100,000 | off | on | 376.8 | 418.5 |\n| 100,000 | off | off | 46.6 | 70.9 |\n\nRead honestly: `hnsw.iterative_scan=relaxed_order` (what `amu.search()`\nuses by default, so that filtered results still hit k even when most rows\nare hidden) costs real latency at scale -- roughly 16x slower than\niterative-off at 100k rows in this run. That's the price of the recall\nguarantee below; if your visible fraction is consistently high, you may\nprefer to query without it. 1M-row scale was not attempted: the 100k HNSW\nindex build alone took about 7 minutes on the machine this was run on\n(Docker Desktop on macOS, sharing the host with unrelated workloads) --\nrecorded honestly rather than extrapolated.\n\n**Filtered recall** (recall@10 of gated HNSW search vs. exact brute-force\nover the same role's actually-visible rows, n=20,000):\n\n| Visible fraction | recall@10 (mean) | recall@10 (min) |\n|---|---|---|\n| 50% | 100.0% | 100.0% |\n| 10% | 100.0% | 100.0% |\n| 1% | 100.0% | 100.0% |\n\n## Integrations\n\n- **Plain SQL** -- `sql/amu_pgvector.sql` is the artifact that matters most:\n  idempotent, installs on a managed Postgres as a normal database owner\n  (no superuser), no C extensions beyond `vector`. Works identically on\n  Supabase and Neon (see `submissions/supabase-neon-guide.md` for a\n  from-scratch tutorial covering both).\n- **LangChain** -- `langchain-amu` provides `AMUVectorStore` and\n  `AMURetriever`. Every read runs under the store's own Postgres role, so\n  RLS gates LangChain the same way it gates raw SQL. See\n  `packages/langchain-amu/`.\n- **MCP** -- `pip install amu-pgvector[mcp]` adds an `amu-pgvector-mcp`\n  console script exposing `amu_search`, `amu_record` and\n  `amu_check_conflict` as tools, gated the same way. See\n  `packages/amu-pgvector/src/amu_pgvector/mcp_server.py`.\n\n## Citation\n\n```bibtex\n@article{sangaraju2026lineage,\n  title   = {Lineage-Aware Memory Governance: A Derivation-Gated Framework\n             for Privacy-Preserving Column-Level Access Control in\n             Enterprise AI Agents},\n  author  = {Sangaraju, Venkata and Vissa, Sudhir},\n  journal = {IEEE Access},\n  year    = {2026},\n  doi     = {10.1109/ACCESS.2026.3730363}\n}\n```\n\nSee [`CITATION.cff`](CITATION.cff) to also cite this software directly.\n\n## License\n\nMIT. See [`LICENSE`](LICENSE).\n\n## Related\n\n- Paper: Sangaraju & Vissa, *IEEE Access*, DOI [10.1109/ACCESS.2026.3730363](https://doi.org/10.1109/ACCESS.2026.3730363)\n- Reference library: [amu-governance](https://github.com/sangaraju1988/amu-governance) ([PyPI](https://pypi.org/project/amu-governance/))\n- [`docs/design.md`](docs/design.md) -- paper concepts mapped to SQL objects, plus every real gotcha found while building this\n- [`docs/threat-model.md`](docs/threat-model.md) -- what's protected, what's not\n- [`docs/sql-reference.md`](docs/sql-reference.md) -- every table, function, role and policy\n",
+  "status": "curated"
+}

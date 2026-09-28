@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/scroll-world-scroll-world",
+  "type": "skill",
+  "name": "scroll-world",
+  "description": "Build an immersive scroll-scrubbed \"fly through the world\" landing page for any industry or brand using Higgsfield. As the visitor scrolls, a pre-rendered camera flies from outside each scene into its interior, then flows on to the next scene with NO cuts — one continuous connected flight (Emons-style isometric diorama world, or any art direction you pick). The skill interviews the user for the topic, the story beats/sections, and brand kit, then generates cohesive scenes + seamless camera clips with Higgsfield and wires a portable, framework-agnostic scroll-scrub engine. Use when the user wants a \"3D world\" / \"browse-through-the-industry\" hero, a scroll cinematic, a diorama landing, or to turn a business into a scrollable world.",
+  "author": "oso95",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/oso95/scroll-world/tree/HEAD/skills/scroll-world",
+    "repo": "oso95/scroll-world"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 9558,
+    "pushed_at": null,
+    "score": 71,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 9562
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "营销",
+    "featured": false
+  },
+  "readme": "# scroll-world\n\n\nhttps://github.com/user-attachments/assets/b08e641e-985b-4bd4-83ff-6750272d0c37\n\n\nAn agent skill — for Claude Code, Codex, and any `SKILL.md`-compatible agent — that\nbuilds an immersive, **scroll-scrubbed \"fly through the world\" landing page** for any industry or brand — the kind where, as you scroll, a camera flies\nfrom *outside* each scene *into* its interior, then flows on to the next scene with **no\ncuts**. One continuous connected flight through a little generated world (think the Emons\nlogistics site, applied to whatever you want).\n\n## Install\n\n### Claude Code — as a plugin (recommended)\n\n```\n/plugin marketplace add oso95/scroll-world\n/plugin install scroll-world@scroll-world\n```\n\nThen just ask for a scroll-through world landing page, or invoke `/scroll-world`.\n\n### Codex & other agents — via the skills CLI\n\nUsing [Vercel's skills CLI](https://github.com/vercel-labs/skills), which installs into\nCodex, Claude Code, Cursor, and 20+ other agents:\n\n```bash\nnpx skills add oso95/scroll-world            # pick your agent(s) when prompted\nnpx skills add oso95/scroll-world -a codex   # or target Codex directly\n```\n\nIn Codex, invoke it with `$scroll-world` (or `/skills` to browse), or just ask for a\nscroll-through world landing page.\n\n### Manually (drop-in skill)\n\nCopy the skill folder into your agent's skills directory:\n\n```bash\ngit clone https://github.com/oso95/scroll-world\ncp -R scroll-world/skills/scroll-world ~/.claude/skills/   # Claude Code\ncp -R scroll-world/skills/scroll-world ~/.codex/skills/    # Codex\n```\n\n## Requirements\n\n- The [Monid CLI](https://monid.ai) with an API key and balance — the **default\n  video-chain backend** (Seedance 2.0, billed per clip in USD; see below).\n- The [Higgsfield CLI](https://higgsfield.ai), authenticated (`higgsfield auth login`),\n  with credits — renders the scene stills, the `kling3_0` fallback, and the whole\n  chain when Monid is absent.\n- `ffmpeg` / `ffprobe` for frame extraction and encoding.\n- Python 3 with Pillow (for the mobile portrait canvases; also the optional\n  transparent-scene knockout).\n- The [Codex CLI](https://github.com/openai/codex) (optional) — if present, the scene\n  stills can be generated through Codex's built-in `image_gen` (the same GPT Image\n  model), billed to a ChatGPT subscription instead of Higgsfield credits.\n- About the Monid default: verified 2026-07-25 — first/last-frame conditioning\n  frame-locks, so it renders the full seamless chain; frames travel via Monid's\n  free workspace file system. Pay-per-use with no subscription or monthly expiry\n  (a 6-scene 1080p chain ≈ $27). The skill re-checks the endpoint schema each\n  build and keeps qualification probes in the pipeline for when the catalog\n  changes; Higgsfield credits remain the fallback biller.\n\n## What it does\n\nIt generates the art with AI: cohesive isometric diorama scenes (GPT Image 2 — via\nHiggsfield, or the Codex CLI on a ChatGPT subscription) and the camera flights\nthemselves (Seedance image-to-video via **Monid by default**, pay-per-clip; Seedance\nor Kling on Higgsfield credits as fallback — only models that can frame-lock a\nseam), scrubbed\nby scroll position — the same technique behind Apple's scroll-through product pages. The\ncamera genuinely moves; scroll only drives time. It's **framework-agnostic**: you get the\nHiggsfield pipeline, the prompt templates, and a portable vanilla-JS scrub engine that\ndrops into plain HTML, Next.js, Vue, or a Python-served page — nothing assumes a stack.\n\nWhen invoked, the skill:\n\n1. **Interviews you** — the subject/industry + pitch, a brand kit (import from a URL, hand\n   it over, or have it proposed), art direction, the ordered scenes the camera visits,\n   whether you want the **mobile version** (a second chain rendered natively in 9:16\n   portrait — composed for phones, not a crop of the landscape film), and the **budget** —\n   render tiers and stills source shown with estimated credit costs, approved before\n   anything generates.\n2. **Generates the assets** — one still per scene, one \"dive-in\" camera\n   clip per scene, and the **connector** clips that join consecutive scenes, generated\n   from the actual rendered frames of their neighbours so every seam is frame-identical.\n   Mobile opt-in renders a parallel portrait chain the same way, frame-locked against its\n   own 9:16 renders.\n3. **Wires it up** — a config-driven scroll engine that plays the whole chain as one\n   flight, serving the portrait clips and posters automatically on phones.\n\n## What's in the skill\n\n```\nskills/scroll-world/\n├── SKILL.md                    the procedure + the seam rule + gotchas\n└── references/\n    ├── prompts.md              intake checklist + every Higgsfield prompt template\n    ├── pipeline.md             copy-paste batch scripts (generate → frames → connectors → encode)\n    ├── scrub-engine.js         portable, config-driven scrub engine (blob-seek, lazy load, seam crossfade)\n    ├── index-template.html     a minimal standalone page that mounts the engine\n    └── knockout.py             background knockout for floating scenes\n```\n\n## Notes\n\n- Asset generation costs money (~N image gens on Higgsfield credits + ~2N-1 video\n  gens billed per clip on Monid by default; the mobile chain doubles the video gens)\n  and takes a while — the skill runs generations in the background and polls. Monid\n  pricing is per-token and printed per run; Higgsfield pricing isn't exposed by its\n  CLI, so the skill calibrates against your live balance. Either way the estimated\n  total is stated before spending.\n- The generated `.mp4`/`.webp` assets are produced per project; they're not shipped here.\n\n## Star History\n\n<a href=\"https://www.star-history.com/?type=date&repos=oso95%2Fscroll-world\">\n <picture>\n   <source media=\"(prefers-color-scheme: dark)\" srcset=\"https://api.star-history.com/chart?repos=oso95/scroll-world&type=date&theme=dark&legend=top-left&sealed_token=rsHNX9eWfbhlu820oC1dzsc66Y8UZI4dawuHvAUlbn36F0gwOWXRDi-Qq4QFopkoEJE7bzgXPUkAmSnmMcglxAo_rM7TvGDKFehk5MzprmeT2euDRbHnTQZIxEWwjjpGQ3nodpdblW6WjTssURtDxXO2MCVL_WgJ_WnCIoVbV8qhsB_Z-Eeo8KCyVerC\" />\n   <source media=\"(prefers-color-scheme: light)\" srcset=\"https://api.star-history.com/chart?repos=oso95/scroll-world&type=date&legend=top-left&sealed_token=rsHNX9eWfbhlu820oC1dzsc66Y8UZI4dawuHvAUlbn36F0gwOWXRDi-Qq4QFopkoEJE7bzgXPUkAmSnmMcglxAo_rM7TvGDKFehk5MzprmeT2euDRbHnTQZIxEWwjjpGQ3nodpdblW6WjTssURtDxXO2MCVL_WgJ_WnCIoVbV8qhsB_Z-Eeo8KCyVerC\" />\n   <img alt=\"Star History Chart\" src=\"https://api.star-history.com/chart?repos=oso95/scroll-world&type=date&legend=top-left&sealed_token=rsHNX9eWfbhlu820oC1dzsc66Y8UZI4dawuHvAUlbn36F0gwOWXRDi-Qq4QFopkoEJE7bzgXPUkAmSnmMcglxAo_rM7TvGDKFehk5MzprmeT2euDRbHnTQZIxEWwjjpGQ3nodpdblW6WjTssURtDxXO2MCVL_WgJ_WnCIoVbV8qhsB_Z-Eeo8KCyVerC\" />\n </picture>\n</a>\n\n## License\n\nMIT — see [LICENSE](LICENSE).\n",
+  "status": "curated"
+}

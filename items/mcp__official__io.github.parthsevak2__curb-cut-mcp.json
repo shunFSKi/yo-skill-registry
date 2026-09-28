@@ -1,0 +1,85 @@
+{
+  "id": "mcp:official/io.github.parthsevak2/curb-cut-mcp",
+  "type": "mcp",
+  "name": "curb-cut-mcp",
+  "description": "Workplace accommodation options, cost evidence and drafts. Looks up and drafts; never sends.",
+  "author": "io.github.parthsevak2",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/parthsevak2/curb-cut",
+    "repo": "parthsevak2/curb-cut"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "curb-cut-mcp"
+    ],
+    "env": [
+      {
+        "name": "SF_ORG_ALIAS",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "CURB_CUT_SITE",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "TWILIO_NUMBER",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "CURB_CUT_SUPPORT_EMAIL",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "SF_CLI_MODULES",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-28T20:37:52.78018Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Curb Cut\n\nCurb Cut lets any worker ask for a workplace accommodation in their own words,\non the web with no login, by text or a call from a basic phone, by email, in a\nSlack DM, or through their own assistant, without ever disclosing a diagnosis.\nAn Agentforce agent holds the conversation; deterministic Apex decides what is\nstored and sent; a person on the access desk answers. First place, Builder\nTrack, Agentforce for Good Hackathon, Dreamforce 2026.\n\n```\ngit clone https://github.com/parthsevak2/curb-cut\ncd curb-cut\npython3 tests/invariants.py     # 521 structural checks, offline, about a second\n```\n\n**Feel it before you read anything:** type one sentence at\n[parthsevak2.github.io/curb-cut/try.html](https://parthsevak2.github.io/curb-cut/try.html)\nand watch the product's own ranking answer, entirely in your browser. The\nlanding page with the films is\n[parthsevak2.github.io/curb-cut](https://parthsevak2.github.io/curb-cut/), and\na print-ready break-room poster is\n[poster.html](https://parthsevak2.github.io/curb-cut/poster.html).\n\nThe story behind it, ten minutes: <https://parthsevak2.github.io/curb-cut/story.html>\n\nTo install it into your own Salesforce org, follow [DEPLOY.md](DEPLOY.md).\nIt needs Agentforce enabled; text and voice also need your own Twilio number\nand a small relay ([channels/](channels/)), and Slack needs the app created in\nyour workspace from the manifest. Four Custom Labels carry your deployment's\nnumber, site URL and support address.\n\n## Why it exists\n\n**The process for requesting a disability accommodation is itself an accessibility barrier.**\n\nTo get help you must first navigate a system designed by and for people without\nyour disability. Find the policy. Learn its vocabulary. Hold a corporate login.\nComplete a form. And disclose something you may be afraid to disclose, to a\nstranger, in writing, in a language that may not be your first.\n\nCost usually isn't the barrier.\n\nThe film, 4 minutes 59 seconds, with every channel shown live: <https://youtu.be/yleHLiwWRKA>. A 26-second recording of trying the ask page: <https://drive.google.com/file/d/13NApu8rq3MpJjuGG2yzKuJ2P02tKWwGx/view>. A three-minute cut: <https://drive.google.com/file/d/1Loqum6Kbk1noQazJDKrrVEnHzoU3biMD/view>\n\n| Evidence | Source |\n|---|---|\n| Across **655** large employers in 2025 the median share of staff who told their employer about a disability was **3.5%**, and it did not rise. By 2026, **98%** of them report accommodation programmes. | [Disability:IN 2025 Disability Index](https://disabilityin.org/resource/2025-disability-index-report/) and [2026 results](https://www.disabilityin.org/articles-and-updates/2026-disability-index-results-and-insights) |\n| In 2025, **22.8%** of Americans with a disability were employed against 65.2% without, and **30%** of those working were part time against 17%. | [US BLS, People with a Disability 2025](https://www.bls.gov/news.release/disabl.nr0.htm), released 3 March 2026 |\n| **61 of every 100** accommodations cost the employer nothing. Median one-time cost of the rest: **$300**. | [JAN employer survey](https://askjan.org/topics/costs.cfm), 5,406 employers, Jan 2019 to Dec 2024 |\n| **More than a third** of employed Canadians with a disability had an accommodation need **go unmet** in 2022. | [Statistics Canada](https://www.statcan.gc.ca/o1/en/plus/7142-more-canadians-disabilities-workforce-unmet-accommodation-needs-among-barriers-equity), Canadian Survey on Disability |\n| The **GC Workplace Accessibility Passport** already implements \"ask once, not forever\", and only for federal public servants. | [Government of Canada](https://www.canada.ca/en/government/publicservice/wellness-inclusion-diversity-public-service/diversity-inclusion-public-service/accessibility-public-service/government-canada-workplace-accessibility-passport.html) |\n\nCurb Cut is an Agentforce agent whose principal is **the worker, not the employer**.\n\n---\n\n## The demo deployment, September 2026\n\nThe hackathon deployment below is kept as a record of what judges tested. The\ndemo org and its number retire with the hackathon; your install has its own\naddresses on every row.\n\n| Surface | Address | State |\n|---|---|---|\n| Web | https://curbcut-dev-ed.develop.my.salesforce-sites.com/curbcut | live |\n| Ask (the whole flow, no phone) | `/curbcut/ask` | live |\n| Privacy | `/curbcut/privacy` | live |\n| Terms | `/curbcut/terms` | live |\n| SMS | a Twilio number the deployment owns | live, through a relay we run beside the org |\n| Voice | the same Twilio number | built, speech in and out |\n| Email | inbound service `CurbCutInbound`, address in Setup → Email Services | live |\n| Slack | `node channels/slack-app.mjs`, Socket Mode, DM only, never sends | live in a real workspace; manifest in `channels/slack-manifest.json` |\n| Agent | `Curb_Cut` v7, `Curb_Cut_Desk` v5 | both active |\n| Console (internal) | `/lightning/app/Curb_Cut_Console`, home tab `/lightning/n/Curb_Cut_Home`, org login needed | live |\n| Why now | `/curbcut/why` | live |\n| Messaging programme | `/curbcut/messaging` | live |\n| MCP server | `node channels/mcp-server.mjs` | 5 tools, none of which can send |\n| Any relay or assistant | `POST /services/apexrest/curbcut/v1/message/` | one door every channel above shares |\n\nThe console is the half of this that nobody demos. Every promise the assistant\nmakes about a person reaching a human being is worthless unless a human being\nhas somewhere to stand. `Human_Handoff__c` was creating records that said\n\"a person is picking this up\" with no surface for that person.\n\n| Console surface | What it is for |\n|---|---|\n| **On Duty** (app home) | Three queues in the order they should be worked, with standing orders above them |\n| Waiting for a person | Someone asked for a human and is currently getting silence |\n| Awaiting a decision | Approved requests an employer has not answered, nearest deadline first |\n| Needs an interpreter | Signed video, waiting on a person, never machine translated |\n| Curb Cut Overview (dashboard) | Where the system is failing people, in five panels |\n| Record feeds | Two people often work one request, so the conversation lives on the record |\n\nNothing in the console shows a diagnosis, because there is no field for one.\nAn operator who is asked what a person has can only answer that nobody knows\nand nobody can find out.\n\n## The four principles\n\n1. **The agent's principal is the worker.** Nothing leaves that the person did not personally approve.\n2. **No channel is the real one.** Text, voice, email and web are equal front doors.\n3. **Ask before you disclose.** A real answer without identifying yourself or naming anything about your body.\n4. **Ask once, not forever.** Standing preferences travel ahead of you.\n\n## What is deliberately not built\n\n- **No automated sign language.** ASL is a complete language; recognition is unsolved. Signed video routes to a human, with immediate text acknowledgement so nobody waits in silence.\n- **No diagnosis field.** It isn't encrypted or restricted. It's absent. CI fails the build if anyone adds one.\n- **No phone fallback, ever.** `Reachable_By__c` accepts a message channel or email, and the code refuses a telephone number.\n- **No inference.** Nothing is profiled or predicted. Every signal is one the person set.\n\n## Verification\n\nNothing below is asserted from memory. Each number is the output of the command\nbeside it, and `tests/sync_counts.py` rewrites the published counts from the\ninvariant suite's own output so they cannot drift.\n\n```\n147 Apex tests                 sf apex run test -o curbcut -l RunLocalTests\n552 structural invariants      python3 tests/invariants.py            ~1s, no org\n517 accessibility checks       python3 tests/a11y_audit.py            against the live pages\n122 Sa11y checks               npm run test:a11y                      Salesforce's own axe-core matcher\n 34 accessibility-tree checks  node tests/ax_tree_audit.mjs           what a screen reader is handed\n 34 controls by keyboard       node tests/keyboard_walk.mjs           real Tab presses; set CURB_CUT_SITE\n 21 responsible-AI checks      python3 tests/rai_self_check.py        against Salesforce's five guidelines\n 28 contrast checks            python3 tests/contrast_audit.py        both themes, from the tokens\n 16 reading-level checks       python3 tests/reading_level_audit.py\n 76 link and copy checks       python3 tests/link_and_copy_audit.py\n23/23 adversarial assertions   node tests/headless_agent_api.mjs && python3 tests/score_adversarial.py\n```\n\nTwo of those suites break their own checks on purpose and assert each one goes\nred (`--selftest`). A suite that cannot fail proves nothing about the code it\npasses. The adversarial suite once scored 21 of 23, and both failures were\npublished with their transcripts rather than averaged away; the agent's\nrefusal wording and the scorer have since converged, and the suite passes\nwhole. The habit stands: a miss gets reported, never smoothed.\n\n## Repository map\n\n| Path | What |\n|---|---|\n| `force-app/main/default/objects/` | 9 objects, 61 fields, 31 list views, and no field for a diagnosis |\n| `force-app/main/default/classes/` | 19 Apex classes + 15 test classes |\n| `force-app/main/default/lwc/` | 5 Lightning Web Components, each with a Sa11y suite beside it |\n| `force-app/main/default/aiAuthoringBundles/` | two Agent Scripts: `Curb_Cut` public, `Curb_Cut_Desk` internal |\n| `force-app/main/default/pages/` `components/` `sites/` | the public site, six pages, anonymous |\n| `force-app/main/default/emailservices/` | inbound email channel |\n| `force-app/main/default/applications/` `tabs/` `flexipages/` | the internal console |\n| `force-app/main/default/reports/` `dashboards/` | five reports and the overview dashboard, no names anywhere |\n| `channels/` | SMS + voice relay, Slack app (Socket Mode), MCP server, Twilio configuration |\n| `tests/` | the twelve suites above, plus `screen_reader_walk.mjs`, which writes docs/SCREEN-READER-WALK.md |\n| `deck/` | the deck as source; the built copy lives in `docs/hackathon/` |\n| `docs/hackathon/` | the September 2026 hackathon record: judge guides, reflections, deck, stills |\n| `legal/` | privacy and terms source |\n| `docs/` | architecture, BRD, evidence, audience, decisions, the two audit reports |\n\nStart with [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md), then\n[`CRITIQUE.md`](CRITIQUE.md), which is where the honest list of what is still\nweak lives.\n\n## Documentation\n\n| Document | Purpose |\n|---|---|\n| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | How it fits together, with diagrams |\n| [`docs/BRD.md`](docs/BRD.md) | Business requirements and traceability |\n| [`docs/ROADMAP.md`](docs/ROADMAP.md) | What is next, and what was rejected |\n| [`docs/DECISIONS.md`](docs/DECISIONS.md) | Every significant call and why |\n| [`docs/EVIDENCE.md`](docs/EVIDENCE.md) | Every public figure, with source, denominator and caveat |\n| [`docs/AGENT-INTERFACES.md`](docs/AGENT-INTERFACES.md) | Headless, MCP, agent-to-agent, and the profile we will not build |\n| [`CRITIQUE.md`](CRITIQUE.md) | What is still wrong |\n| [`FINDINGS.md`](FINDINGS.md) | Adversarial run results |\n| [`CI.md`](CI.md) | Pipeline and invariants |\n| [`DEPLOY.md`](DEPLOY.md) | Deployment |\n\n---\n\nBuilt by Parth Sevak. Welland, Ontario, Canada.\nAgentforce for Good, Dreamforce 2026 · Builder Track · Abilityforce.\n\n## License\n\nApache 2.0. The accommodation library ships in the repo with a source citation\non every row. Use it, fork it, run it in your own org.\n",
+  "status": "curated"
+}

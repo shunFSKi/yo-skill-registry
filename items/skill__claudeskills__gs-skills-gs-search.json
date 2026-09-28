@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/gs-skills-gs-search",
+  "type": "skill",
+  "name": "gs-search",
+  "description": "Search Google Scholar for academic papers by keywords. Returns results with title, authors, journal, year, citation count, and full-text links. Use when the user wants to search Google Scholar.",
+  "author": "cookjohn",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/cookjohn/gs-skills/tree/HEAD/skills/gs-search",
+    "repo": "cookjohn/gs-skills"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 517,
+    "pushed_at": null,
+    "score": 59,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 517
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "写作",
+    "featured": false
+  },
+  "readme": "# Google Scholar Skills for Claude Code\n\n[English](#english) | [中文](#中文)\n\n| WeChat Official Account (公众号) | WeChat Group (微信群) | Discord |\n|:---:|:---:|:---:|\n| <img src=\"qrcode_for_gh_a1c14419b847_258.jpg\" width=\"200\"> | <img src=\"0320.jpg\" width=\"200\"> | [Join Discord](https://discord.gg/tGd5vTDASg) |\n| 未来论文实验室 | 扫码加入交流群 | English & Chinese |\n\n---\n\n<a id=\"english\"></a>\n\n## English\n\n[Claude Code](https://docs.anthropic.com/en/docs/claude-code) skills that let Claude interact with [Google Scholar](https://scholar.google.com) through Chrome DevTools MCP.\n\nSearch papers, track citations, get full-text links, and export to Zotero — all from the Claude Code CLI.\n\n### Prerequisites\n\n- [Claude Code](https://docs.anthropic.com/en/docs/claude-code) CLI installed\n- Chrome browser with remote debugging enabled\n- [Zotero](https://www.zotero.org/) desktop app (optional, for export)\n- Python 3 (optional, for Zotero push script)\n\n### Skills\n\n| Skill | Description | Invocation |\n|-------|-------------|------------|\n| `gs-search` | Keyword search with structured result extraction | `/gs-search deep learning` |\n| `gs-advanced-search` | Filtered search: author, journal, date range, exact phrase, title-only | `/gs-advanced-search author:Einstein after:2020 relativity` |\n| `gs-cited-by` | Find papers that cite a given paper via data-cid | `/gs-cited-by 0qfs6zbVakoJ` |\n| `gs-fulltext` | Get full-text access links: PDF, DOI, Sci-Hub, publisher | `/gs-fulltext 0qfs6zbVakoJ` |\n| `gs-navigate-pages` | Pagination for search results | `/gs-navigate-pages next` |\n| `gs-export` | Export to Zotero via BibTeX extraction | `/gs-export 0qfs6zbVakoJ` |\n\n### Agent\n\n**`gs-researcher`** — orchestrates all 6 skills. Handles CAPTCHA detection (pauses and asks user to solve manually) and multi-step workflows like \"search → track citations → export to Zotero\".\n\n### Installation\n\n#### 1. Install Chrome DevTools MCP server\n\n```bash\nclaude mcp add chrome-devtools -- npx -y chrome-devtools-mcp@latest\n```\n\n#### 2. Install Google Scholar skills\n\n```bash\ngit clone https://github.com/cookjohn/gs-skills.git\ncd gs-skills\ncp -r skills/ agents/ .claude/\n```\n\nOr add to an existing project:\n\n```bash\ngit clone https://github.com/cookjohn/gs-skills.git /tmp/gs-skills\ncp -r /tmp/gs-skills/skills/ your-project/.claude/skills/\ncp -r /tmp/gs-skills/agents/ your-project/.claude/agents/\n```\n\n#### 3. Start Chrome with remote debugging\n\n```bash\n# Windows\n\"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe\" --remote-debugging-port=9222\n\n# macOS\n/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome --remote-debugging-port=9222\n\n# Linux\ngoogle-chrome --remote-debugging-port=9222\n```\n\n#### 4. Launch Claude Code\n\n```bash\nclaude\n```\n\nSkills and agent are picked up automatically. Try `/gs-search deep learning` to verify.\n\n### How It Works\n\nAll skills use async `evaluate_script` calls via Chrome DevTools MCP — no screenshot parsing or OCR. Each skill operates in 1-2 tool calls (navigate + evaluate_script), making interactions fast and reliable.\n\nKey design choices:\n- **DOM scraping only** — Google Scholar has no public API; all data extraction uses CSS selectors\n- **`data-cid` as primary key** — cluster ID used across all skills for citation tracking, export, and cross-referencing\n- **Single async script per operation** — replaces multi-step snapshot → click → wait_for patterns\n- **BibTeX via navigate_page** — bypasses CORS restrictions on `scholar.googleusercontent.com`\n- **CAPTCHA-aware** — detects Google Scholar CAPTCHA and pauses for manual resolution\n\n### Project Structure\n\n```\nskills/\n├── gs-search/SKILL.md              # Basic keyword search\n├── gs-advanced-search/SKILL.md     # Filtered search (author, journal, date, etc.)\n├── gs-cited-by/SKILL.md            # Citation tracking via data-cid\n├── gs-fulltext/SKILL.md            # Full-text access links (PDF, DOI, Sci-Hub)\n├── gs-navigate-pages/SKILL.md      # Result pagination\n├── gs-export/                      # BibTeX export & Zotero push\n│   ├── SKILL.md\n│   └── scripts/\n│       └── push_to_zotero.py       # Zotero Connector API client\nagents/\n└── gs-researcher.md                # Agent: orchestrates all skills\n```\n\n---\n\n<a id=\"中文\"></a>\n\n## 中文\n\n| 公众号 | 微信交流群 | Discord |\n|:---:|:---:|:---:|\n| <img src=\"qrcode_for_gh_a1c14419b847_258.jpg\" width=\"200\"> | <img src=\"0320.jpg\" width=\"200\"> | [加入 Discord](https://discord.gg/tGd5vTDASg) |\n| 未来论文实验室 | 扫码加入交流群 | 中英文交流 |\n\n让 [Claude Code](https://docs.anthropic.com/en/docs/claude-code) 通过 Chrome DevTools MCP 操控 [Google Scholar (谷歌学术)](https://scholar.google.com) 的技能集。\n\n支持论文搜索、引用追踪、全文获取、导出到 Zotero 等功能，全部在 Claude Code 命令行中完成。\n\n### 前置要求\n\n- 已安装 [Claude Code](https://docs.anthropic.com/en/docs/claude-code) CLI\n- Chrome 浏览器（需开启远程调试）\n- [Zotero](https://www.zotero.org/) 桌面版（可选，用于导出）\n- Python 3（可选，用于 Zotero 推送脚本）\n\n### 技能列表\n\n| 技能 | 描述 | 调用方式 |\n|------|------|----------|\n| `gs-search` | 关键词搜索，返回结构化结果 | `/gs-search deep learning` |\n| `gs-advanced-search` | 高级搜索：作者、期刊、时间、精确短语、仅标题 | `/gs-advanced-search author:Einstein after:2020 relativity` |\n| `gs-cited-by` | 引用追踪：查找引用了某篇论文的所有文献 | `/gs-cited-by 0qfs6zbVakoJ` |\n| `gs-fulltext` | 全文获取：PDF、DOI、Sci-Hub、出版商链接 | `/gs-fulltext 0qfs6zbVakoJ` |\n| `gs-navigate-pages` | 搜索结果翻页 | `/gs-navigate-pages next` |\n| `gs-export` | 通过 BibTeX 导出到 Zotero | `/gs-export 0qfs6zbVakoJ` |\n\n### 智能体\n\n**`gs-researcher`** — 统一调度全部 6 个技能。自动检测验证码（暂停并提示用户手动完成），支持\"搜索 → 引用追踪 → 导出到 Zotero\"等复合工作流。\n\n### 安装步骤\n\n#### 1. 安装 Chrome DevTools MCP 服务器\n\n```bash\nclaude mcp add chrome-devtools -- npx -y chrome-devtools-mcp@latest\n```\n\n#### 2. 安装 Google Scholar 技能\n\n```bash\ngit clone https://github.com/cookjohn/gs-skills.git\ncd gs-skills\ncp -r skills/ agents/ .claude/\n```\n\n或添加到已有项目：\n\n```bash\ngit clone https://github.com/cookjohn/gs-skills.git /tmp/gs-skills\ncp -r /tmp/gs-skills/skills/ your-project/.claude/skills/\ncp -r /tmp/gs-skills/agents/ your-project/.claude/agents/\n```\n\n#### 3. 启动 Chrome 远程调试\n\n```bash\n# Windows\n\"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe\" --remote-debugging-port=9222\n\n# macOS\n/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome --remote-debugging-port=9222\n\n# Linux\ngoogle-chrome --remote-debugging-port=9222\n```\n\n#### 4. 启动 Claude Code\n\n```bash\nclaude\n```\n\n技能和智能体会自动加载。输入 `/gs-search deep learning` 验证是否正常工作。\n\n### 工作原理\n\n所有技能通过 Chrome DevTools MCP 的 `evaluate_script` 异步执行 JavaScript，无需截图识别或 OCR。每个技能仅需 1-2 次工具调用（导航 + 执行脚本），快速且稳定。\n\n核心设计：\n- **纯 DOM 解析** — Google Scholar 无公开 API，所有数据通过 CSS 选择器提取\n- **`data-cid` 作为主键** — 集群 ID 贯穿所有技能，用于引用追踪、导出和交叉引用\n- **单次异步脚本** — 取代多步骤 snapshot → click → wait_for 模式\n- **navigate_page 获取 BibTeX** — 绕过 `scholar.googleusercontent.com` 的 CORS 限制\n- **验证码感知** — 检测到 Google Scholar 验证码时自动暂停，等待用户手动完成\n\n---\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/animate-text-animate-text",
+  "type": "skill",
+  "name": "animate-text",
+  "description": "Curated text animation catalog with exact JSON specs for headings, labels, counters, and text swaps. Use when an agent needs to pick or translate named effects like soft blur in, typewriter, shared axis, line reveal, stagger, crossfade, or kinetic builds into WAAPI, Motion, Framer Motion, GSAP, CSS, Lottie, Rive, or similar stacks.",
+  "author": "pixel-point",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/pixel-point/animate-text/tree/HEAD/skills/animate-text",
+    "repo": "pixel-point/animate-text"
+  },
+  "license": null,
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 149,
+    "pushed_at": null,
+    "score": 55,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 149
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "写作",
+    "featured": false
+  },
+  "readme": "# Project Guide\n\nThis document explains how to run, build, and maintain the project locally.\n\n## Technology Stack\n\n- [Next.js](https://nextjs.org/) - application framework and routing\n- [Tailwind CSS](https://tailwindcss.com/) - utility-first styling\n- [shadcn/ui](https://ui.shadcn.com/) - reusable UI component patterns built on Radix primitives\n\n## Requirements\n\n- Node.js 20+\n- pnpm 10+\n\n## Getting Started\n\nRun all commands from the project root (this folder):\n\n```bash\npnpm install\npnpm dev\n```\n\nThe app will be available at `http://localhost:3000`.\n\nIf environment variables are required for a specific setup:\n\n```bash\ncp .env.example .env\n```\n\n## Development Workflow\n\n1. Start the dev server with `pnpm dev`.\n2. Regenerate the skill and app data when changing the animation catalog:\n   - `pnpm generate:animate-text-skill`\n   - `pnpm validate:animate-text-catalog`\n3. Add or update routes in `src/app`.\n4. Build reusable UI in `src/components/ui`.\n5. Build page-specific sections in `src/components/pages/<slug>`\n6. Compose pages from those sections inside route files under `src/app`.\n7. Run quality checks before committing:\n   - `pnpm lint`\n   - `pnpm format`\n   - `pnpm typecheck` (`tsgo --noEmit`)\n   - `pnpm build`\n\n## Available Scripts\n\n- `pnpm dev` - start Next.js in development mode\n- `pnpm generate:animate-text-skill` - rebuild the installable skill and generated site data from `catalog/text-animations`\n- `pnpm validate:animate-text-catalog` - validate canonical catalog inputs and ensure generated outputs are up to date\n- `pnpm test:animate-text-skill` - smoke test the generated public skill helper scripts\n- `pnpm build` - create a production build\n- `pnpm start` - run the production server\n- `pnpm lint` - run OXC lint checks\n- `pnpm lint:fix` - run OXC lint with auto-fixes\n- `pnpm format` - check formatting with Oxfmt\n- `pnpm format:fix` - format files with Oxfmt\n- `pnpm typecheck` - run TypeScript type checks with tsgo\n\n## Project Structure\n\n```text\n.\n├─ public/                    # static assets served as-is\n├─ catalog/                   # canonical source-of-truth data for the text animation library\n├─ skills/                    # installable generated skill output\n├─ templates/                 # templates used to generate skill documents\n├─ src/\n│  ├─ app/                    # Next.js App Router (routes, layouts, not-found)\n│  ├─ components/\n│  │  ├─ ui/                  # shared UI primitives\n│  │  └─ pages/\n│  │     ├─ home/             # components used only by the Home page\n│  │     └─ <slug>/           # components used only by one specific page\n│  ├─ content/                # markdown content grouped by feature/page\n│  ├─ configs/                # app and website configuration\n│  ├─ constants/              # static constants\n│  ├─ contexts/               # React providers/contexts\n│  ├─ hooks/                  # reusable React hooks\n│  ├─ lib/                    # utilities and framework helpers\n│  ├─ styles/                 # global and feature styles\n│  └─ types/                  # shared TypeScript types\n├─ scripts/                   # repo-maintainer scripts including catalog generation/validation\n├─ next.config.ts             # Next.js configuration\n├─ postcss.config.mjs         # PostCSS configuration\n├─ tailwind.plugins.mjs       # Tailwind plugin setup\n├─ .oxlintrc.json             # OXC lint configuration\n├─ .oxfmtrc.json              # OXC formatter configuration\n└─ package.json\n```\n\n## Website Config\n\nWebsite-level settings are defined in `src/configs/website-config.ts`.\n\nUse this config for branding, metadata defaults, and repository links. Common fields:\n\n- `projectName` - project name used in UI and metadata\n- `metaThemeColors.light` / `metaThemeColors.dark` - browser theme colors\n- `src/app/opengraph-image.tsx` - generated OG/social preview image used for Open Graph and Twitter\n- `githubOrg` / `githubRepo` - repository metadata for links/integrations\n\nExample:\n\n```ts\nconst config = {\n  projectName: '<YOUR_PROJECT_NAME>',\n  metaThemeColors: {\n    light: '#ffffff',\n    dark: '#09090b',\n  },\n};\n```\n\n## Content Directory\n\nContent lives in `src/content` and is organized by folders per section/page type.\n\nExample structure:\n\n```text\nsrc/content/\n├─ blog/\n├─ docs/\n└─ legal/\n```\n\nRules for this project:\n\n- Use Markdown only (`.md` files).\n- Keep content grouped by folder (for example: `docs/`, `blog/`, `legal/`).\n- Use nested folders when you need hierarchy inside a section.\n\n### Documentation (`/docs`) Conventions\n\nFor the `/docs` section, this project follows the same page conventions as FumaDocs. Use the official [FumaDocs page conventions](https://www.fumadocs.dev/docs/page-conventions) as the primary reference when creating or editing docs pages.\n\n## Build and Output\n\n- Run `pnpm build` to generate the production build in `.next/`.\n- Run `pnpm start` to serve the compiled build.\n- `postbuild` can generate sitemap files and `robots.txt` via `next-sitemap`.\n- Generated/runtime directories such as `.next/`, `.turbo/`, and `node_modules/` are not source files.\n\n## Animate Text Skill\n\nThis repository now contains two downstream outputs generated from `catalog/text-animations/`:\n\n- `skills/animate-text/` - the installable public skill for the `skills.sh` ecosystem\n- `src/data/text-animations/generated/` - app-facing generated modules used by the website\n\nCanonical editing rules:\n\n- edit `catalog/text-animations/**` by hand\n- do not hand-edit `skills/animate-text/**`\n- do not hand-edit `src/data/text-animations/generated/**`\n\nTypical maintainer flow:\n\n```bash\npnpm generate:animate-text-skill\npnpm validate:animate-text-catalog\npnpm test:animate-text-skill\n```\n\nInstall form for consumers:\n\n```bash\nnpx skills add <owner>/<repo> --skill animate-text\n```\n",
+  "status": "curated"
+}

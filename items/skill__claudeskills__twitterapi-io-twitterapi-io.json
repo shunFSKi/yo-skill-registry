@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/twitterapi-io-twitterapi-io",
+  "type": "skill",
+  "name": "twitterapi-io",
+  "description": "Official skill for twitterapi.io — query Twitter/X data (tweets, profiles, followers, advanced search, trends, spaces, communities, lists) and perform authenticated actions (post, reply, like, retweet, follow, DM) via the twitterapi.io REST API using a single `x-api-key` header — no OAuth. Use when the user needs to scrape, analyze, monitor, or automate X/Twitter without going through the official developer portal.",
+  "author": "kaitoinfra",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/kaitoinfra/twitterapi-io/tree/HEAD/skills/twitterapi-io",
+    "repo": "kaitoinfra/twitterapi-io"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 449,
+    "pushed_at": null,
+    "score": 59,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 449
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# twitterapi-io — Official Agent Skill\n\n[![Official](https://img.shields.io/badge/Official-twitterapi.io-1DA1F2)](https://twitterapi.io)\n[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](./LICENSE)\n[![Skills.sh](https://img.shields.io/badge/skills.sh-twitterapi--io-black)](https://skills.sh)\n\n> **One install. Any AI coding agent gets full Twitter/X superpowers.**\n\nThe **official** [skills.sh](https://skills.sh) skill — maintained by the [twitterapi.io](https://twitterapi.io) team — that teaches Claude Code, Cursor, GitHub Copilot, Cline, Codex, Gemini CLI, Amp, Antigravity, Windsurf, and 12+ other AI agents how to use the **twitterapi.io** REST API to read and write Twitter/X data.\n\n```bash\nnpx skills add kaitoInfra/twitterapi-io\n```\n\nThat's it. After install, your agent can scrape any tweet, user, follower list, search query, trend, X Space, community, or list — and post / reply / like / retweet / follow / DM through any account you control. No OAuth dance, no rate-limit cliff, no Elon-Musk-pricing.\n\n---\n\n## Why twitterapi.io?\n\n| | twitterapi.io | X official API | RapidAPI scrapers |\n|---|---|---|---|\n| **Pricing** | $0.15 / 1k tweets, $0.18 / 1k profiles | $5,000–$42,000/month enterprise tiers; free tier is 10k posts/month | $20–$300/month subscriptions, mostly bait-and-switch |\n| **Auth** | Single `x-api-key` header | OAuth 2.0 / OAuth 1.0a complexity | Mixed |\n| **Latency** | ~700ms average | Slow | Slow + flaky |\n| **Throughput** | 200 req/s per client | Tier-gated | Subscription-gated |\n| **Coverage** | Reads + writes (post, like, follow, DM, schedule, communities, lists, spaces, real-time webhooks) | Reads + writes (with pricing pain) | Mostly read-only |\n| **Posting via others' accounts** | Yes (via cookie session) | No | No |\n| **Real-time webhooks** | Yes, server-side filter rules | Yes, very expensive | No |\n| **Onboarding to working code** | 30 seconds | Days | Hours |\n\ntwitterapi.io is built for builders. We process **1,000,000+ API calls daily** for indie hackers, growth teams, AI agents, research labs, and trading desks. [Get your API key →](https://twitterapi.io/dashboard)\n\n---\n\n## What you can ask your AI agent to do\n\nOnce the skill is installed, just describe the task in plain English. The agent will read this skill, pick the right endpoint, handle pagination + cursor + auth + error retries, and ship working code:\n\n### Reads\n- *\"Fetch Elon Musk's last 200 tweets and summarize the most-engaged 5\"*\n- *\"Search X for `from:openai since:2025-01-01 min_faves:5000` and export to CSV\"*\n- *\"Crawl the followers of @anthropic and find the verified ones\"*\n- *\"Get all replies under tweet 1234567890 and detect sentiment\"*\n- *\"Pull the top trending topics in the US right now\"*\n- *\"Find every tweet quoting this thread\"*\n- *\"Get full thread context including parent + branches\"*\n- *\"Look up community 1493446837214187523 and dump its tweet stream\"*\n- *\"What's the follow relationship between @elonmusk and @sama?\"*\n\n### Writes (requires `login_cookies` from your X account)\n- *\"Post a tweet from my account: 'just shipped 🚀'\"*\n- *\"Reply to this tweet with...\"*  \n- *\"Quote-tweet 1234567890 with my hot take\"*\n- *\"Follow everyone in this CSV (with rate-limiting)\"*\n- *\"Send a DM to user 44196397\"*\n- *\"Schedule this tweet for tomorrow 9 AM PT\"*\n- *\"Update my bio and website\"*\n- *\"Upload this image and tweet it\"*\n- *\"Bookmark every tweet matching X-search query\"*\n\n### Real-time monitoring\n- *\"Watch for any new tweet matching `from:elonmusk OR #AI` and POST it to my webhook\"*\n- *\"Tell me whenever @VitalikButerin posts\"*\n\n### Common patterns\n- *\"Build a daily digest of all mentions of @MyBrand\"*\n- *\"Sentiment-analyze every reply on my last 10 tweets\"*\n- *\"Find lookalike audiences: who follows both @stripe and @vercel?\"*\n- *\"Auto-DM my new followers a thank-you message\"*\n\n---\n\n## What the skill teaches your agent\n\n- **Every endpoint** with the exact path, method, parameter casing (the API mixes camelCase and snake_case — the skill knows which is which per endpoint)\n- **The three-things-in-body rule** for writes: `login_cookies` + `proxy` + action fields\n- **Cursor pagination** with `has_next_page` (the reliable termination signal)\n- **Response shape variants** (some endpoints wrap in `data`, others spread fields top-level)\n- **Cost estimation** before triggering large crawls (don't accidentally bill yourself $200 fetching a celebrity's followers)\n- **Rate-limit safety** for write operations (don't get the underlying X account suspended)\n- **Real-time filter-rule + webhook setup** for monitoring without polling\n\nThe skill is **end-to-end validated against the live API** — every code sample in `SKILL.md` has been smoke-tested against `api.twitterapi.io`.\n\n---\n\n## Setup\n\n1. Get an API key (free trial credit) at https://twitterapi.io/dashboard\n2. Set the env var:\n   ```bash\n   export TWITTERAPI_IO_KEY=\"your_key_here\"\n   ```\n3. (Optional, for write operations) have your X account's email/username/password — the skill will guide your agent to call `/twitter/user_login_v2` to exchange them for a `login_cookies` session.\n\nThat's all the agent needs.\n\n---\n\n## What's in the box\n\n```\n.\n├── README.md\n└── skills/\n    └── twitterapi-io/\n        ├── SKILL.md                 # Entry point — auth, patterns, quick-ref tables\n        └── references/\n            ├── endpoints.md         # Full endpoint catalog (per-endpoint param tables)\n            ├── write-operations.md  # Login flow + every write endpoint body\n            └── examples.md          # Runnable Python/Node code for common workflows\n```\n\nThe agent reads `SKILL.md` by default and only loads reference files when it needs the detail — keeping its context window small.\n\n---\n\n## API capability snapshot\n\n**Reads (just `x-api-key`):**\n- User: profile / extended bio / batch by IDs / search / followers / verified followers / following / mentions / tweet timeline / articles / follow-relationship check\n- Tweet: by IDs / replies (3 sort modes) / quotes / retweeters / thread context / article content / advanced search / bulk parallel search\n- Discovery: trends by region / X Spaces detail / lists (timeline / members / followers) / communities (info / tweets / members / moderators / firehose)\n- Account: balance check\n\n**Writes (`login_cookies` + `proxy` from `/twitter/user_login_v2`):**\n- Tweets: create / reply / quote / delete / like / unlike / retweet / bookmark / unbookmark / list bookmarks / report / schedule\n- Social: follow / unfollow / send DM (with media) / DM history\n- Profile: update profile (PATCH) / avatar / banner / upload media (image, GIF, video up to 512MB)\n- Communities: create / join / leave / delete\n- Lists: add member\n\n**Real-time:**\n- Filter-rule webhook (server-side X-search rule → matched tweets POST to your URL)\n- User-level monitoring (per-user tweet/profile change stream)\n- WebSocket delivery for low-latency feeds\n\n[Full endpoint catalog →](./skills/twitterapi-io/references/endpoints.md)\n\n---\n\n## Pricing (pay per request, no monthly minimum)\n\n| Operation | Price |\n|---|---|\n| Tweets (read) | $0.15 / 1,000 |\n| User profiles (read) | $0.18 / 1,000 |\n| Followers (read) | $0.15 / 1,000 |\n| Search results | $0.15 / 1,000 tweets |\n| Articles | ~$0.001 each |\n| Write actions (post/like/follow) | ~$0.002–$0.003 each |\n| Minimum charge | $0.00015 / request |\n\nDiscounted rates for students, research institutions, and high-volume accounts. [Calculator + dashboard →](https://twitterapi.io/dashboard)\n\n---\n\n## How agent installation works\n\n`npx skills add kaitoInfra/twitterapi-io` clones this repo into your project's agent paths:\n- `.agents/skills/twitterapi-io/` for universal agents (Cursor, Codex, Cline, Copilot, Gemini CLI, Amp, Antigravity, etc. — 12+ supported)\n- Symlinked to `.claude/skills/twitterapi-io/` for Claude Code\n- Symlinked to `.windsurf/skills/twitterapi-io/` for Windsurf\n\nSkills.sh handles per-IDE pathing automatically. To remove: `npx skills remove kaitoInfra/twitterapi-io`.\n\n---\n\n## Compatibility\n\nWorks with **any** AI coding agent that loads SKILL.md or supports the [Anthropic Skills format](https://docs.claude.com/en/docs/agents-and-tools/agent-skills/overview):\n\n- ✅ Claude Code (CLI, IDE extensions)\n- ✅ Cursor\n- ✅ GitHub Copilot (with Skills support)\n- ✅ Cline\n- ✅ Codex\n- ✅ Gemini CLI\n- ✅ Amp\n- ✅ Antigravity\n- ✅ Windsurf\n- ✅ Continue\n- ✅ Cortex Code, Kimi Code CLI, OpenCode, Warp, and more\n\n---\n\n## Resources\n\n- 🌐 Service: https://twitterapi.io\n- 📖 API Docs: https://docs.twitterapi.io\n- 🎛️ Dashboard (get your key): https://twitterapi.io/dashboard\n- 💬 Telegram: https://t.me/kaitoeasyapivip\n- 🐙 This skill: https://github.com/kaitoInfra/twitterapi-io\n- 📦 Skills directory: https://skills.sh\n\n---\n\n## Contributing\n\nFound an endpoint where the docs say one thing and the API does another? Open an issue or PR. The skill is regenerated against the live backend regularly, so corrections land fast.\n\n---\n\n## License\n\nMIT — see [LICENSE](./LICENSE). Use freely, remix, ship products.\n\n---\n\n*Built and maintained by the team behind twitterapi.io. If this skill saves you hours, [a star ⭐](https://github.com/kaitoInfra/twitterapi-io) is the highest compliment.*\n",
+  "status": "curated"
+}

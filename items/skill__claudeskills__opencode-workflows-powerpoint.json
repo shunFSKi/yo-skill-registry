@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/opencode-workflows-powerpoint",
+  "type": "skill",
+  "name": "powerpoint",
+  "description": "Handle PowerPoint (.pptx) creation, design, and analysis. Use for pitch decks, status updates, and visual storytelling. Use proactively when precise layout positioning and design principles are needed. Examples: - user: \"Create a 10-slide deck for the board meeting\" -> use design principles + html2pptx - user: \"Convert this report into a presentation\" -> extract text and map to template - user: \"Audit this deck for layout issues\" -> generate thumbnail grid for inspection",
+  "author": "igorwarzocha",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/igorwarzocha/opencode-workflows/tree/HEAD/cowork/.opencode/skill/powerpoint",
+    "repo": "igorwarzocha/opencode-workflows"
+  },
+  "license": null,
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 123,
+    "pushed_at": null,
+    "score": 54,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 123
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "设计",
+    "featured": false
+  },
+  "readme": "# Opencode Workflows\n\nA collection of Opencode-based command templates, global agent prompts, and\nworkflow patterns for building sophisticated command-driven projects.\n\n![opencode-workflows](https://github.com/user-attachments/assets/72872e42-b388-45a4-9948-5063350fb381)\n\n---\n\n## Start Here: Opencode Configurator\n\nThe **Opencode Configurator** (`agents/opencode-configurator/`) is a meta-configuration system that makes setting up OpenCode effortless. Just ask naturally:\n\n- *\"Is there a plugin for reducing token usage?\"*\n- *\"Set up permissions so destructive commands require approval\"*\n- *\"Create a /review command that analyzes code without making changes\"*\n- *\"I want to build a skill for working with our internal API\"*\n- *\"Find an MCP server for filesystem access\"*\n\nThe configurator agent draws on seven specialized skills:\n\n| Skill | What it does |\n|-------|--------------|\n| **plugin-installer** | Find and install community plugins, maintain a local catalog |\n| **opencode-config** | Edit `opencode.json` with guided setup for models, permissions, providers |\n| **command-creator** | Build custom `/slash` commands through interactive Q&A |\n| **skill-creator** | Scaffold new skills with proper structure, scripts, and references |\n| **agent-architect** | Design agents with research-backed prompt engineering patterns |\n| **mcp-installer** | Find, install, and configure Model Context Protocol (MCP) servers |\n| **model-researcher** | Research and configure new/custom AI models not yet in models.dev, with verified specifications |\n\n**Installation**: Drop the `skill/` and `agent/` folders into `~/.config/opencode/`.\n\nSee `agents/opencode-configurator/README.md` for full details.\n\n---\n\n## The Ralph Wiggum Loop (KISS Method)\n\nThe **Ralph Wiggum Loop** (`/loop`) is a high-intensity, autonomous \"black box\" orchestrator that follows the KISS (Keep It Simple, Stupid) principle: **The technique is deterministically bad in an undeterministic world.**\n\nIt puts a specialized task tool subagent in an evolving while-loop, pushing it through repeated layers of implementation and hyper-detailed verification until the task is 100% complete.\n\nSee `commands/.opencode/command/loop.md` for full details.\n\n---\n\n## Create OpenCode Plugin\n\nThe **Create OpenCode Plugin** (`agents/create-opencode-plugin/`) is a workflow bundle for AI-assisted plugin development in OpenCode. Describe what you want your plugin to do, and the workflow guides you through design, testing, and publishing.\n\n**Usage**: Run `/create-plugin [your idea]`.\n\nSee `agents/create-opencode-plugin/README.md` for full details.\n\n---\n\n## Plugins\n\n- **Gemini/GLM Focused Mode** (`plugins/gemini-glm-focused-mode/`) – Injects a rigorous system prompt for GLM-4.7 and Gemini models to enforce precise, grounded, and persistent coding behavior.\n\n---\n\n## Security Reviewer\n\nThe **Security Reviewer** (`agents/security-reviewer/`) is a specialized agent for auditing codebases against vibecoding vulnerabilities. It bundles 10 framework-specific security skills.\n\nSee `agents/security-reviewer/README.md` for full details.\n\n---\n\n## Configuration Examples\n\n- **Thinking Levels Variants** (`thinking-variants config/thinking-levels-opencode.json`) – OpenCode configuration with model variants for Ctrl+T thinking level switching.\n\n---\n\n## included Packs\n\n### Agent Catalog\n\nTo optimize model usage, we recommend disabling the legacy generic `general` subagent in your `opencode.json` and using the `fast`/`smart` split instead:\n\n```json\n\"subagents\": {\n  \"general\": {\n    \"disable\": true\n  }\n}\n```\n\nAgents are organized under `agents/`:\n\n - **generic/** – Reusable global agents that belong in `~/.config/opencode/agent/`:\n   - **fast** – High-speed workhorse for trivial edits and file lookups.\n   - **smart** – Senior developer for complex bug hunting and refactoring.\n   - **subagent-orchestrator** – Dispatches specialists and enforces scope isolation.\n   - **openspec-orchestrator** – Enforces strict OpenSpec formatting/validation and orchestrates subagents.\n- **repo-navigator/** – Full pack for repository documentation. Unified `/init` command with argument routing:\n   - `/init` – Full AI navigation AGENTS.md + skill recommendations\n   - `/init basic` – Minimal AGENTS.md structure only\n   - `/init user` – User assistance docs (setup, install, troubleshoot)\n- **parallel-PRD/** – Parallel PRD planning kit with planner subagents and an orchestrator.\n- **component-engineer/** – Expert architecture package for professional React components.\n- **opencode-configurator/** – Meta-configuration system for OpenCode.\n- **security-reviewer/** – Specialized agent for auditing vulnerabilities.\n- **create-opencode-plugin/** – Workflow bundle for AI-assisted plugin development.\n- **vite-react-ts-convex-tailwind/** – Stack-specific experts for the modern Vite + React 19.2 + TS 5.9 + Tailwind 4.1 + Convex stack.\n\nSee `agents/README.md` for full tables, usage details, and the complete directory tree.\n\n### Commands Catalog\n\nThe `commands/` directory provides shareable command files for Opencode users.\nCurrently available:\n- **`/howto`**: Scans the cloned repository and generates a user-focused `AGENTS.md`.\n- **`/improve-run`**: Transforms any task into a production-ready prompt and executes it immediately.\n- **`/improve-save`**: Transforms any task into a production-ready prompt and saves it as a markdown file.\n- **`/refactor`**: Refactors code with strict modularity, file headers, and cleanup.\n- **`/init`**: Creates or enhances AGENTS.md documentation while preserving human-crafted content.\n- **`/refactor-rfc-xml`**: Converts markdown files to RFC 2119 + XML tag structure.\n- **`/loop`**: The \"Ralph Wiggum\" loop orchestrator for verified completion.\n- **`/component-review`**: Rigorous, spec-aligned audit of a React component.\n- **`/component-create`**: Generates a professional, spec-compliant React component.\n- **`/rmslop`**: Removes \"AI slop\" (emojis, chatty preambles, excessive comments).\n- **`/npm`**: Optimized npm command executor with proper error recovery.\n- **`/create-pack`**: Bundles related agents, commands, and skills into a shareable Opencode pack.\n- **`/permissions-update`**: Modernizes resource permissions configuration from legacy syntax.\n\n### @At Reference Files\n\nUse everything inside `at/` as prefix instructions during development sessions:\n- **`@coding-ts`** (`at/CODING-TS.MD`): Universal engineering guidelines.\n\n### Co-Work System (cowork/)\n\nThe **Co-Work System** is a multi-agent orchestration framework for collaborative project management. It includes:\n- **Orchestrator**: Manages plans, timelines, and file routing.\n- **Specialists**: Domain-specific agents (Research, Data, Document, Presentation).\n- **Admin Assistant**: Handles hygiene and coordination follow-ups.\n\nSee `cowork/AGENTS.md` for the full operating guide.\n\n### MCP Configurations\n\n- **Authenticated Chrome DevTools MCP** (`mcp-configs/authenticated-chrome-dev-tools-mcp/`) – Enables Chrome DevTools MCP with authenticated sessions via \"shadow profiles\".\n\n---\n\n## Getting Started\n\n1. **Clone the repository**:\n   ```bash\n   git clone https://github.com/IgorWarzocha/Opencode-Workflows.git\n   ```\n2. **Setup the Configurator**:\n   Start with the **Opencode Configurator** (`agents/opencode-configurator/`). Follow its README to install meta-configuration skills.\n3. **Explore the Catalogs**:\n   Browse the [Agent Catalog](#agent-catalog) and [Commands Catalog](#commands-catalog) to find specialized tools for your workflow.\n4. **Deploy Globally (Optional)**:\n   For universal access across all your projects, copy desired agents to `~/.config/opencode/agent/` and skills to `~/.config/opencode/skill/`.\n\n---\n\n## About\n\nThis repository provides tested Opencode command patterns, global agent prompts, and workflow templates that demonstrate best practices for creating maintainable, scalable command-based projects.\n\n---\n\n## RFC 2119 + XML Tag Structure\n\nAll agent prompts, skills, and commands in this repository use **RFC 2119 keywords** and **XML tags** for structure.\n\n### Why XML Tags?\nXML tags provide clear boundaries that LLMs parse reliably:\n- **Clarity**: Distinct separation between instructions, examples, and context.\n- **Hierarchy**: Nested tags create logical groupings.\n- **Consistency**: Standardized tags work across all models.\n\n### Why RFC 2119 Keywords?\nRFC 2119 (BCP 14) defines precise requirement levels:\n- **MUST**: Absolute requirement.\n- **MUST NOT**: Absolute prohibition.\n- **SHOULD**: Strong recommendation.\n- **MAY**: Truly optional.\n\n---\n\n> [!CAUTION]\n> **INTERNAL USE ONLY**: The root `.opencode/` directory contains maintenance tools (`repo-maintainer`, `repo-maintenance` skill, and `/audit-repo`, `/sync-docs`, `/maintain-repo` commands) that are for **internal repository management only**. These tools are hard-coded for this repository's specific structure and metadata rules. If you wish to use them in your own project, you MUST copy and customize them to match your own file structure and validation standards. **Do not install the root tools globally.**\n",
+  "status": "curated"
+}

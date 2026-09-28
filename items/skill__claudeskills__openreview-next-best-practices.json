@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/openreview-next-best-practices",
+  "type": "skill",
+  "name": "next-best-practices",
+  "description": "Next.js best practices - file conventions, RSC boundaries, data patterns, async APIs, metadata, error handling, route handlers, image/font optimization, bundling",
+  "author": "vercel-labs",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/vercel-labs/openreview/tree/HEAD/.agents/skills/next-best-practices",
+    "repo": "vercel-labs/openreview"
+  },
+  "license": null,
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 1694,
+    "pushed_at": null,
+    "score": 64,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 1695
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# OpenReview\n\nAn open-source, self-hosted AI code review bot. Deploy to Vercel, connect a GitHub App, and get on-demand PR reviews powered by Claude.\n\n> **Beta**: OpenReview is currently in beta. It was built as an internal project to help the Vercel team test their technologies together. Expect rough edges and breaking changes.\n\n[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?demo-description=An+open-source%2C+self-hosted+AI+code+review+bot.+Deploy+to+Vercel%2C+connect+a+GitHub+App%2C+and+get+automated+PR+reviews+powered+by+Claude.&demo-image=https%3A%2F%2Fopenreview.labs.vercel.dev%2Fopengraph-image.png&demo-title=openreview.labs.vercel.dev&demo-url=https%3A%2F%2Fopenreview.labs.vercel.dev%2F&from=templates&project-name=OpenReview&repository-name=openreview&repository-url=https%3A%2F%2Fgithub.com%2Fvercel-labs%2Fopenreview&env=GITHUB_APP_ID%2CGITHUB_APP_INSTALLATION_ID%2CGITHUB_APP_PRIVATE_KEY%2CGITHUB_APP_WEBHOOK_SECRET&products=%5B%7B%22integrationSlug%22%3A%22upstash%22%2C%22productSlug%22%3A%22upstash-kv%22%2C%22protocol%22%3A%22storage%22%2C%22type%22%3A%22integration%22%7D%5D&skippable-integrations=0)\n\n## Features\n\n- **On-demand reviews** — Mention `@openreview` in any PR comment to trigger a review. Powered by [Chat SDK](https://chat-sdk.dev)\n- **Sandboxed execution** — Runs in an isolated [Vercel Sandbox](https://vercel.com/docs/sandbox) with full repo access, including the ability to run linters, formatters, and tests\n- **Inline suggestions** — Posts line-level comments with GitHub suggestion blocks for one-click fixes\n- **Code changes** — Can directly fix formatting, lint errors, and simple bugs, then commit and push to your PR branch\n- **Reactions** — React with 👍 or ❤️ to approve suggestions, or 👎 or 😕 to skip\n- **Durable workflows** — Built on [Vercel Workflow](https://vercel.com/docs/workflow) for reliable, resumable execution\n- **Extensible skills** — Ships with built-in review [skills](https://skills.sh) and supports custom skills via `.agents/skills/`\n- **Powered by Claude** — Uses Claude Sonnet 4.6 via the [AI SDK](https://sdk.vercel.ai) for high-quality code analysis\n- **Simple route handler** — Easily define route handlers using [Next.js Route Handlers](https://nextjs.org/docs/app/building-your-application/routing/route-handlers) for custom API endpoints and webhooks\n\n## How it works\n\n```mermaid\nsequenceDiagram\n    participant U as Developer\n    participant GH as GitHub\n    participant WH as Webhook Handler\n    participant WF as Vercel Workflow\n    participant SB as Vercel Sandbox\n    participant AI as Claude Agent\n\n    U->>GH: @openreview in PR comment\n    GH->>WH: Webhook event\n    WH->>WF: Start workflow\n\n    WF->>GH: Check push access\n    WF->>SB: Create sandbox\n    SB->>SB: Clone repo on PR branch\n    SB->>SB: Install dependencies\n    SB->>SB: Configure git\n\n    WF->>AI: Run agent with PR context\n    AI->>SB: Read files, run linters, explore code\n    SB-->>AI: Command output\n    AI->>GH: Post inline comments & suggestions\n    AI-->>WF: Agent complete\n\n    WF->>SB: Check for uncommitted changes\n    alt Changes made\n        WF->>SB: Commit & push to PR branch\n        SB->>GH: Push changes\n    end\n    WF->>SB: Stop sandbox\n\n    U->>GH: React 👍 or ❤️ on suggestion\n    GH->>WH: Reaction event\n    WH->>WF: Start new workflow run\n```\n\n1. Mention `@openreview` in a PR comment (optionally with specific instructions)\n2. OpenReview spins up a sandboxed environment and clones the repo on the PR branch\n3. A Claude-powered agent reviews the diff, explores the codebase, and runs project tooling\n4. The agent posts its findings as PR comments with inline suggestions\n5. If changes are made (formatting fixes, lint fixes, etc.), they're committed and pushed to the branch\n6. The sandbox is cleaned up\n\n## Setup\n\n### 1. Deploy to Vercel\n\nClick the button above or clone this repo and deploy it to your Vercel account.\n\n### 2. Create a GitHub App\n\nCreate a new [GitHub App](https://github.com/settings/apps/new) with the following configuration:\n\n**Webhook URL**: `https://your-deployment.vercel.app/api/webhooks`\n\n**Repository permissions**:\n\n- Contents: Read & write\n- Issues: Read & write\n- Pull requests: Read & write\n- Metadata: Read-only\n\n**Subscribe to events**:\n\n- Issue comment\n- Pull request review comment\n\nGenerate a private key and webhook secret, then note your App ID and Installation ID.\n\n### 3. Configure environment variables\n\nAdd the following environment variables to your Vercel project:\n\n| Variable                     | Description                                                            |\n| ---------------------------- | ---------------------------------------------------------------------- |\n| `ANTHROPIC_API_KEY`          | API key for Claude                                                     |\n| `GITHUB_APP_ID`              | The ID of your GitHub App                                              |\n| `GITHUB_APP_INSTALLATION_ID` | The installation ID for your repository                                |\n| `GITHUB_APP_PRIVATE_KEY`     | The private key generated for your GitHub App (with `\\n` for newlines) |\n| `GITHUB_APP_WEBHOOK_SECRET`  | The webhook secret you configured                                      |\n| `REDIS_URL`                  | (Optional) Redis URL for persistent state, falls back to in-memory     |\n\n### 4. Install the GitHub App\n\nInstall the GitHub App on the repositories you want OpenReview to monitor. Once installed, mention `@openreview` in any PR comment to trigger a review.\n\n## Usage\n\n**Trigger a review**: Comment `@openreview` on any PR. You can include specific instructions:\n\n```\n@openreview check for security vulnerabilities\n@openreview run the linter and fix any issues\n@openreview explain how the authentication flow works\n```\n\n**Reactions**: React with 👍 or ❤️ on an OpenReview comment to approve and apply its suggestions. React with 👎 or 😕 to skip.\n\n## Skills\n\nOpenReview uses a progressive skill system — the agent only loads specialized instructions when relevant, keeping context focused and reviews thorough. Skills are discovered from `.agents/skills/` at runtime.\n\n### Built-in skills\n\n| Skill                         | Description                                                                           |\n| ----------------------------- | ------------------------------------------------------------------------------------- |\n| `next-best-practices`         | File conventions, RSC boundaries, data patterns, async APIs, metadata, error handling |\n| `next-cache-components`       | PPR, `use cache` directive, `cacheLife`, `cacheTag`, `updateTag`                      |\n| `next-upgrade`                | Upgrade Next.js following official migration guides and codemods                      |\n| `vercel-composition-patterns` | React composition patterns that scale for component refactoring                       |\n| `vercel-react-best-practices` | React and Next.js performance optimization guidelines                                 |\n| `vercel-react-native-skills`  | React Native and Expo best practices for performant mobile apps                       |\n| `web-design-guidelines`       | Review UI code for Web Interface Guidelines and accessibility compliance              |\n\n### Adding custom skills\n\nCreate a folder in `.agents/skills/` with a `SKILL.md` file containing YAML frontmatter:\n\n```\n.agents/skills/\n└── my-custom-skill/\n    └── SKILL.md\n```\n\n```markdown\n---\nname: my-custom-skill\ndescription: When to use this skill — the agent reads this to decide whether to load it.\n---\n\n# My Custom Skill\n\nYour specialized review instructions here...\n```\n\nThe agent sees only skill names and descriptions in its system prompt. When a request matches a skill, it calls `loadSkill` to get the full instructions — keeping the context window clean.\n\n## Tech stack\n\n- [Next.js](https://nextjs.org) — App framework\n- [Vercel Workflow](https://vercel.com/docs/workflow) — Durable execution\n- [Vercel Sandbox](https://vercel.com/docs/sandbox) — Isolated code execution\n- [AI SDK](https://sdk.vercel.ai) — AI model integration\n- [Chat SDK](https://www.npmjs.com/package/chat) — GitHub webhook handling\n- [Octokit](https://github.com/octokit/octokit.js) — GitHub API client\n\n## Development\n\n```bash\nbun install\nbun dev\n```\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

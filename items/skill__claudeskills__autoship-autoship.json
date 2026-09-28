@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/autoship-autoship",
+  "type": "skill",
+  "name": "autoship",
+  "description": "CLI tool for automated changeset-based releases with AI-generated descriptions. Use when the user needs to release a package, create changesets, bump versions, or automate npm publishing workflows. Triggers include requests to \"release a package\", \"create a changeset\", \"publish to npm\", \"bump the version\", \"automate releases\", or any task involving version management and package publishing for repositories using the changesets workflow.",
+  "author": "vercel-labs",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/vercel-labs/autoship/tree/HEAD/skills/autoship",
+    "repo": "vercel-labs/autoship"
+  },
+  "license": "Apache-2.0",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 162,
+    "pushed_at": null,
+    "score": 55,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 162
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# autoship\n\n<p>\n  <a href=\"https://vercel.com/labs#past-experiments\"><img alt=\"Vercel Labs Experiment\" src=\"https://img.shields.io/badge/LABS-EXPERIMENT-0a0a0a.svg?style=for-the-badge&amp;logo=Vercel&amp;labelColor=000000\" height=\"28\"></a>\n  <a href=\"https://www.npmjs.com/package/autoship\"><img alt=\"npm version: autoship\" src=\"https://img.shields.io/npm/v/autoship.svg?style=for-the-badge&amp;labelColor=000000\" height=\"28\"></a>\n  <a href=\"https://github.com/vercel-labs/autoship/blob/main/LICENSE\"><img alt=\"License: Apache-2.0\" src=\"https://img.shields.io/github/license/vercel-labs/autoship.svg?style=for-the-badge&amp;labelColor=000000\" height=\"28\"></a>\n  <a href=\"https://www.npmjs.com/package/autoship\"><img alt=\"npm downloads per month: autoship\" src=\"https://img.shields.io/npm/dm/autoship.svg?style=for-the-badge&amp;labelColor=000000&amp;label=npm%20downloads\" height=\"28\"></a>\n</p>\n\nCLI tool to automate changeset-based releases with AI-generated descriptions.\n\n## Features\n\n- **AI-Powered Release Analysis** - Automatically suggests release type (patch/minor/major) based on commit history and code changes\n- **Smart Changeset Generation** - Generates clear, concise changeset descriptions using AI\n- **End-to-End Automation** - Handles the full release workflow from clone to publish\n- **CI Integration** - Waits for checks to pass before merging\n- **Interactive & Headless Modes** - Use interactively or fully automated with `-y` flag\n- **Multi-Repository Support** - Configure and manage multiple repositories\n- **Changesets Compatible** - Works with any repository using the changesets workflow\n\n## Requirements\n\n- **Node.js** 18+\n- **Git**\n- **GitHub CLI** (`gh`) - authenticated with repo access\n- **AI_GATEWAY_API_KEY** environment variable\n\nThe target repository must use [changesets](https://github.com/changesets/changesets) for versioning.\n\n## Setup\n\n### 1. Authenticate GitHub CLI\n\n```bash\ngh auth login\n```\n\n### 2. Set your API key\n\n```bash\nexport AI_GATEWAY_API_KEY=your-key\n```\n\n### 3. Add a repository\n\n```bash\nnpx autoship add myproject\n```\n\nYou'll be prompted for:\n- GitHub owner (org or username)\n- Repository name\n- Base branch (default: `main`)\n\n## Usage\n\n### Start a release\n\n```bash\nnpx autoship [repo]\n```\n\nIf no repo is specified, you'll be prompted to select one.\n\nThe tool will:\n1. Clone the repository\n2. Analyze changes since the last version tag\n3. Suggest a release type (patch/minor/major) using AI\n4. Generate a changeset description using AI\n5. Create a PR with the changeset\n6. Wait for CI checks to pass\n7. Merge the changeset PR\n8. Wait for the Version Packages PR (created by changesets action)\n9. Merge the Version Packages PR to publish\n\n### Options\n\n```\n-t, --type <type>     Release type: patch, minor, or major\n-m, --message <msg>   Release description (skips AI generation)\n-y, --yes             Skip all confirmations\n```\n\n### Examples\n\n```bash\n# Interactive release\nnpx autoship myproject\n\n# Patch release with custom message\nnpx autoship myproject -t patch -m \"Fixed login bug\"\n\n# Fully automated minor release\nnpx autoship myproject -t minor -y\n```\n\n### List configured repositories\n\n```bash\nnpx autoship list\n```\n\n## Configuration\n\nConfig is stored at `~/.autoship/config.json`.\n\n## Usage with AI Agents\n\n### Just ask the agent\n\nThe simplest approach - just tell your agent to use it:\n\n```\nUse autoship to release my package. Run autoship --help to see available commands.\n```\n\n### AI Coding Assistants\n\nAdd the skill to your AI coding assistant for richer context:\n\n```bash\nnpx skills add vercel-labs/autoship\n```\n\nThis works with Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, Goose, OpenCode, and Windsurf.\n\n### AGENTS.md / CLAUDE.md\n\nFor more consistent results, add to your project or global instructions file:\n\n```markdown\n## Package Releases\n\nUse `autoship` for releases. Run `autoship --help` for all commands.\n\nCore workflow:\n1. `autoship add <name>` - Configure repository (one-time)\n2. `autoship <name> -t patch -y` - Automated release\n```\n\n## Contributing\n\nContributions are welcome! Please feel free to submit a Pull Request.\n\n```bash\n# Clone the repo\ngit clone https://github.com/vercel-labs/autoship.git\n\n# Install dependencies\npnpm install\n\n# Run tests\npnpm test\n\n# Build\npnpm build\n```\n\n## License\n\nApache-2.0\n",
+  "status": "curated"
+}

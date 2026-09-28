@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/paseo-paseo",
+  "type": "skill",
+  "name": "paseo",
+  "description": "Paseo reference for managing workspaces, agents, schedules, and heartbeats.",
+  "author": "getpaseo",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/getpaseo/paseo/tree/HEAD/skills/paseo",
+    "repo": "getpaseo/paseo"
+  },
+  "license": "NOASSERTION",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 18879,
+    "pushed_at": null,
+    "score": 70,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 18891
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "办公",
+    "featured": false
+  },
+  "readme": "<p align=\"center\">\n  <img src=\"packages/website/public/logo.svg\" width=\"64\" height=\"64\" alt=\"Paseo logo\">\n</p>\n\n<h1 align=\"center\">Paseo</h1>\n\n<p align=\"center\">\n  <a href=\"README.md\">English</a> ·\n  <a href=\"README.zh-CN.md\">简体中文</a> ·\n  <a href=\"README.ja.md\">日本語</a> ·\n  <a href=\"README.ko.md\">한국어</a>\n</p>\n\n<p align=\"center\">\n  <a href=\"https://github.com/getpaseo/paseo/stargazers\">\n    <img src=\"https://img.shields.io/github/stars/getpaseo/paseo?style=flat&logo=github\" alt=\"GitHub stars\">\n  </a>\n  <a href=\"https://github.com/getpaseo/paseo/releases\">\n    <img src=\"https://img.shields.io/github/v/release/getpaseo/paseo?style=flat&logo=github\" alt=\"GitHub release\">\n  </a>\n  <a href=\"https://x.com/moboudra\">\n    <img src=\"https://img.shields.io/badge/%40moboudra-555?logo=x\" alt=\"X\">\n  </a>\n  <a href=\"https://discord.gg/jz8T2uahpH\">\n    <img src=\"https://img.shields.io/badge/Discord-555?logo=discord\" alt=\"Discord\">\n  </a>\n  <a href=\"https://www.reddit.com/r/PaseoAI/\">\n    <img src=\"https://img.shields.io/badge/Reddit-555?logo=reddit\" alt=\"Reddit\">\n  </a>\n</p>\n\n<p align=\"center\">One interface for Claude Code, Codex, Copilot, OpenCode, and Pi agents.</p>\n\n<p align=\"center\">\n  <img src=\"https://paseo.sh/hero-mockup.png\" alt=\"Paseo app screenshot\" width=\"100%\">\n</p>\n\n<p align=\"center\">\n  <img src=\"https://paseo.sh/mobile-mockup.png\" alt=\"Paseo mobile app\" width=\"100%\">\n</p>\n\nRun agents in parallel on your own machines. Ship from your phone or your desk.\n\n- **Self-hosted:** Agents run on your machine with your full dev environment. Use your tools, your configs, and your skills.\n- **Multi-provider:** Claude Code, Codex, Copilot, OpenCode, and Pi through the same interface. Pick the right model for each job.\n- **Voice control:** Dictate tasks or talk through problems in voice mode. Hands-free when you need it.\n- **Cross-device:** iOS, Android, desktop, web, and CLI. Start work at your desk, check in from your phone, script it from the terminal.\n- **Privacy-first:** Paseo doesn't have any telemetry, tracking, or forced log-ins.\n\n## Plugins\n\nAdd themes, workspace panels, commands, settings screens, and coding-agent providers with trusted\nTypeScript plugins. Install from npm, Git, or a local directory with `paseo plugin install <source>`.\n\nStart with the [plugin quickstart](https://paseo.sh/docs/plugins). Plugins run with access to your daemon\nmachine and inside connected clients; install only code you trust.\n\n## Getting Started\n\nPaseo runs a local server called the daemon that manages your coding agents. Clients like the desktop app, mobile app, web app, and CLI connect to it.\n\n### Prerequisites\n\nYou need at least one agent CLI installed and configured with your credentials:\n\n- [Claude Code](https://docs.anthropic.com/en/docs/claude-code)\n- [Codex](https://github.com/openai/codex)\n- [GitHub Copilot](https://github.com/features/copilot/cli/)\n- [OpenCode](https://github.com/anomalyco/opencode)\n- [Pi](https://pi.dev)\n\n### Desktop app (recommended)\n\nDownload it from [paseo.sh/download](https://paseo.sh/download) or the [GitHub releases page](https://github.com/getpaseo/paseo/releases). Open the app and the daemon starts automatically. Nothing else to install.\n\nTo connect from your phone, open **Settings → your host → Pair Device**.\n\n### CLI / headless\n\nInstall the CLI and start Paseo:\n\n```bash\nnpm install -g @getpaseo/cli\npaseo\n```\n\nPaseo starts locally, then asks whether to enable the end-to-end encrypted relay for device pairing. If you decline, connect directly over TCP, Tailscale, or another VPN. This path is useful for servers and remote machines.\n\nFor full setup and configuration, see:\n\n- [Docs](https://paseo.sh/docs)\n- [Connectivity guide](https://paseo.sh/docs/connectivity)\n- [Configuration reference](https://paseo.sh/docs/configuration)\n\n### Docker\n\nRun the Paseo daemon and self-hosted web UI in Docker:\n\n```bash\ndocker run -d --name paseo \\\n  -p 6767:6767 \\\n  -e PASEO_PASSWORD=change-me \\\n  -v \"$PWD/paseo-home:/home/paseo\" \\\n  -v \"$PWD:/workspace\" \\\n  ghcr.io/getpaseo/paseo:latest\n```\n\nOpen `http://localhost:6767` after it starts. Extend the base image with the agent CLIs you use, then provide credentials through environment variables or the persistent `/home/paseo` volume. See the [Docker documentation](docs/docker.md) for full setup details.\n\n## CLI\n\nEverything you can do in the app, you can do from the terminal.\n\n```bash\npaseo run --provider claude/opus-4.6 \"implement user authentication\"\npaseo run --provider codex/gpt-5.5 --worktree feature-x \"implement feature X\"\n\npaseo ls                           # list running agents\npaseo attach abc123                # stream live output\npaseo send abc123 \"also add tests\" # follow-up task\n\n# run on a remote daemon; --cwd is a path on that host\npaseo run --host workstation.local:6767 --cwd /workspace \"run the full test suite\"\n```\n\nSee the [full CLI reference](https://paseo.sh/docs/cli) for more.\n\n## TypeScript SDK\n\nBuild issue integrations, dashboards, and orchestration services with `@getpaseo/client`:\n\n```ts\nimport { createPaseoClient } from \"@getpaseo/client\";\n\nconst client = createPaseoClient({ url: \"ws://127.0.0.1:6767/ws\" });\nawait client.connect();\n\nconst agent = await client.agents.create({\n  config: { provider: \"codex/gpt-5.5\" },\n  cwd: \"/Users/me/dev/storefront\",\n  prompt: \"Review the current diff and name the riskiest change.\",\n});\n\nconst result = await agent.waitForFinish();\nconsole.log(result.lastMessage);\n\nawait client.close();\n```\n\nSee the [SDK quickstart](https://paseo.sh/docs/sdk/quickstart), [recipes](https://paseo.sh/docs/sdk/recipes), and [API reference](https://paseo.sh/docs/sdk/reference).\n\n## Skills\n\nSkills teach your agent to use Paseo to orchestrate other agents.\n\n```bash\nnpx skills add getpaseo/paseo\n```\n\nThen use them in any agent conversation:\n\n- `/paseo-handoff` — hand off work between agents. I use this to plan with Claude and then handoff to Codex to implement.\n- `/paseo-advisor` — spin up a single agent as an advisor for a second opinion, without delegating the work itself.\n- `/paseo-committee` — form a committee of two contrasting agents to step back, do root cause analysis, and produce a plan.\n\n## Development\n\nQuick monorepo package map:\n\n- `packages/server`: Paseo daemon (agent process orchestration, WebSocket API, MCP server)\n- `packages/app`: Expo client (iOS, Android, web)\n- `packages/cli`: `paseo` CLI for daemon and agent workflows\n- `packages/desktop`: Electron desktop app\n- `packages/relay`: Relay transport and encryption used by the daemon and clients\n- `packages/website`: Marketing site and documentation (`paseo.sh`)\n\nCommon commands:\n\n```bash\n# run all local dev services\nnpm run dev\n\n# run individual surfaces\nnpm run dev:server\nnpm run dev:app\nnpm run dev:desktop\nnpm run dev:website\n\n# build the server stack\nnpm run build:server\n\n# repo-wide checks\nnpm run typecheck\n```\n\n## Sponsors\n\nPaseo is built by one person and funded by the people who use it. Support the work on [GitHub Sponsors](https://github.com/sponsors/boudra). Companies can [sponsor Paseo](https://paseo.sh/sponsor#spot) monthly and have their logo shown here and on the paseo.sh homepage.\n\n<!-- Sponsor logos go here, in the same order as packages/website/src/data/sponsors.ts -->\n\n## Related projects\n\n- [getpaseo/paseo-relay](https://github.com/getpaseo/paseo-relay) — official distributed relay, written in Elixir\n- [paseo-vscode](https://marketplace.visualstudio.com/items?itemName=hinnes.paseo-vscode) — VS Code extension\n\n## License\n\nApache-2.0\n",
+  "status": "curated"
+}

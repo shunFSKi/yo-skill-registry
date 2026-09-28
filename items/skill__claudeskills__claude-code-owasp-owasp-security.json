@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/claude-code-owasp-owasp-security",
+  "type": "skill",
+  "name": "owasp-security",
+  "description": "Use when reviewing code for security vulnerabilities, implementing authentication/authorization, handling user input, or discussing web application security. Covers OWASP Top 10:2025, ASVS 5.0, LLM Top 10 (2025), and Agentic AI security (2026).",
+  "author": "agamm",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/agamm/claude-code-owasp/tree/HEAD/.claude/skills/owasp-security",
+    "repo": "agamm/claude-code-owasp"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 369,
+    "pushed_at": null,
+    "score": 58,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 369
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "AI",
+    "featured": false
+  },
+  "readme": "# OWASP Security Skill for Claude Code\n\nA Claude Code skill providing the latest OWASP security best practices (2025-2026) for developers building secure applications.\n\n## Quick Install\n\nInstall as a Claude Code plugin:\n\n```\n/plugin marketplace add agamm/claude-code-owasp\n/plugin install owasp-security@agamm\n```\n\n### Updating\n\nThird-party marketplaces don't auto-update by default. Either update by hand:\n\n```bash\nclaude plugin marketplace update agamm\nclaude plugin update owasp-security@agamm\n```\n\nor turn on auto-update once: run `/plugin`, open the **Marketplaces** tab, select `agamm`, and\nchoose **Enable auto-update**. Updates apply to the next session, or run `/reload-plugins`.\n\n### Install as a plain skill\n\nThe skill is a directory (`SKILL.md` plus on-demand `reference/` files), so install the whole\nfolder. The easiest way is [`degit`](https://github.com/Rich-Harris/degit), which copies a\nGitHub subdirectory without the `.git` history:\n\n```bash\nnpx degit agamm/claude-code-owasp/.claude/skills/owasp-security .claude/skills/owasp-security\n```\n\nOr install globally for all projects:\n\n```bash\nnpx degit agamm/claude-code-owasp/.claude/skills/owasp-security ~/.claude/skills/owasp-security\n```\n\n## What's Included\n\n### Claude Code Skill\nLocation: `.claude/skills/owasp-security/`\n\n`SKILL.md` (loaded when the skill triggers):\n- **Security review workflow** - a five-step checklist from entry points to report\n- **Finding-triage rubric** - confirm attacker-controlled input, sink reachability, and blast radius before reporting, to cut false positives\n- **Reporting format** - fixed finding structure (location, input-to-sink path, impact, fix, confidence) with severity rated by exploitability\n- **OWASP Top 10:2025** quick reference table\n- **OWASP Top 10 for LLM Applications (2026)** - LLM01-LLM10 risks for chatbots, RAG, and tool-calling apps\n- **OWASP Agentic AI Security (2026)** - ASI01-ASI10 risks for AI agent systems\n- **ASVS 5.0** key requirements with real 5.0 requirement IDs and levels\n\n`reference/` (loaded on demand, following Claude Code progressive-disclosure best practices):\n- **`review-checklist.md`** - coverage checklist for every Top 10 category (including SSRF, file handling, JWTs, CORS, and CSRF) plus LLM and agent features\n- **`languages.md`** - language-specific security quirks for 20+ languages with unsafe/safe examples\n- **`config-and-supply-chain.md`** - A02 and A03 where they actually live: Dockerfiles, Kubernetes, Terraform, framework config, security headers, lockfiles, dependency confusion, install scripts, and CI/CD workflows\n- **`owasp-report.md`** - deep-dive on the Top 10:2025, ASVS 5.0, the LLM Top 10 (2026), and the Agentic list (2026), with per-item attack vectors and mitigations\n\n### Accuracy\n\nCategory names, ASVS chapter structure, and ASVS requirement IDs and levels are verified\ndirectly against [owasp.org/Top10/2025](https://owasp.org/Top10/2025/),\n[github.com/OWASP/ASVS](https://github.com/OWASP/ASVS/tree/master/5.0/en), and\nthe [LLM Top 10 2026 PDF](https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/) rather than paraphrased.\nThe Agentic Top 10 names are checked against that PDF's framework-mapping appendix.\n\nThis matters more than it sounds: ASVS 5.0 renumbered every chapter, so 4.0 requirement IDs\ndo not carry over, three Top 10 categories were renamed in 2025, and the LLM Top 10 2026\nreordered eight of its ten entries. Much of the OWASP\nmaterial circulating online still cites the old IDs and names.\n\n## Usage\n\nOnce installed, Claude Code automatically activates this skill when you:\n- Review code for security vulnerabilities\n- Implement authentication or authorization\n- Handle user input or external data\n- Work with cryptography or password storage\n- Design API endpoints\n- Build AI agent systems\n\n### Example Prompts\n```\n\"Review this code for security issues\"\n\"Is this authentication implementation secure?\"\n\"What are the security risks in this Python code?\"\n\"Help me implement secure session management\"\n\"Check this AI agent for OWASP agentic risks\"\n```\n\n## Covered Standards\n\n| Standard | Version | Focus |\n|----------|---------|-------|\n| OWASP Top 10 | 2025 | Web application vulnerabilities |\n| OWASP ASVS | 5.0.0 | Security verification requirements |\n| OWASP Top 10 for LLM Apps | 2026 | LLM/RAG/tool-calling app risks |\n| OWASP Agentic | 2026 | AI agent security risks |\n\n## Language Coverage\n\nSecurity quirks for 20+ languages including:\n\n| Web | Systems | Mobile | Scripting |\n|-----|---------|--------|-----------|\n| JavaScript/TypeScript | C/C++ | Swift | Python |\n| PHP | Rust | Kotlin | Ruby |\n| Java | Go | Dart | Perl |\n| C# | | | Shell |\n\nEach language section includes common vulnerabilities, unsafe/safe code patterns, and key functions to watch for.\n\n## Evals\n\n`evals/` holds test cases for [`claude plugin eval`](https://code.claude.com/docs/en/plugin-evals):\na real finding next to a safe look-alike, safe code that should not draw High findings, a real but\nconditional risk that should be rated below High, an LLM agent that runs model output in a shell, and\nan unrelated request that should not load the skill. Each case runs with and without the skill, so the\nscore shows what the skill adds. Evals target Sonnet and Opus; each case pins `model: sonnet`.\n\n```bash\nclaude plugin eval .               # Sonnet, the pinned default\nclaude plugin eval . --model opus\n```\n\nRuns are real model calls billed to your account. Run the suite before and after any change to\n`SKILL.md` or its description.\n\n## Alternative Installation\n\n### Clone Full Repository\n```bash\ngit clone https://github.com/agamm/claude-code-owasp.git\ncp -r claude-code-owasp/.claude/skills/owasp-security YOUR_PROJECT/.claude/skills/\n```\n\n## Contributing\n\nContributions welcome! Please:\n1. Fork the repository\n2. Create a feature branch\n3. Run the evals, and add a case if you are fixing a behavior they missed\n4. Submit a pull request\n\nThe skill follows Anthropic's [skill authoring best practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices):\nkeep `SKILL.md` to what Claude would otherwise get wrong, and put depth in `reference/`.\n\n## Sources\n\n- [OWASP Top 10:2025](https://owasp.org/Top10/2025/)\n- [OWASP ASVS 5.0](https://github.com/OWASP/ASVS/tree/master/5.0/en) — chapter files, one per V-number\n- [OWASP Top 10 for LLM Applications 2026](https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/)\n- [OWASP GenAI Security Project](https://genai.owasp.org/) — home of the LLM and Agentic lists\n- [OWASP Cheat Sheet Series](https://cheatsheetseries.owasp.org/)\n\n## License\n\nMIT License - See LICENSE file for details.\n\n---\n\n**Keywords:** OWASP, security, Claude Code, AI security, application security, ASVS, secure coding, vulnerability, injection, XSS, CSRF, authentication, authorization\n",
+  "status": "curated"
+}

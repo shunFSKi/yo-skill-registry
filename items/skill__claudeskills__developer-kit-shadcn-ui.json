@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/developer-kit-shadcn-ui",
+  "type": "skill",
+  "name": "shadcn-ui",
+  "description": "Provides complete shadcn/ui component library patterns including installation, configuration, and implementation of accessible React components. Use when setting up shadcn/ui, installing components, building forms with React Hook Form and Zod, customizing themes with Tailwind CSS, or implementing UI patterns like buttons, dialogs, dropdowns, tables, and complex form layouts.",
+  "author": "giuseppe-trisciuoglio",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/giuseppe-trisciuoglio/developer-kit/tree/HEAD/plugins/developer-kit-typescript/skills/shadcn-ui",
+    "repo": "giuseppe-trisciuoglio/developer-kit"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 349,
+    "pushed_at": null,
+    "score": 58,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 349
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "设计",
+    "featured": false
+  },
+  "readme": "<div align=\"center\">\n\n[![License](https://img.shields.io/github/license/giuseppe-trisciuoglio/developer-kit.svg)](./LICENSE)\n[![Security Scan](https://github.com/giuseppe-trisciuoglio/developer-kit/actions/workflows/security-scan.yml/badge.svg)](https://github.com/giuseppe-trisciuoglio/developer-kit/actions/workflows/security-scan.yml)\n[![Plugin Validation](https://github.com/giuseppe-trisciuoglio/developer-kit/actions/workflows/plugin-validation.yml/badge.svg)](https://github.com/giuseppe-trisciuoglio/developer-kit/actions/workflows/plugin-validation.yml)\n[![Skills](https://img.shields.io/badge/skills-150%2B-blue.svg)](./plugins)\n[![Agents](https://img.shields.io/badge/agents-45%2B-purple.svg)](./plugins)\n\n**🌐 Languages:** [English](README.md) | [Italiano](./README_IT.md) | [中文](./README_CN.md) | [Español](./README_ES.md)\n\n![](https://repository-images.githubusercontent.com/1080332870/5124e0d2-98f8-4486-9659-dde59a5ad251)\n\n**A modular AI plugin system that supercharges your development workflow across languages and frameworks.**\n\n[Installation](#installation) • [Quick Start](#quick-start) • [Plugins](#available-plugins) • [Documentation](https://github.com/giuseppe-trisciuoglio/developer-kit/blob/main/README.md) • [Changelog](./CHANGELOG.md)\n\n</div>\n\n---\n\n## Why Developer Kit?\n\nDeveloper Kit is a **modular plugin marketplace** for Claude Code that teaches Claude how to perform development tasks in a repeatable, high-quality way. Instead of generic AI responses, you get domain-specific expertise for your exact tech stack.\n\n- **🧩 Modular by Design** — Install only what you need. Java developer? Grab `developer-kit-java`. Full-stack TypeScript? Add `developer-kit-typescript`.\n- **🎯 Domain Experts** — 45+ specialized agents for code review, refactoring, security audits, architecture design, and testing across 7+ languages.\n- **📚 150+ Skills** — Reusable capabilities from Spring Boot CRUD generation to CloudFormation templates, all with best practices built-in.\n- **🔄 Multi-CLI Support** — Works with Claude Code, GitHub Copilot CLI, OpenCode CLI, and Codex CLI.\n- **⚡ Auto-Activation** — Path-scoped rules automatically activate when you open relevant files. No configuration needed.\n\n---\n\n## Installation\n\n### Quick Install (Recommended)\n\n#### Claude Code\n\n```bash\n# Install from marketplace\n/plugin marketplace add giuseppe-trisciuoglio/developer-kit\n\n# Or install from local directory\n/plugin install /path/to/developer-kit\n```\n\n#### Claude Desktop\n\n[Enable Skills in Settings](https://claude.ai/settings/capabilities) → Add `giuseppe-trisciuoglio/developer-kit`\n\n#### Manual Installation\n\n```bash\n# Clone the repository\ngit clone https://github.com/giuseppe-trisciuoglio/developer-kit.git\n\n# Install via Makefile (auto-detects your CLI)\ncd developer-kit\nmake install\n\n# Or install for specific CLI\nmake install-claude      # Claude Code\nmake install-opencode    # OpenCode CLI\nmake install-copilot     # GitHub Copilot CLI\nmake install-codex       # Codex CLI\n```\n\n---\n\n## Quick Start\n\n```bash\n# After installation, start your CLI\nclaude\n\n# Check available commands\n/help\n\n# Use a Developer Kit command\n/devkit.refactor\n```\n\n### Example Prompts\n\n```\nGenerate a complete CRUD module for User entity with NestJS and Drizzle ORM\nReview this Java Spring Boot service for security issues\nCreate a CloudFormation template for ECS with auto-scaling\nHelp me refactor this monolithic class into clean architecture\nGenerate unit tests for this TypeScript service with 100% coverage\n```\n\n---\n\n## Usage\n\nDeveloper Kit provides **four layers** of capabilities:\n\n### 1. Skills\nReusable capabilities loaded on-demand. Example:\n\n```\n[Skill: spring-boot-crud-patterns activated]\n```\n\nSkills automatically provide patterns, templates, and best practices for specific tasks.\n\n### 2. Agents\nSpecialized sub-agents for complex workflows:\n\n```bash\n# Invoke via natural language\n\"Review this code as a Spring Boot expert\"\n\n# Or use commands\n/devkit.java.code-review\n/devkit.typescript.code-review\n```\n\n### 3. Rules\nPath-scoped rules auto-activate based on file patterns:\n\n```yaml\n# Auto-activates for *.java files\nglobs: [\"**/*.java\"]\n---\nAlways use constructor injection. Never use field injection with @Autowired.\n```\n\n> **📋 Note on Rules Installation**\n>\n> Plugins do not automatically install rules into your project. To use the rules, you can copy them manually\n> or use the Makefile command:\n>\n> ```bash\n> # Copy rules from a specific plugin\n> make copy-rules PLUGIN=developer-kit-java\n>\n> # Or manually copy .md files from the plugin's rules/ folder\n> mkdir -p .claude/rules\n> cp plugins/developer-kit-[language]/rules/*.md .claude/rules/\n> ```\n>\n> The rules will be automatically activated based on the `globs:` patterns defined in the header of each file.\n\n---\n\n## Available Plugins\n\n| Plugin | Language/Domain | Components | Description |\n|--------|-----------------|------------|-------------|\n| `developer-kit-core` | Core | 6 Agents, 8 Commands, 4 Skills | Required base plugin with general-purpose capabilities |\n| `developer-kit-java` | Java | 9 Agents, 11 Commands, 51 Skills, 4 Rules | Spring Boot, LangChain4J, AWS SDK, GraalVM |\n| `developer-kit-typescript` | TypeScript | 13 Agents, 3 Commands, 25 Skills, 17 Rules | NestJS, React, Next.js, Drizzle ORM, Monorepo |\n| `developer-kit-python` | Python | 4 Agents, 4 Rules | Django, Flask, FastAPI, AWS Lambda |\n| `developer-kit-php` | PHP | 5 Agents, 3 Skills, 4 Rules | WordPress, Sage, AWS Lambda |\n| `developer-kit-aws` | AWS | 3 Agents, 19 Skills | CloudFormation, SAM, CLI, Architecture |\n| `developer-kit-ai` | AI/ML | 1 Agent, 3 Skills, 1 Command | Prompt Engineering, RAG, Chunking |\n| `developer-kit-devops` | DevOps | 2 Agents | Docker, GitHub Actions |\n| `developer-kit-tools` | Tools | 4 Skills | NotebookLM, Copilot CLI, Gemini, Codex |\n| `github-spec-kit` | GitHub | 3 Commands | GitHub spec integration |\n\n**Total: 150+ Skills | 45+ Agents | 20+ Commands | 45+ Rules**\n\n---\n\n## Plugin Architecture\n\n```\ndeveloper-kit/\n├── plugins/\n│   ├── developer-kit-core/          # Required base\n│   │   ├── agents/                  # Agent definitions (.md)\n│   │   ├── commands/                # Slash commands (.md)\n│   │   ├── skills/                  # Reusable skills (SKILL.md)\n│   │   ├── rules/                   # Auto-activated rules\n│   │   └── .claude-plugin/\n│   │       └── plugin.json          # Plugin manifest\n│   ├── developer-kit-java/          # Java ecosystem\n│   ├── developer-kit-typescript/    # TypeScript ecosystem\n│   └── ...\n├── .skills-validator-check/         # Validation system\n└── Makefile                         # Installation commands\n```\n\nEach plugin is self-contained with its own manifest, components, and dependencies.\n\n---\n\n## Configuration\n\n### Plugin Selection\n\nInstall only the plugins you need:\n\n```bash\n# Core + Java + AWS\nmake install-claude\n# Then enable: developer-kit-core, developer-kit-java, developer-kit-aws\n\n# Full-stack TypeScript\n# Enable: developer-kit-core, developer-kit-typescript, developer-kit-aws\n```\n\n### Rules Auto-Activation\n\nRules automatically activate based on file patterns:\n\n```yaml\n---\nglobs: [\"**/*.java\"]\n---\n# This rule activates for all Java files\n- Use constructor injection\n- Follow naming conventions\n```\n\n### LSP Integration\n\nLanguage plugins include LSP server configurations (`.lsp.json`):\n\n| Language | Server |\n|----------|--------|\n| Java | jdtls |\n| TypeScript | typescript-language-server |\n| Python | pyright-langserver |\n| PHP | intelephense |\n\n---\n\n## Language Support Matrix\n\n| Language | Skills | Agents | Commands | Rules | LSP |\n|----------|--------|--------|----------|-------|-----|\n| Java/Spring Boot | 51 | 9 | 11 | 4 | ✅ |\n| TypeScript/Node.js | 25 | 13 | 3 | 17 | ✅ |\n| Python | 2 | 4 | 0 | 4 | ✅ |\n| PHP/WordPress | 3 | 5 | 0 | 4 | ✅ |\n| AWS/CloudFormation | 19 | 3 | 0 | 0 | ❌ |\n| AI/ML | 3 | 1 | 1 | 0 | ❌ |\n\n---\n\n## Validation & Quality\n\nDeveloper Kit includes a comprehensive validation system:\n\n```bash\n# Validate all components\npython .skills-validator-check/validators/cli.py --all\n\n# Security scan (MCP compliance)\nmake security-scan\n\n# Pre-commit hooks\n.skills-validator-check/install-hooks.sh\n```\n\n---\n\n## Ecosystem\n\n**Listed on:**\n- [context7](https://context7.com/giuseppe-trisciuoglio/developer-kit?tab=skills) — Skills marketplace\n- [skills.sh](https://skills.sh/giuseppe-trisciuoglio/developer-kit) — AI skills directory\n\n**Related Projects:**\n- [Claude Code](https://claude.ai/code) — AI-powered terminal from Anthropic\n- [OpenCode](https://github.com/opencode-ai/opencode) — Open-source AI coding assistant\n- [GitHub Copilot CLI](https://github.com/github/copilot.vim) — AI pair programming\n- [Codex CLI](https://github.com/openai/codex) — OpenAI's coding agent\n\n---\n\n## Contributing\n\nWe welcome contributions! See [CONTRIBUTING.md](./CONTRIBUTING.md) for:\n- Adding new skills, agents, and commands\n- Plugin development guidelines\n- Validation requirements\n- Branch strategy and versioning\n\n## Security\n\nSkills can execute code. Review all custom skills before deploying:\n\n- ✅ Only install from trusted sources\n- ✅ Review SKILL.md before enabling\n- ✅ Test in non-production environments first\n- ✅ Run `make security-scan` before releases\n\nSecurity scans run automatically via GitHub Actions on every PR.\n\n---\n\n## License\n\n[MIT License](./LICENSE) — Open source and free to use.\n\n---\n\n## Acknowledgments\n\n- **Claude Code** by Anthropic — The foundation this plugin system extends\n- **Qwen Code** — README design inspiration\n- **Contributors** — Thank you to everyone who has contributed skills and plugins\n\n---\n\n<div align=\"center\">\n\n**Made with ❤️ for Developers using Claude Code**\n\nAlso compatible with OpenCode, GitHub Copilot CLI, and Codex\n\n</div>\n",
+  "status": "curated"
+}

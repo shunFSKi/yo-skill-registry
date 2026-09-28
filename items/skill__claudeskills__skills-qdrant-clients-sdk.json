@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/skills-qdrant-clients-sdk",
+  "type": "skill",
+  "name": "qdrant-clients-sdk",
+  "description": "Qdrant provides client SDKs for various programming languages, allowing easy integration with Qdrant deployments.",
+  "author": "qdrant",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/qdrant/skills/tree/HEAD/skills/qdrant-clients-sdk",
+    "repo": "qdrant/skills"
+  },
+  "license": "Apache-2.0",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 253,
+    "pushed_at": null,
+    "score": 57,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 253
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# Qdrant Skills - Agent Skills for Qdrant Vector Search\n\n<p align=\"center\">\n  <picture>\n      <source media=\"(prefers-color-scheme: dark)\" srcset=\"https://github.com/qdrant/qdrant/raw/master/docs/logo-dark.svg\">\n      <source media=\"(prefers-color-scheme: light)\" srcset=\"https://github.com/qdrant/qdrant/raw/master/docs/logo-light.svg\">\n      <img height=\"100\" alt=\"Qdrant\" src=\"https://github.com/qdrant/qdrant/raw/master/docs/logo.svg\">\n  </picture>\n</p>\n\n<p align=\"center\">\n    <b>Agent skills for building with Qdrant vector search</b>\n</p>\n\nSkills encode deep Qdrant knowledge so coding agents can make the engineering decisions that determine whether vector search works well: quantization, sharding, tenant isolation, hybrid search, model migration, and more.\n\n## Philosophy\n\nSkills are not documentation. Qdrant already has docs in markdown. Skills\nanswer \"when?\" and \"why?\", not \"how?\"\n\nThey are structured as the handbook of a Solutions Architect working on Qdrant:\ngiven a problem, navigate to the exact place in the documentation where the\nanswer lives. No tutorials, no concept explanations. Only references and\nminimal snippets where absolutely necessary.\n\n## Disclaimer\n\nThese skills are under active development. Skill content and structure may change between versions as Qdrant evolves.\n\n## Usage\n\nQdrant maintains a growing set of skills, and their content changes as Qdrant evolves. There are a few ways to give your agent access to them.\n\n### Recommended: install the Qdrant Advisor\n\nInstall one skill — the **Qdrant Advisor** — and your agent always has the freshest, most relevant Qdrant guidance, with nothing to manage as the skills change:\n\n```bash\nnpx skills add qdrant/skills/meta/qdrant-advisor\n```\n\nThe Advisor ships no static content of its own. When you raise a Qdrant problem, it searches [skills.qdrant.tech](https://skills.qdrant.tech) live, traverses the skill hierarchy along the branch that matches your symptom, and grounds its diagnosis in the current, authoritative guidance, loading only the relevant context. Because it fetches fresh every session, you don't need to reinstall to stay current, and you don't have to remember a URL or hope the site is in the model's training data.\n\n> **Using the claude.ai web app?** The Advisor can't fetch `skills.qdrant.tech` on its own when you are using the web app. You need to add `Use skills.qdrant.tech` to your prompt (refer to [Pass the URL directly](#alternative-pass-the-url-directly)).\n\n### Alternative: pass the URL directly\n\nIf you'd rather not install anything, pass the URL of the skills site in your prompt. The agent fetches the skill relevant to your current problem:\n\n```\nUse skills.qdrant.tech\n```\n\nThis keeps context focused, but you have to include the URL in every prompt.\n\n### Offline: install the full skill set\n\nIf you want the skills available offline, or triggered automatically without the Advisor, install the complete set locally. See the [Installation](#installation) section.\n\n## Quick Start\n\nWith the **Qdrant Advisor** installed, just ask your agent about Qdrant. The Advisor triggers automatically and loads the matching guidance live:\n\n```\n\"I have 50M vectors on a single node and search is slow, should I add more nodes?\"\n→ Advisor loads the scaling guidance, recommends quantization and vertical scaling before adding nodes\n\n\"My search results are returning irrelevant matches\"\n→ Advisor loads the search-quality guidance, walks through diagnosis and search strategy options\n\n\"How do I switch from OpenAI embeddings to Cohere without downtime?\"\n→ Advisor loads the model-migration guidance for a zero-downtime switch with dual vectors\n```\n\nPrefer the URL method? Add `Use skills.qdrant.tech` to the same prompts:\n\n```\n\"I have 50M vectors on a single node and search is slow, should I add more nodes? Use skills.qdrant.tech\"\n\n\"My search results are returning irrelevant matches. Use skills.qdrant.tech\"\n```\n\n## Skills\n\n| Skill | Useful for |\n|-------|------------|\n| qdrant-clients-sdk | SDK setup, code examples, snippet search across Python, TypeScript, Rust, Go, .NET, Java |\n| qdrant-scaling | Scaling decisions: data volume, QPS, latency, query volume, horizontal vs vertical |\n| qdrant-sizing | Sizing RAM, disk, CPU, and node count before a deployment is provisioned.\n| qdrant-performance-optimization | Search speed, memory usage, indexing performance |\n| qdrant-search-quality | Diagnosing bad results, search strategies, hybrid search |\n| qdrant-monitoring | Metrics, health checks, debugging optimizer and cluster issues |\n| qdrant-multitenancy | Isolating multiple tenants within a Qdrant deployment: payload partitioning, tiered multitenancy, and region-based data isolation |\n| qdrant-deployment-options | Choosing between local, self-hosted, cloud, and hybrid |\n| qdrant-hybrid-cloud-setup | Setting up Hybrid Cloud on your own Kubernetes: prerequisites, storage/CSI, agent/operator install, exposure, and pitfalls |\n| qdrant-edge | Building on the embedded shard: server sync, on-device BM25, snapshots, reuse vs reimplement |\n| qdrant-migration-tool | Using the Qdrant Migration Tool CLI to move data from another vector database into Qdrant |\n| qdrant-model-migration | Switching embedding models without downtime |\n| qdrant-version-upgrade | Safe upgrade paths, compatibility guarantees, rolling upgrades |\n\n## Installation\n\n### Qdrant Advisor (recommended)\n\nIf you want a single, always-current skill instead of the full set, install only the **Qdrant Advisor**:\n\n```bash\nnpx skills add qdrant/skills/meta/qdrant-advisor\n```\n\nThis installs just the `qdrant-advisor` meta-skill. It ships no static content of its own, it loads the relevant Qdrant skills live from [skills.qdrant.tech](https://skills.qdrant.tech) on demand, so you always get the latest guidance without reinstalling. It is not part of the `npx skills add qdrant/skills` bundle.\n\n### npx skills\n\nInstall using the [`npx skills`](https://skills.sh) CLI:\n\n```bash\nnpx skills add qdrant/skills\n```\n\n### Claude Code\n\nAdd the marketplace, then install all Qdrant skills:\n\n```\n/plugin marketplace add qdrant/skills\n/plugin install qdrant@qdrant\n```\n\n### Cursor\n\nInstall from the Cursor Marketplace or add manually via **Settings > Rules > Add Rule > Remote Rule (GitHub)** with `qdrant/skills`.\n\n### Clone / Copy\n\nClone this repo and copy the skill folders into the appropriate directory for your agent:\n\n| Agent | Skill Directory | Docs |\n|-------|-----------------|------|\n| Claude Code | `~/.claude/skills/` | [docs](https://code.claude.com/docs/en/skills) |\n| Cursor | `.cursor/skills/` | [docs](https://docs.cursor.com/context/skills) |\n| OpenCode | `~/.config/opencode/skill/` | [docs](https://opencode.ai/docs/skills/) |\n| OpenAI Codex | `~/.codex/skills/` | [docs](https://developers.openai.com/codex/skills/) |\n| Pi | `~/.pi/agent/skills/` | [docs](https://github.com/badlogic/pi-mono/tree/main/packages/coding-agent#skills) |\n\n## MCP Servers\n\nFor additional Qdrant context, pair skills with these MCP servers:\n\n| Server | Purpose |\n|--------|---------|\n| [mcp-code-snippets](https://github.com/qdrant/mcp-code-snippets) | Search Qdrant docs and code examples across all SDKs |\n| [mcp-server-qdrant](https://github.com/qdrant/mcp-server-qdrant) | Store and retrieve memories, manage collections directly |\n\n## Getting Help\n\nFound a bug or wrong advice in a skill? [Open an issue](https://github.com/qdrant/skills/issues/new) on GitHub and include:\n\n- The skill name\n- The prompt you gave your agent\n- What the agent said vs what it should have said\n\n## Contributing\n\nIf you are interested in contributing, follow the instructions in [CONTRIBUTING.md](./CONTRIBUTING.md).\n",
+  "status": "curated"
+}

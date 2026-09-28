@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/skills-mojo-syntax",
+  "type": "skill",
+  "name": "mojo-syntax",
+  "description": "Help to write Mojo code using current syntax and conventions. Always use this skill when writing any Mojo code, including when other Mojo-specific skills (e.g., mojo-gpu-fundamentals) also apply. Use when writing Mojo code, translating projects to Mojo, or otherwise generating Mojo. Use this skill to overcome misconceptions with how Mojo is written.",
+  "author": "modular",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/modular/skills/tree/HEAD/mojo-syntax",
+    "repo": "modular/skills"
+  },
+  "license": "NOASSERTION",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 198,
+    "pushed_at": null,
+    "score": 56,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 198
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "写作",
+    "featured": false
+  },
+  "readme": "[![skills.sh](https://skills.sh/b/modular/skills)](https://skills.sh/modular/skills)\n\n# Modular skills\n\nThese are the official AI agent skills from [Modular](https://www.modular.com/)\nfor working with the Modular Platform, including MAX and Mojo. They follow the\n[Agent Skills Standard](https://agentskills.io/specification). Any AI coding\nagent can use them to write Mojo, or to import, serve, and measure models on\nMAX.\n\n## Install\n\nPick the instructions for your agent:\n\n### Claude Code\n\n```text\n/plugin marketplace add modular/skills\n/plugin install skills@modular\n```\n\nFor a subset, install `max-skills@modular` to work with models on MAX, or\n`mojo-skills@modular` to write Mojo.\n\n### Codex and other agents\n\nWith [Node.js installed](https://nodejs.org/en/download):\n\n```bash\nnpx skills add modular/skills\n```\n\nThis installs the skills into the right location for your agent.\n\nUpdate them later:\n\n```bash\nnpx skills update\n```\n\nInstall one skill at a time:\n\n```bash\nnpx skills add modular/skills --skill mojo-syntax\n```\n\nTo install by hand, clone\n[the repository](https://github.com/modular/skills) and copy or symlink the\nindividual skill directories into your agent's skills directory (for Claude\nCode, `~/.claude/skills/`).\n\n## Mojo and project skills\n\nSkills that cover writing Mojo and setting up a project:\n\n- [`/new-modular-project`](new-modular-project/SKILL.md): Creates a new Mojo or\n  MAX project, setting up the `pixi` or `uv` environment for you.\n- [`/mojo-syntax`](mojo-syntax/SKILL.md): Corrects pretrained assumptions so\n  your agent writes modern Mojo. Use it whenever an agent writes Mojo.\n- [`/mojo-gpu-fundamentals`](mojo-gpu-fundamentals/SKILL.md): Adds the patterns\n  for programming NVIDIA, AMD, and Apple silicon GPUs in Mojo. Pairs with\n  `/mojo-syntax`.\n- [`/mojo-python-interop`](mojo-python-interop/SKILL.md): Handles Mojo calling\n  Python and Python calling Mojo, including building Python extension modules.\n  Pairs with `/mojo-syntax`.\n\n## Model lifecycle\n\nSkills that take a model from a Hugging Face checkpoint to a deployment you've\nverified and measured. They hand off to each other, and each one names the state\nit expects the model to be in:\n\n- [`/import-model`](import-model/SKILL.md): Imports a new model architecture\n  into MAX from a Hugging Face model ID, scaffolding from a similar registered\n  architecture and verifying outputs match. Hands off to `/debug-model` when\n  the server runs but the text is wrong.\n- [`/serve-model`](serve-model/SKILL.md): Takes you from no environment to a\n  running OpenAI-compatible endpoint with `max serve`, choosing the flags a\n  model needs rather than guessing: `--devices`, `--quantization-encoding`,\n  `--max-length`, `--task`, and `--trust-remote-code`. Use\n  `--custom-architectures` for an architecture you ported with\n  `/import-model`.\n- [`/migrate-max-v2-to-v3`](migrate-max-v2-to-v3/SKILL.md): Ports a model\n  written against the V2 graph API (`max.nn`, `TensorValue`, explicit `Graph`)\n  to ModuleV3 (`max.experimental.nn`), leaving the V2 code untouched and\n  verifying greedy outputs match.\n- [`/debug-model`](debug-model/SKILL.md): Takes over once a model loads and\n  generates tokens but the output is wrong. Builds tensor-dump comparators and\n  bisects serve versus pipeline. For crashes on load, use `/import-model`.\n- [`/benchmark-model`](benchmark-model/SKILL.md): Drives load against an\n  endpoint you started with `/serve-model` and reports throughput and latency\n  (TTFT, TPOT, inter-token latency), plus GPU utilization when it runs on the\n  same NVIDIA host as the server. Hand off to `/profile-model` when the numbers\n  show a bottleneck.\n- [`/profile-model`](profile-model/SKILL.md): Finds where inference time goes\n  and whether the GPU is saturated, working cheapest-first: a utilization\n  snapshot, a kernel breakdown with `nsys` or `rocprofv3`, then an `ncu` deep\n  dive on a single kernel when one dominates.\n- [`/eval-model`](eval-model/SKILL.md): Measures task accuracy on standard\n  benchmarks: GSM8K, MMLU, HellaSwag, ARC, AIME, GPQA, TruthfulQA, WinoGrande,\n  and BABILong. Distinguishes serving failures from wrong model answers. Ask\n  for it by name; it won't trigger on its own.\n\n## Examples\n\nOnce you install these skills, you can use them for many common tasks.\nExamples include:\n\n### Starting a new Mojo project\n\n```text\nI'd like to create a new Mojo project named \"nvfp4-for-metal\".\n```\n\n### Translating CUDA C++ code to Mojo\n\n```text\nA CUDA kernel is present in `../example`, please create a new Mojo project that implements that same kernel.\n```\n\nFor several of these skills, your AI agent may prompt you for more information\nto clarify your objectives and to make sure it uses the right tools and\npatterns.\n\n## License\n\nApache 2.0. See the [LICENSE](./LICENSE) file for details.\n",
+  "status": "curated"
+}

@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/playwright-bot-bypass-playwright-bot-bypass",
+  "type": "skill",
+  "name": "playwright-bot-bypass",
+  "description": "This skill should be used when the user asks to \"bypass bot detection\", \"avoid CAPTCHA\", \"stealth browser automation\", \"undetected playwright\", \"bypass Google bot check\", \"rebrowser-playwright\", or needs to automate websites that detect and block bots.",
+  "author": "greekr4",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/greekr4/playwright-bot-bypass/tree/HEAD/skills/playwright-bot-bypass",
+    "repo": "greekr4/playwright-bot-bypass"
+  },
+  "license": "MIT",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 199,
+    "pushed_at": null,
+    "score": 56,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 199
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# playwright-bot-bypass\n\n[![Claude Code plugin](https://img.shields.io/badge/Claude%20Code-plugin-d97757)](https://github.com/greekr4/playwright-bot-bypass)\n[![Codex · Cursor](https://img.shields.io/badge/Codex%20·%20Cursor-skill-000000)](https://skills.sh)\n[![version](https://img.shields.io/badge/version-2.2.0-blue)](https://github.com/greekr4/playwright-bot-bypass/releases)\n[![License: MIT](https://img.shields.io/badge/License-MIT-green)](LICENSE)\n[![detectors](https://img.shields.io/badge/bot%20detectors-8%2F8%20pass-brightgreen)](skills/playwright-bot-bypass/SKILL.md)\n\n**Undetected browser automation that passes 8/8 bot detectors** — with a *real* headed Chrome instead of fragile JS fakes. It's glue + tuning over [`rebrowser-playwright`](https://github.com/rebrowser/rebrowser-patches) and [`undetected-chromedriver`](https://github.com/ultrafunkamsterdam/undetected-chromedriver), shipped as a one-import `createStealthBrowser()` and an agent skill.\n\n<p align=\"center\">\n  <img src=\"img/demo.gif\" alt=\"Same command, same site, side by side: plain Playwright gets 'You are a bot!', while playwright-bot-bypass loads the real page.\" width=\"760\" />\n</p>\n\n> ⚠️ **Authorized use only** — QA, accessibility, and research on sites you own or may test. Respect each site's ToS, `robots.txt`, and the law.\n\n## Install\n\n**Claude Code**\n\n```\n/plugin marketplace add greekr4/playwright-bot-bypass\n/plugin install playwright-bot-bypass@playwright-bot-bypass\n```\n\n**Codex · Cursor · any agent** — one command via [skills.sh](https://skills.sh):\n\n```bash\nnpx skills add greekr4/playwright-bot-bypass          # all detected agents\nnpx skills add greekr4/playwright-bot-bypass -a codex # Codex only\n```\n\nThen just describe the task, or invoke it explicitly with `$playwright-bot-bypass …`.\n\n## Quick start\n\n```bash\nnpm install rebrowser-playwright\n```\n\n```javascript\nimport { createStealthBrowser, humanType, simulateMouseMovement } from './scripts/stealth-template.mjs';\n\nconst { browser, page } = await createStealthBrowser();\ntry {\n  await page.goto('https://example.com');\n  await simulateMouseMovement(page);\n  await humanType(page, 'input', 'query');\n} finally {\n  await browser.close(); // always in finally, or the process hangs\n}\n```\n\nPrefer Python? `pip install undetected-chromedriver` → `uc.Chrome()`. (Skip `playwright-stealth` — it only patches JS, so WebGL still leaks SwiftShader.)\n\n## What it beats — and what it doesn't\n\n| ✅ Beats | 🚫 Doesn't touch |\n|---|---|\n| Fingerprint + automation detectors — sannysoft, rebrowser, deviceandbrowserinfo, browserscan, iphey, creepjs (**9/9 reproducible**) | IP reputation & rate limits |\n| Real UA, WebGL/GPU, canvas, PluginArray — genuine, **not** JS-spoofed | Behavioral / CAPTCHA gates (Turnstile, DataDome, Kasada) |\n| Google search + public Reddit / YouTube / TikTok / X with no bot wall | Login walls 🟡 (Instagram, Facebook, LinkedIn) |\n\nOne residual leak, `__playwright_builtins__`, can't be stripped by any current rebrowser version. Full measured matrix → [`SKILL.md`](skills/playwright-bot-bypass/SKILL.md).\n\n## A/B: plain Playwright vs this skill\n\nMeasured **2026-06-10** (macOS, Apple Silicon). **A** = default `playwright` (headless bundled Chromium, no stealth). **B** = this skill via `createStealthBrowser()` (headed real Chrome + rebrowser Runtime-fix + Playwright-artifact strip). Same machine, same detectors.\n\n**deviceandbrowserinfo.com — \"Are you a bot?\"**\n\n| A · plain Playwright | B · this skill |\n|:---:|:---:|\n| ![A: detected as a bot](img/ab-dabi-before.png) | ![B: detected as human](img/ab-dabi-after.png) |\n| ❌ **\"You are a bot!\"** (`isBot: true`) | ✅ **\"You are human!\"** (`isBot: false`) |\n\n**bot-detector.rebrowser.net — CDP / automation tests**\n\n| A · plain Playwright | B · this skill |\n|:---:|:---:|\n| ![A: red flags](img/ab-rebrowser-before.png) | ![B: all green](img/ab-rebrowser-after.png) |\n| 🔴 `navigatorWebdriver = true` | 🟢 all green — `webdriver false`, no `__pwInitScripts`, no Runtime leak |\n\n**bot.sannysoft.com — fingerprint suite**\n\n| A · plain Playwright | B · this skill |\n|:---:|:---:|\n| ![A: detected](img/ab-sannysoft-before.png) | ![B: passed](img/ab-sannysoft-after.png) |\n| Red rows: WebDriver / UA = HeadlessChrome / WebGL SwiftShader | All green — real Chrome UA, Apple M2 WebGL, `webdriver false` |\n\n## How it works\n\nThree layers do the work — mostly the real browser, barely any hand-written JS:\n\n1. **rebrowser-playwright + Runtime-fix** — hides the CDP `Runtime.enable` headless leak, reports `webdriver: false`.\n2. **`channel:'chrome'` + headed** — real UA, GPU/WebGL, canvas, plugins, and `navigator.languages` via `locale`.\n3. **Artifact strip** — deletes `window.__pwInitScripts` on every navigation (the `isPlaywright` signature).\n\nThe v2.2 insight: *removing* fake `navigator` patches (spoofed plugins, canvas noise, `webdriver` delete…) beats adding them — every fake created a detectable inconsistency. So v2.2 touches nothing on `navigator`.\n\n## Requirements\n\nNode.js 18+ · real Google Chrome (not just Chromium) · headed mode (`headless: false`, display required).\n\n## Credits\n\nGlue + tuning over other people's work: [rebrowser-patches](https://github.com/rebrowser/rebrowser-patches), [undetected-chromedriver](https://github.com/ultrafunkamsterdam/undetected-chromedriver), real Chrome via `channel:'chrome'`, and the detection research that verifies it — [sannysoft](https://bot.sannysoft.com), [rebrowser-bot-detector](https://github.com/rebrowser/rebrowser-bot-detector), [deviceandbrowserinfo](https://deviceandbrowserinfo.com), [browserscan](https://www.browserscan.net), [CreepJS](https://abrahamjuliot.github.io/creepjs/). Original here is the integration: the `createStealthBrowser()` factory, the verified v2.2 recipe, and the agent-facing [`SKILL.md`](skills/playwright-bot-bypass/SKILL.md).\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

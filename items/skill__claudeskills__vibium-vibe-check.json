@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/vibium-vibe-check",
+  "type": "skill",
+  "name": "vibe-check",
+  "description": "Browser automation for AI agents. Use when the user needs to navigate websites, read page content, fill forms, click elements, take screenshots, or manage browser pages.",
+  "author": "vibiumdev",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/vibiumdev/vibium/tree/HEAD/skills/vibe-check",
+    "repo": "vibiumdev/vibium"
+  },
+  "license": "Apache-2.0",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 2935,
+    "pushed_at": null,
+    "score": 66,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 2935
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Vibium\n\n[![npm](https://img.shields.io/npm/v/vibium)](https://www.npmjs.com/package/vibium) [![PyPI](https://img.shields.io/pypi/v/vibium)](https://pypi.org/project/vibium/) [![Maven Central](https://img.shields.io/maven-central/v/com.vibium/vibium)](https://central.sonatype.com/artifact/com.vibium/vibium) [![License](https://img.shields.io/badge/license-Apache%202.0-blue)](LICENSE)\n\n**The verification layer for coding agents.**\n\nVibium gives AI agents the tools they need to check their work. Install the `browser` skill and your agent can navigate pages, fill forms, click buttons, and take screenshots — all through simple CLI commands. Also available as an MCP server and as JS/TS, Python, and Java client libraries.\n\n**New here?** Get started in [JavaScript](docs/tutorials/getting-started-js.md), [Python](docs/tutorials/getting-started-python.md), or [Java](docs/tutorials/getting-started-java.md) — zero to hello world in 5 minutes.\n\n## Why Vibium?\n\n- **AI-native.** Install as a skill — your agent learns the full browser automation toolkit instantly.\n- **Zero config.** One install, browser downloads automatically, visible by default.\n- **Standards-based.** Built on [WebDriver BiDi](docs/explanation/webdriver-bidi.md), not proprietary protocols controlled by large corporations.\n- **Lightweight.** Single ~10MB binary. No runtime dependencies.\n- **Flexible.** Use as a CLI skill, MCP server, or JS/Python/Java library.\n\n---\n\n## Agent Setup\n\n```bash\nnpm install -g vibium\nvibium setup\n```\n\nAgents can run `vibium setup --non-interactive`. Optional: install skills with\n`npx skills add https://github.com/VibiumDev/vibium`.\n\nSelect all Vibium skills in the installer, then choose your agent and installation\nscope. `vibium setup` installs Chrome when it is missing.\n\n- **browser** — explore pages, automate actions, record sessions, and carry out browser tasks from plain-language instructions.\n- **check** — independently assess whether a claim holds in the browser or a recording.\n\nInvoke `/browser` or `/check` in agents with slash skills, or `$browser` and\n`$check` in Codex. Setup guides: [Codex](docs/how-to-guides/using-vibium-with-codex.md),\n[Claude Code](docs/how-to-guides/using-vibium-with-claude-code.md), and\n[Claude Desktop Chat via MCP](docs/how-to-guides/using-vibium-with-claude-desktop.md).\n[Set up Vibium](docs/how-to-guides/setup.md) is the happy path.\nRun [`vibium ready`](docs/reference/ready.md) to check setup.\n\nFor a walkthrough, follow [Your coding agent’s first Check](docs/tutorials/check-with-a-coding-agent.md).\nRun and Check currently require the development build and AI configuration:\n`vibium setup` writes `~/.config/vibium/ai.env` (or `vibium config init` for the\ntemplate). See [model providers](docs/reference/model-providers.md).\n\nSee [Introducing Run and Check](docs/updates/2026-09-07-run-and-check.md) for examples and limitations.\n\n## CLI Quick Reference\n\n```bash\n# Give a browser task (requires AI setup)\nvibium \"open https://var.parts and add one battery pack to the cart\" --keep-open\n\n# Or use the explicit run command\nvibium run \"open https://var.parts and add one battery pack to the cart\" --keep-open\n# Check the cart\nvibium check \"the cart contains exactly one battery pack\"\n\n# Check and save a recording\nvibium check \"the cart contains exactly one battery pack\" -o cart-check.zip\n\n# Close the browser\nvibium stop\n\n# Map & interact (the core workflow)\nvibium go https://var.parts           # navigate to URL\nvibium map                            # map interactive elements → @e1, @e2, ...\nvibium click @e1                      # click using ref\nvibium diff map                       # see what changed\n\n# Find elements (semantic — no CSS needed)\nvibium find text \"Sign In\"            # find by visible text\nvibium find label \"Email\"             # find by form label\nvibium find placeholder \"Search\"      # find by placeholder\nvibium find role button               # find by ARIA role\n\n# Read & capture\nvibium text                           # get all page text\nvibium screenshot -o page.png         # capture screenshot\nvibium screenshot --annotate -o a.png # annotated with element labels\nvibium pdf -o page.pdf                # save page as PDF\nvibium eval \"document.title\"          # run JavaScript\n\n# Wait for things\nvibium wait \".modal\"                  # wait for element to appear\nvibium wait url \"/dashboard\"          # wait for URL change\nvibium wait text \"Success\"            # wait for text on page\n\n# Record sessions\nvibium record start                   # record with screenshots\nvibium record stop                    # stop and save to record.zip\n\n# Forms & input\nvibium fill @e2 \"hello@example.com\"   # fill input using ref\nvibium select @e3 \"US\"               # pick dropdown option\nvibium set @e4                        # check a checkbox\nvibium press Enter                    # press a key\n```\n\nFull command list: [SKILL.md](skills/browser/SKILL.md)\n\n**Alternative: MCP server** (for structured tool use instead of CLI):\n\n```bash\nclaude mcp add vibium -- npx -y vibium mcp    # Claude Code\ngemini mcp add vibium npx -y vibium mcp       # Gemini CLI\n```\n\nSee [MCP setup guide](docs/tutorials/getting-started-mcp.md) for options and troubleshooting.\n\n---\n\n## Language APIs\n\n```bash\nnpm install vibium   # JavaScript/TypeScript\npip install vibium   # Python\n```\n\n**Java** (Gradle):\n```groovy\nimplementation 'com.vibium:vibium:26.8.21'\n```\n\n**Java** (Maven):\n```xml\n<dependency>\n    <groupId>com.vibium</groupId>\n    <artifactId>vibium</artifactId>\n    <version>26.8.21</version>\n</dependency>\n```\n\nThis installs the Vibium binary and downloads Chrome automatically. No manual browser setup required.\n\n### JS/TS Client\n\n**Async API:**\n```javascript\nimport { browser } from 'vibium'\nimport fs from 'node:fs/promises'\n\nconst bro = await browser.start()\nconst vibe = await bro.page()\nawait vibe.go('https://example.com')\n\nconst png = await vibe.screenshot()\nawait fs.writeFile('screenshot.png', png)\n\nconst link = await vibe.find('a')\nawait link.click()\nawait bro.stop()\n```\n\n**Sync API:**\n```javascript\nconst { browser } = require('vibium/sync')\nconst fs = require('fs')\n\nconst bro = browser.start()\nconst vibe = bro.page()\nvibe.go('https://example.com')\n\nconst png = vibe.screenshot()\nfs.writeFileSync('screenshot.png', png)\n\nconst link = vibe.find('a')\nlink.click()\nbro.stop()\n```\n\n### Python Client\n\n```python\n# Async\nfrom vibium.async_api import browser\n\n# Sync (default)\nfrom vibium import browser\n```\n\n**Async API:**\n```python\nimport asyncio\nfrom vibium.async_api import browser\n\nasync def main():\n    bro = await browser.start()\n    vibe = await bro.page()\n    await vibe.go(\"https://example.com\")\n\n    png = await vibe.screenshot()\n    with open(\"screenshot.png\", \"wb\") as f:\n        f.write(png)\n\n    link = await vibe.find(\"a\")\n    await link.click()\n    await bro.stop()\n\nasyncio.run(main())\n```\n\n**Sync API:**\n```python\nfrom vibium import browser\n\nbro = browser.start()\nvibe = bro.page()\nvibe.go(\"https://example.com\")\n\npng = vibe.screenshot()\nwith open(\"screenshot.png\", \"wb\") as f:\n    f.write(png)\n\nlink = vibe.find(\"a\")\nlink.click()\nbro.stop()\n```\n\n### Java Client\n\n```java\nvar bro = Vibium.start();\nvar vibe = bro.page();\nvibe.go(\"https://example.com\");\n\nvar png = vibe.screenshot();\nFiles.write(Path.of(\"screenshot.png\"), png);\n\nvar link = vibe.find(\"a\");\nlink.click();\nbro.stop();\n```\n\n---\n\n## Architecture\n\n```\n┌──────────────────────────────────────┐\n│             LLM / Agent              │\n│  (Claude Code, Codex, Gemini, etc.)  │\n└──────────────────────────────────────┘\n       ▲                  ▲\n       │ CLI (Bash)       │ MCP (stdio)\n       ▼                  ▼\n┌───────────────────────────────────┐\n│          Vibium binary            │\n│                                   │\n│  ┌──────────────┐ ┌────────────┐  │\n│  │ CLI Commands │ │ MCP Server │  │\n│  └─────┬────────┘ └──────┬─────┘  │        ┌──────────────────┐\n│        └───────▲─────────┘        │        │                  │\n│                │                  │        │                  │\n│         ┌──────▼───────┐          │  BiDi  │    Web Browser   │\n│         │  BiDi Proxy  │          │◄──────►│                  │\n│         └──────────────┘          │        │                  │\n└───────────────────────────────────┘        └──────────────────┘\n          ▲\n          │ WebSocket BiDi :9515\n          ▼\n┌──────────────────────────────────────┐\n│          Client Libraries            │\n│       (js/ts | python | java)        │\n│                                      │\n│  ┌─────────────────┐ ┌────────────┐  │\n│  │   Async API     │ │  Sync API  │  │\n│  │ await vibe.go() │ │  vibe.go() │  │\n│  └─────────────────┘ └────────────┘  │\n└──────────────────────────────────────┘\n```\n\n---\n\n## Platform Support\n\n| Platform | Architecture | Status |\n|----------|--------------|--------|\n| Linux | x64 | ✅ Supported |\n| macOS | x64 (Intel) | ✅ Supported |\n| macOS | arm64 (Apple Silicon) | ✅ Supported |\n| Windows | x64 | ✅ Supported |\n\nChrome is the default browser; Firefox is also supported ([how to switch](docs/how-to-guides/using-firefox.md)). Firefox 154+ can [record video of a session](docs/how-to-guides/record-video.md).\n\n---\n\n## Contributing\n\nSee [CONTRIBUTING.md](CONTRIBUTING.md) for development setup and guidelines.\nSource builds require Go, Node.js/npm, and Java 21 because the default `make`\ntarget builds the Go binary, JS client, and Java client.\n\n---\n\n## Roadmap\n\nSee [ROADMAP.md](ROADMAP.md) for current development work and longer-term ideas.\n\n---\n\n## License\n\nApache 2.0\n",
+  "status": "curated"
+}

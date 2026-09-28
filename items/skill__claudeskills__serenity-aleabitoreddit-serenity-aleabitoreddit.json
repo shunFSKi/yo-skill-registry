@@ -1,0 +1,53 @@
+{
+  "id": "skill:claudeskills/serenity-aleabitoreddit-serenity-aleabitoreddit",
+  "type": "skill",
+  "name": "serenity-aleabitoreddit",
+  "description": "Apply trader Serenity's (@aleabitoreddit) AI/semiconductor supply-chain analytical lens to US-stock ideas and market judgment. Use this skill whenever evaluating a stock decision (buy / sell / hold / size); forming an outlook on any AI, semiconductor, optical/CPO, memory, power/grid, or neocloud name; mentioning any ticker in Serenity's universe (NBIS, AXTI, LITE, SIVE, COHR, AAOI, IREN, CRWV, MU, SNDK, NVDA, TSM, MRVL, AVGO, INTC, SOI, IQE, TSEM, CIFR, XLU, VST, CEG, EWY, etc.); asking \"what would Serenity think\", \"is this a real bottleneck\", or wanting a supply-chain / bottleneck read on a thesis. Decision-support only — never auto-trades and never places or cancels orders.",
+  "author": "yan-labs",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/yan-labs/serenity-aleabitoreddit/tree/HEAD/serenity-aleabitoreddit",
+    "repo": "yan-labs/serenity-aleabitoreddit"
+  },
+  "license": null,
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 478,
+    "pushed_at": null,
+    "score": 59
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "AI",
+    "featured": false
+  },
+  "readme": "```bash\nnpx skills add yan-labs/serenity-aleabitoreddit\n```\n\n<p align=\"center\">\n  <a href=\"https://x.com/aleabitoreddit\">\n    <img src=\"assets/serenity-avatar.jpg\" alt=\"Serenity (@aleabitoreddit)\" width=\"112\" height=\"112\">\n  </a>\n</p>\n\n# serenity-aleabitoreddit\n\n[![skills.sh](https://skills.sh/b/yan-labs/serenity-aleabitoreddit)](https://skills.sh/yan-labs/serenity-aleabitoreddit)\n\nEverything distilled from **Serenity\n([@aleabitoreddit](https://x.com/aleabitoreddit))** — a public X trader and\nAI/semiconductor *supply-chain* analyst known for tracing hyperscaler capex into\nupstream bottlenecks. His recurring research terrain includes optical/CPO and\nphotonics, InP substrates and compound semis, memory/HBM/NAND, neocloud\nfinancing quality, AI power/grid demand, robotics/physical AI, and overlooked\ninternational supply-chain names.\n\nThis repo packages his public work into one self-contained research artifact:\n**the raw tweet archive**, **long-form article summaries**, a\n**period-by-period distillation**, and a ready-to-use **agent skill** that\napplies his analytical lens to US-stock ideas.\n\nBuilt from **6,592 tweets** spanning **2025-07-02 → 2026-09-17** plus **4 X\nArticles** published in **2026-01 → 2026-05**.\n\n> ⚠️ **Not financial advice. Decision-support only.** This skill never trades and\n> never places or cancels orders. Serenity's self-reported returns are unverified\n> and carry obvious survivorship/selection bias; his names are volatile\n> micro/small-caps. Use the lens to ask better questions, not to copy trades.\n\n## What's in here\n\n| Path | What it is |\n|---|---|\n| `serenity-aleabitoreddit/SKILL.md` | The agent skill: who he is, his edge, the three workflows, risk framing |\n| `serenity-aleabitoreddit/references/methodology.md` | His framework as ~12 named, transferable principles + a checklist for any new name |\n| `serenity-aleabitoreddit/references/theses.md` | Per-ticker knowledge base, merged across all periods, grouped by sub-sector, with conviction tiers and how each evolved |\n| `serenity-aleabitoreddit/references/articles.md` | Compact summaries and portfolio-use rules for Serenity's long-form X Articles; full article text is intentionally not stored |\n| `serenity-aleabitoreddit/references/track-record.md` | Chronological timeline of his dated calls + an honest calibration note |\n| `serenity-aleabitoreddit/references/maintenance.md` | Maintenance rules for incrementally distilling new posts into the skill |\n| `serenity-aleabitoreddit/analysis/*.md` | The six period analyses the skill was synthesized from (provenance) |\n| `data/aleabitoreddit_tweets.json` | Full tweet archive, all fields (text, metrics, quoted tweets, media, timestamps) |\n| `data/aleabitoreddit_tweets.csv` | Same archive as a spreadsheet (id, url, time, text, likes, views, etc.) |\n| `data/ticker_stats.txt` | His `$ticker` universe by mention count + first/last seen |\n| `assets/serenity-avatar.jpg` | Local copy of Serenity's public X avatar used in this README |\n| `prep.py` | Condenses the tweet JSON into monthly chunks and recomputes the ticker stats |\n| `update.py` | Pulls latest tweets, dedupes by id, resolves X Note Tweet full text, and uses public profile/Jina status pages when xreach authentication is unavailable |\n| `scripts/xreach_note_text.mjs` | Read-only adapter for the installed `xreach` client that recovers public X Note Tweet text omitted from its default output |\n\n## Use it as a skill\n\nOne-command install with [skills.sh](https://skills.sh/):\n\n```bash\nnpx skills add yan-labs/serenity-aleabitoreddit\n```\n\nOr drop the folder into an agent's skills directory:\n\n```bash\n# Claude Code (project-local)\ncp -r serenity-aleabitoreddit <your-project>/.agents/skills/\nln -s ../../.agents/skills/serenity-aleabitoreddit <your-project>/.claude/skills/serenity-aleabitoreddit\n```\n\nIt then triggers on questions about AI/semiconductor/optical/memory/power/\nneocloud names, supply-chain bottleneck analysis, or evaluating a stock idea.\n\n## His edge, in one line\n\nDon't buy the obvious shovel-seller (NVDA) — trace the supply chain upstream to\nthe single chokepoint a hyperscaler will pay anything to keep flowing\n(optical/CPO, compound-semi substrates, memory, power), where the small market\ncap is most mispriced relative to the trillions flowing downstream.\n\n## How to read fresh posts\n\nA 2026-06-11 post-to-market review added one practical rule: Serenity's best\nsupply-chain posts are usually not clean 1-day copy-trade signals. The more\nrepeatable pattern is **5-60 trading days** from public thesis to validation as\norders, filings, media coverage, institutional ownership, or local-market\nattention catch up.\n\nUse four buckets before treating a post as actionable:\n\n| Post type | How to use it |\n|---|---|\n| New bottleneck thesis | Highest research weight when the dependency is fresh, underpriced, and backed by customer, capacity, policy, or filing evidence |\n| Reaffirmation / buy-the-dip | Useful when a high-conviction name sells off on a false report, mechanical selloff, ATM overhang, or misunderstood earnings |\n| Supplier map / watchlist / no-position idea | Research input only; build a watchlist and wait for company-specific evidence |\n| Victory lap / mainstream validation | Confirms an older thesis worked; often late-cycle unless valuation and positioning reset |\n\nAlways separate the stock thesis from the market window. A strong Serenity idea\ninside weak breadth or narrow sector participation is a selective/left-side\nwindow, not a green light to chase near-price entries.\n\n## Provenance\n\nTweets were collected via `agent-reach` Twitter/X tooling (`twitter-cli`\nhistorically, `xreach` when its session is healthy, and the public\n`x.com/<user>` profile plus Jina status pages as the unattended fallback)\nusing date-windowed\nsearch (full-day windows with intra-day top-up for high-volume days) to work\naround X's pagination/rate limits. X Article bodies were fetched with\nauthenticated article access and distilled into summaries only; full article text\nis not redistributed here. `update.py` resolves public X Note Tweet text\nfrom `xreach` when available and otherwise keeps the public status excerpt;\nrun `python3 update.py\n--repair-full-text` repeatedly to backfill the Issue #2 affected period in\nrate-limit-safe batches. Regenerate the condensed monthly chunks and ticker stats\nfrom the archive with `python3 prep.py`.\n\n---\n\n*This repository contains only public information about @aleabitoreddit, article\nmetadata, and derived analysis/summaries. It is an independent research artifact\nand is not affiliated with, endorsed by, or connected to him.*\n",
+  "status": "curated"
+}

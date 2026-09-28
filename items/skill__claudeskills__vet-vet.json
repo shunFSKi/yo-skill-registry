@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/vet-vet",
+  "type": "skill",
+  "name": "vet",
+  "description": "Run vet immediately after ANY logical unit of code changes. Do not batch your changes, do not wait to be asked to run vet, make sure you are proactive.",
+  "author": "imbue-ai",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/imbue-ai/vet/tree/HEAD/skills/vet",
+    "repo": "imbue-ai/vet"
+  },
+  "license": "AGPL-3.0",
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 516,
+    "pushed_at": null,
+    "score": 59,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 516
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "<p align=\"center\">\n  <a href=\"https://github.com/imbue-ai/vet\">\n    <img alt=\"Vet: Verify Everything\" src=\"https://raw.githubusercontent.com/imbue-ai/vet/main/images/Vet.svg\" width=\"21%\">\n  </a>\n</p>\n\n<p align=\"center\">\n  <a href=\"https://pypi.python.org/pypi/verify-everything/\"><img src=\"https://img.shields.io/pypi/v/verify-everything.svg\" alt=\"PyPi\"></a>\n  <a href=\"https://www.gnu.org/licenses/agpl-3.0\"><img src=\"https://img.shields.io/badge/License-AGPL_v3-blue.svg\" alt=\"License: AGPL v3\"></a>\n  <img src=\"https://github.com/imbue-ai/vet/actions/workflows/test-unit.yml/badge.svg\" alt=\"Build Status\">\n  <a href=\"https://discord.gg/sBAVvHPUTE\"><img src=\"https://img.shields.io/badge/Discord-Join%20us-5865F2?logo=discord&logoColor=white\" alt=\"Discord\"></a>\n</p>\n\n<p align=\"center\">Vet is a standalone verification tool for <b>code changes</b> and <b>coding agent behavior</b>.</p>\n\n## Why Vet\n\n- **Reviews intent and code**: checks agent conversations for goal adherence and code changes for correctness.\n- **Runs anywhere**: from the terminal, as an agent skill, or in CI.\n- **Bring-your-own-model**: works with any provider using your own API keys.\n- **Works with existing subscriptions**: supports Anthropic and OpenAI subscriptions using [`--agentic`](#usage).\n- **Free and open source**: no account, fees, or data collection. Requests go directly to your inference provider. Licensed under the AGPL-3.0.\n\n<p align=\"center\">\n  <a href=\"https://github.com/imbue-ai/vet\">\n    <img alt=\"Vet: Verify Everything\" src=\"https://raw.githubusercontent.com/imbue-ai/vet/main/images/vet_example.png\" width=\"100%\">\n  </a>\n</p>\n\n## Using Vet with Coding Agents\n\nVet includes an agent skill. When installed, agents will proactively run vet after code changes to find issues with the new code and mismatches between the user's request and the agent's actions.\n\n### Install the skill\n\n```bash\ncurl -fsSL https://raw.githubusercontent.com/imbue-ai/vet/main/install-skill.sh | bash\n```\n\nYou will be prompted to choose between:\n\n- **Project level**: installs into `.agents/skills/vet/`, `.opencode/skills/vet/`, `.claude/skills/vet/`, and `.codex/skills/vet/` at the repo root (run from your repo directory)\n- **User level**: installs into `~/.agents/`, `~/.opencode/`, `~/.claude/`, and `~/.codex/` skill directories, discovered globally by all agents\n\n### Demo\n\n![demo](https://raw.githubusercontent.com/imbue-ai/vet/main/images/demo.gif)\n\n<details>\n<summary>Manual installation</summary>\n\n#### Project Level\n\nFrom the root of your git repo:\n\n```bash\nfor dir in .agents .opencode .claude .codex; do\n  mkdir -p \"$dir/skills/vet/scripts\"\n  for file in SKILL.md scripts/export_opencode_session.py scripts/export_codex_session.py scripts/export_claude_code_session.py; do\n    curl -fsSL \"https://raw.githubusercontent.com/imbue-ai/vet/main/skills/vet/$file\" \\\n      -o \"$dir/skills/vet/$file\"\n  done\ndone\n```\n\n#### User Level\n\n```bash\nfor dir in ~/.agents ~/.opencode ~/.claude ~/.codex; do\n  mkdir -p \"$dir/skills/vet/scripts\"\n  for file in SKILL.md scripts/export_opencode_session.py scripts/export_codex_session.py scripts/export_claude_code_session.py; do\n    curl -fsSL \"https://raw.githubusercontent.com/imbue-ai/vet/main/skills/vet/$file\" \\\n      -o \"$dir/skills/vet/$file\"\n  done\ndone\n```\n\n</details>\n\n### Security note\n\nThe `--history-loader` option executes the specified shell command as the current user to load the conversation history. It is important to review history loader commands and shared config presets before use.\n\n## Install the CLI\n\n```bash\npip install verify-everything\n```\n\nOr with [pipx](https://pipx.pypa.io/):\n\n```bash\npipx install verify-everything\n```\n\nOr with [uv](https://docs.astral.sh/uv/):\n\n```bash\nuv tool install verify-everything\n```\n\n### Usage\n\nRun Vet in the current repo:\n\n```bash\nvet \"Implement X without breaking Y\"\n```\n\nCompare against a base ref/commit:\n\n```bash\nvet \"Refactor storage layer\" --base-commit main\n```\n\nUse Claude Code, Codex, or OpenCode instead of LLM APIs (`--agent-harness`: `claude`, `codex`, `opencode`):\n\n```bash\nvet \"Implement X without breaking Y\" --agentic --agent-harness claude\n```\n\n## GitHub PRs (Actions)\n\nVet reviews pull requests using a reusable GitHub Action.\n\nCreate `.github/workflows/vet.yml`:\n\n```yaml\nname: Vet\n\npermissions:\n  contents: read\n  pull-requests: write\n\non:\n  pull_request:\n    types: [opened, edited, synchronize, reopened]\n\njobs:\n  vet:\n    if: github.event.pull_request.draft == false\n    runs-on: ubuntu-latest\n    env:\n      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}\n    steps:\n      - uses: actions/checkout@v4\n        with:\n          ref: ${{ github.event.pull_request.head.sha }}\n          fetch-depth: 0\n      - uses: imbue-ai/vet@main\n        with:\n          agentic: false\n```\n\nThe action handles Python setup, vet installation, merge base computation, and posting the review to the PR. `ANTHROPIC_API_KEY` must be set as a repository secret when using Anthropic models (the default). See [`action.yml`](https://github.com/imbue-ai/vet/blob/main/action.yml) for all available inputs.\n\n## How it works\n\nVet snapshots the repo and diff, optionally adds a goal and agent conversation, runs LLM checks, then filters/deduplicates findings into a final list of issues.\n\n![architecture](https://raw.githubusercontent.com/imbue-ai/vet/main/images/architecture.svg)\n\n## Output & exit codes\n\n- Exit code `0`: no issues found\n- Exit code `1`: unexpected runtime error\n- Exit code `2`: invalid usage/configuration error\n- Exit code `10`: issues found\n\nOutput formats:\n- `text`\n- `json`\n- `github`\n\n## Configuration\n\n### Model configuration\n\nVet supports custom model definitions using OpenAI-compatible endpoints via JSON config files searched in:\n\n- `$XDG_CONFIG_HOME/vet/models.json` (or `~/.config/vet/models.json`)\n- `.vet/models.json` at your repo root\n\n#### Example `models.json`\n\n```json\n{\n  \"providers\": {\n    \"openrouter\": {\n      \"name\": \"OpenRouter\",\n      \"api_type\": \"openai_compatible\",\n      \"base_url\": \"https://openrouter.ai/api/v1\",\n      \"api_key_env\": \"OPENROUTER_API_KEY\",\n      \"models\": {\n        \"gpt-5.2\": {\n          \"model_id\": \"openai/gpt-5.2\",\n          \"context_window\": 400000,\n          \"max_output_tokens\": 128000,\n          \"supports_temperature\": true\n        },\n        \"kimi-k2\": {\n          \"model_id\": \"moonshotai/kimi-k2\",\n          \"context_window\": 131072,\n          \"max_output_tokens\": 32768,\n          \"supports_temperature\": true\n        }\n      }\n    }\n  }\n}\n```\n\nThen:\n\n```bash\nvet \"Harden error handling\" --model gpt-5.2\n```\n\n### Model registry\n\nVet maintains a remote model registry with community-contributed model definitions. To fetch the latest definitions without upgrading vet:\n\n```bash\nvet --update-models\n```\n\nThis downloads model definitions from the [registry](https://github.com/imbue-ai/vet/blob/main/registry/models.json) and caches them locally at `~/.cache/vet/remote_models.json`. Once cached, registry models appear in `vet --list-models` and can be used with `--model` like any other model.\n\nModel resolution priority (highest to lowest):\n1. User config (`.vet/models.json` or `~/.config/vet/models.json`)\n2. Builtin models (Anthropic, OpenAI, Gemini)\n3. Registry models (cached via `--update-models`)\n\nSee [`registry/CONTRIBUTING.md`](https://github.com/imbue-ai/vet/blob/main/registry/CONTRIBUTING.md) for information about contributing model definitions to the registry.\n\n### Configuration profiles (TOML)\n\nVet supports named profiles so teams can standardize CI usage without long CLI invocations.\n\nProfiles set defaults like model choice, enabled issue codes, output format, and thresholds.\n\nSee [the example](https://github.com/imbue-ai/vet/blob/main/.vet/configs.toml) in this project.\n\n### Custom issue guides\n\nYou can customize the guide text for the issue codes via `guides.toml`. Guide files are loaded from:\n\n- `$XDG_CONFIG_HOME/vet/guides.toml` (or `~/.config/vet/guides.toml`)\n- `.vet/guides.toml` at your repo root\n\n#### Example `guides.toml`\n\n```toml\n[logic_error]\nsuffix = \"\"\"\n- Check for integer overflow in arithmetic operations\n\"\"\"\n\n[insecure_code]\nreplace = \"\"\"\n- Check for SQL injection: flag any string concatenation or f-string formatting used to build SQL queries rather than parameterized queries\n- Check for XSS: flag user-supplied data rendered into HTML templates without proper escaping or sanitization\n- Check for path traversal: flag file operations where user input flows into file paths without validation against directory traversal (e.g. ../)\n- Check for insecure cryptography: flag use of deprecated or weak algorithms (e.g. MD5, SHA1 for security purposes, DES, RC4)\n- Check for hardcoded credentials: flag passwords, API keys, or tokens embedded directly in source code\n\"\"\"\n```\n\nSection keys must be valid issue codes (`vet --list-issue-codes`). Each section supports three optional fields: `prefix` (prepends to built-in guide), `suffix` (appends to built-in guide), and `replace` (fully replaces the built-in guide). `prefix` and `suffix` can be used together, but `replace` is mutually exclusive with the other two. Guide text should be formatted as a list.\n\n## Community\n\nNew to Vet? [Read the launch post](https://imbue.com/product/vet/) for an intro and 2-minute demo.\n\nJoin the [Imbue Discord](https://discord.gg/sBAVvHPUTE) for discussion, questions, and support. For bug reports and feature requests, please use [GitHub Issues](https://github.com/imbue-ai/vet/issues).\n\n## License\n\nThis project is licensed under the [GNU Affero General Public License v3.0 (AGPL-3.0-only)](https://github.com/imbue-ai/vet/blob/main/LICENSE).\n",
+  "status": "curated"
+}

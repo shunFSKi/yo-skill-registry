@@ -1,0 +1,59 @@
+{
+  "id": "skill:claudeskills/transitions-dev-transitions-dev",
+  "type": "skill",
+  "name": "transitions-dev",
+  "description": "Production-ready CSS transitions for web apps. Use when implementing notification badges, dropdowns, modals, panel reveals, page transitions, card resizes, number pop-ins, text swaps, icon swaps, success checks, avatar group hovers, error state shakes, search/input clear, skeleton loaders, shimmer text, sliding tabs, tooltips, staggered text reveals, card hover tilt, plus-to-menu morph, or accordions. Triggers on \"add a transition\", \"animate the dropdown\", \"make the modal open smoothly\", \"swap icon\", \"page slide\", \"stagger animation\", \"open / close transition\", \"make it animate\", \"fade between\", \"success animation\", \"form error\", \"shake on invalid\", \"hover lift\", \"avatar stack hover\", \"clear the search\", \"skeleton loader\", \"loading shimmer\", \"shimmer text\", \"sliding tabs\", \"segmented control\", \"tooltip\", \"reveal text\", \"tilt card\", \"3D hover tilt\", \"cursor glare\", \"plus to menu\", \"FAB morph\", \"accordion\", \"collapsible\", \"expand / collapse\", \"disclosure\". Also \"motion tokens\", \"scan for ad-hoc transitions\", \"replace hardcoded durations with motion tokens\", \"tokenize my animations\", and the commands transitions reveal, transitions review, transitions apply, transitions refine.",
+  "author": "jakubantalik",
+  "source": {
+    "registry": "claudeskills",
+    "url": "https://github.com/jakubantalik/transitions.dev/tree/HEAD/skills/transitions-dev",
+    "repo": "jakubantalik/transitions.dev"
+  },
+  "license": null,
+  "install": {
+    "kind": "skill-dir"
+  },
+  "quality": {
+    "stars": 4384,
+    "pushed_at": null,
+    "score": 68,
+    "star_history": [
+      {
+        "d": "2026-09-28",
+        "s": 4384
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# Transitions.dev\n\nTransitions.dev is an interactive collection of reusable CSS transitions. Each card on the index page demonstrates a different interaction pattern and ships a copy-ready, portable CSS snippet for each.\n\nLive site: https://transitions.dev/\n\n## Transitions\n\n| # | Name | What it shows |\n|---|------|---------------|\n| 1 | **Card resize** | Smooth card resize transition. |\n| 2 | **Number pop-in** | Digit flip with blur and stagger. |\n| 3 | **Notification badge** | Diagonal slide with spring pop-in. |\n| 4 | **Text states swap** | Text swap transition with blur. |\n| 5 | **Menu dropdown** | Origin-aware open / close transition. |\n| 6 | **Modal open / close** | Modal transition with scale. |\n| 7 | **Panel reveal** | Panel open / close transition. |\n| 8 | **Page side-by-side** | Forward / back page transition. |\n| 9 | **Icon swap** | Scale and blur icon swap. |\n| 10 | **Success check** | Confirmation icon with fade, rotate, blur, Y-bob, and SVG path draw. |\n| 11 | **Avatar group hover** | Hovered avatar springs up while neighbours follow with a falloff. |\n| 12 | **Error state shake** | Input shake on validation error with auto-revert to neutral. |\n\nEach card has a copy button that emits a self-contained CSS snippet: semantic CSS custom properties on `:root`, the transition rules namespaced under `t-*` classes, and a `@media (prefers-reduced-motion: reduce)` guard — so you can paste the snippet into any project and apply it to any component without pulling in demo-specific markup or sizing.\n\n## Install with the CLI (npm)\n\nPull any transition into your project from the terminal — no manual copy:\n\n```bash\nnpx transitions-dev add card-resize      # free, no account needed\nnpx transitions-dev add --free           # every free transition at once\nnpx transitions-dev list                 # see everything available\n```\n\nPro transitions unlock after a passwordless browser sign-in (device flow — no API key in your terminal):\n\n```bash\nnpx transitions-dev login                # opens the browser to confirm a code\nnpx transitions-dev add confetti-burst    # pulls the Pro CSS + React\n```\n\nCLI source: [`cli/`](./cli) (published as the public `transitions-dev` package; `transitions-pro` is the old name and forwards to it — it holds no premium source; Pro recipes are fetched from the authenticated API).\n\n## Use as an agent skill\n\nThe same transitions are packaged as an installable agent skill so AI coding tools (Cursor, Claude Code, Codex, …) can apply them directly inside your project.\n\n```bash\nnpx skills add Jakubantalik/transitions.dev\n```\n\nSkill source lives in [`skills/transitions-dev/`](./skills/transitions-dev) — `SKILL.md`, eighteen per-transition reference files (`01-card-resize.md` … `18-texts-reveal.md`), and `_root.css` (the universal install block on its own).\n\nThe skill is generated from `index.html` so the snippets always match what the showcase site demonstrates. Re-run after editing the source site:\n\n```bash\nnpm run build\n```\n\n`build/extract.mjs` parses `PROTO_TEMPLATES` and the `:root { --pX-* }` block out of `index.html`, then re-renders every file under `skills/transitions-dev/` from the templates in `build/templates/`.\n\n## Refine tool\n\n**Refine** is a live, agent-driven companion to the skill. One command drops a timeline + Refine panel onto your running app — no `npm install`, no source edits of your own — and every \"Refine\" click asks your coding agent to align the selected CSS/Motion transition to the transitions.dev motion tokens (or replace it with a transition from the library). Suggestions appear in a panel that slides in from the right; you pick which to apply as live, reversible overrides.\n\n```bash\n# inject the panel + start the local relay (deterministic suggestions work immediately)\nnpx transitions-refine live\n\n# same, but also installs/wires the Cursor CLI so the relay answers with the LLM, persistently\nnpx transitions-refine live --llm\n\n# remove the injected <script> tag again\nnpx transitions-refine stop\n```\n\nWithout `--llm`, you can instead run `/refine live` in your editor to back the panel with the in-IDE agent. Source lives in [`refine/`](./refine) and ships as the public npm package `transitions-refine`. See [`refine/README.md`](./refine/README.md) for the full flow and env knobs.\n\n## Files\n\n- `index.html` — main showcase page with all eighteen transitions and per-card \"copy CSS\" buttons.\n- `prototypes.html` — interactive playground for each transition with live tuning controls (durations, distances, easings).\n- `skill.html` — landing page for the agent skill (install instructions + side-by-side compare embed).\n- `example.html` — modal demo with a side-by-side \"generic AI output\" vs \"with Transitions.dev skill\" toggle, embedded inside `skill.html` as an iframe.\n- `skills/transitions-dev/` — published skill payload (consumed by `npx skills add`).\n- `refine/` — the **Refine** tool: a CLI that injects a live timeline + Refine panel and runs a local relay (published to npm as `transitions-refine`).\n- `build/extract.mjs` + `build/templates/` — regenerator that keeps the skill in lockstep with `index.html`.\n- `assets/` — icons, favicons, and the social-share OG image.\n- `site.webmanifest`, `robots.txt`, `sitemap.xml` — PWA/SEO metadata.\n\n## Run locally\n\n```bash\npython3 -m http.server 8765\n```\n\nThen open http://127.0.0.1:8765/.\n",
+  "status": "curated"
+}
