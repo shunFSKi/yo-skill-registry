@@ -1,0 +1,75 @@
+{
+  "id": "mcp:official/com.parcelgps/catastro-gps",
+  "type": "mcp",
+  "name": "Catastro GPS",
+  "description": "Cadastral parcels in 31 European countries and regions: reference, coordinates, address, geometry",
+  "author": "com.parcelgps",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/TheHiddenPandaDev/catastro_gps_mcp",
+    "repo": "TheHiddenPandaDev/catastro_gps_mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "catastro-gps-mcp"
+    ],
+    "env": [
+      {
+        "name": "CATASTROGPS_API_KEY",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "CATASTROGPS_TIMEOUT",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "CATASTROGPS_API_URL",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-29T17:07:55.932977Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Catastro GPS MCP server\n\n<!-- mcp-name: com.parcelgps/catastro-gps -->\n\nOfficial cadastral parcels for AI agents, across **29 European countries plus the Basque Country and Navarre** (31 country and region codes), with one API key.\n\nAsk your agent for a parcel by its cadastral reference, by a point on the map or, in Spain, by a postal address typed as free text. It gets back the reference, location, area, land use and the parcel outline, and it can estimate solar and agricultural potential, read aggregated market prices, score and compare parcels in Spain, Portugal, France, Italy and Germany.\n\n- **31 codes, one call shape.** `ES`, `PT`, `FR`, `IT`, `DE`, `PL`, `NL`, `CH`… and the two Spanish foral cadastres (`PV`, `NA`) that the central Catastro does not serve.\n- **The country is optional.** It is detected from the reference format or from the point. A few references are valid in more than one country (some German and Portuguese numbers look alike): pass `country` to be explicit.\n- **Free-text Spanish addresses.** `\"Calle Mallorca 213, Barcelona\"` becomes a cadastral reference.\n- **Geometry included.** Parcel outlines as GeoJSON or `[lat, lng]` rings, with centroid and area.\n- **Free tier for good.** 250 calls a month at no cost, no card. Failed lookups are not charged.\n\nGet a key at **[parcelgps.com/developers](https://www.parcelgps.com/developers)**.\n\n## Install\n\n### Claude Desktop\n\n```json\n{\n  \"mcpServers\": {\n    \"catastro-gps\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"catastro-gps-mcp\"],\n      \"env\": { \"CATASTROGPS_API_KEY\": \"pk_live_your_key_here\" }\n    }\n  }\n}\n```\n\n### Claude Code\n\n```bash\nclaude mcp add catastro-gps --env CATASTROGPS_API_KEY=pk_live_your_key_here -- npx -y catastro-gps-mcp\n```\n\n### Cursor, Windsurf, VS Code and other MCP clients\n\nUse the same `npx -y catastro-gps-mcp` command with `CATASTROGPS_API_KEY` in the environment.\n\n## Tools\n\n| Tool | What it does | Countries |\n|------|--------------|-----------|\n| `get_parcel` | Parcel by cadastral reference **or** WGS84 coordinates: reference, location, address, municipality, area, land use, outline | All 31 codes (UK: coordinates only) |\n| `search_address` | Spanish postal address in free text → cadastral reference | Spain, central Catastro |\n| `get_boundaries` | Parcel outline as GeoJSON / `[lat, lng]` ring, centroid and area | 30 codes (all but UK) |\n| `get_solar_potential` | PVGIS photovoltaic estimate: kWp, kWh/year, savings, payback, CO₂, tilt | ES, PV, NA, PT, FR, IT, DE |\n| `get_agriculture` | Land use, main crop, NDVI and a reference crop price (SIGPAC detail in Spain) | ES, PV, NA, PT, FR, IT, DE |\n| `get_market_data` | Aggregated price reference for the parcel's area. Never individual sales | Figures: FR, IT, DE (NRW only). ES, PV, NA, PT: note without figures |\n| `get_investment_score` | Score 0–100 with a rating and qualitative factor levels (high / medium / low / not available) | ES, PV, NA, PT, FR, IT, DE |\n| `get_value_history` | Area and land-use snapshots of the parcel over time | ES, PV, NA, PT, FR, IT, DE, AT |\n| `compare_parcels` | Two or three parcels side by side: location, solar, agriculture, score | ES, PT, FR, IT, DE (not PV or NA) |\n\nEvery tool call is one API call against your monthly quota, including calls that end in \"not found\". `compare_parcels` is one call for the whole comparison.\n\n### What the market, score and history tools can and cannot tell\n\n- **`get_market_data`** has numbers only where an official source gives them: France (DVF recorded sales: average €/m², number of sales, last sale date, estimated value), Italy (OMI zone values from the Agenzia delle Entrate) and Germany (official *Bodenrichtwert* land value per m², North Rhine-Westphalia only; elsewhere in Germany it answers `available: false`). In Spain and Portugal it answers with a note and no figures: there is no per-parcel price source yet.\n- **`get_investment_score`** combines what the API can gather for the parcel: solar potential and agricultural use everywhere it answers, market prices only in France, Italy and Germany (NRW). Accessibility and risk are not computed yet and come back as `not_available`, so the score is relative to the factors that were available. You get the score, the rating and qualitative factor levels, never the weights.\n- **`get_value_history`** starts the first time anyone looks the parcel up through Catastro GPS (at most one snapshot every 30 days). A parcel nobody has queried returns an empty list. It records area and land use; the official cadastral value is not recorded yet, so `cadastral_value_eur` is always `null` and `change_pct` is the change in area.\n- **`compare_parcels`** fills area, land use and municipality only for Spanish parcels; for Portugal, France, Italy and Germany it returns the location, solar, agriculture and score. It does not include market prices. A parcel that is not found comes back with an error and the others are still compared.\n\n## Coverage\n\nWhat each code answers today. \"Partial\" means the official source does not cover the whole territory.\n\n| Code | Country / region | By reference | By coordinates | Geometry | Notes |\n|------|------------------|:---:|:---:|:---:|-------|\n| `ES` | Spain (central Catastro) | ✅ | ✅ | ✅ | Free-text address search too |\n| `PV` | Basque Country (Álava, Bizkaia, Gipuzkoa) | ✅ | ✅ | ✅ | Foral cadastres, separate from the central Catastro |\n| `NA` | Navarre | ✅ | ✅ | ✅ | Foral cadastre |\n| `PT` | Portugal | Partial | ✅ | Partial | Digital cadastre does not cover the whole country |\n| `FR` | France | ✅ | ✅ | ✅ | |\n| `IT` | Italy | ✅ | ✅ | ✅ | |\n| `DE` | Germany | Partial | Partial | Partial | Every Land except Bavaria |\n| `AT` | Austria | ✅ | ✅ | ✅ | |\n| `CH` | Switzerland | ✅ | ✅ | ✅ | E-GRID references |\n| `LI` | Liechtenstein | ✅ | ✅ | ✅ | |\n| `BE` | Belgium | ✅ | ✅ | ✅ | |\n| `NL` | Netherlands | ✅ | ✅ | ✅ | |\n| `LU` | Luxembourg | ✅ | ✅ | ✅ | |\n| `PL` | Poland | ✅ | ✅ | ✅ | TERYT parcel IDs |\n| `CZ` | Czechia | ✅ | ✅ | ✅ | |\n| `SK` | Slovakia | ✅ | ✅ | ✅ | |\n| `SI` | Slovenia | ✅ | ✅ | ✅ | |\n| `HR` | Croatia | ✅ | ✅ | ✅ | |\n| `BG` | Bulgaria | ✅ | ✅ | ✅ | |\n| `GR` | Greece | ✅ | ✅ | ✅ | |\n| `CY` | Cyprus | ✅ | ✅ | ✅ | |\n| `DK` | Denmark | ✅ | ✅ | ✅ | |\n| `SE` | Sweden | ✅ | ✅ | ✅ | Agricultural blocks (Jordbruksverket), not property units |\n| `NO` | Norway | ✅ | ✅ | ✅ | |\n| `FI` | Finland | ✅ | ✅ | ✅ | |\n| `IS` | Iceland | ✅ | ✅ | ✅ | |\n| `EE` | Estonia | ✅ | ✅ | ✅ | |\n| `LV` | Latvia | ✅ | ✅ | ✅ | |\n| `LT` | Lithuania | ✅ | ✅ | ✅ | |\n| `IE` | Ireland | ✅ | ✅ | ✅ | |\n| `UK` | United Kingdom | — | Scotland | Scotland | Registers of Scotland; England, Wales and Northern Ireland not yet |\n\nData comes live from each country's official cadastre or INSPIRE service, so availability follows theirs: some national services are slow, and the server raises a clear `SERVICE_UNAVAILABLE` when one is down. Outside the table, a point or reference answers `CNV_COVERAGE`.\n\nOfficial registry documents (Spanish *nota simple*, Italian *visura*, Portuguese *certidão permanente* and others) can be ordered at [catastrogps.es](https://www.catastrogps.es). They are not exposed through the API or this server yet.\n\n## Examples\n\nAsk your agent:\n\n> Find the cadastral parcel at Calle Mallorca 213, Barcelona, and give me its area and outline.\n\n> What is the parcel at 52.2297, 21.0122? What's its area?\n\n> Look up the Polish parcel 146510_8.0502.1/3 and tell me its area.\n\n> Compare the solar potential of these two rural parcels in Navarre and Portugal.\n\n> Compare these three parcels in Spain, France and Italy and tell me which has the best investment score.\n\n> What do land prices look like around the French parcel 75056000AB0001?\n\nWhat a `get_parcel` call returns (shortened; values are illustrative):\n\n```json\n{\n  \"reference\": \"9872023VH5797S0001WX\",\n  \"country\": \"ES\",\n  \"latitude\": 40.4165,\n  \"longitude\": -3.7038,\n  \"address\": \"CL MAYOR 1\",\n  \"municipality\": \"MADRID\",\n  \"province\": \"MADRID\",\n  \"area_m2\": 512,\n  \"land_use\": \"Residencial\",\n  \"outline_lat_lng\": [[40.41662, -3.70391], [40.41671, -3.70362], \"...\"],\n  \"google_maps_url\": \"https://maps.google.com/?q=40.4165,-3.7038\"\n}\n```\n\nErrors come back as a code plus a sentence the agent can act on, for example:\n\n```text\nCNV_COVERAGE: That reference or point is in a country that is not covered yet.\nSERVICE_UNAVAILABLE: The official cadastre for this country is not responding. Try again in a few minutes.\nKEY_AUTH_004: Monthly quota exhausted. Upgrade at https://www.parcelgps.com/developers\n```\n\n## Pricing\n\nThe same key works for this server, the REST API and the SDKs ([`catastrogps`](https://www.npmjs.com/package/catastrogps) on npm and PyPI).\n\n| Plan | Price | Calls / month |\n|------|-------|---------------|\n| Free | €0, forever | 250 |\n| Developer | €19 / month | 5,000 |\n| Startup | €49 / month | 15,000 |\n| Growth | €99 / month | 50,000 |\n| Enterprise | Contact us | Custom |\n\nDetails and sign-up: [parcelgps.com/developers](https://www.parcelgps.com/developers).\n\n## Configuration\n\n| Variable | Required | Default | Description |\n|----------|----------|---------|-------------|\n| `CATASTROGPS_API_KEY` | Yes | | Your API key |\n| `CATASTROGPS_TIMEOUT` | No | `20000` | Request timeout in ms. Official cadastres can be slow |\n| `CATASTROGPS_API_URL` | No | `https://api.parcelgps.com` | API base URL |\n\n## Development\n\n```bash\nnpm install\nnpm run lint\nnpm test\nnpm run build\nCATASTROGPS_API_KEY=pk_live_xxx node build/index.js\n```\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

@@ -1,0 +1,84 @@
+{
+  "id": "mcp:official/io.github.Vando-sketch/nextcloud-organizer-mcp",
+  "type": "mcp",
+  "name": "nextcloud-organizer-mcp",
+  "description": "Manage Nextcloud tasks, calendar events and notes from Claude over CalDAV and the Notes API.",
+  "author": "io.github.Vando-sketch",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/Vando-sketch/Nextcloud-Organizer-MCP",
+    "repo": "Vando-sketch/Nextcloud-Organizer-MCP"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "nextcloud-organizer-mcp"
+    ],
+    "env": [
+      {
+        "name": "NEXTCLOUD_BASE_URL",
+        "required": true,
+        "secret": false
+      },
+      {
+        "name": "NEXTCLOUD_USERNAME",
+        "required": true,
+        "secret": false
+      },
+      {
+        "name": "NEXTCLOUD_APP_PASSWORD",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "PUBLIC_BASE_URL",
+        "required": true,
+        "secret": false
+      },
+      {
+        "name": "MCP_OAUTH_PASSWORD",
+        "required": false,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-29T18:40:36.683613Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "写作",
+    "featured": false
+  },
+  "readme": "<p align=\"center\">\n  <img src=\"https://raw.githubusercontent.com/Vando-sketch/Nextcloud-Organizer-MCP/main/assets/logo.svg\" alt=\"nextcloud-organizer-mcp logo\" width=\"160\">\n</p>\n\n<h1 align=\"center\">nextcloud-organizer-mcp</h1>\n\n<p align=\"center\">\n  <b>Let Claude run your Nextcloud tasks, calendar and notes.</b><br>\n  A self-hosted MCP server for CalDAV tasks, events and the Notes app.\n</p>\n\n<p align=\"center\">\n  <a href=\"https://pypi.org/project/nextcloud-organizer-mcp/\"><img alt=\"PyPI\" src=\"https://img.shields.io/pypi/v/nextcloud-organizer-mcp\"></a>\n  <a href=\"https://github.com/Vando-sketch/Nextcloud-Organizer-MCP/actions/workflows/ci.yml\"><img alt=\"CI\" src=\"https://github.com/Vando-sketch/Nextcloud-Organizer-MCP/actions/workflows/ci.yml/badge.svg\"></a>\n  <img alt=\"Python 3.10+\" src=\"https://img.shields.io/pypi/pyversions/nextcloud-organizer-mcp\">\n  <a href=\"LICENSE\"><img alt=\"MIT license\" src=\"https://img.shields.io/badge/license-MIT-blue\"></a>\n</p>\n\n<p align=\"center\">\n  <img src=\"https://raw.githubusercontent.com/Vando-sketch/Nextcloud-Organizer-MCP/main/assets/demo/demo.gif\" alt=\"A scripted client creating a task, a recurring event and a time block, then reading the day's agenda\" width=\"820\">\n  <br>\n  <sub>Real tool calls against a real Nextcloud &middot;\n  <a href=\"https://raw.githubusercontent.com/Vando-sketch/Nextcloud-Organizer-MCP/main/assets/demo/demo.mp4\">watch as video</a></sub>\n</p>\n\n<!-- mcp-name: io.github.Vando-sketch/nextcloud-organizer-mcp -->\n\nAsk in plain language, and your own Nextcloud changes. No copy-paste, no\nthird-party calendar service: the data stays on your server and the tools talk\nto it over standard CalDAV and the Notes REST API.\n\n> Community project, not affiliated with or endorsed by Nextcloud GmbH.\n> Formerly `nextcloud-task-mcp`.\n\n## What you can say\n\n| You say | What happens |\n|---|---|\n| \"Add a high-priority task: finish the Q4 report by Thursday 5pm, remind me 2 hours before.\" | `create_task` with due date, priority and a `VALARM` reminder |\n| \"Add a weekly team sync, Mondays 10:00.\" | `create_event` with an `RRULE` |\n| \"Block Thursday 9-11 for the report.\" | `create_event_from_task` &mdash; a linked time block, task and event stay connected |\n| \"What does my Thursday look like?\" | `get_agenda` &mdash; events (recurring ones expanded) and due tasks in one answer |\n| \"Start a note for the Q4 report, then update just the status section.\" | `create_note`, `update_note_section` |\n\nWhat Claude wrote shows up in the normal Nextcloud apps, immediately:\n\n<p align=\"center\">\n  <img src=\"https://raw.githubusercontent.com/Vando-sketch/Nextcloud-Organizer-MCP/main/assets/demo/calendar.png\" alt=\"Nextcloud Calendar showing the 9-11 time block and the task deadline\" width=\"820\">\n</p>\n<p align=\"center\">\n  <img src=\"https://raw.githubusercontent.com/Vando-sketch/Nextcloud-Organizer-MCP/main/assets/demo/tasks.png\" alt=\"Nextcloud Tasks showing the high-priority task with its tag and due date\" width=\"820\">\n</p>\n<p align=\"center\">\n  <img src=\"https://raw.githubusercontent.com/Vando-sketch/Nextcloud-Organizer-MCP/main/assets/demo/notes.png\" alt=\"Nextcloud Notes showing the note after a single-section update\" width=\"820\">\n</p>\n\n<!-- Slot for real Claude chat recordings (web + mobile): see assets/demo/README.md for the shot list. -->\n\n## Features\n\n- **Tasks** (VTODO): priorities, tags, reminders, subtasks, recurrence with exception dates, four-state status, batch update/delete/move.\n- **Calendars and events** (VEVENT): recurring events, attendees and RSVP, free/busy, sharing, ICS import/export, birthdays, batch operations, trash bin.\n- **Timeboxing**: turn a task into a calendar block and keep both linked.\n- **Notes**: create, search, append, replace a passage or a single Markdown section.\n- **Combined day agenda**: events and due tasks together.\n- **Safe by default**: OAuth 2.1 with a password consent page, `https://` enforced for Nextcloud, clean error messages instead of stack traces.\n- **51 tools** in total, documented in the [tool reference](docs/tools.md).\n\n## Compatibility\n\n| Client | Status |\n|---|---|\n| Claude (claude.ai web) as a custom connector | Supported, connector and consent flow tested against claude.ai |\n| Claude mobile and Cowork | Use the same connector as web; not tested separately |\n| Claude Desktop via [`mcp-remote`](https://github.com/geelen/mcp-remote) | Documented in the [deployment guide](docs/deployment.md#5-connect-claude) |\n| Other MCP clients and model providers | Not tested yet, planned |\n\nThe server speaks standard Streamable HTTP MCP with OAuth 2.1 (Dynamic Client\nRegistration + PKCE), so other clients may work. The OAuth redirect allow-list\ndefaults to `claude.ai` and `claude.com`; other clients need\n`MCP_OAUTH_ALLOWED_REDIRECT_DOMAINS` set. Reports from other clients are welcome.\n\n## Quick start\n\nRequires Python 3.10+ and a Nextcloud with the Calendar/Tasks and Notes apps.\n\n```bash\nuv tool install nextcloud-organizer-mcp   # or: pipx install nextcloud-organizer-mcp\n```\n\nCreate an app password under **Settings → Security → Devices & sessions** (never\nyour account password), then set:\n\n```bash\nexport NEXTCLOUD_BASE_URL=https://cloud.example.com\nexport NEXTCLOUD_USERNAME=your-username\nexport NEXTCLOUD_APP_PASSWORD=your-app-password\nexport PUBLIC_BASE_URL=https://your-host.ts.net   # the URL clients use\nexport MCP_OAUTH_PASSWORD=a-long-random-password  # required unless local\n```\n\n```bash\nnextcloud-organizer-mcp     # listens on 127.0.0.1:8000, path /mcp\n```\n\nFrom a checkout instead: `uv sync && cp .env.example .env`, edit `.env`, then\n`uv run nextcloud-organizer-mcp`. Every setting is documented in\n[`.env.example`](.env.example). `NEXTCLOUD_BASE_URL` must be `https://` unless it\npoints at a local address.\n\nThen expose the server (the [deployment guide](docs/deployment.md) uses Tailscale\nFunnel for TLS) and add it in Claude under **Settings → Connectors → Add custom\nconnector** with the URL `<PUBLIC_BASE_URL>/mcp`. Leave Client ID and Secret blank\nand enter your `MCP_OAUTH_PASSWORD` on the consent page that opens. Details:\n[Authentication](docs/authentication.md#registering-the-connector-in-claude).\n\n## How it works\n\n```\nClaude ── HTTPS + OAuth 2.1 ──► your server (this project) ── CalDAV / Notes API ──► Nextcloud\n```\n\n- One CalDAV connection is opened at startup and reused for every request.\n- No tool or CalDAV logic runs until a request carries a valid access token.\n- The server binds to a local HTTP port and does not handle TLS itself.\n- Timestamps use `MCP_DEFAULT_TIMEZONE` (default `Europe/Berlin`); naive inputs are interpreted in it.\n\n## Documentation\n\n- [Deployment guide](docs/deployment.md) &mdash; Ubuntu LXC + Tailscale + systemd + Claude connector setup\n- [Authentication](docs/authentication.md) &mdash; OAuth model, consent page, local security patches\n- [Tool reference](docs/tools.md) &mdash; all tools with parameters, examples and error messages\n- [Architecture](docs/architecture.md) &mdash; module layout, request flow, design decisions\n- [Contributing](CONTRIBUTING.md) &mdash; dev setup, checks, branches (`main` released, `dev` active)\n- [Changelog](CHANGELOG.md) &middot; [Security policy](SECURITY.md)\n\n## License\n\n[MIT](LICENSE)\n",
+  "status": "curated"
+}

@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.odedkovach/padeltrue",
+  "type": "mcp",
+  "name": "PadelTrue padel racket data",
+  "description": "Published padel racket specifications, each with its source, and calculated ratings. Read only.",
+  "author": "io.github.odedkovach",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/odedkovach/padel-racket-data",
+    "repo": "odedkovach/padel-racket-data"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://padeltrue.com/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-29T18:58:16.008501Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Padel racket data\n\nPublished specifications of 151 padel rackets from 19 brands, each with the address of the page it was read from and the wording used there. Maintained by [PadelTrue](https://padeltrue.com/), an independent padel racket comparison website.\n\nExport date: 2026-09-29. An automated job publishes data changes. This date does not mean every specification was rechecked that day; individual price observation dates are included in the data.\n\n## What is in it\n\n| File | What it holds |\n|---|---|\n| [rackets.json](rackets.json) | The full record of every racket: 1112 specifications, each with `source`, `verbatim` and `sourceType`, plus the calculated ratings |\n| [rackets.csv](rackets.csv) | One row per racket, for a spreadsheet |\n| [brands/](brands/) | One readable table per brand |\n| [DATA_DICTIONARY.md](DATA_DICTIONARY.md) | Field definitions, units, missing values, CSV mapping and rating limitations |\n| [examples/](examples/) | A runnable example: [specification coverage by brand](examples/coverage.md), made by [coverage_by_brand.py](examples/coverage_by_brand.py) |\n| [mcp/](mcp/) | The same data as questions an assistant can ask: a remote, read only MCP server at https://padeltrue.com/mcp, and plain JSON addresses described at https://padeltrue.com/agents |\n\n| Brand | Rackets |\n|---|---|\n| [Adidas](brands/adidas.md) | 14 |\n| [Babolat](brands/babolat.md) | 10 |\n| [Bullpadel](brands/bullpadel.md) | 18 |\n| [Cork Padel](brands/cork-padel.md) | 8 |\n| [Drop Shot](brands/drop-shot.md) | 2 |\n| [Dunlop](brands/dunlop.md) | 3 |\n| [Head](brands/head.md) | 13 |\n| [Joma](brands/joma.md) | 1 |\n| [Kuikma](brands/kuikma.md) | 3 |\n| [Nox](brands/nox.md) | 26 |\n| [Oxdog](brands/oxdog.md) | 7 |\n| [Padelsmith](brands/padelsmith.md) | 1 |\n| [Royal Padel](brands/royal-padel.md) | 14 |\n| [Shooter](brands/shooter.md) | 1 |\n| [Siux](brands/siux.md) | 13 |\n| [StarVie](brands/starvie.md) | 3 |\n| [Tecnifibre](brands/tecnifibre.md) | 2 |\n| [Varlion](brands/varlion.md) | 6 |\n| [Wilson](brands/wilson.md) | 6 |\n\n## How a record looks\n\n```json\n{\n  \"name\": \"Adidas Arrow Hit 2026\",\n  \"brand\": \"Adidas\",\n  \"year\": 2026,\n  \"specs\": {\n    \"weight\": {\n      \"display\": \"360 to 375 g\",\n      \"min\": 360,\n      \"max\": 375,\n      \"verbatim\": \"Weight: 360-375 Gr\",\n      \"source\": \"https://allforpadel.com/en/padel-rackets/7523-padel-racket-adidas-arrow-hit-8435739405888.html\",\n      \"sourceType\": \"manufacturer\"\n    }\n  },\n  \"ratings\": {\n    \"power\": 83,\n    \"control\": 10,\n    \"handling\": 28,\n    \"forgiveness\": 46,\n    \"comfort\": 57,\n    \"value\": 13\n  }\n}\n```\n\n## What the ratings are, and what they are not\n\nThe ratings are calculated from the published specifications with a formula that is printed in full at [padeltrue.com/methodology](https://padeltrue.com/methodology), model version 1.0. They describe what a build favours on paper. They are not court tests, laboratory measurements or customer reviews. When a usable input is missing from a record, the model uses a neutral midpoint. `inputsPublished` counts usable inputs out of five; a missing input here does not prove that no source has published it.\n\nCarbon K count, surface texture and thickness are recorded where available and are excluded from the scoring formula. The methodology explains the evidence and limits behind the model.\n\n## What is not in it\n\n- No photographs.\n- No specification without a source. A racket with too little published is held back and listed at [padeltrue.com/methodology](https://padeltrue.com/methodology#held-back).\n- Prices are snapshots from the linked source, dated in JSON `specs.price.checkedOn` and CSV `price_checked`. They are not live prices or confirmation of availability.\n\n## Use it\n\n```\ncurl -L https://raw.githubusercontent.com/odedkovach/padel-racket-data/main/rackets.json\n```\n\nFor reproducible work, replace `main` in the download URL with a commit SHA and record `modelVersion`. Use JSON when you need each specification's source; the CSV is a summary and omits field-level provenance.\n\nThe same files are served at [padeltrue.com/data](https://padeltrue.com/data).\n\n## Licence and attribution\n\n[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). You may reuse and adapt the data, also commercially, when you credit \"PadelTrue\" with a link to https://padeltrue.com/. Brand and model names belong to their owners.\n\n## Report a wrong figure\n\nOpen an issue here with the model name and a link to the page that shows the correct figure, or use the [contact page](https://padeltrue.com/contact). A correction without a source cannot be applied.\n",
+  "status": "curated"
+}

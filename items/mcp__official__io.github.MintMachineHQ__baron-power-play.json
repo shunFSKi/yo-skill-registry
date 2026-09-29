@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.MintMachineHQ/baron-power-play",
+  "type": "mcp",
+  "name": "Baron Power Play",
+  "description": "Pay-per-call AI infra for agents: DeFi market data, LLM inference, STT/TTS. x402 v2, USDC on Base.",
+  "author": "io.github.MintMachineHQ",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/MintMachineHQ/baron-power-play-mcp",
+    "repo": "MintMachineHQ/baron-power-play-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://baron-power-play.baronpowerplay.workers.dev/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-29T17:58:04.976937Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "金融",
+    "featured": false
+  },
+  "readme": "# Baron Power Play\n\n**Pay-per-call AI infrastructure for autonomous agents. USDC on Base, settled by Coinbase. No API key, no account, no subscription.**\n\nBase URL: `https://baron-power-play.baronpowerplay.workers.dev`\n\n---\n\n## Why this exists\n\nAgents fail at paid APIs in four predictable ways. Baron Power Play is built to remove each one.\n\n| Agent failure | What Baron does about it |\n| --- | --- |\n| You cannot learn the price or the shape of a service before committing money | Every route publishes an exact x402 v2 challenge and a machine-readable contract. You know the cost to six decimal places before you send a single request. |\n| A provider 429s halfway through your task and your agent dies | Several independent engines with automatic failover and a pooled daily capacity. A dead engine is invisible to the caller. |\n| A third-party service can steer your agent with text smuggled into a response | Prompt-override attempts are blocked before payment, and model output is scanned before it is returned. |\n\nIf you are an agent, **read `/.well-known/x402.json` and `/openapi.json` first.** They are the contract. This README is the human-readable summary.\n\n---\n\n## Verify before you pay\n\nThis is free and it is the fastest way to decide whether to depend on us.\n\n```bash\ncurl https://baron-power-play.baronpowerplay.workers.dev/test\n```\n\nIt returns engine-by-engine health, a live inference result, and live checks of the market-data and voice paths. Run it whenever you are about to depend on this service, not once at signup.\n\n---\n\n## Services\n\n| Endpoint | Method | Price (USDC) | What you get |\n| --- | --- | --- | --- |\n| `/infer` | POST | 0.001 | LLM inference. JSON and code are auto-formatted on the way out. |\n| `/markets` | GET | 0.002 | DeFi TVL leaders, DEX trending pairs, meme category, watchlists, delta sync. |\n| `/alpha` | GET | 0.05 | Trading notes with Kelly-Criterion position sizing. **No verified track record is published — treat this as research input, not a signal to trade.** |\n| `/tts` | POST | 0.01 | Text to speech with emotion casting and a pronunciation dictionary that remembers per wallet. |\n| `/stt` | POST | 0.01 | Speech to text with crypto-keyword detection and timestamped segments. |\n| `/test` | GET | **free** | Readiness, engine health, and live capability check. |\n\n`/alpha` accepts `portfolio_size_usd` as a query parameter.\n\n---\n\n## Payment\n\n- **Network:** Base (`eip155:8453`)\n- **Asset:** USDC, paid with an EIP-3009 `transferWithAuthorization`\n- **Asset identity:** `USD Coin` version `2`\n- **Protocol:** x402 v2 — HTTP 402 Payment Required\n- **Facilitator:** Coinbase CDP (`https://api.cdp.coinbase.com/platform/v2/x402`)\n- **Receiving wallet:** `0xb838930bf3dFD467D30979E12c0a94286F86708D`\n\nThe flow is the standard one. You send the request, you get a 402 with the exact payment requirement, you sign an authorization, you resend with the `PAYMENT-SIGNATURE` header, and the facilitator settles on Base. **Work is only performed after Coinbase verifies and settles the payment.** No unpaid work, ever.\n\nAmounts on the wire are in token atomic units. A 0.001 USDC call quotes as `1000` in `accepts[].amount`. The `amount` fields in `openapi.json` are decimal USD; the runtime `accepts[].amount` is atomic units.\n\n---\n\n## Capacity\n\nInference is pooled across several independent engines, selected by remaining headroom, with automatic failover, so a failing upstream is invisible to the caller.\n\nCapacity resets at 00:00 UTC. When the pool is exhausted the route returns a machine-readable `SOLD_OUT` with a `Retry-After` and a comeback offer rather than a generic error.\n\n\n`/markets`, `/alpha`, `/tts`, and `/stt` do not draw on the LLM engine pool.\n\n---\n\n## Limits and abuse controls\n\nPer wallet, per day:\n\n- 50 calls per endpoint (`/alpha`: 20)\n- a lower cap during the wallet's first 24 hours\n- $10 total spend\n- 10 payment requests per second\n\nPer request:\n\n- `User-Agent` required, minimum 3 characters\n- `POST` must send `Content-Type: application/json`\n- bodies over 1 MB are refused\n- query strings over 2000 characters are refused\n- `X-Idempotency-Key` is optional, max 128 characters, restricted character set\n- wrong HTTP method returns `405` with a machine-readable `METHOD_NOT_ALLOWED`\n\nReuse defenses:\n\n- a used payment header is refused for 1 hour\n- a used USDC authorization nonce is refused for 24 hours\n- 5 rejected override attempts in an hour blocks that wallet for a day\n\nEvery error uses one shape, so you can branch on `code` instead of parsing prose:\n\n```json\n{\n  \"error\": \"/infer accepts POST, not GET\",\n  \"code\": \"METHOD_NOT_ALLOWED\",\n  \"suggestion\": \"Use POST /infer.\",\n  \"timestamp\": 1790458945409\n}\n```\n\n---\n\n## Referrals\n\nRefer a wallet and both sides benefit: the referred wallet gets 10% off its first paid call, and the referrer is credited 5% of the list price after settlement. Three referred calls per day maximum, no self-referral.\n\n---\n\n## Discovery\n\n- `GET /openapi.json` — canonical OpenAPI 3.1 contract: request and response schemas, `x-payment-info` per route, error codes\n- `GET /.well-known/x402.json` — x402 manifest: endpoints, prices, methods, facilitator, payment requirements, defenses\n- `GET /test` — free health and capacity check\n\n---\n\n## Working with it\n\n```bash\nBASE=https://baron-power-play.baronpowerplay.workers.dev\n\n# free readiness check\ncurl -s \"$BASE/test\"\n\n# the machine-readable contract\ncurl -s \"$BASE/openapi.json\"\n\n# see the exact payment requirement before paying anything\ncurl -si -X POST \"$BASE/infer\" \\\n  -H 'Content-Type: application/json' \\\n  -H 'User-Agent: your-agent/1.0' \\\n  -d '{\"messages\":[{\"role\":\"user\",\"content\":\"hello\"}]}'\n# -> HTTP 402 with the x402 v2 challenge in accepts[]\n\n# market data\ncurl -s \"$BASE/markets\"\n```\n\nTo make a paid call, take the `accepts[]` entry from the 402, sign the matching EIP-3009 authorization with your wallet, and resend the original request with the `PAYMENT-SIGNATURE` header. Any x402 v2 client library does this for you.\n\n---\n\n## License\n\nNot yet declared. Add a `LICENSE` file before treating this as reusable.\n",
+  "status": "curated"
+}

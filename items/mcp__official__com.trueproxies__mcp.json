@@ -1,0 +1,61 @@
+{
+  "id": "mcp:official/com.trueproxies/mcp",
+  "type": "mcp",
+  "name": "TrueProxies",
+  "description": "Plans, services, usage, invoices, endpoints and connection checks for your TrueProxies account",
+  "author": "com.trueproxies",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/trueproxies-com/trueproxies-mcp",
+    "repo": "trueproxies-com/trueproxies-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://mcp.trueproxies.com/mcp",
+    "env": [
+      {
+        "name": "Authorization",
+        "required": false,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-29T15:34:29.975923Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# TrueProxies MCP server\n\nConnect Claude, Cursor or any MCP client to your [TrueProxies](https://trueproxies.com) account. Ask about plans and prices, your services, traffic used, live traffic, usage history and invoices, generate endpoints and check a connection.\n\nThe server cannot buy, pay, change your proxy password or change trusted IPs. Every tool only reads, except `check_connection`, which sends one request through your service.\n\n## Tools\n\n| Tool | What it returns | API key scope |\n| --- | --- | --- |\n| `list_plans` | Plans, traffic packs, prices, cities, free trial availability | none |\n| `get_account` | Your account | `services:read` |\n| `list_services` | Your services | `services:read` |\n| `get_service` | One service: hosts, ports, capabilities, limits | `services:read` |\n| `get_traffic_used` | Traffic used and remaining | `services:read` |\n| `get_live_traffic` | Live download and upload speed, traffic used today | `services:read` |\n| `get_usage_history` | Connection success, traffic and connection errors over 24h, 7d or 30d | `services:read` |\n| `list_invoices` | Your invoices | `billing:read` |\n| `get_invoice` | One invoice | `billing:read` |\n| `generate_endpoints` | Proxy connection lines, including the username and password | `proxy:read` |\n| `check_connection` | The result and exit IP of one request through your service. It uses a little traffic and starts an unused free trial. | `proxy:read` |\n| `list_trusted_ips` | Trusted IPs of a service | `proxy:read` |\n\n## API key\n\nCreate an API key in the [TrueProxies dashboard](https://dashboard.trueproxies.com) under API keys. For read-only use, give it `services:read` and `billing:read`. Add `proxy:read` only if the assistant should generate endpoints, check connections or list trusted IPs: endpoints contain your proxy password.\n\n## Connect\n\nHosted (nothing to install):\n\n```bash\nclaude mcp add --transport http trueproxies https://mcp.trueproxies.com/mcp \\\n  --header \"Authorization: Bearer $TRUEPROXIES_API_KEY\"\n```\n\nCursor (`~/.cursor/mcp.json`):\n\n```json\n{\n  \"mcpServers\": {\n    \"trueproxies\": {\n      \"url\": \"https://mcp.trueproxies.com/mcp\",\n      \"headers\": { \"Authorization\": \"Bearer ${env:TRUEPROXIES_API_KEY}\" }\n    }\n  }\n}\n```\n\nLocal, with Docker. Build the image once:\n\n```bash\ndocker build -t trueproxies-mcp https://github.com/trueproxies-com/trueproxies-mcp.git\n```\n\n```json\n{\n  \"mcpServers\": {\n    \"trueproxies\": {\n      \"command\": \"docker\",\n      \"args\": [\"run\", \"-i\", \"--rm\", \"-e\", \"TRUEPROXIES_API_KEY\", \"trueproxies-mcp\"],\n      \"env\": { \"TRUEPROXIES_API_KEY\": \"tp_api_...\" }\n    }\n  }\n}\n```\n\nLocal, with Go: `go install github.com/trueproxies-com/trueproxies-mcp@latest`, then run `trueproxies-mcp stdio` with `TRUEPROXIES_API_KEY` set.\n\n## Privacy\n\nThe hosted server forwards your API key to `api.trueproxies.com` for each call and keeps nothing. It logs the tool name, status, request ID and duration, never arguments, results or keys. `mcp.trueproxies.com` is served through Cloudflare, which decrypts traffic in transit like any Cloudflare-proxied site, so your API key and any endpoints pass through Cloudflare. To avoid that, run the server locally.\n\n## Links\n\n- [TrueProxies](https://trueproxies.com)\n- [API reference](https://docs.trueproxies.com)\n- [Pricing](https://trueproxies.com/pricing)\n\n## License\n\nMIT\n",
+  "status": "curated"
+}
