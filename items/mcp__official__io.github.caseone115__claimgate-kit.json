@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.caseone115/claimgate-kit",
+  "type": "mcp",
+  "name": "ClaimGate starter kit - set up a publish gate",
+  "description": "Set up a publish gate for AI-assisted marketing copy: policy, evidence folder and CI job.",
+  "author": "io.github.caseone115",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/caseone115/claimgate",
+    "repo": "caseone115/claimgate"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "https://github.com/caseone115/claimgate/releases/download/v0.1.0/claimgate-kit-0.1.0.mcpb"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-30T19:51:44.89379Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "营销",
+    "featured": false
+  },
+  "readme": "# ClaimGate\n\n**A publish gate for AI-assisted marketing content.**\n\nPoint it at the copy you are about to publish and the evidence your\norganisation actually holds. It tells you which claims you cannot\nsubstantiate, which of your own policy rules you are breaking, and whether the\nasset is missing a disclosure the law now requires.\n\nExit code `1` means blocked. That makes it usable in CI, a pre-commit hook, or\na publishing pipeline — which is where a gate stops mistakes instead of\ndocumenting them afterwards.\n\n```console\n$ claimgate check campaign.md --evidence substantiation/ --policy policy.json\n\nClaims requiring substantiation (14)\n  ✗ [attribution] According to research at a leading university, 94% of finance teams waste more\n      unsupported: the figure(s) 94% in this claim do not appear in any supplied evidence\n  ✗ [statistic] thousands of businesses, and we are fully ISO 27001 certified.\n      contradicted: evidence states \"Acme Invoicing is not certified under ISO 27001\"\n  ~ [statistic] Meridian Freight cut their reconciliation time from 22 hours to 9 hours a week\n      partially_supported: the case study confirms 22 hours and 9 hours, but not \"always\"\n      try: Meridian Freight's finance team reduced reconciliation from 22 hours a week to 9\n\nPolicy findings (3)\n  ✗ [prohibited] guaranteed\n      absolute guarantees are unenforceable and are treated as misleading advertising\n  ✗ [disclosure] AI disclosure missing\n      required under EU AI Act Article 50 (in force 2 Aug 2026) and platform labelling rules\n\nBLOCKED — 14 unsupported claim(s), 3 blocking policy finding(s).\n```\n\n## Why this exists\n\nGenerative AI is now how a large share of marketing copy gets written, and the\ncontrols did not scale with it. The recurring finding across 2025–2026 is not\nthat models are bad at writing. It is that a reviewer cannot tell a\nhallucinated statistic from a real one — there is no grammatical signal that\nseparates them — so hallucinated content passes a casual read. Organisations\nthat scaled AI content without a review gate did not reduce their content\nrisk, they accelerated it.\n\nThe existing tools do not close this. Detectors tell you a text *was*\nAI-written, which is not the question. Generators produce more copy. Governance\nplatforms tell you at the end of the quarter that you had incidents.\n\nClaimGate answers the question that actually decides whether an asset can\nship: **can this specific claim be traced to something we can point at?**\n\n## The three checks\n\n**1. Substantiation.** Every checkable claim in the draft is extracted, then\nadjudicated against your evidence. The important part is how:\n\n- A number in a claim must appear in the evidence. That is a string search,\n  not a judgement call, and no model gets to overrule it. A fabricated\n  statistic cannot be talked into a pass.\n- Semantic support is decided by a model given *only* the claim and the\n  evidence, required to name the evidence it relied on, and allowed to answer\n  `unsupported` or `unverified`.\n- If the model is unavailable, the key is missing, or the reply is malformed,\n  the verdict is `unverified` — which blocks. It never fails towards\n  \"supported\".\n\n**2. Policy.** Your prohibited and restricted claims, written down once and\nenforced on every draft: guarantees, medical and financial claims, unsourced\nsuperlatives, named competitors, personal data.\n\n**3. Disclosure.** From 2 August 2026 the EU AI Act (Article 50) requires\ndisclosure of AI-generated content in specified circumstances, and Meta,\nTikTok and Google each require an AI label on realistic synthetic media in\nads. A customer-facing AI-assisted asset with no disclosure is\nnon-compliant however good the copy is — so it is checked as a property of the\ndraft, not left to whoever uploads it.\n\n## Install\n\nNo dependencies. Python 3.9+.\n\n```bash\npip install \"claimgate @ git+https://github.com/caseone115/claimgate\"\n```\n\n**Not a bare `pip install claimgate`.** That name on PyPI belongs to a\ndifferent, unrelated project (an AI-agent test harness), so the bare name\ninstalls *that* tool, in which `claimgate check` does not exist. This\nproduct installs from its own source repository, which is also where its\nlicence and its tests live. From a checkout, `pip install -e .` is\nequivalent.\n\n## Start here: the free starter kit\n\n```bash\nclaimgate init my-project && cd my-project\nclaimgate check DRAFT-template.md --evidence evidence/ --policy policy.json --no-model\n```\n\nThat writes a policy file you can edit, an evidence folder, a blank draft\ntemplate, a six-question pre-publish checklist (including the AI-disclosure\nsection) and a GitHub Actions job that gates every pull request. `--no-model`\nneeds no API key and no network: it runs the deterministic checks, and it does\ncatch inventing — a figure that appears in the draft and not in your evidence\nblocks, whatever wrote it.\n\nThe kit is free and stays free: <https://github.com/caseone115/claimgate>.\n\nThe full engine — model adjudication of every claim, JSON output for pipelines,\nthe whole test suite — is a one-off download at\n<https://teeterbot.gumroad.com/l/claimgate/LAUNCH39>: **US$39 while the launch\nis running**, US$149 after it. It is the same code as this repository, MIT\nlicensed; nothing is held back from the source.\n\n## Use\n\n```bash\nclaimgate init my-project                  # the free starter kit\nclaimgate init-policy policy.json          # a starter policy to edit\nclaimgate claims draft.md                  # just list the claims\nclaimgate check draft.md --evidence ./evidence/\nclaimgate check draft.md --evidence evidence.json --policy policy.json --json\nclaimgate check draft.md --no-model        # facts and policy only, no API calls\n```\n\nEvidence is any directory of `.txt`/`.md`/`.html` files, or a JSON array:\n\n```json\n[{\"id\": \"spec\", \"title\": \"Product spec\", \"text\": \"...\"},\n {\"id\": \"case-1\", \"title\": \"Meridian case study\", \"url\": \"...\"}]\n```\n\nSet `DEEPSEEK_API_KEY` for adjudication. Without it, `--no-model` still runs\nthe deterministic checks — which is where the fabricated-figure guarantee\nlives.\n\n## What this is not\n\n- **Not a fact-checker.** It does not search the web or decide what is true.\n  It decides whether *you* can substantiate what you wrote, against evidence\n  *you* supply. That is the question a compliance review actually asks, and it\n  is the only one answerable without pretending to authority the tool does not\n  have.\n- **Not a detector.** It does not guess whether a text was AI-written.\n- **Not a lawyer.** It enforces the policy you write. It flags where AI\n  disclosure obligations appear to apply; it does not give legal advice.\n\n## Use it from an MCP client\n\nThe same checks run as an MCP server, so an agent can gate a draft before it\npublishes instead of a human remembering to. `mcp/server.py` needs no install —\n`uv` fetches its one dependency. Add this to your client's config:\n\n```json\n{\n  \"mcpServers\": {\n    \"claimgate\": {\n      \"command\": \"uv\",\n      \"args\": [\"run\", \"--directory\", \"<repo>/mcp\", \"<repo>/mcp/server.py\"]\n    }\n  }\n}\n```\n\nIt exposes `check_draft`, `check_draft_json`, `list_claims`,\n`check_policy_only` and `about`. See [`mcp/README.md`](mcp/README.md), including\nwhat it deliberately refuses to do.\n\nThe **free starter kit** is a second registry entry,\n`io.github.caseone115/claimgate-kit`. `init_kit` writes the policy file, the\nevidence folder, the checklist and the GitHub Actions job into a directory you\nname; `check_kit` then runs that gate offline with no API key. See\n[`mcp-kit/`](mcp-kit/).\n\n## Tests\n\n```bash\npython tests/test_claimgate.py     # 55 checks — the engine\npython tests/test_outreach.py      # 21 checks — the outreach guardrails\npython tests/test_kit.py           # 44 checks — the starter kit\npython scripts/test_mcp_server.py  # 19 checks — the MCP server, over real stdio\n```\n\nThe suite is written against the product's promises, not its implementation:\nthat no claim is invented, that a number absent from the evidence is never\nreported as supported, that anything uncheckable blocks, and that the same\ninput always gives the same answer. `tests/test_kit.py` also runs the shipped\nREADME through the shipped policy, because a claim-checking product whose own\nfront page carries a prohibited claim is the worst demonstration there is.\n\n## Licence\n\nMIT.\n",
+  "status": "curated"
+}

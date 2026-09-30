@@ -1,0 +1,74 @@
+{
+  "id": "mcp:official/io.github.michalhron/scopus-plus-mcp",
+  "type": "mcp",
+  "name": "Scopus Plus MCP",
+  "description": "Scopus and more: search, full text, citation networks, journal quality, bibliometrics.",
+  "author": "io.github.michalhron",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/michalhron/scopus-plus-mcp",
+    "repo": "michalhron/scopus-plus-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "scopus-plus-mcp"
+    ],
+    "env": [
+      {
+        "name": "SCOPUS_API_KEY",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "SCOPUS_INSTTOKEN",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "OPENALEX_API_KEY",
+        "required": false,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-30T19:46:01.379595Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "写作",
+    "featured": false
+  },
+  "readme": "# Scopus Plus MCP\n\n<!-- mcp-name: io.github.michalhron/scopus-plus-mcp -->\n\n**The Scopus MCP server that goes further: search, full text, citation networks, journal quality and bibliometrics, for Claude and other AI assistants.**\n\n[![Tests](https://github.com/michalhron/scopus-plus-mcp/actions/workflows/test.yml/badge.svg)](https://github.com/michalhron/scopus-plus-mcp/actions/workflows/test.yml)\n[![PyPI](https://img.shields.io/pypi/v/scopus-plus-mcp)](https://pypi.org/project/scopus-plus-mcp/)\n![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)\n![License: MIT](https://img.shields.io/badge/license-MIT-green)\n\nSearch the literature, trace who cites whom across generations, map research\nfronts and intellectual bases, and pull the counts, metrics and bibliography\nyou need, from a conversation. It is an [MCP](https://modelcontextprotocol.io)\nserver, so any MCP client can use it: Claude Desktop, Claude Code, Cursor.\n\n- 🕸️ **Citation networks.** Bibliographic coupling, co-citation,\n  multi-generation citation lineages, and the citation network within any\n  set of papers, with SPC/SPLC/SPNP main paths and key routes, RPYS and a\n  historiograph, exported for Pajek, VOSviewer or Gephi.\n- 🧾 **Audited, not just built.** Citer sets verified across search\n  strategies, reference lists checked against Crossref for gaps, and the\n  sentences behind each citation, with their intent, from Semantic Scholar.\n- 🔀 **Two data sources.** Scopus by default; add `source=\"openalex\"` to run\n  the same analyses without a Scopus subscription.\n- 📊 **Bibliometrics.** Where a topic is published and in which quartile per\n  field; journals above a percentile cut-off in chosen categories; publications\n  per year; journal metrics; BibTeX for any list of papers.\n- 🔎 **Full-text search.** Find Elsevier papers that use a term in their body,\n  and see how often and where each one uses it.\n- 🩺 **Honest about access.** One call tells you which tools your current\n  Scopus access supports, and why the rest fail.\n- ✅ **Tested.** 510 test functions, CI on Linux, macOS and Windows, and a\n  live check of every tool against the real APIs.\n\nHow it compares with the other Scopus MCP servers and with bibliometrics packages (bibliometrix, pybliometrics, VOSviewer, Pajek, ...): **[comparison](docs/comparison.md)**.\n\n## Ask things like\n\n> *Map the research front around these six papers on organizing visions.*\n>\n> *Trace two generations of work citing Swanson & Ramiller (1997) and show me the main path.*\n>\n> *Build the citation network of every Basket of Eight paper citing the organizing-vision papers, and show how the main path cites its predecessors.*\n>\n> *How has publishing on \"digital transformation\" grown since 2010?*\n>\n> *Get SJR and CiteScore for the Basket of Eight, and BibTeX for the papers we just found.*\n\n## Tools\n\n| | |\n| --- | --- |\n| **Search and records** | `search_scopus` · `search_all` · `search_fulltext` · `get_abstract_details` · `resolve_identifier` · `search_authors` · `get_author_profile` · `get_fulltext` |\n| **Citations** | `get_references` · `get_citing_papers` |\n| **Networks** | `bibliographic_coupling` · `co_citation` · `citation_lineage` · `citation_network` · `historiograph` · `rpys` · `research_fronts` |\n| **Audit** | `resolve_citers` · `citation_context` · `path_transmission` · `coding_agreement` · `index_coverage` · `check_retractions` |\n| **Bibliometrics** | `publication_counts` · `topic_landscape` · `thematic_evolution` · `get_journal_metrics` · `find_journals` · `get_bibtex` · `import_records` |\n| **Diagnostics and jobs** | `diagnose_connection` · `get_quota_status` · `get_server_info` · `job_status` · `job_result` |\n\nParameters and details for each: [tool reference](docs/tools.md).\n\n## Install\n\nYou need an API key from the [Elsevier Developer Portal](https://dev.elsevier.com/)\n(register with your institutional email). OpenAlex needs no key.\n\n**Claude Desktop** — one click:\n1. Download `scopus-plus-mcp-<version>.mcpb` from the\n   [latest release](https://github.com/michalhron/scopus-plus-mcp/releases/latest).\n2. Open it (or drag it into *Settings → Extensions*), click **Install**, and\n   paste your API key when asked. Claude stores it securely.\n\n**Claude Code** — two commands:\n\n```bash\nclaude plugin marketplace add michalhron/scopus-plus-mcp\nclaude plugin install scopus-plus-mcp@michalhron\n```\n\nThen make your key available, either in your shell\n(`export SCOPUS_API_KEY=...`) or, better, in the\n[OS secret store](docs/configuration.md#keep-secrets-out-of-config-files).\n\n**Any other MCP client** (needs [uv](https://docs.astral.sh/uv/)):\n\n```json\n{\n  \"mcpServers\": {\n    \"scopus-plus\": {\n      \"command\": \"uvx\",\n      \"args\": [\"scopus-plus-mcp\"],\n      \"env\": { \"SCOPUS_API_KEY\": \"YOUR_KEY\" }\n    }\n  }\n}\n```\n\nThen ask your assistant to run `diagnose_connection`: it checks your key and\ntells you which tools your Scopus access supports.\n\n## Documentation\n\n| | |\n| --- | --- |\n| [Tool reference](docs/tools.md) | Every tool and parameter, generated from the code |\n| [Data sources](docs/data-sources.md) | Scopus vs OpenAlex: when to use which, measured coverage |\n| [Configuration](docs/configuration.md) | All settings; keeping keys in the OS secret store |\n| [Access and troubleshooting](docs/access.md) | Off-campus access, tokens, proxies, reading `diagnose_connection` |\n| [Comparison](docs/comparison.md) | This project vs the other Scopus MCP servers, and vs bibliometrics packages |\n| [Development](docs/development.md) | Tests, live smoke tests, releases |\n| [Prompt examples](docs/examples.md) · [Changelog](CHANGELOG.md) · [Roadmap](ROADMAP.md) | |\n\n## Origins\n\nFormerly `citation-network-mcp` (and before that `michalhron/scopus-mcp`). This project began as a fork of\n[qwe4559999/scopus-mcp](https://github.com/qwe4559999/scopus-mcp) by\n[thinktraveller](https://github.com/thinktraveller) and\n[qwe4559999](https://github.com/qwe4559999), which provides Scopus search,\nabstracts, author profiles and citing papers. Everything since version 0.2\nwas developed here by [Michal Hron](https://github.com/michalhron). MIT\nlicensed; see [LICENSE](LICENSE).\n\nScopus and ScienceDirect are trademarks of Elsevier B.V. This project is\nindependent and not affiliated with or endorsed by Elsevier; it uses their\npublic APIs with your own key and subscription.\n",
+  "status": "curated"
+}

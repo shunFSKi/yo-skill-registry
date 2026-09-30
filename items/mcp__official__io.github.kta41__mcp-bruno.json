@@ -1,0 +1,64 @@
+{
+  "id": "mcp:official/io.github.kta41/mcp-bruno",
+  "type": "mcp",
+  "name": "mcp-bruno",
+  "description": "Python MCP server for running and inspecting Bruno API collections.",
+  "author": "io.github.kta41",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/Kta41/mcp-bruno",
+    "repo": "Kta41/mcp-bruno"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "mcp-bruno"
+    ],
+    "env": [
+      {
+        "name": "BRUNO_AUTH_TOKEN",
+        "required": false,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-30T18:31:09.659071Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# 🔌 Bruno MCP Server for Python\n\n<div align=\"center\">\n\n[![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)\n[![MCP](https://img.shields.io/badge/Model_Context_Protocol-Enabled-blue?style=for-the-badge)](https://modelcontextprotocol.io/)\n[![Bruno](https://img.shields.io/badge/Bruno-API_Client-orange?style=for-the-badge)](https://www.usebruno.com/)\n[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)\n\n</div>\n\n> Python MCP server for running [Bruno](https://www.usebruno.com/) collections. It exposes a Model Context Protocol server over `stdio` with tools that run collections through the `bru` CLI and return normalized JSON results.\n\n*Note: All examples in this repository use placeholder names (`project1`, `/home/user/project/bruno`, `example.test`). Replace them with your own paths and collection names.*\n\n---\n\n## ✨ Features\n\n* **Run Bruno collections** natively using the Bruno CLI.\n* **Discover collections** and sibling environment files automatically.\n* **Support environment files** and dynamic environment variables.\n* **Secure Secret Injection:** Pass secrets to Bruno without exposing values to the LLM via `inherited_variables`.\n* **Filter Inspection:** Inspect documented query filters and run temporary filter scenarios without modifying the source collection.\n* **Two-Phase Full Validation:** Execute baseline tests + all documented filters in a single tool call.\n* **Normalized Outputs:** Return structured execution results containing `success`, `summary`, `failures`, and `timings`.\n\n---\n\n## 📦 Requirements\n\n* **Python:** 3.10 or newer\n* **Package Manager:** `uv`\n* **Node Package Manager:** `npm` *(only if the Bruno CLI is not already installed)*\n\nThe installer checks whether the Bruno CLI command `bru` is available. If it is missing and `npm` is available, it automatically installs it with:\n\n```bash\nnpm install -g @usebruno/cli\n```\n\n---\n\n## 🚀 Installation & Running\n\n### 1. Installation\nInstall dependencies using `uv`:\n\n```bash\nuv sync\n```\n*(If your configured package index does not mirror the MCP Python SDK, point uv at PyPI for the sync: `UV_DEFAULT_INDEX=https://pypi.org/simple uv sync`)*\n\n### 2. Running the Server\nYou can run the server directly using `uv`:\n\n```bash\nuv run bruno-mcp\n```\n*Alternatively, run the module directly inside the uv environment: `uv run python -m bruno_mcp`*\n\n---\n\n## ⚙️ Configuration\n\n### MCP Configuration\nExample MCP `stdio` configuration from this workspace root:\n\n```json\n{\n  \"mcpServers\": {\n    \"bruno-runner\": {\n      \"command\": \"uv\",\n      \"args\": [\"run\", \"bruno-mcp\"]\n    }\n  }\n}\n```\n\n### Configuration File (`bruno-mcp.toml`)\nDefault roots and auth aliases can be configured in `bruno-mcp.toml` in the current working directory, or globally in `~/.config/bruno-mcp/config.toml`. \n\nSee `bruno-mcp.example.toml` for a commented template:\n\n```toml\n[workspace]\nroots = [\n  \"/home/user/project/bruno\"\n]\n\n[auth]\ninherited_variables = [\n  \"BRUNO_AUTH_TOKEN\",\n  \"BRUNO_API_KEY\"\n]\n\n[defaults]\nenvironment = \"dev\"\n```\n\n> **Note:** The installer creates `~/.config/bruno-mcp/config.toml` with a dummy root. Local `bruno-mcp.toml` files are git-ignored so real paths and environment names are never committed.\n\n---\n\n## 💻 Local VS Code Installation\n\nFrom the project root, install dependencies with uv:\n\n```bash\nUV_DEFAULT_INDEX=[https://pypi.org/simple](https://pypi.org/simple) uv sync\n```\n\nEnsure the Bruno CLI is available (`bru --version`). This repository includes `.vscode/mcp.json`, allowing VS Code to discover the local MCP server from the workspace:\n\n```json\n{\n  \"servers\": {\n    \"bruno-runner\": {\n      \"type\": \"stdio\",\n      \"command\": \"uv\",\n      \"args\": [\"run\", \"bruno-mcp\"]\n    }\n  }\n}\n```\n\nReload the VS Code window after syncing dependencies. The `bruno-runner` server should now be available in the MCP servers list.\n\n### Global Installation\nTo install the MCP server in the VS Code user profile so it is available from **any** workspace:\n\n```bash\nuv run python scripts/install_vscode.py\n```\n*(To also install the reusable Copilot prompt and agent globally, append `--with-copilot-customizations` to the command above).*\n\nTo install it manually in another local VS Code workspace, change the command args to include `--directory`:\n```json\n\"args\": [\"--directory\", \"/home/user/mcp-bruno\", \"run\", \"bruno-mcp\"]\n```\n\n---\n\n## 🧰 Available Tools\n\n### 🔍 `list-collections`\nLists Bruno collections below a root directory or configured roots. Use it when the user provides a partial collection name instead of a full path.\n* **`root`** *(optional)*: Bruno root directory (usually contains `collections/` and `environments/`).\n* **`query`** *(optional)*: Case-insensitive text used to filter collection names and paths.\n\n### ▶️ `run-collection`\nRuns a Bruno collection and returns normalized execution results.\n* **`collection`** *(required)*: Path to the Bruno collection.\n* **`environment`** *(optional)*: Path to an environment file.\n* **`variables`** *(optional)*: Environment variables as `KEY=value` strings.\n* **`inherited_variables`** *(optional)*: Names of environment variables to read from the MCP server process and pass to Bruno without exposing values to the LLM.\n\n<details>\n<summary><b>View detailed authentication & path behavior</b></summary>\n\n**Auth Handling:**\nFor secrets, prefer `inherited_variables` instead of writing values in chat. By default, the secure MCP input `BRUNO_AUTH_TOKEN` can satisfy Bruno variables named `bearerToken`, `BEARER_TOKEN`, `AUTH_TOKEN`, `TOKEN`, `accessToken`, or `access_token`. \n\n**Supported Collection Inputs:**\n* Collection directory: `/path/to/bruno/collections/project1`\n* Bruno request file: `/path/to/bruno/collections/project1/request.bru`\n* Internal `.vru` request file: `/path/to/bruno/collections/project1/request.vru`\n* Open collection descriptor: `/path/to/bruno/collections/project1/opencollection.yml`\n\nWhen Bruno failures look like authentication problems, the response includes `auth_failure: true` and an `auth_message`. \n\nExample with inherited secrets:\n```json\n{\n  \"collection\": \"/home/user/project/bruno/collections/project1\",\n  \"environment\": \"dev\",\n  \"inherited_variables\": [\"BRUNO_AUTH_TOKEN\"]\n}\n```\n</details>\n\n### 🌍 `discover-environments`\nInspects the folder structure around a Bruno collection and returns the sibling environments directory, available environment names, and variable names (without returning secret values).\n\n### 📖 `read-result-artifact`\nReads a bounded, redacted summary from the raw Bruno JSON artifact path returned by `run-collection`. \n* **`path`** *(required)*: The `artifact.path` value returned by a previous run.\n* **`max_items`** *(optional)*: Number of response items to sample per request (default 3, max 20).\n\n### 🧪 `list-request-filters` & `run-filter-scenarios`\n* `list-request-filters`: Inspects YAML request files and returns query params split into enabled and disabled groups.\n* `run-filter-scenarios`: Runs temporary request variants with selected disabled query params enabled without modifying the source files.\n\n### 🛡️ `run-full-validation`\nTwo-phase orchestration in a single tool call:\n1. **Baseline**: Runs the collection once and checks every endpoint responds without errors (no `4xx`/`5xx`).\n2. **Filters**: Only runs if the baseline is green. Automatically discovers and tests every disabled query filter across every endpoint.\n\n---\n\n## 🤖 Prompt and Agent Automation\n\nThe project includes reusable Copilot prompt and agent templates:\n* **Prompt template:** `copilot/prompts/run-bruno-collection.prompt.md`\n* **Agent template:** `copilot/agents/bruno-runner.agent.md`\n\nInstall them globally with:\n```bash\nuv run python scripts/install_vscode.py --with-copilot-customizations\n```\n\nThe agent will seamlessly navigate the workspace, discover collections/environments, handle credentials securely via `inherited_variables`, and return detailed execution summaries:\n\n```json\n{\n  \"success\": true,\n  \"summary\": {\n    \"total\": 5,\n    \"failed\": 0,\n    \"passed\": 5\n  },\n  \"failures\": [],\n  \"auth_failure\": false,\n  \"auth_message\": null,\n  \"timings\": {\n    \"started\": \"2024-03-14T10:00:00.000000Z\",\n    \"completed\": \"2024-03-14T10:00:01.000000Z\",\n    \"duration\": 1000\n  }\n}\n```\n\n---\n\n## 🐳 Docker\n\nThe Docker image installs both this Python server and the Bruno CLI:\n\n```bash\ndocker build -t bruno-mcp-python .\ndocker run --rm -i bruno-mcp-python\n```\n\n---\n\n## 🛠️ Development & Project Structure\n\n**Commands:**\n* Compile-check the sources: `uv run python -m compileall src`\n* Run the test suite: `uv run python -m unittest discover -s tests -v`\n\n**Structure:**\n```text\n.\n├── src/bruno_mcp/         # MCP server, runner, config, and types\n├── scripts/               # VS Code installer script\n├── copilot/               # Reusable Copilot prompt and agent templates\n├── tests/                 # Unit tests\n├── .vscode/mcp.json       # Workspace MCP server entry\n└── bruno-mcp.example.toml # Commented configuration template\n```\n---\nmcp-name: io.github.kta41/mcp-bruno\n---\n\n\n\n## 📄 License\nReleased under the [MIT License](LICENSE).\n\n\n",
+  "status": "curated"
+}

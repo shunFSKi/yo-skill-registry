@@ -21,7 +21,7 @@
   "quality": {
     "stars": null,
     "pushed_at": "2026-09-29T18:49:11.657495Z",
-    "score": 52
+    "score": 42
   },
   "security": {
     "score": 100,
@@ -53,6 +53,6 @@
     "category": null,
     "featured": false
   },
-  "readme": "# Ghostchars\n\nGhostchars finds and removes the characters that hide in text: zero-width\nspaces, bidi overrides, tag characters, soft hyphens, stray variation selectors,\nnoncharacters, and the typography that reads as machine written. It runs\noffline. Nothing you clean leaves your machine.\n\nThis repository is the engine behind [ghostchars.com](https://ghostchars.com)\nand the free tools built on it. The same cleaner exists twice, in Python and in\nTypeScript, and one fixture file proves the two agree on every codepoint.\n\n## What is here\n\n| path | what it is |\n|---|---|\n| `strip_invisible.py` | The reference engine. Stdlib only, one file. See `PYTHON.md`. |\n| `clean_file.py`, `style_report.py` | Documents (.docx, .odt, .html) and the style report, on the same engine. |\n| `web/src/engine/` | The TypeScript port. The website, the CLI and the MCP server run this. |\n| `cli/` | `ghostchars` on npm: a Node CLI, a stdio MCP server, and the agent skill, hook and pre-commit files. |\n| `tools/` | The generators for the Unicode tables and the golden fixtures, and the parity gates. |\n| `tests/` | The Python tests. |\n\n## Quick start\n\n```\nnpx -y ghostchars check --bar text        # the gate: exit 1 if the tree is dirty\npbpaste | npx -y ghostchars clean         # clean the clipboard\n./strip_invisible.py --show draft.md      # the reference engine, no install\n```\n\n`cli/README.md` documents every command, the three bars, `ghostchars.json`\nand the agent integrations.\n\n## How the two engines stay identical\n\nThe Python engine is the specification. `tools/gen_golden.py` runs it over\nevery fixture and records the findings and the cleaned output for each flag\ncombination in `web/src/engine/__fixtures__/golden.json`. The TypeScript\nengine replays that file in its test suite, so a port that disagrees with the\nreference by one codepoint fails its build. The Unicode property tables the\nport needs are generated from the same `unicodedata` snapshot by\n`tools/gen_unicode_tables.py`. Two commands fail when anything drifts:\n\n```\npython3 tools/gen_golden.py --check\npython3 tools/gen_unicode_tables.py --check\n```\n\n## Working on it\n\nPython 3.10 or newer for the reference engine and the tools. Node 22 or newer\nwith pnpm for `cli/` and the engine tests under `web/`. The tree holds its own\nprose to the text bar with its own CLI: `ghostchars.json` at the root names\nthe surface and its pins, and `npx -y ghostchars check` from the root runs it.\n\nThe Mac app and the Chrome extension are built on this engine and available\nat [ghostchars.com](https://ghostchars.com).\n\n## Issues\n\nBugs and questions about the engine or the CLI go to\n[github.com/ghostchars/ghostchars/issues](https://github.com/ghostchars/ghostchars/issues).\n\n## Licence\n\nMIT, with the Unicode licence covering the generated character tables. See\n`LICENSE`. The npm package carries its own copy with the notices for what it\nbundles.\n",
+  "readme": null,
   "status": "curated"
 }

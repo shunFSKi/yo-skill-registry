@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/org.freetts/mcp",
+  "type": "mcp",
+  "name": "FreeTTS",
+  "description": "Text to speech in 149 languages: MP3 links from any assistant. Free without an account.",
+  "author": "org.freetts",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/freetts/mcp",
+    "repo": "freetts/mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://mcp.freetts.org/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-30T19:23:10.979962Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# FreeTTS MCP server\n\nText to speech inside Claude, ChatGPT, Cursor, VS Code, Codex, Windsurf, Gemini CLI and any other MCP client. One remote server, nothing to install:\n\n```\nhttps://mcp.freetts.org/mcp\n```\n\nAsk your assistant to read something aloud, and it calls FreeTTS and hands you an MP3 link.\n\n## What it does\n\n| Tool | What it does | Needs |\n|---|---|---|\n| `text_to_speech` | Text in, MP3 link out. 2,253 voices in 149 languages. | Nothing. Free without an account. |\n| `list_voices` | Voices for a language or search word, with ids. | Nothing |\n| `suggest_voice` | Three voices for a language and a use, with reasons. | Nothing |\n| `check_usage` | Plan and characters left. | Nothing |\n| `dialogue_to_speech` | `Name: line` script, a voice per speaker, one file. | FreeTTS PRO |\n| `script_to_tracks` | Script mode: exact `(pause 2)`, `(beep)`, `(ding)`, `TRACK:` files, `CUE:` voice, scenes. | FreeTTS PRO |\n| `transcribe_audio` | A public audio URL in, text out. | FreeTTS PRO |\n\n**Free without a key:** standard voices, 2,000 characters a call and a day per connection, 10 requests a minute, a short spoken \"FreeTTS\" tag at the end, files kept one hour.\n\n**With a FreeTTS key** (free account or PRO): the account's plan. PRO: HD and Signature voices, no tag, 10,000 characters a call, 1,000,000 a month, WAV, files kept 30 days, and the dialogue, Script mode and transcription tools. Keys: [freetts.org/dashboard](https://freetts.org/dashboard) (API keys).\n\n## Add it to your client\n\n**Claude Code**\n```\nclaude mcp add --transport http freetts https://mcp.freetts.org/mcp\n```\nWith a key: add `--header \"Authorization: Bearer ft_live_...\"`, or run `/mcp` inside a session to connect with the sign-in flow.\n\n**Claude (web, desktop, mobile):** Settings, Connectors, Add custom connector, paste `https://mcp.freetts.org/mcp`. Free tools work at once; when a tool needs your account Claude shows Connect.\n\n**Cursor:** [Install in Cursor](cursor://anysphere.cursor-deeplink/mcp/install?name=FreeTTS&config=eyJ1cmwiOiJodHRwczovL21jcC5mcmVldHRzLm9yZy9tY3AifQ==), or in `~/.cursor/mcp.json`:\n```json\n{ \"mcpServers\": { \"freetts\": { \"url\": \"https://mcp.freetts.org/mcp\" } } }\n```\n\n**VS Code:** [Install in VS Code](https://vscode.dev/redirect/mcp/install?name=FreeTTS&config=%7B%22type%22%3A%22http%22%2C%22url%22%3A%22https%3A%2F%2Fmcp.freetts.org%2Fmcp%22%7D), or in `.vscode/mcp.json`:\n```json\n{ \"servers\": { \"freetts\": { \"type\": \"http\", \"url\": \"https://mcp.freetts.org/mcp\" } } }\n```\n\n**Codex CLI and ChatGPT desktop**\n```\ncodex mcp add freetts --url https://mcp.freetts.org/mcp\n```\n\n**ChatGPT (web):** Settings, Apps (Developer Mode), add `https://mcp.freetts.org/mcp`.\n\n**Windsurf**, `~/.codeium/windsurf/mcp_config.json`:\n```json\n{ \"mcpServers\": { \"freetts\": { \"serverUrl\": \"https://mcp.freetts.org/mcp\" } } }\n```\n\n**Any other client:** use `https://mcp.freetts.org/mcp` as the server URL (Streamable HTTP). To use your account without the sign-in flow, send your key as `Authorization: Bearer ft_live_...` or `x-api-key: ft_live_...`.\n\nFull guide with copy buttons: [freetts.org/developers/mcp](https://freetts.org/developers/mcp).\n\n## Sign-in (OAuth)\n\nThe server is an OAuth 2.1 authorization server (PKCE, dynamic client registration, client ID metadata documents, RFC 9728 and 8414 metadata). Free tools need no sign-in. When a client calls a tool that needs your account, the server answers 401 and the client shows its Connect flow; the page asks for a FreeTTS API key from your dashboard and binds the connection to it. Delete the key in the dashboard to disconnect every assistant that used it.\n\n## Privacy\n\nThe text you send is sent to FreeTTS and its speech providers exactly as from the website, under the [FreeTTS privacy policy](https://freetts.org/privacy). Calls without a key are metered by the caller's IP address. The server logs tool name, plan, character count, client name and outcome, never the text.\n\n## Run it locally (stdio)\n\nThe same server also runs on your own machine, for clients that start local servers or when you would rather keep a key in a local config. It talks to the public FreeTTS API with your own key. Get one at [freetts.org/dashboard](https://freetts.org/dashboard) (API keys; a free account has one).\n\n```\nFREETTS_API_KEY=ft_live_... npx -y @freetts/mcp\n```\n\nClaude Desktop, Cursor, Cline, Windsurf and similar clients:\n\n```json\n{\n  \"mcpServers\": {\n    \"freetts\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@freetts/mcp\"],\n      \"env\": { \"FREETTS_API_KEY\": \"ft_live_...\" }\n    }\n  }\n}\n```\n\nWithout a key it still starts: `list_voices`, `suggest_voice`, the prompts and the resources work, and making audio asks for a key. The hosted server at `https://mcp.freetts.org/mcp` needs no key at all.\n\nFrom source: `npm install && npm run build && node dist/stdio.js`. Node.js 20 or later.\n\nThe hosted server itself (`dist/index.js`) runs next to the FreeTTS API on FreeTTS's own machines and is not meant to be self-hosted; the code is here so you can read exactly what it does.\n\nLicense: MIT.\n",
+  "status": "curated"
+}

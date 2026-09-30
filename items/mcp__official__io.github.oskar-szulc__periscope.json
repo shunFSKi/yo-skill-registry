@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.oskar-szulc/periscope",
+  "type": "mcp",
+  "name": "periscope",
+  "description": "A real Safari-engine (WebKit) browser for agents on macOS: sessions, extraction, bot checks.",
+  "author": "io.github.oskar-szulc",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/oskar-szulc/periscope",
+    "repo": "oskar-szulc/periscope"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "https://github.com/oskar-szulc/periscope/releases/download/v0.2.2/periscope-0.2.2.mcpb"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-30T19:36:12.348771Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# periscope\n\nA command-line browser for AI agents on macOS. It runs Safari's engine (WebKit),\nso websites see a normal Safari, and it keeps sessions open between commands.\n\n```bash\nperiscope navigate https://books.toscrape.com/ --session demo\nperiscope text --session demo        # the page as markdown\nperiscope extract --session demo     # the page's records as JSON\nperiscope click \"text:Next\" --session demo\n```\n\n## Install\n\n```bash\nbrew install oskar-szulc/tap/periscope\nperiscope install-skill    # adds the agent skill to this project\n```\n\nWithout Homebrew: `curl -fsSL https://raw.githubusercontent.com/oskar-szulc/periscope/main/install.sh | sh`\n\nTo build from source instead (Xcode 26): `swift build -c release`, then copy\n`.build/release/periscope` onto your PATH.\n\n### For agents\n\n- **Claude Desktop:** download `periscope-<version>.mcpb` from the [latest release](https://github.com/oskar-szulc/periscope/releases/latest) and open it\n- **Claude Code:** `/plugin marketplace add oskar-szulc/periscope`, then `/plugin install periscope@periscope`\n- **Codex, Cursor and others:** `npx skills add oskar-szulc/periscope`\n- **MCP clients:** listed in the MCP Registry as `io.github.oskar-szulc/periscope`; the command is `periscope mcp`, e.g. `claude mcp add periscope -- periscope mcp`, or in a JSON config: `{\"mcpServers\": {\"periscope\": {\"command\": \"periscope\", \"args\": [\"mcp\"]}}}`\n- **Any agent with a shell:** `periscope docs` prints the full reference\n\n## Reading a page\n\n| Command | Returns | Use it to |\n|---|---|---|\n| `text` | The page's main content as markdown, links included | Read an article or a post |\n| `state` | URL, title, headings, the start of the content, and every clickable element with a selector and a number (`@3`) | Decide what to click or fill next |\n| `extract` | JSON: the page's repeated items (cards, results, table rows), its structured data, and the next-page link | Scrape a list of jobs, products or results |\n| `links` | Every link on the page as an absolute URL (`--match` to filter) | Collect URLs to visit next |\n| `screenshot` | A PNG of the page as displayed | See the layout, or check visual content |\n\n## What else you can do\n\n- **Act:** `click`, `fill`, `type`, `select`, `scroll`, `mouse`, targeting CSS or what a person sees (`text:Next`, `label:Email`)\n- **Stay logged in:** named sessions persist; `login` and `show` let you take over the window\n- **Know when you're blocked:** CAPTCHA and bot-check pages exit with code 5\n\nFull reference: [PERISCOPE.md](PERISCOPE.md).\n\n## Requirements\n\n- macOS 26 or newer, in a logged-in desktop session with the display on\n- Not inside a shell sandbox (periscope exits with a message if it is)\n\n## License\n\n[MIT](LICENSE). Contributions: see [CONTRIBUTING.md](CONTRIBUTING.md).\n",
+  "status": "curated"
+}

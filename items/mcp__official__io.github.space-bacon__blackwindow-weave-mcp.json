@@ -1,0 +1,65 @@
+{
+  "id": "mcp:official/io.github.space-bacon/blackwindow-weave-mcp",
+  "type": "mcp",
+  "name": "Sunstone Weave: Local Semantic Code Search",
+  "description": "Semantic search over local folders of code and docs, with a code-search encoder running on your CPU.",
+  "author": "io.github.space-bacon",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/space-bacon/blackwindow-weave-mcp",
+    "repo": "space-bacon/blackwindow-weave-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "blackwindow-weave-mcp"
+    ],
+    "env": [
+      {
+        "name": "BLACKWINDOW_WEAVE_CACHE",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-30T18:59:35.577741Z",
+    "score": 55
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# blackwindow-weave-mcp\n\nSemantic search over the folders on your machine, for any MCP client. The server cuts source code and documentation into\npassages, embeds them with [Motherlode](https://huggingface.co/RiverRider/motherlode-code-small-en-v0.1), a 33M-parameter\ncode-search encoder, on your CPU, and answers questions such as \"where is a pairing line parsed into url, key and name\"\nwith file paths, line ranges and the passages themselves.\n\nThe only network requests are to huggingface.co on the first run: six requests, which leave five files, 133,752,819\nbytes, in the cache. With the files cached, a run makes none.\n\nThis is the weave from [Black Window](https://blackwindow.xyz) and the\n[Sunstone](https://marketplace.visualstudio.com/items?itemName=sunstonenorth.sunstone) VS Code extension, packaged for\nclients that speak the Model Context Protocol. It runs on macOS, Linux and Windows with Node 20 or later.\n\n## Install\n\nInstall it once from a terminal, before adding it to a client. This installs the package and ONNX Runtime and prints\nthe version once the runtime has loaded:\n\n```sh\nnpx -y blackwindow-weave-mcp@0.1.2 --version\n```\n\nOn GitHub's hosted runners, from an empty npm cache, this first install took 7 to 13 s on Linux and macOS and 55 to\n69 s on Windows. Clients wait a limited time for a server to start (the MCP SDK's default is 60 s), and a client that\nstops waiting in the middle of an install can leave a broken copy in npm's cache (see [Troubleshooting](#troubleshooting)).\nOnce installed, the server starts in under 3 s.\n\nKeep the version in the client's configuration the same as here. With a version given, npx starts the copy it\ninstalled; with the bare name, npx (npm 11) looks for a newer version on every start and installs it while the client\nwaits.\n\nOn Linux x64, ONNX Runtime also downloads 236 MB of CUDA libraries during the install. This server runs on the CPU and\nnever loads them, so you can skip them:\n\n```sh\nONNXRUNTIME_NODE_INSTALL=skip npx -y blackwindow-weave-mcp@0.1.2 --version\n```\n\n## Add it to a client\n\n### macOS and Linux\n\nClaude Code:\n\n```sh\nclaude mcp add weave -- npx -y blackwindow-weave-mcp@0.1.2 --folder /path/to/your/repo\n```\n\nVS Code, in `.vscode/mcp.json`:\n\n```json\n{\n  \"servers\": {\n    \"weave\": { \"type\": \"stdio\", \"command\": \"npx\", \"args\": [\"-y\", \"blackwindow-weave-mcp@0.1.2\", \"--folder\", \"${workspaceFolder}\"] }\n  }\n}\n```\n\nCursor, Claude Desktop, Windsurf and most other clients:\n\n```json\n{\n  \"mcpServers\": {\n    \"weave\": { \"command\": \"npx\", \"args\": [\"-y\", \"blackwindow-weave-mcp@0.1.2\", \"--folder\", \"/path/to/your/repo\"] }\n  }\n}\n```\n\n### Windows\n\nOn Windows `npx` is a batch file, which a client can only start through `cmd /c`. Claude Code:\n\n```sh\nclaude mcp add weave -- cmd /c npx -y blackwindow-weave-mcp@0.1.2 --folder C:\\path\\to\\your\\repo\n```\n\nCursor, Claude Desktop, Windsurf and most other clients:\n\n```json\n{\n  \"mcpServers\": {\n    \"weave\": { \"command\": \"cmd\", \"args\": [\"/c\", \"npx\", \"-y\", \"blackwindow-weave-mcp@0.1.2\", \"--folder\", \"C:/path/to/your/repo\"] }\n  }\n}\n```\n\nIn VS Code the same `command` and `args` go under `servers` in `.vscode/mcp.json`, with `\"type\": \"stdio\"`.\n\n### Installed globally\n\n`npm install -g blackwindow-weave-mcp@0.1.2` installs a `blackwindow-weave-mcp` command, which a client can start\ndirectly (`cmd /c blackwindow-weave-mcp` on Windows). To run from this repository instead of npm, replace\n`blackwindow-weave-mcp@0.1.2` in the arguments with `github:space-bacon/blackwindow-weave-mcp`.\n\n| option | meaning |\n| --- | --- |\n| `--folder <path>` | Weave this folder when the server starts. Repeatable. Optional: the model can call `weave_folder` itself. |\n| `--cache <dir>` | Where the encoder and the indexes live. Default `~/.cache/blackwindow-weave` (on Windows `%USERPROFILE%\\.cache\\blackwindow-weave`), or `BLACKWINDOW_WEAVE_CACHE`. |\n| `--version` | Print the version and exit. |\n\n## Platforms\n\nEvery push runs [CI](.github/workflows/test.yml) on Linux (x64 and arm64), Windows (x64) and macOS (Apple silicon),\neach with Node 20, 22 and 24. Each job runs the stdio smoke test below from a checkout. It then installs the packed\npackage through npx from an empty npm cache, starts it the way a client does and weaves a folder. On Windows it also\nstarts it through `cmd /c`. Last, it installs the package globally and starts it by its command. Other platforms,\nsuch as Windows on Arm, Intel Macs and Alpine Linux, are not tested.\n\n## Troubleshooting\n\n**The client times out when it first starts the server, or the server stops with `Cannot find module ...\ntransformers.node.mjs`.** A first install was interrupted, usually by a client that stopped waiting, and npm kept the\nhalf-installed copy. Delete npm's npx cache and install again from a terminal with the line under [Install](#install):\n\n- macOS and Linux: `rm -rf ~/.npm/_npx`\n- Windows (PowerShell): `Remove-Item -Recurse -Force \"$env:LOCALAPPDATA\\npm-cache\\_npx\"`\n\n**Updating.** Install the new version from a terminal as above, then change the version in the client's\nconfiguration.\n\n## Tools\n\n| tool | what it does |\n| --- | --- |\n| `weave_folder` | Index a folder, or bring its index up to date. Only files whose size or modification time changed are read again. A run longer than 25 s returns at once and continues in the background. |\n| `weave_search` | The passages nearest a plain-language or code query, with file, line range and score. Searches the folders woven in this session, or every woven folder if none was, or one folder when asked. |\n| `weave_list` | The woven folders with their file and passage counts, and any weave still running. |\n| `weave_forget` | Delete a folder's index. The folder's files are not touched. |\n\n## Measured\n\nOn an Apple M2 Ultra (24 CPU cores, Node 24.4.1), through the MCP SDK's own stdio client, in `test/smoke.mjs`:\n\n| folder | files | passages | first weave | second weave | search |\n| --- | --- | --- | --- | --- | --- |\n| this package's `src/` | 6 | 42 | 3.8 s, with the encoder's download | 0.013 s | 5 to 6 ms |\n| the Sunstone repository | 57 | 1,367 | 20.2 s | 0.014 s | 6 ms |\n\nEmbedding runs at about 68 passages a second on that machine, so a repository of 10,000 passages takes about two and a\nhalf minutes the first time. Those figures are one run each on one machine. The smoke test's three questions about this\npackage's own source each return the expected file first; they are a check that the pieces are wired together, not a\nmeasure of retrieval quality. For retrieval quality see the [model card](https://huggingface.co/RiverRider/motherlode-code-small-en-v0.1).\n\n## How it works\n\n- **Files.** A git work tree is listed by git, so `.gitignore` holds. Any other folder is walked, skipping\n  `node_modules`, build output, virtual environments, lock files and minified files. Files over 1 MB and files that\n  read as binary are skipped. JSON and XML are left out: in the Sunstone repository, result files under\n  `bench/results/` took ranks 2 and 3 of the question above when they were included.\n- **Passages.** Code is cut at definitions into passages of about 700 characters, each labelled with the nearest\n  definition. Prose is cut at paragraphs and sentences into passages of about 420 characters. The chunkers are Black\n  Window's.\n- **Encoder.** `onnx/model.onnx` (fp32) through [transformers.js](https://github.com/huggingface/transformers.js) and\n  ONNX Runtime on the CPU, CLS pooling.\n- **Centring.** Every vector has the model's shipped mean (`centring/mean_shipped.json`) subtracted and is brought back\n  to unit length, so a score is a cosine after centring.\n- **Search.** Exact: every passage is scored. Before answering, a folder not checked in the last 30 s is brought up to\n  date if fewer than 200 of its files changed; otherwise the answer says the index is stale.\n- **Index.** One per folder under `<cache>/index/`: a Float32 matrix and a JSONL of passages, named by a manifest that\n  is written to a temporary file and renamed into place, so an interrupted write leaves the previous index. An index\n  that cannot be read is moved aside rather than overwritten.\n\n## Licence\n\n[Business Source License 1.1](LICENSE) with an internal-use grant. You may use it for any internal purpose, including\ncommercial development on your own or your employer's code, with no limit on seats. You may not offer it to others as\na hosted search service or ship it inside a product you supply. On 15 September 2030 it becomes Apache-2.0. The encoder\nis downloaded under its own licence, which has the same shape. For other terms, write to burton@sunstonenorth.com.\n",
+  "status": "curated"
+}

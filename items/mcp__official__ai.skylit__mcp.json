@@ -1,0 +1,61 @@
+{
+  "id": "mcp:official/ai.skylit/mcp",
+  "type": "mcp",
+  "name": "Skylit",
+  "description": "Options flow, volatility, dealer positioning (GEX) and dark pool data for AI trading agents.",
+  "author": "ai.skylit",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/SkylitAI/skylit-mcp",
+    "repo": "SkylitAI/skylit-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://mcp.skylit.ai/mcp",
+    "env": [
+      {
+        "name": "Authorization",
+        "required": false,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-30T19:54:23.608152Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "金融",
+    "featured": false
+  },
+  "readme": "# Skylit MCP\n\n<!-- MCP Registry badge: add after ai.skylit/mcp is published to the official MCP Registry. -->\n\nSkylit is the data intelligence platform for AI trading: options flow,\nvolatility, dealer positioning and dark pool data for US markets.\nThe Skylit MCP server gives any MCP client (Claude, ChatGPT, Cursor, VS Code,\nGemini CLI, Codex and others) read-only tools over that data.\n\nThis repository holds setup guides for each client, the Claude Code plugin, a\nGemini CLI extension, an agent skill, and runnable examples. It contains no\nserver code; the server is hosted by Skylit.\n\n> **Status: beta.** The API and MCP server are open to Skylit members with API\n> access. Check yours on the [Developer page](https://app.skylit.ai/developer?utm_source=github&utm_medium=developer&utm_campaign=api_distribution&utm_content=readme).\n\n## Quick connect\n\n| | |\n| --- | --- |\n| **URL** | `https://mcp.skylit.ai/mcp` |\n| **Transport** | Streamable HTTP |\n| **Auth** | Sign in with Skylit (OAuth): add the URL and approve on the Skylit page. Or send `Authorization: Bearer <API key>` with a key from the [Developer page](https://app.skylit.ai/developer?utm_source=github&utm_medium=developer&utm_campaign=api_distribution&utm_content=readme). |\n\nClaude Code:\n\n```bash\nclaude mcp add --transport http skylit https://mcp.skylit.ai/mcp\n# then /mcp -> skylit -> Authenticate\n```\n\nCursor, LM Studio, Warp and other clients that use an `mcpServers` JSON file:\n\n```json\n{\n  \"mcpServers\": {\n    \"skylit\": {\n      \"url\": \"https://mcp.skylit.ai/mcp\",\n      \"headers\": { \"Authorization\": \"Bearer YOUR_SKYLIT_API_KEY\" }\n    }\n  }\n}\n```\n\nLeave out `headers` to sign in with Skylit instead. Field names differ between\nclients (`url`, `httpUrl`, `serverUrl`, `servers`), so check your client below.\n\nThen ask: *\"What are the key gamma levels and today's flow tone for SPY?\"*\n\n## Python\n\n```bash\npip install skylit\n```\n\n```python\nfrom skylit import Skylit\nSkylit().gex_levels(\"SPY\")   # reads SKYLIT_API_KEY\n```\n\nSource and docs: [packages/python](packages/python).\n\n## TypeScript\n\n```bash\nnpm install @skylitai/sdk\n```\n\n```ts\nimport { Skylit } from \"@skylitai/sdk\";\nawait new Skylit().gexLevels(\"SPY\");   // reads SKYLIT_API_KEY\n```\n\nSource and docs: [packages/typescript](packages/typescript).\n\n## Staying current\n\nThis repo is checked against the live API every 6 hours (`scripts/sync.py`, [sync workflow](.github/workflows/sync.yml)): the tool catalog and REST specs in [reference/](reference/) are refreshed from Skylit's published docs, and any guide, skill, example or SDK that names a tool or endpoint that no longer exists fails the check and opens an issue.\n\n## Clients\n\n| Client | Sign in with Skylit | API key | Guide |\n| --- | :-: | :-: | --- |\n| Claude (claude.ai, Desktop, mobile) | Yes | Desktop, via `mcp-remote` | [clients/claude.md](clients/claude.md) |\n| Claude Code | Yes | Yes | [clients/claude-code.md](clients/claude-code.md) |\n| Cursor | Yes | Yes | [clients/cursor.md](clients/cursor.md) |\n| VS Code / GitHub Copilot | Yes | Yes | [clients/vscode.md](clients/vscode.md) |\n| Windsurf | Yes | Yes | [clients/windsurf.md](clients/windsurf.md) |\n| Cline | Not documented | Yes | [clients/cline.md](clients/cline.md) |\n| Zed | Yes | Yes | [clients/zed.md](clients/zed.md) |\n| Gemini CLI | Yes | Yes | [clients/gemini-cli.md](clients/gemini-cli.md) |\n| Codex CLI | Yes | Yes | [clients/codex-cli.md](clients/codex-cli.md) |\n| ChatGPT (developer mode) | Yes | No | [clients/chatgpt.md](clients/chatgpt.md) |\n| Goose | Yes | Yes | [clients/goose.md](clients/goose.md) |\n| LM Studio | Yes | Yes | [clients/lm-studio.md](clients/lm-studio.md) |\n| Raycast | Yes (untested) | Yes (untested) | [clients/raycast.md](clients/raycast.md) |\n| Continue | Not documented | Yes | [clients/continue.md](clients/continue.md) |\n| Warp | Yes | Yes | [clients/warp.md](clients/warp.md) |\n| Perplexity | Yes (unverified) | Yes (unverified) | [clients/perplexity.md](clients/perplexity.md) |\n| Any other MCP client, `mcp-remote`, MCP Inspector, raw HTTP | Yes | Yes | [clients/generic.md](clients/generic.md) |\n\n\"Sign in with Skylit\" and \"API key\" reflect each client's own documentation as\nof 2026-09-30. Guides mark anything we could not confirm.\n\n## Tools\n\n<!-- sync:tools:start -->\n63 tools, all read-only. Each wraps one Skylit REST endpoint with the same credit cost. Full catalog with arguments and prices: [www.skylit.ai/docs/mcp/tools](https://www.skylit.ai/docs/mcp/tools?utm_source=github&utm_medium=developer&utm_campaign=api_distribution&utm_content=readme); machine-readable copy: [reference/tools.json](reference/tools.json).\n\n| Group | Tools |\n| --- | --- |\n| Discovery | `flow_search`, `list_active_underlyings`, `expirations` |\n| Scores & trades | `flow_feed`, `trade_score`, `aggregate_score`, `flow_aggregate` |\n| Sweeps & momentum | `sweeps`, `flow_momentum`, `flow_baseline` |\n| Strike & tide concentration | `flow_strikes`, `flow_tide`, `by_strike` |\n| Screeners | `top_underlyings_daily`, `top_underlyings_weekly`, `top_contracts_daily`, `top_contracts_weekly`, `unusual_volume`, `unusual_oi` |\n| Bull/bear & pressure ratios | `chain_bull_bear`, `contract_bull_bear`, `chain_ratio`, `contract_ratio` |\n| Stats, Vol/OI & moneyness | `underlying_stats`, `underlying_bulk_stats`, `contract_bulk_stats`, `underlying_history`, `contract_history`, `flow_historical_compare`, `contract_stats`, `vol_oi`, `moneyness` |\n| Chains, charts & RVOL | `option_chain`, `underlying_chart`, `contract_chart`, `underlying_rvol`, `contract_rvol` |\n| Market-wide & sector | `market_overview`, `market_tide`, `market_breadth`, `sector_flow` |\n| Dark pool | `dark_pool_trades`, `dark_pool_top_prints` |\n| Heatseeker — gamma/vanna heatmaps | `heat_heatmap`, `heat_levels`, `heat_historical_heatmap`, `heat_stats_daily`, `heat_symbols` |\n| Tempest — volatility suite | `tempest_iv`, `tempest_term`, `tempest_cones`, `tempest_sigma`, `tempest_surface`, `tempest_tilt`, `tempest_events`, `tempest_snapshot`, `tempest_market`, `tempest_screener`, `tempest_history`, `tempest_derived`, `tempest_status`, `tempest_symbols` |\n| Account | `account_usage` |\n<!-- sync:tools:end -->\n\nTempest tools depend on your plan; without access they return `not_entitled`\nat no charge. OHLCV price bars (Atlas) are available over REST, not MCP.\n\n## Pricing\n\n- Calls spend API credits: **1 credit = $0.001**. A typical call costs 1 to 5 credits.\n- **Failed calls are free**: any `4xx` or `5xx` is refunded.\n- **`account_usage` is free** and returns your balance and limits. Each tool\n  result's `meta` includes the remaining balance.\n- Per-tool costs: [tool catalog](https://www.skylit.ai/docs/mcp/tools?utm_source=github&utm_medium=developer&utm_campaign=api_distribution&utm_content=readme).\n  Plans and included credits: [www.skylit.ai/pricing](https://www.skylit.ai/pricing?utm_source=github&utm_medium=developer&utm_campaign=api_distribution&utm_content=readme).\n\n## REST API\n\nThe same data is available over REST with the same key. Each host serves its\nOpenAPI spec at `/v1/openapi.json`:\n\n| Host | Data |\n| --- | --- |\n| `https://api.skylit.ai` | Dealer positioning (Heatseeker), volatility (Tempest), options flow and dark pool (Flowseeker), account |\n| `https://flow-api.skylit.ai` | Options flow and dark pool (alias for the Flowseeker paths) |\n| `https://atlas-api.skylit.ai` | OHLCV price bars (Atlas) |\n\nSee [examples/python/rest-quickstart](examples/python/rest-quickstart) and the\n[API reference](https://www.skylit.ai/docs/api-reference/introduction?utm_source=github&utm_medium=developer&utm_campaign=api_distribution&utm_content=readme).\n\n## What's in this repo\n\n| Path | Purpose |\n| --- | --- |\n| [`clients/`](clients) | Setup guide per MCP client |\n| [`plugins/claude-code/`](plugins/claude-code) and [`.claude-plugin/marketplace.json`](.claude-plugin/marketplace.json) | Claude Code plugin: `/plugin marketplace add SkylitAI/skylit-mcp`, then `/plugin install skylit@skylit` |\n| [`gemini-extension.json`](gemini-extension.json) and [`GEMINI.md`](GEMINI.md) | Gemini CLI extension: `gemini extensions install https://github.com/SkylitAI/skylit-mcp` |\n| [`skills/skylit/`](skills/skylit/SKILL.md) | Agent skill on using the tools well: `npx skills add SkylitAI/skylit-mcp` |\n| [`examples/`](examples) | Research agents: OpenAI Agents SDK, LangChain/LangGraph, Claude Agent SDK, Vercel AI SDK, plain REST |\n| [`server.json`](server.json) | Official MCP Registry entry (`ai.skylit/mcp`) |\n| [`llms-install.md`](llms-install.md) | Install steps for AI coding agents (Cline) |\n\nThe examples are research agents. They read data and never place orders; order\nexecution is left to your own broker.\n\n## Data and licensing\n\n- **This repository** (code and docs) is MIT licensed. See [LICENSE](LICENSE)\n  and [NOTICE](NOTICE). The license does not cover Skylit data.\n- **Skylit data** is governed by the [API Terms](https://www.skylit.ai/api-terms?utm_source=github&utm_medium=developer&utm_campaign=api_distribution&utm_content=readme).\n  Keys are personal. Using data for your own trading, research and education,\n  including private agents that act for you, is covered. Commercial use,\n  redistribution and republishing bulk data need a written license: contact\n  [support@skylit.ai](mailto:support@skylit.ai).\n- Skylit data is market information, not investment advice.\n\n## Links\n\n- Docs: [www.skylit.ai/docs](https://www.skylit.ai/docs?utm_source=github&utm_medium=developer&utm_campaign=api_distribution&utm_content=readme)\n  ([MCP overview](https://www.skylit.ai/docs/mcp/overview?utm_source=github&utm_medium=developer&utm_campaign=api_distribution&utm_content=readme),\n  [quickstart](https://www.skylit.ai/docs/mcp/quickstart?utm_source=github&utm_medium=developer&utm_campaign=api_distribution&utm_content=readme),\n  [example prompts](https://www.skylit.ai/docs/mcp/examples?utm_source=github&utm_medium=developer&utm_campaign=api_distribution&utm_content=readme))\n- Full agent reference (REST, streams, MCP): [www.skylit.ai/docs/skill.md](https://www.skylit.ai/docs/skill.md)\n- API keys: [app.skylit.ai/developer](https://app.skylit.ai/developer?utm_source=github&utm_medium=developer&utm_campaign=api_distribution&utm_content=readme)\n- Support: [support@skylit.ai](mailto:support@skylit.ai)\n- Security: [SECURITY.md](SECURITY.md)\n- Legal: [Terms](https://www.skylit.ai/terms?utm_source=github&utm_medium=developer&utm_campaign=api_distribution&utm_content=readme), [Privacy](https://www.skylit.ai/privacy?utm_source=github&utm_medium=developer&utm_campaign=api_distribution&utm_content=readme), [API Terms](https://www.skylit.ai/api-terms?utm_source=github&utm_medium=developer&utm_campaign=api_distribution&utm_content=readme)\n",
+  "status": "curated"
+}

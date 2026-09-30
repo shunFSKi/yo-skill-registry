@@ -1,0 +1,65 @@
+{
+  "id": "mcp:official/ai.pixeldojo/mcp",
+  "type": "mcp",
+  "name": "PixelDojo",
+  "description": "Generate images, video, audio and short films with 140+ AI models from any MCP client.",
+  "author": "ai.pixeldojo",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/blovett80/pixeldojo-mcp",
+    "repo": "blovett80/pixeldojo-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@pixeldojo/mcp"
+    ],
+    "env": [
+      {
+        "name": "PIXELDOJO_API_KEY",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-09-30T15:14:20.919463Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "设计",
+    "featured": false
+  },
+  "readme": "# PixelDojo MCP\n\nImage, video, audio and film generation for any AI agent. One connection gives Claude, Cursor, VS Code, Windsurf, ChatGPT and every other [MCP](https://modelcontextprotocol.io) client access to 140+ generative models, plus studios for product ads, short films, faceless videos and consistent characters.\n\n- Hosted server: `https://pixeldojo.ai/mcp` (streamable HTTP, browser sign-in, no API key needed)\n- Local server: `npx -y @pixeldojo/mcp` (stdio, uses your API key)\n- Setup guides for every client: https://pixeldojo.ai/skills\n\n## What you can ask for\n\n- \"Make a cinematic product photo of my sneaker on wet asphalt at night.\"\n- \"Turn this product page into a UGC video ad: <url>\"\n- \"Translate this ad into Spanish and keep the layout.\"\n- \"Keep this character consistent across six shots.\"\n- \"Plan a 30-second noir short film about a lost key and show me the cost.\"\n- \"Make a 60-second faceless explainer about why we yawn.\"\n\nPixelDojo picks a model from its catalog (Flux, Seedream, Seedance, Veo, Kling, WAN, Nano Banana, GPT Image, Seed Audio and more), renders it, and returns download links.\n\n## Connect in 30 seconds\n\n**Claude Code**\n\n```bash\nclaude mcp add --transport http pixeldojo https://pixeldojo.ai/mcp\n```\n\n**Claude Desktop and claude.ai:** add a custom connector with the URL `https://pixeldojo.ai/mcp` and approve in your browser.\n\n**Cursor** (`.cursor/mcp.json`)\n\n```json\n{ \"mcpServers\": { \"pixeldojo\": { \"url\": \"https://pixeldojo.ai/mcp\" } } }\n```\n\n**VS Code** (`.vscode/mcp.json`)\n\n```json\n{ \"servers\": { \"pixeldojo\": { \"type\": \"http\", \"url\": \"https://pixeldojo.ai/mcp\" } } }\n```\n\n**Windsurf** (`mcp_config.json`)\n\n```json\n{ \"mcpServers\": { \"pixeldojo\": { \"serverUrl\": \"https://pixeldojo.ai/mcp\" } } }\n```\n\n**Local (stdio) with an API key.** Create a key at https://pixeldojo.ai/api-platform/api-keys, then:\n\n```json\n{\n  \"mcpServers\": {\n    \"pixeldojo\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@pixeldojo/mcp\"],\n      \"env\": { \"PIXELDOJO_API_KEY\": \"pd_your_api_key_here\" }\n    }\n  }\n}\n```\n\nThe hosted server also accepts `Authorization: Bearer pd_...`.\n\n## Tools\n\n| Tool | What it does |\n|---|---|\n| `pixeldojo_generate` | Any prompt to an image or video. Defaults to Seedream for stills; pass any model id for video and more. |\n| `pixeldojo_edit` | Change existing images with a text instruction, multi-image capable. |\n| `pixeldojo_character` | Consistent characters across shots. |\n| `pixeldojo_storyboard` | One video shot from a scene brief. |\n| `pixeldojo_film` | Film Studio: a multi-shot film from an idea, or a music video synced to your song. |\n| `pixeldojo_video` | Change, move or extend an existing clip. |\n| `pixeldojo_episode` | Faceless Studio: a narrated video episode from a topic. |\n| `pixeldojo_ad` | Marketing Studio: a product video ad from a URL or product images. |\n| `pixeldojo_campaign`, `pixeldojo_campaign_status` | One product URL to a hero image, lifestyle set and optional video. |\n| `pixeldojo_from_url` | Product page URL to structured product info. Free. |\n| `pixeldojo_upscale` | Enhance an image up to 16x or a video up to 4K. |\n| `pixeldojo_audio` | Dialogue, effects and music in one clip. |\n| `pixeldojo_library` | Search your saved media and recent generations. |\n| `pixeldojo_save_workflow`, `pixeldojo_run_workflow`, `pixeldojo_list_workflows` | Save a multi-step chain once, run it by name anywhere. |\n| `pixeldojo_upload` | Local file to a 24-hour temporary URL (stdio only). |\n| `pixeldojo_status` | Check a long-running job by `jobId`. |\n\nThe hosted server exposes 18 of these (no `pixeldojo_upload`, since it cannot read your local files).\n\n## How jobs work\n\nGeneration tools wait up to 30 seconds. Fast renders return straight away. Longer ones return a `jobId` and your agent follows up with `pixeldojo_status`. Generated asset URLs expire one hour after creation, so download anything you want to keep. Finished films stay in your PixelDojo library.\n\n## Credits and auth\n\nRenders use the credits on your PixelDojo account (plans and credit packs: https://pixeldojo.ai/pricing). Failed jobs are refunded. Hosted auth is OAuth 2.0 with browser approval, or an API key. API keys are redacted from every log.\n\n## Links\n\nDocs: https://pixeldojo.ai/skills · API: https://pixeldojo.ai/api-platform · llms.txt: https://pixeldojo.ai/llms.txt · Support: support@pixeldojo.ai · Privacy: https://pixeldojo.ai/privacy-policy · Terms: https://pixeldojo.ai/terms\n\n## Telemetry\n\nRequests send `x-pixeldojo-source: mcp/<version>` and `x-pixeldojo-skill: <tool>` headers so PixelDojo can attribute traffic. Nothing is sent beyond the API call itself.\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

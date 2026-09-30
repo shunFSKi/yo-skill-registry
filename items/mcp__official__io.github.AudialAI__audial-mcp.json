@@ -47,7 +47,7 @@
   "quality": {
     "stars": null,
     "pushed_at": "2026-09-29T17:16:14.557461Z",
-    "score": 52
+    "score": 42
   },
   "security": {
     "score": 100,
@@ -79,6 +79,6 @@
     "category": "生活",
     "featured": false
   },
-  "readme": "# audial-mcp\n\nRun Audial's hosted audio tools from any MCP client: split stems, analyze and segment audio,\nmaster tracks, build sample packs, convert audio to MIDI, generate music, turn a one-shot into\nan editable Audial Synth preset, and sing lyrics in a reference voice.\n\nmcp-name: io.github.AudialAI/audial-mcp\n\n## Install\n\nYou need an Audial account (user id + API key from https://audialmusic.ai) and\n[`uv`](https://docs.astral.sh/uv/getting-started/installation/).\n\n**Claude Code**\n\n```bash\nclaude mcp add audial \\\n  -e AUDIAL_USER_ID=your-user-id -e AUDIAL_API_KEY=your-api-key -e AUDIAL_RESULTS_DIR=~/Audial \\\n  -- uvx audial-mcp\n```\n\n**Claude Desktop / Cursor / any client with a JSON config**\n\n```json\n{\n  \"mcpServers\": {\n    \"audial\": {\n      \"command\": \"uvx\",\n      \"args\": [\"audial-mcp\"],\n      \"env\": {\n        \"AUDIAL_USER_ID\": \"your-user-id\",\n        \"AUDIAL_API_KEY\": \"your-api-key\",\n        \"AUDIAL_RESULTS_DIR\": \"~/Audial\"\n      }\n    }\n  }\n}\n```\n\n## Tools\n\n| Tool | What it does |\n|---|---|\n| `stem_split` | Split a track into vocals, drums, bass, other (optionally retime / rekey) |\n| `analyze` | BPM, key and other characteristics |\n| `segment` | Sections and component analysis |\n| `master` | Mastering, optionally matched to a reference |\n| `generate_samples` | Sample pack from a track |\n| `generate_midi` | Audio to MIDI |\n| `generate_music` | Text to music, covers, remixes, extraction, completion with the Audial music model |\n| `sound2vital` | One-shot → editable Audial Synth (Vital) preset |\n| `text2vox` | Lyrics + reference voice → sung vocal and MIDI |\n| `list_results` | Browse previous results in your results folder |\n\n## What leaves your machine\n\nAudio and text you pass to a tool are uploaded to Audial's API (https://api.audialmusic.ai)\nover HTTPS and processed on Audial's servers; results are downloaded into\n`AUDIAL_RESULTS_DIR` (default `~/Audial`). Nothing else is sent.\n\nTwo other files are *read* if they exist, because the Audial SDK looks for them:\n`~/.audial/.audial_config.json` and a `.env` in the directory the server was started from.\nCredentials from your MCP client's config always win: `audial-mcp` snapshots its environment\nbefore the SDK loads either file, so neither can redirect your credentials or the API host.\n\nEvery tool except `list_results` calls the Audial API, which requires an active Audial subscription on the account; without one the tool returns the API's subscription message.\n\n## Configuration\n\n| Variable | Required | Default |\n|---|---|---|\n| `AUDIAL_USER_ID` | yes | |\n| `AUDIAL_API_KEY` | yes | |\n| `AUDIAL_RESULTS_DIR` | no | `~/Audial` |\n| `AUDIAL_JOB_TIMEOUT_S` | no | `900` |\n| `AUDIAL_API_BASE_URL` | no | production API |\n\n## License\n\nMIT. Source: https://github.com/AudialAI/audial-mcp\n",
+  "readme": null,
   "status": "curated"
 }
