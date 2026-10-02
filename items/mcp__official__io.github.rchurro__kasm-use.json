@@ -1,0 +1,84 @@
+{
+  "id": "mcp:official/io.github.rchurro/kasm-use",
+  "type": "mcp",
+  "name": "kasm-use",
+  "description": "Computer-use for Kasm Workspaces: lets AI agents see and drive your Kasm desktops over KasmVNC.",
+  "author": "io.github.rchurro",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/rchurro/kasm-use",
+    "repo": "rchurro/kasm-use"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "kasm-use"
+    ],
+    "env": [
+      {
+        "name": "KASM_API_URL",
+        "required": true,
+        "secret": false
+      },
+      {
+        "name": "KASM_API_KEY",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "KASM_API_KEY_SECRET",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "KASM_USER_ID",
+        "required": true,
+        "secret": false
+      },
+      {
+        "name": "KASM_VERIFY_TLS",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-10-02T15:17:10.930779Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "办公",
+    "featured": false
+  },
+  "readme": "# kasm-use\n\n<!-- mcp-name: io.github.rchurro/kasm-use -->\n\nLet an AI agent use a [Kasm Workspaces](https://kasmweb.com) desktop: start a session, look at the\nscreen, click, type, press keys, scroll, and stop it — in plain language, from any MCP client\n(Claude Code, Claude Desktop, OpenCode, Cursor, …) or as a native [Hermes Agent](#hermes-agent) plugin.\n\nOther Kasm MCP servers manage sessions (start, list, stop). **kasm-use actually uses them**: the agent\nsees the desktop and operates it, like computer-use or browser-use, inside your Kasm.\n\n- **Works with stock Kasm images.** Nothing is baked into the workspace; it drives the desktop\n  through Kasm's API and the session's own KasmVNC connection.\n- **You can watch and take over.** Sessions are created as *your* Kasm user, so they show up in\n  your Kasm dashboard. Open one to watch the agent work, or to handle a login or CAPTCHA yourself.\n- **Your Kasm, your key.** You run the server next to your own Kasm. Nothing goes through a third party.\n\n### What's Kasm?\n\n[Kasm Workspaces](https://kasmweb.com) streams disposable desktops and apps to your web browser,\neach running in its own container on a server you control. Click \"Chrome\" and you get a fresh\nChrome in a browser tab; close it and it's wiped. kasm-use lets an AI agent sit down at those\ndesktops and use them the way a person would.\n\n![Demo: Hermes Agent runs three Kasm sessions in parallel with kasm-use (Chrome, Terminal, Minetest) while the dashboard shows them live](https://raw.githubusercontent.com/rchurro/kasm-use/main/docs/kasm-use-demo.gif)\n\n*Demo (3x speed): Hermes Agent runs a three-session demo with kasm-use. Chrome, Terminal and\nMinetest are started and driven in parallel while the Kasm dashboard shows each one live.*\n\nHow the pieces connect:\n\n```mermaid\nflowchart LR\n    agent[\"AI agent<br/>(any MCP client or Hermes)\"] -->|\"tool calls:<br/>look, click, type\"| ku[\"kasm-use\"]\n    ku -->|\"start / list / stop<br/>(API key)\"| api[\"Kasm API\"]\n    api -->|\"starts container\"| desk\n    ku -->|\"screenshots + input<br/>(VNC over websocket)\"| proxy[\"Kasm proxy\"]\n    you[\"You, in the<br/>Kasm dashboard\"] -->|\"watch or take over\"| proxy\n    proxy --> desk[\"Session desktop<br/>(KasmVNC in a container)\"]\n```\n\n## Status: early — testers wanted\n\nkasm-use works well on the setup it was built on (Kasm 1.19.0 in linuxserver's Docker image;\nChrome, Terminal and Minetest workspaces; Claude Code and Hermes Agent as clients). It talks to\nparts of Kasm that aren't documented, so other versions and install types are the big unknown.\nIf you try it, please [open an issue](https://github.com/rchurro/kasm-use/issues/new/choose),\nwhether it worked or not: your Kasm version, how Kasm is installed, the workspace image and your\nMCP client are the most useful details.\n\n## Tools\n\n| Tool | What it does |\n| --- | --- |\n| `kasm_list` | Workspaces you can start, and your running sessions |\n| `kasm_start` | Start a workspace (e.g. `Chrome`); returns once the session is running |\n| `kasm_look` | Live screenshot of the session, returned as an image (~1 s) |\n| `kasm_click` | Click at x,y in the latest screenshot's coordinates |\n| `kasm_type` | Type text into the focused field |\n| `kasm_key` | Keys/shortcuts, e.g. `ctrl+l`, `Return`, `Tab` |\n| `kasm_scroll` | Scroll, optionally at a point |\n| `kasm_stop` | Destroy the session |\n\n## Requirements\n\n- Kasm Workspaces **1.19 or newer** (tested on 1.19.0).\n- A Kasm **API key**: Admin → Settings → Developers → API Keys → Add, then edit its permissions.\n  kasm-use 0.3 needs exactly these five (tested end to end with a key that has only these):\n\n  - **Images View**, **User**, **Users Auth Session** — starting sessions (without them `kasm_start`\n    fails with `Unauthorized`).\n  - **Sessions View** — session status and `kasm_list`.\n  - **Sessions Delete** — `kasm_stop`.\n\n  It no longer calls Kasm's exec API (**Sessions Modify**) or screenshot API (**Session Recordings\n  View**), so you can remove those if you granted them for 0.2 or earlier. A missing permission shows\n  up as `Unauthorized` from the tool that needs it. Read [Security model](#security-model) first:\n  these permissions are server-wide.\n- Your Kasm **user ID**, so sessions belong to you: Admin → Access Management → Users → open your user;\n  the ID is in the page URL.\n- Any workspace image. Nothing is installed in the session for sessions kasm-use starts.\n\n## Configuration\n\n| Variable | Required | Meaning |\n| --- | --- | --- |\n| `KASM_API_URL` | yes | e.g. `https://kasm.example.com` |\n| `KASM_API_KEY` / `KASM_API_KEY_SECRET` | yes | the API key pair |\n| `KASM_USER_ID` | yes | the Kasm user sessions are created for |\n| `KASM_VERIFY_TLS` | no | `false` to accept a self-signed Kasm certificate (default `true`) |\n| `KASM_USE_TOKEN` | HTTP only | bearer token clients must send |\n\n## Run it\n\n### Locally (stdio) — the usual way\n\nYour MCP client starts the server itself. With [uv](https://docs.astral.sh/uv/) installed:\n\n```json\n{\n  \"mcpServers\": {\n    \"kasm\": {\n      \"command\": \"uvx\",\n      \"args\": [\"kasm-use\"],\n      \"env\": {\n        \"KASM_API_URL\": \"https://kasm.example.com\",\n        \"KASM_API_KEY\": \"…\",\n        \"KASM_API_KEY_SECRET\": \"…\",\n        \"KASM_USER_ID\": \"…\"\n      }\n    }\n  }\n}\n```\n\nClaude Code:\n\n```bash\nclaude mcp add kasm -e KASM_API_URL=https://kasm.example.com -e KASM_API_KEY=… -e KASM_API_KEY_SECRET=… -e KASM_USER_ID=… -- uvx kasm-use\n```\n\n### As a service (streamable HTTP)\n\n```bash\ndocker run -d -p 8000:8000 \\\n  -e KASM_API_URL=https://kasm.example.com -e KASM_API_KEY=… -e KASM_API_KEY_SECRET=… \\\n  -e KASM_USER_ID=… -e KASM_USE_TOKEN=\"$(openssl rand -hex 32)\" \\\n  ghcr.io/rchurro/kasm-use:latest\n```\n\nClients connect to `http://host:8000/mcp` with the header `Authorization: Bearer <KASM_USE_TOKEN>`.\nHealth check: `GET /healthz`. Run **one replica** per Kasm user: the server remembers each\nsession's last screenshot size in memory to map click coordinates.\n\nKeep it on a private network (LAN, VPN, Tailscale). Anyone with the token can drive your desktops.\n\n### Hermes Agent\n\n```bash\npip install kasm-use                      # into Hermes's Python environment\ncp -r hermes-plugin/kasm ~/.hermes/plugins/kasm\n```\n\nEnable `kasm` under `plugins.enabled`, set the environment variables above, and start a new\nHermes session (`/new`) so the tools load.\n\n## Safety\n\nAn agent with these tools drives a real desktop on your network, so treat it like handing someone\nyour mouse and keyboard.\n\n- **Use throwaway workspaces.** Don't let the agent work in a session that's logged into your\n  real accounts, and don't save passwords in workspace images it uses.\n- **Web pages can talk to the agent.** Text on a page it visits can try to steer it (prompt\n  injection). Keep a human watching for anything that matters.\n- **Traffic comes from your network.** Whatever the agent browses comes from your Kasm host's IP\n  address. Kasm's per-workspace VPN/egress settings can route it elsewhere.\n- The tool descriptions tell the agent never to type passwords, MFA codes or payment details and\n  to hand CAPTCHAs to you, but that is guidance to the model, not enforcement.\n\n## Security model\n\nTwo Kasm facts shape what kasm-use can and can't promise:\n\n- **A Kasm API key is server-wide, not per user.** Kasm has no way to limit a key to one user.\n  With the permissions above it can see and stop any user's sessions, and **Users Auth Session**\n  (\"login on behalf of another user\") lets it get a login for any user.\n- **The token `request_kasm` returns is a login for `KASM_USER_ID`, not for one session.** It opens\n  every session that user has (verified on Kasm 1.19.0: a token from one session opened another\n  session of the same user over VNC).\n\nSo the boundary is kasm-use itself:\n\n- **Every tool only acts on sessions this kasm-use process started.** Any other `session_id` (yours,\n  another user's, one from before a restart) is refused, including for `kasm_look` and `kasm_stop`.\n  `kasm_list` only shows kasm-use's own sessions.\n- **The model never sees the API key or any token**, only the eight tools.\n- **No exec, no screenshot API.** kasm-use doesn't use Kasm's exec API (which can run commands in a\n  session as root) or its screenshot API, so it doesn't need those permissions.\n\nWhat that means for you:\n\n- **Treat the API key like an admin credential**, and run kasm-use only on a machine you trust.\n  Anyone who gets the key gets your Kasm, whatever kasm-use's code does.\n- **Give the agent its own Kasm user** and set `KASM_USER_ID` to it. That keeps the agent's sessions\n  and tokens away from your own sessions if something goes wrong in kasm-use. (It is a seatbelt,\n  not a wall: the key itself can still reach every user.)\n- **Kasm's disposability helps, but only so much.** Sessions are thrown away when they end (unless\n  you enable persistent profiles), so nothing an agent does survives the session. The exposure is in\n  sessions that are still running: one that's logged into an account, or that you're working in.\n- **There's no per-action policy yet** (rate limits, blocked keys, \"ask the human first\"). Input goes\n  straight to VNC once the scope check passes. VNC only sees pixels and keystrokes, so rules like\n  \"never type into this window\" can't be enforced at this layer.\n\n## Limitations\n\n- **Only sessions kasm-use started, and only until it restarts.** The session tokens live in\n  memory. After a restart, earlier sessions keep running in Kasm but kasm-use won't touch them;\n  stop them from the Kasm dashboard.\n- **Input reports \"sent\", not \"succeeded\".** The next screenshot is the confirmation.\n- **CAPTCHAs, passwords, MFA and payments are handed to you.** The tool descriptions tell the agent\n  never to type them; open the session in Kasm and take over.\n- It's slow compared to a local browser tool: every step is a screenshot round trip.\n\n## How it works\n\nkasm-use talks to each session's KasmVNC server directly, through Kasm's own proxy\n(`wss://<kasm>/desktop/<id>/vnc/websockify`), with the login token `request_kasm` returns.\nThe VNC client is built in and uses only the Python standard library.\n\n- **Eyes:** a full framebuffer read over VNC (ZRLE, decoded with `zlib`), returned as PNG.\n  Kasm's screenshot API isn't used for these sessions: it only refreshes while a viewer is\n  connected, so with nobody watching it returns stale frames.\n- **Hands:** VNC pointer and key events. KasmVNC's pointer message is 11 bytes (16-bit button\n  mask plus scroll deltas), not standard RFB's 6.\n- Clicks are given in screenshot pixels and scaled to the desktop's current size, which VNC reports\n  on connect — it changes when someone opens the session and Kasm resizes it to their window.\n- Each tool call opens a short VNC connection and does a round trip before closing, so no input\n  is lost on disconnect. The owner can stay connected at the same time.\n\n**What this relies on.** None of this is an official Kasm API; it's how Kasm's own web viewer\nconnects, observed on Kasm 1.19.0:\n\n- Kasm's proxy accepts the `username` + `session_token` cookies that `request_kasm` returns, and\n  requires an `Origin` header matching the Kasm host.\n- Behind the proxy, KasmVNC offers VNC authentication and accepts an empty password (the proxy\n  has already authenticated you).\n- KasmVNC's pointer message is 11 bytes (visible in its open-source web client).\n\nA Kasm update or a different install type could change any of these. If kasm-use stops\nconnecting, that's the likely cause, and an issue with your Kasm version and install type helps.\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

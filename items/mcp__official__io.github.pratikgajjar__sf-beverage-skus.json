@@ -17,7 +17,7 @@
   "quality": {
     "stars": null,
     "pushed_at": "2026-10-02T08:21:52.300571Z",
-    "score": 52
+    "score": 42
   },
   "security": {
     "score": 100,
@@ -49,6 +49,6 @@
     "category": "编程",
     "featured": false
   },
-  "readme": "# sf-beverage-skus\n\nSKU-level coffee, matcha, and chai catalog for San Francisco. CC0-1.0.\nPilot dataset for agent-native restaurant commerce. Schema: v2 (see SCHEMA.md).\n\n## The price formula\n\n```\ntotal_cents = sku.price_cents + SUM(selected option.price_delta_cents)\n```\n\nMoney is integer cents everywhere. Divide by 100 for dollars.\n\n## Quick start (DuckDB)\n\n```sql\nSELECT m.name AS merchant, i.name AS item, s.size_name,\n       s.price_cents/100.0 AS price\nFROM read_parquet('parquet/skus.parquet') s\nJOIN read_parquet('parquet/items.parquet') i USING (item_id)\nJOIN read_parquet('parquet/merchants.parquet') m USING (merchant_id)\nWHERE i.category = 'matcha' AND i.name ILIKE '%latte%'\nORDER BY s.price_cents LIMIT 10;\n```\n\n## Tables\n\n| Table | Rows | Contents |\n|---|---|---|\n| `merchants` | 13 | merchants (stable slug IDs) |\n| `locations` | 13 | storefronts: address + lat/lon (12/13 geocoded) |\n| `items` | 238 | beverages (coffee 160, matcha 54, chai 24) |\n| `skus` | 439 | **the sellable unit**: item x size, price in cents |\n| `option_groups` | 536 | customization groups with min/max/required |\n| `options` | 2453 | choices with `price_delta_cents` added to the SKU price |\n| `templates` | 27 | reusable option-group bundles |\n| `price_observations` | 342 | append-only price history per refresh |\n\nIDs are deterministic hierarchical slugs\n(`starbucks--caffe-latte--tall`, `...--tall--milk--oat`).\n\n## Provenance\n\nMixed sources, all read-only (no orders, sign-ins, or payments):\nDoorDash, Square, Toast storefronts. `price_observations.parquet` records\n`checked_at` and `source_url` per observation; `sku_id` is null when the\nmatch was not confident. Aggregator prices may differ from walk-in prices.\n\n## Write paths\n\n- `ingest.py` — item/template records in, idempotent upsert on deterministic IDs.\n- `update_prices.py` — price-refresh records in; appends history, updates\n  `skus.price_cents` only on confident matches.\n- `geocode.py`, `query.py` — location backfill; geo + item search.\n",
+  "readme": null,
   "status": "curated"
 }

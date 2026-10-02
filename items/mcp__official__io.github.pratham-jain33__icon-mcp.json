@@ -1,0 +1,57 @@
+{
+  "id": "mcp:official/io.github.pratham-jain33/icon-mcp",
+  "type": "mcp",
+  "name": "Icon MCP",
+  "description": "Lucide icon sets for AI: search 2000+ icons, style them, batch-export SVG. Offline, no key.",
+  "author": "io.github.pratham-jain33",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/pratham-jain33/icon-mcp",
+    "repo": "pratham-jain33/icon-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "icon-mcp"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-10-02T18:04:50.287984Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "设计",
+    "featured": false
+  },
+  "readme": "# icon-mcp\n\nmcp-name: io.github.pratham-jain33/icon-mcp\n\n[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)\n[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)\n[![MCP Compatible](https://img.shields.io/badge/MCP-compatible-green.svg)](https://modelcontextprotocol.io/)\n[![Version](https://img.shields.io/badge/version-v0.1.0-orange.svg)](https://github.com/pratham-jain33/icon-mcp/releases)\n[![PyPI](https://img.shields.io/pypi/v/icon-mcp.svg)](https://pypi.org/project/icon-mcp/)\n\nGive any AI assistant a custom icon button. No emojis, no designer needed.\n\n> **Unofficial community project.** Not made by, endorsed by, or affiliated with Lucide. The Lucide icon set (ISC licensed) is bundled inside the package, so everything works offline.\n\n## Why\n\nAI assistants reach for emojis when a UI needs an icon, because drawing a good icon is actual design work. This server plugs into any MCP-compatible assistant (Claude Desktop, Claude Code, Cursor, and more) and lets it **search 2000+ Lucide icons by keyword, restyle them** (stroke width, color, size), and **generate a whole matching set in one call** so every icon on the page looks like it belongs together. The SVGs come back as markup the assistant saves straight into the project. No API key, no account, no network.\n\n## Tools\n\n| Tool | Description |\n|------|-------------|\n| `search_icons` | Finds icons by keyword across names and tags. Use when you don't know the exact icon name. |\n| `generate_icons` | Renders one icon or a whole matching set as styled SVG markup. Takes names or plain-words queries plus shared `stroke_width`, `color`, `size`. |\n\n## Quickstart\n\n**Install**\n\nNo cloning needed:\n\n```bash\nuvx icon-mcp\n```\n\nor with pip:\n\n```bash\npip install icon-mcp\n```\n\nFrom source instead:\n\n```bash\ngit clone https://github.com/pratham-jain33/icon-mcp\ncd icon-mcp\npython -m venv .venv\n.venv/bin/pip install -e .\n```\n\n**Connect your assistant**\n\nClaude Desktop config file:\n\n- macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`\n- Windows: `%APPDATA%\\Claude\\claude_desktop_config.json`\n\n```json\n{\n  \"mcpServers\": {\n    \"icon-mcp\": {\n      \"command\": \"uvx\",\n      \"args\": [\"icon-mcp\"]\n    }\n  }\n}\n```\n\nNo environment variables, no keys. From source, point at your checkout instead:\n\n```json\n{\n  \"mcpServers\": {\n    \"icon-mcp\": {\n      \"command\": \"/absolute/path/to/icon-mcp/.venv/bin/python\",\n      \"args\": [\"-m\", \"icon_mcp.server\"]\n    }\n  }\n}\n```\n\nRestart Claude Desktop, then try: *\"Find me a settings icon and a trash icon, both 1.5px stroke in #2f6bff at 32px, as SVGs.\"*\n\n## Configuration\n\nNone. There is nothing to configure: no API keys, no accounts, no network access. The icon set ships inside the package.\n\n## How it works\n\n1. You ask the assistant for icons in plain words.\n2. The assistant calls `search_icons` to find the right names, or passes keywords straight to `generate_icons`.\n3. The server resolves each query to a bundled Lucide SVG and rewrites four attributes on it: `width`, `height`, `stroke-width`, `stroke`. Pure XML manipulation, no rendering, no native dependencies.\n4. Every icon in one call gets the identical style, so the set is visually consistent by construction.\n5. The server returns JSON with the SVG markup per icon; the assistant saves them as `.svg` files in your project.\n\n## Example session\n\n```\nYou:    I need icons for my landing page nav: home, features, pricing,\n        contact. Make them all match: thin 1.5 stroke, blue #2f6bff.\n\nClaude: [calls generate_icons with [\"home\", \"features\", \"pricing\",\n        \"contact\"], stroke_width=1.5, color=\"#2f6bff\"]\n        Done. Four SVGs, all 1.5px stroke in #2f6bff, saved to icons/.\n        \"features\" resolved to the \"sparkles\" icon, \"contact\" to \"mail\".\n```\n\n## Why icon-mcp instead of Unicon\n\n[Unicon](https://github.com/webrenew/unicon) is the closest existing tool: an MCP server over a hosted icon API with 19,000+ icons across 9 libraries. icon-mcp takes the opposite trade:\n\n- **Fully offline.** The whole set is bundled in the package. No hosted API, works on a plane.\n- **No account, no tiers.** Free forever, nothing to sign up for.\n- **Python-native.** Installs with `uvx`/`pip`; no Node or npx needed.\n- **One-call consistent sets.** Pass a list of icons plus one style; every SVG comes back matching. The style params (stroke width, color, size) are first-class, not an afterthought.\n- **Smaller, calmer surface.** Two tools, one library, zero config.\n\nThe trade: one library (Lucide) instead of nine, and keyword search instead of semantic search. For shipping a consistent icon set on a page, that's the whole job.\n\n## Parameters\n\n`generate_icons` accepts:\n\n| Parameter | Default | Rules |\n|-----------|---------|-------|\n| `icons` | (required) | 1-50 names or keyword queries, e.g. `[\"home\", \"trash can\"]` |\n| `stroke_width` | `2.0` | 0.5 to 4 (2 is Lucide's default) |\n| `color` | `\"currentColor\"` | `currentColor`, hex (`#2f6bff`), or CSS name (`red`) |\n| `size` | `24` | 1 to 1024 pixels |\n\nQueries that don't resolve are reported in the `unresolved` list instead of failing the whole call.\n\n## Roadmap\n\n- [x] v0.1 — bundled Lucide set (v1.50.0), keyword search, parametric SVG styling, batch sets in one call\n- [ ] Website: paste a prompt, download a styled set\n- [ ] More libraries (Tabler, Heroicons) as opt-in bundles\n\n## Contributing\n\nIssues and pull requests are welcome. If you add a tool, write its description the way you'd explain it to a smart friend who has never seen it — the assistant reads that text to decide when to use it. To refresh the icon bundle against a newer Lucide release, bump `LUCIDE_VERSION` in `scripts/fetch_lucide.py` and run it.\n\n## License\n\nMIT © Pratham Jain. See [LICENSE](LICENSE).\n\n## Acknowledgments\n\nBuilt on [Lucide](https://lucide.dev)'s icon set (ISC licensed, see `icon_mcp/LUCIDE_LICENSE`) and the [Model Context Protocol](https://modelcontextprotocol.io/).\n",
+  "status": "curated"
+}

@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.xpex-systems-ai/gxeon-agent-marketplace",
+  "type": "mcp",
+  "name": "GXEON Agent Marketplace",
+  "description": "Discover GXEON services, prepaid agent packs from R$0.99, and the machine-buyer integration flow.",
+  "author": "io.github.xpex-systems-ai",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/xpex-systems-ai/GXEON-Wallet-Command-Center",
+    "repo": "xpex-systems-ai/GXEON-Wallet-Command-Center"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://gxeon-wallet-command-center.vercel.app/api/v1/mcp?view=public-market"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-10-02T19:55:12.523427Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# GXEON Wallet Command Center — V1\n\nFinancial and Web3 command center for the GXEON ecosystem.\n\n```\n                   GXEON WALLET COMMAND CENTER\n                              |\n             +----------------+----------------+\n             |                                 |\n        WEB CONTROL PLANE                 LOCAL PLANE\n             |                                 |\n         Firebase                        GXEON Bridge\n             |                           127.0.0.1:8790\n       Auth / Firestore                        |\n       Hosting / Rules                   Wallet CLIs\n             |                                 |\n        READ / MONITOR                 SIGN / BROADCAST\n             |                           (Human Verified)\n       Blockchain APIs\n```\n\n## Principles & Invariants\n\n- **Zero-Trust Key Boundary:** No private keys, seeds, mnemonics, or recovery materials are ever stored in GitHub, Firebase, or browser storage.\n- **Control Plane ≠ Signing Plane:** The web interface is strictly a read-only monitoring and bounty pipeline tracking plane. Cryptographic signing occurs solely on the operator's local machine via verified CLI interactions.\n- **Watch-Only by Default:** The initial RustChain address (`RTC82c21b7f32d0e65c4aa9785d6561a55ff6127269`) is marked `WATCH_ONLY` with `OWNERSHIP UNVERIFIED` until local cryptographic proof is established.\n- **Truth in Data:** Zero synthetic balances or fabricated transactions. If live RPC data is unreachable, `--` is displayed.\n- **Bounty Accounting:** `SUBMITTED != PAID`. Pipeline submissions are never counted as liquid assets.\n\n---\n\n## Quick Start\n\n### 1. Python Local Companion & CLI (Python 3.9+)\n\n```powershell\n# Windows One-Click Launch:\nStart-GXEON-Companion.cmd\n\n# Or PowerShell script:\n.\\scripts\\Start-GXEON-Companion.ps1\n\n# Or manual daemon launch on 127.0.0.1:8790:\npython bridge.py\n```\n\nIn a second terminal, use the CLI:\n\n```powershell\npython gxeon_wallet.py health\npython gxeon_wallet.py status\npython gxeon_wallet.py pair\npython gxeon_wallet.py detect\npython gxeon_wallet.py wallets\npython gxeon_wallet.py mining status\npython gxeon_wallet.py mining start\npython gxeon_wallet.py mining stop\npython gxeon_wallet.py mining configure <miner_id> [--destination <addr>]\npython gxeon_wallet.py rustchain status\npython gxeon_wallet.py rustchain balance\npython gxeon_wallet.py rustchain history\n```\n\n### 2. Frontend Command Center (Node 18+)\n\n```powershell\n# Install npm dependencies\nnpm install\n\n# Run Vitest test suite\nnpm test\n\n# Launch Vite development server\nnpm run dev\n\n# Production build\nnpm run build\n```\n\n---\n\n## Architecture & Documentation\n\n- [Quantum Core V1.2 Overview](docs/QUANTUM_CORE.md)\n- [ClawRTC Integration Guide](docs/CLAWRTC_INTEGRATION.md)\n- [RTC Mining & Operation](docs/RTC_MINING.md)\n- [Proof of Antiquity Specification](docs/PROOF_OF_ANTIQUITY.md)\n- [Quantum Event Bus Architecture](docs/QUANTUM_EVENTS.md)\n- [Payout Verification Engine](docs/PAYOUT_VERIFICATION.md)\n- [Architecture Overview](docs/ARCHITECTURE.md)\n- [Local Companion & Operation](docs/LOCAL_COMPANION.md)\n- [Pairing Protocol Handshake](docs/PAIRING_PROTOCOL.md)\n- [CLI Tool Detection Engine](docs/CLI_DETECTION.md)\n- [Windows Launcher Guide](docs/WINDOWS_LAUNCHER.md)\n- [RustChain Read-Only Specification](docs/RTC_READ_ONLY.md)\n- [Security Model & Invariants](docs/SECURITY_MODEL.md)\n- [Wallet Adapters & Capability Matrix](docs/WALLET_ADAPTERS.md)\n- [Firebase Deployment Guide](docs/FIREBASE_DEPLOY.md)\n\n---\n\n## Security Policy\n\nSee [SECURITY.md](SECURITY.md) for full disclosure and operational guidelines.\nNever commit `.env` files or secret keys to source control.\n\n\n## GXEON Agent Marketplace\n\nGXEON also operates a public, machine-readable marketplace for AI agents that need small, verifiable API utility jobs.\n\n- **Marketplace:** <https://gxeon-wallet-command-center.vercel.app/market>\n- **Public discovery MCP (Streamable HTTP):** `https://gxeon-wallet-command-center.vercel.app/api/v1/mcp?view=public-market`\n- **Official MCP Registry:** [`io.github.xpex-systems-ai/gxeon-agent-marketplace`](https://registry.modelcontextprotocol.io/v0.1/servers/io.github.xpex-systems-ai%2Fgxeon-agent-marketplace/versions/latest)\n\nThe public discovery endpoint is no-auth and read-only. It provides `gxeon_list_services`, `gxeon_list_credit_packs`, and `gxeon_get_agent_buying_guide`.\n\nCurrent execution capabilities are JSON validation, public URL verification, and public API health checks. Paid execution uses a separate authenticated API key after verified payment settlement. A checkout session, a visible pack, or a job submission is not revenue and does not grant credits.\n\nSee [the Agent Marketplace integration guide](docs/AGENT_MARKETPLACE.md) for the exact MCP handshake and machine-buyer flow.\n",
+  "status": "curated"
+}

@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.Hirly-Me/hirly",
+  "type": "mcp",
+  "name": "hirly",
+  "description": "Jobs matched to your resume, tailored resumes, and applications hirly sends only after you confirm.",
+  "author": "io.github.Hirly-Me",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/Hirly-Me/hirly-mcp",
+    "repo": "Hirly-Me/hirly-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://mcp.hirly.me/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-10-02T17:19:24.520674Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "办公",
+    "featured": false
+  },
+  "readme": "# hirly MCP server\n\nUse [hirly](https://hirly.me/ai-assistants?utm_source=github&utm_medium=mcp&utm_campaign=hirly-mcp) from your AI assistant. Once connected, the assistant can read the jobs hirly matched to your resume, tailor a resume for one of them, and — only if you allow it, and only after you confirm the job in the chat — ask hirly to apply.\n\n| | |\n| --- | --- |\n| **Server URL** | `https://mcp.hirly.me/mcp` |\n| **Transport** | Streamable HTTP (remote; nothing to install) |\n| **Sign-in** | OAuth, with your hirly account |\n| **Tools** | 9 |\n| **Docs** | [hirly.me/ai-assistants](https://hirly.me/ai-assistants?utm_source=github&utm_medium=mcp&utm_campaign=hirly-mcp) |\n\nThis repository holds the server's public documentation and its [MCP Registry](https://registry.modelcontextprotocol.io) entry (`server.json`). The server itself is hosted by hirly; there is no code to run here.\n\n## What you need\n\n- A hirly account. You sign in to it when the assistant connects.\n- Without a paid plan, your assistant can show your five best matches of the day, with each posting and how your resume fits it. A paid hirly plan is needed for the rest of your matches, hiring contacts, saving resume versions and applying.\n\n## Connect\n\n### Claude\n\nhirly is in Claude's connectors directory: open the directory, find hirly and connect it. Or add a custom connector with the server URL above.\n\n### ChatGPT\n\nhirly is not in ChatGPT's plugin directory yet, so for now it is added by hand:\n\n1. In ChatGPT, open Settings, then Security and login, and turn on Developer mode.\n2. Open Plugins, press the plus button and choose \"Create app\".\n3. Enter the server URL above, and choose OAuth for Authentication.\n4. Tick the box acknowledging the risk of adding a custom app, and create it.\n5. Approve the connection on hirly's consent screen.\n\n### Any other client that supports remote MCP servers\n\nAdd a remote MCP server with the URL `https://mcp.hirly.me/mcp` and sign in with your hirly account when asked.\n\n### Clients that only support local (stdio) servers\n\nBridge to the remote server with [`mcp-remote`](https://www.npmjs.com/package/mcp-remote), which opens the hirly sign-in in your browser:\n\n```json\n{\n  \"mcpServers\": {\n    \"hirly\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"mcp-remote\", \"https://mcp.hirly.me/mcp\"]\n    }\n  }\n}\n```\n\n### Then, in any assistant\n\n1. Sign in with your hirly account when asked. hirly shows what the assistant will be able to do.\n2. Choose whether it may start applications for you. This is off unless you tick it, and you can change it later in hirly under Connected assistants.\n3. Press Allow, then ask for your best new job matches.\n\n## Tools\n\n| Tool | Title | What it does | Changes anything? |\n| --- | --- | --- | --- |\n| `get_matches` | Get matched jobs | Lists the next jobs hirly matched to your resume that you have not acted on yet, best first. | No |\n| `get_job` | Get job details | Gives your assistant one job's full posting, how your resume meets its requirements, and the hiring contact when hirly can find one. | No |\n| `save_resume` | Save a résumé version | Saves a resume your assistant tailored as a new version in your hirly account. Your main resume changes only if you ask. | Yes |\n| `record_application` | Record an application | Marks a job as applied in hirly — after you confirm you sent it — with the resume version you used. | Yes |\n| `get_profile` | Get hirly profile | Shows your plan, whether your profile is set up, and a short summary of your main resume. | No |\n| `get_pending_questions` | Get questions waiting on the user | Lists the applications that are paused because the employer's form asked something only you can answer, with the questions. | No |\n| `answer_questions` | Answer an application's questions | Sends the answers you give in the chat, so hirly can finish the application. Only if you allowed applying. | Yes |\n| `submit_application` | Apply to a job for the user | Starts hirly applying to one job for you, after you confirm that job in the chat. Only if you allowed applying. | Yes |\n| `get_application_status` | Get an application's status | Says where an application stands: queued, applying, waiting for your answers, applied, or stopped and why. | No |\n\n## How applying works\n\n- Applying is off by default. You turn it on for an assistant on hirly's consent screen, and can turn it off again under Connected assistants.\n- Before hirly sends an application, the assistant names the job and the company and asks you. hirly starts the application only after you say yes to that job.\n- If the employer's form asks something only you can answer — work authorization, notice period, salary — the application waits, and the assistant asks you.\n- hirly does not sign in to an employer's site for you or get past a CAPTCHA.\n\n## What an assistant can and cannot reach\n\n**Reads:** your matched jobs and their postings; your plan, whether your profile is set up, and a summary of your main resume; how your main resume meets a job's requirements; hiring contacts hirly finds for a job you open; where your applications stand, and the questions they are waiting on.\n\n**Writes:** resume versions you or your assistant save; your main resume and profile, only when you ask it to replace them; applications you confirm you sent, and those jobs' status; and, if you allowed applying, applications hirly starts for jobs you confirm, and your answers to their questions.\n\n**Never:** start an application unless you allowed applying and confirmed that job; delete anything in your hirly account; read the rest of your hirly account; see your card details.\n\n## Privacy, terms and support\n\n- Privacy policy: [hirly.me/privacy](https://hirly.me/privacy)\n- Terms of service: [hirly.me/terms](https://hirly.me/terms)\n- Support: [hirly.me/support](https://hirly.me/support) · support@hirly.me\n\nFound a problem with the server or these docs? [Open an issue](https://github.com/Hirly-Me/hirly-mcp/issues) — please do not include personal information or anything from your hirly account.\n\n## For maintainers\n\n`server.json` is the server's entry in the official MCP Registry. To publish a change: edit it, bump `version` (the registry never overwrites a published version), merge to `main`, then run the **Publish to MCP Registry** workflow from the Actions tab. The workflow authenticates with GitHub's OIDC token, which grants the `io.github.Hirly-Me/*` namespace to workflows in this organisation; it uses no secrets.\n\n## License\n\nThe documentation and configuration in this repository are MIT licensed — see [LICENSE](LICENSE). That does not cover the hirly service itself, which is governed by the [terms of service](https://hirly.me/terms).\n\nhirly is a product of Insihts, Corp.\n",
+  "status": "curated"
+}

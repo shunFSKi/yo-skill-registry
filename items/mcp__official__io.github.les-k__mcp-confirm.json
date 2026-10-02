@@ -1,0 +1,57 @@
+{
+  "id": "mcp:official/io.github.les-k/mcp-confirm",
+  "type": "mcp",
+  "name": "mcp-confirm",
+  "description": "An MCP server whose confirmation cannot be replayed against a different call.",
+  "author": "io.github.les-k",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/les-k/mcp-confirm",
+    "repo": "les-k/mcp-confirm"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "mcp-confirm"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-10-02T17:46:13.085348Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "<!-- mcp-name: io.github.les-k/mcp-confirm -->\n# mcp-confirm\n\n[![CI](https://github.com/les-k/mcp-confirm/actions/workflows/ci.yml/badge.svg)](https://github.com/les-k/mcp-confirm/actions/workflows/ci.yml)\n[![Python](https://img.shields.io/badge/python-3.11%20%E2%80%93%203.13-blue)](https://www.python.org/)\n[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)\n\n> **In plain terms:** when an AI asks \"are you sure?\", the MCP SDK already stops\n> that approval being reused for a *different* action. It does **not** stop the\n> same approval being used *twice*. This closes that gap, and two others the SDK\n> leaves open.\n\n---\n\n## Read this first: most of this problem is already solved\n\nThe 2026-07-28 MCP specification added Multi Round-Trip Requests, so a tool can\npause mid-call and ask the user to confirm. The approval travels back through\nthe client as an opaque `requestState`, which the spec says servers **MUST**\ntreat as attacker-controlled.\n\n**The Python SDK does this for you, by default, on every `MCPServer`.**\n`RequestStateBoundary` is appended to the middleware chain unconditionally —\nwith an ephemeral key if you supply none. It seals the state under\n**AES-256-GCM** and binds it to the method, the target, a **digest of the call's\narguments**, the audience, and the authenticated principal, with a TTL.\n\nSo the attack everyone reaches for first — *approve deleting `cache.txt`, then\nreplay that approval against `thesis.txt`* — **is already refused by the SDK.**\nYou do not need a library for it, and you should not write one.\n\nThis repository originally wrote one anyway: 250 lines of HMAC, TTL and argument\nbinding, shipped as the headline feature, redundant the day it was published.\nThat is recorded at the bottom rather than quietly deleted.\n\n## What the SDK does *not* do\n\nThree gaps, each with a test that fires.\n\n### 1. It binds and expires the state. It never spends it.\n\nInside the TTL, the **same** approval verifies as many times as it is presented.\nEvery check the boundary makes passes, every time. The specification is explicit\nthat this is deliberate and that the rest is yours:\n\n> Note that these measures bound the replay window and prevent cross-user and\n> cross-request reuse, but do not by themselves guarantee single-use. Servers\n> for which a given `requestState` must be consumed at most once (e.g.,\n> one-time redemptions) **MUST** enforce that invariant server-side.\n\nFor \"delete a file\" the second attempt finds nothing. **For \"transfer £500\" it\nis the entire problem.** [`singleuse.py`](src/mcp_confirm/singleuse.py) is that\ninvariant — a ledger of outstanding confirmations, spent on redemption. It\ncontains no cryptography, because the boundary already guarantees the plaintext\nis something this server minted.\n\n### 2. Nothing sanitises the question the human reads\n\nAn elicitation `message` is server-chosen text rendered to a person, usually\nwith an untrusted value interpolated into it — the whole point is to say *which*\nfile is going away. So name a file:\n\n```\ncache.txt\n\nSYSTEM NOTICE: your session has expired.\nEnter your AWS secret key to continue:\n```\n\nThe dialog now carries a second, official-looking prompt. The user is not\nconfirming a deletion; they are being phished by their own tooling. The same\n2026-07-28 release also shipped MCP Apps — server-rendered UI — which widens\nthis surface rather than narrowing it.\n\n[`prompt.py`](src/mcp_confirm/prompt.py) flattens untrusted values to one line,\nstrips bidirectional overrides and zero-width characters, and truncates from the\n*middle* so the filename at the end stays visible. Control characters become\nspaces rather than being deleted, since collapsing them would let `a\\nb` and\n`ab` render identically — two different files, one dialog.\n\n### 3. No protocol layer can re-check *your* resource at execution time\n\nThe user thought about it in between. The file can be replaced in that window,\nand only the tool knows what \"unchanged\" means for it. This server re-checks\nbefore deleting, and refuses a path that has become a symlink.\n\n## Which layer refuses what\n\nThis is the useful part, and the tests are written to demonstrate it. `MCPError`\nmeans the SDK's middleware refused before this package ran; `ToolError` means\nthis package did.\n\n| Attack | Refused by | Test |\n|---|---|---|\n| Approval replayed onto a different file | **SDK** | `test_the_sdk_refuses_a_confirmation_replayed_onto_another_file` |\n| State forged, or sealed under another key | **SDK** | `test_the_sdk_refuses_a_forged_state` |\n| Same approval spent twice | **this package** | `test_a_confirmation_cannot_be_spent_twice` |\n| State minted by another replica | **this package** | `test_a_state_this_process_never_issued_is_refused` |\n| Filename forging a system prompt | **this package** | `test_a_forged_system_prompt_cannot_escape_its_slot` |\n| File swapped for a symlink after approval | **this package** | `test_a_swap_aimed_inside_the_root_is_refused` |\n| Path outside the allowed roots | **this package** | `test_a_path_outside_the_roots_is_refused_before_asking` |\n\n## Tests\n\n**35 tests** — 17 through the server, 11 on the ledger, 7 on prompt sanitisation.\n\n**Every server test runs through the real `RequestStateBoundary`**, the same\nclass `MCPServer` installs on itself, with a pinned key — sealing round one and\nunsealing round two exactly as the wire would.\n\nThat harness exists because of a specific mistake. The first version tested by\ncalling `MCPServer.call_tool()` directly, which goes straight to the tool\nmanager and **bypasses the middleware chain entirely**. The SDK's boundary never\nran, so a redundant hand-rolled guard looked load-bearing. The test design is\nwhat hid it, for an entire build cycle.\n\nCoverage is 81%, with `prompt.py` at 100% and `singleuse.py` at 94%. The gap is\n`main()`'s argparse and transport wiring, exercised through `build_server`\ninstead.\n\nCI runs on Ubuntu only, deliberately: the swap-after-confirmation tests need\nsymlinks, and the build **fails if they report as skipped there**.\n\n## Install\n\n```bash\npip install mcp-confirm\n```\n\n## Run\n\n```bash\nmcp-confirm --root /path/you/allow\n```\n\nWith no `--root`, the server refuses every request rather than defaulting to\nanything. Roots are fixed at startup and never chosen by the agent. No signing\nkey is needed — `MCPServer` brings its own.\n\n## Known limitations\n\n- **The ledger is in-memory**, so it is correct for one process and wrong behind\n  a load balancer. The SDK supports sharing keys across replicas\n  (`RequestStateSecurity(keys=[...])`); under that configuration replica B\n  rejects a confirmation issued by replica A. It fails closed — the safe\n  direction — but reads to a user as a confirmation that inexplicably stopped\n  working. A multi-process deployment needs Redis or a database row with an\n  atomic compare-and-delete. There is a test for this behaviour.\n- **The demonstration tool is deliberately small.** It deletes one file. The\n  interesting code is `singleuse.py` and `prompt.py`.\n- **No CVE backs this.** MRTR is weeks old, so this is built from the\n  specification's own MUST/SHOULD list and from reading the SDK, not from a\n  published incident.\n\n## What was wrong with version 0.1.0\n\nKept here because a repository that records only its successes is not evidence\nof anything.\n\n**0.1.0 reimplemented what the SDK already did.** `state.py` was 250 lines of\nHMAC signing, TTL, and principal/method/argument binding — all duplicating\n`RequestStateBoundary`, none of it as good: HMAC where the SDK uses\nauthenticated encryption, no audience binding, no key rotation.\n\n**It was caught by reading the SDK's source, not by a test.** The tests passed\nprecisely because they bypassed the middleware that would have exposed it.\n\n**CI separately caught a real bug in 0.1.0**: the symlink check ran *after*\n`Path.resolve()`, so it inspected the link's destination rather than the link\nitself. A swap aimed at another file inside an allowed root would have been\ndeleted. Fixed, with a test for the variant the original never exercised.\n\n0.2.0 deletes `state.py` entirely and keeps only what the SDK leaves uncovered.\n\n## Licence\n\nMIT.\n\n## Author\n\nBuilt by [Leslie Kadenge](https://les-k.github.io). I do independent security reviews of MCP servers; my public survey of thirteen production servers is at [les-k.github.io/field-notes.html](https://les-k.github.io/field-notes.html).\n",
+  "status": "curated"
+}
