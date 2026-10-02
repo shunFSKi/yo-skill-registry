@@ -1,0 +1,64 @@
+{
+  "id": "mcp:official/io.github.jeneric/stig-mcp",
+  "type": "mcp",
+  "name": "stig-mcp",
+  "description": "MCP server mapping MITRE ATT&CK® -> NIST 800-53r5 -> DISA STIG fix/check steps",
+  "author": "io.github.jeneric",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/jeneric/STIG-MCP",
+    "repo": "jeneric/STIG-MCP"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "stig-mcp"
+    ],
+    "env": [
+      {
+        "name": "STIG_MCP_DATA",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-10-02T05:09:42.9056Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "生活",
+    "featured": false
+  },
+  "readme": "# stig-mcp\n\nLocal MCP server that maps MITRE ATT&CK® techniques (and actors) to the NIST\n800-53r5 controls that mitigate them, with the DISA STIG fix and check steps for\nthe systems under consideration, severity-ordered.\n\n<!-- mcp-name: io.github.jeneric/stig-mcp -->\n\n## Prerequisite\n\nstig-mcp is published on [PyPI](https://pypi.org/project/stig-mcp/) and runs through `uvx`,\nwhich comes with [uv](https://docs.astral.sh/uv/).\n[Install uv](https://docs.astral.sh/uv/getting-started/installation/), then check that\n`uvx --version` runs in a new terminal. Restart VS Code or Claude Code after installing uv\nso it sees the new `PATH`.\n\n## Quick start\n\n### VS Code (GitHub Copilot)\n\n1. Click this badge. VS Code opens and offers to install stig-mcp; choose **Install**.\n\n   [![Install in VS Code](https://img.shields.io/badge/VS_Code-Install_stig--mcp-0098FF?logo=visualstudiocode&logoColor=white)](https://vscode.dev/redirect/mcp/install?name=stig-mcp&config=%7B%22type%22%3A%22stdio%22%2C%22command%22%3A%22uvx%22%2C%22args%22%3A%5B%22stig-mcp%22%5D%2C%22env%22%3A%7B%22UV_SYSTEM_CERTS%22%3A%22true%22%2C%22UV_NATIVE_TLS%22%3A%22true%22%7D%7D)\n\n2. Open Copilot Chat and set the mode dropdown to **Agent**. MCP tools are not available in\n   Ask or Edit mode.\n3. Ask: `Install the stig-mcp knowledge base.` This is a one-time download of about 6 MB.\n   Allow the tool when VS Code asks.\n\nIf that doesn't work, see [troubleshooting](https://github.com/jeneric/STIG-MCP/blob/main/docs/install.md#troubleshooting) or\n[setting up VS Code by hand](https://github.com/jeneric/STIG-MCP/blob/main/docs/install.md#vs-code-github-copilot).\n\n### Claude Code\n\n1. Inside a Claude Code session (2.1.275 or later), run:\n\n       /plugin install stig-mcp --marketplace jeneric/STIG-MCP\n\n2. Ask: `Install the stig-mcp knowledge base.` This is a one-time download of about 6 MB.\n   Allow the tool when Claude Code asks.\n\nIf that doesn't work, see [troubleshooting](https://github.com/jeneric/STIG-MCP/blob/main/docs/install.md#troubleshooting) or\n[setting up Claude Code by hand](https://github.com/jeneric/STIG-MCP/blob/main/docs/install.md#claude-code).\n\n## Example prompts\n\nWith the knowledge base installed, try:\n\n1. `What DISA STIG steps mitigate T1078 on Windows 11?`\n2. `Which ATT&CK techniques does APT29 use?`\n3. `Which STIG benchmarks apply to RHEL 9?`\n\n[More example prompts](https://github.com/jeneric/STIG-MCP/blob/main/docs/user-guide.md#example-prompts) are in the user guide, with\n[how to get more out of it](https://github.com/jeneric/STIG-MCP/blob/main/docs/user-guide.md#getting-more-out-of-it) and\n[how to make sure the agent answers from the server](https://github.com/jeneric/STIG-MCP/blob/main/docs/user-guide.md#getting-the-llm-to-use-the-server).\n\n## Other MCP clients\n\nUse this only if you are not using VS Code or Claude Code. Any client that launches a local\n(stdio) MCP server works with this configuration, shown in the common `mcpServers` shape:\n\n```json\n{\n  \"mcpServers\": {\n    \"stig-mcp\": {\n      \"command\": \"uvx\",\n      \"args\": [\"stig-mcp\"],\n      \"env\": { \"UV_SYSTEM_CERTS\": \"true\", \"UV_NATIVE_TLS\": \"true\" }\n    }\n  }\n}\n```\n\nThe two environment variables let uv download stig-mcp\n[behind a TLS-inspecting proxy](https://github.com/jeneric/STIG-MCP/blob/main/docs/install.md#behind-a-tls-inspecting-proxy). They are\nharmless on most other hosts; that section names the one exception. Then ask the agent to install the stig-mcp knowledge base, as in the\nquick start.\n\n[docs/install.md](https://github.com/jeneric/STIG-MCP/blob/main/docs/install.md) has the details:\n\n- manual [VS Code](https://github.com/jeneric/STIG-MCP/blob/main/docs/install.md#vs-code-github-copilot) and [Claude Code](https://github.com/jeneric/STIG-MCP/blob/main/docs/install.md#claude-code) setup\n- [running from a source checkout](https://github.com/jeneric/STIG-MCP/blob/main/docs/install.md#running-from-a-source-checkout)\n- [installing the knowledge base](https://github.com/jeneric/STIG-MCP/blob/main/docs/install.md#installing-the-knowledge-base) without an agent or without network access\n- [where the data lives](https://github.com/jeneric/STIG-MCP/blob/main/docs/install.md#where-the-data-lives)\n- [troubleshooting](https://github.com/jeneric/STIG-MCP/blob/main/docs/install.md#troubleshooting)\n\n## What this server fetches\n\n- The MCP server contacts nothing unless `check_sources` or `install_knowledge_base` is\n  called. Then it sends HTTPS GET requests to `api.github.com` (this repository's release\n  listing) and `github.com` (`/jeneric/STIG-MCP/releases/download/...`), which redirects to\n  `release-assets.githubusercontent.com` or `objects.githubusercontent.com`. Any other URL, a\n  redirect included, is refused. Nothing is uploaded, and there is no telemetry.\n  `install_knowledge_base` given a file path and its SHA-256 requests nothing at all.\n- `stig-mcp-install-kb` contacts the same hosts, and nothing at all with `--file`.\n- `stig-mcp-fetch`, used only to build the knowledge base yourself, downloads from\n  `raw.githubusercontent.com` and `api.github.com` (MITRE ATT&CK, the CTID mapping, the NIST\n  800-53 catalog) and from `dl.dod.cyber.mil` (DISA).\n\n[PRIVACY.md](https://github.com/jeneric/STIG-MCP/blob/main/PRIVACY.md) states what each of these requests sends and what is stored locally.\n\n## Documentation\n\n- [docs/install.md](https://github.com/jeneric/STIG-MCP/blob/main/docs/install.md): installation details for every client, where the data lives, and troubleshooting.\n- [docs/user-guide.md](https://github.com/jeneric/STIG-MCP/blob/main/docs/user-guide.md): for a person talking to an LLM that has this server wired in.\n- [docs/operations.md](https://github.com/jeneric/STIG-MCP/blob/main/docs/operations.md): for whoever installs, builds and maintains the knowledge base.\n- [SECURITY.md](https://github.com/jeneric/STIG-MCP/blob/main/SECURITY.md): reporting a vulnerability, and what is in scope.\n- [CONTRIBUTING.md](https://github.com/jeneric/STIG-MCP/blob/main/CONTRIBUTING.md): working from a source checkout, running the tests, and the project's conventions.\n- [RELEASING.md](https://github.com/jeneric/STIG-MCP/blob/main/RELEASING.md): for the maintainer, publishing the package to PyPI and the MCP Registry.\n- [PRIVACY.md](https://github.com/jeneric/STIG-MCP/blob/main/PRIVACY.md): what the server and the fetch tool contact, and what is stored locally.\n\n## Third-party content\n\nThe knowledge base aggregates MITRE ATT&CK, CTID mapping, DISA STIG, DISA CCI\nlist, and NIST OSCAL content. See [NOTICE](https://github.com/jeneric/STIG-MCP/blob/main/NOTICE) for attribution and licensing obligations\nand [licenses/apache-2.0.txt](https://github.com/jeneric/STIG-MCP/blob/main/licenses/apache-2.0.txt) for the Apache 2.0\nlicense text that notice requires.\n\n## Development\n\nDeveloped with the assistance of Claude Code (Anthropic). All changes were reviewed and\ntested by the maintainer.\n",
+  "status": "curated"
+}

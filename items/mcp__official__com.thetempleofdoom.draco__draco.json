@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/com.thetempleofdoom.draco/draco",
+  "type": "mcp",
+  "name": "draco",
+  "description": "Coding & security oracle grounded in 1855 real books. Cited answers via MCP.",
+  "author": "com.thetempleofdoom.draco",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/drjonesxxx1/draco",
+    "repo": "drjonesxxx1/draco"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://draco.thetempleofdoom.com/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-10-02T08:08:48.420901Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# DRACO — The Book-Forged Code Oracle\n\n> **Other AIs guess. DRACO knows — and proves it.**\n\nDRACO answers coding, systems, and security questions using retrieval over a library of\n**1,855 real technical books** (354M characters, 116,558 indexed passages) — and cites the\nexact book behind every claim. No knowledge cutoff. No hallucination laundering. Receipts attached.\n\n**Try it now:** https://draco.thetempleofdoom.com — 10 free questions a day, no signup.\n\n---\n\n## Why it's different\n\n| Generic chatbot | DRACO |\n|---|---|\n| Compressed training-data recall | Live retrieval from 1,855 books on the shelf |\n| \"Trust me\" answers | Every claim carries `[n]` citations + a `sources` array |\n| Knowledge cutoff: yes | The canon is resident — K&R, Tanenbaum, the shellcoders' handbook |\n| Sells your prompts | Self-hosted, zero telemetry, questions never leave the house |\n\n## Quickstart\n\n### Chat in the browser\nhttps://draco.thetempleofdoom.com — streaming answers, visible reasoning, sources bar\nunder every response. 10 free/day, no account.\n\n### REST API\n```bash\n# 1. Get a free key (30 credits/month, email only, no card)\ncurl -s -X POST https://draco.thetempleofdoom.com/api/signup \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"email\":\"you@domain.tld\"}'\n# → {\"api_key\":\"sk-draco-...\"}\n\n# 2. Ask — RAG-grounded answer with citations (1 credit)\ncurl -s -X POST https://draco.thetempleofdoom.com/api/ask \\\n  -H 'X-API-Key: sk-draco-...' -H 'Content-Type: application/json' \\\n  -d '{\"q\":\"explain the ret2libc technique with a minimal poc\"}'\n# → {\"answer\":\"...[1]...[2]\",\"sources\":[{\"title\":\"...\",\"category\":\"...\"}]}\n\n# 3. Raw passage search across all 1,855 books (1 credit)\ncurl -s \"https://draco.thetempleofdoom.com/api/search?q=tcp%20syn%20flood&k=5\" \\\n  -H 'X-API-Key: sk-draco-...'\n```\n\n### MCP — use it from Claude, GPT, or any agent\n```json\n{\n  \"mcpServers\": {\n    \"draco\": { \"url\": \"https://draco.thetempleofdoom.com/mcp\" }\n  }\n}\n```\n\n**Tools:**\n- `draco_ask(question)` → cited, book-grounded answer\n- `draco_search(query, k)` → raw BM25 passages with titles + scores\n- `draco_status()` → live library stats\n\n**Officially listed on the MCP registry:**\n[`com.thetempleofdoom.draco/draco`](https://registry.modelcontextprotocol.io/servers/com.thetempleofdoom.draco/draco)\n\nManual MCP handshake:\n```bash\ncurl -s https://draco.thetempleofdoom.com/mcp \\\n  -H 'Content-Type: application/json' -H 'Accept: application/json, text/event-stream' \\\n  -d '{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"initialize\",\"params\":{\"protocolVersion\":\"2025-03-26\",\"capabilities\":{},\"clientInfo\":{\"name\":\"smoke\",\"version\":\"1\"}}}'\n```\n\n## How it works\n\n```\nquestion ──► BM25 retrieval over 116k book passages\n                │\n                ▼\n        top passages + question ──► local LLM (self-hosted GPU)\n                │\n                ▼\n        answer with inline [n] citations + sources array\n```\n\n1. **Ingest** (`ingest.py`) — PDF/CHM/DJVU → clean plain text. Junk scans dropped automatically.\n2. **Index** (`build_index.py`) — 300-token overlapping chunks → Snowball-stemmed BM25 index.\n3. **Serve** (Flask + gunicorn) — retrieval-augmented generation with SSE streaming,\n   separate reasoning and answer channels, and automatic degenerate-output detection/retry.\n4. **Expose** — REST API, streamable-http MCP server, and a full agent-discovery kit:\n   `/llms.txt`, `/llms-full.txt`, `/openapi.json`, `/.well-known/ai-plugin.json`,\n   `/.well-known/mcp-server.json`, `/sitemap.xml`.\n\n## Pricing\n\nBitcoin only. No subscription traps, no KYC, no card processor.\n\n| Tier | Price | What you get |\n|---|---|---|\n| Web (no key) | **free** | 10 questions/day in the browser |\n| API key | **free** | 30 credits/month, forever |\n| satchel | $3 | 60 credits |\n| crate | $10 | 250 credits |\n| hoard pack | $25 | 750 credits |\n| **HOARD** | **$50/mo** | **unlimited** — every ask, every search, 30 days |\n\n1 credit = 1 ask or 1 search. Credits never expire. Books are free to download at\n[/library](https://draco.thetempleofdoom.com/library) — we sell answers, not files.\n\n## Self-hosting\n\n```bash\ngit clone https://github.com/drjonesxxx1/draco.git\ncd draco\npython3 -m venv venv && ./venv/bin/pip install -r requirements.txt\ncp config.example.json config.json   # set model, ollama URL, limits, payments\n\n# point ingest.py at YOUR book directory, then:\n./venv/bin/python3 ingest.py         # books → text + manifest\n./venv/bin/python3 build_index.py    # text → BM25 index\n\n./venv/bin/gunicorn -w 2 --threads 8 -b 127.0.0.1:8012 app:app    # API + web\n./venv/bin/python3 -m uvicorn mcp_server:app --port 8013           # MCP\n```\n\nAny local Ollama model works. Put nginx in front (see `deploy/nginx-draco.conf` for\nthe reference config incl. SSE + MCP proxying). Payments are optional — leave the\n`btcpay` block empty and the free tiers carry the whole thing.\n\n## Repository layout\n\n| File | Purpose |\n|---|---|\n| `app.py` | Flask: web UI, REST API, SSE chat, payments webhook, agent-discovery kit |\n| `draco_core.py` | RAG engine, retrieval, LLM calls, metering, DB |\n| `pages.py` / `pages2.py` | Theme |\n| `mcp_server.py` | Standalone streamable-http MCP server |\n| `mcp_client.py` | stdio bridge for Claude Desktop / local clients |\n| `ingest.py` / `build_index.py` | Corpus pipeline |\n| `test_splitter.py` | Unit tests for the reasoning/answer channel splitter |\n| `deploy/` | systemd units + nginx config |\n\n## Notes\n\n- Security content is for **education and authorized testing only**.\n- Books retain their original copyrights; the library is shared for personal use.\n- No telemetry. No logs sold. Ever.\n",
+  "status": "curated"
+}

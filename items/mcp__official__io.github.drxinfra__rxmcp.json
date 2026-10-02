@@ -1,0 +1,95 @@
+{
+  "id": "mcp:official/io.github.drxinfra/rxmcp",
+  "type": "mcp",
+  "name": "Directum RX",
+  "description": "Directum RX for AI assistants: assignments, documents, boards, projects, any entity, system help",
+  "author": "io.github.drxinfra",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/drxinfra/rxmcp",
+    "repo": "drxinfra/rxmcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "ghcr.io/drxinfra/rxmcp:v0.5.3"
+    ],
+    "env": [
+      {
+        "name": "RXMCP_URL",
+        "required": true,
+        "secret": false
+      },
+      {
+        "name": "RXMCP_LOGIN",
+        "required": true,
+        "secret": false
+      },
+      {
+        "name": "RXMCP_AUTH",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "RXMCP_PASSWORD",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "RXMCP_COOKIE",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "RXMCP_ALLOW_WRITE",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "RXMCP_TZ",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-10-02T08:19:07.450566Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "写作",
+    "featured": false
+  },
+  "readme": "# rxmcp: Directum RX MCP server\n\n<img src=\"assets/icon.svg\" width=\"88\" height=\"88\" align=\"right\" alt=\"rxmcp\">\n\n**Directum RX MCP server.** Connects an AI assistant (Claude, Cursor and any MCP host) to Directum RX: assignments, tasks, documents and their text, knowledge base, agile boards, project plans, any entity via OData, and search over the system help of your own RX version. Single binary, read-only by default. The rest of this page is in Russian; the tool list and settings are in [server.json](server.json).\n\nMCP-сервер для Directum RX. Подключает ИИ-ассистента (Claude Desktop, Claude Code, Cursor и любой другой хост с поддержкой [Model Context Protocol](https://modelcontextprotocol.io)) к вашей системе: задания, задачи, документы, база знаний, agile-доски, проекты и планы.\n\nРаботает от имени пользователя RX через штатный сервис интеграции (OData). Прав сверх ваших не получает, схему не меняет, в базу и логи RX не заглядывает.\n\nОдин бинарник без зависимостей: Linux, Windows, macOS (Intel и Apple Silicon).\n\n## Установка за две команды\n\n```sh\ncurl -fsSL https://drxinfra.ru/dl/rxmcp/install.sh | sh   # или скачайте бинарник вручную\nrxmcp setup\n```\n\n`setup` спросит адрес RX, логин и способ входа, проверит подключение только чтением и сам пропишет сервер в Claude Desktop, Claude Code и Cursor. Перезапустите клиент — в списке инструментов появится `rx`.\n\nБез интернета и без скриптов: возьмите архив со страницы [Releases](https://github.com/drxinfra/rxmcp/releases), распакуйте, положите бинарник в `PATH` и запустите `rxmcp setup`. На macOS, если файл скачан браузером, система попросит снять карантин: `xattr -d com.apple.quarantine rxmcp`.\n\n## Где лежат настройки\n\nВ профиле `~/.config/rxmcp/config.json` (Windows: `%AppData%\\rxmcp\\config.json`), права `0600`. В конфиге ИИ-клиента остаётся только путь к бинарнику:\n\n```json\n{ \"mcpServers\": { \"rx\": { \"command\": \"/usr/local/bin/rxmcp\" } } }\n```\n\nТак сделано, чтобы менять настройки одной командой, а не искать JSON клиента:\n\n```sh\nrxmcp config                                 # что настроено (секреты не печатаются)\nrxmcp config set RXMCP_ALLOW_WRITE=1         # включить запись\nrxmcp config set RXMCP_TZ=Europe/Moscow      # часовой пояс для дат\nrxmcp check                                  # проверить связь с RX, только чтение\n```\n\nПеременные окружения имеют приоритет над профилем — в контейнере и в CI удобнее передавать их напрямую. Имена те же, полный список: `rxmcp help`.\n\n## Вход в RX\n\n| Способ | Когда подходит | Что нужно сделать |\n|---|---|---|\n| `password` | в RX включён вход по паролю (обычно небольшие внедрения) | `rxmcp setup`, ввести пароль один раз |\n| `cookie` | работает всегда, в том числе при SSO, Keycloak и домене | войти в RX в браузере, скопировать cookie `sungero_client`, `rxmcp login --paste` |\n| `oidc` | ваш провайдер и заведённый для rxmcp клиент | `rxmcp login`, вход в браузере (PKCE) или по коду (device flow) |\n| `bearer` | у вас уже есть токен | `RXMCP_TOKEN=...` |\n\nCookie — обходной путь, зато без участия администратора. Сессия RX живёт недолго, поэтому обновление сделано в одну команду:\n\n```sh\nrxmcp login --paste    # взять cookie из буфера обмена\nrxmcp login            # или вставить вручную\n```\n\nCookie лежит отдельным файлом и перечитывается на каждом запросе: **перезапускать ИИ-клиент после обновления не нужно**. Если сессия истекла, сервер так и скажет в ответе вместо непонятной ошибки.\n\nПро `oidc`: rxmcp умеет и вход в браузере (authorization code + PKCE, локальный redirect), и device flow (код на экране, без открытого порта). Для этого администратору нужно один раз завести в вашем провайдере публичный клиент — без этого остаётся `cookie` или `password`.\n\n## Что умеет\n\nЧтение (всегда):\n\n- `rx_whoami` — кто я в RX.\n- `rx_my_assignments` — задания в работе, просроченные, непрочитанные, выполненные; уведомления.\n- `rx_get_assignment`, `rx_get_task`, `rx_list_tasks` — карточки с перепиской, вложениями и заданиями.\n- `rx_find_documents`, `rx_get_document`, `rx_get_document_text` — поиск, карточка, текст версии (docx, xlsx, pptx, txt, md, csv, json, xml, html, rtf).\n- `rx_find_employees` — найти сотрудника, чтобы адресовать задачу.\n- База знаний: `rx_kb_areas`, `rx_kb_search`, `rx_kb_article` (статья в markdown).\n- Agile-доски: `rx_boards`, `rx_board`, `rx_tickets`, `rx_ticket`.\n- Проекты: `rx_projects`, `rx_project`, `rx_project_plans`, `rx_project_plan` (дерево работ, ответственные, просрочки).\n- Справка системы: `rx_help_search`, `rx_help_topic`, `rx_help_toc`. Помощник отвечает на «как настроить» и «что значит это поле» по справке вашей версии RX и называет статью.\n- Любая сущность: `rx_find_entity` (поиск по русскому или английскому названию), `rx_describe_entity` (поля и ссылки), `rx_query` (чтение по условию). Для данных, под которые нет готового инструмента: договоры, контрагенты, справочники, доработки заказчика.\n\nЗапись (только при `RXMCP_ALLOW_WRITE=1`, иначе инструменты не видны модели):\n\n- `rx_create_ticket` — карточка на доске: колонка, срок, приоритет, теги, исполнители.\n- `rx_update_ticket` — изменить карточку и перенести её в другую колонку.\n- `rx_delete_tickets` — удалить карточки с доски, как удаление в интерфейсе доски: карточка получает статус Deleted (до 100 за раз).\n- `rx_create_column` — колонка на доске: название, место, финальная, лимит карточек. Без места встаёт перед «Выполнено».\n- `rx_complete_assignment` — выполнить задание или принять работы (результат подбирается по типу задания).\n- `rx_create_simple_task` — создать и отправить простую задачу.\n- `rx_abort_task` — прекратить задачу.\n- `rx_call_action` — вызвать действие модуля по имени, если готового инструмента для него нет.\n\nПлюс ресурсы `rx://assignment/{id}`, `rx://task/{id}`, `rx://document/{id}` и промпты «разбор заданий на сегодня», «краткое содержание документа».\n\nКаждое пишущее действие показывает, что именно будет сделано, и спрашивает подтверждение (elicitation), если клиент это умеет. Некоторые клиенты заявляют, что умеют, но форму не показывают и сразу отвечают отказом: тогда каждый вызов заканчивается «Пользователь отменил действие». В этом случае `rxmcp config set RXMCP_CONFIRM=0` выключает форму, и подтверждением служит только разрешение на вызов инструмента в самом клиенте. Теги и исполнители ищутся по имени: чего не нашлось — про то будет сказано прямо в ответе, карточка при этом создастся.\n\nКак это устроено внутри и почему именно так: [docs/architecture.md](docs/architecture.md).\n\n## Справка системы\n\nСправка Directum RX принадлежит вендору, поэтому в поставке rxmcp её нет. Сервер скачивает её с вашего же стенда: там она лежит рядом с веб-клиентом и соответствует вашей версии системы.\n\n```\nrxmcp docs index          # скачать и проиндексировать, около трёх минут на 5000 статей\nrxmcp docs search правило согласования договоров\nrxmcp docs status\n```\n\nКоманду можно не выполнять: при первом вопросе по справке сервер начнёт скачивание сам и ответит, когда закончит. Индекс лежит в каталоге настроек (`help-<хост>.idx.gz`, около 5 МБ), у каждого стенда свой. После обновления RX выполните `rxmcp docs index` ещё раз.\n\nПоиск лексический, с учётом русских окончаний и с приоритетом заголовков. Модель для эмбеддингов не нужна: переформулировать вопрос терминами системы помощник умеет сам. Если справка лежит по нестандартному адресу, задайте `RXMCP_HELP_URL`.\n\n## Docker\n\nДля сервера и для HTTP-режима:\n\n```sh\ndocker run --rm -p 127.0.0.1:8765:8765 \\\n  -e RXMCP_URL=https://rx.company.ru/Integration \\\n  -e RXMCP_LOGIN=ivanov -e RXMCP_PASSWORD=... \\\n  -e RXMCP_HTTP_ADDR=0.0.0.0:8765 -e RXMCP_HTTP_SECRET=... \\\n  ghcr.io/drxinfra/rxmcp serve --http\n```\n\nПо stdio из контейнера тоже работает, но для настольного клиента проще бинарник: не нужны ни монтирование каталога с настройками (`-v ~/.config/rxmcp:/config -e RXMCP_HOME=/config`), ни проброс браузера для `oidc`.\n\n## Каталоги MCP\n\nСервер опубликован в официальном [MCP Registry](https://registry.modelcontextprotocol.io) под именем `io.github.drxinfra/rxmcp`. Запись обновляется автоматически при каждом релизе: описание лежит в `server.json`, образ в `ghcr.io/drxinfra/rxmcp`.\n\nВ каталоге [LobeHub](https://lobehub.com/mcp/drxinfra-rxmcp) сервер называется `drxinfra-rxmcp`. Его описание лежит в `lhm.plugin.json` и обновляется вручную: `npx -y @lobehub/market-cli plugin update --dir .` после смены версии в файле.\n\n## Безопасность\n\n- Только сервис интеграции RX и только права вашего пользователя. Ни базы, ни файлов, ни логов системы.\n- Запись выключена по умолчанию. Без `RXMCP_ALLOW_WRITE=1` пишущих инструментов нет в списке — модель не может их вызвать.\n- Секреты не попадают в конфиг ИИ-клиента: профиль и cookie лежат в `~/.config/rxmcp` с правами `0600`.\n- Тексты из RX отдаются модели с пометкой, что это данные, а не инструкции.\n- В логи сервера не пишутся ни cookie, ни токены, ни пароли.\n- HTTP-режим слушает только то, что вы указали, и требует общий секрет в заголовке `Authorization`.\n\n## Сборка из исходников\n\n```sh\ngo build -o rxmcp .          # нужен Go 1.27+\nhack/build.sh v0.3.0         # архивы под все платформы в dist/\ngo test ./...\n```\n\n## Лицензия\n\nApache-2.0. Directum RX — продукт Directum; проект с вендором не связан, торговые знаки принадлежат правообладателям.\n",
+  "status": "curated"
+}

@@ -1,0 +1,80 @@
+{
+  "id": "mcp:official/io.github.dirkjanfaber/mcp-server-petkit",
+  "type": "mcp",
+  "name": "PetKit",
+  "description": "Unofficial MCP server for PetKit smart feeders: status, feeding history and schedule control.",
+  "author": "io.github.dirkjanfaber",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/dirkjanfaber/mcp-server-petkit",
+    "repo": "dirkjanfaber/mcp-server-petkit"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "mcp-server-petkit"
+    ],
+    "env": [
+      {
+        "name": "PETKIT_EMAIL",
+        "required": true,
+        "secret": false
+      },
+      {
+        "name": "PETKIT_PASSWORD",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "PETKIT_REGION",
+        "required": true,
+        "secret": false
+      },
+      {
+        "name": "PETKIT_TIMEZONE",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-10-02T08:04:02.395982Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# mcp-server-petkit\n\n[![CI](https://github.com/dirkjanfaber/mcp-server-petkit/actions/workflows/ci.yml/badge.svg)](https://github.com/dirkjanfaber/mcp-server-petkit/actions/workflows/ci.yml)\n\nMCP (Model Context Protocol) server for the [PetKit](https://www.petkit.com) cloud API. Exposes feeder status and control for the **Fresh Element Solo** (device type `D4`) as MCP tools.\n\n> **Disclaimer:** This project is not affiliated with, endorsed by, or in any way associated with PetKit. It is an independent, community-developed integration created by a happy user of their hardware and software. PetKit and Fresh Element Solo are trademarks of their respective owner. Use of this package is at your own risk. The underlying API is unofficial and reverse-engineered by the community - it may change or break without notice.\n\n## Tools\n\n| Tool | Description |\n|---|---|\n| `list_feeders` | List all Fresh Element Solo feeders and their live state (food/battery/desiccant status, lock/light/sound settings, today's feed totals) |\n| `feed_now` | Dispense food immediately |\n| `update_feeder_setting` | Change a numeric setting (child lock, indicator light, dispense tone, shortage alarm, ...) |\n| `skip_scheduled_feed` | Skip one of today's scheduled meals (`d4/removeDailyFeed`), leaving the recurring plan untouched |\n| `restore_scheduled_feed` | Undo a skip for today (`d4/restoreDailyFeed`) |\n\n### Feed amounts\n\nThe D4 only accepts these five portion sizes: `10`, `20`, `30`, `40`, `50`.\n\n### Feed totals are per device, not per cat\n\n`list_feeders` also returns `feedPlanToday`: today's scheduled meals from the feeder's weekly plan (`d4/device_detail`'s `multiFeedItem`), each with its readable `time`, the `feedTime` (seconds since midnight) that `skip_scheduled_feed` takes, the portion `amount` in `feed_now`'s units, and the meal `name`.\n\n`list_feeders`' `fedToday`/`fedTodayScheduled`/`fedTodayExtra`/`fedTodayPlanned`/`dispensesToday`/`feedTimesToday` fields reflect what each *physical feeder* dispensed - PetKit has no way to attribute a dispense to a specific cat. If your cats share or steal from each other's bowls, these numbers won't tell you what any one cat actually ate.\n\n### Common setting keys\n\n| Key | Meaning |\n|---|---|\n| `manualLock` | Child lock (0/1) |\n| `lightMode` | Indicator light |\n| `feedSound` | Dispense tone (0/1) |\n| `foodWarn` | Shortage alarm (0/1) |\n\nOther numeric keys the device reports via `list_feeders` may also work but are unconfirmed.\n\n## Configuration\n\nSet the following environment variables before starting the server:\n\n```bash\nexport PETKIT_EMAIL=\"your@email.com\"\nexport PETKIT_PASSWORD=\"yourpassword\"\nexport PETKIT_REGION=\"Netherlands\"   # must match the exact region name shown in the PetKit app\nexport PETKIT_TIMEZONE=\"Europe/Amsterdam\"   # optional, defaults to the host's own timezone\n```\n\n**Note:** PetKit account passwords are capped at 6-14 characters. A longer password\nfails login with a generic \"incorrect username or password\" error indistinguishable\nfrom an actually-wrong one - if login fails unexpectedly, check that first.\n\n## Usage with Claude Desktop\n\nAdd to your `claude_desktop_config.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"petkit\": {\n      \"command\": \"npx\",\n      \"args\": [\"mcp-server-petkit\"],\n      \"env\": {\n        \"PETKIT_EMAIL\": \"your@email.com\",\n        \"PETKIT_PASSWORD\": \"yourpassword\",\n        \"PETKIT_REGION\": \"Netherlands\"\n      }\n    }\n  }\n}\n```\n\n## Remote use: claude.ai connector (HTTP + OAuth)\n\nTo use the server from claude.ai and the Claude mobile apps, run it in HTTP mode on an\nalways-on machine and add it as a custom connector. claude.ai connects from the\ninternet, so the server needs a public `https://` URL - a Cloudflare Tunnel or\nTailscale Funnel gives you one without opening ports on your router.\n\nHTTP mode is single-user: when you connect Claude, the server shows a page asking for\nyour **owner passphrase**. Anyone who knows it can authorize a client, and anyone with\na token can dispense food or change the feeding plan - pick a strong one.\n\n```bash\nnpx mcp-server-petkit --http   # or MCP_TRANSPORT=http\n```\n\n| Variable | Default | |\n|----------|---------|-|\n| `MCP_PUBLIC_URL` | (required) | The `https://` URL claude.ai reaches the server on |\n| `MCP_OWNER_PASSWORD` | (required) | Passphrase for authorizing Claude, at least 12 characters |\n| `MCP_HOST` | `127.0.0.1` | Interface to listen on; the Docker image sets `0.0.0.0` |\n| `MCP_PORT` | `3000` | |\n| `MCP_STATE_FILE` | `~/.mcp-server-petkit/oauth-state.json` | Registered clients and refresh-token hashes, so Claude stays connected across restarts |\n\nplus the `PETKIT_*` variables from [Configuration](#configuration).\n\n### Docker (e.g. on a Raspberry Pi)\n\nEach release publishes `ghcr.io/dirkjanfaber/mcp-server-petkit` for amd64 and arm64,\ntagged with the version and `latest`. With a Cloudflare Tunnel alongside it, no port\nneeds publishing: create a tunnel in the Cloudflare dashboard, point its public\nhostname at `http://petkit-mcp:3000`, and put its token in `.env` next to the PetKit\nand `MCP_*` settings:\n\n```yaml\n# docker-compose.yml\nservices:\n  petkit-mcp:\n    image: ghcr.io/dirkjanfaber/mcp-server-petkit:latest   # or pin a version, e.g. :0.3.0\n    restart: unless-stopped\n    env_file: .env   # PETKIT_*, MCP_PUBLIC_URL, MCP_OWNER_PASSWORD\n    volumes:\n      - petkit-data:/data\n  cloudflared:\n    image: cloudflare/cloudflared:latest\n    command: tunnel run\n    restart: unless-stopped\n    environment:\n      TUNNEL_TOKEN: ${TUNNEL_TOKEN}\nvolumes:\n  petkit-data:\n```\n\nUpdate with `docker compose pull && docker compose up -d`. To build the image yourself\ninstead, replace `image:` with `build: https://github.com/dirkjanfaber/mcp-server-petkit.git`.\n\nThe server trusts one proxy hop (`X-Forwarded-For` from cloudflared) for rate limiting.\nDon't also publish its port directly to the internet.\n\n### Connecting Claude\n\nIn claude.ai: **Settings → Connectors → Add custom connector**, with URL\n`https://<your public host>/mcp`. Claude registers itself, opens the passphrase page,\nand once you allow it, the tools show up in claude.ai and the mobile apps.\n\n**PetKit allows one session per account.** The server's login signs the PetKit app\nout (and vice versa); it re-logs in on its own when that happens, but expect the app\nto ask you to log in again whenever the server restarts or its session lapses. Running\nthe stdio server, Node-RED's PetKit nodes, or a second HTTP instance on the same\naccount makes them take turns signing each other out.\n\n## References\n\n- Actively maintained reference client (Python) - https://github.com/Jezza34000/py-petkit-api - source of the confirmed-working client fingerprint and current endpoint constants\n- Sibling Node-RED package with fuller protocol notes - [`node-red-contrib-petkit`](https://github.com/dirkjanfaber/node-red-contrib-petkit)'s `CLAUDE.md`\n",
+  "status": "curated"
+}

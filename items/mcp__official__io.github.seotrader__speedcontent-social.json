@@ -1,0 +1,61 @@
+{
+  "id": "mcp:official/io.github.seotrader/speedcontent-social",
+  "type": "mcp",
+  "name": "SpeedContent Social",
+  "description": "Generate platform-native social posts that are humanized, AI-detection scored and illustrated.",
+  "author": "io.github.seotrader",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/seotrader/speedcontent-social-mcp",
+    "repo": "seotrader/speedcontent-social-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://generatecontentwithaiservice-g5zrtckfda-ue.a.run.app/mcp",
+    "env": [
+      {
+        "name": "X-API-Key",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-10-02T02:21:49.925504Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# SpeedContent Social MCP\n\nGive an AI agent the ability to write social media posts that don't read like AI wrote them.\n\nAn MCP server for the [SpeedContent](https://speedcontent.online) Social Post API. Agents can draft posts for seven platforms; each one is written to that platform's conventions, rewritten to read as human-authored, scored against AI detection, and optionally illustrated.\n\nListed in the official MCP Registry as `io.github.seotrader/speedcontent-social`.\n\n## Why this and not a plain model call\n\nAny model can write a LinkedIn post. The difference is what happens after:\n\n| Step | What it does |\n| --- | --- |\n| Generate | Written against the platform's own style guide, not one prompt reskinned |\n| Humanize | Rewritten so it doesn't read as machine-written |\n| Detect | Scored 0–65 by an AI detector; 0 reads as human |\n| Emoji | Platform-aware; suppressed on LinkedIn and YouTube |\n| Re-humanize | Automatic retry if the score comes back too high |\n| Image | Optional, generated to match the post |\n\nThe scoring pass is the point. The agent is told how human the copy reads *before* anything is published.\n\n## Setup\n\nThis is a **remote** server — there is nothing to install. Get an API key at [app.speedcontent.online/APIKeys](https://app.speedcontent.online/APIKeys) (free credits on signup, no card), then point your client at the URL.\n\n### Claude Code\n\n```bash\nclaude mcp add --transport http speedcontent-social \\\n  https://generatecontentwithaiservice-g5zrtckfda-ue.a.run.app/mcp \\\n  --header \"X-API-Key: sc_your_key_here\"\n```\n\n### Claude Desktop, Cursor, and other clients\n\n```json\n{\n  \"mcpServers\": {\n    \"speedcontent-social\": {\n      \"url\": \"https://generatecontentwithaiservice-g5zrtckfda-ue.a.run.app/mcp\",\n      \"headers\": {\n        \"X-API-Key\": \"sc_your_key_here\"\n      }\n    }\n  }\n}\n```\n\n`Authorization: Bearer sc_...` works too, for clients that prefer it.\n\n## Tools\n\n### `generate_social_post`\n\nStarts a job and returns its id. Generation takes 20–90 seconds; collect the result with `check_social_job`. Costs credits.\n\n| Parameter | Default | Notes |\n| --- | --- | --- |\n| `topic` | — | Required. What the post is about. |\n| `platform` | — | Required. `facebook`, `instagram`, `twitter`, `linkedin`, `pinterest`, `youtube`, `tiktok`. |\n| `tone` | `friendly` | `professional`, `casual`, `friendly`, `humorous`, `inspirational`, `educational`. |\n| `language` | `English` | Any language name. |\n| `quantity` | `1` | Up to 10 variations. |\n| `word_count` | per platform | 10–500. LinkedIn 100, YouTube 150, Facebook/Pinterest 75, Instagram/TikTok 50, X 40. |\n| `generate_image` | `true` | Adds 10 credits per post. |\n| `detect_ai` | automatic | Adds 8 credits per post. Automatic means 150+ words only — short posts score unreliably. |\n| `brand_name`, `brand_description`, `brand_tone`, `brand_audience`, `brand_keywords` | — | Optional brand voice. |\n\n### `check_social_job`\n\nReturns the finished posts, or current progress while the job runs. Free.\n\n### `list_social_platforms`\n\nPlatforms with default lengths and emoji policy. Free, no network call.\n\n## Credits\n\nPer post: 20 base (up to 200 words), +1 per 10 words beyond 200, +10 for an image, +8 for AI detection. Multiplied by `quantity`. Refunded in full if generation fails.\n\nA 100-word LinkedIn post with an image costs 30 credits.\n\n## What's in this repo\n\nThe live server runs inside the SpeedContent API service. This repo holds the registry manifest and a standalone stdio implementation.\n\n| Path | What it is |\n| --- | --- |\n| `server.json` | The MCP Registry manifest, pointing at the hosted endpoint |\n| `src/index.ts` | A standalone stdio server, for clients that can't do remote HTTP |\n| `PUBLISHING.md` | How this gets published and listed |\n\nThe stdio build is not on npm and isn't needed for normal use. It exists as a fallback for older MCP clients that only support subprocess transport:\n\n```bash\nnpm install && npm run build\nSPEEDCONTENT_API_KEY=sc_... node dist/index.js\n```\n\n## Reselling\n\nVolume and white-label pricing is per post rather than per seat, and your users don't need SpeedContent accounts of their own. [Get in touch](https://speedcontent.online).\n\n## Licence\n\nMIT\n",
+  "status": "curated"
+}

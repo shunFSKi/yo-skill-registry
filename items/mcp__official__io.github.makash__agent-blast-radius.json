@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.makash/agent-blast-radius",
+  "type": "mcp",
+  "name": "Agent Blast Radius",
+  "description": "Scan what an AI agent running as you can reach; optionally verify which keys are live (x402).",
+  "author": "io.github.makash",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/makash/agent-blast-radius",
+    "repo": "makash/agent-blast-radius"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@kloudle/agent-blast-radius"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-10-02T02:09:21.269834Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Agent Blast Radius\n\n**What could an agent running as you reach?** `blast` scans the places a coding agent\nrunning as you can read — cloud profiles, dotfiles, project `.env` files, CI configs,\nMCP servers — and tells you what is exposed, scores it, and draws a card you can share.\nOffline, read-only, never prints a secret value. Optionally, `blast verify` checks which\nof those credentials are actually **live**, paid per check with your own wallet.\n\n```sh\nnpx -y @kloudle/agent-blast-radius@0.3.0          # scan + share card (free, offline)\nnpx -y @kloudle/agent-blast-radius@0.3.0 verify   # which keys work? (paid, optional)\n```\n\nMore at **[abr.kloudle.dev](https://abr.kloudle.dev)**.\n\n## Install it where your agent runs\n\n| Where | How |\n|---|---|\n| Any terminal | `npx -y @kloudle/agent-blast-radius@0.3.0` · `brew install makash/tap/blast` · `curl -fsSL https://abr.kloudle.dev/install.sh \\| sh` |\n| Claude Code | `/plugin marketplace add makash/agent-blast-radius` then `/plugin install agent-blast-radius@kloudle` |\n| Codex (CLI and app) | `codex plugin marketplace add makash/agent-blast-radius` then `codex plugin add agent-blast-radius@kloudle` |\n| Claude Desktop | Download [`agent-blast-radius-0.3.0.mcpb`](https://github.com/makash/agent-blast-radius/releases/download/v0.3.0/agent-blast-radius-0.3.0.mcpb) and open it |\n| Cursor | [Add to Cursor](https://abr.kloudle.dev/install/cursor) |\n| VS Code | [Install in VS Code](https://abr.kloudle.dev/install/vscode) |\n| Devin Desktop (Windsurf), Cline, Zed, any MCP client | `{\"mcpServers\":{\"blast\":{\"command\":\"npx\",\"args\":[\"-y\",\"@kloudle/agent-blast-radius@0.3.0\",\"mcp\"]}}}` |\n| Agent Skills | `npx skills add makash/agent-blast-radius` |\n| Rules files | [Cursor](rules/cursor/blast.mdc) · [Devin Desktop / Windsurf](rules/devin/blast.md) · [Cline](rules/cline/blast.md) |\n\nRelease binaries and `SHA256SUMS` are on [Releases](https://github.com/makash/agent-blast-radius/releases):\nmacOS and Linux, ARM64 and AMD64. They are not code-signed or notarized; verify the\nchecksum. The npm launcher and `install.sh` verify it for you. Node.js 22+ for `npx`.\n\n## The scan\n\n- Reports credential types, locations, SHA-256 fingerprints, local scope hints and\n  configured MCP reachability. **Never values.**\n- Makes no network calls, executes no MCP servers, uploads nothing, no telemetry.\n- Writes a 1080 × 1350 PNG card and share text by default (`--anonymous` drops your\n  username, `--no-card` skips files). Existing files are never overwritten.\n- Scores are exposure estimates, not proof that a credential works or was compromised.\n\nAs an MCP server (`blast mcp`) it offers `blast_radius`, `explain_credential` and\n`blast_card` (read-only, offline) plus the verify tools below.\n\n## Which ones are live? `blast verify`\n\nThe scan can't tell a dead key from a live one. `blast verify`:\n\n1. counts eligible findings (AWS profiles; `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` in\n   the environment) and creates a claim at abr.kloudle.dev with **class counts only**,\n   e.g. `aws-sts-identity:2`;\n2. prints the price — **$0.10 USDC per check on Algorand** — a code, and two ways to pay\n   with your own wallet: your agent's x402 wallet tool (e.g. GoPlausible's\n   `algorand-mcp`), or a browser link where you approve in Pera, Defly or Lute;\n3. once paid, fetches an **Ed25519-signed** manifest, runs the checks on your machine\n   (`aws sts get-caller-identity`, provider model-list probes) with a minimal\n   environment, and reports each finding as live, rejected or error.\n\n```sh\nblast verify --open            # open the pay page and wait\nblast verify --claim <id>      # collect later (claims survive restarts for 30 days)\nblast verify --list            # unfinished claims on this machine\n```\n\nMCP: `blast_verify_quote` → pay → `blast_collect`. Payments are final.\nNeed a wallet? [abr.kloudle.dev/wallet](https://abr.kloudle.dev/wallet).\n\n**Never sent:** credential values, profile names, environment variable names, file\npaths, scan output. See [abr.kloudle.dev/privacy](https://abr.kloudle.dev/privacy).\n\n## License\n\nProprietary — see [LICENSE.txt](LICENSE.txt). Free to use for checks on machines and\naccounts you own or are authorized to assess. Third-party notices:\n[THIRD_PARTY_NOTICES.txt](THIRD_PARTY_NOTICES.txt). Scanner source is private; this\nrepository distributes binaries, the npm launcher's metadata, plugins, skills and rules.\n",
+  "status": "curated"
+}

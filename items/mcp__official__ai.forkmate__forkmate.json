@@ -1,13 +1,13 @@
 {
   "id": "mcp:official/ai.forkmate/forkmate",
   "type": "mcp",
-  "name": "ForkMate",
-  "description": "Log what you ate by talking to your AI assistant — calories and macros, completely free.",
+  "name": "Forkmate",
+  "description": "Free AI calorie & macro tracker: tell your AI what you ate and it logs it to your private food diary",
   "author": "ai.forkmate",
   "source": {
     "registry": "mcp-official",
-    "url": "https://mcp.forkmate.ai/",
-    "repo": null
+    "url": "https://github.com/shawnazar/forkmate-mcp",
+    "repo": "shawnazar/forkmate-mcp"
   },
   "license": null,
   "install": {
@@ -16,8 +16,8 @@
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-08-27T02:16:24.224363Z",
-    "score": 37
+    "pushed_at": "2026-10-02T03:36:19.682243Z",
+    "score": 55
   },
   "security": {
     "score": 100,
@@ -46,9 +46,9 @@
     ]
   },
   "tags": {
-    "category": null,
+    "category": "运维",
     "featured": false
   },
-  "readme": null,
+  "readme": "# Forkmate — free AI calorie tracker MCP server (Claude, ChatGPT, Cursor)\n\n[![Add to Cursor](https://img.shields.io/badge/Add_to-Cursor-000000?logo=cursor)](https://cursor.com/en/install-mcp?name=forkmate&config=eyJ1cmwiOiJodHRwczovL21jcC5mb3JrbWF0ZS5haS8ifQ==)\n[![Install in VS Code](https://img.shields.io/badge/Install_in-VS_Code-0098FF?logo=visualstudiocode)](https://vscode.dev/redirect/mcp/install?name=forkmate&config=%7B%22type%22%3A%22http%22%2C%22url%22%3A%22https%3A%2F%2Fmcp.forkmate.ai%2F%22%7D)\n[![MCP Registry](https://img.shields.io/badge/MCP_Registry-ai.forkmate%2Fforkmate-2ea44f)](https://registry.modelcontextprotocol.io/v0.1/servers?search=ai.forkmate/forkmate)\n[![Glama](https://glama.ai/mcp/connectors/ai.forkmate/forkmate/badges/score.svg)](https://glama.ai/mcp/connectors/ai.forkmate/forkmate)\n\n**Forkmate** ([forkmate.ai](https://forkmate.ai)) is a free AI calorie and macro tracker you talk\nto. Tell your AI assistant what you ate, and it logs the meal with its calories, protein, carbs and\nfat to your private food diary. See the day in the web diary at\n[app.forkmate.ai](https://app.forkmate.ai).\n\nIt is a hosted, remote [MCP](https://modelcontextprotocol.io) server. There is nothing to install\nor run: add one URL to your client and sign in.\n\n| | |\n|---|---|\n| **Server URL** | `https://mcp.forkmate.ai/` |\n| **Transport** | Streamable HTTP |\n| **Auth** | OAuth 2.1 with PKCE and dynamic client registration. Your client opens the sign-in when it first calls a tool |\n| **Price** | Free. No paid tier, no trial, no card, no ads |\n| **Registry name** | `ai.forkmate/forkmate` ([`server.json`](server.json)) |\n| **Setup guide** | [forkmate.ai/connect](https://forkmate.ai/connect/) |\n\n## Connect your AI\n\n### Claude (claude.ai and Claude Desktop)\n\nSettings → Connectors → **Add custom connector** → paste `https://mcp.forkmate.ai/` → sign in.\n\n### Claude Code\n\n```sh\nclaude mcp add --transport http forkmate https://mcp.forkmate.ai/\n```\n\n### ChatGPT\n\nOn a plan that offers developer mode, turn it on in ChatGPT's settings, create a developer-mode app with the\nURL `https://mcp.forkmate.ai/`, choose OAuth, and sign in.\n\n### Cursor\n\nClick **Add to Cursor** above, or add this to `~/.cursor/mcp.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"forkmate\": { \"url\": \"https://mcp.forkmate.ai/\" }\n  }\n}\n```\n\n### VS Code (GitHub Copilot)\n\nClick **Install in VS Code** above, or add this to `.vscode/mcp.json`:\n\n```json\n{\n  \"servers\": {\n    \"forkmate\": { \"type\": \"http\", \"url\": \"https://mcp.forkmate.ai/\" }\n  }\n}\n```\n\n### Windsurf\n\nAdd this to `~/.codeium/windsurf/mcp_config.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"forkmate\": { \"serverUrl\": \"https://mcp.forkmate.ai/\" }\n  }\n}\n```\n\n### Cline\n\nMCP Servers → Remote Servers → name `forkmate`, URL `https://mcp.forkmate.ai/`, transport\nStreamable HTTP. AI agents installing it can follow [`llms-install.md`](llms-install.md).\n\n### Gemini CLI\n\nAdd this to `~/.gemini/settings.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"forkmate\": { \"httpUrl\": \"https://mcp.forkmate.ai/\" }\n  }\n}\n```\n\n### Any other MCP client\n\nAdd a remote HTTP MCP server with the URL `https://mcp.forkmate.ai/` and complete the sign-in.\n\nThen tell your assistant what you ate (\"two eggs and toast for breakfast\"), or ask \"how many\ncalories today?\".\n\n## Tools\n\n| Tool | What it does |\n|---|---|\n| `log_meal` | Log what you ate to your diary |\n| `update_meal` | Correct an entry already in your diary |\n| `delete_meal` | Remove an entry from your diary |\n| `get_day` | Read one day's diary with calorie and macro totals |\n| `get_range` | Read a date range with per-day totals |\n| `get_preferences` | Read your dietary preferences |\n| `search_foods` | Search USDA FoodData Central and Open Food Facts |\n| `lookup_barcode` | Look up a packaged food by barcode (Open Food Facts) |\n| `get_pantry` · `add_pantry_item` · `remove_pantry_item` | Keep a list of foods you have on hand |\n| `whoami` | Confirm which account is connected |\n\n## Prompts\n\n`log-meal` · `log-photo` · `today-so-far` · `hit-protein` · `week-review` · `import-myfitnesspal`\n\nYour client shows these as ready-made starting points.\n\n## Coming from MyFitnessPal?\n\nExport your MyFitnessPal data for free and bring your history across:\n[forkmate.ai/migrate-from-myfitnesspal](https://forkmate.ai/migrate-from-myfitnesspal/).\n\n## Privacy\n\nEvery call is scoped to your own signed-in account. Forkmate stores your food diary, which is\nhealth-related data. Read the [privacy policy](https://forkmate.ai/privacy/) and the\n[consumer health data policy](https://forkmate.ai/health-data-privacy/). Export and account\ndeletion are self-serve in the app.\n\nCalorie and macro values are estimates. They are not suitable for insulin dosing or any other\nmedical decision.\n\n## About this repository\n\nThis repository holds the public server manifest and setup instructions. The server itself is\nhosted at `mcp.forkmate.ai`; its source is not public.\n\nMade by Shawn Azar. Support: [hello@forkmate.ai](mailto:hello@forkmate.ai).\n",
   "status": "curated"
 }

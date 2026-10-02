@@ -1,0 +1,61 @@
+{
+  "id": "mcp:official/com.yatmo/yatmo",
+  "type": "mcp",
+  "name": "Yatmo neighbourhood data for real estate",
+  "description": "Real estate neighbourhood data: nearest school, shops, transport with travel times, 25 countries.",
+  "author": "com.yatmo",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/Yatmo/yatmo-mcp",
+    "repo": "Yatmo/yatmo-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://mcp.yatmo.com/mcp/v1",
+    "env": [
+      {
+        "name": "LicenceKey",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-10-02T08:27:20.527713Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "生活",
+    "featured": false
+  },
+  "readme": "# Yatmo MCP server: neighbourhood data for AI assistants and agents\n\n[Yatmo](https://yatmo.com) exposes its neighbourhood intelligence to AI clients through a remote\n[MCP](https://modelcontextprotocol.io) server. Connect Claude, Cursor, VS Code or your own agent, and it can answer\n\"what is around this property?\" with real data: nearest school, nursery, supermarket, public transport, train station,\nmotorway access, distances with travel times, and a quotable summary paragraph, in 25 countries.\n\nThis repository holds ready-to-copy client configurations and a dependency-free quick start. The server itself is\noperated by Yatmo at `https://mcp.yatmo.com/mcp/v1` (Streamable HTTP). Full documentation:\n[documentation.yatmo.com/mcp](https://documentation.yatmo.com/mcp).\n\n## The four tools\n\n| Tool | Returns |\n|---|---|\n| `yatmo_get_location_summary` | A human-readable neighbourhood paragraph plus the nearest school, nursery, supermarket, transport and the reverse-geocoded place |\n| `yatmo_get_nearby_pois` | An ordered list of points of interest around a property, optionally filtered by category, within a radius |\n| `yatmo_get_nearest_by_category` | The single nearest place of a category, with distance and travel time |\n| `yatmo_get_accessibility_profile` | Public-transport presence, nearest stop, nearest train station, nearest motorway access |\n\nAll tools take `latitude`, `longitude`, `country` (BE, FR, UK...) and `language`, and return the same envelope:\n`text` (a summary the assistant can quote), `facts` (structured data), `warnings` and `metadata`. Categories use one\nvocabulary everywhere: `school`, `nursery`, `supermarket`, `public_transport`, `train_station`, `motorway`.\nDetails: [tools reference](https://documentation.yatmo.com/mcp/tools).\n\n## Authentication\n\nEvery request carries your Yatmo **backend** key in the `LicenceKey` header (`LicenseKey` is accepted too). Keep the\nkey in the client's secret store, never in a public web page: the key grants access to your Yatmo account. Get a key at\n[yatmo.com](https://yatmo.com); [keys explained](https://documentation.yatmo.com/license).\n\n## Connect a client\n\n**Generic remote-MCP configuration** ([configs/mcp.json](configs/mcp.json)), accepted by most clients, sometimes under a\nslightly different parent key:\n\n```json\n{\n  \"mcpServers\": {\n    \"yatmo\": {\n      \"url\": \"https://mcp.yatmo.com/mcp/v1\",\n      \"headers\": { \"LicenceKey\": \"YOUR_KEY\" }\n    }\n  }\n}\n```\n\n**Claude.ai and Claude Desktop**: Settings > Connectors > Add custom connector, URL `https://mcp.yatmo.com/mcp/v1`,\ncustom header `LicenceKey: YOUR_KEY`. The four tools appear once the connector is enabled.\n\n**Claude Code**:\n\n```bash\nclaude mcp add --transport http yatmo https://mcp.yatmo.com/mcp/v1 --header \"LicenceKey: YOUR_KEY\"\n```\n\n**Cursor**: copy [configs/cursor/mcp.json](configs/cursor/mcp.json) to `.cursor/mcp.json` in your project (or to\n`~/.cursor/mcp.json` for every project).\n\n**VS Code (Copilot agent mode)**: copy [configs/vscode/mcp.json](configs/vscode/mcp.json) to `.vscode/mcp.json`.\n\n**Your own agent** (Anthropic, OpenAI or any LLM SDK): use an MCP client library (TypeScript, Python, .NET, Go) with the\nStreamable HTTP transport, add the `LicenceKey` header to the transport, and forward the four tool definitions to the\nmodel. [quickstart.py](quickstart.py) shows the raw protocol without any library.\n\n## Try it from the command line\n\n```bash\nexport YATMO_KEY=your_backend_key\npython3 quickstart.py          # initialize, list the tools, call yatmo_get_location_summary on a Brussels address\nsh quickstart.sh               # the same three calls with curl\n```\n\n## Prompts that work well\n\n- \"What is the neighbourhood like around 50.8467, 4.3525 in Belgium? Answer in French.\"\n- \"Nearest primary school and supermarket to this listing, with travel times on foot.\"\n- \"Is this address well served by public transport? Nearest train station and motorway access?\"\n- \"List the points of interest within 800 m of the property, schools and supermarkets only.\"\n\nThe assistant answers from the `text` and `facts` of the tools; distances come with the mode they were measured in.\n\n## More\n\n- [Quick start](https://documentation.yatmo.com/mcp/quick-start), [authentication and error codes](https://documentation.yatmo.com/mcp/auth), [FAQ](https://documentation.yatmo.com/mcp/faq)\n- The same data for websites: [plugins](https://documentation.yatmo.com/plugins), [WordPress](https://wordpress.org/plugins/yatmo-map/), [Odoo](https://apps.odoo.com/apps/modules/20.0/yatmo_map), [mobile SDKs](https://github.com/Yatmo), [examples](https://github.com/Yatmo/yatmo-examples)\n\nMIT licence for the files of this repository. Yatmo is a paid service for real estate portals, agency networks and developers.\n\n## Directories\n\nThe server is published in the [official MCP registry](https://registry.modelcontextprotocol.io) as `com.yatmo/yatmo` (`server.json` in this repository) and submitted to the Docker MCP Catalog, Smithery and mcp.so. In clients that read the registry, search for \"yatmo\" or \"real estate\".\n",
+  "status": "curated"
+}
