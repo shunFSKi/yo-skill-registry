@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.wegravel/zensei-mcp",
+  "type": "mcp",
+  "name": "Zensei Index",
+  "description": "Today's Zensei Index: a 0-100 US market risk score, its ten indicators and the latest summary.",
+  "author": "io.github.wegravel",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/wegravel/zensei-mcp",
+    "repo": "wegravel/zensei-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://www.zensei.com/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-10-03T14:40:22.866202Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "写作",
+    "featured": false
+  },
+  "readme": "# Zensei Index MCP server\n\nA public, read-only [MCP](https://modelcontextprotocol.io) server for the [Zensei Index](https://www.zensei.com).\n\nThe Zensei Index is a 0-100 risk score for the US stock market. **Lower is healthier.**\n\n- **URL:** `https://www.zensei.com/mcp`\n- **Transport:** Streamable HTTP\n- **Auth:** none\n- **Docs:** <https://www.zensei.com/mcp>\n\nThis repository holds the server metadata only. The server runs on zensei.com.\n\n## Tools\n\n| Tool | Returns |\n| --- | --- |\n| `zensei_index_about` | What the index is, how to read the 0-100 score, and how it is built. |\n| `zensei_index_today` | Today's final score, its regime label, and the three layer scores: structural, filter, confirmation. |\n| `zensei_index_indicators` | The ten indicators behind the score, each with its status, group, weight, and explanation. |\n| `zensei_index_summary` | The latest written market summary, with its date and a stale flag when it is more than three days old. |\n\n## Resources\n\n| URI | Content |\n| --- | --- |\n| `zensei://index/about` | The explainer as a markdown document. |\n\n## Setup\n\n### Claude Code\n\n```sh\nclaude mcp add --transport http zensei https://www.zensei.com/mcp\n```\n\n### Claude app\n\nOpen **Settings → Connectors → Add custom connector**. Paste `https://www.zensei.com/mcp`.\n\n### Cursor\n\nAdd this to `~/.cursor/mcp.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"zensei\": {\n      \"url\": \"https://www.zensei.com/mcp\"\n    }\n  }\n}\n```\n\n### VS Code\n\nAdd this to `.vscode/mcp.json`:\n\n```json\n{\n  \"servers\": {\n    \"zensei\": {\n      \"type\": \"http\",\n      \"url\": \"https://www.zensei.com/mcp\"\n    }\n  }\n}\n```\n\n### Grok Build and Claude Code plugins\n\nThis repository is also a plugin. `.mcp.json` declares the server. `.grok-plugin/plugin.json` and `.claude-plugin/plugin.json` hold the manifest.\n\n### Any other client\n\nPoint the client at `https://www.zensei.com/mcp` with the Streamable HTTP transport.\n\n## Registry metadata\n\n- `server.json` follows the [official MCP Registry](https://registry.modelcontextprotocol.io) schema.\n- `glama.json` claims the listing on [Glama](https://glama.ai/mcp/servers).\n\nTo publish to the official registry:\n\n```sh\nmcp-publisher login github\nmcp-publisher publish\n```\n\n## Limits\n\n- Today's data only. No history.\n- Not investment advice.\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

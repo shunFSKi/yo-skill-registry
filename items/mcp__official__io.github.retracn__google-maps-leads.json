@@ -1,0 +1,61 @@
+{
+  "id": "mcp:official/io.github.retracn/google-maps-leads",
+  "type": "mcp",
+  "name": "Google Maps Leads (via Apify)",
+  "description": "Local business leads from Google Maps in any country: emails, socials, website audit, outreach.",
+  "author": "io.github.retracn",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/retracn/google-maps-leads-scraper",
+    "repo": "retracn/google-maps-leads-scraper"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://mcp.apify.com/?tools=automationnation/google-maps-leads",
+    "env": [
+      {
+        "name": "Authorization",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-10-03T18:00:41.695379Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "生活",
+    "featured": false
+  },
+  "readme": "# Google Maps Leads Scraper: business leads with emails, website audit and outreach, any country\n\n[![Run on Apify](https://img.shields.io/badge/Run%20on-Apify-0b57d0)](https://apify.com/automationnation/google-maps-leads)\n\nGoogle Maps Leads Scraper is an Apify Actor that turns a Google Maps search into ready-to-contact business leads in any country: phone, website, emails and social profiles, a website audit, a HOT/WARM/COLD lead score and an AI-written outreach email per lead, at $0.03 per lead. Filter for businesses without a website, unclaimed listings or new openings.\n\n**Price:** $0.03 per lead ($0.024 on Gold) · **Run it:** [https://apify.com/automationnation/google-maps-leads](https://apify.com/automationnation/google-maps-leads) · **Guide:** [https://retracn.github.io/automationnation-actors/google-maps-leads/](https://retracn.github.io/automationnation-actors/google-maps-leads/)\n\n## Quick facts\n\n- One row per business: name, address, phone in international format, website, email, Facebook/Instagram/TikTok/LinkedIn, rating and reviews.\n- Website audit (0-10 with the issues found), Google profile score and a HOT/WARM/COLD lead score with the reason.\n- AI outreach email, LinkedIn message and SMS for HOT and WARM leads, written about that business.\n- Filters for businesses without a website, unclaimed listings and recently opened businesses; incremental mode for scheduled lead feeds.\n- Any country: locations like \"Austin, TX\" or \"Berlin\"; UK leads also get Companies House directors. $0.03 per lead, filtered-out businesses are free.\n\n## Example input\n\n```json\n{\n  \"cities\": [\n    \"Austin, TX\"\n  ],\n  \"country\": \"us\",\n  \"category\": \"hair salon\",\n  \"noWebsiteOnly\": true,\n  \"maxResults\": 20\n}\n```\n\n## Run it from code\n\n**REST API**\n\n```bash\ncurl -X POST \"https://api.apify.com/v2/acts/automationnation~google-maps-leads/run-sync-get-dataset-items?token=$APIFY_TOKEN\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"cities\": [\"Austin, TX\"], \"country\": \"us\", \"category\": \"hair salon\", \"noWebsiteOnly\": true, \"maxResults\": 20}'\n```\n\n**Python** — see [`examples/python_example.py`](examples/python_example.py)\n\n```python\n# pip install apify-client\nfrom apify_client import ApifyClient\n\nclient = ApifyClient(\"YOUR_APIFY_TOKEN\")\nrun = client.actor(\"automationnation/google-maps-leads\").call(run_input={\n  \"cities\": [\n    \"Austin, TX\"\n  ],\n  \"country\": \"us\",\n  \"category\": \"hair salon\",\n  \"noWebsiteOnly\": true,\n  \"maxResults\": 20\n})\nfor item in client.dataset(run[\"defaultDatasetId\"]).iterate_items():\n    print(item.get(\"leadScore\"), item.get(\"name\"), item.get(\"phone\"), item.get(\"email\"))\n```\n\n**JavaScript** — see [`examples/node_example.mjs`](examples/node_example.mjs)\n\n```js\n// npm install apify-client\nimport { ApifyClient } from 'apify-client';\n\nconst client = new ApifyClient({ token: 'YOUR_APIFY_TOKEN' });\nconst run = await client.actor('automationnation/google-maps-leads').call({\n  \"cities\": [\n    \"Austin, TX\"\n  ],\n  \"country\": \"us\",\n  \"category\": \"hair salon\",\n  \"noWebsiteOnly\": true,\n  \"maxResults\": 20\n});\nconst { items } = await client.dataset(run.defaultDatasetId).listItems();\nfor (const item of items) console.log(item.leadScore, item.name, item.phone, item.email);\n```\n\n## Use it with AI agents (MCP)\n\nHosted MCP server URL (Claude, ChatGPT, Cursor and other clients with remote MCP support):\n\n```\nhttps://mcp.apify.com?tools=automationnation/google-maps-leads\n```\n\nLocal config for Claude Desktop / Cursor — [`mcp/claude_desktop_config.json`](mcp/claude_desktop_config.json):\n\n```json\n{\n  \"mcpServers\": {\n    \"google-maps-leads\": {\n      \"command\": \"npx\",\n      \"args\": [\n        \"-y\",\n        \"@apify/actors-mcp-server\",\n        \"--tools\",\n        \"automationnation/google-maps-leads\"\n      ],\n      \"env\": {\n        \"APIFY_TOKEN\": \"YOUR_APIFY_TOKEN\"\n      }\n    }\n  }\n}\n```\n\n## FAQ\n\n**Which countries does it cover?**\nAny country Google Maps covers. Set the two-letter country code so phones are formatted and searches use local IPs when needed.\n\n**Can it find businesses without a website?**\nYes: switch on \"Only businesses without a website\" to get local businesses with no website on Google Maps, each with an outreach message pitching one.\n\n**How much does it cost?**\n$0.03 per lead on Apify's Free plan ($0.024 on Gold and above). Businesses removed by your filters are free.\n\n## More from AutomationNation\n\n- [AI Visibility Tracker](https://apify.com/automationnation/ai-visibility-tracker) — $0.05 per answer checked ($0.04 on Gold) + $0.50 per optional report · [GitHub examples](https://github.com/retracn/ai-visibility-tracker)\n- [Google Jobs Scraper](https://apify.com/automationnation/google-jobs-scraper) — $2 per 1,000 jobs ($1.50 on paid plans) + $0.03 per search · [GitHub examples](https://github.com/retracn/google-jobs-scraper)\n- [Google Trends Scraper](https://apify.com/automationnation/google-trends-scraper) — $1 per 1,000 keyword reports ($0.27–$0.90 on paid plans) · $0.50 per 1,000 trending searches · [GitHub examples](https://github.com/retracn/google-trends-scraper)\n- [App Store Reviews Scraper](https://apify.com/automationnation/app-store-reviews-scraper) — $0.08 per 1,000 reviews ($0.05–$0.07 on paid plans) · [GitHub examples](https://github.com/retracn/app-store-reviews-scraper)\n- [Google Play Reviews Scraper](https://apify.com/automationnation/google-play-reviews-scraper) — $0.08 per 1,000 reviews ($0.05–$0.07 on paid plans) · [GitHub examples](https://github.com/retracn/google-play-reviews-scraper)\n- [AEO & GEO Tracker — Google AI Overview Citation Checker](https://apify.com/automationnation/aeo-auditor) — $0.04 per keyword ($0.032 on Gold), plus $2 per run from 17 Nov 2026; $0.01 per keyword until 16 Oct 2026 · [GitHub examples](https://github.com/retracn/google-ai-overview-tracker)\n- [Google Maps Leads Scraper UK](https://apify.com/automationnation/uk-business-leads) — $0.05 per lead ($0.04 on Gold) · [GitHub examples](https://github.com/retracn/uk-business-leads-google-maps)\n- [App Store & Google Play Reviews Scraper + AI](https://apify.com/automationnation/app-store-review-miner) — $0.05 per app report ($0.04 on Gold) · [GitHub examples](https://github.com/retracn/app-store-google-play-reviews-ai)\n- [UK Companies House Leads — Filing Signals & AI Outreach](https://apify.com/automationnation/companies-house-leads) — $0.008 per lead\n- [Contact Waterfall Enrichment — Emails & Directors](https://apify.com/automationnation/contact-waterfall-enrichment) — $0.015 per company\n- [All Actors and guides](https://retracn.github.io/automationnation-actors/) · [AI visibility trackers compared](https://retracn.github.io/automationnation-actors/compare/ai-visibility-trackers/) · [Google Jobs scrapers compared](https://retracn.github.io/automationnation-actors/compare/google-jobs-scrapers/) · [Google Trends scrapers compared](https://retracn.github.io/automationnation-actors/compare/google-trends-scrapers/) · [App Store review scrapers compared](https://retracn.github.io/automationnation-actors/compare/app-store-review-scrapers/) · [Google Play review scrapers compared](https://retracn.github.io/automationnation-actors/compare/google-play-review-scrapers/)\n\n---\n\nThis repository holds usage examples. The scraper itself runs on the [Apify platform](https://apify.com/automationnation/google-maps-leads); you need a free Apify account and API token. Examples are MIT licensed.\n",
+  "status": "curated"
+}

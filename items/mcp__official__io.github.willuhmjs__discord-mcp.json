@@ -1,0 +1,75 @@
+{
+  "id": "mcp:official/io.github.willuhmjs/discord-mcp",
+  "type": "mcp",
+  "name": "Discord",
+  "description": "Discord for LLM agents: 168 tools for messages, moderation, channels, roles, threads and AutoMod.",
+  "author": "io.github.willuhmjs",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/willuhmjs/discord-mcp",
+    "repo": "willuhmjs/discord-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@willuhmjs/discord-mcp"
+    ],
+    "env": [
+      {
+        "name": "DISCORD_TOKEN",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "DISCORD_GUILD_ID",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "ENABLE_MEMBERS_INTENT",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-10-03T15:54:03.743198Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "AI",
+    "featured": false
+  },
+  "readme": "# discord-mcp\n\n[![npm](https://img.shields.io/npm/v/@willuhmjs/discord-mcp)](https://www.npmjs.com/package/@willuhmjs/discord-mcp)\n[![CI](https://github.com/willuhmjs/discord-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/willuhmjs/discord-mcp/actions/workflows/ci.yml)\n[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)\n\nAn MCP server that lets an LLM run a Discord server: **168 tools** for messages, moderation, channels,\nroles, threads, events, invites, webhooks, AutoMod and more. Works with Claude, Cursor, VS Code, or any\nMCP client.\n\n- **Rich messages**: embeds, Components V2, polls, files, replies — validated before they reach Discord,\n  with errors that name the bad field.\n- **Interactions**: role menus that survive restarts, plus a log of who clicked what.\n- **Secure by default**: binds to `127.0.0.1`, SSRF-guarded URL fetching, webhook tokens never echoed.\n\n## Quick start\n\n1. Create a bot in the [developer portal](https://discord.com/developers/applications), invite it to your\n   server, and enable the **Message Content** intent (*Bot → Privileged Gateway Intents*).\n2. Add this to your MCP client's config (`mcp.json`, `claude_desktop_config.json`, `.cursor/mcp.json`, ...):\n\n```json\n{\n  \"mcpServers\": {\n    \"discord\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@willuhmjs/discord-mcp\", \"--stdio\"],\n      \"env\": {\n        \"DISCORD_TOKEN\": \"your-bot-token\",\n        \"DISCORD_GUILD_ID\": \"your-server-id\"\n      }\n    }\n  }\n}\n```\n\nVS Code uses `\"servers\"` instead of `\"mcpServers\"`. On Windows, if the client can't find `npx`, use\n`\"command\": \"cmd\"` with `\"args\": [\"/c\", \"npx\", \"-y\", \"@willuhmjs/discord-mcp\", \"--stdio\"]`.\n\n**Claude Code** — one command:\n\n```bash\nclaude mcp add discord -e DISCORD_TOKEN=... -e DISCORD_GUILD_ID=... -- npx -y @willuhmjs/discord-mcp --stdio\n```\n\n**Docker** — a long-running HTTP server at `http://127.0.0.1:8085/mcp`:\n\n```bash\ndocker run --rm -e DISCORD_TOKEN=... -p 127.0.0.1:8085:8085 ghcr.io/willuhmjs/discord-mcp\n```\n\nRequires Node.js 22+ for `npx`.\n\n## Configuration\n\n| Variable | Default | Meaning |\n|---|---|---|\n| `DISCORD_TOKEN` | — (required) | Bot token. |\n| `DISCORD_GUILD_ID` | — | Default server for tools when `guildId` is omitted. |\n| `ENABLE_MEMBERS_INTENT` | off | Enables the privileged Server Members intent (also enable it in the portal). Member-list tools need it. |\n| `MCP_TRANSPORT` | `http` | `stdio` for stdin/stdout. The `--stdio` flag does the same. |\n| `HOST` / `PORT` | `127.0.0.1` / `8085` | HTTP bind address and port. |\n| `MCP_SOCKET` | — | Listen on a Unix socket instead of `HOST:PORT` (HTTP mode only). |\n\nIn HTTP mode, `POST /mcp` serves MCP (stateful sessions via `Mcp-Session-Id`) and `GET /health` returns\n`200` once the bot is connected.\n\n## Keeping the HTTP endpoint private\n\nThe HTTP endpoint has **no authentication**: anyone who can reach it can use every tool as the bot. Keep it\non loopback or a private network. On a shared machine, other accounts can still reach a loopback port, so\nuse a Unix socket that only you can open:\n\n```bash\nmkdir -m 700 ~/.mcp\nMCP_SOCKET=~/.mcp/discord.sock DISCORD_TOKEN=... npx @willuhmjs/discord-mcp\ncurl --unix-socket ~/.mcp/discord.sock http://localhost/health\n```\n\nThe socket is created with mode 600. Avoid network file systems such as NFS. The Docker image binds\n`0.0.0.0`, so keep that container on an internal network. `stdio` mode has no network exposure at all.\n\n## Tools\n\nEvery tool, with its parameters and the Discord permission it needs, is listed in\n**[docs/TOOLS.md](https://github.com/willuhmjs/discord-mcp/blob/main/docs/TOOLS.md)**, along with the\nconventions (string IDs, JSON-string payloads, `reason` for the audit log) and message/component formats.\n\n## Security\n\n- Every URL a tool fetches (emoji, stickers, files, avatars) goes through one guarded fetcher: http/https\n  only, private/loopback/metadata IPs blocked before the request and after every redirect, size and\n  time limits.\n- Webhook tokens are credentials: `create_webhook` returns the URL once, and no list/get tool shows it.\n- No tool reads the server's filesystem.\n\n## Development\n\n```bash\nnpm ci\nnpm run build       # tsc -> dist/\nnpm test            # vitest, no Discord token needed\nnpm run typecheck\n```\n\nA contract test locks every tool name and parameter set against `tests/fixtures/tool-contract.json`.\n`TESTING.md` is the manual checklist for a run in a real test server.\n\nReleases are automated: commits on `main` using [Conventional Commits](https://www.conventionalcommits.org)\n(`feat:`, `fix:`, `feat!:`) feed a release PR; merging it publishes to npm, the MCP Registry and GHCR.\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

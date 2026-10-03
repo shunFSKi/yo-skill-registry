@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/com.3lgrouptechnology/3lt-letter-mail",
+  "type": "mcp",
+  "name": "3LT Letter Mail",
+  "description": "Give AI assistants hands: send real USPS letters via MCP.",
+  "author": "com.3lgrouptechnology",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/3LGroupTechnology/3lt-letter-mail",
+    "repo": "3LGroupTechnology/3lt-letter-mail"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://3lgrouptechnology.com/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-10-03T15:05:29.430213Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# 3LT Letter Mail — MCP Server\n\nGive your AI assistant hands. **3L-Group Technology** is a print-and-mail rail:\nan AI agent calls our MCP tools, and a real physical letter goes out through\nthe U.S. Postal Service. Draft a letter in chat, approve it, and it's in the\nmail — no printing, no envelopes, no post office run.\n\n🌐 **https://3lgrouptechnology.com**\n\n## Use the hosted service (no setup)\n\nThe public MCP endpoint is live:\n\n```\nhttps://3lgrouptechnology.com/mcp\n```\n\nTransport: **streamable HTTP**. Authentication: pass your API key as the\n`api_key` argument on every tool call. [Get an API key at 3lgrouptechnology.com](https://3lgrouptechnology.com).\n\n### Connect from Claude\n\nClaude (claude.ai) supports custom MCP connectors: add a new connector with\nthe server URL above. When the assistant calls a tool, it supplies your\n`lms_...` API key as the `api_key` parameter. (The service never sees your\nClaude account — the key is the only credential.)\n\n### Connect from Cursor\n\nSettings → MCP → Add custom MCP server:\n\n```json\n{\n  \"mcpServers\": {\n    \"3lt-letter-mail\": {\n      \"url\": \"https://3lgrouptechnology.com/mcp\"\n    }\n  }\n}\n```\n\n### Connect from any MCP client\n\nAny client that speaks streamable HTTP works: point it at\n`https://3lgrouptechnology.com/mcp` and provide your API key per tool call.\n\n## Tools\n\n| Tool | What it does |\n|---|---|\n| `draft_letter` | Create a letter **draft**: verifies the recipient address, screens content, returns a price quote. **Never mails anything.** Accepts `html` (letter body) or `pdf_path` (server-local PDF). Options: `color`, `quantity` (bulk), `certified` (opt-in USPS Certified Mail + Electronic Return Receipt — standard First-Class is the default). |\n| `request_send` | Request that a draft be mailed. Approval-tier keys get a `PENDING` request plus a one-tap Allow/Deny link — nothing is mailed until a human taps Allow. Trusted `on_command` keys may auto-send inside guardrails (spend caps, screening, anomaly detection). |\n| `send_status` | Check a send request: status (`PENDING` / `SENT` / `REJECTED` / `FAILED`), approval state, trust-tier decision, and billing state. |\n\nThere is **no tool that mails a letter directly**. Every send passes through\nan approval record: a human tap or a standing Connect authorization.\n\n## Pricing\n\nFlat **$1.00 service fee per letter**, plus postage (USPS First-Class via our\nprint-and-mail provider). One price, no tiers, no volume games. Certified Mail\nwith Electronic Return Receipt is opt-in and costs more — it's never the default.\n\nExample: *\"Send my 2026 1099s to these 40 people\"* → your assistant loops\n`draft_letter` → `request_send` → `send_status` for each recipient. Bulk runs\nauto-send inside your monthly cap; anything flagged falls back to a one-tap\nAllow/Deny link. One itemized receipt per send.\n\n---\n\n## Self-hosting\n\nPrefer to run your own rail? The full stack is in this repo.\n\n### Quickstart\n\n```bash\n./quickstart.sh\n```\n\nCreates `.venv`, installs deps, runs the test suites, and starts the REST API\non `http://127.0.0.1:8000` (dashboard at `/`).\n\nWith no `POSTGRID_API_KEY` set, drafts fail cleanly at address verification —\nnothing can be mailed. Set a **test** key to exercise the full flow with\nsimulated sends:\n\n```bash\nPOSTGRID_API_KEY=test_... LMS_ADMIN_TOKEN=pick-a-secret ./quickstart.sh\n```\n\nMCP server (separate terminal):\n\n```bash\nPOSTGRID_API_KEY=test_... .venv/bin/python mcp_server.py\n# MCP endpoint: http://127.0.0.1:8001/mcp\n```\n\n### What's in the repo\n\n- **MCP server** (`mcp_server.py`) — the 3 tools above over streamable HTTP.\n- **REST API** (`api.py`, FastAPI) — agent endpoints (`X-API-Key`) for drafts\n  and send requests; admin endpoints (`X-Admin-Token`) to issue keys,\n  approve/reject sends, manage trust tiers + spend caps; customer dashboard\n  (`/customer`), approval dashboard (`/`), audit history, Stripe webhooks.\n- **Trust tiers** (per API key) — `approval` (default for admin-issued keys:\n  human tap every send) or `on_command` (trusted: auto-sends inside\n  guardrails — content screening on every send, per-send + daily spend caps,\n  **hard monthly cap**, >3× 7-day anomaly rule, `needs_review` fallback).\n  All decisions audited.\n- **One-time rail authorization (\"Connect\")** — `POST /v1/connect` creates a\n  Stripe customer + returns a `/connect/<token>` page (card/Apple Pay/Google\n  Pay via Payment Element, monthly cap confirmed). Finalizing issues an\n  `on_command` API key with per-send approval OFF — the single Connect\n  authorization is the standing approval, so sends flow with zero prompts\n  inside the caps. Hitting the monthly cap is a hard **402 \"raise your cap\"**\n  — never a silent overage.\n- **Billing** (Stripe, test mode only) — SetupIntents for saving payment\n  methods, off-session **authorize → fulfill → capture** on every approval\n  (authorization voided if the send fails), idempotency keys per send.\n- **Risk engine** — spending limits are risk-derived, not static. New keys\n  start at L0 ($50/mo); clean history auto-raises limits; flags, failed\n  payments, and chargebacks tighten or freeze the key. Every decision\n  audited with human-readable reasons. See `risk.py`.\n- **Abuse screening** — content blocklist runs at draft time AND again at\n  approval/fulfillment time.\n- **Storage** — SQLite (`db.py`): api_keys, drafts, send_requests,\n  billing_receipts, approval_tokens, audit_log.\n\n### Environment variables\n\n| Var | Required | Default | Purpose |\n|---|---|---|---|\n| `POSTGRID_API_KEY` | yes, to mail | — | PostGrid Print & Mail API key. `test_...` = simulated sends, nothing mailed. Live key = real mail (refused unless `ALLOW_LIVE_MAIL=1`). **Never commit this.** |\n| `LMS_ADMIN_TOKEN` | recommended | random, printed once at startup | Admin token for approvals + key issuance (`X-Admin-Token`). |\n| `LMS_DB_PATH` | no | `./lms.db` | SQLite file location. |\n| `POSTGRID_BASE_COST_USD` | no | `0.97` | Estimated PostGrid per-letter base used in quotes. |\n| `POSTGRID_AV_API_KEY` | no | — | PostGrid Address Verification key; falls back to `POSTGRID_API_KEY`. |\n| `MAIL_PROVIDER` | no | `postgrid` | `postgrid` or `lob` (legacy fallback). |\n| `LMS_MCP_HOST` / `LMS_MCP_PORT` | no | `127.0.0.1` / `8001` | MCP server bind. |\n| `STRIPE_SECRET_KEY` | for billing | — | Test secret key (`sk_test_...`). Non-test keys are refused. |\n| `STRIPE_PUBLISHABLE_KEY` | for `/billing` | — | Publishable key for the Payment Element page. |\n| `STRIPE_WEBHOOK_SECRET` | for webhooks | — | Signing secret for `POST /v1/webhooks/stripe`. |\n| `APPROVAL_TOKEN_SECRET` | recommended | ephemeral (restart-volatile) | HMAC secret for one-tap Allow/Deny links. |\n| `PUBLIC_BASE_URL` | for approval links | request URL | Public base URL embedded in approval links. |\n| `TLT_MAILER_BACKEND` | no | `log` | `log` writes receipts to `TLT_RECEIPTS_DIR` (no email sent). |\n| `TLT_RECEIPTS_DIR` | no | `./receipts` | Where itemized receipt files are written. |\n| `LMS_UPLOADS_DIR` | no | `./uploads` | Where uploaded PDFs are stored (per-draft dirs). |\n| `LMS_MAX_PDF_BYTES` | no | `10485760` | Max PDF upload size in bytes. |\n\nCopy `.env.example` to `.env` and fill in real values. **Never commit `.env`.**\n\n### Run the tests\n\n```bash\n.venv/bin/python test_pricing.py\n.venv/bin/python test_api_flow.py       # PostGrid calls stubbed, no network\n.venv/bin/python test_billing_tiers.py  # Stripe mocked, no network\n.venv/bin/python test_pdf.py            # PDF upload + flow, no network\n.venv/bin/python test_risk.py\n.venv/bin/python test_customer_dashboard.py\n```\n\n### Deploy notes\n\n- One small VPS is plenty. Run the API behind Caddy/Nginx with TLS.\n  Keep the MCP port on localhost or behind the same TLS proxy.\n- Process manager: a systemd unit per process — `uvicorn api:app` on :8000\n  and `python mcp_server.py` on :8001, both with `Restart=always` and env\n  vars from an `EnvironmentFile` (never in the unit file itself).\n- SQLite is fine to start; move to Postgres with concurrent writers.\n- Back up `lms.db` — it holds your audit trail.\n\n### Safety notes\n\n- There is **no code path** that calls `mail_provider.create_letter` except\n  `core.approve_send`, which requires a `PENDING` request and a human admin\n  action. The MCP tools cannot send.\n- `postgrid_client` sets `trust_env=False` so the API key is never routed\n  through ambient proxy env vars.\n- API keys are stored as SHA-256 hashes; the raw key is shown once at issue.\n",
+  "status": "curated"
+}

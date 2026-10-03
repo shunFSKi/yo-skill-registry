@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/ai.quillm/quillm",
+  "type": "mcp",
+  "name": "Quillm",
+  "description": "Dashboards, trackers and docs your agents build and keep current. Your team reads them by link.",
+  "author": "ai.quillm",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/streamfog/quillm-plugin",
+    "repo": "streamfog/quillm-plugin"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://quillm.ai/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-10-03T14:47:08.553409Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "写作",
+    "featured": false
+  },
+  "readme": "<img src=\"assets/logo.png\" alt=\"\" width=\"72\">\n\n# Quillm plugin\n\n[Quillm](https://quillm.ai) keeps the small tools your agents build for your team: dashboards, trackers, decision docs and calculators. Each page lives at one address your team opens like a doc, with no AI account needed. The numbers live in datasets apart from the page, so an agent keeps a page current by adding rows, run after run, without rewriting it. Every save is test-rendered before readers see it, every revision is kept, and every change is signed by the agent that made it.\n\nThis repository connects your agent to Quillm. It holds:\n\n- the connection to Quillm's hosted MCP server, `https://quillm.ai/mcp`, which you sign in to with OAuth in your browser;\n- one skill, [`skills/quillm/SKILL.md`](skills/quillm/SKILL.md), that teaches the agent the habits that keep pages useful for months, including how a scheduled agent should add each run's numbers without touching the page.\n\nThe server itself is hosted by Streamfog and is not part of this repository.\n\n## Install\n\n| App | How |\n|---|---|\n| Claude Code | `claude plugin marketplace add streamfog/quillm-plugin`, then `claude plugin install quillm@quillm`. Run `/mcp` and choose Authenticate. |\n| claude.ai, Claude Desktop, Cowork | Settings → Connectors → find Quillm in the directory, or add a custom connector with `https://quillm.ai/mcp`. |\n| ChatGPT, Codex | Find Quillm in the plugin directory. |\n| Cursor | Install Quillm from the Cursor Marketplace. |\n| Grok Build | Install Quillm from the plugin marketplace. |\n| Anything else that speaks MCP | Add `https://quillm.ai/mcp` as a remote (Streamable HTTP) server and sign in. |\n\nStep-by-step instructions for each app: https://quillm.ai/connect\n\nThe first time a tool is used, a browser window asks you to sign in to Quillm with Google, choose a workspace (or name a new one), and decide whether the agent may change things or only read. The agent then appears on the workspace's Agents page, where an admin can limit it to some collections, sign an app out, or revoke it.\n\n### Without a browser (CI, cron, servers)\n\nAn admin can create a token for an agent on the workspace's Agents page and give it to the job directly, for example:\n\n```sh\nclaude mcp add --transport http quillm https://quillm.ai/mcp --header \"Authorization: Bearer qlm_…\"\n```\n\nKeep the token in your CI's secret store, not in a repository.\n\n## What the agent can do\n\nRead the workspace, read and write datasets, create and update pages, test-render a page, share a page by link when asked, leave notes for the next agent, and report a problem with Quillm. The full list, with what each tool reads or changes and how much context the server uses, is at https://quillm.ai/connect#tools.\n\n## Privacy\n\nWhat Quillm stores and what it sends to other services is listed in the [privacy policy](https://quillm.ai/privacy). Workspace admins can export everything at any time.\n\n## Files\n\n| File | For |\n|---|---|\n| `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json`, `.mcp.json` | Claude Code, claude.ai and Cowork; also read by Grok Build |\n| `.cursor-plugin/plugin.json`, `mcp.json` | Cursor |\n| `.codex-plugin/plugin.json` | ChatGPT and Codex |\n| `.grok-plugin/plugin.json` | Grok Build |\n| `plugin.json` | Agent Plugins (portable manifest) |\n| `server.json` | The Official MCP Registry entry, `ai.quillm/quillm` |\n\n## Support\n\nWrite to kev@limelit.ai, or open an issue in this repository.\n\n## License\n\nMIT. See [LICENSE](LICENSE).\n",
+  "status": "curated"
+}

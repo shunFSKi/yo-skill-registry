@@ -1,0 +1,61 @@
+{
+  "id": "mcp:official/ai.avaloncompany/web-content-url-tools",
+  "type": "mcp",
+  "name": "Web Content & URL Tools",
+  "description": "26 tools: web pages to Markdown, metadata, tech stack, SSL, SEO, domains, email auth and SSO checks.",
+  "author": "ai.avaloncompany",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/avaloncompany/web-content-mcp-server",
+    "repo": "avaloncompany/web-content-mcp-server"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://avalonai--web-content-url-tools-mcp.apify.actor/mcp",
+    "env": [
+      {
+        "name": "Authorization",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-10-03T14:09:40.783985Z",
+    "score": 55
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "运维",
+    "featured": false
+  },
+  "readme": "# Web Content & URL Tools MCP Server\n\nA remote [Model Context Protocol](https://modelcontextprotocol.io) server that gives AI agents\n**26 tools** for reading and checking the web — no browser, no setup, pay only for successful calls.\n\nRead any page as clean Markdown, pull its metadata or structure, detect its tech stack, and check\nredirects, TLS certificates, security headers, robots.txt, sitemaps, feeds, domains (WHOIS/DNS), SEO,\nbroken links, email authentication (SPF, DMARC, DKIM) and single sign-on (SAML, OpenID Connect).\nIt also includes everyday developer utilities (cron, regex, color, Unicode, time zones) and\nHyperliquid perpetuals market data.\n\n- **Apify Store:** https://apify.com/avalonai/web-content-url-tools-mcp\n- **Developer docs:** https://avaloncompany.ai/developers/\n- **Transport:** Streamable HTTP (remote, hosted on Apify Standby)\n\n## Connect\n\n### Option 1 — Standby URL + Apify API token\n\nUse your [Apify API token](https://console.apify.com/settings/integrations) as a Bearer token.\nWorks in Claude Desktop, Claude Code, Cursor, VS Code, Windsurf and any MCP client that supports\nremote servers with headers.\n\n```json\n{\n  \"mcpServers\": {\n    \"web-content-url-tools\": {\n      \"url\": \"https://avalonai--web-content-url-tools-mcp.apify.actor/mcp\",\n      \"headers\": { \"Authorization\": \"Bearer <YOUR_APIFY_TOKEN>\" }\n    }\n  }\n}\n```\n\n### Option 2 — OAuth via mcp.apify.com (no token to copy)\n\nClients that support MCP OAuth can connect through Apify's hosted MCP gateway and sign in with\ntheir Apify account in the browser:\n\n```\nhttps://mcp.apify.com?tools=avalonai/web-content-url-tools-mcp\n```\n\nClaude Code example:\n\n```bash\nclaude mcp add --transport http web-content-url-tools \"https://mcp.apify.com?tools=avalonai/web-content-url-tools-mcp\"\n```\n\n## Tools\n\n### Web pages and URLs\n\n| Tool | What it returns | Price per call |\n|---|---|---|\n| `to_markdown` | Clean, LLM-ready Markdown of the main content (menus, ads and footers removed), word/character counts, language | $0.003 |\n| `get_metadata` | Title, description, preview image, site name, canonical URL, favicon, author, publish time, Open Graph / Twitter tags | $0.003 |\n| `extract_structure` | Heading outline, internal/external links, images, tables and JSON-LD | $0.003 |\n| `detect_technologies` | CMS, framework, e-commerce platform, CDN, analytics and payment tools, with evidence | $0.003 |\n| `trace_redirects` | Every redirect hop (HTTP and meta refresh) to the final URL — expands short links | $0.001 |\n| `check_ssl` | Certificate issuer, expiry, days remaining, SANs, and whether browsers trust it | $0.001 |\n| `grade_security_headers` | A+ to F grade for security headers, information leaks and insecure cookies | $0.001 |\n| `parse_robots` | robots.txt rules per user agent, sitemaps, and whether a path may be crawled | $0.001 |\n| `parse_sitemap` | URLs from a sitemap or sitemap index (auto-discovered, gzip supported) | $0.001 |\n| `read_feed` | RSS, Atom or RDF feed as JSON (auto-discovered from a website URL) | $0.001 |\n| `lookup_domain` | WHOIS (RDAP) registrar, dates, domain age, nameservers, DNS records, MX/SPF/DMARC | $0.001 |\n| `audit_seo` | On-page SEO score and grade with prioritised issues and fixes | $0.003 |\n| `check_broken_links` | Up to 100 links checked: broken, redirected and bot-blocked reported separately | $0.003 |\n\n### Email and identity diagnostics\n\n| Tool | What it returns | Price per call |\n|---|---|---|\n| `check_email_domain` | MX, SPF (10-lookup limit), DMARC, DKIM, MTA-STS, TLS-RPT and BIMI graded pass/warn/fail with fixes and a 0-100 score | $0.003 |\n| `analyze_saml_metadata` | SAML metadata (XML or URL): entity ID, endpoints and bindings, NameID formats, signing certificate expiry and issues | $0.001 |\n| `check_oidc_provider` | OpenID Connect discovery and JWKS: issuer match, HTTPS, PKCE S256, ID token algorithms, key sizes, certificate expiry | $0.001 |\n\n### Developer utilities\n\n| Tool | What it returns | Price per call |\n|---|---|---|\n| `parse_cron` | Validity, plain-English explanation, previous and next run times in any time zone | $0.001 |\n| `test_regex` | Every match with positions and groups, plus find-and-replace; runaway patterns stop in 0.1 s | $0.001 |\n| `convert_color` | HEX, RGB, HSL, HSV, CMYK, best text color, contrast and palettes | $0.001 |\n| `check_color_contrast` | WCAG 2 contrast ratio with AA/AAA pass/fail | $0.001 |\n| `inspect_unicode` | Per-character code point, name and bytes; grapheme count; normalization forms | $0.001 |\n| `convert_timezone` | One time in many IANA zones with offsets, abbreviations and DST | $0.001 |\n| `list_timezones` | IANA time zone names, optionally by region | $0.001 |\n\n### Hyperliquid perpetuals market data\n\n| Tool | What it returns | Price per call |\n|---|---|---|\n| `hyperliquid_markets` | Mark/oracle price, 24h change, hourly and annualized funding, open interest, volume | $0.001 |\n| `hyperliquid_funding_history` | Hourly funding history (up to 30 days) with average and annualized rate | $0.001 |\n| `hyperliquid_candles` | OHLCV candles from 1 minute to 1 week | $0.001 |\n\nHyperliquid data comes from Hyperliquid's public market data. This server is not affiliated with\nHyperliquid, and nothing it returns is financial advice.\n\n## Pricing\n\nPay per successful tool call through your Apify account: **$0.001** for check and utility tools,\n**$0.003** for page tools. Failed calls (invalid URL, blocked site, timeout) are free and return a\nclear error reason.\n\n## Good to know\n\n- Pages are read from the HTML the server sends; sites that render everything in the browser return\n  little text and say so in a `warning` field.\n- Some sites block automated access; those calls return `target_blocked` and are not charged.\n- Only public `http`/`https` addresses are fetched; private and internal addresses are refused.\n\n## This repository\n\nThis is the source of the Apify Actor that hosts the MCP server. It is a thin connector: each tool\nforwards the request to the Web Content API and returns the JSON result.\n\n```\n.actor/        Apify Actor definition (Standby mode, MCP path /mcp, pay-per-event pricing)\nsrc/main.py    MCP server (FastMCP, Streamable HTTP) and tool definitions\nDockerfile     Container image\n```\n\nYou do not need to run it yourself — connect to the hosted endpoint above.\n\n## License\n\n[MIT](LICENSE) © Avalon Company\n",
+  "status": "curated"
+}
