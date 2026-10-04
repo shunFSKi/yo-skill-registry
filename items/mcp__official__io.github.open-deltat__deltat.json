@@ -1,0 +1,95 @@
+{
+  "id": "mcp:official/io.github.open-deltat/deltat",
+  "type": "mcp",
+  "name": "deltat",
+  "description": "Give an agent a calendar it can book without double-booking: find, hold, then commit atomically.",
+  "author": "io.github.open-deltat",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/open-deltat/tap",
+    "repo": "open-deltat/tap"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@open-deltat/mcp"
+    ],
+    "env": [
+      {
+        "name": "DELTAT_PASSWORD",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "DELTAT_HOST",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "DELTAT_PORT",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "DELTAT_DATABASE",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "DELTAT_USER",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "DELTAT_TLS",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "DELTAT_TLS_CA",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-10-04T13:20:22.35757Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "办公",
+    "featured": false
+  },
+  "readme": "<p align=\"center\">\n  <img src=\".github/social-preview.png\" alt=\"TAP: the time allocation protocol\" width=\"860\">\n</p>\n\n<p align=\"center\">\n  <a href=\"https://www.npmjs.com/package/@open-deltat/client\"><img src=\"https://img.shields.io/npm/v/@open-deltat/client.svg?logo=npm\" alt=\"npm\"></a>\n  <a href=\"https://github.com/open-deltat/tap/actions/workflows/ci.yml\"><img src=\"https://github.com/open-deltat/tap/actions/workflows/ci.yml/badge.svg\" alt=\"CI\"></a>\n  <a href=\"LICENSE\"><img src=\"https://img.shields.io/badge/SDK-MIT-blue.svg\" alt=\"SDK: MIT\"></a>\n  <a href=\"demo/LICENSE\"><img src=\"https://img.shields.io/badge/apps-AGPL--3.0-orange.svg\" alt=\"Apps: AGPL-3.0\"></a>\n  <a href=\"https://delt.at\"><img src=\"https://img.shields.io/badge/site-delt.at-4fe3a3.svg\" alt=\"delt.at\"></a>\n</p>\n\n---\n\nTAP is the Time Allocation Protocol, an open standard for scheduling, booking, and availability: one shared way to describe time and ask \"what is free, and can I claim it before someone else does?\", so any app, service, or agent speaks it the same way.\n\nThis repo is TAP in practice: its typed TypeScript SDK (`@open-deltat/client`) and a set of demo apps (seat maps, calendars, capacity pools, recurring schedules, and hold-to-book flows with live updates). The SDK points at [deltat](https://github.com/open-deltat/deltat), the database built to speak TAP, which treats availability as collision detection on the Unix-time number line. The protocol does not depend on it: any backend that implements TAP can be talked to the same way.\n\n## Install\n\n```bash\nnpm install @open-deltat/client\n# or: bun add @open-deltat/client\n```\n\n## SDK\n\n`@open-deltat/client` is a typed interface to deltat:\n\n- **Resources** - hierarchical create / update / delete / get\n- **Rules** - batch `create(items[])`, update, delete, get\n- **Bookings** - batch `create(items[])`, cancel, get with an optional `{start, end}` window\n- **Holds** - place, commit (atomic hold-to-booking conversion), release, get with an optional `{start, end}` window\n- **Availability** - single-resource and combined multi-resource queries\n- **Events** - real-time LISTEN/NOTIFY subscriptions\n- **`expandRecurrence()`** - turn a recurring pattern (days of week, time range, date range, exclusions) into concrete rule segments, DST-safe in an explicit IANA `timeZone` (default UTC)\n\n```ts\nimport { DeltaT, expandRecurrence } from \"@open-deltat/client\";\n\nconst dt = new DeltaT({ host: \"localhost\", port: 5433 });\n\nconst room = await dt.resources.create({ name: \"Room A\" });\n\n// Open weekdays 9 to 5 for the first quarter, as concrete rules. Wall-clock times are\n// interpreted in the given IANA timeZone (default \"UTC\") and stay correct across DST.\nconst segments = expandRecurrence({\n  daysOfWeek: [1, 2, 3, 4, 5],\n  startTime: \"09:00\",\n  endTime: \"17:00\",\n  fromDate: \"2025-01-01\",\n  toDate: \"2025-03-31\",\n  timeZone: \"Europe/Berlin\",\n});\nawait dt.rules.create(segments.map((s) => ({ resourceId: room.id, ...s })));\n\nconst slots = await dt.availability.get({\n  resourceId: room.id,\n  start: Date.now(),\n  end: Date.now() + 86_400_000,\n});\n```\n\n> deltat's current transport is the PostgreSQL wire protocol, a transitional choice. A v2 framed protocol with HTTP and MCP adapters is planned (see deltat's `docs/REQUIREMENTS.md`, PROTO-01/02). The typed API above is built to outlast that swap.\n\n## CLI\n\n`@open-deltat/cli` puts the same booking loop in a terminal, for people and for agents that have a shell. `deltat-cli watch <calendar> --json` prints one line per change as it happens, so an agent can react to a time being held, booked or freed. See [`packages/cli`](packages/cli/README.md).\n\n```bash\nnpm install -g @open-deltat/cli\ndeltat-cli find <calendar> --from 2026-10-01T09:00:00+02:00 --to 2026-10-01T18:00:00+02:00\n```\n\n## Demos\n\n| Demo | What it shows |\n|------|----------------|\n| **Airline** | Split-screen dual-client seat booking with real-time holds |\n| **Theater** | Single-venue seat map with section pricing |\n| **Stadium** | Large-venue seat selection with timed events |\n| **Calendar** | Resource management with weekly and daily views and recurring rules |\n| **Scheduling** | Multi-resource availability finder with threshold modes |\n| **Availability** | Calendly-style owner and booker flow with hold-to-confirm |\n| **Restaurant** | Party size to floor plan to time slot to reservation |\n| **Parking** | Multi-floor garage with zone grids and duration-based booking |\n\nEvery demo uses a WebSocket for live updates. The hold-based ones follow a connection-lifecycle pattern: opening a socket places a hold, sending `{type: \"confirm\"}` converts it into a booking, and closing the socket releases it. (The demo server still confirms with a release-then-book two-step; it moves to the SDK's atomic `holds.commit` once a deltat release ships the commit surface.)\n\n## Run the demos\n\nRequires [Bun](https://bun.sh).\n\n```bash\ncd demo\nbun install\nbun dev      # starts deltat and the Next.js dev server\n```\n\nThe dev script installs deltat via `cargo install` if it is missing or out of date.\n\n## Repository\n\n```\npackages/client/     @open-deltat/client, the TypeScript SDK over deltat's wire protocol\npackages/examples/   @open-deltat/examples, the booking modules (components + \"use server\" actions) shared by every app\npackages/shared/     date and week helpers shared by the apps\ndemo/                Next.js gallery of the interactive examples above\ncalendar/            standalone booking app with env-based owner login\n```\n\n## Shared examples package\n\nThe booking demos are not welded to the demo site. Every example, its React components, its `\"use server\"` actions, the deltat client, the seed and booking helpers, and the shared booker UI, lives in one workspace package: `@open-deltat/examples`. Two kinds of app consume the same package with no duplication:\n\n- **`demo/`** renders them as a gallery ([delt.at](https://delt.at)). It stays a pure gallery: it shows the examples, it never becomes one of them.\n- **A standalone app** (see below) imports the same modules as its own booking surface and adds its own chrome, login, and tenant.\n\nThe package ships raw source that carries `\"use client\"` / `\"use server\"` directives, so a consuming Next.js app must transpile it:\n\n```ts\n// next.config.ts\nexport default { transpilePackages: [\"@open-deltat/examples\"] };\n```\n\nThen import a whole example, or the pieces beneath it, by subpath:\n\n```ts\nimport Gym from \"@open-deltat/examples/gym\";                    // a full example component\nimport { Stage } from \"@open-deltat/examples/components/stage\"; // shared booker UI\nimport { dt } from \"@open-deltat/examples/lib/deltat\";          // the deltat client\nimport { enabledExampleIds } from \"@open-deltat/examples/config\";\n```\n\n## Deploying a standalone app with env-based auth\n\n`calendar/` is the reference for a single-tenant deployable app: a public booking page plus an owner dashboard behind a login. It needs no user database and no identity provider. The owner credentials, the cookie-signing secret, and the deltat tenant all come from the environment, so a deployment is one image plus its env.\n\n**Login model.** One operator signs in with `CAL_USER` / `CAL_PASS`. On success the app sets an `httpOnly` session cookie signed with `CAL_SECRET` (HMAC-SHA256, constant-time verified, with a 7-day server-enforced expiry so a copied cookie still ages out). There is no user table. Every authenticated Server Action calls `requireSession()` as its first line, because a Server Action is an independent POST endpoint that a layout redirect does not protect.\n\n**Environment.**\n\n| Variable | Purpose |\n|---|---|\n| `CAL_USER`, `CAL_PASS` | owner login credentials |\n| `CAL_SECRET` | HMAC key that signs the session cookie |\n| `CAL_DISPLAY_NAME`, `CAL_SLUG` | public business name and booking path (`/book/<slug>`) |\n| `DELTAT_HOST`, `DELTAT_PORT`, `DELTAT_PASSWORD` | the deltat instance to talk to |\n| `DELTAT_DB` | this deployment's tenant, its isolated data |\n\n**Production safety.** In production the app refuses to authenticate while `CAL_PASS`, `CAL_SECRET`, or `DELTAT_PASSWORD` are still the in-repo defaults (`assertProductionSecrets()`), so a deploy can never ship a forgeable session or a public database password.\n\n**Example.** Build a standalone image from `calendar/` (Next server output, the way `demo/` does), then run it with this deployment's env and tenant:\n\n```yaml\nservices:\n  fitflow:\n    image: your-registry/tap-calendar:latest   # built from calendar/\n    environment:\n      CAL_USER: owner\n      CAL_PASS: ${CAL_PASS}          # from a secret store, never committed\n      CAL_SECRET: ${CAL_SECRET}      # e.g. openssl rand -hex 32\n      CAL_DISPLAY_NAME: \"FitFlow Studio\"\n      CAL_SLUG: fitflow\n      DELTAT_HOST: deltat\n      DELTAT_PORT: \"5433\"\n      DELTAT_DB: fitflow             # this tenant's isolated store\n      DELTAT_PASSWORD: ${DELTAT_PASSWORD}\n    ports: [\"3000:3000\"]\n```\n\nPoint `DELTAT_DB` at a distinct database name per deployment and deltat provisions an isolated store on first connect, so two operators never share data. Generate `CAL_SECRET` with `openssl rand -hex 32` and keep it in your secret store, never in the compose file.\n\n## License\n\nLicensed by directory:\n\n- **SDK and shared helpers** (`packages/`): [MIT](LICENSE). Use them anywhere, in any project, open or closed. This is what the npm package ships under.\n- **Applications** (`demo/`, `calendar/`): [AGPL-3.0-or-later](demo/LICENSE). They are meant to be self-hosted and deployed; if you run a modified version as a network service, you must offer that version's source under the same license.\n\nGitHub shows the root MIT license in the sidebar because it only reads the top-level file; the AGPL applies to the app directories regardless, via their own `LICENSE` files.\n",
+  "status": "curated"
+}

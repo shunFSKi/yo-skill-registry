@@ -1,0 +1,61 @@
+{
+  "id": "mcp:official/io.github.burrowbox/burrowbox",
+  "type": "mcp",
+  "name": "Burrowbox",
+  "description": "Persistent Linux computers for AI agents: desktop, signed-in browser, vault, apps and shell.",
+  "author": "io.github.burrowbox",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/burrowbox/burrowbox-js",
+    "repo": "burrowbox/burrowbox-js"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://burrowbox.dev/mcp",
+    "env": [
+      {
+        "name": "Authorization",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-10-04T17:03:17.839017Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "运维",
+    "featured": false
+  },
+  "readme": "# burrowbox-js\n\nTypeScript client library for the [Burrowbox](https://burrowbox.dev) API: persistent Linux computers for AI agents, each with a desktop, a browser that stays signed in, a credential vault and its own MCP endpoint.\n\n**[→ Start using Burrowbox](https://burrowbox.dev)** · [API docs](https://burrowbox.dev/docs)\n\n## Install\n\n```bash\nbun add burrowbox\n```\n\nnpm (`npm install burrowbox`) and pnpm (`pnpm add burrowbox`) work too. No runtime dependencies. Works anywhere with a global `fetch`: Bun, Node 18+, Deno, Cloudflare Workers. Keep API keys on your server.\n\n## Quickstart\n\nCreate an API key under **Account → API keys** and export it:\n\n```bash\nexport BURROWBOX_KEY=tmk_...\n```\n\nCreate a machine and connect an agent to it over MCP:\n\n```ts\nimport { Burrowbox, toAgentSdkMcpServers } from \"burrowbox\";\nimport { query } from \"@anthropic-ai/claude-agent-sdk\";\n\nconst bb = new Burrowbox(); // reads BURROWBOX_KEY\n\n// Boots in a few seconds. It turns itself off (keeping its state) after an hour.\nconst machine = await bb.machines.create({ name: \"research-bot\", size: \"tiny\", ttlMinutes: 60 });\n\n// MCP URL + the machine's scoped token (tmm_…), which only works on this machine.\nconst mcp = await bb.machines.mcp(machine);\n\nfor await (const msg of query({\n  prompt: \"Open news.ycombinator.com and summarise the top 5 stories.\",\n  options: { mcpServers: toAgentSdkMcpServers(mcp) },\n})) {\n  if (msg.type === \"result\" && msg.subtype === \"success\") console.log(msg.result);\n}\n\nawait bb.machines.stop(machine); // files, apps, logins and open windows are kept\n```\n\n`mcp` is plain data (`{ name, url, token, headers }`), so it works with any Streamable HTTP MCP client. `toMessagesApiMcpServer(mcp)` gives the Anthropic Messages API MCP connector shape, and `toClaudeCodeCommand(mcp)` prints a `claude mcp add` command.\n\n## Features\n\n- **Machines:** create, list, start, stop, resize, schedule and destroy, plus screenshots, apps and windows.\n- **MCP:** connection details for each machine's endpoint and for the platform endpoint.\n- **Live view:** signed links to embed a machine's screen in your product. You choose whether viewers can take control.\n- **Vault:** store logins in a machine. Agents can use them without ever seeing them.\n- **Warm pools:** keep machines booted and set up from a template, then claim one instantly for a customer.\n- **Automations:** cron jobs and webhooks that run commands, MCP tools or HTTP calls inside a machine.\n- **Event webhooks:** signed notifications when machines change state, plus `verifyWebhookSignature()`.\n- **Billing and VPN:** balance, usage per customer, and residential VPN locations.\n- **Typed errors** (`NotFoundError`, `InsufficientCreditError`, `RateLimitError`…), timeouts, and automatic retries for idempotent requests.\n\n```ts\nconst bb = new Burrowbox({\n  apiKey: process.env.BURROWBOX_KEY, // or a machine token (tmm_…) for MCP and live-view only\n  baseUrl: \"https://burrowbox.dev\",\n  timeoutMs: 60_000,\n  maxRetries: 2,\n  fetch: customFetch, // optional\n});\n```\n\n### Verify event webhooks\n\n```ts\nimport { constructWebhookEvent } from \"burrowbox\";\n\n// Pass the raw body, not re-serialized JSON. Throws WebhookSignatureError if it doesn't verify.\nconst event = await constructWebhookEvent(await req.text(), req.headers.get(\"burrowbox-signature\"), process.env.BURROWBOX_WEBHOOK_SECRET!);\nif (event.type === \"machine.stopped\") console.log(event.data.machine.id, event.data.detail);\n```\n\nIt uses Web Crypto, so the same code runs in Bun, Node, Deno, Workers and edge runtimes.\n\nThe full surface is in [API.md](./API.md).\n\n## Development\n\nThe repo uses [Bun](https://bun.sh) for installs and scripts. Tests run on Vitest, the build on tsup (ESM + CJS + types).\n\n```bash\nbun install\nbun run typecheck && bun run test && bun run build\nbun run smoke   # import the built package from Node (ESM and CJS)\n```\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

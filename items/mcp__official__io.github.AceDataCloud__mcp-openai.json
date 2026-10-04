@@ -1,0 +1,64 @@
+{
+  "id": "mcp:official/io.github.AceDataCloud/mcp-openai",
+  "type": "mcp",
+  "name": "mcp-openai",
+  "description": "MCP server for OpenAI API (chat completions, image generation, embeddings) via AceDataCloud",
+  "author": "io.github.AceDataCloud",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/AceDataCloud/OpenAIMCP",
+    "repo": "AceDataCloud/OpenAIMCP"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "mcp-openai-pro"
+    ],
+    "env": [
+      {
+        "name": "ACEDATACLOUD_API_TOKEN",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-10-04T14:52:53.178625Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# OpenAIMCP\n\n<!-- mcp-name: io.github.AceDataCloud/mcp-openai -->\n\nA [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server for OpenAI API access using [AceDataCloud](https://platform.acedata.cloud?utm_source=github&utm_medium=referral&utm_campaign=evergreen&utm_content=openai_mcp_readme_platform).\n\nInteract with OpenAI models for chat completions, image generation, text embeddings, and more — directly from Claude, VS Code, or any MCP-compatible client.\n\nThe AceDataCloud distribution is `mcp-openai-pro`. The unrelated\n`mcp-openai` package on PyPI is not maintained by AceDataCloud. Update existing\n`uvx` configurations to the new package name; the hosted MCP URL is unchanged.\n\n## Features\n\n- **Chat Completions** — Access GPT-4, GPT-4o, GPT-5, o1, o3, o4-mini, and many more models\n- **Responses API** — Extended model variant support including dated releases and search-preview models\n- **Image Generation** — Create images with gpt-image-1, gpt-image-2, GPT Image 2.5 Flare/Sunburst standard or official variants, dall-e-3, and nano-banana models\n- **Image Editing** — Modify existing images with AI\n- **Text Embeddings** — Generate vector representations with text-embedding-3 models\n- **Audio** — Convert text to speech and transcribe audio with whisper-1 or gpt-transcribe\n\n## Quick Start\n\n### Prerequisites\n\nGet an API token from [AceDataCloud](https://platform.acedata.cloud?utm_source=github&utm_medium=referral&utm_campaign=evergreen&utm_content=openai_mcp_readme_platform).\n\n### Installation\n\n```bash\npip install mcp-openai-pro\n```\n\n### Configuration\n\nSet your API token:\n\n```bash\nexport ACEDATACLOUD_API_TOKEN=your_api_token_here\n```\n\n### Run\n\n```bash\nmcp-openai-pro\n```\n\n## Available Tools\n\n| Tool | Description |\n|------|-------------|\n| `openai_chat_completion` | Create chat completions using OpenAI models |\n| `openai_create_response` | Create responses using the Responses API |\n| `openai_generate_image` | Generate images from text descriptions |\n| `openai_edit_image` | Edit existing images with AI |\n| `openai_create_embedding` | Create text embedding vectors |\n| `openai_text_to_speech` | Convert text to spoken audio |\n| `openai_transcribe_audio` | Transcribe audio from a URL |\n| `openai_list_chat_models` | List available chat/completion models |\n| `openai_list_image_models` | List available image models |\n| `openai_list_embedding_models` | List available embedding models |\n| `openai_get_usage_guide` | Get comprehensive usage guide |\n\n## Supported Models\n\n### Chat Completion Models\n- **GPT-5 Series**: gpt-5.5, gpt-5.5-pro, gpt-5.4, gpt-5.4-pro, gpt-5.2, gpt-5.1, gpt-5, gpt-5-mini, gpt-5-nano\n- **GPT-4 Series**: gpt-4.1, gpt-4.1-mini, gpt-4.1-nano, gpt-4o, gpt-4o-mini, gpt-4\n- **Reasoning**: o4-mini, o3, o3-mini, o3-pro, o1, o1-mini, o1-pro\n\n### Image Models\n- gpt-image-1, gpt-image-1.5, gpt-image-2, gpt-image-2:official, gpt-image-2.5-flare, gpt-image-2.5-flare:official, gpt-image-2.5-sunburst, gpt-image-2.5-sunburst:official, dall-e-3, dall-e-2, nano-banana, nano-banana-2, nano-banana-pro\n- GPT Image `:official` variants settle from actual text-input, image-input, and image-output tokens.\n\n### Embedding Models\n- text-embedding-3-small, text-embedding-3-large, text-embedding-ada-002\n\n### Audio Transcription Models\n- whisper-1, gpt-transcribe\n\n## Usage Examples\n\n### Chat Completion\n\n```\nopenai_chat_completion(\n    messages=[{\"role\": \"user\", \"content\": \"Explain quantum computing in simple terms\"}],\n    model=\"gpt-4.1\"\n)\n```\n\n### Image Generation\n\n```\nopenai_generate_image(\n    prompt=\"A serene Japanese garden with cherry blossoms at sunset, photorealistic\",\n    model=\"gpt-image-1\",\n    size=\"1024x1024\"\n)\n```\n\n### Text Embeddings\n\n```\nopenai_create_embedding(\n    input=\"The quick brown fox jumps over the lazy dog\",\n    model=\"text-embedding-3-small\"\n)\n```\n\n## Configuration\n\n| Variable | Description | Default |\n|----------|-------------|---------|\n| `ACEDATACLOUD_API_TOKEN` | API token (required) | — |\n| `ACEDATACLOUD_API_BASE_URL` | API base URL | `https://api.acedata.cloud` |\n| `OPENAI_REQUEST_TIMEOUT` | Request timeout in seconds | `60` |\n| `MCP_SERVER_NAME` | MCP server name | `openai` |\n| `LOG_LEVEL` | Logging level | `INFO` |\n\n## Development\n\n```bash\n# Install dependencies\npip install -e \".[dev,test]\"\n\n# Run tests\npytest\n\n# Run linter\nruff check .\n```\n\n## API Reference\n\n- [AceDataCloud Platform](https://platform.acedata.cloud?utm_source=github&utm_medium=referral&utm_campaign=evergreen&utm_content=openai_mcp_readme_platform)\n- [OpenAI API Documentation](https://platform.openai.com/docs)\n\n## Documentation\n\n<!-- canonical-documentation -->\n[Documentation](https://platform.acedata.cloud/documents/openai?utm_source=github&utm_medium=referral&utm_campaign=evergreen&utm_content=openai_mcp_readme_quick_start)\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

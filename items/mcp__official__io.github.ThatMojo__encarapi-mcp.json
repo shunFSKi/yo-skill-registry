@@ -1,0 +1,70 @@
+{
+  "id": "mcp:official/io.github.ThatMojo/encarapi-mcp",
+  "type": "mcp",
+  "name": "EnCarAPI - Korean & Chinese used cars",
+  "description": "Live used car listings from South Korea (Encar, KB Chachacha, K Car) and China (Dongchedi, Che168).",
+  "author": "io.github.ThatMojo",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/ThatMojo/encarapi-mcp",
+    "repo": "ThatMojo/encarapi-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "encarapi-mcp"
+    ],
+    "env": [
+      {
+        "name": "ENCARAPI_KEY",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "CHINACARAPI_KEY",
+        "required": false,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-10-04T14:55:07.144201Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# EnCarAPI MCP server: Korean and Chinese used car data for AI assistants\n\n[Model Context Protocol](https://modelcontextprotocol.io) server for\n[EnCarAPI](https://encarapi.com). Lets Claude, Cursor, ChatGPT and other MCP clients search\n**live used car listings from South Korea** (Encar, KB Chachacha, K Car) and **China**\n(Dongchedi, Che168), and pull full details, inspection reports and accident records.\n\n> **An API key is required.** Get one (5-day trial) at [encarapi.com](https://encarapi.com).\n> Chinese data works with a [ChinaCarAPI](https://chinacarapi.com) key or an EnCarAPI key\n> with the China add-on.\n\n## Tools\n\n| Tool | What it does |\n|---|---|\n| `search_korean_cars` | Search Korean listings (brand, model, year, price in 10,000 KRW, mileage, fuel, accident-free, source: encar / kbc / kcar / all) |\n| `get_korean_car` | Full detail for one listing (specs, options, photos, price history, seller) |\n| `get_korean_inspection` | Official Korean inspection report |\n| `get_korean_accident_record` | Insurance accident history and ownership changes |\n| `find_korean_models` | Model name autocomplete across brands |\n| `korean_filter_values` | Valid filter values |\n| `search_chinese_cars` | Search Chinese listings (brand, model, year, price in CNY, mileage, city, export-ready) |\n| `get_chinese_car` | Full record for one Chinese listing |\n| `get_chinese_inspection` | Chinese inspection report (accident, flood, fire, EV battery) |\n| `chinese_models` | Models of a brand with listing counts |\n\nAll tools are read-only.\n\n## Option 1: hosted (no install)\n\nAdd this URL as a remote MCP server:\n\n```\nhttps://mcp.encarapi.com/mcp\n```\n\nIn clients with OAuth support the URL is all you need. On first use a browser window opens,\nyou paste your EnCarAPI key once, and the client is connected:\n\n- **Claude** (claude.ai, desktop, mobile): Settings - Connectors - Add custom connector, paste the URL\n- **ChatGPT** (developer mode): Settings - Connectors - create a connector with the URL\n- **Cursor**: `{\"mcpServers\": {\"encarapi\": {\"url\": \"https://mcp.encarapi.com/mcp\"}}}` in `.cursor/mcp.json`\n- **VS Code**: \"MCP: Add Server\" - HTTP - paste the URL\n- **Claude Code**:\n\n```bash\nclaude mcp add --transport http encarapi https://mcp.encarapi.com/mcp\n```\n\nThe key is checked once and is not stored on the server: it is encrypted into the token\nyour client receives. To disconnect, remove the server in your client; to cut off access\neverywhere, rotate your key at [encarapi.com](https://encarapi.com).\n\n### Alternative: send the key yourself\n\nClients without OAuth support, scripts and gateways can send the key directly:\n\n```\nhttps://mcp.encarapi.com/mcp\nAuthorization: Bearer YOUR_ENCARAPI_KEY\n```\n\nClaude Code:\n\n```bash\nclaude mcp add --transport http encarapi https://mcp.encarapi.com/mcp \\\n  --header \"Authorization: Bearer YOUR_ENCARAPI_KEY\"\n```\n\nThe `x-api-key: YOUR_ENCARAPI_KEY` header works as well. Clients that only accept a URL and\nhave no OAuth support can use `https://mcp.encarapi.com/mcp?key=YOUR_ENCARAPI_KEY` (a header\nis preferred, since URLs can end up in logs). A separate ChinaCarAPI key goes into the\n`x-china-key` header, or into the second field of the browser form.\n\n## Option 2: local (npx)\n\nClaude Desktop (`claude_desktop_config.json`), Cursor (`.cursor/mcp.json`) and most other\nclients:\n\n```json\n{\n  \"mcpServers\": {\n    \"encarapi\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"encarapi-mcp\"],\n      \"env\": {\n        \"ENCARAPI_KEY\": \"YOUR_ENCARAPI_KEY\"\n      }\n    }\n  }\n}\n```\n\nClaude Code:\n\n```bash\nclaude mcp add encarapi -e ENCARAPI_KEY=YOUR_ENCARAPI_KEY -- npx -y encarapi-mcp\n```\n\nOptional: `CHINACARAPI_KEY` for a separate ChinaCarAPI key.\n\n## Example prompts\n\n- \"Find accident-free Genesis GV80 from 2022 or newer under 50 million KRW and compare the mileage.\"\n- \"Show the inspection report and accident record for Encar listing 41000001.\"\n- \"What are the cheapest export-ready BYD Seal listings in China right now?\"\n\n## Self-hosting the HTTP endpoint\n\n```bash\ndocker build -t encarapi-mcp .\ndocker run -p 3000:3000 encarapi-mcp     # POST /mcp, GET /health\n```\n\nStateless: every request carries its own key, nothing is stored.\n\nTo enable the OAuth flow (\"connect by URL only\"), set two environment variables:\n\n| Variable | Meaning |\n|---|---|\n| `MCP_OAUTH_SECRET` | At least 32 random characters, e.g. `openssl rand -base64 48`. Enables OAuth; without it the server only accepts keys sent by the client. |\n| `MCP_PUBLIC_URL` | Public origin of the server, e.g. `https://mcp.example.com` (default `https://mcp.encarapi.com`). Tokens are bound to `<MCP_PUBLIC_URL>/mcp`. |\n\n```bash\ndocker run -p 3000:3000 -e MCP_OAUTH_SECRET=\"$(openssl rand -base64 48)\" \\\n  -e MCP_PUBLIC_URL=https://mcp.example.com encarapi-mcp\n```\n\nThis adds `/.well-known/oauth-protected-resource`, `/.well-known/oauth-authorization-server`,\n`/register`, `/authorize` and `/token` (OAuth 2.1 with PKCE, dynamic client registration).\nThere is still no database: client ids, authorization codes and tokens are encrypted,\nself-contained values (AES-256-GCM) that carry the key. Consequences:\n\n- Changing `MCP_OAUTH_SECRET` signs out all OAuth clients (they reconnect through the browser).\n- Access tokens last 1 hour, refresh tokens 90 days and are replaced on every use.\n- Single use of authorization codes and of replaced refresh tokens is tracked in memory, so\n  it is best-effort: it does not survive a restart and is not shared between instances.\n- A single token cannot be revoked on the server. Rotating the EnCarAPI key cuts off all access.\n\n## Links\n\n- EnCarAPI: https://encarapi.com\n- ChinaCarAPI: https://chinacarapi.com\n- SDKs: [Node.js](https://github.com/ThatMojo/encarapi-node), [Python](https://github.com/ThatMojo/encarapi-python)\n\nEnCarAPI is an independent service and not affiliated with Encar, KB Chachacha, K Car,\nDongchedi or Che168.\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/com.callmemcp/call-me",
+  "type": "mcp",
+  "name": "Call Me",
+  "description": "Your AI rings your iPhone, speaks its question, and gets your spoken answer back as text.",
+  "author": "com.callmemcp",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/radres/call-me",
+    "repo": "radres/call-me"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://callmemcp.com/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-10-04T16:26:43.921204Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "<p align=\"center\">\n  <a href=\"https://callmemcp.com/go/readme\"><img src=\"assets/logo-rounded.png\" width=\"180\" alt=\"/call-me app icon\"></a>\n</p>\n\n<h1 align=\"center\">callme — your AI can call you</h1>\n\n<p align=\"center\">\n  <a href=\"https://callmemcp.com/go/readme\"><img src=\"assets/app-store-badge.svg\" height=\"60\" alt=\"Download on the App Store\"></a>\n</p>\n\nYour AI agents ring your actual iPhone, read you a question, an update or\nyour day ahead, and get your spoken reply back as text — or just text you. Works from any AI that\nspeaks MCP; nothing to install.\n\nCall Me is not a voice assistant and holds no conversation of its own. Your\nagent does the thinking; Call Me only carries its question to your phone and\nyour answer back, so you can keep it working while you drive, train or walk.\n\n## 1. Get the app\n\n**[callme on the App Store](https://callmemcp.com/go/readme)**.\nNo registration, no email. Open it, tap *Agree & Continue*, and it shows your\npersonal **callme number**: 10 digits, and all an agent needs to reach you.\n\n## 2. Connect your AI (MCP)\n\nPairing is stored locally in `~/.aiphone/config.json`. An MCP server running on\nthis computer can read that file automatically; the hosted HTTP endpoint cannot\nread files on your computer and therefore needs the number supplied separately.\n\nOne server, every MCP client — no API key, no OAuth:\n\n```\nhttps://callmemcp.com/mcp\n```\n\n**Claude Code**\n\n```bash\nclaude mcp add --transport http call-me https://callmemcp.com/mcp\n```\n\n**opencode** — add to `opencode.json` (or `~/.config/opencode/opencode.json`):\n\n```json\n{\n  \"mcp\": {\n    \"call-me\": {\n      \"type\": \"remote\",\n      \"url\": \"https://callmemcp.com/mcp\",\n      \"enabled\": true\n    }\n  }\n}\n```\n\n**Codex CLI — use the local paired MCP server**\n\n```bash\ncd /absolute/path/to/call-me\ncodex mcp remove call-me  # only if the hosted entry is already configured\ncodex mcp add callme -- node \"$PWD/codex/mcp.mjs\"\ncodex mcp list\n```\n\nThe local `callme` MCP server reads `~/.aiphone/config.json` for every call and\ntext, so no number needs to be typed into the Codex conversation. Use its\n`identity` tool to verify the paired phone.\n\n**Gemini CLI**\n\n```bash\ngemini mcp add --transport http call-me https://callmemcp.com/mcp\n```\n\n**Cline** — add to Cline's MCP settings (MCP Servers → Configure; CLI:\n`~/.cline/data/settings/cline_mcp_settings.json`). Full agent-readable steps are\nin [llms-install.md](llms-install.md).\n\n```json\n{\n  \"mcpServers\": {\n    \"call-me\": {\n      \"type\": \"streamableHttp\",\n      \"url\": \"https://callmemcp.com/mcp\",\n      \"timeout\": 120\n    }\n  }\n}\n```\n\n**Cursor** — add to `~/.cursor/mcp.json` (or `.cursor/mcp.json` in a project):\n\n```json\n{\n  \"mcpServers\": {\n    \"call-me\": { \"url\": \"https://callmemcp.com/mcp\" }\n  }\n}\n```\n\nOr install the plugin in [`plugin/`](plugin/), which adds a skill telling the\nagent when to call and when to text. It is a standard\n[Agent Plugin](https://agent-plugins.org) with a Cursor manifest, so any client\nthat loads Agent Plugins can use it too.\n\n**ChatGPT** — Settings → Apps → Advanced → Developer mode → add a connector\nwith the URL above (no authentication).\n\n**claude.ai** — Settings → Connectors → Add custom connector → the URL above.\n\nAnything else that speaks MCP — add a streamable-HTTP server pointing at the\nURL above, then provide the recipient number through that client's pairing or\nconfiguration flow. A hosted MCP connection cannot see this computer's\n`~/.aiphone/config.json`.\n\nFor the local Codex/Claude integrations, pairing once writes the shared local\nconfig and the MCP tools use it automatically. For hosted clients, tell the AI\nthe number or use that client's explicit pairing flow; never guess it.\n\n| Tool | What it does |\n|---|---|\n| `call` | Rings your iPhone, reads your text aloud (a question, an update, a summary of the day ahead), returns your spoken reply as text. Holds ~30s, then hands the AI a `call_id` to poll |\n| `poll_result` | Finishes a call that was still ringing |\n| `text` | Push-notification message, no ring |\n| `wait_for_reply` | Delivers your replies and voicemails back to the AI |\n| `set_thread_title` | Names the conversation thread on your phone |\n\nRepeat calls from the same AI land in one titled thread on your phone; each\nagent/session gets its own number and thread. Blocking a thread in the app\nsilences that sender for good.\n\n## 3. Or just curl it\n\nNo MCP client, no plugin, no token. Anything that can POST JSON can ring your\nphone, and these two endpoints are the whole product.\n\n**Ring and wait for the spoken answer** (blocks until you answer or it gives up):\n\n```bash\ncurl -sS https://callmemcp.com/ring \\\n  -H 'content-type: application/json' \\\n  -d '{\"to\":\"<YOUR_10_DIGITS>\",\"text\":\"Deploy to prod?\",\"from\":\"Claude on my laptop\"}'\n```\n\n```json\n{\"status\":\"completed\",\"transcript\":\"Yes, ship it\",\n \"session_token\":\"curl_1a2b...\",\"from\":\"<CALLER_NUMBER>\"}\n```\n\n`status` is one of `completed`, `missed`, `declined`, `timeout`, `failed`.\n`transcript` is what you said, already turned into text.\n\n**Text only**, no ring:\n\n```bash\ncurl -sS https://callmemcp.com/text \\\n  -H 'content-type: application/json' \\\n  -d '{\"to\":\"<YOUR_10_DIGITS>\",\"body\":\"Migration finished.\",\"from\":\"Claude on my laptop\"}'\n```\n\nReturns `{\"ok\":true,\"message_id\":42,\"delivered\":true}`. A `delivered:false` means\nthe text is in your history but no notification was shown (notifications are off\nfor /call-me on that phone); the response spells that out in `notice`.\n\n| Field | |\n|---|---|\n| `to` | your 10-digit /call-me number. Required |\n| `text` / `body` | what to say / send. Up to 2000 chars for either; a call reads that out in about two minutes |\n| `from` | sender name shown on your phone. Defaults to \"Someone's AI\" |\n| `timeout_s` | `/ring` only: seconds to wait, 30 to 300. Default 300 |\n\n### Anything else\n\nBoth responses hand back a `session_token`, and that is a real session: the same\ncaller can use the rest of the API with it, all landing in one thread on your\nphone.\n\n```bash\n# name the thread\ncurl -sS https://callmemcp.com/aiphone/sessions/label \\\n  -H 'content-type: application/json' \\\n  -d '{\"session_token\":\"curl_...\",\"label\":\"nightly deploy\"}'\n\n# long-poll for replies, voicemails and missed calls\ncurl -sS \"https://callmemcp.com/aiphone/sessions/events?session_token=curl_...&cursor=0&wait=25\"\n```\n\nThe token is derived from `to` + `from` + your IP, so repeat curls from the same\nmachine reuse one thread instead of showing up as a new stranger every time.\n\nLimits: 20 rings/hour and 60/day per IP, 10 calls/hour and 40/day to any one\nnumber. A sender you have blocked in the app gets `missed` with an empty\ntranscript, indistinguishable from a phone nobody picked up. On purpose.\n\n## 4. Optional: Claude Code plugin\n\nOn Claude Code, the plugin adds what MCP alone can't: replies you send from\nthe phone land in the **live session**, and if Claude ends a turn with a\nquestion parked on you, a `Stop` hook + answer waiter wake it up to call or\ntext you instead of going to sleep.\n\n```sh\nclaude plugin marketplace add radres/call-me\nclaude plugin install call-me@call-me\nclaude plugin enable call-me@call-me   # REQUIRED — install leaves it disabled\nclaude plugin list                     # expect: call-me@call-me   ✔ enabled\n```\n\nThen restart Claude Code and say *\"set up /call-me for me\"* — it does the rest.\n\n## 5. Optional: DeepSeek Harness plugin\n\nOn DSH, [dsh-plugin-call-me](https://github.com/radres/dsh-plugin-call-me) adds\nwhat MCP alone can't there either: a turn ending or a tool waiting for approval\ncan ring your phone on its own, and because DSH lets a plugin wake an idle run,\nthe answer you speak picks the run back up.\n\n```sh\ndsh plugin --profile web add github:radres/dsh-plugin-call-me\n```\n\n## 6. Optional: herdr plugin\n\n[herdr](https://herdr.dev) is a terminal workspace manager that watches every\npane and marks an agent `blocked` the moment it puts a real approval or question\non screen. [herdr-plugin-call-me](https://github.com/radres/herdr-plugin-call-me)\nturns that moment into a call — and then puts your spoken answer back into the\npane as the keypress the agent was waiting for. It works for whichever of herdr's\n~20 supported agents happens to be in that pane, so it needs nothing from the\nagent itself.\n\n```sh\nherdr plugin install radres/herdr-plugin-call-me\nherdr plugin pane open --plugin radres.call-me --entrypoint pair\n```\n\n## 7. Optional: Omarchy plugin\n\nThe Omarchy setup panel lives in its own repository so the marketplace installs\nonly the panel: [radres/omarchy-plugin-call-me](https://github.com/radres/omarchy-plugin-call-me).\n\n```bash\nomarchy plugin add https://github.com/radres/omarchy-plugin-call-me.git --enable\nbash ~/.config/omarchy/plugins/radres.call-me/install-launcher.sh\n```\n\nRemove with `omarchy plugin remove radres.call-me`. Details, requirements and\nwhat the panel sends over the network are in that repository's README.\n\n## How it works\n\n- `call` creates a VoIP call (LiveKit WebRTC — no real telephony); your\n  iPhone rings through CallKit like a real call, TTS reads your text,\n  your spoken reply is transcribed and returned to the agent.\n- Your number is a bearer capability: anyone who knows it can reach you,\n  nobody who doesn't can. Rate limits and per-number caps apply server-side;\n  block any thread in the app to mute it permanently.\n",
+  "status": "curated"
+}

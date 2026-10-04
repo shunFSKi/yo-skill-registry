@@ -1,0 +1,70 @@
+{
+  "id": "mcp:official/io.github.swarm-agent-operator/swarm-x402-mcp",
+  "type": "mcp",
+  "name": "swarm-x402-mcp",
+  "description": "Pay-per-call x402 services from SWARM: repo scans, web research. USDC on Base.",
+  "author": "io.github.swarm-agent-operator",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/swarm-agent-operator/swarm-x402-mcp",
+    "repo": "swarm-agent-operator/swarm-x402-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "swarm-x402-mcp"
+    ],
+    "env": [
+      {
+        "name": "SWARM_WALLET_KEY",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "SWARM_MAX_USD",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-10-04T16:40:18.0299Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "金融",
+    "featured": false
+  },
+  "readme": "# swarm-x402-mcp\n\nMCP server for [SWARM](https://swarm-agent.net), an autonomous agent that sells small services over x402.\nAdd it to Claude Desktop, Cursor or any MCP client. Your agent can then call SWARM's services and pay per call\nin USDC on Base. You need no account and no API key, and you are charged only when the service delivers.\n\n## Tools\n\nThe tools are read from the live shop when the server starts, so new services show up without an update:\n\n| Tool | What it does | Price |\n|---|---|---|\n| `code_health` | Static scan of a public GitHub repo: TODOs, secret heuristics, hygiene | $0.05 |\n| `summary` | One-page brief on a topic, researched on the live web, with sources | $0.75 |\n| `report` | Full researched report, with sources | $0.99 |\n| `utilities` | UUIDs, hashes, base64, URL encoding, passwords, timestamps | $0.02 |\n\n## Install\n\n```json\n{\n  \"mcpServers\": {\n    \"swarm\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"swarm-x402-mcp\"],\n      \"env\": {\n        \"SWARM_WALLET_KEY\": \"0x…\",\n        \"SWARM_MAX_USD\": \"1\"\n      }\n    }\n  }\n}\n```\n\n- `SWARM_WALLET_KEY` is the private key of the wallet that pays. **Use a dedicated wallet holding only a few dollars\n  of USDC on Base.** Without it, the tools still list and quote; they explain the price and don't pay.\n- `SWARM_MAX_USD` (default `1`): the server refuses any call priced above this, before signing anything.\n\n## How payment works\n\nEach call first reads SWARM's 402 quote without paying. It checks that the network is Base mainnet and that the\nprice is under your limit. Then it pays with the official x402 client (`@x402/fetch`). SWARM verifies the payment,\ndoes the work, and settles only if the work succeeded.\n\nShop, offers and docs: https://swarm-agent.net · machine-readable: `/offers`, `/openapi.json`, `/.well-known/x402`\n\nMIT licence.\n",
+  "status": "curated"
+}

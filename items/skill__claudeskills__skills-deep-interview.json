@@ -16,7 +16,7 @@
   "quality": {
     "stars": 94,
     "pushed_at": null,
-    "score": 40
+    "score": 50
   },
   "security": {
     "score": 100,
@@ -48,6 +48,6 @@
     "category": null,
     "featured": false
   },
-  "readme": null,
+  "readme": "# 개발동생 Skills\n\n대량 생성한 스킬 모음이 아닙니다. 개발동생이 매일 쓰는 워크플로에서 검증한 에이전트 스킬만 골라 담았고, Claude Code, Codex, Cursor에서 동일하게 동작합니다. 필요한 스킬만 개별적으로 설치할 수 있습니다.\n\n## Skills\n\n| Skill | 설명 |\n| --- | --- |\n| [`deep-interview`](deep-interview/SKILL.md) | 요구사항이 아직 흐릿할 때 씁니다. AI가 한 번에 하나씩 질문하면서 목표와 범위, 완료 기준을 대신 정리해 줍니다 |\n| [`agents-md`](agents-md/SKILL.md) | 프로젝트에 에이전트 규칙이 없을 때 씁니다. 코드베이스를 분석해 `AGENTS.md` 규칙 체계를 만들고 `CLAUDE.md`까지 연결합니다 |\n| [`autofix`](autofix/SKILL.md) | PR에 리뷰 코멘트가 쌓였을 때 씁니다. 지적을 그대로 반영하지 않고 실제 코드와 대조해서, 맞는 것만 골라 고칩니다 |\n| [`advisor-strategy`](advisor-strategy/SKILL.md) | 접근을 확정하기 전이나 막혔을 때 씁니다. 지정한 상위 모델이 작업을 검토하고 조언만 돌려줍니다 (`/advisor-strategy`로만 호출) |\n| [`artifact-design`](artifact-design/SKILL.md) | HTML 시안이나 데모를 만들 때 씁니다. 팔레트와 타이포그래피를 먼저 설계해서 어디서 본 듯한 AI 디자인을 피합니다 |\n\n각 스킬의 전체 문서는 링크된 `SKILL.md`에 있습니다.\n\n## 설치\n\n가장 쉬운 방법은 [`skills`](https://skills.sh) CLI입니다.\n\n```bash\n# 대화식: 스킬과 에이전트를 화면에서 선택\nnpx skills@latest add devbrother2024/skills\n\n# 바로 설치\nnpx skills@latest add devbrother2024/skills --skill <스킬> --agent <에이전트> --global --yes\n```\n\n- `<스킬>`: 위 Skills 표의 이름\n- `<에이전트>`: `claude-code` | `codex` | `cursor` 등. [skills.sh가 지원하는 에이전트](https://www.skills.sh/agent)라면 어디에나 설치할 수 있습니다 (GitHub Copilot, Gemini, Windsurf 등 20종)\n- 현재 프로젝트에만 설치하려면 `--global`을 뺍니다\n- 설치 가능한 목록만 확인: `npx skills@latest add devbrother2024/skills --list`\n\n설치 후 에이전트 채팅에서 `/스킬이름`으로 직접 호출합니다.\n\n## 에이전트별 참고\n\n**Claude Code**: 별도 등록 없이 위 설치만으로 동작합니다. 채팅에서 `/`를 입력했을 때 스킬 이름이 자동완성에 뜨면 설치된 것입니다. 스킬은 전역 `~/.claude/skills` 또는 프로젝트 `.claude/skills`에 들어갑니다. plugin marketplace로도 설치할 수 있습니다.\n\n```\n/plugin marketplace add devbrother2024/skills\n/plugin install devbrother-skills@devbrother-skills\n```\n\n**Codex**: plugin marketplace로도 설치할 수 있습니다.\n\n```bash\ncodex plugin marketplace add devbrother2024/skills\n```\n\n이후 `codex`를 열고 `/plugins`에서 `개발동생 Skills`를 설치합니다. 업데이트는 `codex plugin marketplace upgrade devbrother-skills`.\n\n**Cursor**: 설치 후 Settings → Rules의 Agent Decides 섹션에 스킬이 보이는지 확인합니다. GitHub 원격 규칙으로 추가하려면 Settings → Rules → Add Rule → Remote Rule (Github)에서 `https://github.com/devbrother2024/skills`를 입력합니다.\n\n## 직접 설치\n\n`npx` 없이 스킬 폴더를 복사해도 됩니다.\n\n```bash\ncp -R <스킬> <스킬 디렉토리>/<스킬>\n```\n\n| 에이전트 | 전역 | 프로젝트 |\n| --- | --- | --- |\n| Codex | `~/.agents/skills` | `.agents/skills` |\n| Claude Code | `~/.claude/skills` | `.claude/skills` |\n| Cursor | `~/.cursor/skills` | `.cursor/skills` |\n\n예를 들어 autofix를 Claude Code 전역에 설치하려면:\n\n```bash\nmkdir -p ~/.claude/skills && cp -R autofix ~/.claude/skills/autofix\n```\n\n## License\n\nMIT\n",
   "status": "curated"
 }
