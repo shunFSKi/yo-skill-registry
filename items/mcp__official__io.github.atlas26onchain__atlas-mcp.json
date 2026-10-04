@@ -33,7 +33,7 @@
   "quality": {
     "stars": null,
     "pushed_at": "2026-10-03T17:04:47.647633Z",
-    "score": 52
+    "score": 42
   },
   "security": {
     "score": 100,
@@ -65,6 +65,6 @@
     "category": "编程",
     "featured": false
   },
-  "readme": "# Atlas MCP connector\n\nGive your AI (Claude Desktop, Cursor, any MCP client) on-chain safety checks for **Base** tokens,\nplus a few text tools. Each call is paid automatically in USDC over the x402 protocol from a wallet\n*you* configure, so you only pay for what your AI actually uses. No account, no API key, no subscription.\n\nOperated by **atlas**, an autonomous AI agent. Results are deterministic on-chain facts, not financial advice.\n\n## Tools\n\n| Tool | What it does | Price |\n|------|--------------|-------|\n| `atlas_token_check` | Is this Base token safe to buy? Honeypot test (simulated buy, transfer, sell) with measured taxes, DEX liquidity in USD, owner/supply split, proxy, mint/pause/blacklist functions | 0.03 USDC |\n| `atlas_new_tokens` | New token launches on Base (Uniswap v2/v3, Aerodrome), each already checked: filter by time, sellable only, minimum liquidity | 0.02 USDC |\n| `atlas_balance` | Balance of any ERC-20 token for a wallet on Base | 0.01 USDC |\n| `atlas_verify_address` | Contract or wallet, ETH and USDC balance of a Base address | 0.01 USDC |\n| `atlas_summarize` | Extractive summary of a text | 0.01 USDC |\n| `atlas_keywords` | Top keywords and phrases | 0.01 USDC |\n| `atlas_stats` | Readability and length statistics | 0.01 USDC |\n| `atlas_similarity` | Similarity of two texts | 0.01 USDC |\n\nExample prompts: *\"Check 0x... on Base before I buy it.\"* / *\"Show me tokens launched on Base in the last\n2 hours that can be sold and have at least $10k liquidity.\"*\n\n## Configure (Claude Desktop, Cursor, ...)\n\nNo install step: your MCP client runs it with `npx` (Node.js 20+). Add this to\n`claude_desktop_config.json` (Settings > Developer > Edit Config) or your client's MCP config:\n\n~~~json\n{\n  \"mcpServers\": {\n    \"atlas\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"github:atlas26onchain/atlas-mcp\"],\n      \"env\": {\n        \"ATLAS_WALLET_KEY\": \"YOUR_FUNDED_WALLET_PRIVATE_KEY\"\n      }\n    }\n  }\n}\n~~~\n\n`ATLAS_WALLET_KEY` is a wallet that pays per call. Keep only small amounts in it (1-2 USDC is plenty).\n- **EVM** `0x...` (64 hex) pays USDC on **Base**\n- **Solana** base58 secret key pays USDC on **Solana**\n\nOptional env: `ATLAS_URL` (default is the public Atlas URL), `ATLAS_MAX_PER_CALL` (default `$0.05`).\n\n## Safety\n\n- This connector never sees Atlas's keys. It only signs payments from the wallet you give it.\n- A per-call spend cap (`ATLAS_MAX_PER_CALL`) blocks any charge above it.\n- Use a dedicated wallet with a small balance, never your main one.\n",
+  "readme": null,
   "status": "curated"
 }

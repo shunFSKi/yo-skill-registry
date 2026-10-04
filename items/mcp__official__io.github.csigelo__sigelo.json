@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.csigelo/sigelo",
+  "type": "mcp",
+  "name": "sigelo",
+  "description": "Portable, offline-verifiable identity for AI agents: DID, challenges, attestations, bundles.",
+  "author": "io.github.csigelo",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/csigelo/sigelo",
+    "repo": "csigelo/sigelo"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://sigelo.io/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-10-04T07:47:52.240452Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# sigelo\n\nPortable, offline-verifiable identity for AI agents. An agent's DID is the hash of a genesis\ndocument holding an Ed25519 key; worlds sign attestations about it; anyone verifies the bundle\noffline — no server, registry or chain. Draft v0.1, wire format `sigelo/0`; nothing is stable before v1.0.\n\nSite: [sigelo.io](https://sigelo.io) ([llms.txt](https://sigelo.io/llms.txt)). MCP server: `sigelo-mcp`\n(`io.github.csigelo/sigelo`). Why an agent would use it: [`WHY.md`](WHY.md).\n[![Listed on mcpservers.org](https://mcpservers.org/badge.svg)](https://mcpservers.org/servers/csigelo/sigelo)\n\nBuilt and operated by an AI agent (Claude, `did:sigelo:zDRrj7eGWXQtmzPUKF3zPDjhUkH7FebKRGj8rf96SdoLa`) under a human owner, `csigelo`. No third party has audited it yet.\n\n## Use it\n\n- **As an agent:** [`QUICKSTART.md`](QUICKSTART.md) (seven steps), or plug in through\n  [`integrations/`](integrations/README.md) (MCP server, Claude Code plugin, configs for other harnesses).\n- **As a world admitting agents:** [`accept/`](accept/README.md) — `challenge(did, ctx)` and\n  `accept(challenge, answer, bundle)` for node, Python and Go; `sh accept/test.sh` runs them.\n  Live example: [`world/`](world/README.md).\n- **As an implementer:** [`SPEC.md`](SPEC.md) and [`test-vectors.json`](test-vectors.json);\n  check yours with `sigelo-verify --conformance test-vectors.json --impl <your command>` ([`go/`](go/README.md)).\n\nRequirements: Node ≥ 22.18, Go ≥ 1.27; optional `age` (root ceremony) and `monero-wallet-rpc`\n(keeper). Linux, macOS, Windows on x86_64 and arm64 ([`docs-test/PORTABILITY.md`](docs-test/PORTABILITY.md));\non Windows file modes such as 0600 are ignored, so keep secret files under your own profile.\n\n## Build and test\n\nIn CI order ([`.github/workflows/conformance.yml`](.github/workflows/conformance.yml)); each line ends in `ALL PASS`.\n\n```sh\n(cd ts && npm ci && npx tsc)                                          # TypeScript library → ts/dist\n(cd ts && node dist/gen_vectors.js | diff -u ../test-vectors.json -)  # vectors reproduce: no output\n(cd ts && node dist/test.js)\n(cd adapters/moadim && npm ci && npm test)\n(cd spend && npm ci && npm test)                                      # needs ts/dist\n(cd integrations/mcp && npm test)\n(cd go && gofmt -l . && go vet ./... && go test ./... -v)\n(cd go && CGO_ENABLED=0 go build ./cmd/sigelo-verify && ./sigelo-verify --conformance ../test-vectors.json)\nnode schema/check.mjs\nrelease/build.sh /tmp/rel && release/pack-test.sh /tmp/rel           # 5 npm tarballs, sigelo-verify ×5, SHA256SUMS\n```\n\nWithout `age` the ceremony's real-age check SKIPs; without `monero-wallet-rpc` on 127.0.0.1:38083\nthe live-wallet sections SKIP.\n\n## Design\n\n- **Identity:** a genesis document — public key plus a commitment to an offline recovery key.\n  The DID is its hash, so it cannot be revised.\n- **Attestations:** signed statements by a world about an agent. `claims` is world-defined and\n  untrusted (never instructions to an LLM); `admission` says what entry cost (open, invite, payment, stake).\n- **Bindings:** an identity key and a payment key sign the same bytes. Spending keys stay out of\n  the agent: a view-only Monero wallet can be bound ([`MONERO.md`](MONERO.md)).\n- **Recovery beats key:** a valid recovery rotation supersedes any voluntary rotation regardless\n  of timestamp, so a stolen hot key is recoverable.\n- **Non-goals:** trust scores, revocation lists, discovery, hosted services. The verifier reports;\n  weighting is the caller's job. Bundles carry every issuer's genesis, so they verify with no prior knowledge.\n\nThreats in scope and out: [`THREAT-MODEL.md`](THREAT-MODEL.md).\n\n## Packages\n\n| Path | What |\n|---|---|\n| [`ts/`](ts/README.md) | TypeScript library: `keygen`, `attest`, `bind`, `rotate`, `verify`; Monero primitives, root-seed derivation, `sigelo-offline` |\n| [`go/`](go/README.md) | reference verifier, one dependency, static `sigelo-verify` |\n| [`spend/`](spend/README.md) | the keeper: agents pay through `sigelo-wallet` without holding a Monero key |\n| [`adapters/1f916/`](adapters/1f916/INTEGRATION.md) | world side for 1f916.ai, 99 lines |\n| [`adapters/moadim/`](adapters/moadim/INTEGRATION.md) | agent side for moadim, 77 lines (Monero half separate) |\n| [`adapters/hermes/`](adapters/hermes/INTEGRATION.md) | Hermes Agent: 9 lines of `config.yaml` |\n| [`kit/`](kit/README.md) | recovery kit: ceremony, printed procedures, drills |\n| [`site/`](site/README.md) | sigelo.io, generated from these documents |\n\nA world integration over 100 lines or one dependency is a design bug: file an issue.\n\nMIT.\n",
+  "status": "curated"
+}

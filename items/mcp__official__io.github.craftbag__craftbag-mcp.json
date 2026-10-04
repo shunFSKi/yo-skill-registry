@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.craftbag/craftbag-mcp",
+  "type": "mcp",
+  "name": "craftbag",
+  "description": "MCP server to list, load, explain, and validate Agent Skills.",
+  "author": "io.github.craftbag",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/craftbag/craftbag",
+    "repo": "craftbag/craftbag"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "craftbag-mcp"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-10-04T04:07:44.313803Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# craftbag\n\nDiscover, list, load, and explain Agent Skills (`SKILL.md`) for CLI and MCP hosts.\n\n[![CI](https://github.com/craftbag/craftbag/actions/workflows/ci.yml/badge.svg)](https://github.com/craftbag/craftbag/actions/workflows/ci.yml)\n[![Security](https://github.com/craftbag/craftbag/actions/workflows/security.yml/badge.svg)](https://github.com/craftbag/craftbag/actions/workflows/security.yml)\n[![crates.io](https://img.shields.io/crates/v/craftbag?logo=rust)](https://crates.io/crates/craftbag)\n[![docs.rs](https://img.shields.io/docsrs/craftbag?logo=docs.rs)](https://docs.rs/craftbag)\n[![License](https://img.shields.io/badge/license-Apache--2.0%20OR%20MIT-blue.svg)](LICENSE)\n\n[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/14274/badge)](https://www.bestpractices.dev/projects/14274)\n[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/craftbag/craftbag/badge)](https://securityscorecards.dev/viewer/?uri=github.com/craftbag/craftbag)\n[![FOSSA Status](https://app.fossa.com/api/projects/custom%2B62586%2Fgithub.com%2Fcraftbag%2Fcraftbag.svg?type=shield&issueType=license)](https://app.fossa.com/projects/custom%2B62586%2Fgithub.com%2Fcraftbag%2Fcraftbag?ref=badge_shield&issueType=license)\n[![Release](https://img.shields.io/github/v/release/craftbag/craftbag?logo=github&sort=semver)](https://github.com/craftbag/craftbag/releases/latest)\n\n## What it does\n\ncraftbag walks project and home skill trees (`.agents`, plus optional vendor trees for Claude, Cursor, Grok, and Bline). It then:\n\n- catalogs skills (`list`)\n- prints one skill body (`load`), or heading keys / one heading (`load --outline`, `load --section KEY`)\n- explains why a skill would activate (`why`)\n- checks a package (`validate`)\n\nThe same operations exist over MCP stdio (`skills_list`, `skills_load`, `skills_why`, `skills_validate`). Hosts can filter, rank, and load skills without taking a dependency on any one agent product.\n\n## Install\n\nmacOS and Linux (Homebrew):\n\n```bash\nbrew install craftbag/tap/craftbag\n```\n\nWindows (Scoop):\n\n```powershell\nscoop bucket add craftbag https://github.com/craftbag/scoop-bucket\nscoop install craftbag/craftbag\n```\n\nBoth commands install `craftbag` and `craftbag-mcp`. The MCP host then runs `craftbag-mcp` (on macOS GUI apps, use the full path if `PATH` is empty: `/opt/homebrew/bin/craftbag-mcp`).\n\nFrom a Rust toolchain (crates.io):\n\n```bash\ncargo install --locked craftbag-cli\ncargo install --locked craftbag-mcp\n```\n\nLibrary dependency:\n\n```toml\ncraftbag = \"0.2\"\n```\n\nFrom git (unreleased tip):\n\n```bash\ncargo install --locked --git https://github.com/craftbag/craftbag craftbag-cli\ncargo install --locked --git https://github.com/craftbag/craftbag craftbag-mcp\n```\n\nMSRV is 1.85.\n\n## Getting started\n\nDefault `list` walks cwd-to-git `.agents` / vendor trees and `$HOME/.agents` / vendor trees. This clone has no project `.agents`. When those directories are absent, `craftbag list` exits 0 and says no skills were found. Point `--path` at the demo tree (same catalog as the demo GIF):\n\n```bash\ngit clone https://github.com/craftbag/craftbag\ncd craftbag\ncraftbag list --no-implicit-roots --path demo/workspace/.agents/skills --catalog\ncraftbag load review-pr --no-implicit-roots --path demo/workspace/.agents/skills\ncraftbag load review-pr --no-implicit-roots --path demo/workspace/.agents/skills --outline\ncraftbag load review-pr --no-implicit-roots --path demo/workspace/.agents/skills --section review-a-pull-request\ncraftbag why review-pr --no-implicit-roots --path demo/workspace/.agents/skills --context review\ncraftbag validate demo/workspace/.agents/skills/review-pr\n```\n\nIf `craftbag` is not on `PATH` yet, `cargo build -p craftbag-cli --locked` and use `./target/debug/craftbag` in those commands.\n\nIn a project that already has skills under `.agents/skills`:\n\n```bash\ncraftbag list --catalog\ncraftbag load NAME\ncraftbag why NAME --context review\ncraftbag validate ./path/to/my-skill\n```\n\nClaude, Cursor, Grok, or Bline trees are opt-in:\n\n```bash\ncraftbag list --vendor claude --catalog\n```\n\n## Demo\n\n![craftbag catalog and load](demo/demo.gif)\n\n## MCP\n\n`craftbag-mcp` speaks JSON-RPC on stdio. Tools: `skills_list`, `skills_load`, `skills_why`, `skills_validate`. After `brew install` or `scoop install`, `craftbag-mcp --help` names them.\n\nClaude Desktop (`claude_desktop_config.json`) and other hosts that take a stdio command:\n\n```json\n{\n  \"mcpServers\": {\n    \"craftbag\": {\n      \"command\": \"craftbag-mcp\",\n      \"args\": [\"--vendor\", \"claude\"]\n    }\n  }\n}\n```\n\nLaunch `--path`, `--vendor`, `--user-dir`, and `--no-implicit-roots` are the walk when a tool call omits that field. The host cwd is still the implicit walk root unless you pass `--no-implicit-roots`. `skills_load` accepts `outline` and `section` (same as `load --outline` / `--section KEY`).\n\n## Library\n\n```rust\nuse craftbag::{discover, DiscoveryOptions};\n\nfn main() -> std::io::Result<()> {\n    let cwd = std::env::current_dir()?;\n    let report = discover(&cwd, &DiscoveryOptions::default());\n    for skill in &report.skills {\n        println!(\"{} {}\", skill.name, skill.description);\n    }\n    Ok(())\n}\n```\n\n`implicit_roots` is on by default (cwd-to-git `.agents` and `$HOME/.agents`). Set it to `false` and put collection roots in `paths` for leftover-only hosts. `format_load_view` can print an outline or one heading instead of the whole body.\n\n## Contributing\n\nSee [CONTRIBUTING.md](CONTRIBUTING.md). Security reports go to [SECURITY.md](SECURITY.md). Roadmap and governance are in [ROADMAP.md](ROADMAP.md) and [GOVERNANCE.md](GOVERNANCE.md).\n\n## License\n\nApache-2.0 or MIT. You may choose either. See `LICENSE` and `LICENSE-APACHE`.\n",
+  "status": "curated"
+}

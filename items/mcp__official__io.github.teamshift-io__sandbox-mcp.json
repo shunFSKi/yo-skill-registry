@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.teamshift-io/sandbox-mcp",
+  "type": "mcp",
+  "name": "SMB Sandbox",
+  "description": "Mock small-business CRM, inbox, calendar, invoicing and phone tools for testing AI agents safely.",
+  "author": "io.github.teamshift-io",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/teamshift-io/smb-sandbox",
+    "repo": "teamshift-io/smb-sandbox"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@teamshift/sandbox-mcp"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-10-04T03:52:37.188151Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# smb-sandbox\n\n**smb-sandbox is an open-source, fully fictional small business for testing AI agents: a realistic dataset generator, mock CRM, inbox, calendar, invoicing and phone systems exposed as MCP servers, and verified business tasks graded on the end state of the business, not on what the agent says it did.**\n\nAgents that look great in a demo often fall apart on a real company's messy data: a duplicate contact, a quote nobody followed up on, a payment that doesn't match any invoice. You can't safely test against real customers, and random fake rows don't have those problems. smb-sandbox gives you a believable company that does, with every problem labeled so you can measure whether your agent fixed it.\n\n![license](https://img.shields.io/badge/license-Apache--2.0-blue) ![node](https://img.shields.io/badge/node-%3E%3D20-green) ![data](https://img.shields.io/badge/data-100%25%20fictional-brightgreen)\n\n## What's inside\n\n| Package | What it does | Start here |\n|---|---|---|\n| [`@teamshift/fake-business`](packages/fake-business) | Generates a coherent fictional business (customers, leads, deals, quotes, jobs, invoices, payments, emails, SMS, calls, tasks and an event timeline) with 11 kinds of labeled operational mess. Deterministic, zero dependencies. Exports JSON, CSV, SQL, HubSpot- and QuickBooks-shaped CSVs. | `npx @teamshift/fake-business --industry dental-clinic --summary` |\n| [`@teamshift/sandbox-mcp`](packages/sandbox-mcp) | 46 MCP tools over that business (CRM, inbox, calendar, invoicing, phone). Writes are validated, audited, and never leave the process. Sending email only writes to an outbox. | `claude mcp add sandbox -- npx -y @teamshift/sandbox-mcp` |\n| [`@teamshift/smb-workflows`](workflows) | 10 real small-business tasks (quote follow-up, missed-call callbacks, invoice reminders, duplicate cleanup and more), each with a deterministic verifier and a reference solution. | `npx @teamshift/smb-workflows list` |\n\nThree starter industries: **home services** (HVAC and plumbing), **dental clinic**, and **marketing agency**. Each seed is a different company with the same kinds of problems.\n\n## Evaluate an agent in three commands\n\n```bash\n# 1. Start the sandbox business and record everything the agent does\nnpx @teamshift/sandbox-mcp --industry home-services --seed 42 --toolsets crm,inbox,calendar,invoicing,phone --state-out run.json\n\n# 2. Give your agent the task prompt (Claude Code, Cursor, or your own agent connected to the server above)\nnpx @teamshift/smb-workflows show quote-follow-up --industry home-services --seed 42\n\n# 3. Grade the end state\nnpx @teamshift/smb-workflows grade quote-follow-up --industry home-services --seed 42 --state run.json\n```\n\nThe grade checks what actually changed: the right records were updated, the right people got exactly one message each, nothing outside the task was touched, and no money moved unless the task allowed it. See [docs/run-with-claude-code.md](workflows/docs/run-with-claude-code.md) for a full walkthrough.\n\n## Use the data on its own\n\n```bash\nnpx @teamshift/fake-business --industry marketing-agency --seed 7 --format csv --out ./agency\nnpx @teamshift/fake-business --industry home-services --format sql-sqlite --out business.sql\n```\n\n```js\nimport { generate } from \"@teamshift/fake-business\";\n\nconst biz = generate({ industry: \"dental-clinic\", seed: 7 });\nconst overdue = biz.invoices.filter((i) => i.status === \"open\" && i.dueOn < biz.meta.asOf);\nconsole.log(biz.company.name, overdue.length, \"overdue invoices\");\nconsole.log(biz.anomalies.map((a) => a.kind)); // ground truth for grading\n```\n\n## FAQ\n\n### How do I test an AI agent without real customer data?\n\nGenerate a fictional company with `fake-business`, connect your agent to it through `sandbox-mcp`, and grade the result with `smb-workflows`. Every name, email, phone number and address is invented (`.example` domains, 555-01xx numbers), so you can run tests, record demos and publish results without exposing anyone.\n\n### Is this a benchmark?\n\nIt's the material for one. The 10 workflows are a starting set of verified tasks with deterministic graders, so you can compare agents, models or prompts on the same company. We don't publish a leaderboard yet.\n\n### Why grade the end state instead of the agent's answer?\n\nAgents regularly report success they didn't achieve. A verifier that diffs the records, the audit log and the outbox against ground truth catches hallucinated completions, duplicate emails, and changes to records the task never mentioned.\n\n### Does it work with Claude, Cursor or my own agent?\n\nYes. `sandbox-mcp` is a standard Model Context Protocol server over stdio (or Streamable HTTP), so any MCP client works. The [sandbox-mcp README](packages/sandbox-mcp) has config snippets for Claude Code, Claude Desktop, Cursor and VS Code.\n\n### Can I add an industry or a task?\n\nYes, and it's the most useful contribution. An industry is one file; a task is a prompt, a verifier and a reference solution. See [CONTRIBUTING.md](CONTRIBUTING.md).\n\n## Development\n\n```bash\ncorepack enable\npnpm install\npnpm build && pnpm test && pnpm typecheck\n```\n\n## Citing\n\nIf you use smb-sandbox in research, please cite it using [CITATION.cff](CITATION.cff).\n\n## License\n\nApache-2.0. All generated data is fictional and free to use, modify and publish.\n\n---\n\nBuilt by [TeamShift](https://teamshift.io/open-source/smb-sandbox?utm_source=github&utm_medium=readme) — AI workers for small-business operations.\n",
+  "status": "curated"
+}

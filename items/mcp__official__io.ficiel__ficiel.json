@@ -2,12 +2,12 @@
   "id": "mcp:official/io.ficiel/ficiel",
   "type": "mcp",
   "name": "Ficiel",
-  "description": "Inbox Instagram, WhatsApp, LinkedIn: read DMs, find dormant leads, draft and send follow-ups.",
+  "description": "Instagram, WhatsApp, LinkedIn DMs: full threads, dormant leads, human-approved follow-ups",
   "author": "io.ficiel",
   "source": {
     "registry": "mcp-official",
-    "url": "https://bridge.ficiel.io/mcp",
-    "repo": null
+    "url": "https://github.com/abraham-rajoelina/ficiel-mcp",
+    "repo": "abraham-rajoelina/ficiel-mcp"
   },
   "license": null,
   "install": {
@@ -23,8 +23,8 @@
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-10-03T13:51:24.256188Z",
-    "score": 42
+    "pushed_at": "2026-10-04T09:44:54.827744Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -56,6 +56,6 @@
     "category": null,
     "featured": false
   },
-  "readme": null,
+  "readme": "# Ficiel MCP : brancher Claude sur vos DM Instagram, WhatsApp et LinkedIn\n\n[English version](README.en.md)\n\nFiciel est une boîte de réception IA qui relit l'historique de conversations Instagram, WhatsApp et LinkedIn pour retrouver et relancer les prospects restés sans réponse.\n\nCe dépôt documente son serveur MCP (Model Context Protocol) : l'adresse qui permet à Claude, Cursor ou tout client MCP de lire vos conversations, retrouver un contact, repérer les prospects qui dorment et préparer une relance, avec votre autorisation. Il ne contient que de la documentation : le serveur est un service hébergé par Ficiel, son code n'est pas publié ici.\n\n- Adresse du serveur : `https://bridge.ficiel.io/mcp` (Streamable HTTP)\n- Outils : 64 au 4 octobre 2026 (31 en lecture, 33 en écriture), liste complète dans [TOOLS.md](TOOLS.md)\n- Textes jamais coupés : messages, vocaux, notes, instructions de Kord sortent en entier ; une réponse longue se pagine (`next_cursor`)\n- Canaux : Instagram, WhatsApp, LinkedIn\n- Page officielle : https://ficiel.io/mcp/\n- Registre officiel MCP : `io.ficiel/ficiel`\n\n## Brancher l'application Claude (claude.ai, ordinateur, téléphone)\n\n1. Connectez vos canaux à Ficiel (https://app.ficiel.io).\n2. Dans Claude, ouvrez Réglages puis Connecteurs, et ajoutez un connecteur personnalisé avec l'adresse `https://bridge.ficiel.io/mcp`.\n3. Claude vous envoie sur Ficiel : connectez-vous et choisissez ce que l'assistant a le droit de faire (lecture seule, ou lecture et envoi).\n\nAucune clé à copier : la connexion passe par OAuth, et elle apparaît dans vos réglages Ficiel, où vous la coupez quand vous voulez.\n\n## Claude Code\n\nCréez une clé dans vos réglages Ficiel, puis :\n\n```bash\nclaude mcp add --transport http ficiel https://bridge.ficiel.io/mcp --header \"Authorization: Bearer VOTRE_CLE\"\n```\n\n## Cursor et autres clients MCP\n\n```json\n{\n  \"mcpServers\": {\n    \"ficiel\": {\n      \"url\": \"https://bridge.ficiel.io/mcp\",\n      \"headers\": { \"Authorization\": \"Bearer VOTRE_CLE\" }\n    }\n  }\n}\n```\n\nLes clés commencent par `fk_live_`. Une clé appartient à une seule organisation et ne voit jamais qu'elle.\n\n## ChatGPT\n\nChatGPT accepte les serveurs MCP distants en mode développeur, sur le web, pour les formules Plus, Pro, Business, Enterprise et Éducation ([documentation d'OpenAI](https://developers.openai.com/api/docs/guides/developer-mode)) :\n\n1. Dans ChatGPT, Réglages, Sécurité et connexion : activez le mode développeur.\n2. Créez une application de mode développeur avec l'adresse `https://bridge.ficiel.io/mcp`, authentification OAuth.\n3. ChatGPT vous envoie sur Ficiel : connectez-vous et choisissez lecture seule, ou lecture et envoi.\n\nCe chemin suit la documentation d'OpenAI, mais il n'a pas encore été joué de bout en bout par Ficiel : les clients vérifiés sont Claude (application et Claude Code) et Cursor.\n\n## Exemples de demandes\n\n- « Liste les conversations où mon dernier message a été vu sans réponse depuis plus de trois jours. »\n- « Lis tout l'échange avec @prenom et dis-moi ce qui l'a fait hésiter. »\n- « Prépare une relance pour les cinq prospects qui m'ont demandé mon prix en septembre, je les validerai dans Ficiel. »\n- « Ajoute à mes critères de qualification : a déjà un compte Instagram de plus de 5 000 abonnés. »\n\n## Rien ne part sans un humain\n\nLe serveur a été conçu pour qu'un assistant puisse tout lire et presque rien faire seul. Les règles sont détaillées dans [HUMAIN.md](HUMAIN.md) : clé en lecture seule par défaut, destinataire nommé obligatoire et confronté au contact réel, aucun message à un inconnu, mêmes garde-fous que dans l'application.\n\n## Exemples\n\nDes requêtes réelles et ce que l'assistant fait derrière : [examples/EXEMPLES.md](examples/EXEMPLES.md).\n\n## Accès\n\nLe serveur est ouvert aux organisations abonnées à Ficiel. Pendant l'audit gratuit, ou si l'abonnement est impayé, les outils répondent par un refus explicite. Essai : https://ficiel.io (10 jours offerts).\n\n## Contact\n\nAbraham Rajoelina, fondateur de Ficiel : abraham@ficiel.io\n\nDocumentation sous licence CC BY 4.0 (voir [LICENSE](LICENSE)).\n",
   "status": "curated"
 }

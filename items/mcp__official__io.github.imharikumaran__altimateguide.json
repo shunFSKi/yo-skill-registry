@@ -33,7 +33,7 @@
   "quality": {
     "stars": null,
     "pushed_at": "2026-10-03T17:09:00.368503Z",
-    "score": 52
+    "score": 42
   },
   "security": {
     "score": 100,
@@ -65,6 +65,6 @@
     "category": null,
     "featured": false
   },
-  "readme": "# Altimateguide Agent MCP Server\n\n[![smithery badge](https://smithery.ai/badge/imharikumaran/altimateguide)](https://smithery.ai/servers/imharikumaran/altimateguide)\n\nA small MCP server that lets an AI agent submit a tool to the\n[Altimateguide](https://altimateguide.com) directory for editorial review. It\nexposes exactly one tool: `submit_tool`.\n\n**Scope:** this server only talks to the public Altimateguide HTTP API\n(`POST /api/agent/submit`). It holds no database credentials and grants no\naccess to anything beyond submitting a listing — which is always queued for\nhuman review and never published automatically.\n\n## The tool: `submit_tool`\n\nSubmits a listing for editorial review. The submission lands as `pending`; an\neditor reviews it.\n\n- **Parameters**\n  - `name` (string, required) — tool name\n  - `url` (string, required) — canonical http(s) URL\n  - `categories` (array, required) — one or more category slugs\n  - `description` (string, optional) — neutral copy, min 20 chars\n  - `features` (array, optional) — `{ label, description? }` items\n  - `proof` (string, optional) — `none` (default) | `sayabout` | `badge` | `paid`\n  - `verificationUrl` (string) — required for `sayabout`/`badge`\n  - `paymentRef` (string) — required for `paid`\n  - `externalId` (string, optional) — your own id, for idempotent replays\n  - `source` (string, optional) — origin id (default `agent:mcp`)\n- **Returns** — the API response: `submission_id`, `status`, `proof`, `link_tier`.\n\nFull request/response contract: <https://altimateguide.com/openapi.json>.\n\n## Configuration\n\n- `ALTIMATEGUIDE_AGENT_TOKEN` — **required.** A per-account API token. Create one\n  at <https://altimateguide.com/account> (Agent & API access); it is bound to that\n  account, shows as the submitter, and can be revoked.\n- `ALTIMATEGUIDE_API_URL` — optional; overrides the API base (default\n  `https://altimateguide.com`).\n\n## Install & use\n\n```bash\nnpx -y altimateguide-agent-mcp        # run directly (stdio)\n```\n\nOr from a local checkout:\n\n```bash\nnpm install\nnpm run build      # tsc -> dist/\nnpm run dev        # stdio server via tsx (for local testing)\n```\n\n### Claude Desktop / other MCP clients\n\n```json\n{\n  \"mcpServers\": {\n    \"altimateguide\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"altimateguide-agent-mcp\"],\n      \"env\": {\n        \"ALTIMATEGUIDE_AGENT_TOKEN\": \"atg_...\"\n      }\n    }\n  }\n}\n```\n\n(From a local checkout, use `\"command\": \"node\"` and\n`\"args\": [\"/absolute/path/to/dist/index.js\"]`.)\n\n## Registries\n\nListed via `server.json` (the MCP Registry manifest). It is a standard stdio\nserver, so it also works with the community directories (Glama, PulseMCP,\nmcp.so, mcp.directory).\n\n## Project structure\n\n```\n.\n├── src/index.ts     # stdio MCP server + the submit_tool handler\n├── server.json      # MCP Registry manifest\n├── package.json\n├── tsconfig.json\n└── README.md\n```\n\n## License\n\nMIT — see [LICENSE](./LICENSE).\n",
+  "readme": null,
   "status": "curated"
 }

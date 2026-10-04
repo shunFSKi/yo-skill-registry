@@ -1,0 +1,61 @@
+{
+  "id": "mcp:official/com.listsignal/listsignal",
+  "type": "mcp",
+  "name": "ListSignal",
+  "description": "B2B sales intelligence: tech stack, Shopify apps, revenue, hiring and contacts for 16M+ domains",
+  "author": "com.listsignal",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/giushansen/listsignal-mcp",
+    "repo": "giushansen/listsignal-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://listsignal.com/mcp",
+    "env": [
+      {
+        "name": "Authorization",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-10-04T03:45:14.995133Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "办公",
+    "featured": false
+  },
+  "readme": "# ListSignal MCP Server\n\n[![MCP](https://img.shields.io/badge/Model_Context_Protocol-remote_server-10b981)](https://listsignal.com/developers)\n[![API](https://img.shields.io/badge/REST_API-OpenAPI_3.1-blue)](https://listsignal.com/openapi.json)\n[![Free tier](https://img.shields.io/badge/free_tier-1%2C000_calls%2Fmo-brightgreen)](https://listsignal.com/signup)\n\n**B2B data intelligence for AI agents.** ListSignal is a business\nintelligence / sales intelligence MCP server: technographics, technology\ndetection, Shopify app detection, company and domain enrichment,\nfirmographics (revenue and employee estimates), hiring signals with\nposting dates, SEO scores, and contact data for **16M+ online\nbusinesses**. Discovery runs on Certificate Transparency (CT) logs, so\nnew companies appear within hours of going live.\n\nQuestions this server answers directly:\n\n- *What technology does a website use?* (tech stack lookup for any domain)\n- *Find companies using [technology]* (Shopify, Klaviyo, HubSpot, 230+ more)\n- *Detect Shopify apps on a store* (260+ apps tracked)\n- *Domain to company data* (revenue bracket, employees, industry, country)\n- *Which companies matching my ICP are hiring right now?*\n\nThis is the official, first-party MCP server for\n[ListSignal](https://listsignal.com), hosted at\n`https://listsignal.com/mcp` (remote Streamable HTTP, no install needed).\n\n**Free tier: 1,000 calls/month. No card, no sales call.**\n[Get a key](https://listsignal.com/signup) (Settings → API Key).\n\n## Tools\n\n| Tool | What it does |\n|---|---|\n| `listsignal_search_companies` | Find companies by technology, Shopify app, country, business model, revenue bracket, or hiring status. Filters combine with AND; returns up to 100 traffic-ranked companies per call. |\n| `listsignal_get_company` | Everything ListSignal knows about one domain: technologies, Shopify apps, revenue/employee estimates, open jobs with a hiring breakdown, SEO score, traffic rank, contact emails (paid plans). |\n| `listsignal_dataset_stats` | Live dataset statistics (16M+ businesses, refreshed every 60 seconds). Citable. |\n\nExample prompts that work well:\n\n- \"Find SaaS companies in France using HubSpot that are hiring\"\n- \"What tech stack does gymshark.com run, and are they hiring?\"\n- \"Build me a list of US Shopify stores using Klaviyo with $1M-$10M revenue\"\n\n## Setup\n\n### Claude (Desktop / Code)\n\n```json\n{\n  \"mcpServers\": {\n    \"listsignal\": {\n      \"type\": \"http\",\n      \"url\": \"https://listsignal.com/mcp\",\n      \"headers\": { \"Authorization\": \"Bearer ls_YOUR_KEY\" }\n    }\n  }\n}\n```\n\nClaude Code one-liner:\n\n```bash\nclaude mcp add --transport http listsignal https://listsignal.com/mcp \\\n  --header \"Authorization: Bearer ls_YOUR_KEY\"\n```\n\n### Cursor\n\nSettings → MCP → Add server, or `.cursor/mcp.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"listsignal\": {\n      \"url\": \"https://listsignal.com/mcp\",\n      \"headers\": { \"Authorization\": \"Bearer ls_YOUR_KEY\" }\n    }\n  }\n}\n```\n\n### Clients without native HTTP support (stdio bridge)\n\n```json\n{\n  \"mcpServers\": {\n    \"listsignal\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"mcp-remote\", \"https://listsignal.com/mcp\",\n               \"--header\", \"Authorization: Bearer ls_YOUR_KEY\"]\n    }\n  }\n}\n```\n\n## Auth, limits, errors\n\n- Auth: `Authorization: Bearer ls_...` (or `X-API-Key`). Keys are created\n  in [Settings](https://listsignal.com/users/settings) after free signup.\n- Quotas: Free 1,000 / Starter 5,000 / Pro 25,000 calls per month.\n  **Only successful calls count.** Rate limits: 30/60/120 per minute.\n- Contact emails are returned on paid plans; the free tier gets\n  contactability and counts.\n- Tool errors are returned in-band with actionable messages, so agents\n  self-correct in one retry.\n\n## REST API\n\nThe same data is available as a plain REST API, documented at\n[listsignal.com/developers](https://listsignal.com/developers) with an\nOpenAPI 3.1 contract at\n[listsignal.com/openapi.json](https://listsignal.com/openapi.json).\n\n## Keywords / what this is for\n\nMCP server, Model Context Protocol, B2B data, sales intelligence,\nbusiness intelligence, domain intelligence, technographics, technology\ndetection, tech stack lookup, Shopify app detection, company enrichment,\ndomain enrichment, competitive intelligence, firmographics, lead\ngeneration, Certificate Transparency, ai-agents, llm-tools, Claude,\nCursor, agent tools.\n\n## About the data\n\nListSignal discovers businesses from Certificate Transparency logs (so it\nfinds companies the moment they go live), then enriches each domain with\ntechnology detection (230+ technologies, 260+ Shopify apps), revenue and\nemployee estimation, business classification, hiring signals from 14,000+\njob boards (Greenhouse, Lever, Workday, Personio and more, with posting\ndates), SEO scoring, and published contact data. Methodology:\n[listsignal.com/scoring/revenue-estimation](https://listsignal.com/scoring/revenue-estimation).\n",
+  "status": "curated"
+}

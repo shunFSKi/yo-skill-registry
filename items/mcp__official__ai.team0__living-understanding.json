@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/ai.team0/living-understanding",
+  "type": "mcp",
+  "name": "Team0 Living Understanding",
+  "description": "The second brain your AI agents share. It builds itself from your work and keeps itself current.",
+  "author": "ai.team0",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/Team0-ai/team0-plugins",
+    "repo": "Team0-ai/team0-plugins"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://api.team0.ai/v1/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-10-04T09:48:57.813298Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Team0 plugins\n\nThis repository contains the public plugin packages for [Team0](https://team0.ai).\nThe Team0 application and its hosted MCP service are maintained separately.\n\n## Agent runtime: Claude Code, Codex, and OpenClaw\n\n[`team0-agent-runtime/`](team0-agent-runtime/) is one shared package with native\nadapters for all three hosts. Its hooks load relevant Living Understanding before\nan ordinary turn and return completed turns for governed learning. Each host\nneeds its own Team0 connection and host-level plugin approval.\n\n**Claude Code**\n\n```sh\nclaude plugin marketplace add Team0-ai/team0-plugins\nclaude plugin install team0-agent-runtime@team0\n```\n\n**Codex**\n\n```sh\ncodex plugin marketplace add Team0-ai/team0-plugins\ncodex plugin add team0-agent-runtime@team0\n```\n\n**OpenClaw**\n\nIn OpenClaw's **Plugins**, search for **Team0 Living Understanding** and install it on the\nGateway you use. [View the published plugin on ClawHub](https://clawhub.ai/team0-ai/plugins/team0-agent-runtime).\nFor CLI installation in that same Gateway environment:\n\n```sh\nopenclaw plugins install clawhub:team0-agent-runtime\n```\n\nOpenClaw also needs a Team0 MCP connection and conversation-access approval in\nits Gateway. See the [runtime setup and host-specific instructions](team0-agent-runtime/README.md)\nbefore enabling its hooks. None of these installation commands grants trust or\nconnection consent automatically.\n\n**Hermes**\n\nIn the active Hermes profile, open **Keys → Custom Keys** and save your Team0\naccess key as `TEAM0_HERMES_API_KEY`. Then open **Plugins → Install from GitHub / Git URL**,\nenter `Team0-ai/team0-plugins/team0-agent-runtime`, select **Enable after install**,\nand install. Review Hermes's security prompt yourself. Start a new chat after\nactivating the connection in Team0. The plugin runs before/after-turn hooks in\nHermes; no MCP connection or SOUL.md instructions are required for these hooks.\n\nSee the [Hermes setup](team0-agent-runtime/README.md#hermes) for the terminal alternative.\n\n## ChatGPT\n\n[`team0-chatgpt/`](team0-chatgpt/) is the source package for Team0's ChatGPT\nplugin. It connects to Team0's hosted MCP service for on-demand reads and\ncontributions. Unlike the native agent runtime, ChatGPT does not run Team0\nbefore- and after-turn hooks automatically. This GitHub folder is source code,\nnot a ChatGPT Store listing or a Claude/Codex marketplace entry; installation\nand OAuth consent happen in ChatGPT.\n\nClaude.ai, Claude Cowork, and Town connect to the hosted Team0 MCP service;\nthey do not have downloadable packages in this repository.\n\nYou can stop an agent's access or contributions in Team0 under **Agents**.\nFor help, contact support@team0.ai.\n",
+  "status": "curated"
+}

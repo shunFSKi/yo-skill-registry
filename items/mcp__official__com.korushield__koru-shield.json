@@ -1,0 +1,65 @@
+{
+  "id": "mcp:official/com.korushield/koru-shield",
+  "type": "mcp",
+  "name": "koru-shield",
+  "description": "Manage Koru Shield DNS filtering: profiles, rules, categories, schedules, and logs.",
+  "author": "com.korushield",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/KoruShield/koru-shield-mcp",
+    "repo": "KoruShield/koru-shield-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "korushield-mcp-server"
+    ],
+    "env": [
+      {
+        "name": "KORU_SHIELD_API_KEY",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-10-04T09:00:55.359856Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "运维",
+    "featured": false
+  },
+  "readme": "# Koru Shield MCP Server\n\nManage your [Koru Shield](https://korushield.com) DNS protection through AI assistants. Block domains, check policies, review blocked queries, manage schedules, and more, all through natural language.\n\n## What it does\n\nExposes your Koru Shield account as [Model Context Protocol](https://modelcontextprotocol.io) tools:\n\n| Tool | What it does |\n|---|---|\n| `list_profiles` / `get_profile` | List and inspect DNS protection profiles |\n| `create_rule` / `list_rules` / `delete_rule` | Block or allow domains per profile |\n| `list_filter_categories` / `set_filter_category` | Toggle categories (adult, gambling, social media...) |\n| `simulate_policy` | Check if a domain would be blocked right now |\n| `get_logs` | Recent DNS queries: allowed, blocked, when |\n| `analytics_summary` | Totals, blocked percentage, encrypted queries |\n| `list_schedules` / `create_schedule` / `delete_schedule` | Time windows (bedtime, homework hours) |\n| `list_devices` | Devices enrolled per profile |\n| `get_entitlements` | Plan, limits, current usage |\n| `get_referral_code` | Your referral link |\n\nExample prompts once connected:\n\n- \"Block tiktok.com on the Kids profile\"\n- \"Would youtube.com be blocked on Kids right now?\"\n- \"Show me what got blocked today\"\n- \"Turn on adult content filtering for the whole house\"\n- \"Add a bedtime schedule 9pm to 7am on weekdays for the Kids profile\"\n\n## Setup\n\n### 1. Get a Koru Shield API key\n\nSign in at https://my.korushield.com, go to API keys, and create one. Copy the key.\n\n### 2. Install\n\nNo install needed. Run directly with npx:\n\n```bash\nnpx -y korushield-mcp-server\n```\n\nSet your key as an environment variable:\n\n```bash\nexport KORU_SHIELD_API_KEY=\"your-key-here\"\n```\n\nOptional: `KORU_SHIELD_API_URL` overrides the API base URL (default `https://my.korushield.com/api`).\n\n### 3. Connect your AI client\n\n**Claude Code**\n\n```bash\nclaude mcp add koru-shield -- npx -y korushield-mcp-server\n```\n\n(Claude Code passes environment through, so export `KORU_SHIELD_API_KEY` first. Or use the HTTP transport below with a header.)\n\n**Cursor / VS Code**\n\nAdd to your MCP config (`~/.cursor/mcp.json` or VS Code `mcp.json`):\n\n```json\n{\n  \"mcpServers\": {\n    \"koru-shield\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"korushield-mcp-server\"],\n      \"env\": {\n        \"KORU_SHIELD_API_KEY\": \"your-key-here\"\n      }\n    }\n  }\n}\n```\n\n**Claude Desktop**\n\nAdd to `claude_desktop_config.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"koru-shield\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"korushield-mcp-server\"],\n      \"env\": {\n        \"KORU_SHIELD_API_KEY\": \"your-key-here\"\n      }\n    }\n  }\n}\n```\n\n### HTTP transport (remote)\n\nFor clients that connect over HTTP (agents, hosted setups):\n\n```bash\nMCP_TRANSPORT=http PORT=3000 KORU_SHIELD_API_KEY=\"your-key-here\" npx -y korushield-mcp-server\n```\n\nOr pass the key per-request instead of the env var:\n\n```\nPOST https://your-host/mcp\nAuthorization: Bearer <koru-shield-api-key>\n```\n\nHealth check: `GET /healthz`.\n\n## Security notes\n\n- Your API key grants full control of your Koru Shield account, including deleting rules and schedules. Treat it like a password.\n- Prefer a dedicated API key for AI assistants so you can revoke it independently.\n- The server never logs or transmits your key anywhere except to the Koru Shield API.\n\n## Development\n\n```bash\nnpm install\nnpm run build\nnpm start\n```\n\nTest with the MCP Inspector:\n\n```bash\nKORU_SHIELD_API_KEY=\"your-key-here\" npm run inspector\n```\n\n## License\n\nMIT\n",
+  "status": "curated"
+}
