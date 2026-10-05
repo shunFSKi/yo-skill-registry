@@ -1,0 +1,170 @@
+{
+  "id": "mcp:official/com.nextoolsolutions/glpi",
+  "type": "mcp",
+  "name": "NexTool MCP for GLPI",
+  "description": "MCP server for GLPI: tickets, ITIL, assets, knowledge base. GLPI 10/11. Not affiliated with Teclib'.",
+  "author": "com.nextoolsolutions",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/NexTools-Solutions/nextool-mcp-glpi",
+    "repo": "NexTools-Solutions/nextool-mcp-glpi"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@nextoolsolutions/mcp-glpi"
+    ],
+    "env": [
+      {
+        "name": "GLPI_URL",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "GLPI_USER_TOKEN",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "GLPI_APP_TOKEN",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "GLPI_V2_URL",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "GLPI_V2_CLIENT_ID",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "GLPI_V2_CLIENT_SECRET",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "GLPI_V2_USERNAME",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "GLPI_V2_PASSWORD",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "GLPI_V2_SCOPE",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "GLPI_V2_API_VERSION",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "GLPI_TOOLSETS",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "GLPI_TOOLS_INCLUDE",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "GLPI_TOOLS_EXCLUDE",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "GLPI_READ_ONLY",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "GLPI_ALLOW_DELETE",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "GLPI_REQUIRE_DELETE_REASON",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "GLPI_DEFAULT_PAGE_SIZE",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "GLPI_MAX_PAGE_SIZE",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "GLPI_IDEMPOTENCY_WINDOW",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "GLPI_RESOURCE_CACHE_TTL",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "GLPI_MAX_RETRIES",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "GLPI_TIMEOUT",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-10-05T21:37:53.495912Z",
+    "score": 55
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "办公",
+    "featured": false
+  },
+  "readme": "# NexTool MCP for GLPI\n\n[![npm](https://img.shields.io/npm/v/@nextoolsolutions/mcp-glpi)](https://www.npmjs.com/package/@nextoolsolutions/mcp-glpi) [![smithery badge](https://smithery.ai/badge/nextoolsolutions/glpi)](https://smithery.ai/servers/nextoolsolutions/glpi) [![NexTools-Solutions/nextool-mcp-glpi MCP server](https://glama.ai/mcp/servers/NexTools-Solutions/nextool-mcp-glpi/badges/score.svg)](https://glama.ai/mcp/servers/NexTools-Solutions/nextool-mcp-glpi)\n\nOpen-source [Model Context Protocol](https://modelcontextprotocol.io) server that connects AI assistants\n(Claude, ChatGPT, Cursor, VS Code, Windsurf…) to your **GLPI** service desk: tickets, ITIL objects\n(problems, changes), assets, knowledge base, users, rules and webhooks. It works with GLPI 10 and 11, and\nsupports both the REST API v1 and the GLPI 11 API v2 in one server.\n\n> Not affiliated with Teclib'. GLPI is a registered trademark of Teclib'.\n\n| Package | What it is |\n|---|---|\n| [`@nextoolsolutions/mcp-glpi`](mcp-glpi) | The MCP server (stdio and HTTP) and a library to embed it |\n| [`@nextoolsolutions/mcp-glpi-core`](mcp-glpi-core) | Shared transport, write policy, idempotency and payload formatting |\n\n**Two ways to use it:**\n\n- **Hosted, early access:** nothing to install. Sign in with a NexTool account, then add one URL as a connector in Claude or ChatGPT. Request access at **https://nextoolsolutions.com/mcp**. How it works, step by step: **https://nextoolsolutions.com/en/mcp/como-funciona**.\n- **Local, open source (this repository):** runs on your machine with your GLPI credentials. It is free and also works with GLPI instances that are only reachable on your intranet.\n\n---\n\n## 1. Prepare GLPI (both ways)\n\n1. **Enable the REST API**: *Setup → General → API*. Turn on \"Enable REST API\" and \"Enable login with external token\".\n2. **API client** (optional but recommended): in the same screen, add an API client and copy its **App-Token**. If you restrict it by IP, allow the address the MCP connects from.\n3. **User token**: *Administration → Users → (the user) → Remote access keys*. Copy the **API token**.\n   Every action runs as this user and follows their GLPI profile and entities. Use a dedicated user with only the rights the assistant needs.\n4. **GLPI 11 API v2 (optional):** create an OAuth client in GLPI 11 and note its client ID and secret. You also need a username and password, for the password grant.\n\n## 2. Local install (open source)\n\nPublished on npm as [`@nextoolsolutions/mcp-glpi`](https://www.npmjs.com/package/@nextoolsolutions/mcp-glpi) and listed in the\n[official MCP Registry](https://registry.modelcontextprotocol.io) as **`com.nextoolsolutions/glpi`**. Requires Node.js 18+.\n\n```bash\nGLPI_URL=https://glpi.example.com GLPI_USER_TOKEN=xxx GLPI_APP_TOKEN=yyy npx -y @nextoolsolutions/mcp-glpi\n```\n\nFrom source instead: clone this repository, then `npm ci && npm run build` in `mcp-glpi-core` and in `mcp-glpi`, and run\n`node mcp-glpi/dist/index.js`.\n\n### Environment variables\n\n| Variable | Meaning |\n|---|---|\n| `GLPI_URL` | GLPI base URL, e.g. `https://glpi.example.com` (REST API v1) |\n| `GLPI_USER_TOKEN` | User API token (step 1.3) |\n| `GLPI_APP_TOKEN` | App-Token of the API client (step 1.2), optional |\n| `GLPI_V2_URL`, `GLPI_V2_CLIENT_ID`, `GLPI_V2_CLIENT_SECRET`, `GLPI_V2_USERNAME`, `GLPI_V2_PASSWORD` | GLPI 11 API v2 (OAuth). Optional; enables the `glpi_v2_*` tools |\n| `GLPI_TOOLSETS` | Tool presets: `core` (recommended start), `tickets`, `itil`, `assets`, `kb`, `documents`, `users`, `search`, `admin`, `v2`. Combine with commas. Default: every tool |\n| `GLPI_READ_ONLY` | `true` blocks every write before it reaches GLPI |\n| `GLPI_ALLOW_DELETE` | `true` enables delete tools (default **off**); they then require a written `reason` |\n\nAll options are listed in [mcp-glpi/README.md](mcp-glpi/README.md).\n\n### Claude Code\n\n```bash\nclaude mcp add glpi \\\n  -e GLPI_URL=https://glpi.example.com -e GLPI_USER_TOKEN=xxx -e GLPI_APP_TOKEN=yyy -e GLPI_TOOLSETS=core \\\n  -- npx -y @nextoolsolutions/mcp-glpi\n```\n\n### Claude Desktop\n\nEdit `claude_desktop_config.json` (*Settings → Developer → Edit config*) and restart Claude Desktop:\n\n```json\n{\n  \"mcpServers\": {\n    \"glpi\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@nextoolsolutions/mcp-glpi\"],\n      \"env\": {\n        \"GLPI_URL\": \"https://glpi.example.com\",\n        \"GLPI_USER_TOKEN\": \"xxx\",\n        \"GLPI_APP_TOKEN\": \"yyy\",\n        \"GLPI_TOOLSETS\": \"core\"\n      }\n    }\n  }\n}\n```\n\n### Cursor / Windsurf / VS Code\n\nUse the same `command`/`args`/`env` block:\n- **Cursor:** `~/.cursor/mcp.json` (or `.cursor/mcp.json` in a project).\n- **Windsurf:** `~/.codeium/windsurf/mcp_config.json`.\n- **VS Code:** `.vscode/mcp.json`. The top-level key there is `\"servers\"` instead of `\"mcpServers\"`, and each entry also takes `\"type\": \"stdio\"`.\n\n### Docker\n\nThe [`Dockerfile`](Dockerfile) builds the stdio server from this repository (`node:22-alpine`, no credentials inside).\nWithout `GLPI_*` variables it still starts and lists its tools, which is what directories that inspect servers need.\n\n```bash\ndocker build -t nextool-mcp-glpi .\ndocker run -i --rm -e GLPI_URL=https://glpi.example.com -e GLPI_USER_TOKEN=xxx -e GLPI_TOOLSETS=core nextool-mcp-glpi\n```\n\n### Shared HTTP server (optional)\n\nTo serve several users or GLPI instances from one machine, run `mcp-glpi/dist/http.js` (Streamable HTTP, Bearer keys stored as SHA-256 hashes). See [\"Two ways to run\"](mcp-glpi/README.md) in the package README.\n\n## 3. Hosted version (early access)\n\nThe hosted **NexTool MCP** lives at `https://mcp.nextoolsolutions.com/mcp`. It adds:\n- sign-in through the NexTool portal (OAuth 2.1);\n- one-click connectors for Claude and ChatGPT;\n- GLPI credentials encrypted so that only the connector can use them;\n- per-user rate limits and audit logs, without storing prompts or results.\n\nYour GLPI must be reachable from the internet. If it only accepts known IPs, the portal shows the address to allow when you test the connection.\n\n**Request early access:** https://nextoolsolutions.com/mcp. Once you are in:\n\n| Client | How to connect |\n|---|---|\n| Claude (web, desktop, mobile) | *Settings → Connectors → Add custom connector* → URL `https://mcp.nextoolsolutions.com/mcp` → sign in with your NexTool account and authorize |\n| ChatGPT | Add a connector/app with the same URL (developer mode while the app is in review) |\n| Claude Code | `claude mcp add --transport http nextool https://mcp.nextoolsolutions.com/mcp`, then `/mcp` to sign in. Or use an API key from *My account → NexTool MCP*: add `--header \"Authorization: Bearer nxm_…\"` |\n| Cursor | [![Add to Cursor](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/install-mcp?name=nextool-glpi&config=eyJ1cmwiOiJodHRwczovL21jcC5uZXh0b29sc29sdXRpb25zLmNvbS9tY3AifQ==) (server URL `https://mcp.nextoolsolutions.com/mcp`, sign-in by OAuth), or the same URL with header `Authorization: Bearer nxm_…` |\n| VS Code | Server URL `https://mcp.nextoolsolutions.com/mcp` with header `Authorization: Bearer nxm_…` |\n\nConnect your GLPI once at *app.nextoolsolutions.com → My account → NexTool MCP* (GLPI URL plus the tokens from step 1). Then click **Test connection**.\n\n## Safety\n\n- Every tool carries MCP annotations (`readOnlyHint`, `destructiveHint`, `idempotentHint`, `openWorldHint`), so clients can ask before changing data.\n- Deletes are refused unless `GLPI_ALLOW_DELETE=true` (always refused on the hosted free plan).\n- `GLPI_READ_ONLY=true` blocks every write.\n- Identical create calls within a short window are replayed, not repeated.\n- Redirects are never followed. The API v2 client talks only to the configured GLPI origin.\n\n## Troubleshooting\n\n| Symptom | Likely cause |\n|---|---|\n| `ERROR_GLPI_LOGIN_USER_TOKEN` / 401 | wrong or regenerated user token |\n| `ERROR_WRONG_APP_TOKEN_PARAMETER` | App-Token missing or wrong for that API client |\n| `ERROR_NOT_ALLOWED_IP` | the API client restricts IPs: allow the address the MCP connects from |\n| HTML instead of JSON | `GLPI_URL` points to a login page or proxy, not to the GLPI root |\n| \"redirect not followed\" | `GLPI_URL` redirects (e.g. http→https or another host): use the final URL |\n\n## Directories and release\n\n- **MCP Registry:** `com.nextoolsolutions/glpi` ([`mcp-glpi/server.json`](mcp-glpi/server.json)): the npm package\n  (stdio) and the hosted server as a remote.\n- **Cursor plugin:** [`.cursor-plugin/plugin.json`](.cursor-plugin/plugin.json) + [`mcp.json`](mcp.json) (hosted\n  server, OAuth). Direct install link: `cursor://anysphere.cursor-deeplink/mcp/install?name=nextool-glpi&config=eyJ1cmwiOiJodHRwczovL21jcC5uZXh0b29sc29sdXRpb25zLmNvbS9tY3AifQ==`.\n- **Glama:** [`glama.json`](glama.json) names the maintainers; the [`Dockerfile`](Dockerfile) is the build they run.\n\nPushing a tag `v<mcp-glpi version>` runs [`release.yml`](.github/workflows/release.yml): tests, npm (versions already\npublished are skipped), then the MCP Registry. Repository secrets:\n\n| Secret | What it is |\n|---|---|\n| `NPM_TOKEN` | npm granular automation token with publish rights on the `@nextoolsolutions` scope |\n| `MCP_PRIVATE_KEY` | Ed25519 private key (32-byte seed, hex) for the registry DNS login on `nextoolsolutions.com`; its public key is the `v=MCPv1; k=ed25519; p=…` TXT record on the domain apex |\n\n## Development\n\n```bash\ncd mcp-glpi-core && npm ci && npm run build && npm test\ncd ../mcp-glpi && npm ci && npm run build && npm test\n```\n\nThis repository is a mirror published from NexTool's internal monorepo. Issues and pull requests are welcome here.\nSecurity reports: see [SECURITY.md](SECURITY.md).\n\n## License\n\nMIT © NexTool Solutions\n",
+  "status": "curated"
+}

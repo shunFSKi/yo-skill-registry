@@ -37,7 +37,7 @@
   "quality": {
     "stars": null,
     "pushed_at": "2026-10-04T16:53:15.126717Z",
-    "score": 52
+    "score": 42
   },
   "security": {
     "score": 100,
@@ -69,6 +69,6 @@
     "category": null,
     "featured": false
   },
-  "readme": "# Prediction Market X Sentiment (x402)\n\nAgent-native Polymarket/Kalshi sentiment from live X chatter. Settles in USDC on Base via HTTP 402.\n\n**Live:** https://prediction-bot-iggf.onrender.com · [About](https://prediction-bot-iggf.onrender.com/about) · [llms.txt](https://prediction-bot-iggf.onrender.com/llms.txt) · [API docs](https://prediction-bot-iggf.onrender.com/docs)\n\n## Price ladder\n\n| Route | Price | Notes |\n|-------|-------|-------|\n| `GET /scores` | free | Latest daily X-sentiment score for each tracked market |\n| `GET /`, `/health`, `/sample`, `/catalog`, `/pricing` | free | Discovery / probe |\n| `GET /top` | **$0.35** | Top 3 markets by X buzz |\n| `GET /shift?q=` | **$0.35** | Change since the previous score |\n| `GET /sentiment?q=` | **$0.35** | Fresh Grok X-sentiment score (-100..100) for any question |\n| `GET /brief?q=` | **$0.35** | Score + shift + summary + live Polymarket/Kalshi odds |\n\nCurrent prices are always at `/pricing`.\n\n## Quick probe\n\n```bash\ncurl -s https://prediction-bot-iggf.onrender.com/health\ncurl -s https://prediction-bot-iggf.onrender.com/catalog\ncurl -s https://prediction-bot-iggf.onrender.com/pricing\npython demo/pay_once.py   # shows free routes + unpaid 402\n```\n\n## For agents: MCP server\n\nAdd prediction-market sentiment to any MCP client (Claude, Cursor, VS Code and others). Free tools, including today's scores, work without a wallet; paid tools settle in USDC on Base via x402.\n\n**Hosted, nothing to install:** add `https://prediction-bot-iggf.onrender.com/mcp` as a remote (streamable HTTP) MCP server.\n\n**Local, with optional auto-pay from your own wallet** (per-call and per-session spend caps):\n\n```json\n{\n  \"mcpServers\": {\n    \"prediction-bot\": {\n      \"command\": \"uvx\",\n      \"args\": [\"prediction-bot-mcp\"]\n    }\n  }\n}\n```\n\nDetails, wallet setup and caps: [`mcp_server/README.md`](mcp_server/README.md).\n\n## Env (Render)\n\n- `XAI_API_KEY` — required\n- `PAY_TO_ADDRESS` — USDC receive address on Base\n- `PRICE_LITE` — default `$0.01` (applied to `/top`, `/shift`)\n- `PRICE_BRIEF` / `PRICE` — default `$0.05` (applied to `/sentiment`, `/brief`)\n- `PUBLIC_BASE_URL` — public service URL for catalog links\n- Optional caps: `GROK_COST_USD`, `CALLER_CAP_USD`, `CALLER_GROK_PER_HOUR`, `GLOBAL_GROK_PER_HOUR`\n\n## Tests\n\n```bash\npython -m venv .venv && source .venv/bin/activate\npip install -r requirements.txt\nTEST_MODE=1 pytest -q\n```\n\nNothing ships without a green test run.\n",
+  "readme": null,
   "status": "curated"
 }

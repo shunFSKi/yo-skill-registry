@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/com.essentras/placements",
+  "type": "mcp",
+  "name": "placements",
+  "description": "Buy press coverage in 3,800+ vetted media outlets. Price a basket, get a checkout link.",
+  "author": "com.essentras",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/ltv-so/essentras-mcp",
+    "repo": "ltv-so/essentras-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://essentras.com/api/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-10-05T17:29:58.57862Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Essentras MCP server\n\nBuy press coverage from an AI agent.\n\nEssentras is a marketplace for paid media placements. This MCP server makes the catalogue\nmachine readable end to end: an agent can search 3,800+ vetted outlets by budget, domain\nauthority, geography, topic and link policy, price a basket, and hand the buyer a checkout\nlink. No account, no API key, nothing to negotiate.\n\nListed in the [official MCP Registry](https://registry.modelcontextprotocol.io) as\n`com.essentras/placements`.\n\n## Quick start\n\nAdd this to any MCP client (Claude Desktop, Claude Code, Cursor, VS Code):\n\n```json\n{\n  \"mcpServers\": {\n    \"essentras\": {\n      \"type\": \"http\",\n      \"url\": \"https://essentras.com/api/mcp\"\n    }\n  }\n}\n```\n\nThen ask for what you want:\n\n> Find US tech outlets under $400 that give dofollow links, then price the best three.\n\n> I have $2,000 for fintech press in the UK. What can I get?\n\n> What does a placement on Business Insider cost, and how long does it take?\n\n## Tools\n\n| Tool | What it does |\n| --- | --- |\n| `search_outlets` | Search by `max_price`, `country`, `region`, `language`, `topic`, `min_da`, `dofollow`, `indexed`, with sorting and paging. Returns offers with a fixed USD price, turnaround, link policy and a stable id. |\n| `get_outlet` | Full detail for one outlet by id. |\n| `quote_placements` | Prices a basket. Returns line items, any volume discount, the final total and a `checkout_url`. Charges nothing and creates no order. |\n\nAll three are annotated read-only and idempotent.\n\n## The agent never pays\n\nThis is a design decision, not a limitation waiting to be removed.\n\nThe server holds no payment method and cannot take money. `quote_placements` returns a\n`checkout_url`; the buyer opens it, sees the same basket at the same total, and pays on\nessentras.com. So the worst case for someone who hands an agent too much trust is a basket\nthey did not want, never a charge they did not authorize.\n\nA capability the server does not have is a stronger guarantee than an instruction a model\nmight ignore.\n\n## The quote is the price\n\n`quote_placements` exists rather than expecting you to add up list prices, because the\nbasket total is not the sum of its parts: volume tiers apply at 3 and 5 placements. The\npage, the REST API, the MCP server and the charge all read one pricing function, so the\nnumber an agent reports is the number the buyer is charged.\n\nBilling is at checkout, not on publication. If the placement does not publish, or the\nstated turnaround is missed, the order is refunded.\n\n## Plain HTTP\n\nEverything the MCP server does is also a REST endpoint, described by OpenAPI 3.1.\n\n```bash\ncurl \"https://essentras.com/api/agent/v1/outlets?country=US&dofollow=true&max_price=400&limit=3\"\n```\n\n```bash\ncurl -X POST https://essentras.com/api/agent/v1/quote \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"items\":[{\"id\":\"business-insider\"},{\"id\":\"msn\"}]}'\n```\n\nSee [`examples/quickstart.sh`](examples/quickstart.sh) for a runnable walkthrough.\n\n| Endpoint | |\n| --- | --- |\n| [`/api/agent/v1`](https://essentras.com/api/agent/v1) | Service description and checkout model |\n| [`/api/agent/v1/openapi`](https://essentras.com/api/agent/v1/openapi) | OpenAPI 3.1 |\n| [`/api/agent/v1/feed`](https://essentras.com/api/agent/v1/feed) | Product feed, JSONL, Agentic Commerce Protocol shape |\n| [`/.well-known/agent.json`](https://essentras.com/.well-known/agent.json) | Discovery manifest |\n| [`/llms.txt`](https://essentras.com/llms.txt) | What we sell, in prose |\n\n## Protocol support\n\nStreamable HTTP, dual era on purpose. The server implements the `2026-07-28` revision\n(stateless, `server/discover`, per-request `_meta`, `resultType`, cache hints) **and** the\nearlier `initialize` handshake, because a large share of clients in the wild still open the\nold way. Unsupported versions get a proper `UnsupportedProtocolVersionError` with the list\nof versions we do speak, so a client can retry rather than guess.\n\n## Limits and honest notes\n\n- Read and quote are public and rate limited per IP. There is nothing to gate: everything\n  the API returns is already visible on the website.\n- JSON-RPC batches are capped (20 messages, 5 of them tool calls). An unbounded batch is a\n  cheap way to buy a lot of someone else's database time.\n- One outlet per order, so `quote_placements` takes no quantity. The checkout handoff\n  cannot express it, and quoting a basket the cart cannot reproduce would be worse than\n  not supporting it.\n- Most placements publish as standard editorial articles with no sponsored label. A\n  minority carry a sponsored or discreet disclosure, and every offer states which under\n  `link.disclosure`. Do not assume the whole catalogue is one or the other.\n- The catalogue is what it is: strong in business, tech and finance, thinner on some\n  tier-one US names. Search it rather than assuming an outlet is there.\n\n## Links\n\n- Documentation: [essentras.com/agents](https://essentras.com/agents)\n- Marketplace: [essentras.com/publishers](https://essentras.com/publishers)\n- Contact: [essentras.com/contact](https://essentras.com/contact)\n\n## License\n\nMIT. See [LICENSE](LICENSE).\n",
+  "status": "curated"
+}

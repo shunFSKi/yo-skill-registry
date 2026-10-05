@@ -1,0 +1,61 @@
+{
+  "id": "mcp:official/io.stockdrifts/mcp",
+  "type": "mcp",
+  "name": "StockDrifts",
+  "description": "Rated 13F funds with average buy prices, company KPIs, Japan investor ratings, Korea insider buys.",
+  "author": "io.stockdrifts",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/Stockdrifts/stockdrifts-mcp",
+    "repo": "Stockdrifts/stockdrifts-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://mcp.stockdrifts.io/mcp/",
+    "env": [
+      {
+        "name": "Authorization",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-10-05T19:06:09.38388Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "金融",
+    "featured": false
+  },
+  "readme": "# StockDrifts MCP Server\n\nOwnership data for AI agents: rated US 13F funds and their average buy prices, normalized company KPIs, Japanese large-shareholder filings with investor ratings, and Korean insider buys.\n\n- **Hosted endpoint:** `https://mcp.stockdrifts.io/mcp/` (Streamable HTTP)\n- **Tools:** 32, all read-only\n- **Auth:** API key sent as a bearer header\n- **Docs:** https://www.stockdrifts.io/api-docs\n- **Registry name:** `io.stockdrifts/mcp`\n\nThis repository holds the connection configs, the registry manifest and an agent skill. The server itself is hosted by StockDrifts; there is nothing to build or run.\n\n## What is different about the data\n\n| Dataset | What you get | Source |\n|---|---|---|\n| **Rated 13F funds** | 13F filers with star ratings, holdings by quarter, quarter-over-quarter changes, sector exposure, and each fund's average buy price per position | SEC 13F filings |\n| **Company KPIs** | Company-specific operating metrics per ticker, such as segment revenue, customer counts, net revenue retention and backlog, as quarterly and yearly series | Company filings |\n| **Japanese investors** | Large-shareholding (5%-rule) reports per stock and per investor, an investor leaderboard with star ratings, and stocks where several investors are filing at once | EDINET |\n| **Korean insiders** | Executive and major-shareholder trades, top insider buys and sells, an insider leaderboard, and pre-disclosed trading plans matched to their executions | DART |\n\nJapanese 5%-rule reports are filings by large shareholders. They are not the same thing as US director and officer trade reports.\n\n## Connect\n\nYou need an API key. Create one at https://app.stockdrifts.io/settings/api-keys (API and MCP access is part of the Ultra plan, see [pricing](https://www.stockdrifts.io/pricing)).\n\nReplace `sd_live_...` in the snippets below with your key, and keep any file that contains it out of version control.\n\n### Claude Code\n\n```bash\nclaude mcp add --transport http stockdrifts https://mcp.stockdrifts.io/mcp/ \\\n  --header \"Authorization: Bearer sd_live_...\"\n```\n\nOr install this repository as a plugin (server plus skill). Claude Code asks for the key once and keeps it in your system's secure credential store:\n\n```\n/plugin marketplace add Stockdrifts/stockdrifts-mcp\n/plugin install stockdrifts@stockdrifts\n```\n\n### Claude Desktop, Cursor and other JSON-config clients\n\n```json\n{\n  \"mcpServers\": {\n    \"stockdrifts\": {\n      \"type\": \"http\",\n      \"url\": \"https://mcp.stockdrifts.io/mcp/\",\n      \"headers\": { \"Authorization\": \"Bearer sd_live_...\" }\n    }\n  }\n}\n```\n\n### Codex CLI\n\nIn `~/.codex/config.toml` (Codex spells the field `http_headers`):\n\n```toml\n[mcp_servers.stockdrifts]\nurl = \"https://mcp.stockdrifts.io/mcp/\"\nhttp_headers = { Authorization = \"Bearer sd_live_...\" }\n```\n\n### One-command installer\n\nThe [`@stockdrifts/cli`](https://www.npmjs.com/package/@stockdrifts/cli) package registers a local stdio server with Claude Code, Claude Desktop, Cursor or Codex and stores the key in `~/.stockdrifts/config.json` (mode 600), so no secret is written into the agent's own config:\n\n```bash\nnpx -y @stockdrifts/cli@latest install all --key sd_live_...\nnpx -y @stockdrifts/cli@latest doctor\n```\n\n## Example prompts\n\n- \"Which 5-star 13F funds hold NVDA in their top positions, and what is each fund's average buy price?\"\n- \"What did this fund add and cut last quarter?\"\n- \"Show Korean open-market insider buys above ₩1bn in the last 30 days.\"\n- \"Which pre-disclosed Korean insider buy plans have not been executed yet?\"\n- \"Which Japanese stocks have several investors filing 5% reports at the same time?\"\n- \"Give me the KPI history for this ticker.\"\n\n## Tools\n\n**US 13F funds**\n\n| Tool | What it returns |\n|---|---|\n| `search_investors_us` | Fuzzy-search investors by name; resolves to CIKs ordered by AUM |\n| `screen_investor_sector_exposure_us` | Screen investors by sector concentration (e.g. top biotech specialists) |\n| `screen_investor_catalyst_record_us` | Screen funds by their track record on binary events (any sector) |\n| `get_investor_holdings_us` | Latest 13F holdings for one investor (or for a specific period) |\n| `list_investor_periods_us` | All 13F periods on file for one investor |\n| `get_investor_changes_us` | QoQ position diff for one investor between two periods |\n| `get_investor_sector_exposure_us` | Sector-exposure history for one investor (newest quarter first) |\n| `get_investor_catalyst_record_us` | One fund's binary-event track record per sector, with best/worst calls |\n| `list_ticker_holders_us` | Investors with `ticker` in their top-50 positions, sorted by position size |\n| `screen_holdings_us` | Screen 13F holdings by period, ticker, value, and rating; returns each matched fund with only the position(s) that matched |\n\n**Company KPIs**\n\n| Tool | What it returns |\n|---|---|\n| `get_kpi` | Latest normalized KPI snapshot for one ticker |\n\n**Japan (EDINET large-shareholding filings)**\n\n| Tool | What it returns |\n|---|---|\n| `list_insider_filings_jp` | Shareholding-report filings for one JP ticker |\n| `get_insider_summary_jp` | Pre-aggregated shareholding summary for one JP ticker |\n| `list_recent_filings_jp` | Recent JP filings across all tickers |\n| `list_top_buys_jp` | Top JP tickers by aggregated buying over a window |\n| `list_top_sells_jp` | Top JP tickers by aggregated selling over a window |\n| `list_investor_filings_jp` | All JP filings made by one investor (EDINET code) |\n| `list_opportunities_jp` | Recent JP BUY/INITIAL filings whose price hasn't moved much yet |\n| `list_leaderboard_jp` | Top JP investors by star rating + avg return |\n| `list_convergence_jp` | JP tickers with multiple distinct investors filing on the same name |\n| `search_companies_jp` | Search JP companies by stock_code, Japanese name, or English name |\n\n**Korea (DART insider filings)**\n\n| Tool | What it returns |\n|---|---|\n| `list_insider_trades_kr` | Insider trades for one KR ticker |\n| `get_insider_summary_kr` | Pre-aggregated insider summary for one KR ticker |\n| `list_recent_trades_kr` | Recent KR insider trades across all tickers |\n| `list_top_buys_kr` | Top KR tickers by aggregated insider buying over a window |\n| `list_top_sells_kr` | Top KR tickers by aggregated insider selling over a window |\n| `list_opportunities_kr` | Recent KR open-market BUYs whose price hasn't moved much yet |\n| `list_plans_kr` | KR pre-disclosure (D005) plans: announced but not yet executed trades |\n| `get_plan_executions_kr` | Cross-reference one D005 plan against its actual executions |\n| `search_companies_kr` | Search KR companies by stock_code, Korean name, or English name |\n| `list_leaderboard_kr` | Top KR insiders by historical avg return on their buys |\n\n**Cross-market screen**\n\n| Tool | What it returns |\n|---|---|\n| `screen_insiders` | Screen insider activity by country, date, value, role, and ticker |\n\n## Security\n\n- Send the key only in the `Authorization` header. Do not put it in the URL, where it can end up in logs and shell history.\n- The MCP server stores no keys. Your bearer token is forwarded to `api2.stockdrifts.io`, where authentication, rate limits and usage are enforced.\n- Every tool is read-only. Nothing in this server writes, trades or changes account state.\n- Without a key the server lists its tools and returns an `unauthorized` error for every call. No data is served.\n- Rotate or revoke keys at https://app.stockdrifts.io/settings/api-keys.\n- Report a security issue to hk@stockdrifts.io.\n\n## Rate limits and errors\n\nLimits are enforced per key in one-minute windows, and responses carry `X-RateLimit-*` headers. Errors use one shape: `{\"error\": {\"code\", \"message\", \"hint\"}}`. See the [API reference](https://www.stockdrifts.io/api-docs).\n\n## Data notes\n\n- Value fields carry their currency in the name (`value_usd`, `value_krw`, `value_jpy`). Nothing is converted silently.\n- 13F periods are quarter-end dates such as `2026-06-30`. Leave the period out to get the latest quarter on file.\n- 13F filings are quarterly and published up to 45 days after quarter end.\n- The data is for research. It is not investment advice.\n\n## License\n\nThe files in this repository are MIT licensed. Access to the StockDrifts API and the data it returns is a separate paid service under the StockDrifts [Terms](https://www.stockdrifts.io/legal/terms) and [Privacy Policy](https://www.stockdrifts.io/legal/privacy-policy).\n",
+  "status": "curated"
+}

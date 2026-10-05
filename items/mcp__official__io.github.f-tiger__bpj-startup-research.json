@@ -1,0 +1,61 @@
+{
+  "id": "mcp:official/io.github.f-tiger/bpj-startup-research",
+  "type": "mcp",
+  "name": "BPJ Startup Research",
+  "description": "BPJ startup cases, launch signals and validation plans. Free preview; member tools use scoped keys.",
+  "author": "io.github.f-tiger",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/f-tiger/agi-site",
+    "repo": "f-tiger/agi-site"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://baipiaoji.com/api/startup-mcp",
+    "env": [
+      {
+        "name": "Authorization",
+        "required": false,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-10-05T16:31:32.193722Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# agi-site — one public monorepo, N sites\n\nPublic monorepo for the site fleet (owner decision 2026-08-19). Public repos get\nfree GitHub Actions minutes, which ends the account-wide 2,000 min/month problem\nthat froze every private-repo schedule on 2026-08-18.\n\n| Site | Directory | Deploys to | Status |\n|---|---|---|---|\n| agiscorecard.com | `sites/agiscorecard/` | Cloudflare Worker `agiscorecard` | **live from this repo** (2026-08-19, deploy green) |\n| baipiaoji.com | `sites/baipiaoji/` | Cloudflare Pages `aiyangmao` | **live from this repo** (2026-08-19, deploy green) |\n| getecoback.com | `sites/getecoback/` | Cloudflare Worker | **live from this repo** (2026-08-19, deploy green) |\n| thedollscout.com | `sites/thedollscout/` | Cloudflare Pages `dollscout` | **live from this repo** (2026-08-19, deploy green) |\n\nEach site keeps its own `CLAUDE.md`, tooling and conventions inside its\ndirectory. Root workflows are path-filtered: a commit only deploys the site it\ntouches. History note: each site was imported as a fresh snapshot; pre-import\nhistory lives in the original private repos (`f-tiger/agiscorecard`,\n`f-tiger/aitools`, `f-tiger/rearchfuture`, `f-tiger/sexweb`), which are archives\nnow — do not push site content there.\n\nPrivacy rule for this PUBLIC repo: no owner personal archive\n(owner-identity*/owner-trajectory*), no subscriber addresses, no tokens/keys.\nSee `CLAUDE.md`.\n\n## One practical workflow check\n\n[Compare coding assistants on a small CRM workflow](tools/workflow-task-check/README.md):\na free local exercise covering duplicate events, retries, credential errors and\nambiguous timeouts. Synthetic data only; no account or API key required.\nFor a task that remains stuck, use the linked public workflow-question form with\na sanitized example. This is a technical help entry, not a checkout.\n\n## Owner TODO (one-time, optional but recommended)\n\n1. Cloudflare dashboard → Workers `agiscorecard` → disconnect the old git\n   integration to `f-tiger/agiscorecard` (that repo is archived; a stray push\n   there would roll the site back). Until then: simply never push there.\n2. `CLOUDFLARE_API_TOKEN_ZONE` configured 2026-08-19 — `tds-traffic` and\n   `tds-crawl-log` schedules are live. Still open, optional (owner deferred\n   GA4 on 2026-08-19; D1 is the primary channel):\n   - `bpj-growth-loop.yml`: `GA4_PROPERTY_ID_BPJ`, `GA4_SERVICE_ACCOUNT_JSON`\n   - GA4 steps inside `tds-traffic.yml`: `GA4_PROPERTY_ID_TDS`,\n     `GA4_SERVICE_ACCOUNT_JSON` (they no-op gracefully until then)\n   - optional senders: `TELEGRAM_BOT_TOKEN`/`TELEGRAM_CHAT_ID` (tds grow notify),\n     `RESEND_API_KEY`/`SUPABASE_SERVICE_KEY` (eco heat-alert real sends),\n     `MCP_REGISTRY_PRIVATE_KEY` (tds registry proof)\n   Copy the values from the old private repos' Settings → Secrets (names unchanged).\n",
+  "status": "curated"
+}

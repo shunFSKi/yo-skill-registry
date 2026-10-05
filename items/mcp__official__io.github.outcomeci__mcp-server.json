@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.outcomeci/mcp-server",
+  "type": "mcp",
+  "name": "OutcomeCI",
+  "description": "Create, validate, and manage agent-powered workflows with OutcomeCI.",
+  "author": "io.github.outcomeci",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/outcomeci/mcp-server",
+    "repo": "outcomeci/mcp-server"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://api.outcomeci.com/v1/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-10-05T17:13:14.105447Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# OutcomeCI MCP Server\n\nConnect your AI assistant to OutcomeCI to create, validate, and manage agent-powered workflows across the tools your team uses.\n\nThis is the public connection and documentation repository for OutcomeCI's hosted Model Context Protocol (MCP) server. It contains server metadata and client configuration—not the hosted backend or a self-hosted server distribution.\n\n## Connect\n\nAdd OutcomeCI as a remote MCP server in your client:\n\n```text\nhttps://api.outcomeci.com/v1/mcp\n```\n\n- **Transport:** Streamable HTTP\n- **Authentication:** OAuth through your browser\n- **Access:** Sign in to OutcomeCI and authorize a workspace\n\nNo local server installation or shared API key is required. Each person authorizes their own connection. Your client must support remote Streamable HTTP servers and OAuth.\n\n### Setup guides\n\n- [Claude](https://outcomeci.com/content/guides/claude-mcp-setup)\n- [Claude Code](https://outcomeci.com/content/guides/claude-code-mcp-setup)\n- [Codex](https://outcomeci.com/content/guides/codex-mcp-setup)\n- [ChatGPT](https://outcomeci.com/content/guides/chatgpt-mcp-setup)\n\nFor clients that accept this configuration format, see [the example configuration](examples/claude-code.mcp.json). Other clients may use different field names; follow their remote-server setup instructions.\n\n## Try it\n\nAsk your connected assistant:\n\n> List the workflows in my OutcomeCI workspace.\n\n> Read the workflow schema and help me create a workflow that turns a Slack request into a GitHub pull request. Validate it before saving.\n\n> Show the recent runs for my workflow and inspect the logs for the latest failure.\n\nAvailable tools depend on the permissions granted to the connection. Configuring a workflow may also require connectors, credentials, and an agent connection.\n\n## Tools\n\nThe server exposes the following tools. Your client's live `tools/list` response is authoritative for the current schemas and authorized tool set.\n\n| Tool | What it does |\n| --- | --- |\n| `list_workspaces` | Show the workspace authorized for the connection. |\n| `list_workflows` | List workflows and their latest metadata. |\n| `get_workflow` | Read a workflow's latest definition and support files. |\n| `get_workflow_schema` | Get the current `outcome.yml` contract and an example. |\n| `get_connector_schema` | Inspect a connector's operations and credential requirements. |\n| `get_integration_setup_guide` | Get setup guidance for an integration. |\n| `validate_workflow` | Validate a complete workflow package without saving it. |\n| `create_workflow` | Create a workflow and its first version. |\n| `upload_workflow_version` | Save a new immutable version with checks against concurrent changes. |\n| `configure_workflow_trigger` | Configure supported email or webhook triggers. |\n| `create_credential_deposit` | Create a secure UI link for depositing a credential. |\n| `get_credential_deposit_status` | Check a deposit's status without retrieving its secret. |\n| `list_vault_entries` | Inspect credential metadata and grants, not secret values. |\n| `list_agent_connections` | List connected agents' metadata. |\n| `list_workflow_runs` | List recent runs for a workflow. |\n| `get_workflow_run_logs` | Read paginated run logs. |\n| `cancel_workflow_run` | Request cancellation of an active run. |\n\n## Permissions and credentials\n\nAuthorize only the workspace and permissions you intend to give your assistant. Use your client's approval controls for changes such as saving workflows, configuring triggers, or cancelling runs.\n\nNever paste credentials into chat. Use the secure deposit link when a workflow needs a secret. Treat deposit links, inbound webhook URLs, and run logs as potentially sensitive; do not include them in public issues.\n\n## Pricing\n\nOutcomeCI Cloud usage is billed according to [OutcomeCI pricing](https://outcomeci.com/pricing). Connecting an assistant does not make workflow execution free.\n\n## Documentation and feedback\n\n- [OutcomeCI](https://outcomeci.com)\n- [Connect an agent](https://outcomeci.com/docs/outcomeci/connect-agent)\n- [Workflow documentation](https://outcomeci.com/docs/outcomeci/workflow)\n- [Vault documentation](https://outcomeci.com/docs/outcomeci/vault)\n\nFor documentation problems or feature requests, [open an issue](https://github.com/outcomeci/mcp-server/issues). Include the client name and a sanitized description; never include tokens, secrets, or private workflow data.\n\n## Repository metadata\n\n[server.json](server.json) describes the hosted endpoint using the MCP Registry server schema. Its version tracks this repository's metadata, not a pinned version of the hosted service. Including the manifest does not imply that a directory or registry has approved the listing.\n\n## License\n\nThis repository's documentation, metadata, and configuration examples are licensed under the [MIT License](LICENSE). The hosted backend is not distributed in this repository.\n",
+  "status": "curated"
+}

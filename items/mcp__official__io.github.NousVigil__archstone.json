@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.NousVigil/archstone",
+  "type": "mcp",
+  "name": "archstone",
+  "description": "Compile your own business capabilities from declarative YAML and serve them as MCP tools.",
+  "author": "io.github.NousVigil",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/NousVigil/archstone",
+    "repo": "NousVigil/archstone"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@archstone/cli"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-10-05T22:02:40.035268Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Archstone — connect your business to every AI\n\n**A compiler for AI capabilities.** Describe what your business can do once, in business terms.\nArchstone compiles it into tools an AI agent can discover and call — MCP today, other protocols\nas they arrive. Nobody hand-writes integration code.\n\nOpen source, Apache-2.0.\n\n[![Buy Me A Coffee](https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png)](https://www.buymeacoffee.com/irutehe)\n\n## Find what you need\n\n| I want to… | Go to |\n|---|---|\n| See it working in 60 seconds | [Try it](#try-it--60-seconds-nothing-to-install) |\n| Generate a manifest from my OpenAPI spec | [Start from an API you already have](#start-from-an-api-you-already-have) |\n| Install the CLI and know what each command does | [Install](#install) · [Commands](#commands) |\n| Understand the model (CDL → IR → tools) | [How it works](#how-it-works) |\n| Call capabilities from my own agent loop | [Embed it](#embed-it-in-your-own-agent) |\n| Know what Archstone guarantees | [Guarantees](#guarantees) |\n| Learn the language | [CDL specification](docs/cdl-specification.md) · [glossary](docs/glossary.md) |\n| Walk through it end to end | [Onboarding guide](docs/ONBOARDING.md) |\n| Know what is free and what is sold | [Open source and commercial](#open-source-and-commercial) |\n| Contribute | [Contributing](#contributing) |\n\n---\n\n## Try it — 60 seconds, nothing to install\n\nA capability compiled by Archstone is running live:\n\n```\nhttps://demo.archstone.dev/mcp\n```\n\n- **Claude app** (web, desktop or mobile): **Settings** → **Connectors** → **Add custom\n  connector** → paste the URL, then ask about a trip. Works on the Free plan.\n- **Claude Code:**\n\n  ```bash\n  claude mcp add --transport http archstone-tourism https://demo.archstone.dev/mcp\n  ```\n\nThe whole integration behind it is\n[12 lines of business YAML](examples/manifests/tourism/tourism.search.capability.yaml) — no HTTP,\nno JSON Schema, no MCP SDK. Everything else was generated.\n\nWant this in front of your own systems? [hello@archstone.dev](mailto:hello@archstone.dev).\n\n## Start from an API you already have\n\n```bash\narchstone init openapi.yaml --out manifest --company acme --domain catalog\n```\n\n`init` drafts a manifest from an OpenAPI document, asks you what no spec can answer, and writes\nnothing unless the result compiles.\n\n![archstone init reading an OpenAPI document and writing a compiling CDL manifest](docs/init.gif)\n\nDetails: [onboarding → `archstone init`](docs/ONBOARDING.md#already-have-an-openapi-document-start-with-archstone-init).\nThe spec in the recording is [`examples/demo/stays-openapi.yaml`](examples/demo/stays-openapi.yaml).\n\n---\n\n## Install\n\n```bash\nnpm install -g @archstone/cli     # or: npx @archstone/cli <command>\n```\n\nNode 22+. Your manifest lives in **your own repository**; the CLI is a stateless compiler that\nneeds no checkout of this one\n([why](docs/ONBOARDING.md#repository-ownership--the-stateless-compiler)).\n\n## Commands\n\n| Command | What it does |\n|---|---|\n| `archstone init <openapi>` | Draft a manifest from an OpenAPI document |\n| `archstone apply <dir>` | Validate and compile to IR; `--exposure` lists what a model sees and what it never sees |\n| `archstone build <dir>` | Write a portable IR artifact for embedding |\n| `archstone serve <dir>` | Serve MCP tools over stdio; `--http --token <t>` for HTTP |\n| `archstone verify <dir>` | Replay recorded fixtures against the live backend and report drift; `--json` for CI |\n| `archstone doctor <dir>` | Offline pre-production checklist |\n| `archstone adopt <dir>` | Declare a field the backend started returning (interactive) |\n| `archstone audit <log>` | Read back the execution audit trail |\n\n`apply` also warns about what an `irreversible` capability still lacks — here, removing its\ndeclared failures adds a warning, and restoring them clears it:\n\n![archstone apply warning that an irreversible capability declares no failures](docs/checked-before-it-runs.gif)\n\nEach command is covered in the [onboarding guide](docs/ONBOARDING.md#provider-onboarding).\nWorking from a checkout of this repository instead? Use `pnpm apply`, `pnpm serve`, … — see\n[contributor onboarding](docs/ONBOARDING.md#contributor-onboarding).\n\n---\n\n## How it works\n\n```\ncapabilities.yaml   →   *.capability.yaml   →   bindings/*.binding.yaml\n(what the company      (each capability:        (how a capability maps\n offers — the index)    business shape only)     to a real backend)\n\n        └──────── archstone apply ────────┘        └── archstone serve ──┘\n             parse → validate → compile → IR          emit MCP tools → agent\n```\n\n- **CDL** (Capability Definition Language) describes *what* you offer — business terms only.\n- **Bindings** say *how* each capability reaches a backend (REST or SQL).\n- The **compiler** lowers both to a target-agnostic **IR**; **emitters** turn the IR into tools.\n\nChange the protocol and you regenerate instead of rewriting. Change the backend and the CDL does\nnot move. A worked example: [`examples/manifests/booking/`](examples/manifests/booking/).\n\n## Embed it in your own agent\n\nNo MCP server process needed — load a built IR with\n[`@archstone/agent`](packages/agent/):\n\n```typescript\nimport { fromIR } from \"@archstone/agent\";\n\nconst archstone = fromIR(compiledIR);\nconst tools = archstone.tools(\"anthropic\"); // or \"openai-chat\", \"openai-responses\", \"gemini\", \"json-schema\"\nconst result = await archstone.execute(\"tourism.search\", { location: \"Paris\" });\n```\n\nA mountable Streamable-HTTP MCP handler is available at `@archstone/agent/mcp`. Full API:\n[`packages/agent`](packages/agent/).\n\n## Guarantees\n\nThese are ratified decisions, not implementation details — each links to its reasoning.\n\n| Guarantee | Decision |\n|---|---|\n| A provider field your manifest does not declare never reaches a model | [ADR-0008](docs/adr/0008-undeclared-provider-data-never-reaches-a-model.md) |\n| A field a model invents never reaches your system | [ADR-0011](docs/adr/0011-undeclared-model-output-never-reaches-a-business-system.md) |\n| `build` and `serve` never need a network call, an account or a key | [ADR-0005](docs/adr/0005-open-core-boundary-artifact-guarantee.md) |\n| No feature that is free today becomes paid | [ADR-0005](docs/adr/0005-open-core-boundary-artifact-guarantee.md) |\n| Ranking in any selection Archstone performs is not for sale | [ADR-0006](docs/adr/0006-marketplace-neutrality.md) |\n| `effect` (`read` / `write` / `irreversible`) is confirmed by a person, never inferred | [Onboarding](docs/ONBOARDING.md#what-apply-warns-about-on-an-irreversible-capability) |\n\nAll decision records: [`docs/adr/`](docs/adr/).\n\n---\n\n## Who is running it\n\n**[ArtVinci](https://artvinci.ro)**, a custom-framing business, answers customer questions\nthrough a capability compiled by Archstone — real catalog, prices computed live by their own\nbackend. [Case study](CASE-STUDY.md).\n\n## Why a compiler, and not an MCP server\n\nThe first MCP server is an afternoon's work. The fifth — ChatGPT, Gemini and whatever ships\nnext, each shaped slightly differently, all on top of an API that keeps changing — is the real\ncost. Archstone is a compiler that, in its first release, generates an MCP server, so that\nmaintenance does not multiply with every new protocol.\n\n## Open source and commercial\n\nEverything needed to turn a manifest into something an agent can call — language, compiler, IR,\nemitters, embedded SDK and CLI — is Apache-2.0 and stays that way. What we will sell is\n*operating* it for you: hosted audit retention, managed rate limits, drift monitoring and\nmulti-tenant hosting. See [ADR-0005](docs/adr/0005-open-core-boundary-artifact-guarantee.md).\n\n---\n\n## Documentation\n\n| Topic | Where |\n|---|---|\n| Onboarding (providers, embedders, contributors) | [`docs/ONBOARDING.md`](docs/ONBOARDING.md) |\n| CDL specification (normative, 1.0, frozen) | [`docs/cdl-specification.md`](docs/cdl-specification.md) |\n| Why CDL looks the way it does | [RFC-0002](docs/rfc/0002-cdl-v0.2.md) |\n| Machine schema | [`cdl.schema.json`](packages/schema/schemas/cdl.schema.json) |\n| Glossary | [`docs/glossary.md`](docs/glossary.md) |\n| Identity and principals | [`docs/IDENTITY.md`](docs/IDENTITY.md) |\n| Architecture decisions | [`docs/adr/`](docs/adr/) |\n| End-to-end demo with Claude | [`examples/demo/README.md`](examples/demo/README.md) |\n| Supported versions | [`SUPPORT.md`](SUPPORT.md) |\n| Reporting a vulnerability | [`SECURITY.md`](SECURITY.md) — never a public issue |\n| Changes | [`CHANGELOG.md`](CHANGELOG.md) |\n\n## Repository layout\n\n```\npackages/\n  schema/           load and shape-validate manifests (cdl.schema.json)\n  compiler/         semantic validation, lowering to IR\n  emitter-support/  shared substrate for every emitter\n  runtime/          registry, MCP emitter and transport, verify\n  agent/            embedded SDK\n  init/             OpenAPI → manifest drafting\n  cli/              the archstone command\nproviders/\n  rest/  sql/       backend adapters\nexamples/           manifests and the Claude demo\ndocs/               spec, ADRs, RFCs, onboarding\n```\n\n---\n\n## How this project uses generative AI\n\nArchstone is written with substantial AI assistance — Anthropic's Claude, through Claude Code —\nfor implementation, tests and documentation. **The decisions are not generated:** every\nstructural choice is an ADR, argued and ratified by an accountable person before the code, and\na patch nobody can explain does not merge. Commits with generated code name the model in their\nco-authorship trailer. What we ask of contributors:\n[`CONTRIBUTING.md`](CONTRIBUTING.md#generative-ai).\n\n## Contributing\n\n[`CONTRIBUTING.md`](CONTRIBUTING.md) and the\n[contributor onboarding](docs/ONBOARDING.md#contributor-onboarding). Node 22+, pnpm 11+;\n`pnpm typecheck && pnpm test` green before you open a PR.\n\n## License\n\nCopyright 2026 NousVigil LLC. Licensed under [Apache-2.0](LICENSE); see also [NOTICE](NOTICE).\n",
+  "status": "curated"
+}

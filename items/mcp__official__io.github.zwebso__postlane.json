@@ -28,7 +28,7 @@
   "quality": {
     "stars": null,
     "pushed_at": "2026-10-04T17:09:12.693771Z",
-    "score": 52
+    "score": 42
   },
   "security": {
     "score": 100,
@@ -60,6 +60,6 @@
     "category": "编程",
     "featured": false
   },
-  "readme": "# Postlane\n\n[Postlane](https://www.postlane.email) is a transactional email API. Applications use it to send welcome messages, address verification, password resets, and receipts from a verified domain.\n\nPostlane is not an inbox, and it does not provide IMAP or hosted mailboxes.\n\n- Product: [https://www.postlane.email](https://www.postlane.email)\n- Docs: [https://www.postlane.email/docs](https://www.postlane.email/docs)\n- Pricing: [https://www.postlane.email/pricing](https://www.postlane.email/pricing)\n- Sign in: [https://www.postlane.email/login](https://www.postlane.email/login)\n\n## Send\n\nCreate a key at [API keys](https://www.postlane.email/app/api-keys) after you [verify a sending domain](https://www.postlane.email/app/domains). The secret is shown once and starts with `pl_live_`. Keep it on your server.\n\n```http\nPOST https://www.postlane.email/v1/emails\nAuthorization: Bearer pl_live_…\nContent-Type: application/json\nIdempotency-Key: welcome-user-123\n```\n\n```json\n{\n  \"from\": \"hello@send.yourdomain.com\",\n  \"to\": [\"alex@example.com\"],\n  \"subject\": \"Welcome\",\n  \"html\": \"<h1>You’re in.</h1>\"\n}\n```\n\nA successful response is `202` with `{ \"id\": \"em_…\", \"status\": \"queued\" }`. `queued` means the message was accepted for delivery. It does not mean the message is in the inbox. Repeating the same `Idempotency-Key` returns the original result and does not send again.\n\nErrors use `{ \"error\": { \"code\", \"message\", \"request_id\", \"retryable\" } }`. The same contract is published for agents at [https://www.postlane.email/llms.txt](https://www.postlane.email/llms.txt).\n\n## Cursor\n\n`postlane-cursor/` is the Postlane plugin for Cursor. It teaches `POST /v1/emails` and exposes `send_email`, `get_email`, and `list_emails`. The API key is a plugin setting. It is not stored in this repository.\n\n## Development\n\n```bash\nnpm install\nnpm run dev\n```\n\nOpen [http://localhost:5173](http://localhost:5173). The first API request creates the local database schema. Local sends use a mock provider unless Email Sending is bound. `accepted` in that mode means the request was stored, not delivered.\n\n```bash\nnpm test\nnpm run typecheck\n```\n\nSigned webhook delivery, attachments, and template versions are not part of the public API yet.\n",
+  "readme": null,
   "status": "curated"
 }
