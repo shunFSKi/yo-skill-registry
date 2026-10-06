@@ -1,0 +1,85 @@
+{
+  "id": "mcp:official/io.github.gokhancvs/market-fiyati-mcp",
+  "type": "mcp",
+  "name": "market-fiyati-mcp",
+  "description": "Unofficial stdio MCP for Turkish grocery prices, branch offers and basket comparisons.",
+  "author": "io.github.gokhancvs",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/gokhancvs/market-fiyati-mcp",
+    "repo": "gokhancvs/market-fiyati-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "market-fiyati-mcp"
+    ],
+    "env": [
+      {
+        "name": "MARKET_FIYATI_MODE",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "MARKET_FIYATI_ENABLE_EXPERIMENTAL",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "MARKET_FIYATI_LATITUDE",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "MARKET_FIYATI_LONGITUDE",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "MARKET_FIYATI_DISTANCE",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-10-06T17:37:14.742439Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# Market Fiyatı MCP\n\n> **Resmî değildir.** Bu proje Market Fiyatı, TÜBİTAK veya market zincirleriyle bağlantılı değildir ve onlar tarafından onaylanmamıştır.\n> Kullanım koşulları operatörün sorumluluğundadır: [Amaç ve kullanım izinleri](#amaç-ve-kullanım-izinleri).\n\n**Başlayın:** Aşağıdaki yapılandırmayı MCP istemcinize ekleyin.\n\nTürkiye'de ürün, şube fiyatı ve sepet karşılaştırması için MCP sunucusu.\n**Node.js 22+ gerekir.** Normal kullanım gerçek fiyat sorguları için `live` modudur;\n`offline` geliştirme ve test içindir. Aşağıdaki örnek, önceki sürümlerde de çalışması için modu açıkça seçer.\n\n## 1. İstemciye ekleyin\n\n**Şube keşfi:** Ürün aramaları şube ID'si ister; yakındaki şubeleri bulan tool deneysel erişim gerektirir.\nBu ayar yakın şube, market listesi, adres/koordinat arama, toplu ürün güncelleme ve alternatif ürün tool'larını açar.\nBu yüzden örnek `\"MARKET_FIYATI_ENABLE_EXPERIMENTAL\": \"true\"` içerir. Ayarın varsayılanı `false` olarak kalır;\nşube ID'lerinizi zaten biliyorsanız bu satırı silebilirsiniz.\n\n```json\n{\n  \"mcpServers\": {\n    \"market-fiyati\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"market-fiyati-mcp@1.0.11\"],\n      \"env\": {\n        \"MARKET_FIYATI_MODE\": \"live\",\n        \"MARKET_FIYATI_LATITUDE\": \"41.025591\",\n        \"MARKET_FIYATI_LONGITUDE\": \"28.974075\",\n        \"MARKET_FIYATI_DISTANCE\": \"4\",\n        \"MARKET_FIYATI_ENABLE_EXPERIMENTAL\": \"true\"\n      }\n    }\n  }\n}\n```\n\n**Örnek: Galata Kulesi — `41.025591, 28.974075`.**\n`distance=4`, merkezden **4 km yarıçap** demektir (8 km çap).\n\n**Sayı tipi:** Tool girdisindeki koordinat ve yarıçap tırnaksız JSON sayısıdır.\nYalnız `env` değerleri ortam değişkeni olduğu için tırnaklıdır; sunucu bunları sayıya çevirir.\n\n`market_find_nearby_depots` için aynı örnek, tırnaksız sayılarla:\n\n```json\n{ \"latitude\": 41.025591, \"longitude\": 28.974075, \"distance\": 4 }\n```\n\n### Yapılandırma dosyası nerede?\n\nYukarıdaki `market-fiyati` girdisini istemcinizin dosyasına ekleyin ve istemciyi yeniden başlatın.\n\n| İstemci        | Dosya                                                                                                                              | Not                                                      |\n| -------------- | ---------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |\n| Claude Desktop | macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`<br>Windows: `%APPDATA%\\Claude\\claude_desktop_config.json` | `mcpServers` anahtarı                                    |\n| Claude Code    | Proje: `.mcp.json` · Komut: `claude mcp add`                                                                                       | `mcpServers` anahtarı                                    |\n| Cursor         | Genel: `~/.cursor/mcp.json` · Proje: `.cursor/mcp.json`                                                                            | `mcpServers` anahtarı                                    |\n| VS Code        | Proje: `.vscode/mcp.json`                                                                                                          | Üst anahtar `servers`; girdiye `\"type\": \"stdio\"` ekleyin |\n| Codex          | `~/.codex/config.toml`                                                                                                             | TOML: `[mcp_servers.market-fiyati]` ve `.env` tablosu    |\n\nKendi konumunuz için koordinatları değiştirin. Kişisel konumunuzu özel istemci ayarında tutun; Git'e eklemeyin.\n\nEnv konumu 1.0.6'dan beri desteklenir ([yarıçap geçişi](docs/api.md#106-yarıçap-geçişi)). Paket kurulamıyorsa [kaynak koddan çalıştırın](#kaynak-koddan-geliştirme).\n`npx` paketi indirir; bulunamazsa mutlak yolunu kullanın. [Hazır Galata yapılandırması](examples/mcp-config.json).\n\n## 2. Bağlantıyı doğrulayın\n\nSunucuyu yeniden başlatıp AI'ya şunu yazın:\n\n> `market_status` çağır. Modu ve konum ayarının hazır olup olmadığını göster.\n\n**Beklenen:** `data.mode=live`, `data.liveRequestsEnabled=true`, `data.locationDefaults.configured=true`.\nStatus yalnız ayarları kontrol eder; gerçek fiyat için sonraki adımdaki aramayı yapın.\n\n## 3. Fiyat sorgulayın\n\nAI'ya istediğiniz ürünü ve marketleri söyleyin. Konum ayarı hazırsa tekrar vermeniz gerekmez.\nŞubeler bilinmiyorsa yukarıda açtığınız deneysel erişimle `market_find_nearby_depots` bir kez çağrılır;\nürün aramasında dönen şube ID'leri kullanılır. Adımlar: [Gerçek fiyatlarla sorgulama](docs/live-testing.md).\n\n### Örnek istekler\n\n> Yakınımdaki şubelerde 1 litre yarım yağlı sütün en ucuz fiyatı ne?\n\n> 3 kg yoğurdu fiyata göre sırala; tam eşleşmeleri ve alternatifleri ayrı göster.\n\n> 500 g beyaz peynirin fiyatını şubeler arasında karşılaştır ve harita linklerini ver.\n\n> 1 kg patates, 2 L süt ve 10'lu yumurtadan oluşan sepeti şube bazında karşılaştır.\n\n> 1 kg toz şekerin fiyat geçmişini özetle.\n\nÜrün adlarını ve paket boyutlarını açık yazın. \"Sadece tam eşleşme\" gibi kesin şartları belirtin;\naksi hâlde AI benzer ürünleri ayrı başlıkta açıklayarak önerebilir.\n\n## Konum nasıl çalışır?\n\n| Durum                     | Kural                                                                                         |\n| ------------------------- | --------------------------------------------------------------------------------------------- |\n| Env kullanıyorum          | Üç değeri birlikte ayarlayın; AI her sorguda tekrar sormaz.                                   |\n| Env kullanmıyorum         | Üçünü de kaldırın; enlem, boylam ve yarıçapı her konumlu çağrıda sağlayın.                    |\n| Başka konum arıyorum      | Enlem/boylamı birlikte verin. Distance yoksa env yarıçapı kullanılır.                         |\n| Eksik veya geçersiz değer | Env hatalıysa sunucu başlamaz; çağrı hatalıysa o çağrı reddedilir. Varsayılan yarıçap yoktur. |\n| Ayarı değiştirdim         | Env için yeniden başlatın. Çağrıdaki değişiklik yalnız o çağrıya aittir.                      |\n\nŞubeler (`depots`) ürün çağrısında ayrıca gerekir; MCP bunları saklamaz.\nAynı süreç env konumunu paylaşır; farklı kullanıcılar ayrı süreç veya açık çağrı değerleri kullanmalıdır.\n[Tüm konum kuralları ve sınırlar](docs/api.md#konum-ve-şube-bağlamı).\n\n## Yapabilecekleriniz\n\n| Amaç                         | Tool                            |\n| ---------------------------- | ------------------------------- |\n| Ürün ara                     | `market_search_products`        |\n| Şube fiyatlarını karşılaştır | `market_compare_product_offers` |\n| Sepet karşılaştır            | `market_compare_basket`         |\n| Fiyat geçmişini incele       | `market_get_price_history`      |\n| Çağrı akışını öğren          | `market://guide`                |\n\n**15 tool · 3 resource · 3 prompt.** Satın alma, sipariş ve barkod sorgusu desteklenmez.\n\n## Sonuçları doğru okuyun\n\n- Fiyatlar **TRY**. `percentage` indirim oranı değildir; API'nin [`discount` işaretine](docs/api.md#discount-işaretini-okuma) bakın.\n- Eksik offer **bilinmiyor** demektir; “stok yok” veya “tüm fiyatlar tarandı” denemez.\n- Eksik sepette `total=null`; `subtotal` yalnız bulunan ürünlerdir.\n- Fiziksel şube karşılaştırması için `groupBy=depot` kullanın; zincir tek bir şube değildir.\n- Sepet en fazla **5 ürün** alır; bütçe retry dâhil 5 HTTP denemesidir. Retry açıksa ürün sınırı düşer\n  (`market_status` içindeki `limits.basketItems`). Listeyi bölerek veya tool değiştirerek aşmayın.\n\n## Sorun giderme\n\n| Hata                    | Neden ve çözüm                                                                                                                                                                                                                                               |\n| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |\n| `NETWORK_DISABLED`      | İstemci ayarında `MARKET_FIYATI_MODE=offline` vardır veya 1.0.7 ya da daha eski bir sürüm kuruludur. Değeri `live` yapıp sunucuyu yeniden başlatın. Değişkeni silmek yalnız 1.0.8 ve sonrasında yeterlidir. Ağsız geliştirme ortamında `offline` kalmalıdır. |\n| `EXPERIMENTAL_DISABLED` | Yakın şube, adres arama gibi deneysel tool'lar kapalıdır. Ayara `\"MARKET_FIYATI_ENABLE_EXPERIMENTAL\": \"true\"` ekleyip yeniden başlatın veya şube ID'lerini kendiniz verin.                                                                                   |\n| `OUTPUT_TOO_LARGE`      | Yanıt yerel boyut sınırını aştı; kısmi veri dönmez. Aynı sorguyu tekrarlamayın: sayfa boyutunu (`size`), şube veya sepet ürünü sayısını azaltın.                                                                                                             |\n\nDiğer hata kodları: [API](docs/api.md#diğer-hata-kodları).\n\n## Kaynak koddan geliştirme\n\nDepoyu klonlayıp çalıştırın:\n\n```sh\nnpm ci --ignore-scripts\nMARKET_FIYATI_MODE=offline npm run check\n```\n\n`check` derlemeyi de yapar. İstemcide `command: \"node\"`, `args` içinde `dist/src/index.js` dosyasının\nmutlak yolunu kullanın. Geliştirirken istemci env ayarını açıkça `MARKET_FIYATI_MODE=offline` yapın;\ntestlerin ağ engeli de korunur. Gerekirse `node` yolunu da mutlak yazın.\n\nSunucu stdio JSON-RPC kullanır; HTTP portu açmaz. Geliştirmede `MARKET_FIYATI_MODE=offline npm start`\nMCP mesajlarını bekler. Mod ayarı olmadan başlangıç `live` seçer; yalnız başlatmak HTTP isteği göndermez.\nstdout yalnız MCP trafiğidir. npm kurulumu ağ kullanabilir; uygulama testleri API'ye bağlanmaz.\n\n## Ayrıntı gerektiğinde\n\n| İhtiyaç                         | Belge                                                                            |\n| ------------------------------- | -------------------------------------------------------------------------------- |\n| Gerçek fiyatları sorgula        | [Gerçek fiyatlarla sorgulama](docs/live-testing.md)                              |\n| Tool, filtre ve yanıt kuralları | [API](docs/api.md)                                                               |\n| Ayarlar ve kod yapısı           | [Mimari](docs/architecture.md)                                                   |\n| Testler ve sınırları            | [Doğrulama](docs/verification.md) · [Sentetik kabul](docs/offline-acceptance.md) |\n| Sürüm çıkarma                   | [Yayın rehberi](docs/releasing.md) · [CHANGELOG](CHANGELOG.md)                   |\n\n## Amaç ve kullanım izinleri\n\nBu proje, ticari kazanç veya başka bir çıkar gözetilmeden geliştirilmiş bağımsız bir çalışmadır.\nMarket Fiyatı'nın, TÜBİTAK'ın veya market zincirlerinin resmî ürünü değildir. Herhangi bir onay,\nsponsorluk veya ortaklık iddiası yoktur.\n\n[Market Fiyatı kullanım koşullarını](https://marketfiyati.org.tr/kullanim-kosullari) değerlendirmek ve\nkullanımına uygun izinleri sağlamak operatörün sorumluluğundadır. Bu depo üçüncü taraf servislerine\nerişim izni vermez; `live` ayarı yalnız teknik erişimi belirler.\n\nGüvenlik açığı bildirmek için [özel bildirim yönergesini](SECURITY.md) kullanın.\n\n## Lisans\n\n[MIT](LICENSE) — Copyright (c) 2026 Gökhan Çavuş.\n\nLisans yalnızca yazılımı ve beraberindeki belgeleri kapsar. Üçüncü tarafların verilerine, markalarına,\nlogolarına veya servislerine erişim hakkı vermez. Yukarıdaki amaç beyanı MIT lisansını değiştirmez ve\nkoda ticari kullanım yasağı eklemez. Üçüncü taraf bileşenler kendi lisanslarına tabidir.\n",
+  "status": "curated"
+}

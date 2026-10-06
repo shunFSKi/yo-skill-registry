@@ -1,0 +1,70 @@
+{
+  "id": "mcp:official/io.github.Anddrrew/scopus-mcp",
+  "type": "mcp",
+  "name": "Scopus",
+  "description": "Scopus search, author and affiliation profiles, citation data, and PlumX metrics via Elsevier APIs.",
+  "author": "io.github.Anddrrew",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/Anddrrew/scopus-mcp",
+    "repo": "Anddrrew/scopus-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "scopus-mcp"
+    ],
+    "env": [
+      {
+        "name": "ELSEVIER_API_KEY",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "ELSEVIER_INST_TOKEN",
+        "required": false,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-10-06T20:20:43.790211Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# scopus-mcp\n\n[![npm version](https://img.shields.io/npm/v/scopus-mcp)](https://www.npmjs.com/package/scopus-mcp)\n[![Node.js](https://img.shields.io/node/v/scopus-mcp)](https://nodejs.org/)\n[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)\n\nAn MCP server for the Elsevier Scopus API. Runs over stdio with `npx` and keeps\nthe API's parameter names and JSON responses.\n\n## Quick start\n\nRequires Node.js **22.22.0 or newer**, npm, and an MCP client with stdio support.\nGet an API key from the [Elsevier Developer Portal](https://dev.elsevier.com/)\nand add this server to your client's configuration:\n\n```json\n{\n  \"mcpServers\": {\n    \"scopus\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"scopus-mcp\"],\n      \"env\": {\n        \"ELSEVIER_API_KEY\": \"your-elsevier-api-key\"\n      }\n    }\n  }\n}\n```\n\nReload the client to connect. To pin a release, use `scopus-mcp@<version>` in `args`.\n\n## Configuration\n\n| Environment variable  | Description                                              |\n| --------------------- | -------------------------------------------------------- |\n| `ELSEVIER_API_KEY`    | Required for all tools except `subject_classifications`. |\n| `ELSEVIER_INST_TOKEN` | Institutional token, if provided by your institution.    |\n\nSet credentials in the client's `env` object. The server does not load `.env`\nfiles. Access to data and views depends on your Elsevier subscription and\ninstitutional access.\n\nThe server reports its version in MCP `serverInfo` and the startup log on `stderr`.\n\n## Tools\n\n| Tool                                                             | Description                               |\n| ---------------------------------------------------------------- | ----------------------------------------- |\n| [scopus_search](docs/tools/scopus-search.md)                     | Find publications.                        |\n| [author_search](docs/tools/author-search.md)                     | Find authors and co-authors.              |\n| [affiliation_search](docs/tools/affiliation-search.md)           | Find institutions.                        |\n| [author_retrieval](docs/tools/author-retrieval.md)               | Get author profiles by ID, EID, or ORCID. |\n| [affiliation_retrieval](docs/tools/affiliation-retrieval.md)     | Get an institution profile by ID or EID.  |\n| [citation_overview](docs/tools/citation-overview.md)             | Get yearly citation counts and summaries. |\n| [plumx_metrics](docs/tools/plumx-metrics.md)                     | Get publication metrics by identifier.    |\n| [subject_classifications](docs/tools/subject-classifications.md) | Look up subject codes; no API key needed. |\n\nEach call makes one API request. For additional pages, use the tool's pagination\nparameters. Requests support cancellation and a 30-second timeout; retries and\nredirects are not automatic.\n\n## Responses and errors\n\nResults follow each tool's `outputSchema`. The original API JSON is returned in\nboth `structuredContent` and a text content block, without reshaping fields or\nconverting values.\n\nAvailable quota headers are returned as strings in `_meta[\"scopus-mcp/headers\"]`:\n`X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`, and `Retry-After`.\n\nAPI failures return `isError: true` and a JSON text error with `code`, `message`,\nand, when available, an HTTP `status`. Credentials are redacted. Invalid arguments\nare rejected before an API request.\n\n| Error                        | What to check                                                   |\n| ---------------------------- | --------------------------------------------------------------- |\n| `MISSING_API_KEY`            | Set `ELSEVIER_API_KEY` in the server's environment.             |\n| HTTP 401 or 403              | Check your key, subscription, institutional network, and token. |\n| HTTP 429                     | Check quota headers and `Retry-After` before retrying.          |\n| `TIMEOUT` or `NETWORK_ERROR` | Check connectivity to `api.elsevier.com`.                       |\n| `INVALID_RESPONSE`           | Elsevier returned invalid JSON or an unexpected response shape. |\n\n## API documentation\n\n- [Scopus API specification](https://dev.elsevier.com/sc_api_spec.html)\n- [Interactive API documentation](https://dev.elsevier.com/scopus.html)\n- [API limits and quotas](https://dev.elsevier.com/api_key_settings.html)\n\n## Development\n\nSee [Contributing](CONTRIBUTING.md) for local setup and changes, and\n[Releases](docs/releases.md) for publishing.\n\n## License\n\n[MIT](LICENSE) © 2026 Andrii Baran. Independent project, not affiliated with Elsevier.\n",
+  "status": "curated"
+}

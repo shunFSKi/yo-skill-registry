@@ -1,0 +1,70 @@
+{
+  "id": "mcp:official/io.github.marstudio360/vibedna-vault-mcp",
+  "type": "mcp",
+  "name": "VibeDNA Vault",
+  "description": "Encrypted local vault for API keys. Your AI fetches keys on demand and scans code for leaks.",
+  "author": "io.github.marstudio360",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/marstudio360/vibedna-vault-mcp",
+    "repo": "marstudio360/vibedna-vault-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "https://github.com/marstudio360/vibedna-vault-mcp/releases/download/v1.1.1/vibedna-vault-mcp-1.1.1.mcpb"
+    ],
+    "env": [
+      {
+        "name": "VAULT_MASTER_PASSWORD",
+        "required": false,
+        "secret": true
+      },
+      {
+        "name": "VAULT_HOME",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-10-06T17:43:51.671107Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# VibeDNA Vault MCP\n\nEncrypted local vault for API keys. Your AI fetches keys on demand and scans code for leaks.\n\nVault keeps every API key, token and password in one encrypted file on your machine (Fernet, with the key derived from your master password by scrypt). The master password is read from your system keyring, or from `VAULT_MASTER_PASSWORD` on machines with no keyring. Your AI searches the vault and fetches the exact key it needs when it needs it, so keys stop getting pasted into chats. It exports an entry as `.env` lines, tracks rotation dates, keeps a usage log, ships entry templates for common services, and scans a project folder for keys left in plain text, reporting file and line.\n\nA desktop window (`vault_ui.py`) and a terminal CLI (`vault_core.py`) open the same vault with no AI involved. There is no password reset: lose the master password and the file stays unreadable.\n\nHomepage: https://vibedna.ai/store/vault\n\n## Tools (17)\n\n| Tool | What it does |\n|---|---|\n| `credential_exists(name)` | Check whether an entry exists before asking the user for a key |\n| `get_credential(name, key)` | Return one field of one entry |\n| `list_credentials()` | Entry names, categories and field names. No values |\n| `search_credentials(term)` | Search by name, category or notes |\n| `add_credential(name, category, fields, notes)` | Add an entry (`fields` is a JSON object) |\n| `edit_credential(name, fields)` | Update fields; an empty value removes that field |\n| `delete_credential(name, confirm)` | Delete an entry (`confirm` must equal the name) |\n| `export_env(name)` | The entry's fields as `KEY=value` lines |\n| `add_with_template(service, name, fields, notes)` | Add an entry from a service template |\n| `list_templates()` | The available templates |\n| `scan_for_leaks(path)` | Scan a folder for plaintext keys: your vault's values plus known key patterns |\n| `leak_history()` | Recent leak-scan results |\n| `check_rotation_due(days)` | Entries not rotated in `days` |\n| `mark_rotated(name)` | Record a rotation |\n| `usage_log(name)` | Recent credential-access events |\n| `backup_vault()` | Copy the encrypted file to the backup folder |\n| `check_for_update()` | Compare this copy with the published version |\n\n## Install\n\n```bash\ngit clone https://github.com/marstudio360/vibedna-vault-mcp\ncd vibedna-vault-mcp\npython -m venv .venv\n# Windows: .venv\\Scripts\\activate    mac/linux: source .venv/bin/activate\npip install -r requirements.txt\npython vault_core.py init\n```\n\nStore the master password in your system keyring once, so the MCP server can open the vault:\n\n```bash\npython -c \"import keyring; keyring.set_password('vibedna-vault','master', input('master password: '))\"\n```\n\n### Claude Code\n\n```bash\nclaude mcp add vault --scope user -- /absolute/path/to/vibedna-vault-mcp/.venv/bin/python /absolute/path/to/vibedna-vault-mcp/server.py\n```\n\nOr in a project's `.mcp.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"vault\": {\n      \"command\": \"/absolute/path/to/vibedna-vault-mcp/.venv/bin/python\",\n      \"args\": [\"/absolute/path/to/vibedna-vault-mcp/server.py\"]\n    }\n  }\n}\n```\n\nOn Windows the interpreter is `.venv\\Scripts\\python.exe`.\n\n### Cursor\n\nAdd the same `mcpServers` block to `~/.cursor/mcp.json` (all projects) or `.cursor/mcp.json` (one project).\n\n### Claude Desktop\n\nAdd the same `mcpServers` block to `claude_desktop_config.json` (Settings > Developer > Edit Config), then restart Claude Desktop.\n\n[INSTALL.md](./INSTALL.md) is a step-by-step guide written so you can paste it into an AI chat and let the AI do the install. It also covers the desktop window and the CLI.\n\n## Configuration\n\n| Variable | Default | What it does |\n|---|---|---|\n| `VAULT_HOME` | `~/.vibedna-vault` | Folder of the encrypted vault file (`vault.enc`) |\n| `VAULT_MASTER_PASSWORD` | (unset) | Master password for machines with no system keyring |\n| `VAULT_BACKUP_HOME` | `~/.vibedna-vault/backups` | Where `backup_vault` writes copies (the last 30 are kept) |\n\nThe usage log and leak-scan results are written next to the vault file, in `logs/`.\n\n## Network\n\nThe vault, the window and the CLI make no network calls. `check_for_update` is the one tool that does: it asks `https://vibedna.ai/api/mcp/latest` for the published version number.\n\n## License\n\nMIT, see [LICENSE](./LICENSE). Copyright (c) 2026 VibeDNA.\n\nSupport: admin@vibedna.ai\n",
+  "status": "curated"
+}

@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.gitajhd/amanchain-mcp",
+  "type": "mcp",
+  "name": "amanchain-mcp",
+  "description": "59 pay-per-call AI services as MCP tools with automatic x402 USDC-on-Base payment.",
+  "author": "io.github.gitajhd",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/gitajhd/amanchain-mcp",
+    "repo": "gitajhd/amanchain-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "amanchain-mcp"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-10-06T18:42:33.945553Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "金融",
+    "featured": false
+  },
+  "readme": "# AmanChain MCP Gateway\n\n**59 pay-per-call AI services as MCP tools — with automatic x402 payment in USDC on Base.**\n\nCrypto prices & audits, whale alerts, market reports, LLM chat, image generation,\ninvoices & receipts, web fetch/search/summarize, geolocation, translation, and more —\nno API keys, no signups, no subscriptions. Your agent pays per call with USDC\n(gasless — the facilitator covers gas), every settlement lands on-chain with a receipt.\n\nWorks with **Claude Code, Claude Desktop, Cursor**, and any MCP-compatible client.\n\n## Quickstart (60 seconds)\n\n1. Get a Base wallet with ~$1 of USDC (Coinbase → withdraw USDC → Base network, or bridge.base.org).\n2. Add the server:\n\n**Claude Code**\n```bash\nclaude mcp add amanchain -e AMAN_PRIVATE_KEY=0xYOUR_KEY -- npx -y amanchain-mcp\n```\n\n**Claude Desktop / Cursor** (`claude_desktop_config.json` / `mcp.json`)\n```json\n{\n  \"mcpServers\": {\n    \"amanchain\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"amanchain-mcp\"],\n      \"env\": { \"AMAN_PRIVATE_KEY\": \"0xYOUR_KEY\" }\n    }\n  }\n}\n```\n\n3. Ask your agent: *\"use amanchain to get the current BTC price\"* — done.\n\n> **No wallet yet?** Run it without `AMAN_PRIVATE_KEY` — the catalog, prices and\n> service discovery all work; paid calls explain exactly what to set up.\n\n## What your agent gets\n\n`amanchain_catalog` first, then one tool per service. Highlights:\n\n| Tool | What it does | Price |\n|------|--------------|-------|\n| `aman_crypto_price` | Live crypto price | ~$0.001 |\n| `aman_token_audit` | On-chain token audit (backing, flags, holders, depth) | ~$0.025 |\n| `aman_market_report` | Full market report | ~$0.03 |\n| `aman_llm_chat` | LLM completion | ~$0.008 |\n| `aman_image_gen` | Image generation | ~$0.013 |\n| `aman_web_search` / `aman_web_fetch` / `aman_summarize` | Web pipeline | ~$0.003–0.008 |\n| `aman_crypto_whale_watch` | Whale transaction watch | ~$0.10 |\n| `aman_geo_ip`, `aman_weather`, `aman_fx_rates`, `aman_translate` … | utilities | ~$0.001–0.005 |\n\nPrices are set by the network, quoted live in every 402 response, and published in\nthe [live catalog](https://amanchain-relay.gitajhd.workers.dev/.well-known/x402.json).\nEvery payment produces an on-chain receipt — see the public\n[receipts ledger](https://amanchain-relay.gitajhd.workers.dev/receipts).\n\n## Safety\n\n- Your key **never leaves your machine** — it only signs EIP-3009 USDC transfers locally.\n- `AMAN_MAX_USD_PER_CALL` (default **$0.05**) — refuses any pricier quote.\n- `AMAN_MAX_USD_PER_DAY` (default **$1.00**) — rolling daily cap, persisted in `~/.amanchain-mcp-spend.json`.\n- Prices are taken **only from the server's signed 402 challenge** — never guessed.\n\nAll env vars: `AMAN_PRIVATE_KEY`, `AMAN_ORIGIN`, `AMAN_MAX_USD_PER_CALL`, `AMAN_MAX_USD_PER_DAY`, `AMAN_SPEND_LEDGER`.\n\n## How it works\n\n```\nagent ── tools/call ──▶ amanchain-mcp ──▶ POST /api/x402/<service>\n                              ◀────────── 402 + signed price challenge\n        local EIP-3009 signature (USDC on Base, gasless)\n                              ──▶ retry + PAYMENT-SIGNATURE\n                              ◀────────── 200 + result + on-chain receipt\n```\n\nAmanChain is a quantum-resistant proof-of-work chain whose AI marketplace settles\nagent payments on-chain — service results and receipts are mined into blocks.\n\n## Links\n\n- Live catalog: `/.well-known/x402.json`\n- Public receipts: `/receipts`\n- Ecosystem: [x402scan](https://x402scan.com) · [402index](https://402index.io)\n\nMIT © AmanChain\n",
+  "status": "curated"
+}

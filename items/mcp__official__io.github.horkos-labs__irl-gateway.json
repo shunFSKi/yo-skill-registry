@@ -1,0 +1,89 @@
+{
+  "id": "mcp:official/io.github.horkos-labs/irl-gateway",
+  "type": "mcp",
+  "name": "IRL Gateway",
+  "description": "An AI agent's trading mandate it can't break: checked before every order, reasoning sealed in IRL.",
+  "author": "io.github.horkos-labs",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/horkos-labs/irl-gateway",
+    "repo": "horkos-labs/irl-gateway"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "irl-gateway"
+    ],
+    "env": [
+      {
+        "name": "IRL_BASE_URL",
+        "required": true,
+        "secret": false
+      },
+      {
+        "name": "IRL_API_TOKEN",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "IRL_AGENT_ID",
+        "required": true,
+        "secret": false
+      },
+      {
+        "name": "IRL_MODEL_HASH",
+        "required": true,
+        "secret": false
+      },
+      {
+        "name": "GATEWAY_BROKER",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "PAPER_BALANCES",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-10-06T17:29:41.997217Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "金融",
+    "featured": false
+  },
+  "readme": "# IRL Gateway\n\n<!-- mcp-name: io.github.horkos-labs/irl-gateway -->\n\n**Give your AI agent a trading account it can't misuse, and a record of every decision it can't rewrite.**\n\nIRL Gateway is an [MCP](https://modelcontextprotocol.io) server that sits between an AI agent (Claude, ChatGPT, or your own) and an exchange account. Every order the agent places goes through the [IRL Engine](https://irl.macropulse.live):\n\n1. **Policy before execution.** IRL checks the order against the agent's mandate (active status, notional cap, allowed assets and venues) before anything reaches the exchange. Out of mandate means no order.\n2. **The rationale is sealed.** The agent must say why it is trading. The gateway hashes that rationale together with the trade inputs and seals the hash into IRL's tamper-evident trace, anchored daily to Bitcoin. The plaintext stays in your local journal.\n3. **Intent is reconciled with the fill.** After the exchange fills the order, IRL compares what was authorized with what executed and records `MATCHED` or `DIVERGENT`.\n\nWhen something goes wrong, you can prove what the agent was allowed to do, what it said it was doing, and what actually happened.\n\n```\nAI agent ── MCP ──> irl-gateway ──> IRL: authorize (policy + sealed rationale)\n                         │\n                         ├──────> exchange: market order (client id = sealed intent)\n                         │\n                         └──────> IRL: bind fill -> MATCHED / DIVERGENT\n```\n\n## Tools\n\n| Tool | What it does |\n| --- | --- |\n| `execute_trade(symbol, side, rationale, quantity \\| notional)` | The only tool that moves money. Spot market order through authorize → place → bind. Returns `filled`, `denied`, `blocked` or `failed`, with the IRL `trace_id` and verdict. |\n| `get_policy()` | The agent's mandate as IRL enforces it, plus the local kill-switch state. |\n| `get_quote(symbol)` | Last price on the gateway's venue. |\n| `get_balances()` | Free balances (paper or exchange). |\n| `get_trace(trace_id)` | IRL's sealed record of one trade. |\n| `list_recent_trades(limit)` | Local journal: rationale, context hash, trace id and outcome per trade. |\n\nBehaviour the agent can rely on:\n\n- **Fail closed.** If IRL is unreachable or denies the intent, no order is sent.\n- **Kill switch.** Create the file `~/.irl-gateway/KILL` and every trade is refused before IRL is even called. Delete it to resume.\n- **No silent fills.** If the exchange fills but the IRL bind fails, the result still reports the fill and flags it for reconciliation.\n\n## Quick start (paper trading)\n\nYou need an IRL server and an agent registered on it. Paper trading is the default: fills are simulated at live public Binance prices, and no exchange keys are needed.\n\n```bash\npip install irl-gateway      # or run it without installing: uvx irl-gateway\n```\n\nRegister the agent once, with its mandate:\n\n```bash\ncurl -X POST \"$IRL_BASE_URL/irl/agents\" -H \"Authorization: Bearer $IRL_API_TOKEN\" \\\n  -H \"Content-Type: application/json\" -d '{\n    \"name\": \"my-claude-trader\",\n    \"model_hash_hex\": \"<sha256 of your agent config>\",\n    \"max_notional\": 100,\n    \"allowed_assets\": [\"BTC/USDT\", \"ETH/USDT\"],\n    \"allowed_venues\": [\"paper-binance\"]\n  }'\n```\n\nThen add the gateway to your MCP client, for example Claude Code or Claude Desktop:\n\n```json\n{\n  \"mcpServers\": {\n    \"irl-gateway\": {\n      \"command\": \"uvx\",\n      \"args\": [\"irl-gateway\"],\n      \"env\": {\n        \"IRL_BASE_URL\": \"https://irl.example.com\",\n        \"IRL_API_TOKEN\": \"…\",\n        \"IRL_AGENT_ID\": \"<agent_id from registration>\",\n        \"IRL_MODEL_HASH\": \"<the same model_hash_hex>\",\n        \"AGENT_MODEL_ID\": \"claude-opus-5-5\",\n        \"PAPER_BALANCES\": \"USDT=1000\"\n      }\n    }\n  }\n}\n```\n\nAsk the agent to check `get_policy`, then trade.\n\n## Configuration\n\n| Variable | Default | Meaning |\n| --- | --- | --- |\n| `IRL_BASE_URL`, `IRL_API_TOKEN` | required | IRL server and bearer token |\n| `IRL_AGENT_ID`, `IRL_MODEL_HASH` | required | The registered agent and its model hash |\n| `AGENT_MODEL_ID` | `unspecified-model` | Model name sealed into each trace (the agent can override it per trade) |\n| `AGENT_CONFIG_CHECKSUM` | `none` | Optional checksum of the agent's configuration, sealed into each trace |\n| `IRL_L2_MODE` | `off` | `regime` if your IRL server requires Layer 2 regime binding |\n| `GATEWAY_BROKER` | `paper` | `paper` or `exchange` |\n| `EXCHANGE_ID` | `binance` | Any ccxt exchange id; also the price source for paper trading |\n| `EXCHANGE_API_KEY`, `EXCHANGE_API_SECRET` | | Required for `exchange` |\n| `EXCHANGE_TESTNET` | `true` | Use the exchange's testnet |\n| `PAPER_BALANCES` | `USDT=1000` | Starting paper balances (used only until `paper_state.json` exists; the paper account then persists across restarts) |\n| `IRL_GATEWAY_HOME` | `~/.irl-gateway` | Journal (`journal.jsonl`), kill switch (`KILL`) and paper account (`paper_state.json`) location |\n\nThe venue IRL sees is the exchange id (`binance`), or `paper-<exchange>` for paper trading, so a mandate can allow paper trading while denying the real account.\n\n## How the rationale is sealed\n\nFor each trade the gateway builds a context of the rationale, symbol, side, quantity, reference price, venue, model id and client order id. It hashes that context as canonical JSON (sorted keys, no whitespace) with SHA-256 and sends the hash to IRL as `prompt_version = \"ctx-sha256:<hex>\"`, which IRL seals into the trace's `reasoning_hash`.\n\nThe journal stores the full context next to its hash, so anyone holding a journal line can recompute the hash and match it to the sealed trace. IRL itself never sees the rationale's text.\n\n## Development\n\n```bash\npython -m venv .venv && .venv/bin/pip install -e \".[dev]\"\npytest --cov=irl_gateway\nruff check src tests && black --check src tests && isort --check-only src tests && mypy src\n```\n\n## Status\n\nEarly (0.1). Spot market orders only. Paper trading and ccxt exchanges are supported; Alpaca is next. Not investment advice, and no strategy is included: the gateway controls and records what your agent does, it does not decide.\n\nMIT licensed.\n",
+  "status": "curated"
+}

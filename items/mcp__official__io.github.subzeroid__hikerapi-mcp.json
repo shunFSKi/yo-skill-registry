@@ -1,0 +1,70 @@
+{
+  "id": "mcp:official/io.github.subzeroid/hikerapi-mcp",
+  "type": "mcp",
+  "name": "HikerAPI",
+  "description": "Instagram data via HikerAPI: profiles, posts, reels, stories, comments, hashtags, locations.",
+  "author": "io.github.subzeroid",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/subzeroid/hikerapi-mcp",
+    "repo": "subzeroid/hikerapi-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "hikerapi-mcp"
+    ],
+    "env": [
+      {
+        "name": "HIKERAPI_KEY",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "HIKERAPI_TOOLS",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-10-06T18:11:16.290847Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# hikerapi-mcp\n\n[![npm version](https://img.shields.io/npm/v/hikerapi-mcp.svg)](https://www.npmjs.com/package/hikerapi-mcp)\n[![npm downloads](https://img.shields.io/npm/dm/hikerapi-mcp.svg)](https://www.npmjs.com/package/hikerapi-mcp)\n[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)\n\nMCP server for [HikerAPI](https://hikerapi.com) — Instagram data API. Available on npm: [`hikerapi-mcp`](https://www.npmjs.com/package/hikerapi-mcp).\n\nGenerates MCP tools from the HikerAPI OpenAPI spec at startup. HikerAPI only exposes read (`GET`) endpoints — each tool maps 1:1 to one of them (`GET /v2/user/by/username` → `get_v2_user_by_username`). By default you get a **core set of ~45 tools**, one per task, each with a description that tells the assistant when to use it; `HIKERAPI_TOOLS=all` exposes every non-deprecated endpoint (100+).\n\n## Get 100 Free API Requests\n\n**[Sign up with this link](https://hikerapi.com/p/hsazcgym)** and get **100 free HikerAPI requests** — no credit card required. Enough to wire up the MCP server, try a few prompts in Claude/Cursor/Codex, and evaluate the data quality before committing.\n\n> **[Get your free 100 requests here](https://hikerapi.com/p/hsazcgym)**\n\n## Quick start\n\n1. Get an API key at [hikerapi.com/tokens](https://hikerapi.com/tokens).\n2. Add the server to your AI assistant.\n3. Ask your assistant something like:\n   - *\"Get the Instagram profile for @nasa.\"*\n   - *\"Find the top 5 recent posts under the hashtag `#photography`.\"*\n   - *\"Show stories for the user with id 25025320.\"*\n\n### Claude Code\n\n```bash\nclaude mcp add hikerapi -e HIKERAPI_KEY=your-api-key -- npx -y hikerapi-mcp\n```\n\n### Claude Desktop\n\nAdd to `claude_desktop_config.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"hikerapi\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"hikerapi-mcp\"],\n      \"env\": {\n        \"HIKERAPI_KEY\": \"your-api-key\"\n      }\n    }\n  }\n}\n```\n\n### Cursor / Windsurf\n\nSame shape as Claude Desktop — put the block under `mcpServers` in the app's MCP config file.\n\n### Zed\n\nAdd to `~/.config/zed/settings.json`:\n\n```json\n{\n  \"context_servers\": {\n    \"hikerapi\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"hikerapi-mcp\"],\n      \"env\": {\n        \"HIKERAPI_KEY\": \"your-api-key\"\n      }\n    }\n  }\n}\n```\n\n### OpenAI Codex\n\nAppend to `~/.codex/config.toml`:\n\n```toml\n[mcp_servers.hikerapi]\ncommand = \"npx\"\nargs = [\"-y\", \"hikerapi-mcp\"]\n\n[mcp_servers.hikerapi.env]\nHIKERAPI_KEY = \"your-api-key\"\n```\n\n## Tools\n\nTools are generated at startup from the live [HikerAPI OpenAPI spec](https://api.hikerapi.com/openapi.json).\n\nHikerAPI has 100+ `GET` endpoints, and most of them are version variants of the same call (`v1` / `v2` / `gql` / `g2`). Handing all of them to an assistant makes it pick the wrong one, so the default **core set** keeps one endpoint per task:\n\n| Group                    | Tools | Examples                                                                         |\n| ------------------------ | ----- | -------------------------------------------------------------------------------- |\n| Profiles                 | 16    | `get_v2_user_by_username`, `get_gql_user_medias`, `get_g2_user_followers`        |\n| Posts, comments, likers  | 8     | `get_v2_media_info_by_url`, `get_v2_media_comments`, `get_v2_media_likers`       |\n| Search                   | 7     | `get_v2_fbsearch_accounts`, `get_v2_fbsearch_reels`, `get_v1_search_hashtags`    |\n| Hashtags                 | 4     | `get_v2_hashtag_medias_top`, `get_v2_hashtag_medias_recent`                      |\n| Locations                | 3     | `get_g2_location_by_id`, `get_v1_location_medias_recent_chunk`                   |\n| Stories, highlights, links | 5   | `get_v2_story_by_url`, `get_v2_highlight_by_id`, `get_v1_share_by_url`           |\n| Audio                    | 1     | `get_v2_track_by_id`                                                             |\n\nCore tools carry hand-written descriptions (what the tool does, when to prefer a sibling, pagination, billing) and every tool is annotated read-only. The list lives in [`src/curated.ts`](src/curated.ts).\n\nSet `HIKERAPI_TOOLS=all` to expose every non-deprecated endpoint instead — same tool names as before, so existing prompts keep working. Tool names mirror their endpoint (`GET /v2/user/by/username` → `get_v2_user_by_username`); call `tools/list` over MCP for the current list with parameter schemas. `Legacy` and `System` groups are excluded in both modes.\n\n## Configuration\n\n| Variable                      | Description                                                                            | Required |\n| ----------------------------- | -------------------------------------------------------------------------------------- | -------- |\n| `HIKERAPI_KEY`                | Your HikerAPI access key (sent as `x-access-key` header)                               | yes      |\n| `HIKERAPI_URL`                | Base URL. Default: `https://api.hikerapi.com` (alias `https://api.instagrapi.com`)     | no       |\n| `HIKERAPI_SPEC_URL`           | OpenAPI spec URL. Default: `${HIKERAPI_URL}/openapi.json`                              | no       |\n| `HIKERAPI_TOOLS`              | `core` (default): curated set, one tool per task. `all`: every non-deprecated endpoint | no       |\n| `HIKERAPI_TAGS`               | Whitelist: only include operations with these tags (comma-separated)                   | no       |\n| `HIKERAPI_EXCLUDE_TAGS`       | Blacklist: additional tags to exclude (on top of default `Legacy`,`System`)            | no       |\n| `HIKERAPI_TIMEOUT_MS`         | Per-request timeout for API calls. Default: `30000`                                    | no       |\n| `HIKERAPI_SPEC_TIMEOUT_MS`    | Timeout for the startup spec fetch. Default: `60000`                                   | no       |\n| `HIKERAPI_SPEC_RETRY_DELAY_MS` | Base delay between the 3 startup spec fetch attempts. Default: `2000`                | no       |\n| `HIKERAPI_MAX_RESPONSE_BYTES` | Max bytes read from each API response. Default: `10485760` (10 MB)                     | no       |\n| `HIKERAPI_MAX_SPEC_BYTES`     | Max bytes read from the OpenAPI spec. Default: `8388608` (8 MB)                        | no       |\n\n`Legacy` and `System` tags are excluded by default. Deprecated operations are also skipped.\n\nIf `HIKERAPI_URL` points to a host other than `api.hikerapi.com` or `api.instagrapi.com`, the server prints a warning on startup — your key will be sent there, so only use it for a self-hosted or proxied HikerAPI.\n\nRequests are sent with `User-Agent: hikerapi-mcp/<version>`.\n\nExample — expose every endpoint of the most common groups:\n\n```json\n\"env\": {\n  \"HIKERAPI_KEY\": \"...\",\n  \"HIKERAPI_TOOLS\": \"all\",\n  \"HIKERAPI_TAGS\": \"User Profile,Post Details,Search,Hashtags,Stories\"\n}\n```\n\n## How it works\n\n```\nAI Assistant ←stdio→ hikerapi-mcp ──https──> api.hikerapi.com\n                          │\n                          └─ fetches /openapi.json once on startup,\n                             builds one MCP tool per GET endpoint\n                             (core set by default)\n```\n\nTool arguments map to the endpoint's `query` and `path` parameters. The response body is returned as-is (JSON text). Non-2xx responses are surfaced as tool errors with the HTTP status and body.\n\n## Development\n\n```bash\ngit clone https://github.com/subzeroid/hikerapi-mcp.git\ncd hikerapi-mcp\nnpm install\nnpm run build\nHIKERAPI_KEY=your-key node dist/index.js\n```\n\nRun in watch mode:\n\n```bash\nHIKERAPI_KEY=your-key npm run dev\n```\n\nRun tests (unit + stdio smoke tests against a local mock server, no network/API key required):\n\n```bash\nnpm test\n```\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

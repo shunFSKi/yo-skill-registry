@@ -1,0 +1,69 @@
+{
+  "id": "mcp:official/io.github.BrightbeamAI/brevet",
+  "type": "mcp",
+  "name": "Brevet",
+  "description": "Change control for what AI agents learn: humans promote, releases are signed, rules can be recalled",
+  "author": "io.github.BrightbeamAI",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/BrightbeamAI/brevet",
+    "repo": "BrightbeamAI/brevet"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "brevet"
+    ],
+    "env": [
+      {
+        "name": "BREVET_HOME",
+        "required": true,
+        "secret": false
+      },
+      {
+        "name": "BREVET_AUTO_CAPTURE",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-10-06T18:46:57.664146Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "<p align=\"center\">\n  <a href=\"https://github.com/BrightbeamAI\">\n    <picture>\n      <source media=\"(prefers-color-scheme: dark)\" srcset=\"docs/assets/brightbeam-logo-dark.svg\">\n      <img src=\"docs/assets/brightbeam-logo-light.svg\" alt=\"Brightbeam\" width=\"220\">\n    </picture>\n  </a>\n</p>\n\n<h1 align=\"center\">Brevet: Change Control for What AI Agents Learn</h1>\n\n<p align=\"center\"><b>A governed evolution loop that makes agent learning promotable,\nauditable, and revocable.</b></p>\n\n<p align=\"center\">\n  <a href=\"https://www.python.org/downloads/\"><img src=\"https://img.shields.io/badge/python-3.10%2B-blue.svg\" alt=\"Python 3.10+\"></a>\n  <a href=\"LICENSE\"><img src=\"https://img.shields.io/badge/license-Apache--2.0-green.svg\" alt=\"License: Apache-2.0\"></a>\n  <a href=\"https://github.com/BrightbeamAI/brevet/actions/workflows/ci.yml\"><img src=\"https://github.com/BrightbeamAI/brevet/actions/workflows/ci.yml/badge.svg\" alt=\"CI\"></a>\n  <a href=\"https://github.com/BrightbeamAI/chap\"><img src=\"https://img.shields.io/badge/CHAP-compatible-EA4700.svg\" alt=\"CHAP-compatible\"></a>\n</p>\n\n<!-- mcp-name: io.github.BrightbeamAI/brevet -->\n\n---\n\nAI agents now change their own behaviour while they work. They save memories,\nwrite themselves new skills and edit their own instructions. Many of these\nchanges help. Yet none of them passes through the steps an organisation expects\nwhen a person changes how work is done. Nobody writes the change down, nobody\napproves it, and when it turns out to be wrong there is no earlier version to\ngo back to.\n\nBrevet adds those steps. It is a local-first Python runtime that wraps the\nagent you already have and runs its learning as a **governed evolution loop**.\nWhen an expert corrects the agent's draft, Brevet records the correction and its\nreason as an **override**. Offline, in the **dream** cycle, overrides that keep\nrecurring become **candidate** capabilities: proposed rules and other learned\nbehaviour, with no authority. At the **dawn** gate, a named human or **mission\ngroup** (the accountable review board) decides which candidates to promote. The\noverrides then replay as **evals**, and the **conservative gate** stops a\nrelease that makes either half of them worse. Promoted capabilities ship in a\nsigned **release**, listed in `capabilities.lock`, and a capability that proves\nwrong can be **recalled**, with every release that shipped it flagged. Every\nstep is recorded on a hash-linked **evidence chain**.\n\n> Agents propose deltas; evidence tests them; humans promote them;\n> the runtime only ever executes signed versions.\n\n<p align=\"center\">\n  <picture>\n    <source media=\"(prefers-color-scheme: dark)\" srcset=\"docs/assets/how-it-works-dark.svg\">\n    <img src=\"docs/assets/how-it-works-light.svg\" alt=\"The governed evolution loop: the agent works under one signed harness; an expert's correction is recorded as an override; the dream cycle turns recurring overrides into candidate capabilities with no authority; at the dawn gate a named human or mission group promotes, holds or rejects each candidate; evals replay the overrides and the conservative gate must pass; promoted capabilities ship in a signed release listed in capabilities.lock. A capability that proves wrong is recalled and every release that shipped it is flagged.\" width=\"900\">\n  </picture>\n</p>\n\n## Three questions Brevet answers\n\n| Question | How Brevet answers it |\n|---|---|\n| **What has the agent learned?** | Every release carries `capabilities.lock`, the capability bill of materials: each learned capability, where it came from and the hash of its exact content. |\n| **Who approved it?** | Each capability records the human or mission group that promoted it at the dawn gate, with the overrides that justified it. |\n| **How do we take it back?** | Recall it. Brevet flags every release that shipped it and records why it was recalled. |\n\n## A concrete example\n\nA quality reviewer at a pharmaceutical plant checks an agent's severity rating\nfor each equipment problem. The agent rates pump vibration during cleaning as\n*minor*. She overrides it to *major* every time, because that vibration is an\nearly sign of seal wear. After four overrides, the dream cycle proposes a\ncandidate rule. At dawn her mission group promotes it, and release 0.2.0 ships\nwith the rule in its `capabilities.lock`. Months later, engineers trace the\nvibration to a faulty sensor, so the mission group recalls the rule and Brevet\nflags release 0.2.0.\n\n<p align=\"center\">\n  <picture>\n    <source media=\"(prefers-color-scheme: dark)\" srcset=\"docs/assets/example-dark.svg\">\n    <img src=\"docs/assets/example-light.svg\" alt=\"The example as a timeline: over three weeks the reviewer records four overrides; that night the dream cycle proposes a candidate rule at the Evidence layer; next morning at dawn the mission group promotes it and release 0.2.0 ships signed; months later the rule is recalled and release 0.2.0 is flagged.\" width=\"860\">\n  </picture>\n</p>\n\n<details>\n<summary><b>The same story in code</b></summary>\n\nThe agent here is a plain Python function; with a real framework you pass your\nagent object instead.\n\n```python\nimport brevet\nfrom brevet.runner import EvalRunner\n\nagent = brevet.wrap(triage_agent)          # wrap the agent you already have\n\n# Work and override: the agent drafts; the reviewer corrects the draft and says why.\nresult = agent.run(\"Pump P-301: vibration high during cleaning\",\n                   task_family=\"equipment_triage\")\nagent.record_final(result.task_id, \"severity: major\",\n                   participant=\"human:qa.reviewer@example.com\",\n                   rationale=\"Vibration during cleaning is an early sign of seal wear.\",\n                   tags=[\"vibration-during-cleaning\"])\n\n# Dream: once the same override keeps recurring, it becomes a candidate.\nagent.dream()\ncandidates = agent.dawn()                   # the dawn queue\nrule = next(c for c in candidates if c.kind == \"prompt_rule\")\n\n# Dawn: a named mission group promotes it. A dream:* approver is rejected.\nagent.dawn(decide=(rule.capability_id, \"promote\"),\n           approver=\"mission_group:quality_team\")\n\n# Evals: replay the overrides as tests, before and after the change.\nbefore = agent.evaluate()\n#    ...update your agent so that it follows the promoted rule...\nafter = agent.evaluate()\n\n# Release: refused unless the conservative gate passes.\ncheck = EvalRunner.compare(before, after)\nagent.release(to_version=\"0.2.0\", channel=\"trial\",\n              approver=\"mission_group:quality_team\",\n              delta_in=check[\"delta_held_in\"], delta_out=check[\"delta_held_out\"])\n\n# Recall: the rule proves wrong. Then verify the whole evidence chain.\nagent.recall(rule.capability_id, reason=\"The vibration came from a faulty sensor.\",\n             issued_by=\"mission_group:quality_team\")\nagent.verify()\n```\n\nThe full script is [examples/pump_vibration.py](examples/pump_vibration.py), and\n[ABOUT.md](ABOUT.md#the-worked-example) shows what it prints.\n\n</details>\n\n## Quickstart\n\n```console\npip install brevet\nbrevet demo                  # the whole loop as one command\nbrevet playground            # step through the loop in your browser\n```\n\nEverything runs on your own machine, with no model or network connection. To\nrun the example above, clone the repository and run\n`python examples/pump_vibration.py`. For a guided, clickable tour, open\n[docs/demo.html](docs/demo.html) in a browser.\n\n## Works with the agent you already have\n\n`brevet.wrap()` recognises agents built with LangGraph, the Claude Agent SDK,\nDeepAgents, AutoGen, LlamaIndex, Pydantic AI, the Google Agent Development Kit,\nCrewAI and the OpenAI Agents SDK, and it accepts any Python function. Brevet\nnever changes the agent it wraps. `uvx brevet mcp` offers the whole loop to any\nMCP client ([ABOUT.md](ABOUT.md#the-mcp-server) shows the setup), and\n[examples/claude-cowork](examples/claude-cowork) uses it to govern what Claude\nitself learns.\n\n## Project status\n\nBrevet implements the whole loop and keeps every record, and a workspace can\nrequire every decision to be signed by its registered approvers. Some\nprotections depend on the system you deploy it in, such as verifying who holds\neach key and anchoring the evidence chain outside the machine.\n[ABOUT.md](ABOUT.md#project-status) lists them, and the [paper](#citation) sets\nthem out in full.\n\n## Learn more\n\n- **[ABOUT.md](ABOUT.md)**: the seven stages, the authority ladder, supported\n  frameworks, the MCP server and commands, how Brevet fits with CHAP and Metis,\n  and how the repository is organised.\n- **[GLOSSARY.md](GLOSSARY.md)**: every term, with its plain meaning first.\n- **[SPEC.md](SPEC.md)**: the rules any implementation must follow.\n- **[BENCHMARK.md](BENCHMARK.md)**: the proposed governed-adaptation benchmark.\n\n## Citation\n\nIf you use Brevet in research, please cite the paper *Brevet: Change Control\nfor What Self-Evolving AI Agents Learn* (Shahid, Suttie and Black, 2026).\n[CITATION.cff](CITATION.cff) gives the software citation.\n\n## License\n\nApache-2.0. See [LICENSE](LICENSE). Brevet is a\n[Brightbeam](https://github.com/BrightbeamAI) project.\n",
+  "status": "curated"
+}

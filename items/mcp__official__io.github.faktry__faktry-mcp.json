@@ -1,0 +1,65 @@
+{
+  "id": "mcp:official/io.github.faktry/faktry-mcp",
+  "type": "mcp",
+  "name": "faktry",
+  "description": "Official faktry MCP server: generate and edit images, video, audio, and PDFs.",
+  "author": "io.github.faktry",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/faktry/faktry-mcp",
+    "repo": "faktry/faktry-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@faktry/mcp"
+    ],
+    "env": [
+      {
+        "name": "FAKTRY_API_KEY",
+        "required": false,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-10-06T18:33:22.564174Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "设计",
+    "featured": false
+  },
+  "readme": "<p align=\"center\">\n  <a href=\"https://faktry.ai\">\n    <picture>\n      <source media=\"(prefers-color-scheme: dark)\" srcset=\"assets/logo_white.png\">\n      <source media=\"(prefers-color-scheme: light)\" srcset=\"assets/logo_black.png\">\n      <img alt=\"faktry\" src=\"assets/logo_black.png\" width=\"240\">\n    </picture>\n  </a>\n</p>\n\n<h1 align=\"center\">faktry MCP</h1>\n\n<p align=\"center\">\n  <strong>Bring the whole faktry media stack into the tools you already use.</strong><br>\n  Generate and edit images, video, audio, and PDFs from any MCP-compatible client.\n</p>\n\n<p align=\"center\">\n  <a href=\"./LICENSE\"><img alt=\"License: MIT\" src=\"https://img.shields.io/badge/License-MIT-1f9dff.svg\"></a>\n  <a href=\"https://faktry.ai/mcp\"><img alt=\"Docs\" src=\"https://img.shields.io/badge/Docs-faktry.ai%2Fmcp-1f9dff\"></a>\n</p>\n\n<p align=\"center\">\n  <a href=\"#install\">Install</a> ·\n  <a href=\"#tools\">Tools</a> ·\n  <a href=\"#example-prompts\">Examples</a> ·\n  <a href=\"#troubleshooting\">Troubleshooting</a>\n</p>\n\n<p align=\"center\">\n  <img src=\"assets/platform.png\" alt=\"faktry platform\" width=\"100%\">\n</p>\n\n---\n\nThe **faktry MCP server** exposes the full faktry toolkit — over 70 tools spanning image, video, audio, PDF, and 3D generation and editing — to any client that speaks the [Model Context Protocol](https://modelcontextprotocol.io). Generate a product shot, cut it into a UGC-style video with a voiceover, subtitle it, and export a thumbnail sheet, all without leaving the chat.\n\n- <img src=\"assets/icon_black.png\" width=\"14\" align=\"top\"> **Hosted, remote.** Connect to `https://faktry.ai/api/mcp` — no local server to run. stdio-only clients can use the `npx -y @faktry/mcp` bridge.\n- **OAuth or API key, your choice.** One-click connect from Claude.ai, Claude Desktop, Cursor, and Hermes, or drop a static API key into any config-based client.\n- **Async by default.** Long-running jobs (video, some image/audio) return a `job_id` immediately; poll `faktry_job_status` until it's ready.\n- **A library that remembers.** Save any result with `faktry_library_save` and pull it back into a later session with `faktry_library_list`.\n- **You pay through your faktry account.** Usage draws down your existing credit balance — check it anytime with `faktry_credits`.\n\n---\n\n## Install\n\n### One-click / OAuth\n\nThese clients handle authentication for you — paste the URL, sign in, approve.\n\n**MCP Server URL:**\n\n```\nhttps://faktry.ai/api/mcp\n```\n\n<details open>\n<summary><strong>Claude.ai</strong></summary>\n\n1. Open Claude.ai → **Settings → Integrations**.\n2. Click **Add MCP Server** and paste the URL above.\n3. Claude.ai redirects you to faktry — sign in and click **Approve**.\n4. Done — Claude.ai stores the token automatically.\n\n</details>\n\n<details>\n<summary><strong>Claude Desktop</strong></summary>\n\n1. Open Claude Desktop → **Settings → Developer → MCP Servers**.\n2. Click **Add Server** and paste the URL above.\n3. A browser window opens — sign in to faktry and click **Approve**.\n4. Restart Claude Desktop if tools don't appear immediately.\n\n</details>\n\n<details>\n<summary><strong>Cursor</strong></summary>\n\n1. Open Cursor → **Settings → AI → MCP Servers**.\n2. Click **Add MCP Server** and paste the URL above.\n3. Cursor detects OAuth and opens a browser login window.\n4. Sign in to faktry, approve access, and return to Cursor.\n\n</details>\n\n<details>\n<summary><strong>Hermes Agent</strong></summary>\n\n1. Open Hermes Agent → **Settings → MCP Servers**.\n2. Click **+** and paste the URL above.\n3. Hermes opens a browser login — sign in to faktry and approve.\n4. Toggle the server on — tools appear immediately.\n\n</details>\n\n<details>\n<summary><strong>ChatGPT Desktop</strong> <sub>(Business / Enterprise / Edu only)</sub></summary>\n\n1. Enable **Developer Mode** in Settings → Beta Features.\n2. Go to **Settings → MCP Servers → Add Server**.\n3. Paste the URL above and follow the browser OAuth flow.\n\n</details>\n\n### Config file / API key\n\nCreate an API key at [faktry.ai/api/keys](https://faktry.ai/api/keys) first, then add faktry to your client's config. Replace `YOUR_API_KEY_HERE` with your real key — it's only shown once when created.\n\n<details>\n<summary><strong>Claude Code</strong></summary>\n\nAdd to `.mcp.json` (project) or `~/.claude.json` (user):\n\n```json\n{\n  \"mcpServers\": {\n    \"faktry\": {\n      \"type\": \"http\",\n      \"url\": \"https://faktry.ai/api/mcp\",\n      \"headers\": { \"Authorization\": \"Bearer YOUR_API_KEY_HERE\" }\n    }\n  }\n}\n```\n\nPicked up automatically — no restart needed.\n\n</details>\n\n<details>\n<summary><strong>VS Code (Copilot)</strong></summary>\n\nAdd to `.vscode/mcp.json` (workspace) or via **Settings → MCP Servers**:\n\n```json\n{\n  \"servers\": {\n    \"faktry\": {\n      \"type\": \"http\",\n      \"url\": \"https://faktry.ai/api/mcp\",\n      \"headers\": { \"Authorization\": \"Bearer YOUR_API_KEY_HERE\" }\n    }\n  }\n}\n```\n\n</details>\n\n<details>\n<summary><strong>Windsurf</strong></summary>\n\nEdit `~/.codeium/windsurf/mcp_config.json` (`%USERPROFILE%\\.codeium\\windsurf\\mcp_config.json` on Windows) — note Windsurf uses `serverUrl`, not `url`:\n\n```json\n{\n  \"mcpServers\": {\n    \"faktry\": {\n      \"serverUrl\": \"https://faktry.ai/api/mcp\",\n      \"headers\": { \"Authorization\": \"Bearer YOUR_API_KEY_HERE\" }\n    }\n  }\n}\n```\n\nRestart Windsurf to activate the tools.\n\n</details>\n\n<details>\n<summary><strong>Continue.dev</strong></summary>\n\nAdd to `~/.continue/config.yaml`:\n\n```yaml\nmcpServers:\n  faktry:\n    type: http\n    url: https://faktry.ai/api/mcp\n    requestOptions:\n      headers:\n        Authorization: \"Bearer YOUR_API_KEY_HERE\"\n```\n\nContinue.dev reloads automatically.\n\n</details>\n\n<details>\n<summary><strong>Codex CLI</strong></summary>\n\nAdd to `~/.codex/config.toml`:\n\n```toml\n[mcp.servers.faktry]\ntype = \"http\"\nurl = \"https://faktry.ai/api/mcp\"\n\n[mcp.servers.faktry.headers]\nAuthorization = \"Bearer YOUR_API_KEY_HERE\"\n```\n\nVerify with `codex mcp list`.\n\n</details>\n\n<details>\n<summary><strong>stdio clients (npx)</strong> <sub>— Zed, older Claude Desktop configs, and anything without remote MCP</sub></summary>\n\nThe [`@faktry/mcp`](https://www.npmjs.com/package/@faktry/mcp) package is a thin stdio bridge to the hosted server. Requires Node 18+.\n\nGeneric form:\n\n```bash\nFAKTRY_API_KEY=YOUR_API_KEY_HERE npx -y @faktry/mcp\n```\n\nClaude Desktop (`claude_desktop_config.json`) and most other `mcpServers` clients:\n\n```json\n{\n  \"mcpServers\": {\n    \"faktry\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@faktry/mcp\"],\n      \"env\": { \"FAKTRY_API_KEY\": \"YOUR_API_KEY_HERE\" }\n    }\n  }\n}\n```\n\nZed (`settings.json`, `%APPDATA%\\Zed\\settings.json` on Windows):\n\n```json\n{\n  \"context_servers\": {\n    \"faktry\": {\n      \"source\": \"custom\",\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@faktry/mcp\"],\n      \"env\": { \"FAKTRY_API_KEY\": \"YOUR_API_KEY_HERE\" }\n    }\n  }\n}\n```\n\nLeave `FAKTRY_API_KEY` out to sign in through the browser (OAuth) instead.\n\n</details>\n\n<details>\n<summary><strong>Kilo Code</strong></summary>\n\n1. Open the Kilo Code extension settings → **MCP Servers**.\n2. Add a new server using the same JSON snippet as Claude Code above.\n3. Replace `YOUR_API_KEY_HERE` with your actual key.\n\n</details>\n\n<details>\n<summary><strong>Other MCP clients</strong></summary>\n\nAdd a remote HTTP server pointing at `https://faktry.ai/api/mcp` with header:\n\n```\nAuthorization: Bearer YOUR_API_KEY_HERE\n```\n\nFull per-client snippets and paths are also generated at [faktry.ai/mcp](https://faktry.ai/mcp).\n\n</details>\n\n---\n\n## Tools\n\nYour client picks which tool to call based on your prompt — you don't need to invoke them by name. faktry exposes 70+ tools across five categories:\n\n| Category | Examples | What it covers |\n| --- | --- | --- |\n| `faktry_image_*` | `generate`, `edit`, `inpaint`, `outpaint`, `upscale`, `removebackground`, `effects`, `collage`, `watermark`, `smartcrop` | Text-to-image, editing, upscaling, background removal, compositing |\n| `faktry_video_*` | `text2video`, `image2video`, `avatar`, `motioncontrol`, `subtitle`, `reframe`, `stabilize`, `upscale`, `scenedetect` | Generation, editing, avatars, motion control, subtitles, reframing |\n| `faktry_audio_*` | `generatespeech`, `clonevoice`, `generatemusic`, `generatesound`, `mix`, `transcribe`, `trim` | Speech synthesis, voice cloning, music/SFX generation, mixing |\n| `faktry_pdf_*` | `create`, `merge`, `split`, `compress`, `extract`, `mdconvert` | PDF creation and manipulation |\n| `faktry_3d_*` | `image23d`, `text23d` | 3D asset generation from images or text |\n\nPlus utility tools:\n\n| Tool | What it does |\n| --- | --- |\n| `faktry_job_status` | Poll an async job by `job_id` until it's `completed`, returning `result_url` |\n| `faktry_credits` | Check credit balance and current-month usage |\n| `faktry_library_list` | Browse previously saved media assets |\n| `faktry_library_save` | Save a result URL to the library for reuse across sessions |\n\n### The async job pattern\n\nMost generation tools (video, some image/audio) are async:\n\n1. Call the generation tool → receive a `job_id`.\n2. Poll `faktry_job_status` with that `job_id` every few seconds.\n3. When status is `completed`, the response contains `result_url`.\n4. Optionally persist it with `faktry_library_save`.\n\n---\n\n## Example prompts\n\nTry these once faktry is connected:\n\n```\nGenerate a studio product shot of a matte black wireless speaker on a\nwhite background, then upscale it to 4K.\n```\n\n```\nTurn this product image into a 9:16 UGC-style video with a voiceover\nreading the description, and add subtitles.\n```\n\n```\nRemove the background from this photo, then composite it onto a\ngradient backdrop.\n```\n\n```\nClone this voice sample and generate a 30-second narration reading\nthis script.\n```\n\n```\nCheck my faktry credits, then show me what's in my library.\n```\n\n---\n\n## Troubleshooting\n\n<details>\n<summary><strong>Tools don't appear after connecting</strong></summary>\n\n- **Claude.ai / Desktop:** Settings → Integrations (or Developer → MCP Servers), confirm faktry shows as connected. Remove and re-add if it failed silently — make sure pop-ups aren't blocked so the OAuth window can open.\n- **Claude Code:** `claude mcp list` should show the server.\n- **Codex:** `codex mcp list` should show `faktry`. Start a new session after adding.\n- Quick smoke test: ask your client *\"check my faktry credits\"*.\n\n</details>\n\n<details>\n<summary><strong>Authentication or API key errors</strong></summary>\n\n- For config-file clients, confirm `YOUR_API_KEY_HERE` was replaced with a real, active key from [faktry.ai/api/keys](https://faktry.ai/api/keys) — keys are shown only once at creation.\n- For OAuth clients, disconnect and reconnect the connector to redo the flow.\n\n</details>\n\n<details>\n<summary><strong>A generation keeps loading</strong></summary>\n\nVideo renders and some audio/image jobs take longer than a plain image generation. The tool returns a pending `job_id` immediately — keep polling `faktry_job_status` until it reports `completed`.\n\n</details>\n\n---\n\n## Links\n\n- **MCP setup UI** — [faktry.ai/mcp](https://faktry.ai/mcp)\n- **API keys** — [faktry.ai/api/keys](https://faktry.ai/api/keys)\n- **faktry** — [faktry.ai](https://faktry.ai)\n\n---\n\n## License\n\n[MIT](./LICENSE) © faktry\n",
+  "status": "curated"
+}

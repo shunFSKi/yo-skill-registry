@@ -1,0 +1,89 @@
+{
+  "id": "mcp:official/io.github.ianderso/contentdm-mcp",
+  "type": "mcp",
+  "name": "CONTENTdm State Archives",
+  "description": "Search US state archives' record images on CONTENTdm; read items, pages and transcripts.",
+  "author": "io.github.ianderso",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/ianderso/contentdm-mcp",
+    "repo": "ianderso/contentdm-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "contentdm-mcp"
+    ],
+    "env": [
+      {
+        "name": "CONTENTDM_CACHE_DIR",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "CONTENTDM_TIMEOUT",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "CONTENTDM_MIN_INTERVAL",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "CONTENTDM_CONTACT",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "CONTENTDM_EXTRA_INSTANCES",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "CONTENTDM_DOWNLOAD_DIR",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-10-06T20:17:27.795006Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "设计",
+    "featured": false
+  },
+  "readme": "# contentdm-mcp\n\n[![CI](https://github.com/ianderso/contentdm-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/ianderso/contentdm-mcp/actions/workflows/ci.yml)\n[![PyPI](https://img.shields.io/pypi/v/contentdm-mcp)](https://pypi.org/project/contentdm-mcp/)\n\n<!-- mcp-name: io.github.ianderso/contentdm-mcp -->\n\nAn [MCP](https://modelcontextprotocol.io) server for the **record images\nthat US state archives and state libraries publish on CONTENTdm**: death\ncertificates and their annual indexes, Confederate pension files, voter\nregisters, prison registers, county court and estate papers, letters and\ndiaries, with whatever transcript or OCR text the institution added.\n\n[CONTENTdm](https://www.oclc.org/en/contentdm.html) is OCLC's hosted\ndigital-collections platform. The Alabama Department of Archives and History,\nthe Georgia Archives' Virtual Vault, the Tennessee State Library and Archives,\nOhio Memory, the Illinois Digital Archives, the Indiana State Library,\nMissouri Digital Heritage and many more run on it, and every one of them\nanswers the same keyless JSON API and IIIF image service. The server ships a\ncurated list of those sites, searches one or several of them at once, reads\nan item and its pages, and downloads a page image to read.\n\nIt works the way a careful genealogist does. **The page image is the\nevidence.** A transcript or OCR text is a lead that says which page to read,\nand an index card is a finding aid to the record behind it. Every result\ncarries the holding institution's item address and a citation core\n(institution, collection, title, identifier, address), because the item page\nis what gets cited, not this server.\n\nNothing here writes anywhere, and nothing here keeps a family tree. It sits\nwell beside [dpla-catalog-mcp](https://github.com/ianderso/dpla-catalog-mcp),\nwhich finds an item across hundreds of collections and hands you the\ninstitution's address (`get_item` takes that address directly), and\n[nara-catalog-mcp](https://github.com/ianderso/nara-catalog-mcp) for federal\nrecords.\n\nThis is an independent project. It is not affiliated with, endorsed by, or\nsupported by OCLC or any of the institutions whose sites it reads.\n\n## Tools\n\nThe server publishes eight tools. All but `get_image` are read-only;\n`get_image` writes one new file and never overwrites one.\n\n**Finding**\n\n| Tool | Purpose |\n| --- | --- |\n| `list_instances` | The curated sites: who runs each, what it holds for a genealogist, any reuse terms, and the day it was checked. Sites that have left CONTENTdm are listed with where they went. Makes no request. |\n| `list_collections` | A site's collections and the alias each is searched by. |\n| `get_collection` | One collection's fields: what `search` can name in `field`, and which field holds the transcript or OCR text. |\n| `search` | Search one site, or several side by side. Says which sites answered, failed or timed out, so a negative is bounded. `page_hits` returns the page inside a volume where a text match sits. |\n\n**Reading**\n\n| Tool | Purpose |\n| --- | --- |\n| `get_item` | One item: metadata, transcript or OCR text, the institution's own \"cite as\" line and rights statement, and the citation core. For a page, which object and page number it is. Takes an item address, such as DPLA's `isShownAt`, on a site it may reach. |\n| `get_pages` | A compound object's pages in order, with `query` to mark the pages that match. |\n| `get_image` | Download one page image through the site's IIIF service, sized to fit, including any page of a multi-page PDF. Saves a new `.jpg`, never a hidden file or one under `~/Library`. |\n| `cache_status` | This session's requests, by site, and cache use. Makes no request. |\n\n## The curated sites\n\n`list_instances` gives the whole list. On 2026-10-06, 18 sites answered, and 7\nentries record institutions that have left CONTENTdm, so a search can say\nwhere they went:\n\n| State | Site | Status |\n| --- | --- | --- |\n| AL | Alabama Department of Archives and History | supported |\n| AK | Alaska's Digital Archives | supported |\n| AR | Arkansas State Archives | supported |\n| CT | Connecticut State Library | supported |\n| DE | Delaware Division of Libraries, with the Delaware Public Archives | supported |\n| GA | Georgia Archives, Virtual Vault | supported |\n| IL | Illinois Digital Archives | supported |\n| IN | Indiana State Library (Indiana Memory); Ball State University | supported |\n| KY | Kentucky Digital Library | supported |\n| MO | Missouri Digital Heritage | supported |\n| ND | Digital Horizons | supported |\n| NM | New Mexico Digital Collections, with the State Records Center and Archives | supported |\n| NV | Nevada State Library, Archives and Public Records | supported |\n| OH | Ohio Memory | supported |\n| OK | Oklahoma Department of Libraries, with the Oklahoma State Archives | supported |\n| TN | Tennessee State Library and Archives (TeVA) | supported |\n| WA | Washington Rural Heritage | supported |\n| AZ | Arizona Memory Project | left CONTENTdm; behind a bot check |\n| ID, SD | State archives' digital collections | moved to Preservica |\n| MT | Montana Memory Project | moved to Recollect |\n| NC | State Archives of North Carolina | moved to Quartex |\n| PA | POWER Library | moved to Islandora |\n| WI | Wisconsin Historical Society | moved to its own site |\n\nAny other CONTENTdm site works too, at its `cdmNNNNN.contentdm.oclc.org`\naddress: pass `https://cdmNNNNN.contentdm.oclc.org` as `instance`. Every\nclassic site answers there, whatever its own domain, and the source of its\npages names the number (`\"cdmServerUrl\": \"serverNNNNN.contentdm.oclc.org\"`).\nThere are more than 675 of them, and no registry. To use a site by its own\ndomain, add it to `CONTENTDM_EXTRA_INSTANCES`; a tool argument cannot, for the\nreason under [Security](#security).\n\n## Setup\n\nYou need Python 3.11 or later and [uv](https://docs.astral.sh/uv/). There is\nno key to request.\n\n**Without cloning.** `uvx` fetches it from PyPI and runs it in one step:\n\n```bash\nuvx contentdm-mcp\n```\n\n**From a clone**, which is what you want if you will change it:\n\n```bash\ngit clone https://github.com/ianderso/contentdm-mcp\ncd contentdm-mcp\nuv sync\nuv run contentdm-mcp   # stdio server, usually launched by the client\n```\n\nEither way the server speaks MCP over stdio, so you will normally let an MCP\nclient start it rather than run it by hand.\n\n### Claude Desktop\n\n```json\n{\n  \"mcpServers\": {\n    \"contentdm\": {\n      \"command\": \"uvx\",\n      \"args\": [\"contentdm-mcp\"]\n    }\n  }\n}\n```\n\nA desktop app does not always inherit your shell's `PATH`. If the server fails\nto start because `uvx` cannot be found, give the full path that `which uvx`\nprints as the `command`.\n\n### Claude Code\n\n```bash\nclaude mcp add contentdm -- uvx contentdm-mcp\n```\n\n## Configuration\n\nNothing is required. A `.env` file in the directory the server starts in\nsupplies anything the environment does not; only that directory is read.\n\n| Variable | Meaning |\n| --- | --- |\n| `CONTENTDM_CACHE_DIR` | Response cache directory. Default `~/.cache/contentdm-mcp`. |\n| `CONTENTDM_TIMEOUT` | HTTP timeout in seconds for one request. Default 30. Image downloads get 120 to read. |\n| `CONTENTDM_MIN_INTERVAL` | Least seconds between two requests to one site. Default 1, and never below 0.5. |\n| `CONTENTDM_CONTACT` | An email address or URL added to the User-Agent, so an institution can reach you if your use causes trouble. Optional, and courteous. |\n| `CONTENTDM_EXTRA_INSTANCES` | More sites a tool may reach by their own domain: https base URLs separated by commas, or the absolute path of a YAML file whose entries are shaped like [`instances.yaml`](src/contentdm_mcp/instances.yaml)'s (only `base_url` is required). `list_instances` lists them; a search of every site leaves them out. |\n| `CONTENTDM_DOWNLOAD_DIR` | An existing folder. When set, `get_image` saves only inside it. Set it to save into an iCloud Drive folder, which lives under `~/Library`. |\n\nAn unusable value is reported on the first tool call as a `not_configured`\nresult naming the variable.\n\n## Being a good guest\n\nEach site is one institution's server. The client sends one request at a time\nto each site, at least a second apart; a search across several sites runs\nthem side by side, six at a time, so no site sees more than one caller. Two\nidentical calls in flight share one request. Collection lists and field\ndefinitions are cached for 30 days, items for 7, searches for a day. A 429, a\n5xx or a dropped connection gets one retry, honouring `Retry-After`. The\nUser-Agent names the package, its version and this repository.\n\n`robots.txt` on these sites disallows the website's search pages, not the\nAPI this server uses. Each institution's own terms govern what you do with\nits images: `list_instances` and `get_item` pass on what the sites say, and\nseveral ask for permission before publication.\n\n## How to read what comes back\n\n- **A search is only as wide as `answered`.** `failed`, `timed_out` and\n  `not_searched` list the sites a negative does not cover. A site that\n  redirects, asks for a bot check or lists no collections has usually moved.\n- **Search covers metadata and text fields, never the image.** Many record\n  images have no text at all, so a name can be on a page that no search finds.\n  Browse by collection, or by the index volume, instead.\n- **A compound object's text is on its pages.** Volumes, files and newspaper\n  issues are compound objects; their own transcript field is usually empty.\n  Use `page_hits=true`, or `get_pages` with a `query`, to find the page.\n- **Field names are per collection.** \"Name of Father\" is `namea` in one\n  collection and `father` in another. `get_collection` says which nick holds\n  what, and which field is the transcript: that is marked by type, because\n  the name differs from site to site.\n- **\"Transcript\" can be machine OCR.** The Tennessee vital-records indexes\n  carry OCR under that label. Read the image.\n- **`exact` is a phrase search** (the words together, in order), not\n  whole-field equality. `all` needs every word, `any` one of them.\n- **A PDF item can hold many pages.** Its IIIF image shows the first;\n  `get_image` with `pdf_page` reaches the others.\n- **`page` is a position in the object,** counted from 1, not the number\n  printed on the scan: the entry for Sgt. Alvin C. York is on page 461 of\n  volume 8 of Tennessee's 1960-1964 death index, a scan named `54784_460` and\n  stamped 457. Cite the printed number too when it differs.\n- **Cite the item page.** Use the `citation` each result carries, and the\n  institution's own `cite_as` line where `get_item` finds one (Georgia,\n  Oklahoma and Alaska items have them). Record the identifier\n  (`alias:pointer`) so the item can be found again.\n\n## Deliberately not here\n\n- **Writing to any site.** CONTENTdm's write functions need a staff login.\n- **Sites on other platforms.** The new CONTENTdm (launched 2026-09-22) has\n  no published public API, and Quartex's is undocumented. The tools speak to\n  an adapter layer, so either can be added without changing them; see\n  [docs/DESIGN.md](docs/DESIGN.md).\n- **Working around bot checks.** A site that answers with a challenge is\n  reported as blocked and left alone.\n\n## Security\n\nTool arguments are written by a model, and the model reads text this server\ndoes not control: titles, transcripts, DPLA records, web pages. The server\nassumes that text can steer the model, and limits what a steered model can\nmake it do.\n\n- **Which hosts.** A tool reaches the curated sites, any address under\n  `contentdm.oclc.org` (OCLC's own servers), and the sites you list in\n  `CONTENTDM_EXTRA_INSTANCES`. Any other host is refused before it is even\n  looked up, because a DNS query for `secret.attacker.example` would already\n  deliver the name; the refusal says how to reach the site instead.\n- **Which addresses.** Each connection is checked where it is made: a name\n  that leads to a private, loopback, link-local, CGNAT, multicast, reserved or\n  unspecified address, IPv4 or IPv6, is refused, and the connection goes to\n  the address that was checked. Redirects are followed only between an\n  instance's own hosts, and are checked again. Proxy settings in the\n  environment are not used.\n- **How much.** A JSON answer over 10 MB, or an image over 60 MB, is refused\n  as it streams in.\n- **Which files.** `get_image` creates one new file and never overwrites one.\n  The bytes must be an image, judged by their first bytes rather than the\n  Content-Type, and of the format the file's suffix names: `.jpg` or `.jpeg`.\n  Never a hidden file or folder, never under `~/Library`, and with\n  `CONTENTDM_DOWNLOAD_DIR` set, never outside it, all judged after links are\n  resolved. A refused download leaves nothing on disk.\n- **Arguments are validated** (collection aliases, field nicks, numeric\n  pointers) before they reach a request, and search words are stripped of the\n  API's own syntax characters.\n- **Site text is untrusted.** Titles, descriptions and transcripts reach the\n  model verbatim. The server's instructions tell the model to treat that text\n  as material to weigh, never as instructions; the model still decides, so\n  review what it proposes to do.\n\nTo report a vulnerability, see [SECURITY.md](SECURITY.md).\n\n## Development\n\n```bash\nuv sync --extra dev\nuv run pytest                      # mocked with respx; never touches a site\nuv run ruff check .\nuv run ruff format --check .\nuv run python -m tests.live_check  # paced calls to the live sites\n```\n\nThe live check asks the sites what the recorded fixtures cannot: whether\ntheir answers still have the shape the server reads, and whether every\ncurated site still answers. See [CONTRIBUTING.md](CONTRIBUTING.md) for how the\nsuite is organised, [docs/API-NOTES.md](docs/API-NOTES.md) for what was\nobserved of the API and when, and [docs/DESIGN.md](docs/DESIGN.md) for why the\nserver is shaped this way.\n\n## Credits\n\nThe images and descriptions belong to the institutions that publish them.\nCONTENTdm is a product of [OCLC](https://www.oclc.org).\n\n## License\n\n[MIT](LICENSE).\n",
+  "status": "curated"
+}

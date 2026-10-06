@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/io.github.DaimyoVegan/xrplme-paid",
+  "type": "mcp",
+  "name": "XRPLME Country Intelligence",
+  "description": "Source-backed country policy data for AI agents; pay-per-call via x402 (XRP or USDC).",
+  "author": "io.github.DaimyoVegan",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/DaimyoVegan/xrplme-mcp-client",
+    "repo": "DaimyoVegan/xrplme-mcp-client"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://api.xrplme.online/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-10-06T20:07:43.535663Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "金融",
+    "featured": false
+  },
+  "readme": "[![Listed on mcpservers.org](https://mcpservers.org/badge.svg)](https://mcpservers.org/servers/daimyovegan/xrplme-mcp-client)\n\n\n# xrplme-mcp-client\n\n> **Status: LIVE.** The MCP server is publicly available at\n> `https://api.xrplme.online/mcp` — anonymous, no token required for the free\n> discovery tier. Premium country routes settle per query via **x402** on the\n> XRP Ledger.\n\nExample clients and integration guides for the **XRPLME Country Data** MCP server —\n30-country economic and policy data for AI agents, with a free discovery tier and\nx402 pay-per-query premium routes.\n\n---\n\n## What this is\n\nAI agents are good at reasoning and bad at *access*. Reliable, current, per-country\neconomic data (GDP, inflation, unemployment, trade, policy) is scattered across\ndozens of national statistics offices, central banks and multilateral databases —\neach with its own format, cadence and availability. Agents that need it end up\neither scraping fragile HTML or reasoning from stale training data.\n\nXRPLME exposes that data as a **Model Context Protocol (MCP) server**, so any\nMCP-capable client (Claude Desktop, Cursor, custom agents) can query it as a\nfirst-class tool. Payments for premium routes use **x402** — HTTP-native,\npay-per-query, settled on the XRP Ledger. No accounts, no API-key sales.\n\n- **Transport:** streamable HTTP\n- **Endpoint:** `https://api.xrplme.online/mcp` *(live, anonymous)*\n- **Coverage:** 30 countries\n- **Auth:** none for the free discovery tier\n- **Premium:** x402, 0.1–0.5 XRP per query\n\n---\n\n## Quickstart\n\n### 1. Point a client at the server\n\nNo token needed. The fastest path is `mcp-remote`, which lets any stdio-only MCP\nclient talk to a remote HTTP server:\n\n```json\n{\n  \"mcpServers\": {\n    \"xrplme-country-data\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"mcp-remote\", \"https://api.xrplme.online/mcp\"]\n    }\n  }\n}\n```\n\nSee [`examples/`](./examples) for Claude Desktop / Cursor, Python and Node clients.\n\n### 2. Ask a question\n\n> \"Using the xrplme tools, compare inflation and unemployment for Thailand,\n> Vietnam and Indonesia over the last available year.\"\n\nThe agent calls `xrplme_get_country_data` under the hood and answers with cited,\ntimestamped figures.\n\n---\n\n## Available surface\n\n**Resources** (read-only, addressable):\n\n| URI | Returns |\n|---|---|\n| `xrplme://countries` | The 30 supported country slugs |\n| `xrplme://status` | Coverage status + data freshness per country |\n\n**Tools** (8, all read-only except the optional survey submit):\n\n| Tool | Purpose |\n|---|---|\n| `xrplme_list_countries` | Enumerate the 30 slugs, with freshness state |\n| `xrplme_get_country_status` | Per-country freshness + availability status |\n| `xrplme_get_pricing` | Pricing lookup (no upstream call) |\n| `xrplme_get_country_data` | Fetch a country's latest validated records |\n| `xrplme_get_country_schema` | Record schema for a country |\n| `xrplme_get_survey_questions` | Retrieve the data-quality survey questions |\n| `xrplme_submit_survey` | Submit survey responses |\n| `xrplme_get_survey_stats` | Aggregate survey statistics |\n\nEvery response carries freshness metadata: `age_hours`, `state`\n(`fresh` / `overdue` / `stale_beyond_max`), and `scraped_at`. Data is refreshed\ndaily; `state` tells you whether you are looking at something recent.\n\n---\n\n## Paying with x402 (premium routes)\n\nSome routes return `402 Payment Required` with x402 headers. Your client pays in\nXRP and retries with proof-of-payment — no signup.\n\n```\nPOST /mcp → 402  (X402-Payment-Required, X402-Price, X402-Asset, X402-Payment-Address)\n         ↓ pay 0.1 XRP on XRPL\nPOST /mcp + X-PAYMENT-SIGNATURE + X-INV-ID → 200 OK\n```\n\nFull walkthrough: [`examples/x402_payment.py`](./examples/x402_payment.py).\n\n> The discovery tier is free and needs no payment. You only touch x402 for\n> premium country routes. Pricing is discoverable without paying via\n> `xrplme_get_pricing`.\n\n---\n\n## Examples\n\n| File | What it shows |\n|---|---|\n| [`examples/claude_desktop_config.json`](./examples/claude_desktop_config.json) | Claude Desktop / Cursor configuration |\n| [`examples/python_client.py`](./examples/python_client.py) | Python client via the MCP SDK |\n| [`examples/node_client.js`](./examples/node_client.js) | Node.js client |\n| [`examples/x402_payment.py`](./examples/x402_payment.py) | 402 → pay → retry flow |\n\nSee [`examples/README.md`](./examples/README.md) for per-example setup.\n\n---\n\n## Data coverage\n\n30 countries across APAC, Europe and the Americas. Each country's dataset is\nrefreshed daily from that country's own official government and financial\nsources, then validated before publication (a candidate dataset is only promoted\nif it meets a per-country quality threshold). `xrplme://status` reports the\ncurrent freshness state of every country.\n\n> **Freshness is explicit, never implied.** If a country's upstream source has\n> been unavailable, the server keeps serving the last validated dataset and\n> reports the real age — it does not silently substitute.\n\n---\n\n## License\n\nMIT — see [LICENSE](./LICENSE).\n\nThe data served comes from third-party public sources with their own terms and\nattribution requirements; consult the `source_url` on each record.\n\n---\n\n## Links\n\n- Website: https://xrplme.online\n- Developers: https://xrplme.online/developers\n- Issues: use this repository's issue tracker\n",
+  "status": "curated"
+}

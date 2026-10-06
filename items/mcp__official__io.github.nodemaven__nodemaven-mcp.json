@@ -1,0 +1,64 @@
+{
+  "id": "mcp:official/io.github.nodemaven/nodemaven-mcp",
+  "type": "mcp",
+  "name": "NodeMaven",
+  "description": "NodeMaven residential proxies: geo-targeted proxy URLs, sticky sessions, checks and usage",
+  "author": "io.github.nodemaven",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/nodemaven/nodemaven-mcp",
+    "repo": "nodemaven/nodemaven-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "pypi",
+    "command": "uvx",
+    "args": [
+      "nodemaven-mcp"
+    ],
+    "env": [
+      {
+        "name": "NODEMAVEN_APIKEY",
+        "required": true,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-10-06T17:57:19.022799Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": null,
+    "featured": false
+  },
+  "readme": "# nodemaven-mcp\n\nAn [MCP](https://modelcontextprotocol.io) server for [NodeMaven](https://nodemaven.com)\nresidential proxies. It lets an AI assistant build proxy strings with geo-targeting\nand sticky sessions, check that a proxy connects and where it exits, look up\nlocations, and read traffic usage.\n\nIt is read-only: nothing in your account is created, changed or deleted.\n\n<!-- mcp-name: io.github.nodemaven/nodemaven-mcp -->\n\n## Tools\n\n| Tool | What it does |\n|---|---|\n| `proxy_url` | Proxy string for a country, region, city or ISP, with an optional sticky session and its lifetime. HTTP or SOCKS5. |\n| `check_proxy` | Opens one connection through the proxy and returns the status, the exit IP and the time it took. |\n| `list_locations` | Countries, regions, cities and ISPs available for targeting, with the codes `proxy_url` takes. |\n| `account_status` | Remaining traffic, subscription status, whether traffic is frozen. |\n| `traffic_stats` | Traffic used over time. |\n| `top_domains` | Domains reached through the proxy, with traffic per domain. |\n| `list_sub_users` | Sub-users with their usage and limits. |\n\n## Setup\n\nYou need an API key from the NodeMaven dashboard. The proxy username and password are\nread from the account through that key, so nothing else is required.\n\nClaude Desktop (`claude_desktop_config.json`), Cursor and other MCP clients:\n\n```json\n{\n  \"mcpServers\": {\n    \"nodemaven\": {\n      \"command\": \"uvx\",\n      \"args\": [\"nodemaven-mcp\"],\n      \"env\": { \"NODEMAVEN_APIKEY\": \"your-api-key\" }\n    }\n  }\n}\n```\n\nWithout `uv`: `pip install nodemaven-mcp` and use `\"command\": \"nodemaven-mcp\"`.\n\n| Variable | |\n|---|---|\n| `NODEMAVEN_APIKEY` | Required. |\n| `NODEMAVEN_LOGIN`, `NODEMAVEN_PASSWORD` | Optional. Proxy credentials to use instead of the account's own, e.g. a sub-user. |\n| `NODEMAVEN_MCP_REVEAL_PASSWORD` | `1` puts the real password into `proxy_url` output. Off by default. |\n\n## Credentials\n\nTool results go into the model's context and usually into the chat history, so the\nserver keeps secrets out of them:\n\n- `proxy_url` returns the password as `<PROXY_PASSWORD>` unless\n  `NODEMAVEN_MCP_REVEAL_PASSWORD=1` is set.\n- API responses are reduced to a fixed list of fields; proxy passwords and the\n  account email are never returned.\n\n## Development\n\n```bash\nuv sync\nuv run pytest\n```\n\nBuilt on the [`nodemaven`](https://pypi.org/project/nodemaven/) Python SDK.\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

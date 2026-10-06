@@ -1,0 +1,70 @@
+{
+  "id": "mcp:official/io.github.subzeroid/lamatok-mcp",
+  "type": "mcp",
+  "name": "LamaTok",
+  "description": "TikTok data via LamaTok: profiles, videos, comments, followers, hashtags, search, downloads.",
+  "author": "io.github.subzeroid",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/subzeroid/lamatok-mcp",
+    "repo": "subzeroid/lamatok-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "lamatok-mcp"
+    ],
+    "env": [
+      {
+        "name": "LAMATOK_KEY",
+        "required": true,
+        "secret": true
+      },
+      {
+        "name": "LAMATOK_TOOLS",
+        "required": false,
+        "secret": false
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-10-06T18:11:23.243936Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "设计",
+    "featured": false
+  },
+  "readme": "# lamatok-mcp\n\n[![npm version](https://img.shields.io/npm/v/lamatok-mcp.svg)](https://www.npmjs.com/package/lamatok-mcp)\n[![npm downloads](https://img.shields.io/npm/dm/lamatok-mcp.svg)](https://www.npmjs.com/package/lamatok-mcp)\n[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)\n\nMCP server for [LamaTok](https://lamatok.com) — TikTok data API. Available on npm: [`lamatok-mcp`](https://www.npmjs.com/package/lamatok-mcp).\n\nGenerates MCP tools from the LamaTok OpenAPI spec at startup. Tools map 1:1 to REST endpoints (`GET /v1/user/by/username` → `get_v1_user_by_username`). By default you get a **core set of ~23 tools**, one per task, each with a description that tells the assistant when to use it; `LAMATOK_TOOLS=all` exposes every non-deprecated endpoint.\n\n## Get 100 Free API Requests\n\n**[Sign up with this link](https://lamatok.com/p/s6kl8mtn)** and get **100 free LamaTok requests** — no credit card required. Enough to wire up the MCP server, try a few prompts in Claude/Cursor/Codex, and evaluate the data quality before committing.\n\n> **[Get your free 100 requests here](https://lamatok.com/p/s6kl8mtn)**\n\n## Quick start\n\n1. Get an API key at [lamatok.com](https://lamatok.com).\n2. Add the server to your AI assistant.\n3. Ask your assistant something like:\n   - *\"Get the TikTok profile for @nasa.\"*\n   - *\"List the last 10 videos by user_id 6707206320333226502.\"*\n   - *\"Find recent TikTok videos for the hashtag `photography`.\"*\n\n### Claude Code\n\n```bash\nclaude mcp add lamatok -e LAMATOK_KEY=your-api-key -- npx -y lamatok-mcp\n```\n\n### Claude Desktop\n\nAdd to `claude_desktop_config.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"lamatok\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"lamatok-mcp\"],\n      \"env\": {\n        \"LAMATOK_KEY\": \"your-api-key\"\n      }\n    }\n  }\n}\n```\n\n### Cursor / Windsurf\n\nSame shape as Claude Desktop — put the block under `mcpServers` in the app's MCP config file.\n\n### Zed\n\nAdd to `~/.config/zed/settings.json`:\n\n```json\n{\n  \"context_servers\": {\n    \"lamatok\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"lamatok-mcp\"],\n      \"env\": {\n        \"LAMATOK_KEY\": \"your-api-key\"\n      }\n    }\n  }\n}\n```\n\n### OpenAI Codex\n\nAppend to `~/.codex/config.toml`:\n\n```toml\n[mcp_servers.lamatok]\ncommand = \"npx\"\nargs = [\"-y\", \"lamatok-mcp\"]\n\n[mcp_servers.lamatok.env]\nLAMATOK_KEY = \"your-api-key\"\n```\n\n## Tools\n\nTools are generated at startup from the live [LamaTok OpenAPI spec](https://api.lamatok.com/openapi.json). The default **core set** keeps one endpoint per task and drops version duplicates:\n\n| Group                 | Tools | Examples                                                                          |\n| --------------------- | ----- | --------------------------------------------------------------------------------- |\n| Profiles and audience | 12    | `get_v1_user_by_username`, `get_v2_user_medias_by_secUid`, `get_v1_user_followers_by_username` |\n| Videos and comments   | 4     | `get_v1_media_by_url`, `get_v1_media_by_id`, `get_v1_media_comments_by_id`        |\n| Download links        | 4     | `get_v1_media_video_download_by_url`, `get_v1_media_music_download_by_id`         |\n| Hashtags and search   | 3     | `get_v1_hashtag_info`, `get_v1_hashtag_medias`, `get_v2_search`                   |\n\nCore tools carry hand-written descriptions (what the tool does, when to prefer a sibling, pagination, billing) and every tool is annotated read-only. The list lives in [`src/curated.ts`](src/curated.ts).\n\nSet `LAMATOK_TOOLS=all` to expose every non-deprecated endpoint instead — same tool names as before, so existing prompts keep working. Tool names mirror their endpoint (`GET /v1/user/by/username` → `get_v1_user_by_username`); call `tools/list` over MCP for the current list with parameter schemas. `/sys`, `Legacy`, and `System` tag groups are excluded in both modes.\n\n## Configuration\n\n| Variable                     | Description                                                                    | Required |\n| ---------------------------- | ------------------------------------------------------------------------------ | -------- |\n| `LAMATOK_KEY`                | Your LamaTok access key (sent as `x-access-key` header)                        | yes      |\n| `LAMATOK_URL`                | Base URL. Default: `https://api.lamatok.com`                                   | no       |\n| `LAMATOK_SPEC_URL`           | OpenAPI spec URL. Default: `${LAMATOK_URL}/openapi.json`                       | no       |\n| `LAMATOK_TOOLS`              | `core` (default): curated set, one tool per task. `all`: every non-deprecated endpoint | no |\n| `LAMATOK_TAGS`               | Whitelist: only include operations with these tags (comma-separated)           | no       |\n| `LAMATOK_EXCLUDE_TAGS`       | Blacklist: additional tags to exclude (on top of `Legacy`, `System`, `/sys`)   | no       |\n| `LAMATOK_TIMEOUT_MS`         | Per-request timeout for API calls. Default: `30000`                            | no       |\n| `LAMATOK_SPEC_TIMEOUT_MS`    | Timeout for the startup spec fetch. Default: `60000`                           | no       |\n| `LAMATOK_SPEC_RETRY_DELAY_MS` | Base delay between the 3 startup spec fetch attempts. Default: `2000`        | no       |\n| `LAMATOK_MAX_RESPONSE_BYTES` | Max bytes read from each API response. Default: `10485760` (10 MB)             | no       |\n| `LAMATOK_MAX_SPEC_BYTES`     | Max bytes read from the OpenAPI spec. Default: `8388608` (8 MB)                | no       |\n\n`Legacy`, `System`, and `/sys` tags are excluded by default. Deprecated operations are also skipped.\n\nIf `LAMATOK_URL` points to a host other than `api.lamatok.com`, the server prints a warning on startup — your key will be sent there, so only use it for a self-hosted or proxied LamaTok.\n\nRequests are sent with `User-Agent: lamatok-mcp/<version>`.\n\n## How it works\n\n```\nAI Assistant ←stdio→ lamatok-mcp ──https──> api.lamatok.com\n                          │\n                          └─ fetches /openapi.json once on startup,\n                             builds one MCP tool per GET endpoint\n                             (core set by default)\n```\n\nTool arguments map to the endpoint's `query` and `path` parameters. The response body is returned as-is (JSON text). Non-2xx responses are surfaced as tool errors with the HTTP status and body.\n\n## Development\n\n```bash\ngit clone https://github.com/subzeroid/lamatok-mcp.git\ncd lamatok-mcp\nnpm install\nnpm run build\nLAMATOK_KEY=your-key node dist/index.js\n```\n\nRun in watch mode:\n\n```bash\nLAMATOK_KEY=your-key npm run dev\n```\n\nRun tests (unit + stdio smoke tests against a local mock server, no network/API key required):\n\n```bash\nnpm test\n```\n\n## License\n\nMIT\n",
+  "status": "curated"
+}

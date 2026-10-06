@@ -1,0 +1,54 @@
+{
+  "id": "mcp:official/pl.vanauto/campers",
+  "type": "mcp",
+  "name": "VanAuto Campers",
+  "description": "Search VanAuto camper and rental listings: specs, photos, prices, equipment, contacts.",
+  "author": "pl.vanauto",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/vanautoPL/vanauto_mcp",
+    "repo": "vanautoPL/vanauto_mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "remote",
+    "remote_url": "https://mcp.vanauto.pl/mcp"
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-10-06T17:23:14.012049Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "设计",
+    "featured": false
+  },
+  "readme": "# VanAuto Campers MCP\n\nRead-only MCP server that lets an AI client search and view VanAuto camper\nlistings, rentals and marketplace (akcesoria) offers. It talks to the public\nVanAuto API, so it needs no credentials and cannot change any data.\n\n**Public endpoint:** `https://mcp.vanauto.pl/mcp` (Streamable HTTP, no auth)\n**Health check:** `https://mcp.vanauto.pl/health` (uptime-checked every 6h via GitHub Actions)\n**MCP Registry:** [`pl.vanauto/campers`](https://registry.modelcontextprotocol.io/v0.1/servers?search=pl.vanauto/campers) — discoverable by registry-connected clients.\n\n## Tools\n\n| Tool | What it does |\n|---|---|\n| `search_campers` | Search active sale or rental listings with filters: text, make, model, camper type, fuel, gearbox, state, price, year, mileage, sleeping places, city; rentals also support availability dates. |\n| `get_camper_details` | Full details for one listing by slug (auto-detects sale vs rental) or a camper spec sheet by `cam_...` id: decoded specs, photos, equipment, contact and links. `includePhotos` attaches 400px thumbnails as real images so multimodal models can look at them. |\n| `analyze_camper_prices` | Market price stats for a cohort (min/max/avg/median/p25/p75, average by year) and, optionally, how one listing compares (percentile, deviation from median). |\n| `find_similar_campers` | Alternatives the platform suggests for a sale listing. |\n| `list_camper_makes` | All 200+ camper makes with active sale/rental counts, for resolving brand names. |\n| `list_camper_equipment` | The equipment catalog grouped by category. |\n| `get_camper_market_stats` | Current snapshot: active listing counts, campers by body type, makes with inventory. |\n| `get_rental_reviews` | Published customer reviews for a rental listing. |\n| `search_marketplace_listings` | Search marketplace accessories with text, manufacturer, category, condition, compatibility, price, location filters. |\n| `get_marketplace_listing_details` | Full accessory listing with seller info, shipping, photos, related offers. |\n| `get_marketplace_seller` | Seller profile: trust badges, ratings, reputation and active offers. |\n| `search_wanted_ads` | Marketplace wanted ads (buyers looking for parts/accessories). |\n\n## Prompts\n\nClients that support MCP prompts get one-click flows:\n\n| Prompt | What it does |\n|---|---|\n| `social-post` | Pulls the listing and writes a Polish Facebook/Instagram/OLX post with hashtags. |\n| `price-check` | Compares a listing against its market cohort and gives a Polish verdict on the price. |\n| `compare-campers` | Compares 2-4 listings side by side against buyer needs. |\n| `seo-description` | Rewrites a listing description as an SEO-friendly Polish text. |\n\nData is served in Polish (as on the site); prices are in PLN. Rental rows\ncarry `dailyRates` (per-period rates) rather than a single price.\n\n## Connect a client\n\n### Remote (hosted)\n\nOpenCode (`~/.config/opencode/opencode.json`):\n\n```json\n{\n  \"mcp\": {\n    \"vanauto-campers\": {\n      \"type\": \"remote\",\n      \"url\": \"https://mcp.vanauto.pl/mcp\",\n      \"enabled\": true\n    }\n  }\n}\n```\n\nClaude / ChatGPT: add `https://mcp.vanauto.pl/mcp` as a custom connector.\n\nClaude Desktop (older builds without native remote support):\n\n```json\n{\n  \"mcpServers\": {\n    \"vanauto-campers\": {\n      \"command\": \"npx\",\n      \"args\": [\"mcp-remote\", \"https://mcp.vanauto.pl/mcp\"]\n    }\n  }\n}\n```\n\n### Local (stdio)\n\nThe package is npm-ready as **`vanauto-mcp-campers`**. Once it is published:\n\n```sh\nnpx -y vanauto-mcp-campers\n```\n\nUntil then, run it from a checkout with an absolute path to `src/server.js` (see\n[`mcp.config.example.json`](./mcp.config.example.json)):\n\n```json\n{\n  \"mcpServers\": {\n    \"vanauto-campers\": {\n      \"command\": \"node\",\n      \"args\": [\"/path/to/mcp-campers/src/server.js\"],\n      \"env\": {\n        \"VANAUTO_API_URL\": \"https://api.vanauto.pl\",\n        \"VANAUTO_SITE_URL\": \"https://vanauto.pl\"\n      }\n    }\n  }\n}\n```\n\n## Configuration\n\n| Env var | Default | Purpose |\n|---|---|---|\n| `VANAUTO_API_URL` | `https://api.vanauto.pl` | API base URL. Point at `http://localhost:3000` to use a local Rails server. |\n| `VANAUTO_SITE_URL` | `https://vanauto.pl` | Frontend base URL used to build listing links. |\n\n## Development\n\n```sh\nnpm install\nnpm start            # stdio server\nnpm run dev          # local HTTP endpoint at http://127.0.0.1:8787/mcp (wrangler dev)\n```\n\n## Checks\n\n```sh\nnpm run check            # syntax check\nnpm run smoke            # live tool checks against the configured API\nnpm run smoke:protocol   # MCP handshake + tools/list + tools/call over stdio\nnpm run smoke:http       # same over HTTP: MCP_URL=https://mcp.vanauto.pl/mcp npm run smoke:http\nnpm run usage:report     # anonymous tool-usage report from D1 (last 30 days)\n```\n\n## Deployment\n\nThe server runs as a Cloudflare Worker (`src/worker.js`); the stdio entry\n(`src/server.js`) is for local clients. Both share the same tool factory in\n`src/app.js`.\n\n```sh\nnpx wrangler login       # once per machine\nnpx wrangler deploy      # deploys the Worker + mcp.vanauto.pl custom domain\n```\n\nPushes to `main` deploy automatically via\n`.github/workflows/deploy.yml`, which needs two repository secrets:\n\n| Secret | Value |\n|---|---|\n| `CLOUDFLARE_API_TOKEN` | API token with the **Edit Cloudflare Workers** template |\n| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare account id (Workers dashboard, right sidebar) |\n\nThe workflow runs `npm run smoke:http` against `https://mcp.vanauto.pl/mcp`\nafter each deploy.\n\n## MCP Registry\n\nThe server is published to the official MCP Registry as `pl.vanauto/campers`\n(namespace verified via a DNS TXT record on `vanauto.pl`). To publish a new\nversion after changing `server.json`:\n\n```sh\n# Signing key lives outside the repo, e.g. ~/.config/vanauto-mcp/registry-key.pem\nPRIVATE_KEY=\"$(openssl pkey -in ~/.config/vanauto-mcp/registry-key.pem -noout -text | grep -A3 'priv:' | tail -n +2 | tr -d ' :\\n')\"\nmcp-publisher login dns --domain vanauto.pl --private-key \"$PRIVATE_KEY\"\nmcp-publisher publish\n```\n\nKeep `version` in `server.json` in sync with `package.json`; the registry\nrejects duplicate versions.\n\n## Usage analytics\n\nThe deployed Worker writes one anonymous row per tool call to Cloudflare D1\n(`tool_events`): tool name, sanitized and truncated arguments, ok/error,\nduration, and a coarse client family parsed from the user agent (chatgpt,\nclaude, opencode, ...). **No IP addresses, tokens or user identifiers are\nstored.**\n\n```sh\nnpm run usage:report             # last 30 days\nnpm run usage:report -- --days 7\n```\n\nThe report shows call counts per tool, client families, rental vs sale\nsearches, and the most requested phrases, makes and camper types — useful\nmarket signal for what buyers ask AI about. Locally, `wrangler dev` writes\nevents to a local database instead of the live one.\n\n## Behaviour notes\n\n- **Read-only.** Every call is an HTTP GET against `/public/...`; there is no\n  database access and no auth token.\n- **One public surface.** Only `mcp.vanauto.pl` serves the MCP; the\n  `workers.dev` route is disabled so the zone rate-limit rule cannot be\n  bypassed.\n- **Caching.** Catalog endpoints (makes, equipment) are cached in-process for\n  an hour; searches and details for two minutes. The API itself also caches\n  responses. On Workers, each isolate has its own short-lived instance of that\n  cache.\n- **Pagination.** `search_campers` returns up to 50 rows plus a `nextCursor`;\n  pass it back as `after` for the next page. Marketplace search is page-based\n  (`page`, `perPage`).\n- **Truncation.** Long listing descriptions are trimmed (default 4000 chars,\n  `maxDescriptionChars` to change), so one call cannot flood a model's context.\n- **Photos.** Photo URLs are always included; `includePhotos` additionally\n  attaches up to 6 (default 3) 400px WebP thumbnails (~25 KB each) as MCP image\n  content for multimodal models.\n- Tool failures come back as `isError` results with a readable message, e.g. a\n  missing slug reports \"No active sale or rental listing found with slug ...\".\n",
+  "status": "curated"
+}

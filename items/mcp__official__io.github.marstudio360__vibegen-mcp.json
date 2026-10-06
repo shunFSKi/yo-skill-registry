@@ -1,0 +1,70 @@
+{
+  "id": "mcp:official/io.github.marstudio360/vibegen-mcp",
+  "type": "mcp",
+  "name": "VibeGen",
+  "description": "Lets your AI drive a live generative art studio: read the canvas, move knobs, switch engines.",
+  "author": "io.github.marstudio360",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/marstudio360/vibegen-mcp",
+    "repo": "marstudio360/vibegen-mcp"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "https://github.com/marstudio360/vibegen-mcp/releases/download/v1.0.1/vibegen-mcp-1.0.1.mcpb"
+    ],
+    "env": [
+      {
+        "name": "STUDIO_URL",
+        "required": false,
+        "secret": false
+      },
+      {
+        "name": "STUDIO_TOKEN",
+        "required": false,
+        "secret": true
+      }
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-10-06T17:44:11.760959Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "设计",
+    "featured": false
+  },
+  "readme": "# VibeGen MCP\n\nLets your AI drive a live generative art studio: read the canvas, move knobs, switch engines.\n\nVibeGen MCP connects your AI to a running VibeGen generative art studio over the studio's HTTP API. It reads the live canvas state and every parameter, moves sliders and switches engines in real time, briefly highlights the controls it is talking about, saves, lists, reads and applies presets as JSON files, and captures a PNG snapshot of the canvas so the AI can see what it made. It can also read an engine's source (GLSL or TypeScript) and write a new version that hot-reloads into the canvas.\n\nPoint it at the hosted studio (reached through vibedna.ai/studio) or at your own instance. The art renders in the browser, on your own GPU. What the studio allows depends on your studio tier: writing engine source needs a token that the studio accepts.\n\nHomepage: https://vibedna.ai/store/vibegen\n\n## Tools (12)\n\n| Tool | What it does |\n|---|---|\n| `get_state()` | Engine id, every parameter value, schema, applied recipe |\n| `set_params(params)` | Partial parameter update, applied live |\n| `set_engine(engine_id)` | Switch engine |\n| `highlight_params(keys)` | Briefly flash specific sliders |\n| `list_saves()` | List preset JSON files in the studio's saves folder |\n| `read_save(rel_path)` | Read one preset |\n| `write_save(rel_path, content)` | Write a preset |\n| `apply_save(rel_path)` | Load a preset into the live studio |\n| `read_engine_source(engine_id)` | Read an engine's source |\n| `write_engine_source(engine_id, code)` | Replace an engine's source; the studio hot-reloads it |\n| `snapshot_canvas(save_to, timeout_seconds)` | PNG capture of the live canvas |\n| `vibedna_info()` | What this MCP does and which studio it points at |\n\n## Install\n\n```bash\ngit clone https://github.com/marstudio360/vibegen-mcp\ncd vibegen-mcp\npip install -r requirements.txt\n```\n\nPython 3.11+.\n\n### Claude Code\n\n```bash\nclaude mcp add vibegen --scope user -e STUDIO_URL=http://localhost:3000 -- python /absolute/path/to/vibegen-mcp/server.py\n```\n\nOr in a project's `.mcp.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"vibegen\": {\n      \"command\": \"python\",\n      \"args\": [\"/absolute/path/to/vibegen-mcp/server.py\"],\n      \"env\": {\n        \"STUDIO_URL\": \"http://localhost:3000\",\n        \"STUDIO_TOKEN\": \"\"\n      }\n    }\n  }\n}\n```\n\n### Cursor\n\nAdd the same `mcpServers` block to `~/.cursor/mcp.json` (all projects) or `.cursor/mcp.json` (one project).\n\n### Claude Desktop\n\nAdd the same `mcpServers` block to `claude_desktop_config.json` (Settings > Developer > Edit Config), then restart Claude Desktop.\n\nThe shortest path for the hosted studio: open vibedna.ai/studio, click **Set up in your AI**, and drop the file it gives you into your AI chat. [INSTALL.md](./INSTALL.md) covers the manual path step by step.\n\n## Configuration\n\n| Variable | Default | What it does |\n|---|---|---|\n| `STUDIO_URL` | `http://localhost:3000` | The studio API host to drive |\n| `STUDIO_TOKEN` | (empty) | Sent as `x-studio-token`; needed only when the studio enforces one |\n\nTo watch the changes live, open the studio with `?remote=1` (for example `http://localhost:3000/?remote=1`).\n\n## Network\n\nEvery call goes to `STUDIO_URL` and nowhere else.\n\n## License\n\nMIT, see [LICENSE](./LICENSE). Copyright (c) 2026 VibeDNA.\n\nSupport: admin@vibedna.ai\n",
+  "status": "curated"
+}

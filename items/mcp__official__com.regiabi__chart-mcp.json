@@ -6,8 +6,8 @@
   "author": "com.regiabi",
   "source": {
     "registry": "mcp-official",
-    "url": "https://registry.modelcontextprotocol.io/v0/servers/com.regiabi%2Fchart-mcp",
-    "repo": null
+    "url": "https://github.com/codexguy/regiabi-plugins",
+    "repo": "codexguy/regiabi-plugins"
   },
   "license": null,
   "install": {
@@ -20,12 +20,12 @@
     "env": [
       {
         "name": "BIC_LICENSEE",
-        "required": true,
+        "required": false,
         "secret": false
       },
       {
         "name": "BIC_LICENSE_KEY",
-        "required": true,
+        "required": false,
         "secret": true
       },
       {
@@ -37,8 +37,8 @@
   },
   "quality": {
     "stars": null,
-    "pushed_at": "2026-10-04T14:24:39.832401Z",
-    "score": 42
+    "pushed_at": "2026-10-06T18:06:44.825075Z",
+    "score": 52
   },
   "security": {
     "score": 100,
@@ -70,6 +70,6 @@
     "category": "编程",
     "featured": false
   },
-  "readme": null,
+  "readme": "# RegiaBI charts: an MCP server and agent plugin\n\n**Chart code that fits your data first try, as source you own: you pay to author it, never to run it.**\n\nThis repository packages the RegiaBI chart MCP server (`com.regiabi/chart-mcp`, published on npm as\n[`@bicharts/chart-mcp`](https://www.npmjs.com/package/@bicharts/chart-mcp)) and its agent skill as a one-command\nplugin for Claude Code, GitHub Copilot CLI, Codex and Gemini CLI. It holds the plugin manifests, the pinned server\ncommand and the skill. The server itself is the npm package.\n\n## What it does\n\nGive your coding agent a table (a CSV, a dataframe, or a query result from a semantic model) and it gets back\nworking, interactive chart code that fits that data:\n\n- **It profiles your data locally.** Row counts, cardinalities, measures versus dimensions, dates, places. No data\n  leaves your machine for this step.\n- **It ranks about 90 chart types by what the data can honestly show,** using a server-side eligibility engine\n  rather than a guess, so a map is only offered when there are places to map and a sankey only when there are flows.\n- **It returns verified source you own:** D3 for JavaScript and TypeScript projects, Plotly or matplotlib for\n  Python. The code has already passed render checks. It needs no license, no account and no connection to us to\n  run, deploy or ship, for any number of viewers.\n\nThe tools:\n\n| Tool | What it's for |\n| --- | --- |\n| `assess_data_shape` | Profiles a table locally. Free, and needs no account. |\n| `list_eligible_charts` | The authoritative list of chart types that fit this data, ranked for your project's language. |\n| `suggest_charts` | For a Microsoft Fabric App over a semantic model: finds the model's natural views and what fits each, in one call. |\n| `generate_chart` | Writes the chart: code, data and wiring for [`@bicharts/chart-host`](https://github.com/codexguy/bicharts) (open source), into your project. |\n\n## Install\n\n### Claude Code\n\n```text\n/plugin marketplace add codexguy/regiabi-plugins\n/plugin install regiabi-charts@regiabi\n```\n\n### GitHub Copilot CLI\n\n```text\ncopilot plugin marketplace add codexguy/regiabi-plugins\ncopilot plugin install regiabi-charts@regiabi\n```\n\n### Codex\n\n```text\ncodex plugin marketplace add codexguy/regiabi-plugins\n```\n\nThen install RegiaBI charts from the Plugins Directory.\n\n### Gemini CLI\n\n```text\ngemini extensions install https://github.com/codexguy/regiabi-plugins\n```\n\n### Any other MCP client\n\nVS Code, Cursor, Claude Desktop and any other MCP client can run the server directly:\n\n```json\n{\n  \"mcpServers\": {\n    \"bic-chart\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@bicharts/chart-mcp\"]\n    }\n  }\n}\n```\n\n## Configure\n\nNothing, usually. Writing a chart needs a RegiaBI account; running a chart you've already generated needs nothing.\n\n**Sign in when it asks.** The first time your agent calls a tool that needs an account, the server opens your\nbrowser at bizintelligencechampions.com. Sign in, or create a free account (it comes with a free trial), and click\n**Allow**. The call your agent made then finishes by itself. The server keeps the sign-in in `~/.bic/oauth.json`\nand renews it on its own, and you can sign a device out at any time from your account page.\n\n**Or use a license key** (a machine with no browser, CI, a container). Leave sign-in alone and give the server\nyour account's credentials instead, in one of two ways:\n\n- **When the plugin asks** (Claude Code prompts on install and keeps the key in your system's secure credential\n  store), or as environment variables on the server: `BIC_LICENSEE` and `BIC_LICENSE_KEY`, plus `BIC_SECRET_KEY`\n  if your account uses one.\n- **A credentials file**, so no secret ever sits in a project's committed config. Put this in\n  `~/.bic/credentials.json` (or point `BIC_CREDENTIALS_FILE` at another path):\n\n  ```json\n  { \"licensee\": \"...\", \"licenseKey\": \"...\" }\n  ```\n\nA key, when one is set, always wins over a sign-in. Leave the plugin's fields blank to sign in instead.\n\n## Use\n\nAsk your agent for the chart you want, in plain words, in the project you want it in. For example:\n\n> *Assess the shape of ./sales.csv, tell me which charts fit it, then generate the best one into ./charts.*\n\nThe agent profiles the file, asks the server which chart types fit, and writes the chart's code and data into\n`./charts`, ready to import. The skill this plugin installs walks the agent through the rest: wiring\ncross-filtering between charts, sizing and theming are the host library's job, so the agent doesn't write them.\n\n**Building a Microsoft Fabric App?** Scaffold it from Rayfin's data app template, then ask your agent which charts\nsuit your semantic model. `suggest_charts` answers from the model's own numbers.\n\n## What it runs, sends and fetches\n\n- **Signing in** opens your browser at `bizintelligencechampions.com` once; the server then keeps an access token and a\n  refresh token in `~/.bic/oauth.json` (readable only by you) and sends the access token with each call to the service.\n- **It runs** one local process: `npx -y @bicharts/chart-mcp@<version>`, the exact version the plugin pins. npm\n  downloads that package from the public npm registry the first time.\n- **`assess_data_shape` sends nothing.** It profiles your data on your machine.\n- **`list_eligible_charts`, `suggest_charts` and `generate_chart` call the RegiaBI service** at\n  `bizintelligencechampions.com` with your account's credentials and a profile of your table: column names, types,\n  counts and summary statistics. By default no rows are sent; a `privacy_level` argument can send less (names\n  only) or more (obfuscated sample rows). `suggest_charts` queries your semantic model through your Fabric App\n  project's own `fabric-app-data` CLI, signed in as you, and sends the service the same kind of profile.\n- **It writes** the generated chart code and its data into the folder you ask for, and nowhere else.\n- **Telemetry:** a usage counter per service call (the tool's name, the server's version and a random value), one\n  row when `generate_chart` hands code over (the call's duration, the row count, the language and the server's\n  build) and one when a generation fails after the service answered. No data and no machine identity. Set `BIC_MCP_TELEMETRY=0` in the server's environment to turn it off.\n\n## Learn more\n\n- [RegiaBI for developers](https://bizintelligencechampions.com/regiabi/developers?loc=ghmcp): docs, examples and\n  live demos\n- [`@bicharts/chart-mcp` on npm](https://www.npmjs.com/package/@bicharts/chart-mcp): every tool's parameters and\n  results\n- [`@bicharts/chart-host`](https://github.com/codexguy/bicharts): the open-source library that runs the charts\n- [The official MCP Registry listing](https://registry.modelcontextprotocol.io/v0/servers/com.regiabi%2Fchart-mcp/versions/latest)\n\n## Support and terms\n\n- [Support](https://bizintelligencechampions.com/support)\n- The server and the service it calls are covered by the\n  [RegiaBI Programmatic Access Terms](https://bizintelligencechampions.com/terms-regiabi) and the\n  [privacy policy](https://bizintelligencechampions.com/privacy). The server's own license ships in its npm\n  package.\n- The files in this repository (the plugin manifests, the README and the skill) are under the MIT license in\n  [LICENSE](./LICENSE). They contain no server source.\n",
   "status": "curated"
 }

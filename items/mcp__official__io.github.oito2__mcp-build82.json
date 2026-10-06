@@ -1,0 +1,58 @@
+{
+  "id": "mcp:official/io.github.oito2/mcp-build82",
+  "type": "mcp",
+  "name": "build82",
+  "description": "MCP server for Moodle plugin development: structural context of a Moodle install for AI agents.",
+  "author": "io.github.oito2",
+  "source": {
+    "registry": "mcp-official",
+    "url": "https://github.com/oito2/mcp-build82",
+    "repo": "oito2/mcp-build82"
+  },
+  "license": null,
+  "install": {
+    "kind": "npm",
+    "command": "npx",
+    "args": [
+      "-y",
+      "https://github.com/oito2/mcp-build82/releases/download/v1.0.1/build82.mcpb"
+    ]
+  },
+  "quality": {
+    "stars": null,
+    "pushed_at": "2026-10-06T18:23:52.05107Z",
+    "score": 52
+  },
+  "security": {
+    "score": 100,
+    "scanned": true,
+    "checks": [
+      {
+        "name": "描述层注入",
+        "pass": true
+      },
+      {
+        "name": "敏感路径",
+        "pass": true
+      },
+      {
+        "name": "外部渗出",
+        "pass": true
+      },
+      {
+        "name": "危险执行",
+        "pass": true
+      },
+      {
+        "name": "配置风险",
+        "pass": true
+      }
+    ]
+  },
+  "tags": {
+    "category": "编程",
+    "featured": false
+  },
+  "readme": "# build82\n\n<p align=\"center\">\n  <img src=\"docs/img/github-header.png\" alt=\"build82 by OITO2 Labs — The MCP for Moodle Developers\" width=\"100%\">\n</p>\n\n[![CI](https://github.com/oito2/mcp-build82/actions/workflows/ci.yml/badge.svg)](https://github.com/oito2/mcp-build82/actions/workflows/ci.yml)\n[![Go Reference](https://pkg.go.dev/badge/github.com/oito2/mcp-build82.svg)](https://pkg.go.dev/github.com/oito2/mcp-build82)\n[![Go Version](https://img.shields.io/badge/Go-1.26%2B-00ADD8?logo=go&logoColor=white)](go.mod)\n[![Release](https://img.shields.io/github/v/release/oito2/mcp-build82?sort=semver)](https://github.com/oito2/mcp-build82/releases)\n[![License](https://img.shields.io/badge/License-GPL--3.0-blue.svg)](LICENSE)\n[![Code: AI-Assisted](https://img.shields.io/badge/Code-AI--Assisted-blueviolet)](#ai-usage-in-this-project)\n\n🌐 **Language:** English · [Português](docs/pt-br/leiame.md)\n\nAn MCP (Model Context Protocol) server that gives AI assistants structural understanding of a\nMoodle installation and its plugins, so they can answer questions about the codebase and build\nplugins that follow its real conventions. Distributed as a single static binary.\n\n## Table of Contents\n\n- [Overview](#overview)\n- [Prerequisites & Quick Installation](#prerequisites--quick-installation)\n- [Client Setup](#client-setup)\n- [Update & Maintenance](#update--maintenance)\n- [Documentation](#documentation)\n- [AI Usage in This Project](#ai-usage-in-this-project)\n- [License](#license)\n\n## Overview\n\nPoint build82 at a Moodle installation and it scans the codebase (version.php, `db/*.php`, XMLDB\nschemas, PHPDoc, hooks, tasks, capabilities, web services...) and generates a set of Markdown\ncontext files describing the installation and any plugin you're developing. An AI assistant\nconnected to it can then answer questions about the codebase, scaffold new plugins consistently\nwith existing conventions, and keep the docs in sync as you work.\n\n**Main features:**\n\n- **13 global indexes** of the installation — API index, DB tables, events, tasks, capabilities,\n  classes, web services, the plugin index and more.\n- **12 per-plugin context files** — architecture, dependencies, runtime flow, settings, and an\n  AI-ready summary.\n- **13 MCP tools, 3 MCP prompts and MCP resources** — generate context, search the API and\n  plugins, explain a plugin, diagnose the environment (`doctor`), package a plugin for release,\n  and create a new plugin skeleton.\n- **File watcher** that regenerates a dev plugin's context whenever its sources change.\n- **Two PHP extraction backends** — fast regex (default) or pure-Go tree-sitter.\n- **Clean output** — everything is written under `.build82/` (at the Moodle root and at each\n  plugin's root), never loose in the Moodle or plugin root.\n- **Native client registration** for 8 MCP clients, and a checksum-verified **self-update** with\n  rollback.\n\n## Prerequisites & Quick Installation\n\n**Prerequisites:**\n\n- A local Moodle installation (build82 reads its source tree).\n- An MCP client — see [Client Setup](#client-setup).\n- Optional: [`universal-ctags`](https://github.com/universal-ctags/ctags) on `PATH`, to also\n  generate a `.build82/tags` file for editor navigation.\n- Only to build from source: Go 1.26+.\n\n**Download a release binary** (no Go toolchain required). Every release ships a `checksums.txt` —\nverify it before trusting a downloaded binary. Full step-by-step guide with checksum verification\nand troubleshooting: [Installation Guide](docs/en/getting-started/installation.md).\n\n<details>\n<summary><strong>🐧 Linux</strong></summary>\n\n```bash\n# amd64\ncurl -LO https://github.com/oito2/mcp-build82/releases/latest/download/build82_linux_amd64\ncurl -LO https://github.com/oito2/mcp-build82/releases/latest/download/checksums.txt\nsha256sum -c checksums.txt --ignore-missing \\\n  && chmod +x build82_linux_amd64 \\\n  && sudo mv build82_linux_amd64 /usr/local/bin/build82\n\n# arm64\ncurl -LO https://github.com/oito2/mcp-build82/releases/latest/download/build82_linux_arm64\ncurl -LO https://github.com/oito2/mcp-build82/releases/latest/download/checksums.txt\nsha256sum -c checksums.txt --ignore-missing \\\n  && chmod +x build82_linux_arm64 \\\n  && sudo mv build82_linux_arm64 /usr/local/bin/build82\n\nbuild82 --version\n```\n\n</details>\n\n<details>\n<summary><strong>🍎 macOS</strong></summary>\n\nCheck your chip with `uname -m` (`arm64` = Apple Silicon, `x86_64` = Intel):\n\n```bash\n# Apple Silicon (M1/M2/M3/M4)\ncurl -LO https://github.com/oito2/mcp-build82/releases/latest/download/build82_darwin_arm64\ncurl -LO https://github.com/oito2/mcp-build82/releases/latest/download/checksums.txt\nshasum -a 256 -c checksums.txt --ignore-missing \\\n  && chmod +x build82_darwin_arm64 \\\n  && sudo mv build82_darwin_arm64 /usr/local/bin/build82\n\n# Intel\ncurl -LO https://github.com/oito2/mcp-build82/releases/latest/download/build82_darwin_amd64\ncurl -LO https://github.com/oito2/mcp-build82/releases/latest/download/checksums.txt\nshasum -a 256 -c checksums.txt --ignore-missing \\\n  && chmod +x build82_darwin_amd64 \\\n  && sudo mv build82_darwin_amd64 /usr/local/bin/build82\n```\n\nThe binary isn't notarized by Apple, so Gatekeeper will refuse to run it the first time — clear\nthe quarantine flag: `xattr -d com.apple.quarantine /usr/local/bin/build82`.\n\n</details>\n\n<details>\n<summary><strong>🪟 Windows</strong></summary>\n\n```powershell\nInvoke-WebRequest -Uri \"https://github.com/oito2/mcp-build82/releases/latest/download/build82_windows_amd64.exe\" -OutFile \"build82_windows_amd64.exe\"\nInvoke-WebRequest -Uri \"https://github.com/oito2/mcp-build82/releases/latest/download/checksums.txt\" -OutFile \"checksums.txt\"\nGet-FileHash .\\build82_windows_amd64.exe -Algorithm SHA256\n```\n\nCompare the printed `Hash` with the `build82_windows_amd64.exe` line in `checksums.txt`; continue\nonly if they match:\n\n```powershell\nUnblock-File .\\build82_windows_amd64.exe\nNew-Item -ItemType Directory -Force -Path \"$env:LOCALAPPDATA\\build82\"\nMove-Item -Force .\\build82_windows_amd64.exe \"$env:LOCALAPPDATA\\build82\\build82.exe\"\n[Environment]::SetEnvironmentVariable(\"Path\", \"$env:Path;$env:LOCALAPPDATA\\build82\", \"User\")\n```\n\nRestart your terminal and run `build82 --version` to confirm it's on your `PATH`.\nThe binary isn't code-signed; `Unblock-File` above keeps SmartScreen from blocking the first run\n(\"Windows protected your PC\") — if it still appears, click **More info → Run anyway**.\n\n</details>\n\n**Or build from source** (requires Go 1.26+):\n\n```bash\ngo install github.com/oito2/mcp-build82/cmd/build82@latest\n```\n\n## Client Setup\n\nRegister build82 as an MCP server in your AI tool:\n\n```bash\nbuild82 install [target]\n```\n\nIt detects which supported tools are installed and prompts for the Moodle path. Run it without a\ntarget to configure every tool found, or pass one explicitly: `claude` (Claude Code),\n`claude-desktop`, `antigravity`, `codex`, `opencode`, `cursor`, `zed`, `cline`.\n\nFor example, with Claude Code you can also register it manually:\n\n```bash\nclaude mcp add --scope user build82 -e BUILD82_MOODLE_PATH=/path/to/moodle -- /usr/local/bin/build82\n```\n\n**Claude Desktop** can also install build82 as a desktop extension: every release ships a\n`build82.mcpb` bundle with the binaries included — see\n[Claude Desktop](docs/en/guides/clients/claude-desktop.md#desktop-extension-mcpb). build82 is also\nlisted in the official MCP Registry as `io.github.oito2/mcp-build82`.\n\nPer-client guides, including manual configuration: [MCP Clients](docs/en/guides/clients/).\nTo remove it: `build82 uninstall [target]` — see [Uninstallation](docs/en/getting-started/uninstallation.md).\n\n## Update & Maintenance\n\n```bash\nbuild82 self-update --check    # report whether a newer release exists, without installing it\nbuild82 self-update            # download, verify, and install the latest release\nbuild82 self-update --rollback # restore the previous binary if the new version turns out to be broken\n```\n\nDownloads are checksum-verified against the release's `checksums.txt` and smoke-tested before the\nrunning binary is replaced; the previous binary is kept as `<path>.bak`, which `--rollback`\nrestores with an atomic rename. If no backup exists, it fails with a clear error and nothing is\nchanged.\n\n## Documentation\n\nThe full documentation site lives in [`docs/en/index.md`](docs/en/index.md) (also in\n[Portuguese](docs/pt-br/index.md)). Main entry points:\n\n- [Quickstart](docs/en/getting-started/quickstart.md) — first run in a few minutes\n- [Architecture](docs/en/concepts/architecture.md) — how build82 works, data flow and design decisions\n- [Tools](docs/en/reference/tools.md), [Resources](docs/en/reference/resources.md) and\n  [Prompts](docs/en/reference/prompts.md) reference — every MCP capability in detail\n- [CLI](docs/en/reference/cli.md) and [Configuration](docs/en/reference/configuration.md)\n  reference — every flag, environment variable and config key\n- [Example Prompts](docs/en/prompts.md) — what to ask your AI agent\n- [Guides](docs/en/guides/workflows/examples.md) and [Troubleshooting](docs/en/troubleshooting/common-issues.md)\n\nContributing: see [`CONTRIBUTING.md`](CONTRIBUTING.md) for the development workflow and release\nprocess, and the [Code of Conduct](CODE_OF_CONDUCT.md).\n\n## AI Usage in This Project\n\nThis project was developed with the assistance of generative AI tools:\n\n- **Scope:** Generation of boilerplate, unit tests and refactoring of helper functions.\n\n- **Oversight:** All generated code was manually reviewed, tested and validated before integration.\n\n## License\n\nGPL-3.0 — see [LICENSE](LICENSE).\n",
+  "status": "curated"
+}
